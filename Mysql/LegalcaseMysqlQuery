@@ -1,0 +1,552 @@
+
+ALTER TABLE `lead_additional_info` CHANGE `lead_status` `lead_status` INT(11) NULL COMMENT 'ref: lead_status->id';
+ALTER TABLE `case_notes` ADD `case_id` INT(11) NOT NULL AFTER `id`;
+
+
+CREATE VIEW `view_client_linked_state`  AS  select `users`.`id` AS `user_id`,(select count(0) from `case_client_selection` where (`case_client_selection`.`selected_user` = `users`.`id`)) AS `client_linked_with_case_counter` from `users` ;
+CREATE  VIEW `view_case_state`  AS  select `case_master`.`id` AS `id`,(select count(0) from `case_events` where (`case_master`.`id` = `case_events`.`case_id`)) AS `case_event_counter`,(select count(0) from `task` where (`case_master`.`id` = `task`.`case_id`)) AS `case_task_counter`,(select count(0) from `task_time_entry` where (`case_master`.`id` = `task_time_entry`.`case_id`)) AS `case_timeentry_counter`,(select count(0) from `expense_entry` where (`case_master`.`id` = `expense_entry`.`case_id`)) AS `case_expenseentry_counter`,(select count(0) from `case_notes` where (`case_master`.`id` = `case_notes`.`case_id`)) AS `case_note_counter`,(select count(0) from `invoices` where (`case_master`.`id` = `invoices`.`case_id`)) AS `case_invoice_counter` from `case_master` ;
+ALTER TABLE `case_notes` CHANGE `note_subject` `note_subject` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+
+ALTER TABLE `client_notes` ADD `case_id` INT(11) NULL AFTER `client_id`, ADD `company_id` INT(11) NULL AFTER `case_id`;
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `all_history` ADD `notes_for_case` INT(11) NULL AFTER `activity_for`, ADD `notes_for_client` INT(11) NULL AFTER `notes_for_case`, ADD `notes_for_company` INT(11) NULL AFTER `notes_for_client`;
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact','event') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `all_history` ADD `event_for_case` INT(11) NOT NULL AFTER `notes_for_company`, ADD `event_for_lead` INT(11) NOT NULL AFTER `event_for_case`;
+ALTER TABLE `all_history` ADD `event_id` INT(11) NULL AFTER `event_for_lead`;
+ALTER TABLE `all_history` CHANGE `event_for_case` `event_for_case` INT(11) NULL, CHANGE `event_for_lead` `event_for_lead` INT(11) NULL;
+ALTER TABLE `all_history` ADD `event_name` VARCHAR(1024) NULL AFTER `event_id`;
+ALTER TABLE `all_history` ADD `task_for_lead` INT(11) NULL AFTER `event_name`, ADD `task_for_case` INT(11) NULL AFTER `task_for_lead`, ADD `task_id` INT(11) NULL AFTER `task_for_case`;
+ALTER TABLE `all_history` ADD `task_name` VARCHAR(1024) NULL AFTER `task_id`;
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact','event','task') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none'; 
+ALTER TABLE `users` ADD `last_seen_at` DATETIME NULL AFTER `welcome_page_widget_is_display`;
+ALTER TABLE `users` ADD `sessionTime` INT(11) NOT NULL COMMENT 'in minutes' AFTER `last_seen_at`;
+ALTER TABLE `users` CHANGE `sessionTime` `sessionTime` INT(11) NOT NULL DEFAULT '15' COMMENT 'in minutes';
+UPDATE `users` SET `sessionTime` = '15';
+
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact','event','task','deposit') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `all_history` ADD `deposit_id` INT(11) NULL AFTER `task_name`;
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none';
+ALTER TABLE `all_history` ADD `deposit_for` INT(11) NULL AFTER `deposit_id`;
+
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none';
+ALTER TABLE `all_history` ADD `document_id` INT(11) NULL AFTER `deposit_for`;
+
+DROP TABLE IF EXISTS `document_master`;
+CREATE TABLE IF NOT EXISTS `document_master` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `case_id` int(11) DEFAULT NULL,
+  `document_name` text COLLATE utf8mb4_unicode_ci,
+  `firm_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+COMMIT;
+
+ALTER TABLE `case_client_selection` ADD `updated_by` INT(11) NULL AFTER `updated_at`;
+
+ALTER TABLE `case_master` ADD `firm_id` INT(11) NULL AFTER `is_entry_done`;
+ALTER TABLE `users` ADD `started_tips` ENUM('on','off') NULL AFTER `sessionTime`, ADD `auto_logout` ENUM('on','off') NULL AFTER `started_tips`, ADD `dont_logout_while_timer_runnig` ENUM('on','off') NULL AFTER `auto_logout`;
+
+
+DROP TABLE IF EXISTS `user_preferance_reminder`;
+CREATE TABLE IF NOT EXISTS `user_preferance_reminder` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `reminder_type` enum('popup','email') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reminer_number` int(11) DEFAULT NULL,
+  `type` enum('task','event') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reminder_frequncy` enum('minute','hour','day','week') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `users` ADD `is_published` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `profile_image`;
+ALTER TABLE `client_group` ADD `firm_id` INT(11) NULL AFTER `status`;
+ALTER TABLE `intake_form` ADD `form_type` ENUM('0','1') NOT NULL DEFAULT '0' COMMENT '0: regular 1:Contact us' AFTER `firm_name`;
+ALTER TABLE `case_intake_form_fields_data` ADD `form_type` ENUM('contact','normal') NOT NULL DEFAULT 'normal' AFTER `form_value`;
+ALTER TABLE `case_intake_form_fields_data` ADD `firm_id` INT(11) NULL AFTER `form_type`;
+
+DROP TABLE IF EXISTS `online_lead_submit`;
+CREATE TABLE IF NOT EXISTS `online_lead_submit` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `intake_form_id` int(11) NOT NULL COMMENT 'ref : case_intake_form->intake_form_id',
+  `email` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_name` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `middle_name` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firm_id` int(11) DEFAULT NULL,
+  `case_intake_form_fields_data_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `online_lead_submit` ADD `unique_token` VARCHAR(512) NULL AFTER `case_intake_form_fields_data_id`;
+ALTER TABLE `intake_form_fields` ADD `extra_value` TEXT NULL AFTER `is_required`;
+ALTER TABLE `intake_form` ADD `domain_url` VARCHAR(512) NULL AFTER `form_type`;
+
+ALTER TABLE `users` ADD `contact_us_widget` ENUM('yes','no') NOT NULL DEFAULT 'yes' AFTER `dont_logout_while_timer_runnig`;
+
+ALTER TABLE `intake_form` ADD `send_confimation_mail` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `domain_url`;
+ALTER TABLE `case_intake_form_fields_data` ADD `online_lead_id` INT(11) NULL AFTER `firm_id`;
+ALTER TABLE `case_intake_form` ADD `client_id` INT(11) NULL AFTER `lead_id`, ADD `case_id` INT(11) NULL AFTER `client_id`;
+ALTER TABLE `case_intake_form_fields_data` ADD `case_intake_form_token` VARCHAR(512) NULL AFTER `online_lead_id`;
+
+
+DROP TABLE IF EXISTS `client_company_import`;
+CREATE TABLE IF NOT EXISTS `client_company_import` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_record` int(11) DEFAULT NULL,
+  `total_imported` int(11) DEFAULT NULL,
+  `status` enum('1','2','3') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '1: Completed 2: Error  3: Undo',
+  `flat_fees` decimal(11,2) NOT NULL,
+  `firm_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `client_company_import` ADD `file_type` ENUM('1','2') NOT NULL DEFAULT '1' COMMENT '1: vCard (.vcf) 2: Outlook (.csv) ' AFTER `file_name`;
+
+ALTER TABLE `client_company_import` ADD `total_warning` INT(11) NULL AFTER `total_imported`;
+ALTER TABLE `client_company_import` CHANGE `total_warning` `total_warning` INT(11) NULL DEFAULT '0';
+UPDATE `client_company_import` SET `total_warning` = '0';
+ALTER TABLE `client_company_import_history` ADD `full_name` VARCHAR(512) NULL AFTER `client_company_import_id`, ADD `company_name` VARCHAR(255) NULL AFTER `full_name`, ADD `email` VARCHAR(512) NULL AFTER `company_name`, ADD `contact_group` VARCHAR(255) NULL AFTER `email`, ADD `outstanding_amount` VARCHAR(255) NULL AFTER `contact_group`;
+ALTER TABLE `client_company_import_history` ADD `warning_list` TEXT NULL AFTER `outstanding_amount`;
+
+ALTER TABLE `users` ADD `bulk_id` INT(11) NULL AFTER `contact_us_widget`;
+
+
+//Email  template record no :18 & 19 updated 
+ALTER TABLE `intake_form` ADD `authorised_domain` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `domain_url`;
+
+ALTER TABLE `client_company_import` ADD `error_code` TEXT NULL AFTER `firm_id`;
+
+ALTER TABLE `expense_entry` ADD `token_id` VARCHAR(255) NULL AFTER `remove_from_current_invoice`;
+ALTER TABLE `task_time_entry` ADD `token_id` VARCHAR(255) NULL AFTER `remove_from_current_invoice`;
+
+INSERT INTO `email_template` (`id`, `title`, `subject`, `content`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+(20, 'Share Invoice with client', 'Share Invoice with client', '\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title>Legalcase : Welcome Email</title>\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">  \r\n	<link href=\"https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700\" rel=\"stylesheet\">\r\n</head>\r\n<body style=\"font-family: Source Sans Pro, sans-serif;color: #1c2224;margin: 0;padding: 0;box-sizing: border-box;\" data-gr-c-s-loaded=\"true\">\r\n    <table style=\"border-collapse:collapse;margin:auto;max-width: 600px;background: #fcfcfc;font-family: Source Sans Pro, sans-serif;color: #1c2224;\">\r\n        <tr style=\"background: #DCDCDC;\">\r\n			<td style=\"text-align:center;height: auto;font-size: 24px; font-weight: 600;color:#ffffff;\">\r\n				<a href=\"{EmailLinkOnLogo}\" style=\"text-decoration: none;\" target=\"_blank\">\r\n					<img src=\"{EmailLogo1}\"  style=\"display: inline-block;vertical-align: middle;width: 100px;height: 100px;\">\r\n				</a>\r\n			</td>\r\n        </tr>\r\n        <tr>\r\n            <td colspan=\"2\" style=\"color: #1c2224;padding: 45px 25px 25px;font-size: 16px;\">Hi {name}<br>\r\n			You have been sent an invoice.\r\n </td>\r\n        </tr>\r\n		<tr>\r\n            <td colspan=\"2\" style=\"text-align: center;padding-top: 0px;padding-bottom: 0px;\">\r\n               <a href=\"{token}\" style=\"width: auto;height: 55px;background-color: #663399;font-size: 18px;color: #ffffff;line-height: 54px;display: inline-block;font-weight: 600;text-align: center;text-decoration: none;border-radius: 6px !important;padding: 0 10px 0 10px\">View Invoice</a>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\"><b>View your invoice online in just a few clicks.</b> </td>\r\n        </tr>\r\n		\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n	\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               Thanks,\r\n			   <br>{regards}.\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;\r\n            </td>\r\n        </tr>\r\n		  \r\n		<tr>\r\n			<td style=\"color: #7a7a7a;background: #DCDCDC;\">\r\n				<div style=\"padding: 5px;\">\r\n					<div style=\"max-width: 100%;font-size: 14px;color: #7a7a7a;\">\r\n						<p style=\"margin: 25px;text-align:center;\">\r\n						 This is an automated notification. To protect the confidentiality of these communications.<br><b> PLEASE DO NOT REPLY TO THIS EMAIL. </b></p>\r\n						 </p>\r\n						<p style=\"margin: 25px;text-align:center;\">© {year} {regards}</p>\r\n					</div>\r\n				</div>\r\n			</td>\r\n		</tr>\r\n        </tbody>\r\n    </table>\r\n</body>\r\n</html>', '2020-06-07 18:30:00', 1, NULL, NULL, NULL, NULL);
+COMMIT;
+
+INSERT INTO `email_template` (`id`, `title`, `subject`, `content`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+(21, 'Create client account and received email', 'Please activate your account with \r\n', '\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title>Legalcase : Welcome Email</title>\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">  \r\n	<link href=\"https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700\" rel=\"stylesheet\">\r\n</head>\r\n<body style=\"font-family: Source Sans Pro, sans-serif;color: #1c2224;margin: 0;padding: 0;box-sizing: border-box;\" data-gr-c-s-loaded=\"true\">\r\n    <table style=\"border-collapse:collapse;margin:auto;max-width: 600px;background: #fcfcfc;font-family: Source Sans Pro, sans-serif;color: #1c2224;\">\r\n        <tr style=\"background: #DCDCDC;\">\r\n			<td style=\"text-align:center;height: auto;font-size: 24px; font-weight: 600;color:#ffffff;\">\r\n				<a href=\"{EmailLinkOnLogo}\" style=\"text-decoration: none;\" target=\"_blank\">\r\n					<img src=\"{EmailLogo1}\"  style=\"display: inline-block;vertical-align: middle;width: 100px;height: 100px;\">\r\n				</a>\r\n			</td>\r\n        </tr>\r\n        <tr>\r\n            <td colspan=\"2\" style=\"color: #1c2224;padding: 45px 25px 25px;font-size: 16px;\"><b>Hi {name} </b>, \r\n			Welcome to the {refuser} Client Portal. Activate your account by clicking the button below.\r\n			</td>\r\n        </tr>\r\n		<tr>\r\n            <td colspan=\"2\" style=\"text-align: center;padding-top: 0px;padding-bottom: 0px;\">\r\n               <a href=\"{token}\" style=\"width: 260px;height: 55px;background-color: #663399;font-size: 18px;color: #ffffff;line-height: 54px;display: inline-block;font-weight: 600;text-align: center;text-decoration: none;border-radius: 6px !important;\">Activate Now</a>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">Our private and secure client portal is available 24 hours a day, 7 days a week for you to:</td>\r\n        </tr>\r\n			<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n				<ul>\r\n					<li>View and upload documents related to your case</li>\r\n					<li>Send and receive confidential messages</li>\r\n					<li>Receive notifications about important dates</li>\r\n					<li>View and print invoices</li>\r\n				</ul>\r\n			</td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               Thanks,\r\n			   <br>{regards}.\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;\r\n            </td>\r\n        </tr>\r\n		  \r\n		<tr>\r\n			<td style=\"color: #7a7a7a;background: #DCDCDC;\">\r\n				<div style=\"padding: 5px;\">\r\n					<div style=\"max-width: 100%;font-size: 14px;color: #7a7a7a;\">\r\n						<p style=\"margin: 25px;text-align:center;\">\r\n						 This is an automated notification. To protect the confidentiality of these communications.<br><b> PLEASE DO NOT REPLY TO THIS EMAIL. </b></p>\r\n						 </p>\r\n						<p style=\"margin: 25px;text-align:center;\">© {year} {regards}</p>\r\n					</div>\r\n				</div>\r\n			</td>\r\n		</tr>\r\n        </tbody>\r\n    </table>\r\n</body>\r\n</html>', '2020-06-07 18:30:00', 1, NULL, NULL, NULL, NULL);
+COMMIT;
+
+ALTER TABLE `case_master` ADD `billing_method` VARCHAR(255) NULL AFTER `is_entry_done`, ADD `billing_amount` DECIMAL(11,2) NULL DEFAULT '0.00' AFTER `billing_method`;
+
+ALTER TABLE `case_stage_history` ADD `end_date` DATETIME NULL AFTER `stage_id`;
+
+ALTER TABLE `users` CHANGE `user_role` `user_role` INT(11) NOT NULL DEFAULT '0' COMMENT 'ref=user_role->id';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `client_company_import_history`
+--
+
+DROP TABLE IF EXISTS `client_company_import_history`;
+CREATE TABLE IF NOT EXISTS `client_company_import_history` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `client_company_import_id` int(11) DEFAULT NULL COMMENT 'ref : : client_company_import->id',
+  `total_record` int(11) DEFAULT NULL,
+  `total_imported` int(11) DEFAULT NULL,
+  `status` enum('1','2','3') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '1: Completed 2: Error  3: Undo',
+  `flat_fees` decimal(11,2) NOT NULL,
+  `firm_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+COMMIT;
+
+
+
+Done:
+=========
+ALTER TABLE `case_intake_form` ADD `lead_id` INT(11) NULL COMMENT 'user->id' AFTER `intake_form_id`; 
+ALTER TABLE `case_client_selection` ADD `user_role` INT(11) NOT NULL AFTER `case_id` ;
+ALTER TABLE `case_intake_form` ADD `unique_token` VARCHAR(512) NULL AFTER `is_filled`; 
+
+
+
+INSERT INTO `email_template` (`id`, `title`, `subject`, `content`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+(17, 'Fund Request Reminder To Client', 'Fund Request Reminder', '\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title>Legalcase : Welcome Email</title>\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">  \r\n	<link href=\"https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700\" rel=\"stylesheet\">\r\n</head>\r\n<body style=\"font-family: Source Sans Pro, sans-serif;color: #1c2224;margin: 0;padding: 0;box-sizing: border-box;\" data-gr-c-s-loaded=\"true\">\r\n    <table style=\"border-collapse:collapse;margin:auto;max-width: 600px;background: #fcfcfc;font-family: Source Sans Pro, sans-serif;color: #1c2224;\">\r\n        <tr style=\"background: #DCDCDC;\">\r\n			<td style=\"text-align:center;height: auto;font-size: 24px; font-weight: 600;color:#ffffff;\">\r\n				<a href=\"{EmailLinkOnLogo}\" style=\"text-decoration: none;\" target=\"_blank\">\r\n					<img src=\"{EmailLogo1}\"  style=\"display: inline-block;vertical-align: middle;width: 100px;height: 100px;\">\r\n				</a>\r\n			</td>\r\n        </tr>\r\n        <tr>\r\n            <td colspan=\"2\" style=\"color: #1c2224;padding: 45px 25px 25px;font-size: 16px;\"><b>Payment Reminder:</b></td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">You have a request due {message}</td>\r\n        </tr>\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               Please deposit funds into your account.\r\n			<br>\r\n            </td>\r\n        </tr>\r\n			<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td  style=\"padding: 0px 25px;font-size: 16px;\">\r\n               <span style=\"font-weight:bold\">Deposit Amount: ${amount}</span>\r\n			  \r\n			</td>\r\n        </tr>\r\n		<tr>\r\n            <td  style=\"padding: 0px 25px;font-size: 16px;\">\r\n              \r\n			   <span style=\"font-size:85%\">Due on: {duedate}</span>\r\n			</td>\r\n        </tr>\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;<br>\r\n            </td>\r\n        </tr>\r\n		\r\n	\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               Thanks,\r\n			   <br>{regards}.\r\n            </td>\r\n        </tr>\r\n		\r\n		<tr>\r\n            <td colspan=\"2\" style=\"padding: 0px 25px;font-size: 16px;\">\r\n               &nbsp;\r\n            </td>\r\n        </tr>\r\n		  \r\n		<tr>\r\n			<td style=\"color: #7a7a7a;background: #DCDCDC;\">\r\n				<div style=\"padding: 5px;\">\r\n					<div style=\"max-width: 100%;font-size: 14px;color: #7a7a7a;\">\r\n						<p style=\"margin: 25px;text-align:center;\">\r\n						 This is an automated notification. To protect the confidentiality of these communications,\r\nPLEASE DO NOT REPLY TO THIS EMAIL.\r\n\r\nThis email was sent to you by {regards} Firm. \r\n						</p>\r\n						<p style=\"margin: 25px;text-align:center;\">© {year} {regards}</p>\r\n					</div>\r\n				</div>\r\n			</td>\r\n		</tr>\r\n        </tbody>\r\n    </table>\r\n</body>\r\n</html>', '2020-06-07 18:30:00', 1, NULL, NULL, NULL, NULL);
+COMMIT;
+
+/* New Table : deposti_into_credit_history */
+
+
+ALTER TABLE `invoice_installment` ADD `firm_id` INT(11) NOT NULL AFTER `due_date`; 
+ALTER TABLE `invoice_installment` ADD `status` ENUM('paid','unpaid') NOT NULL DEFAULT 'unpaid' AFTER `firm_id`, ADD `paid_date` DATETIME NULL AFTER `status`, ADD `adjustment` DECIMAL(11,2) NOT NULL AFTER `paid_date`;
+ALTER TABLE `invoice_installment` ADD `pay_type` ENUM('auto','manual') NOT NULL DEFAULT 'manual' AFTER `paid_date`; 
+ALTER TABLE `invoices` ADD `invoice_token` VARCHAR(512) NULL AFTER `invoice_unique_token`; 
+ALTER TABLE `users` ADD `credit_account` ENUM('0','1') NOT NULL DEFAULT '1' COMMENT '0: Enabled 1:Disabled' AFTER `goal_frequency`; 
+ALTER TABLE `users` ADD `user_role` INT(11) NOT NULL COMMENT 'ref=user_role->id' AFTER `credit_account`; 
+
+
+DROP TABLE IF EXISTS `deposit_into_credit_history`;
+CREATE TABLE IF NOT EXISTS `deposit_into_credit_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL COMMENT 'user->id',
+  `deposit_amount` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `deposit_by` int(11) NOT NULL,
+  `firm_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+
+
+DROP TABLE IF EXISTS `user_role`;
+CREATE TABLE IF NOT EXISTS `user_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(255) DEFAULT NULL,
+  `firm_id` int(11) NOT NULL,
+  `status` enum('0','1') NOT NULL DEFAULT '1' COMMENT '0: Inactive 1: Active',
+  `created_at` datetime DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `deleted_by` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
+
+Done 24-02-2021
+=============
+
+New Table : account_activity
+
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none'; 
+
+ALTER TABLE `users` ADD `set_goal` DECIMAL(11,2) NOT NULL DEFAULT '0.00' AFTER `add_event_guide`; 
+ALTER TABLE `users` ADD `goal_frequency` ENUM('daily','monthly','weekly') NULL AFTER `set_goal`; 
+ALTER TABLE `invoice_batch` ADD `firm_id` INT(11) NOT NULL AFTER `sent_invoice`; 
+
+
+DROP TABLE IF EXISTS `account_activity`;
+CREATE TABLE IF NOT EXISTS `account_activity` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL COMMENT 'ref : user->id',
+  `related_to` int(11) DEFAULT NULL,
+  `case_id` int(11) DEFAULT NULL COMMENT 'ref: case_master->id',
+  `credit_amount` decimal(11,2) DEFAULT '0.00',
+  `debit_amount` decimal(11,2) DEFAULT '0.00',
+  `total_amount` decimal(11,2) DEFAULT '0.00',
+  `entry_date` date DEFAULT NULL,
+  `status` enum('sent','unsent') COLLATE utf8mb4_unicode_ci DEFAULT 'sent',
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `pay_type` enum('trust','client') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firm_id` int(11) DEFAULT NULL,
+  `section` enum('invoice','request','other') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `from_pay` enum('trust','normal','none') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+ALTER TABLE `lead_notes_activity_history` CHANGE COLUMN `acrtivity_title` `acrtivity_title` ENUM('added','edited','deleted','added a lead','edited a lead','deleted a lead') NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `id`;
+
+Done 17-02-2021
+=============
+
+New: invoice_batch
+New: deposit_into_trust
+New: all_history
+
+Done
+=============
+ALTER TABLE `invoice_payment` ADD `total` DECIMAL(11,2) NOT NULL DEFAULT '0.00' AFTER `status`; 
+ALTER TABLE `invoice_payment` ADD `firm_id` INT(11) NULL AFTER `total`, ADD `ip_unique_id` VARCHAR(255) NULL AFTER `firm_id`; 
+
+ALTER TABLE `invoice_payment` ADD `amount_refund` DECIMAL(11,2) NOT NULL DEFAULT '0.00' AFTER `amount_paid`; 
+ALTER TABLE `invoice_payment` ADD `payment_from_id` INT(11) NULL AFTER `deposit_into_id`; 
+ALTER TABLE `invoice_payment` ADD `refund_ref_id` INT(11) NULL AFTER `ip_unique_id`; 
+ALTER TABLE `invoice_payment` ADD `entry_type` ENUM('0','1','2') NOT NULL DEFAULT '2' COMMENT '0: Trust 1: Opersting 2:None' AFTER `refund_ref_id`; 
+
+Done
+=============
+
+Update : Email_template
+Update : invoice_history
+
+ALTER TABLE `invoice_adjustment` ADD `invoice_id` INT(11) NULL AFTER `case_id`; 
+ALTER TABLE `invoice_adjustment` ADD `token` VARCHAR(255) NULL AFTER `case_id`;
+ALTER TABLE `invoices` CHANGE `payment_term` `payment_term` ENUM('0','1','2','3','4','5') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '5' COMMENT '0 : Due date 1: Due on receipt 2: Net 15 3: Net 30 4: Net 60 5: Not Set';
+ALTER TABLE `shared_invoice` ADD `is_viewed` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `user_id`; 
+ALTER TABLE `shared_invoice` ADD `last_reminder_sent_on` DATETIME NULL AFTER `is_viewed`; 
+ALTER TABLE `shared_invoice` ADD `reminder_sent_counter` INT(11) NOT NULL DEFAULT '0' AFTER `last_reminder_sent_on`; 
+ALTER TABLE `invoices` ADD `invoice_unique_token` TEXT NULL AFTER `deleted_at`; 
+
+
+ALTER TABLE `expense_entry` ADD `invoice_link` INT(11) NULL AFTER `status`; 
+ALTER TABLE `task_time_entry` ADD `invoice_link` INT(11) NULL AFTER `status`; 	
+
+ALTER TABLE `invoice_history` CHANGE `deposit_into` `deposit_into` VARBINARY(512) NULL DEFAULT NULL; 
+ALTER TABLE `invoice_history` CHANGE `deposit_into` `deposit_into` VARCHAR(512) NULL DEFAULT NULL; 
+
+ALTER TABLE `invoice_history` CHANGE `pay_method` `pay_method` VARCHAR(255) NULL DEFAULT NULL;
+ALTER TABLE `invoice_history` ADD `refund_ref_id` INT(11) NULL AFTER `status`; 
+
+ALTER TABLE `invoice_history` CHANGE `status` `status` ENUM('0','1','2','3','4') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '0 : None 1: Deposit 2: Full Refund 3.Partial Refund 4: Refund Entry';
+
+ALTER TABLE `invoice_history` ADD `deposit_into_id` INT(11) NULL AFTER `deposit_into`; 
+ALTER TABLE `invoice_payment` ADD `deposit_into_id` INT(11) NULL AFTER `deposit_into`; 
+ALTER TABLE `invoice_history` ADD `invoice_payment_id` INT(11) NULL COMMENT 'ref: : invoice_payment->id' AFTER `deposit_into_id`; 
+
+ALTER TABLE `invoice_payment` ADD `status` ENUM('0','1','2') NOT NULL DEFAULT '0' COMMENT '0: Payment 1: Refund 2:None' AFTER `payment_from`; 
+
+Done
+=============
+/*20-01-2021*/
+
+New Table : invoice_adjustment
+New Table : time_entry_for_invoice
+New Table : expense_for_invoice
+New Table : shared_invoice
+New Table : invoice_history
+
+
+ALTER TABLE `invoices` ADD `payment_term` ENUM('0','1','2','3','4') NOT NULL DEFAULT '0' COMMENT '0 : Due date 1: Due on receipt 2: Net 15 4: Net 30 5: Net 60' AFTER `status`, ADD `automated_reminder` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `payment_term`, ADD `terms_condition` TEXT NULL AFTER `automated_reminder`, ADD `notes` TEXT NULL AFTER `terms_condition`; 
+
+ALTER TABLE `invoices` ADD `payment_plan_enabled` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `notes`; 
+
+ALTER TABLE `invoices` ADD `invoice_date` DATETIME NULL AFTER `case_id`; 
+ALTER TABLE `invoices` CHANGE `invoice_date` `invoice_date` DATE NULL DEFAULT NULL; 
+ALTER TABLE `time_entry_for_invoice` CHANGE `invoiceid` `invoice_id` INT(11) NULL DEFAULT NULL; 
+
+Done
+=============
+/*20-01-2021*/
+ALTER TABLE `expense_entry` ADD `remove_from_current_invoice` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `status`; 
+
+/*19-01-2021*/
+ALTER TABLE `task_time_entry` ADD `remove_from_current_invoice` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `status`; 
+
+/*13-01-2021*/
+ALTER TABLE `invoices` ADD `status` ENUM('Sent','Unsent','Partial','Paid','Draft','Forwarded','Overdue') NOT NULL DEFAULT 'Unsent' AFTER `last_reminder_sent_on`; 
+
+ALTER TABLE `expense_entry` ADD `status` ENUM('paid','unpaid') NOT NULL DEFAULT 'unpaid' AFTER `duration`; 
+
+ALTER TABLE `task_time_entry` ADD `status` ENUM('paid','unpaid') NOT NULL DEFAULT 'unpaid' AFTER `duration`; 
+Done
+=============
+Table: expense_entry : New
+Table: invoices : New
+Table: invoice_payment :New
+
+
+/*11-01-2021*/
+ALTER TABLE `requested_fund` CHANGE `email_message` `email_message` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL; 
+
+
+/*09-01-2021*/
+ALTER TABLE `task_activity` CHANGE `flat_fees` `flat_fees` DECIMAL(11,2) NOT NULL; 
+ALTER TABLE `task_activity` ADD `flat_fees` DECIMAL(11,2) NULL AFTER `status`; 
+
+ALTER TABLE `task_activity` ADD `default_description` VARCHAR(512) NULL AFTER `title`; 
+
+ALTER TABLE `task_activity` ADD `firm_id` INT(11) NULL AFTER `status`; 
+
+/*08-01-2021*/
+
+Done
+=============
+
+1. firm_address
+2. firm_event_reminder : new
+3. firm_sol_reminder :new
+4. messages : new
+5. email_template : update
+6. users : update
+
+/06 Jan 2021*/
+ALTER TABLE `users` CHANGE `user_status` `user_status` ENUM('1','2','3','4') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '2' COMMENT '1 : Active 2: Inactive 3:Suspended, 4:Archive'; 
+
+/*01 JAn 2021*/
+
+ALTER TABLE `firm` ADD `client_portal_access` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `parent_user_id`, ADD `sol` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `client_portal_access`, ADD `firm_logo` VARCHAR(255) NULL AFTER `sol`; 
+
+/*30 DEC 2020*/
+ALTER TABLE `requested_fund` ADD `reminder_sent_counter` INT(11) NOT NULL DEFAULT '0' AFTER `is_viewed`, ADD `last_reminder_sent_on` DATETIME NULL AFTER `reminder_sent_counter`; 
+
+Done
+=============
+/* 25 Dec 2020*/
+ALTER TABLE `users_additional_info` CHANGE `minimum_trust_balance` `minimum_trust_balance` DECIMAL(11,2) NULL DEFAULT '0.00', CHANGE `trust_account_balance` `trust_account_balance` DECIMAL(11,2) NULL DEFAULT '0.00'; 
+ALTER TABLE `trust_history` CHANGE `amount_paid` `amount_paid` DECIMAL(11,2) NULL DEFAULT '0.00', CHANGE `current_trust_balance` `current_trust_balance` DECIMAL(11,2) NULL DEFAULT '0.00'; 
+
+/* 24 Dec 2020*/
+
+ALTER TABLE `client_notes` ADD `is_publish` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `is_draft`; 
+
+/* 23 Dec 2020*/
+ALTER TABLE `client_notes` CHANGE `created_by` `created_by` INT(11) NULL DEFAULT '0'; 
+
+ALTER TABLE `client_notes` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, CHANGE `client_id` `client_id` INT(11) NULL DEFAULT NULL COMMENT 'ref : user->id', CHANGE `note_date` `note_date` DATE NULL DEFAULT NULL, CHANGE `is_draft` `is_draft` ENUM('yes','no') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'no' COMMENT 'case', CHANGE `note_subject` `note_subject` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `notes` `notes` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `original_content` `original_content` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `created_at` `created_at` TIMESTAMP NULL DEFAULT NULL, CHANGE `updated_at` `updated_at` TIMESTAMP NULL DEFAULT NULL, CHANGE `updated_by` `updated_by` INT(11) NULL DEFAULT NULL, CHANGE `deleted_at` `deleted_at` TIMESTAMP NULL DEFAULT NULL; 
+
+ALTER TABLE `client_notes` ADD `original_content` TEXT NULL AFTER `status`; 
+
+Done
+=============
+/* 22 Dec 2020*/
+
+ALTER TABLE `case_notes` ADD `lead_id` INT(11) NULL COMMENT 'if lead_for is not null then this field shoud be null (note_for=case_id)' AFTER `notes_for`; 
+
+
+/* 18 Dec 2020*/
+ALTER TABLE `users_additional_info` ADD `minimum_trust_balance` DECIMAL(11,2) NULL AFTER `notes`; 
+ALTER TABLE `users_additional_info` ADD `trust_account_balance` DECIMAL(11,2) NULL AFTER `minimum_trust_balance`; 
+
+Done
+=============
+
+/* 02 Dec 2020*/
+ALTER TABLE `case_intake_form` CHANGE `status` `status` ENUM('0','1','2','3') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '3 : Pending 1: Sent 2:Submited 0: Sent via portal'; 
+ALTER TABLE `case_intake_form` CHANGE `status` `status` ENUM('0','1','2','3') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '3' COMMENT '0 : Pending 1: Sent 2:Submited 3: Semt via portal'; 
+
+Done
+=============
+
+
+/* 25 Nov 2020*/
+ALTER TABLE `case_events` ADD `lead_id` INT(11) NULL AFTER `case_id`; 
+
+Done
+=============
+/* 24 Nov 2020*/
+ALTER TABLE `lead_additional_info` CHANGE `potential_case_title` `potential_case_title` VARCHAR(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL; 
+ALTER TABLE `lead_additional_info` ADD `conflict_check_at` TIMESTAMP NULL AFTER `conflict_check`; 
+
+/* 23 Nov 2020*/
+ALTER TABLE `lead_additional_info` ADD `potential_case_title` VARCHAR(512) NULL AFTER `lead_detail`; 
+
+/* 17 Nov 2020*/
+ALTER TABLE `lead_additional_info` ADD `converted_date` DATE NULL AFTER `is_converted`; 
+ALTER TABLE `lead_additional_info` ADD `is_converted` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `contact_group_id`; 
+
+Done
+=============
+/* 12 Nov 2020*/
+ALTER TABLE `case_event_comment` ADD `action_type` ENUM('0','1') NOT NULL DEFAULT '1' COMMENT '0 : Comment 1: History' AFTER `comment`; 
+ALTER TABLE `users_additional_info` ADD `multiple_compnay_id` VARCHAR(1024) NULL AFTER `company_id`; 
+
+/* 11 Nov 2020*/
+ALTER TABLE `task_time_entry` CHANGE `entry_rate` `entry_rate` DECIMAL(11,2) NULL DEFAULT NULL; 
+ALTER TABLE `case_events` ADD `event_read` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `end_on`; 
+
+
+/* 10 Nov 2020*/
+ALTER TABLE `lead_additional_info` ADD `do_not_hire_on` DATE NULL AFTER `do_not_hire_reason`; 
+
+/* 09 Nov 2020*/
+ALTER TABLE `lead_additional_info` ADD `client_portal_enable` ENUM('0','1') NOT NULL DEFAULT '0' COMMENT ' 0: No 1:Yes ' AFTER `conflict_check_description`, ADD `contact_group_id` INT(11) NOT NULL DEFAULT '1' AFTER `client_portal_enable`; 
+
+
+/* 06 Nov 2020*/
+ALTER TABLE `lead_additional_info` ADD `conflict_check_description` TEXT NULL AFTER `do_not_hire_reason`; 
+
+/* 05 Nov 2020*/
+ALTER TABLE `lead_additional_info` CHANGE `user_status` `user_status` ENUM('1','2','3') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '2' COMMENT '1 : Active 2: Did No Hire 3:Converted'; 
+ALTER TABLE `lead_additional_info` ADD `do_not_hire_reason` INT(11) NULL AFTER `firm_id`; 
+
+Done
+=============
+/* 02 Nov 2020*/
+ALTER TABLE `users` CHANGE `user_level` `user_level` ENUM('1','2','3','4','5') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '3' COMMENT '1 : Admin 2:Clien 3:User 4: Company 5: Lead'; 
+
+ALTER TABLE `users` CHANGE `user_type` `user_type` ENUM('1','2','3','4','5') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '1:Attorney 2: Paralegal 3:Staff 4: None 5:Lead'; 
+
+/* 30 Oct 2020 */
+
+ALTER TABLE `users_additional_info` ADD `grant_access` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `client_portal_enable`; 
+/* 29 Oct 2020 */
+
+ALTER TABLE `users` ADD `add_event_guide` ENUM('0','1') NOT NULL DEFAULT '1' COMMENT '0: Show 1: hide ' AFTER `add_task_guide`; 
+ALTER TABLE `users`  ADD `add_event_guide2` ENUM('0','1') NOT NULL DEFAULT '1' COMMENT '0: Show 1: hide '  AFTER `add_task_guide`;
+/* 28 Oct 2020 */
+
+ALTER TABLE `case_stage` ADD `stage_color` VARCHAR(255) NULL AFTER `title`; 
+
+
+Done
+=============
+
+/* 09 Oct 2020 */
+ALTER TABLE `users` ADD `add_task_guide` ENUM('0','1') NOT NULL DEFAULT '0' COMMENT '0: Show 1: hide' AFTER `parent_user`; 
+
+ALTER TABLE `task` ADD `task_completed_by` INT(11) NULL AFTER `status`, ADD `task_completed_date` DATETIME NULL AFTER `task_completed_by`; 
+
+Done
+=============
+/*30-09-2020*/
+
+ALTER TABLE `case_events` ADD `parent_evnt_id` INT(11) NULL AFTER `case_id`; 
+ALTER TABLE `case_events` ADD `all_day` ENUM('yes','no') NULL DEFAULT 'no' AFTER `event_type`; 
+
+ALTER TABLE `case_event_location` ADD `location_future_use` ENUM('yes','no') NULL DEFAULT 'yes' AFTER `country`; 
+ALTER TABLE `case_event_location` CHANGE `location_future_use` `location_future_use` ENUM('yes','no') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'no'; 
+ALTER TABLE `case_event_location` CHANGE `state` `state` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL; 
+
+ALTER TABLE `case_events` ADD `recuring_event` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `is_event_private`; 
+
+ALTER TABLE `case_events` ADD `event_frequency` ENUM('DAILY','EVERY_BUSINESS_DAY','CUSTOM','WEEKLY','MONTHLY','YEARLY') NULL DEFAULT NULL AFTER `recuring_event`; 
+ALTER TABLE `case_events` ADD `event_interval_day` VARCHAR(255) NULL AFTER `event_frequency`; 
+
+ALTER TABLE `case_events` ADD `daily_weekname` VARCHAR(255) NULL AFTER `event_interval_day`; 
+
+/*01-10-2020*/
+ALTER TABLE `case_events` ADD `no_end_date_checkbox` ENUM('yes','no') NULL AFTER `daily_weekname`, ADD `end_on` DATE NULL AFTER `no_end_date_checkbox`; 
+
+ALTER TABLE `case_events` ADD `event_interval_month` INT(11) NULL AFTER `no_end_date_checkbox`, ADD `event_interval_year` INT(11) NULL AFTER `event_interval_month`; 
+
+ALTER TABLE `case_events` ADD `monthly_frequency` VARCHAR(255) NULL AFTER `event_interval_year`;
+ALTER TABLE `case_events` ADD `yearly_frequency` VARCHAR(255) NULL AFTER `monthly_frequency`;  
+
+
+/*05-10-2020*/
+
+ALTER TABLE `case_event_linked_staff` ADD `attending` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `user_id`; 
+Done
+=============
+ALTER TABLE `contract_user` ADD `password` VARCHAR(255) NULL AFTER `email`; 
+
+ALTER TABLE `contract_user` ADD `user_title` VARCHAR(255) NULL AFTER `user_type`, ADD `default_rate` DECIMAL(11,2) NULL AFTER `user_title`; 
+
+
+
+ALTER TABLE `users` ADD `middle_name` VARCHAR(255) NULL AFTER `first_name`; 
+ALTER TABLE `users` ADD `firm_name` VARCHAR(255) NULL AFTER `verified`, ADD `street` VARCHAR(255) NULL AFTER `firm_name`, ADD `apt_unit` VARCHAR(255) NULL AFTER `street`, ADD `city` VARCHAR(255) NULL AFTER `apt_unit`, ADD `state` VARCHAR(255) NULL AFTER `city`, ADD `postal_code` VARCHAR(255) NULL AFTER `state`, ADD `country` INT(3) NULL AFTER `postal_code`, ADD `work_phone` VARCHAR(255) NULL AFTER `country`;
+ALTER TABLE `users` ADD `home_phone` VARCHAR(255) NULL AFTER `work_phone`, ADD `profile_image` VARCHAR(512) NULL AFTER `home_phone`; 
+
