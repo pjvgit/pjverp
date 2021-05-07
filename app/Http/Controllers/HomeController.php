@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Firm;
+use Illuminate\Support\Str;
+
 use App\ReferalResource,App\LeadStatus,App\NotHireReasons;
 use App\TaskActivity,App\UserRole,App\CaseIntakeForm;
 use App\User;
@@ -225,7 +227,7 @@ class HomeController extends BaseController
                         $user->user_title='Staff';
                     }
                     $user->firm_name=Auth::User()->firm_name;
-                    $user->token  = str_random(40);
+                    $user->token  = Str::random(40);
                     $user->parent_user =Auth::User()->id;
                     $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
                     $user->created_by =Auth::User()->id;

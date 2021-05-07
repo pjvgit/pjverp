@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
+use Illuminate\Support\Str;
+
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
@@ -1064,7 +1066,7 @@ class BillingController extends BaseController
         // $Invoices=Invoices::get();
         // foreach($Invoices as $k){
         //    DB::table('invoices')->where("id",$k->id)->update([
-        //         'invoice_token'=>str_random(250)
+        //         'invoice_token'=>Str::random(250)
         //     ]);
         // }
 
@@ -2393,7 +2395,7 @@ class BillingController extends BaseController
        
             $user =User::find($request->client_id);
             $user->email=$request->email;
-            $user->token  = str_random(40);
+            $user->token  = Str::random(40);
             $user->save();
 
             UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
@@ -2566,7 +2568,7 @@ class BillingController extends BaseController
             $InvoiceSave->save();
 
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
-            $InvoiceSave->invoice_token=str_random(250);
+            $InvoiceSave->invoice_token=Str::random(250);
             $InvoiceSave->save();
 
 
@@ -5456,7 +5458,7 @@ class BillingController extends BaseController
                 $InvoiceSave->save();
 
                 $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
-                $InvoiceSave->invoice_token=str_random(250);
+                $InvoiceSave->invoice_token=Str::random(250);
                 $InvoiceSave->save();
 
 

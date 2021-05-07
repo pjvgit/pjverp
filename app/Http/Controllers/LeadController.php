@@ -5,6 +5,8 @@ use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\LeadStatus,App\ReferalResource;
@@ -305,7 +307,7 @@ class LeadController extends BaseController
             $UserMaster->country=$request->country;
             $UserMaster->password='';
             $UserMaster->firm_name=Auth::User()->firm_name;
-            $UserMaster->token  = str_random(40);
+            $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';
@@ -1568,7 +1570,7 @@ class LeadController extends BaseController
         $UserMaster->state=$OnlineLeadSubmit['state'];
         $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
         $UserMaster->country=$OnlineLeadSubmit['country'];
-        $UserMaster->token  = str_random(40);
+        $UserMaster->token  = Str::random(40);
         $UserMaster->user_type='5';  // 5  :Lead
         $UserMaster->user_level='5'; // 5  :Lead
         $UserMaster->user_title='';
@@ -1635,7 +1637,7 @@ class LeadController extends BaseController
             $UserMaster->state=$OnlineLeadSubmit['state'];
             $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
             $UserMaster->country=$OnlineLeadSubmit['country'];
-            $UserMaster->token  = str_random(40);
+            $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';

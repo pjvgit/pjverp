@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 use Validator, Response, Mail,Storage,DB;
 use App\User,App\CaseActivity,App\AccountActivity;
 use App\CaseClientSelection,App\ClientActivity,App\UsersAdditionalInfo;
@@ -183,7 +185,7 @@ class BaseController extends Controller
     }
     public function generateUniqueToken()
     {
-        return str_random(250)."-".time();
+        return Str::random(250)."-".time();
     }
     public function getTimeEntryTotalByCase($case_id){
         $timeTotalBillable=$timeTotalNonBillable=0;
