@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
 use Carbon\Carbon;
 use App\UserPreferanceReminder;
+use Illuminate\Support\Str;
 
 class UserController extends BaseController
 {
@@ -416,7 +417,7 @@ class UserController extends BaseController
     public function saveBasicInfo(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'first_name' => 'required|min:1|max:255',
@@ -453,7 +454,7 @@ class UserController extends BaseController
     public function saveEmail(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'email' => 'required|email|unique:users,email,'.$id,
@@ -486,7 +487,7 @@ class UserController extends BaseController
     public function savePassword(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'current_password' => 'required|min:6',
@@ -515,7 +516,7 @@ class UserController extends BaseController
     public function saveProfileimage(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
@@ -537,7 +538,7 @@ class UserController extends BaseController
                     // unlink($storeImageFullPath);
                 }
                 $image = $request->file('profile_image');
-                $image_name = str_slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
+                $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
                 $resize_image = Image::make($image->getRealPath())->save($destinationPath . '/' . $image_name);
                 // $resize_image->resize(160, 160, function($constraint){
                 // })->save($destinationPath . '/' . $image_name);
