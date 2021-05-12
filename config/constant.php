@@ -1,5 +1,5 @@
 <?php
-define("EXE_PATH", "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
+@define("EXE_PATH", "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
 define("WKHTMLTOPDF_PATH","C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
 // response code 
 define("HTTP_OK", 200);
@@ -66,8 +66,8 @@ define("USER_FOUND","User found successfully!");
 
 
 if(@$_SERVER['SERVER_NAME']=='localhost'){
-    define("BASE_URL", "http://localhost/legalcase7/");
-    define("BASE_LOGO_URL", "http://localhost/legalcase7/");
+    define("BASE_URL", "http://localhost/legalcase7_git/");
+    define("BASE_LOGO_URL", "http://localhost/legalcase7_git/");
     //Local folder path
     define("USER_IMAGE_FOLDER_PATH", "local/users/");
 }elseif(@$_SERVER['SERVER_NAME']=='bne.poderjudicialvirtual.com'){
