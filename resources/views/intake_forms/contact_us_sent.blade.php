@@ -539,7 +539,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
       };
       var onloadCallback = function() {
         grecaptcha.render('g-recaptcha', {
-          'sitekey' : '6LfC0JQaAAAAAGfDzY23bY9WHG1pKx43B5ZJraMX',
+          'sitekey' : '{{GOOGLE_CAPTCHA_SITE_KEY}}',
           'callback' : verifyCallback,
         });
       };

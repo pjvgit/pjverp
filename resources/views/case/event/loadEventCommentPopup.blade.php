@@ -193,7 +193,11 @@
                     onclick="deleteEventFromCommentFunction({{$evetData->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button></a>
                 <?php } ?>
-
+                <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
+                    <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$CaseMasterData->id}}');">
+                    Add Time Entry
+                    </button>
+                </a>
                 <?php 
                 if($evetData->parent_evnt_id=="0"){
                     ?>

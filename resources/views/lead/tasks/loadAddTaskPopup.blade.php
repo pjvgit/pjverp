@@ -54,7 +54,7 @@
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Due</label>
                 <div class="col-md-3 form-group mb-3">
-                    <input class="form-control datepicker" id="due_date" value="" name="due_date" type="text"
+                    <input class="form-control datepicker" autocomplete="off" id="due_date" value="" name="due_date" type="text"
                         placeholder="mm/dd/yyyy">
                 </div>
             </div>

@@ -252,7 +252,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         afterLoader();
-        $(".datepicker" ).datepicker();
+        $(".datepicker" ).datepicker({'todayHighlight': true});
         $('#company_name').select2();
 
         $("#show_company_text").hide();

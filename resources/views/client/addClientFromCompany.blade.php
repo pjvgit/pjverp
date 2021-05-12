@@ -266,7 +266,7 @@
             dropdownParent: $("#AddContactModal"),
         });
 
-        $(".datepicker").datepicker();
+        $(".datepicker").datepicker({'todayHighlight': true});
         afterLoader();
         $("#show_contact_group_text").hide();
         $("#show_contact_group_dropdown").show();

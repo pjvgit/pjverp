@@ -239,7 +239,7 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function () {
-        $(".datepicker" ).datepicker();
+        $(".datepicker" ).datepicker({'todayHighlight': true});
         $("#innerLoader").css('display', 'none');
         $("#innerLoader").hide();
         $("#show_contact_group_text").hide();

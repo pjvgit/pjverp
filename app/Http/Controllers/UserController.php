@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\User,App\EmailTemplate,App\PlanHistory,App\Countries;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
@@ -83,7 +82,7 @@ class UserController extends BaseController
         $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
         $user->password='';
         $user->firm_name=$request->firm_name;
-        $user->token  = Str::random(40);
+        $user->token  = str_random(40);
         $user->user_title='Attorney';
         $user->user_timezone='';
         $user->parent_user ="0";
@@ -203,7 +202,7 @@ class UserController extends BaseController
             //Create Password Reset Token
             DB::table('password_resets')->insert([
                 'email' => $request->email,
-                'token' => Str::random(60),
+                'token' => str_random(60),
                 'created_at' => date('Y-m-d h:i:s')
             ]);
             //Get the token just created above
@@ -417,7 +416,7 @@ class UserController extends BaseController
     public function saveBasicInfo(Request $request)
     {
         $id=Auth::user()->id;
-        $input = $request->all();
+        $input = Input::all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'first_name' => 'required|min:1|max:255',
@@ -454,7 +453,7 @@ class UserController extends BaseController
     public function saveEmail(Request $request)
     {
         $id=Auth::user()->id;
-        $input = $request->all();
+        $input = Input::all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'email' => 'required|email|unique:users,email,'.$id,
@@ -487,7 +486,7 @@ class UserController extends BaseController
     public function savePassword(Request $request)
     {
         $id=Auth::user()->id;
-        $input = $request->all();
+        $input = Input::all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'current_password' => 'required|min:6',
@@ -516,7 +515,7 @@ class UserController extends BaseController
     public function saveProfileimage(Request $request)
     {
         $id=Auth::user()->id;
-        $input = $request->all();
+        $input = Input::all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
@@ -538,7 +537,7 @@ class UserController extends BaseController
                     // unlink($storeImageFullPath);
                 }
                 $image = $request->file('profile_image');
-                $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
+                $image_name = str_slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
                 $resize_image = Image::make($image->getRealPath())->save($destinationPath . '/' . $image_name);
                 // $resize_image->resize(160, 160, function($constraint){
                 // })->save($destinationPath . '/' . $image_name);
@@ -640,7 +639,7 @@ class UserController extends BaseController
         $getTemplateData = EmailTemplate::find(5);
         $fullName = "Divyesh" . ' ' . "Patoriya";
         $email="test@mail.com";
-        $token=url('user/verify', Str::random(40));
+        $token=url('user/verify', str_random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{name}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);
@@ -653,7 +652,7 @@ class UserController extends BaseController
 
         echo "<hr>";
         echo "<h3 style='text-align: center;'>Forgot Password</h3>";
-        $token=Str::random(40);
+        $token=str_random(40);
         $changePwdUrl = route('password.reset.token',['token' => $token]);
         $getTemplateData = EmailTemplate::find(1);
         $mail_body = $getTemplateData->content;
@@ -694,7 +693,7 @@ class UserController extends BaseController
         echo "<hr>";
         echo "<h3 style='text-align: center;'> Invited User to Join Legalcase</h3>";
         $getTemplateData = EmailTemplate::find(6);
-        $token=url('user/verify', Str::random(40));
+        $token=url('user/verify', str_random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{name}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);
@@ -711,7 +710,7 @@ class UserController extends BaseController
         echo "<hr>";
         echo "<h3 style='text-align: center;'> Intake Form</h3>";
         $getTemplateData = EmailTemplate::find(7);
-        $token=url('user/verify', Str::random(40));
+        $token=url('user/verify', str_random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{message}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);

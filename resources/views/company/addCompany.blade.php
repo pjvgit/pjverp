@@ -205,7 +205,7 @@
             return false;
         }
 
-        var dataString = $("#editForm").serialize();
+        var dataString = $("form").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/saveAddCompany", // json datasource

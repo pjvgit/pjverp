@@ -5,7 +5,7 @@
         <table class="table table-lg" id="CaseClientSection">
             <tr  style="background-color:#FBFBFC;">
                 <th class="w-75">Contacts &amp; Leads</th>
-                <th class="no-border">Assign <i id="help-bubble-4" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"></i>
+                <th class="no-border">Assign <i id="help-bubble-4" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary cursor-pointer" tabindex="0" role="button" href="javascript:;" data-toggle="popover"   title="Assigning to Clients" data-content='<div class="popover-body">When you add clients and contacts to a task, they will receive an email with a link to view it in their portal. <a href="#" rel="noopener noreferrer" target="_blank"><u>What will my client see?</u></a></div>' data-html="true" data-original-title="" style="float:revert;"></i>
                     </th>
             </tr>
             <tr>
@@ -20,7 +20,7 @@
                     <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#"
                         data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
-                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/client/{{base64_encode($val->user_id)}}'>Edit Info</a>"
+                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
                         data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>

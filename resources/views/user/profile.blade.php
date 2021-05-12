@@ -295,6 +295,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     <form id="profile_image" method="POST" action="{{ route('users.saveCropedProfileimage') }}"
                                         autocomplete="off" enctype="multipart/form-data">
                                         @csrf
+                                        <div class="col-md-12 form-group mb-3">To finish uploading your profile picture, please crop your image.</div>
                                         <div class="col-md-10 form-group mb-3">
                                             <img class="border border-dark cropper" src="{{URL::asset('/public/images/users/')}}/{{Auth::user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false">
                                         </div>

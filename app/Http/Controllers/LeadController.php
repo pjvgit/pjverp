@@ -5,8 +5,6 @@ use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Str;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\LeadStatus,App\ReferalResource;
@@ -307,7 +305,7 @@ class LeadController extends BaseController
             $UserMaster->country=$request->country;
             $UserMaster->password='';
             $UserMaster->firm_name=Auth::User()->firm_name;
-            $UserMaster->token  = Str::random(40);
+            $UserMaster->token  = str_random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';
@@ -1570,7 +1568,7 @@ class LeadController extends BaseController
         $UserMaster->state=$OnlineLeadSubmit['state'];
         $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
         $UserMaster->country=$OnlineLeadSubmit['country'];
-        $UserMaster->token  = Str::random(40);
+        $UserMaster->token  = str_random(40);
         $UserMaster->user_type='5';  // 5  :Lead
         $UserMaster->user_level='5'; // 5  :Lead
         $UserMaster->user_title='';
@@ -1637,7 +1635,7 @@ class LeadController extends BaseController
             $UserMaster->state=$OnlineLeadSubmit['state'];
             $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
             $UserMaster->country=$OnlineLeadSubmit['country'];
-            $UserMaster->token  = Str::random(40);
+            $UserMaster->token  = str_random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';
@@ -5219,7 +5217,7 @@ class LeadController extends BaseController
        
         // print_r($request->all());exit;
         $post = [
-            'secret' => '6LfC0JQaAAAAABP1teNxor8FJ4CDTcNsvQgzTPEl',
+            'secret' => GOOGLE_CAPTCHA_SECRATE_KEY,
             'response' => $_REQUEST['g-recaptcha-response'],
         ];
         $ch = curl_init();
@@ -5230,7 +5228,7 @@ class LeadController extends BaseController
         $server_output = curl_exec($ch);
         curl_close ($ch);
         $serverCode=json_decode($server_output,true);
-    
+       
         if($serverCode['success']=="1"){
             $firmData=IntakeForm::where("form_unique_id",$request->form_unique_id)->first();
             $intakeForm=IntakeFormFields::where("intake_form_id",$request->form_id)->get();
@@ -5240,12 +5238,18 @@ class LeadController extends BaseController
                 if($v->form_field=="name" && $v->is_required=="yes"){
                     $requiredArray=array("first_name"=>"required|min:1","last_name"=>"required");
                 }
+                // if($v->form_field=="email" && $v->is_required=="yes"){
+                //     $requiredArray=array("email"=>'required|email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
+                // }else{
+                //     $requiredArray=array("email"=>'email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
+                // }
+                
                 if($v->form_field=="email" && $v->is_required=="yes"){
-                    $requiredArray=array("email"=>'required|email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
+                    $requiredArray=array("email"=>'required|email');
                 }else{
-                    $requiredArray=array("email"=>'email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
-
+                    $requiredArray=array("email"=>'email');
                 }
+
                 if($v->form_field=="address" && $v->is_required=="yes"){
                     $requiredArray=array("email"=>"required");
                 }
