@@ -1,5 +1,5 @@
 <?php
-define("EXE_PATH", "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
+@define("EXE_PATH", "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
 define("WKHTMLTOPDF_PATH","C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe");
 // response code 
 define("HTTP_OK", 200);
@@ -129,6 +129,10 @@ define('LOADER', BASE_URL.'public/images/ajax_arrows.gif');
 
 define('ADDRESS','9201 Spectrum Center Blvd STE 100, San Diego, CA 92123');
 define('CELL','00000000');
+
+
+define('GOOGLE_CAPTCHA_SECRATE_KEY','6LfC0JQaAAAAABP1teNxor8FJ4CDTcNsvQgzTPEl');
+define('GOOGLE_CAPTCHA_SITE_KEY','6LfC0JQaAAAAAGfDzY23bY9WHG1pKx43B5ZJraMX');
 
 /****************************************************/
 /*********************ADMIN PANEL  ******************/

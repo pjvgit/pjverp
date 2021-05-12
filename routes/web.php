@@ -841,6 +841,8 @@ Route::group(['middleware'=>'auth'], function () {
 
     Route::post('bills/time_entries/loadTimeEntry', 'BillingController@loadTimeEntry')->name('bills/time_entries/loadTimeEntry');
     Route::post('bills/loadTimeEntryPopup', 'BillingController@loadTimeEntryPopup')->name('bills/loadTimeEntryPopup');
+    Route::post('bills/loadTimeEntryPopupDontRefresh', 'BillingController@loadTimeEntryPopupDontRefresh')->name('bills/loadTimeEntryPopupDontRefresh');
+
     Route::post('bills/loadEditTimeEntryPopup', 'BillingController@loadEditTimeEntryPopup')->name('bills/loadEditTimeEntryPopup');
     Route::post('bills/updatedTimeEntryPopup', 'BillingController@updatedTimeEntryPopup')->name('bills/updatedTimeEntryPopup');
     Route::post('bills/deleteTimeEntryForm', 'BillingController@deleteTimeEntryForm')->name('bills/deleteTimeEntryForm');
@@ -1025,6 +1027,9 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('assignTokenToInvoice','CustomScriptController@assignTokenToInvoice')->name('assignTokenToInvoice');
 
 
+    Route::get('print', 'BillingController@printView')->name('print');
+
+
 });
 
 //Without login 
@@ -1042,6 +1047,7 @@ Route::get('clear','CronController@index')->name('clear');
 Route::get('deletepdf','CronController@deletePdf')->name('deletepdf');
 Route::get('removeuser','CronController@removeDuplicateUser')->name('removeuser');
 Route::get('adduser','CronController@addUser')->name('adduser');
+Route::get('sentInvoiceReminder','CronController@sentInvoiceReminder')->name('sentInvoiceReminder');
 
 // check email
 
