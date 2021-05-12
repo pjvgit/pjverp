@@ -416,7 +416,7 @@ class UserController extends BaseController
     public function saveBasicInfo(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'first_name' => 'required|min:1|max:255',
@@ -453,7 +453,7 @@ class UserController extends BaseController
     public function saveEmail(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'email' => 'required|email|unique:users,email,'.$id,
@@ -486,7 +486,7 @@ class UserController extends BaseController
     public function savePassword(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'current_password' => 'required|min:6',
@@ -515,7 +515,7 @@ class UserController extends BaseController
     public function saveProfileimage(Request $request)
     {
         $id=Auth::user()->id;
-        $input = Input::all();
+        $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
             'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
