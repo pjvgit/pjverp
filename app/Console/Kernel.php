@@ -13,8 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\ClearDatabase::class,
-        Commands\DeleteExtrafiles::class,
+        //
     ];
 
     /**
@@ -25,8 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('clear:db')->everyFiveMinutes();
-        $schedule->command('delete:extafile')->hourly();
+        // $schedule->command('inspire')->hourly();
     }
 
     /**
