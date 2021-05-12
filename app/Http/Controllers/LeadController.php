@@ -5217,7 +5217,7 @@ class LeadController extends BaseController
        
         // print_r($request->all());exit;
         $post = [
-            'secret' => GOOGLE_CAPTCHA_SECRATE_KEY,
+            'secret' => '6LfC0JQaAAAAABP1teNxor8FJ4CDTcNsvQgzTPEl',
             'response' => $_REQUEST['g-recaptcha-response'],
         ];
         $ch = curl_init();
@@ -5228,7 +5228,7 @@ class LeadController extends BaseController
         $server_output = curl_exec($ch);
         curl_close ($ch);
         $serverCode=json_decode($server_output,true);
-       
+    
         if($serverCode['success']=="1"){
             $firmData=IntakeForm::where("form_unique_id",$request->form_unique_id)->first();
             $intakeForm=IntakeFormFields::where("intake_form_id",$request->form_id)->get();
@@ -5238,18 +5238,12 @@ class LeadController extends BaseController
                 if($v->form_field=="name" && $v->is_required=="yes"){
                     $requiredArray=array("first_name"=>"required|min:1","last_name"=>"required");
                 }
-                // if($v->form_field=="email" && $v->is_required=="yes"){
-                //     $requiredArray=array("email"=>'required|email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
-                // }else{
-                //     $requiredArray=array("email"=>'email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
-                // }
-                
                 if($v->form_field=="email" && $v->is_required=="yes"){
-                    $requiredArray=array("email"=>'required|email');
+                    $requiredArray=array("email"=>'required|email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
                 }else{
-                    $requiredArray=array("email"=>'email');
-                }
+                    $requiredArray=array("email"=>'email|unique:users,email,NULL,id,firm_name,'.$firmData['firm_name']);
 
+                }
                 if($v->form_field=="address" && $v->is_required=="yes"){
                     $requiredArray=array("email"=>"required");
                 }

@@ -66,8 +66,8 @@ define("USER_FOUND","User found successfully!");
 
 
 if(@$_SERVER['SERVER_NAME']=='localhost'){
-    define("BASE_URL", "http://localhost/legalcase7_git/");
-    define("BASE_LOGO_URL", "http://localhost/legalcase7_git/");
+    define("BASE_URL", "http://localhost/legalcase7/");
+    define("BASE_LOGO_URL", "http://localhost/legalcase7/");
     //Local folder path
     define("USER_IMAGE_FOLDER_PATH", "local/users/");
 }elseif(@$_SERVER['SERVER_NAME']=='bne.poderjudicialvirtual.com'){
@@ -130,9 +130,6 @@ define('LOADER', BASE_URL.'public/images/ajax_arrows.gif');
 define('ADDRESS','9201 Spectrum Center Blvd STE 100, San Diego, CA 92123');
 define('CELL','00000000');
 
-
-define('GOOGLE_CAPTCHA_SECRATE_KEY','6LfC0JQaAAAAABP1teNxor8FJ4CDTcNsvQgzTPEl');
-define('GOOGLE_CAPTCHA_SITE_KEY','6LfC0JQaAAAAAGfDzY23bY9WHG1pKx43B5ZJraMX');
 /****************************************************/
 /*********************ADMIN PANEL  ******************/
 /****************************************************/
