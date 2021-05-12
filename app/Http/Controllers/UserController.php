@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
 use Carbon\Carbon;
 use App\UserPreferanceReminder;
+use Illuminate\Support\Str;
 
 class UserController extends BaseController
 {
@@ -520,7 +521,7 @@ class UserController extends BaseController
         $validator = Validator::make($input, [
             'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ]);
-
+        
         if ($validator->fails()) {
         	$errors = $validator->errors();
         	$code = 404;
@@ -529,15 +530,20 @@ class UserController extends BaseController
 
              return redirect()->back()->withErrors($validator)->withInput();
         }else{
-
+           
             if ($request->hasFile('profile_image')) {
+              
                 $destinationPath = public_path('/images/users/');
+               
                 if(isset($user->profile_image) && $user->profile_image){
                     $storeImageFullPath=$destinationPath . '/' . $user->profile_image;
                     // unlink($storeImageFullPath);
                 }
+               
                 $image = $request->file('profile_image');
-                $image_name = str_slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
+                // print_r($request->all());exit;
+                 $image_name = Str::slug($user->id)."_".date('Ymdhis').'.'.$image->getClientOriginalExtension();
+            
                 $resize_image = Image::make($image->getRealPath())->save($destinationPath . '/' . $image_name);
                 // $resize_image->resize(160, 160, function($constraint){
                 // })->save($destinationPath . '/' . $image_name);
