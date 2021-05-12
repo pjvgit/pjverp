@@ -34,7 +34,7 @@ class FirmController extends BaseController
     
     public function updateFirm(Request $request)
     {
-        $input = $request->all();
+        $input = Input::all();
         $validator = Validator::make($input, [
             'firm_name' => 'required|min:1|max:255|unique:firm,firm_name,'.Auth::User()->firm_name,
         ]);
