@@ -902,6 +902,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/addAdjustmentEntry', 'BillingController@addAdjustmentEntry')->name('bills/invoices/addAdjustmentEntry');
     Route::post('bills/invoices/saveAdjustmentEntry', 'BillingController@saveAdjustmentEntry')->name('bills/invoices/saveAdjustmentEntry');
     Route::post('bills/invoices/editAdjustmentEntry', 'BillingController@editAdjustmentEntry')->name('bills/invoices/editAdjustmentEntry');
+    Route::post('bills/invoices/updateAdjustmentEntry', 'BillingController@updateAdjustmentEntry')->name('bills/invoices/updateAdjustmentEntry');
     Route::post('bills/invoices/graantAccess', 'BillingController@graantAccess')->name('bills/invoices/graantAccess');
     Route::post('bills/invoices/addInvoiceEntry', 'BillingController@addInvoiceEntry')->name('bills/invoices/addInvoiceEntry');
     Route::post('bills/invoices/updateInvoiceEntry', 'BillingController@updateInvoiceEntry')->name('bills/invoices/updateInvoiceEntry');

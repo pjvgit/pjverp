@@ -519,7 +519,9 @@ class UserController extends BaseController
         $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
-            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+        ],[
+            'profile_image.required' => 'Please select a file to upload',
         ]);
 
         if ($validator->fails()) {
