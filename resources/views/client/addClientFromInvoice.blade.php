@@ -267,7 +267,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
-        $(".datepicker").datepicker();
+        $(".datepicker").datepicker({'todayHighlight': true});
         $("#innerLoader").css('display', 'none');
         $("#innerLoader").hide();
         $("#show_contact_group_text").hide();

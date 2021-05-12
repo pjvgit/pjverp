@@ -17,8 +17,6 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo,App\Invoices;
-use Illuminate\Support\Str;
-
 class CustomScriptController extends BaseController
 {
     public function __construct()
@@ -31,7 +29,7 @@ class CustomScriptController extends BaseController
         $Invoices=Invoices::get();
         foreach($Invoices as $k){
            DB::table('invoices')->where("id",$k->id)->update([
-                'invoice_token'=>Str::random(250)
+                'invoice_token'=>str_random(250)
             ]);
         }
         echo "Done";

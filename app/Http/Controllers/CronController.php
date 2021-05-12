@@ -17,6 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\ClientGroup;
+use App\Invoices;
 class CronController extends BaseController
 {
     public function __construct()
@@ -219,6 +220,15 @@ class CronController extends BaseController
          
         }
 
+    }
+
+    function sentInvoiceReminder(){
+        $date=date('Y-m-d');
+        $seven_day_before = date( 'Y-m-d', strtotime( $date . ' -7 day' ) );
+        $seven_day_after = date( 'Y-m-d', strtotime( $date . ' +7 day' ) );
+        $BeforeInvoices=Invoices::select("*")->whereNotIn("status",["Paid","Partial"])->whereDate("due_date","=",$seven_day_before)->get();
+        $AfterInvoices=Invoices::select("*")->whereNotIn("status",["Paid","Partial"])->whereDate("due_date","=",$seven_day_after)->get();
+        
     }
 }
   

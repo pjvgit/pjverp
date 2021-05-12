@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
-use Illuminate\Support\Str;
-
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
@@ -139,7 +137,30 @@ class BillingController extends BaseController
         return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate"));     
         exit;    
     } 
-  
+    public function loadTimeEntryPopupDontRefresh(Request $request)
+    {  
+        $case_id=$request->case_id;
+        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
+
+        $from=$curDate="";
+        if(isset($request->from)){
+            $from="timesheet";
+            $curDate=$request->curDate;
+        }
+
+        $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
+        if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
+            $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
+            $default_rate=($defaultRate['default_rate'])??0.00;
+        }else{
+            $default_rate=($rateUsers['rate_amount'])??0.00;
+        }
+
+        return view('billing.time_entry.loadTimeEntryPopupDontRefresh',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate"));     
+        exit;    
+    } 
     public function loadEditTimeEntryPopup(Request $request)
     {
         $entry_id=$request->entry_id;
@@ -1066,7 +1087,7 @@ class BillingController extends BaseController
         // $Invoices=Invoices::get();
         // foreach($Invoices as $k){
         //    DB::table('invoices')->where("id",$k->id)->update([
-        //         'invoice_token'=>Str::random(250)
+        //         'invoice_token'=>str_random(250)
         //     ]);
         // }
 
@@ -2395,7 +2416,7 @@ class BillingController extends BaseController
        
             $user =User::find($request->client_id);
             $user->email=$request->email;
-            $user->token  = Str::random(40);
+            $user->token  = str_random(40);
             $user->save();
 
             UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
@@ -2568,7 +2589,7 @@ class BillingController extends BaseController
             $InvoiceSave->save();
 
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
-            $InvoiceSave->invoice_token=Str::random(250);
+            $InvoiceSave->invoice_token=str_random(250);
             $InvoiceSave->save();
 
 
@@ -3127,7 +3148,7 @@ class BillingController extends BaseController
         $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction'));
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+            $pdf->binary = EXE_PATH;
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
@@ -3135,6 +3156,7 @@ class BillingController extends BaseController
         $path = public_path("download/pdf/".$filename);
         // return response()->download($path);
         // exit;
+
         return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
         exit;
     }
@@ -5458,7 +5480,7 @@ class BillingController extends BaseController
                 $InvoiceSave->save();
 
                 $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
-                $InvoiceSave->invoice_token=Str::random(250);
+                $InvoiceSave->invoice_token=str_random(250);
                 $InvoiceSave->save();
 
 
@@ -6989,6 +7011,11 @@ class BillingController extends BaseController
          return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
          exit;
      }
-
+     public function printView(Request $request)
+     {
+        $file=$request->path;
+        return view('print.index',compact('file'));
+        exit;  
+     }
 }
   

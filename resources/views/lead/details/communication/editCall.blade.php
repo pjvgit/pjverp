@@ -237,7 +237,6 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             </div>
         </form>
     </div>
-
 </div>
 
 <script>

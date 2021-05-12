@@ -57,7 +57,7 @@
                                 data-placement="top" title="" data-original-title="Download"></i>
                         </a>
 
-                        <a class="btn btn-lg btn-link px-2 text-black-50 print-bill-icon-action" href="#">
+                        <a class="btn btn-lg btn-link px-2 text-black-50 print-bill-icon-action"  onclick="printPDF('{{$id}}');">
                             <i class="fas fa-print test-print-bill" id="print-bill-button" data-toggle="tooltip"
                                 data-original-title="Print"></i>
                         </a>
@@ -1630,7 +1630,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     "id": id
                 },
                 success: function (res) {
-                    window.open(res.url, '_blank');
+                    var anchor = document.createElement('a');
+                    anchor.href = res.url;
+                    anchor.target = '_blank';
+                    anchor.download = res.file_name;
+                    anchor.click();
+
+                    // window.open(res.url, '_blank');
+                    // window.print();
                     // window.location.href=res.url;
                     $("#preloader").hide();
                 }
@@ -1638,6 +1645,31 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
+
+    function printPDF(id) {
+        $("#preloader").show();
+        $("#reminderPopupArea").html('Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/downloadInvoice",
+                data: {
+                    "id": id
+                },
+                success: function (res) {
+                    printView(res.url)
+                    // window.open(res.url, '_blank');
+                    // window.print();
+                    // window.location.href=res.url;
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
+    function printView(path){
+        window.open('{{BASE_URL}}print?path='+path, '_blank');
+    }
     function emailInvoicePopup(id) {
         $('.showError').html('');
         beforeLoader();

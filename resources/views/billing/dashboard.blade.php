@@ -1020,9 +1020,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         }
     $('#loadTimeEntryPopup,#deleteTimeEntry,#loadEditTimeEntryPopup').on('hidden.bs.modal', function () {
         var currentDate=localStorage.getItem("curDate");
-        if(currentDate!=""){
-            loadTimeEntry(currentDate);
-        }
+        loadTimeEntry(currentDate);
     });
     $('#loadAllTimeEntryPopup').on('hidden.bs.modal', function () {
         localStorage.setItem("curDate", '');

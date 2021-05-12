@@ -1052,6 +1052,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
+    function loadTimeEntryPopupByCaseWithoutRefresh(case_id) {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="{{LOADER}}"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopupDontRefresh", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#loadCommentPopup").modal("hide");
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
     function loadExpenseEntryPopup(case_id=null) {
         $("#preloader").show();
         $("#loadExpenseEntryPopupArea").html('<img src="{{LOADER}}"> Loading...');
@@ -1557,5 +1574,4 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-
 </script>

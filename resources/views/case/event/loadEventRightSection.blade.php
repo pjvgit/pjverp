@@ -5,13 +5,13 @@
         <table class="table table-lg" id="CaseClientSection">
             <tr style="background-color:#FBFBFC;">
                 <td><b>Contact & Leads </b></td>
-                <td>Invite</td>
-                <td>Attend</td>
+                <td>Invite <br><i id="help-bubble-4" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary cursor-pointer" tabindex="0" role="button" href="javascript:;" data-toggle="popover"  data-placement= "bottom"  title="Invite Contacts and Leads" data-content='<div class="popover-body"><strong>Contacts:</strong> When you invite a contact to an event, they will receive an email with event details and it will be shared on their client portal.<br><br><strong>Leads:</strong> When you invite a lead to an event, they will receive an email with event details.</div>' data-html="true" data-original-title="" ></i></td>
+                <td>Attend </td>
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" type="checkbox"></td>
-                <td><input name="client-attend-all" type="checkbox"></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox"></td>
+                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox"></td>
             </tr>
             <?php 
                     foreach($caseCllientSelection as $key=>$val){?>
@@ -20,7 +20,7 @@
                     <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#"
                         data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
-                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/client/{{base64_encode($val->user_id)}}'>Edit Info</a>"
+                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
                         data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
@@ -33,13 +33,13 @@
                         ?>
                         <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
+                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
                         <?php
                         }else{
                             ?>
                         <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
+                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
                         <?php
                         }?>
 
@@ -47,7 +47,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" name="attend-checkbox" type="checkbox">
+                        <input disabled="" class="lead_client_attend_all_users" name="attend-checkbox" type="checkbox">
                     </label>
                 </td>
             </tr>
@@ -231,9 +231,49 @@
                 loadTimeEstimationUsersList(SU);
             }
         });
+
+        $(".client_share_all_users ").click(function () {
+            if ($('.client_share_all_users:checked').length == $('.client_share_all_users').length) {
+                $("#client_share_all").prop('checked', "checked")
+            } else {
+                $("#client_share_all").prop('checked', false)
+            }
+        });
+        $(".client_attend_all_users ").click(function () {
+            if ($('.client_attend_all_users:checked').length == $('.client_attend_all_users').length) {
+                $("#client_attend_all").prop('checked', "checked")
+            } else {
+                $("#client_attend_all").prop('checked', false)
+            }
+        });
+
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
         });
+
+        $("#SelectAllLeadShare").click(function () {
+            $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+            $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+        });
+        $(".lead_client_share_all_users ").click(function () {
+            if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
+                $("#SelectAllLeadShare").prop('checked', "checked")
+            } else {
+                $("#SelectAllLeadShare").prop('checked', false)
+            }
+        });
+        $("#SelectAllLeadAttend").click(function () {
+            $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+            // $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+        });
+        $(".lead_client_attend_all_users ").click(function () {
+            if ($('.lead_client_attend_all_users:checked').length == $('.lead_client_attend_all_users').length) {
+                $("#SelectAllLeadAttend").prop('checked', "checked")
+            } else {
+                $("#SelectAllLeadAttend").prop('checked', false)
+            }
+        });
+       
     });
 
     function loadTimeEstimationUsersList(SU) {

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
@@ -1778,7 +1776,7 @@ class ClientdashboardController extends BaseController
             if(isset($request->default_rate)) { $user->default_rate=trim(str_replace(",","",$request->default_rate)); }
             if(isset($request->user_type)) { $user->user_type=trim($request->user_type); }
             $user->firm_name=Auth::User()->firm_name;
-            $user->token  = Str::random(40);
+            $user->token  = str_random(40);
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->created_by =Auth::User()->id;

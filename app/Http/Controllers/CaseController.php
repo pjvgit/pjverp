@@ -5,8 +5,6 @@ use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
 use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Str;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission;
@@ -1393,7 +1391,7 @@ class CaseController extends BaseController
 
              if($user->email!=$request->email){
                 $user->email=$request->email;
-                $user->token  = Str::random(40);
+                $user->token  = str_random(40);
                 $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
                 $getTemplateData = EmailTemplate::find(6);
                 $fullName=$request->first_name. ' ' .$request->last_name;
