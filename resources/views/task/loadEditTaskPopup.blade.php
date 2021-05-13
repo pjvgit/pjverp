@@ -681,7 +681,15 @@
             if($("input:checkbox#no_case_link").is(":checked")){
                 loadTimeEstimationUsersList();
             }else{
-                if(beforeload==false){
+                if($("input:checkbox#client_attend_all").is(":checked")){
+                    var SU = getCheckedUser();
+                    loadTimeEstimationUsersList(SU);
+                }
+                else if($("input:checkbox.client_attend_all_users").is(":checked")){
+                    var SU = getCheckedUser();
+                    loadTimeEstimationUsersList(SU);
+                }
+                else if(beforeload==false){
                     loadTimeEstimationUsersLinkedStaffList1();
                     beforeload=true;
                 }
