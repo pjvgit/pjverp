@@ -1861,21 +1861,21 @@ class BillingController extends BaseController
             $ExpenseEntry=$ExpenseEntry->get();
 
 
-            //Get Flat fees entry
-            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")->where("task_time_entry.case_id",$case_id)
-            ->where("task_time_entry.status","unpaid")
-            ->where(function($TimeEntry) use($request){
-                $TimeEntry->where("task_time_entry.token_id","!=",$request->token);
-                $TimeEntry->orwhere("task_time_entry.token_id",NULL);
-            });
+            // //Get Flat fees entry
+            // $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")->where("task_time_entry.case_id",$case_id)
+            // ->where("task_time_entry.status","unpaid")
+            // ->where(function($TimeEntry) use($request){
+            //     $TimeEntry->where("task_time_entry.token_id","!=",$request->token);
+            //     $TimeEntry->orwhere("task_time_entry.token_id",NULL);
+            // });
 
-            if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $TimeEntry=$TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
-                $from_date=$request->from_date;
-                $bill_to_date=$request->bill_to_date;
-                $filterByDate='yes';
-            }
-            $TimeEntry=$TimeEntry->get();
+            // if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
+            //     $TimeEntry=$TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+            //     $from_date=$request->from_date;
+            //     $bill_to_date=$request->bill_to_date;
+            //     $filterByDate='yes';
+            // }
+            // $TimeEntry=$TimeEntry->get();
 
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
