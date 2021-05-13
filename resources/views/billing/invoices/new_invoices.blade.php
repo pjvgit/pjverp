@@ -222,10 +222,147 @@ if(!isset($adjustment_token)){
                     </div>
                     <?php if($case_id!=""){?>
                     <div id="entries" style="margin: 5px;">
-
                         <div class="invoice_case_gradient">
                             <h2><i class="fas fa-briefcase mr-2"></i> {{$caseMaster['case_title']}} </h2>
                         </div>
+                        <div class="invoice_entry_header">
+                            <table>
+                                <tr>
+                                    <td width="100%">
+                                        <h3 class="entry-header">Falt Fees</h3>
+                                    </td>
+                                    <td width="1%">
+                                        <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
+                                            <a data-toggle="modal" data-target="#removeAllExistingFlatFeeEntry"
+                                                data-placement="bottom" href="javascript:;"> <i
+                                                    class="fas fa-trash align-middle pr-2"></i></a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="clear-header"></div>
+                        </div>
+                        <table id="entries_13285222" class="data invoice_entries time_entries_table">
+                            <colgroup>
+                                <col width="3%"> <!-- blank placeholder -->
+                                <col width="10%"> <!-- date -->
+                                <col width="6%"> <!-- EE -->
+                                <col width="12%"> <!-- Employee -->
+                                <col width="13%"> <!-- Activity -->
+                                <col width="44%"> <!-- Notes -->
+                                <col width="10%"> <!-- Rate -->
+                                <col width="4%"> <!-- non-billable checkbox -->
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th style="border-right: none;">&nbsp;</th>
+                                    <th style="border-left: none;">Date</th>
+                                    <th> EE </th>
+                                    <th> Employee</th>
+                                    <th> Item </th>
+                                    <th> Falt Fee Notes</th>
+                                    <th> Amount </th>
+                                    <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable</th>
+                                </tr>
+                                <?php
+                                if($FlatFeeEntry->isEmpty()){?>
+                                    <tr class="no_entries">
+                                        <td colspan="9"
+                                            style="text-align: center; padding-top: 10px !important; padding-bottom: 10px !important;">
+                                            This matter has no unbilled flat fees entries.
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                <?php 
+                                $timeEntryTime=$timeEntryAmount=0;
+                                foreach($FlatFeeEntry as $k=>$v){
+                                ?>
+                                
+                                <tr id="time-79566738-7" class="invoice_entry time_entry ">
+                                    <td style="vertical-align: center; text-align: center; border-right: none;"
+                                        class="tdTime">
+                                        <div class="invoice_entry_actions">
+                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openTimeDelete({{$v->itd}});">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </div>
+                                        <input type="hidden" value="{{$v->itd}}" name="flatFeeEntrySelectedArray[]">
+                                    </td>
+                                    <td style="border-left: none;" class="">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry" onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                            href="javascript:;" class="ml-0">
+                                            {{date('d/m/Y',strtotime($v->entry_date))}}
+                                        </a>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-initials" class="mycase_select">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                                href="javascript:;" class="ml-0">
+                                                {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-user" class="mycase_select">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                                href="javascript:;" class="ml-0"> {{$v->first_name}} {{$v->last_name}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-user">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom" href="javascript:;" class="ml-0"> Flat Fee
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: left;" class="billable_toggle time-entry-rate  ">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry" onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                            href="javascript:;" class="ml-0">
+                                            {{$v->description}}
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;" class="billable_toggle time-entry-hours row_total">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom" href="javascript:;" class="ml-0">
+                                           {{$v->cost}}
+                                        </a>
+                                    </td>
+                                    
+                                    <td style="text-align: center; padding-top: 10px !important;">
+                                        <input type="checkbox" class="invoice_entry_nonbillable_time" id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                            name="linked_staff_checked_shar[]" priceattr="" value="{{$v->itd}}">
+                                    </td>
+                                </tr>
+                                <?php } ?>
+
+                                <tr class="footer">
+                                    <td colspan="3">
+                                        <div class="locked">
+                                            <a data-toggle="modal" data-target="#addNewFlatFeeEntry"
+                                                onclick="addSingleFlatFeeEntry()" data-placement="bottom" href="javascript:;"
+                                                class="ml-4">
+                                                <i class="fas fa-plus align-middle"></i> Add Flat Fee Line</a>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="text-align: right;">
+                                        <div class="locked">
+                                            {{$caseMaster['case_title']}} flat fee totals:
+                                        </div>
+                                    </td>
+                                   
+                                    <td>
+                                        <div class="locked" style="text-align: right;">
+                                            $<span id="time_entry_table_total"
+                                                class="table_total">{{number_format($timeEntryAmount,2)}}</span>
+
+                                        </div>
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                        <br>
+
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -1711,6 +1848,26 @@ if(!isset($adjustment_token)){
         </div>
     </div>
 </div>
+
+<div id="addNewFlatFeeEntry" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Add Flat Fee</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="addNewFlatFeeEntryArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .strike{
         /* text-decoration: line-through;
@@ -2875,6 +3032,54 @@ if(!isset($adjustment_token)){
     }
 
 
+
+    function addSingleFlatFeeEntry() {
+        $('.showError').html('');
+        beforeLoader();
+        $("#addSingleFlatFeeEntryArea").html('');
+        $("#addSingleFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
+            data: {
+                "id": "{{base64_encode($caseMaster['id'])}}"
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#addNewTimeEntryArea").html('');
+                    $('#addNewTimeEntry').animate({
+                        scrollTop: 0
+                    }, 'slow');
+
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#addNewTimeEntryArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                $('#addNewTimeEntry').animate({
+                    scrollTop: 0
+                }, 'slow');
+
+                afterLoader();
+            }
+        })
+    }
 
     function openExpenseDelete(id) {
         $("#delete_expense_existing_dialog").modal("show");

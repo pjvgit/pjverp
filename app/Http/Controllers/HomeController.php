@@ -21,6 +21,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory;
 use App\Invoices;
 use App\Http\Requests\MultiuserRequest;
+use Illuminate\Support\Str;
 class HomeController extends BaseController
 {
     public function __construct()
@@ -225,7 +226,7 @@ class HomeController extends BaseController
                         $user->user_title='Staff';
                     }
                     $user->firm_name=Auth::User()->firm_name;
-                    $user->token  = str_random(40);
+                    $user->token  = Str::random(40);
                     $user->parent_user =Auth::User()->id;
                     $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
                     $user->created_by =Auth::User()->id;

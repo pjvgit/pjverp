@@ -24,6 +24,7 @@ use App\LeadCaseActivityHistory,App\CaseNotes,App\CaseIntakeForm;
 use App\CaseIntakeFormFieldsData,App\PotentialCaseInvoice;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
+use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
 class LeadController extends BaseController
 {
@@ -305,7 +306,7 @@ class LeadController extends BaseController
             $UserMaster->country=$request->country;
             $UserMaster->password='';
             $UserMaster->firm_name=Auth::User()->firm_name;
-            $UserMaster->token  = str_random(40);
+            $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';
@@ -1568,7 +1569,7 @@ class LeadController extends BaseController
         $UserMaster->state=$OnlineLeadSubmit['state'];
         $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
         $UserMaster->country=$OnlineLeadSubmit['country'];
-        $UserMaster->token  = str_random(40);
+        $UserMaster->token  = Str::random(40);
         $UserMaster->user_type='5';  // 5  :Lead
         $UserMaster->user_level='5'; // 5  :Lead
         $UserMaster->user_title='';
@@ -1635,7 +1636,7 @@ class LeadController extends BaseController
             $UserMaster->state=$OnlineLeadSubmit['state'];
             $UserMaster->postal_code=$OnlineLeadSubmit['postal'];
             $UserMaster->country=$OnlineLeadSubmit['country'];
-            $UserMaster->token  = str_random(40);
+            $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
             $UserMaster->user_title='';

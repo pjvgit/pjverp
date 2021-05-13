@@ -11,6 +11,7 @@ use Validator, Response, Mail,Storage,DB;
 use App\User,App\CaseActivity,App\AccountActivity;
 use App\CaseClientSelection,App\ClientActivity,App\UsersAdditionalInfo;
 use App\TaskTimeEntry,App\ExpenseEntry,App\ViewCaseState,App\CaseStaff;
+use Illuminate\Support\Str;
 class BaseController extends Controller
 {   
     public function __construct(){
@@ -183,7 +184,7 @@ class BaseController extends Controller
     }
     public function generateUniqueToken()
     {
-        return str_random(250)."-".time();
+        return Str::random(250)."-".time(); 
     }
     public function getTimeEntryTotalByCase($case_id){
         $timeTotalBillable=$timeTotalNonBillable=0;

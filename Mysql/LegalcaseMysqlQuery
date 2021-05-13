@@ -156,6 +156,8 @@ ALTER TABLE `case_master` ADD `billing_method` VARCHAR(255) NULL AFTER `is_entry
 ALTER TABLE `case_stage_history` ADD `end_date` DATETIME NULL AFTER `stage_id`;
 
 ALTER TABLE `users` CHANGE `user_role` `user_role` INT(11) NOT NULL DEFAULT '0' COMMENT 'ref=user_role->id';
+ALTER TABLE `invoices` CHANGE `total_amount` `total_amount` DECIMAL(20,2) NULL DEFAULT '0.00';
+ALTER TABLE `invoices` CHANGE `paid_amount` `paid_amount` DECIMAL(20,2) NOT NULL DEFAULT '0.00', CHANGE `due_amount` `due_amount` DECIMAL(20,2) NULL DEFAULT '0.00';
 
 -- --------------------------------------------------------
 

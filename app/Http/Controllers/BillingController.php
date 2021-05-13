@@ -1862,20 +1862,17 @@ class BillingController extends BaseController
 
 
             // //Get Flat fees entry
-            // $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")->where("task_time_entry.case_id",$case_id)
-            // ->where("task_time_entry.status","unpaid")
-            // ->where(function($TimeEntry) use($request){
-            //     $TimeEntry->where("task_time_entry.token_id","!=",$request->token);
-            //     $TimeEntry->orwhere("task_time_entry.token_id",NULL);
-            // });
+            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")->where("flat_fee_entry.case_id",$case_id)
+            ->where("flat_fee_entry.status","unpaid")
+            ->where(function($FlatFeeEntry) use($request){
+                $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
+                $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
+            });
 
-            // if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-            //     $TimeEntry=$TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
-            //     $from_date=$request->from_date;
-            //     $bill_to_date=$request->bill_to_date;
-            //     $filterByDate='yes';
-            // }
-            // $TimeEntry=$TimeEntry->get();
+            if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
+                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+            }
+            $FlatFeeEntry=$FlatFeeEntry->get();
 
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
@@ -1887,7 +1884,7 @@ class BillingController extends BaseController
             $maxInvoiceNumber=Invoices::max("id")+1;
 
             $adjustment_token=$request->token;
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate'));
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry'));
         }else{
             return view('pages.404');
         }
@@ -1937,7 +1934,35 @@ class BillingController extends BaseController
             exit;  
         }  
     }
+    public function addSingleFlatFeeEntry(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $id=Auth::user()->id;
+            $user = User::find($id);
+            if(!empty($user)){
+                $invoice_id=$request->invoice_id;
+                $case_id=base64_decode($request->id);
 
+                $defaultRate='';
+                $CaseMasterData = CaseMaster::find($case_id);
+
+                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
+                
+                return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id'));     
+                exit; 
+            
+            }else{
+                return view('pages.404');
+            }
+        }
+    }
     public function addSingleTimeEntry(Request $request)
     {
         $validator = \Validator::make($request->all(), [
@@ -2561,14 +2586,14 @@ class BillingController extends BaseController
             'court_case_id' => 'required|numeric',
             'contact' => 'required|numeric',
             'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required|array',
-            'expenseEntrySelectedArray'=>'required|array'
+            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
+            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array'
         ],["invoice_number_padded.unique"=>"Invoice number is already taken",
         "invoice_number_padded.required"=>"Invoice number must be greater than 0",
         "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
         "contact.required"=>"Billing user can't be blank",
-        "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
-        "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"]);
+        "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
+        "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"]);
           
        
             // print_r($request->all());exit;

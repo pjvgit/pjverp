@@ -134,7 +134,7 @@ $finalAmt=$invoice-$paid;
                 <div class="col-md-2 form-group">
                     <label for="firstName1">&nbsp;</label>
                     <label class="checkbox checkbox-outline-primary">
-                        <input type="checkbox" class="payfullFirst" id="payfull" value="{{number_format($finalAmt,2)}}"
+                        <input type="checkbox" class="payfullFirst" id="payfull" value="{{$finalAmt}}"
                             name="payfull"><span>Pay in full</span><span class="checkmark"></span>
                     </label>
                 </div>
@@ -392,7 +392,8 @@ $finalAmt=$invoice-$paid;
     }
 
     function didPayment() {
-        var currentAmt = $.number($('#amountFirst').val(),2);
+        var amtVal= $('#amountFirst').val();
+        var currentAmt = $.number(amtVal,2);
         swal({
             title: 'Confirm the payment amount of $' + currentAmt + '?',
             text: "",

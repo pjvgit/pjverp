@@ -83,7 +83,7 @@ class UserController extends BaseController
         $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
         $user->password='';
         $user->firm_name=$request->firm_name;
-        $user->token  = str_random(40);
+        $user->token  = Str::random(40);
         $user->user_title='Attorney';
         $user->user_timezone='';
         $user->parent_user ="0";
@@ -203,7 +203,7 @@ class UserController extends BaseController
             //Create Password Reset Token
             DB::table('password_resets')->insert([
                 'email' => $request->email,
-                'token' => str_random(60),
+                'token' => Str::random(60),
                 'created_at' => date('Y-m-d h:i:s')
             ]);
             //Get the token just created above
@@ -642,7 +642,7 @@ class UserController extends BaseController
         $getTemplateData = EmailTemplate::find(5);
         $fullName = "Divyesh" . ' ' . "Patoriya";
         $email="test@mail.com";
-        $token=url('user/verify', str_random(40));
+        $token=url('user/verify', Str::random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{name}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);
@@ -655,7 +655,7 @@ class UserController extends BaseController
 
         echo "<hr>";
         echo "<h3 style='text-align: center;'>Forgot Password</h3>";
-        $token=str_random(40);
+        $token=Str::random(40);
         $changePwdUrl = route('password.reset.token',['token' => $token]);
         $getTemplateData = EmailTemplate::find(1);
         $mail_body = $getTemplateData->content;
@@ -696,7 +696,7 @@ class UserController extends BaseController
         echo "<hr>";
         echo "<h3 style='text-align: center;'> Invited User to Join Legalcase</h3>";
         $getTemplateData = EmailTemplate::find(6);
-        $token=url('user/verify', str_random(40));
+        $token=url('user/verify', Str::random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{name}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);
@@ -713,7 +713,7 @@ class UserController extends BaseController
         echo "<hr>";
         echo "<h3 style='text-align: center;'> Intake Form</h3>";
         $getTemplateData = EmailTemplate::find(7);
-        $token=url('user/verify', str_random(40));
+        $token=url('user/verify', Str::random(40));
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{message}', $fullName, $mail_body);
         $mail_body = str_replace('{email}', $email,$mail_body);

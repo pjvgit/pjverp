@@ -19,6 +19,7 @@ use App\Invoices,App\TaskTimeEntry;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes;
+use Illuminate\Support\Str;
 class CaseController extends BaseController
 {
     public function __construct()
@@ -1391,7 +1392,7 @@ class CaseController extends BaseController
 
              if($user->email!=$request->email){
                 $user->email=$request->email;
-                $user->token  = str_random(40);
+                $user->token  = Str::random(40);
                 $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
                 $getTemplateData = EmailTemplate::find(6);
                 $fullName=$request->first_name. ' ' .$request->last_name;

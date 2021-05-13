@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission,App\Firm;
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection,App\UserRole;
 use App\CasePracticeArea,App\CaseStage;
+use Illuminate\Support\Str;
 class ContractController extends BaseController
 {
     public function __construct()
@@ -103,7 +104,7 @@ class ContractController extends BaseController
             if(isset($request->default_rate)) { $user->default_rate=trim(str_replace(",","",$request->default_rate)); }
             if(isset($request->user_type)) { $user->user_type=trim($request->user_type); }
             $user->firm_name=Auth::User()->firm_name;
-            $user->token  = str_random(40);
+            $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->created_by =Auth::User()->id;
@@ -538,7 +539,7 @@ class ContractController extends BaseController
 
              if($user->email!=$request->email){
                 $user->email=$request->email;
-                $user->token  = str_random(40);
+                $user->token  = Str::random(40);
                 $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
                 $getTemplateData = EmailTemplate::find(6);
                 $fullName=$request->first_name. ' ' .$request->last_name;
@@ -767,7 +768,7 @@ class ContractController extends BaseController
             if(isset(Auth::User()->firm_name)) { $user->firm_name=Auth::User()->firm_name; }
             
 
-            $user->token  = str_random(40);
+            $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->user_level  = "2";  // Default status is inactive once verified account it will activated.
@@ -1199,7 +1200,7 @@ class ContractController extends BaseController
             if(isset($request->country)) { $user->country=$request->country; }
             if(isset(Auth::User()->firm_name)) { $user->firm_name=Auth::User()->firm_name; }
 
-            $user->token  = str_random(40);
+            $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->user_level  = "4"; //4-company  

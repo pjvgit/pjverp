@@ -16,8 +16,7 @@
                         <div class="files-per-page-selector float-right" style="white-space: nowrap; ">
                             <label class="mr-2">Rows Per Page:</label>
                             <select id="per_page" onchange="onchangeLength();" name="per_page" class="custom-select w-auto">
-                                <option value="5" selected="">5</option>
-                                <option value="10">10</option>
+                                <option value="10" selected="">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
