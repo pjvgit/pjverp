@@ -454,7 +454,7 @@ class HomeController extends BaseController
         {
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('users as u1','u1.id','=','all_history.deposit_for')
-            ->select("users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
+            ->select("users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"all_history.created_at as all_history_created_at")
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","deposit")
             ->orderBy('all_history.id','DESC');
