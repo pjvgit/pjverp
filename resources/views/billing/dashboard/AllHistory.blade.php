@@ -63,6 +63,8 @@ $CommonController= new App\Http\Controllers\CommonController();
                                             $image="activity_bill_paid.png";
                                         }else if($v->action=="delete"){
                                             $image="activity_bill_deleted.png";
+                                        }else{
+                                            $image="activity_bill_paid.png";
                                         }?>
                     <?php 
                                         if(in_array($v->action,["add","update","delete"])){ ?>
