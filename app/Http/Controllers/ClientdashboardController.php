@@ -181,9 +181,9 @@ class ClientdashboardController extends BaseController
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole");
         $case = $case->whereIn("case_master.id",$getClientWiseCaseList);
         $case = $case->where("case_master.is_entry_done","1")
-        ->where("case_master.is_entry_done","1")
-        ->where("case_close_date",NULL)
-        ->orwhere("case_close_date","!=",NULL);
+        ->where("case_master.is_entry_done","1");
+        // ->where("case_close_date",NULL)
+        // ->orwhere("case_close_date","!=",NULL);
         $totalData=$case->count();
         $totalFiltered = $totalData; 
         
