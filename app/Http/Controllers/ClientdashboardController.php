@@ -1995,7 +1995,7 @@ class ClientdashboardController extends BaseController
         $img = str_replace('data:image/'.$type[0].';base64,', '', $image);
         $img = str_replace(' ', '+', $img);
         $data = base64_decode($img);
-        $file = $request->user_id."_profile" . "." . $type[0];
+        $file = $request->user_id."_".time()."_profile" . "." . $type[0];
         $destinationPath = public_path('/profile/'); 
         $success = file_put_contents($destinationPath."/".$file, $data);
 
