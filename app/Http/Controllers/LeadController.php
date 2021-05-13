@@ -711,7 +711,7 @@ class LeadController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $LeadAdditionalInfo = LeadAdditionalInfo::where('user_id',$request->id)->first();
+            $LeadAdditionalInfo = LeadAdditionalInfo::find($request->id);
             if($request->not_hire_reasons_text!=""){
                 $existStatus=NotHireReasons::select('id')->where('title',$request->not_hire_reasons_text)->where("firm_id",Auth::User()->firm_name)->count();
                 if($existStatus=="0"){
