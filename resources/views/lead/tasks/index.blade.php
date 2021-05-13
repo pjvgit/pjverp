@@ -271,7 +271,7 @@ if(isset($_GET['status'])){
         });
 
         $('#actionbutton').attr('disabled', 'disabled');
-        $('.dropdown').change(function() {
+        $('.dropdownArea').change(function() {
             this.form.submit();
         });
 
