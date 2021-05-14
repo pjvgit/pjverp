@@ -160,6 +160,44 @@ ALTER TABLE `invoices` CHANGE `total_amount` `total_amount` DECIMAL(20,2) NULL D
 ALTER TABLE `invoices` CHANGE `paid_amount` `paid_amount` DECIMAL(20,2) NOT NULL DEFAULT '0.00', CHANGE `due_amount` `due_amount` DECIMAL(20,2) NULL DEFAULT '0.00';
 
 
+
+DROP TABLE IF EXISTS `flat_fee_entry`;
+CREATE TABLE IF NOT EXISTS `flat_fee_entry` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `case_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `time_entry_billable` enum('yes','no') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `entry_date` date DEFAULT NULL,
+  `cost` decimal(11,2) DEFAULT NULL,
+  `status` enum('paid','unpaid') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
+  `invoice_link` int(11) DEFAULT NULL,
+  `remove_from_current_invoice` enum('yes','no') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `token_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+DROP TABLE IF EXISTS `flat_fee_entry_for_invoice`;
+CREATE TABLE IF NOT EXISTS `flat_fee_entry_for_invoice` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `invoice_id` int(11) DEFAULT NULL,
+  `flat_fee_entry_id` int(11) DEFAULT NULL COMMENT 'ref : flat_fee_entry->id\r\n',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+
+
+
 //flat_fee_entry_for_invoice
 //flat_fee_entry
 
