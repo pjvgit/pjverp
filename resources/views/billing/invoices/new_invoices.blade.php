@@ -232,11 +232,13 @@ if(!isset($adjustment_token)){
                                         <h3 class="entry-header">Falt Fees</h3>
                                     </td>
                                     <td width="1%">
+                                    <?php if(!$FlatFeeEntry->isEmpty()){?>
                                         <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
                                             <a data-toggle="modal" data-target="#removeAlllExistingFlatFeeEntry"
                                                 data-placement="bottom" href="javascript:;"> <i
                                                     class="fas fa-trash align-middle pr-2"></i></a>
                                         </span>
+                                        <?php  } ?>
                                     </td>
                                 </tr>
                             </table>
@@ -371,11 +373,13 @@ if(!isset($adjustment_token)){
                                         <h3 class="entry-header">Time Entries</h3>
                                     </td>
                                     <td width="1%">
+                                    <?php if(!$TimeEntry->isEmpty()){?>
                                         <span data-toggle="tooltip" data-placement="left" title="Remove all time entries">
                                             <a data-toggle="modal" data-target="#removeAlllExistingTimeEntry"
                                                 data-placement="bottom" href="javascript:;"> <i
                                                     class="fas fa-trash align-middle pr-2"></i></a>
                                         </span>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                             </table>
@@ -408,8 +412,7 @@ if(!isset($adjustment_token)){
                                     <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable
                                     </th>
                                 </tr>
-                                <?php
-                                if($TimeEntry->isEmpty()){?>
+                                <?php if($TimeEntry->isEmpty()){?>
                                 <tr class="no_entries">
                                     <td colspan="9"
                                         style="text-align: center; padding-top: 10px !important; padding-bottom: 10px !important;">
@@ -561,11 +564,13 @@ if(!isset($adjustment_token)){
                                             <h3 class="entry-header">Expenses</h3>
                                         </td>
                                         <td width="1%">
+                                        <?php if(!$ExpenseEntry->isEmpty()){?>
                                             <span data-toggle="tooltip" data-placement="left" title="Remove all expenses">
                                                 <a data-toggle="modal" data-target="#removeAlllExistingExpenseEntry"
                                                     data-placement="bottom" href="javascript:;"> <i
                                                         class="fas fa-trash align-middle pr-2"></i></a>
                                             </span>
+                                        <?php } ?>
                                         </td>
                                     </tr>
                                 </table>
@@ -619,8 +624,7 @@ if(!isset($adjustment_token)){
                                             Non<br>Billable
                                         </th>
                                     </tr>
-                                    <?php
-                                    if($ExpenseEntry->isEmpty()){?>
+                                    <?php if($ExpenseEntry->isEmpty()){?>
                                     <tr class="no_entries" style="">
                                         <td colspan="9"
                                             style="text-align: center; padding-top: 10px !important; padding-bottom: 10px !important;">
