@@ -119,7 +119,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     <a href="#">
                         <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
                     </a>
-                    <button type="submit" onclick="getButton('st')" data-testid="save-and-add-time" id="save-and-add-time-entry" class="btn btn-secondary m-1">Save + <i class="far fa-clock fa-lg"></i></button>
+                    <button type="submit" onclick="getButton('st')" data-testid="save-and-add-time" id="save_and_add_time_entry" class="save_and_add_time_entry btn btn-secondary m-1">Save + <i class="far fa-clock fa-lg"></i></button>
                     <button onclick="getButton('s')" class="btn btn-primary ladda-button example-button m-1 submit" id="submitButton" type="submit">Save</button>
                 </div>
             </div>
@@ -226,6 +226,8 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     <a href="#">
                         <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
                     </a>
+                    <button type="submit" onclick="getButton('st')" data-testid="save-and-add-time" id="save_and_add_time_entry" class="save_and_add_time_entry btn btn-secondary m-1">Save + <i class="far fa-clock fa-lg"></i></button>
+              
                     <button class="btn btn-primary ladda-button example-button m-1 submit" id="submitButton" type="submit">Save</button>
                 </div>
             </div>
@@ -243,10 +245,14 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $(".timewidget").show();
                 $("#t").timer({ action: 'start' });
                 $("#it").timer({ action: 'start' });
+                $(".save_and_add_time_entry").show();
+
             }else{
                 $("#t").timer({ action: 'reset' });
                 $("#it").timer({ action: 'reset' });
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
+
             }
         });
         $("#case_out").on("select2-selecting", function(e) {
@@ -256,10 +262,12 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $(".timewidget").show();
                 $("#t").timer({action: 'start' });
                 $("#it").timer({ action: 'start' });
+                $(".save_and_add_time_entry").show();
             }else{
                 $("#t").timer({action: 'reset'});
                 $("#it").timer({action: 'reset'});
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
             }
         });
     
@@ -339,10 +347,12 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $(".timewidget").show();
                 $("#t").timer({action: 'start' });
                 $("#it").timer({action: 'start'});
+                $(".save_and_add_time_entry").show();
             }else{
                 $("#t").timer({action: 'reset'});
                 $("#it").timer({ action: 'reset'});
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
             }
         });
         $("#call_for").select2({
@@ -369,10 +379,12 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $(".timewidget").show();
                 $("#t").timer({ action: 'start'});
                 $("#it").timer({ action: 'start'});
+                $(".save_and_add_time_entry").show();
             }else{
                 $("#t").timer({ action: 'reset'});
                 $("#it").timer({ action: 'reset'});
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
             }
         });
         $("#call_for_out").select2({

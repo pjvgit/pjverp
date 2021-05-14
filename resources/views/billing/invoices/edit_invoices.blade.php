@@ -232,6 +232,144 @@
                         <div class="invoice_case_gradient">
                             <h2><i class="fas fa-briefcase mr-2"></i> {{$caseMaster['case_title']}} </h2>
                         </div>
+                        <div class="invoice_entry_header">
+                            <table>
+                                <tr>
+                                    <td width="100%">
+                                        <h3 class="entry-header">Falt Fees</h3>
+                                    </td>
+                                    <td width="1%">
+                                        <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
+                                            <a data-toggle="modal" data-target="#removeAllExistingFlatFeeEntry"
+                                                data-placement="bottom" href="javascript:;"> <i
+                                                    class="fas fa-trash align-middle pr-2"></i></a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="clear-header"></div>
+                        </div>
+                        <table id="entries_13285222" class="data invoice_entries time_entries_table">
+                            <colgroup>
+                                <col width="3%"> <!-- blank placeholder -->
+                                <col width="10%"> <!-- date -->
+                                <col width="6%"> <!-- EE -->
+                                <col width="12%"> <!-- Employee -->
+                                <col width="13%"> <!-- Activity -->
+                                <col width="44%"> <!-- Notes -->
+                                <col width="10%"> <!-- Rate -->
+                                <col width="4%"> <!-- non-billable checkbox -->
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th style="border-right: none;">&nbsp;</th>
+                                    <th style="border-left: none;">Date</th>
+                                    <th> EE </th>
+                                    <th> Employee</th>
+                                    <th> Item </th>
+                                    <th> Falt Fee Notes</th>
+                                    <th> Amount </th>
+                                    <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable</th>
+                                </tr>
+                                <?php
+                                if($FlatFeeEntryForInvoice->isEmpty()){?>
+                                    <tr class="no_entries">
+                                        <td colspan="9"
+                                            style="text-align: center; padding-top: 10px !important; padding-bottom: 10px !important;">
+                                            This matter has no unbilled flat fees entries.
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                <?php 
+                                $flateFeeTotal=0;
+                                foreach($FlatFeeEntryForInvoice as $k=>$v){
+                                    $flateFeeTotal+=$v->cost;
+                                ?>
+                                
+                                <tr id="time-79566738-7" class="invoice_entry time_entry ">
+                                    <td style="vertical-align: center; text-align: center; border-right: none;"
+                                        class="tdTime">
+                                        <div class="invoice_entry_actions">
+                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openTimeDelete({{$v->itd}});">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </div>
+                                        <input type="hidden" value="{{$v->itd}}" name="flatFeeEntrySelectedArray[]">
+                                    </td>
+                                    <td style="border-left: none;" class="">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry" onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                            href="javascript:;" class="ml-0">
+                                            {{date('d/m/Y',strtotime($v->entry_date))}}
+                                        </a>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-initials" class="mycase_select">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                                href="javascript:;" class="ml-0">
+                                                {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-user" class="mycase_select">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                                href="javascript:;" class="ml-0"> {{$v->first_name}} {{$v->last_name}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="pl-2" style="overflow: visible;">
+                                        <div id="time-79566738-7-user">
+                                            <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom" href="javascript:;" class="ml-0"> Flat Fee
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: left;" class="billable_toggle time-entry-rate  ">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry" onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
+                                            href="javascript:;" class="ml-0">
+                                            {{$v->description}}
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;" class="billable_toggle time-entry-hours row_total">
+                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom" href="javascript:;" class="ml-0">
+                                           {{$v->cost}}
+                                        </a>
+                                    </td>
+                                    
+                                    <td style="text-align: center; padding-top: 10px !important;">
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                            name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
+                                    </td>
+                                </tr>
+                                <?php } ?>
+
+                                <tr class="footer">
+                                    <td colspan="3">
+                                        <div class="locked">
+                                            <a data-toggle="modal" data-target="#addNewFlatFeeEntry"
+                                                onclick="addSingleFlatFeeEntry()" data-placement="bottom" href="javascript:;"
+                                                class="ml-4">
+                                                <i class="fas fa-plus align-middle"></i> Add Flat Fee Line</a>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="text-align: right;">
+                                        <div class="locked">
+                                            {{$caseMaster['case_title']}} flat fee totals:
+                                        </div>
+                                    </td>
+                                   
+                                    <td>
+                                        <div class="locked" style="text-align: right;">
+                                            $<span id="flat_fee_entry_table_total"
+                                                class="flat_fee_table_total">{{number_format($flateFeeTotal,2)}}</span>
+
+                                        </div>
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                        <br>
 
 
                         <div class="invoice_entry_header">
@@ -831,7 +969,7 @@
                                             <span id="bill-subtotal-amount" style="display: none;">0.00</span>
 
                                             <div id="flat_fee_total_label" class="flat-fee-totals"
-                                                style="border: none; padding-bottom: 7px; display: none;">
+                                                style="border: none; padding-bottom: 7px; ">
                                                 Flat Fee Sub-Total:
                                             </div>
                                             <div id="time_entry_total_label" class="time-entries-totals"
@@ -850,8 +988,8 @@
                                     <td style="text-align: right; width: 105px;">
                                         <div class="locked" style="padding-bottom: 15px;">
                                             <div id="flat_fee_bottom_total" class="flat-fee-totals"
-                                                style="border: none; padding-bottom: 7px; display: none;">
-                                                $<span id="flat_fee_total_amount"></span>
+                                                style="border: none; padding-bottom: 7px; ">
+                                                $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
@@ -930,6 +1068,7 @@
                                     </td>
                                 </tr>
 
+                                <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
                                 <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"
                                     id="expense_sub_total_text">
@@ -1987,6 +2126,35 @@
             recalculate();
 
         });
+
+        $('.invoice_entry_nonbillable_flat').change(function () { //".checkbox" change 
+            var id = $(this).attr('id');
+            var val = $(this).val;
+            var sum = 0;
+            $('input[name="flat_fee_entry[]"]').each(function (i) {
+                if (!$(this).is(":checked")) {
+                    // do something if the checkbox is NOT checked
+                    var g = parseFloat($(this).attr("priceattr"));
+                    sum += g;
+                    $(this).parent().prev().css('text-decoration', '');
+                    $(this).parent().prev().prev().css('text-decoration', '');
+                    $(this).parent().prev().prev().prev().css('text-decoration', '');
+                } else {
+                    $(this).parent().prev().css('text-decoration', 'line-through');
+                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
+                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+                }
+            });
+            $(".flat_fee_table_total").html(sum);
+            $("#flat_fee_sub_total_text").val(sum);
+            $('.flat_fee_table_total').number(true, 2);
+
+            $(".flat_fee_total_amount").html(sum);
+            $('.flat_fee_total_amount').number(true, 2);
+            recalculate();
+        });
+
+
        
         var wrapper = $('.field_wrapper'); //Input field wrapper
         <?php 
@@ -2704,7 +2872,8 @@
         var total = 0;
         var expense_total_amount = parseFloat($("#expense_sub_total_text").val());
         var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
-        total = expense_total_amount + time_entry_total_amount;
+        var flat_fee_sub_total_text = parseFloat($("#flat_fee_sub_total_text").val());
+        total = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
 
         var discount_amount = parseFloat($("#discount_total_text").val());
         var addition_amount = parseFloat($("#addition_total_text").val());

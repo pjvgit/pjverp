@@ -233,7 +233,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td width="1%">
                                         <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
-                                            <a data-toggle="modal" data-target="#removeAllExistingFlatFeeEntry"
+                                            <a data-toggle="modal" data-target="#removeAlllExistingFlatFeeEntry"
                                                 data-placement="bottom" href="javascript:;"> <i
                                                     class="fas fa-trash align-middle pr-2"></i></a>
                                         </span>
@@ -269,20 +269,21 @@ if(!isset($adjustment_token)){
                                     <tr class="no_entries">
                                         <td colspan="9"
                                             style="text-align: center; padding-top: 10px !important; padding-bottom: 10px !important;">
-                                            This matter has no unbilled flat fees entries.
+                                            This matter has no outstanding flat fees.
                                         </td>
                                     </tr>
                                 <?php } ?>
                                 <?php 
-                                $timeEntryTime=$timeEntryAmount=0;
+                                $flateFeeTotal=0;
                                 foreach($FlatFeeEntry as $k=>$v){
+                                    $flateFeeTotal+=$v->cost;
                                 ?>
                                 
                                 <tr id="time-79566738-7" class="invoice_entry time_entry ">
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">
-                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openTimeDelete({{$v->itd}});">
+                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openFlatFeeDelete({{$v->itd}});">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         </div>
@@ -328,8 +329,8 @@ if(!isset($adjustment_token)){
                                     </td>
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_time" id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
-                                            name="linked_staff_checked_shar[]" priceattr="" value="{{$v->itd}}">
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                            name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -351,8 +352,8 @@ if(!isset($adjustment_token)){
                                    
                                     <td>
                                         <div class="locked" style="text-align: right;">
-                                            $<span id="time_entry_table_total"
-                                                class="table_total">{{number_format($timeEntryAmount,2)}}</span>
+                                            $<span id="flat_fee_entry_table_total"
+                                                class="flat_fee_table_total">{{number_format($flateFeeTotal,2)}}</span>
 
                                         </div>
                                     </td>
@@ -966,7 +967,7 @@ if(!isset($adjustment_token)){
                                             <span id="bill-subtotal-amount" style="display: none;">0.00</span>
 
                                             <div id="flat_fee_total_label" class="flat-fee-totals"
-                                                style="border: none; padding-bottom: 7px; display: none;">
+                                                style="border: none; padding-bottom: 7px;">
                                                 Flat Fee Sub-Total:
                                             </div>
                                             <div id="time_entry_total_label" class="time-entries-totals"
@@ -984,9 +985,8 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td style="text-align: right; width: 105px;">
                                         <div class="locked" style="padding-bottom: 15px;">
-                                            <div id="flat_fee_bottom_total" class="flat-fee-totals"
-                                                style="border: none; padding-bottom: 7px; display: none;">
-                                                $<span id="flat_fee_total_amount"></span>
+                                            <div id="flat_fee_bottom_total" class="flat-fee-totals" style="border: none; padding-bottom: 7px;">
+                                                $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
@@ -1065,9 +1065,9 @@ if(!isset($adjustment_token)){
                                     </td>
                                 </tr>
 
+                                <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
-                                <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"
-                                    id="expense_sub_total_text">
+                                <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"  id="expense_sub_total_text">
                                 <input type="hidden" value="" name="sub_total_text" id="sub_total_text">
                                 <input type="hidden" value="" name="total_text" id="total_text">
                                 <input type="hidden" value="{{$discount}}" name="discount_total_text"
@@ -1542,6 +1542,51 @@ if(!isset($adjustment_token)){
         </form>
     </div>
 </div>
+
+<div id="flat_fee_delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="removeExistingFlatFeeEntryForm" id="removeExistingFlatFeeEntryForm" name="removeExistingFlatFeeEntryForm" method="POST">
+            @csrf
+            <input type="hidden" value="" name="flat_fee_id" id="flat_fee_delete_entry_id">
+            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Would you like to <strong>remove</strong> the selected entry from this invoice or
+                            permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-10  text-center">
+                        <div class="form-group row float-left">
+                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                                style="display: none;"></div>
+                        </div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <input class="btn btn-primary ladda-button example-button m-1 submit"
+                                onclick="actionFlatFeeEntry('delete')" name="action" value="Delete" id="submit"
+                                type="submit">
+                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                                value="Remove" id="submit" onclick="actionFlatFeeEntry('remove')" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div id="removeAlllExistingTimeEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
@@ -1566,6 +1611,48 @@ if(!isset($adjustment_token)){
                                 <p><strong>Note:</strong> Pre-existing entries will still exist in
                                     {{config('app.name')}}.</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-10  text-center">
+                        <div class="form-group row float-left">
+                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                                style="display: none;"></div>
+                        </div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                                value="Remove All Entries" id="submit" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="removeAlllExistingFlatFeeEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="removeAlllExistingFlatFeeEntryForm" id="removeAlllExistingFlatFeeEntryForm"
+            name="removeAlllExistingFlatFeeEntryForm" method="POST">
+            @csrf
+            <input type="hidden" value="{{base64_encode($caseMaster['id'])}}" name="case_id" id="delete_flart_fee_entry_id">
+            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove All Flat Fees</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                        <div><p>Would you like to <strong>remove</strong> all Flat Fees from this invoice?</p><p><strong>Note:</strong> Only Case Billing Flat Fees (if one exists) will persist in {{config('app.name')}}.</p></div>
+                       
                         </div>
                     </div>
                 </div>
@@ -1867,6 +1954,24 @@ if(!isset($adjustment_token)){
         </div>
     </div>
 </div>
+<div id="editNewFlatFeeEntry" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Edit Flat Fee</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="editNewFlatFeeEntryArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     .strike{
@@ -2007,6 +2112,7 @@ if(!isset($adjustment_token)){
         $("#first_payment_amount").attr("disabled",true);
         $("#with_first_payment").attr("checked",false);
        
+        
         $("#time_entry_sub_total_text").val({{$timeEntryAmount}});
         $("#expense_sub_total_text").val({{$expenseAmount}});
         $("#discount_total_text").val({{$discount}});
@@ -2097,6 +2203,34 @@ if(!isset($adjustment_token)){
             recalculate();
 
         });
+
+        $('.invoice_entry_nonbillable_flat').change(function () { //".checkbox" change 
+            var id = $(this).attr('id');
+            var val = $(this).val;
+            var sum = 0;
+            $('input[name="flat_fee_entry[]"]').each(function (i) {
+                if (!$(this).is(":checked")) {
+                    // do something if the checkbox is NOT checked
+                    var g = parseFloat($(this).attr("priceattr"));
+                    sum += g;
+                    $(this).parent().prev().css('text-decoration', '');
+                    $(this).parent().prev().prev().css('text-decoration', '');
+                    $(this).parent().prev().prev().prev().css('text-decoration', '');
+                } else {
+                    $(this).parent().prev().css('text-decoration', 'line-through');
+                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
+                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+                }
+            });
+            $(".flat_fee_table_total").html(sum);
+            $("#flat_fee_sub_total_text").val(sum);
+            $('.flat_fee_table_total').number(true, 2);
+
+            $(".flat_fee_total_amount").html(sum);
+            $('.flat_fee_total_amount').number(true, 2);
+            recalculate();
+        });
+
 
         var wrapper = $('.field_wrapper'); //Input field wrapper
 
@@ -2212,6 +2346,9 @@ if(!isset($adjustment_token)){
                     $(this).parent().prev().prev().prev().css('text-decoration','line-through');
                 }
             });
+
+            
+
             $(".table_expense_total").html(sum);
             $("#expense_sub_total_text").val(sum);
             $('.table_expense_total').number(true, 2);
@@ -2653,7 +2790,50 @@ if(!isset($adjustment_token)){
             }
         });
     });
- 
+    $('#removeAlllExistingFlatFeeEntryForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+        if (!$('#removeAlllExistingFlatFeeEntryForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#removeAlllExistingFlatFeeEntryForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/deleteAllFlatFeeEntry", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&deleteMultiple=yes';
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
+    });
     $('.invoiceSharingBox').change(function () { //".checkbox" change 
         if ($('.invoiceSharingBox:checked').length == "0") {
             $('#SaveInvoiceButton').text('Save Invoice');
@@ -2853,9 +3033,10 @@ if(!isset($adjustment_token)){
     }
     function recalculate() {
         var total = 0;
+        var flat_fee_total_amount = parseFloat($("#flat_fee_sub_total_text").val());
         var expense_total_amount = parseFloat($("#expense_sub_total_text").val());
         var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
-        total = expense_total_amount + time_entry_total_amount;
+        total = expense_total_amount + time_entry_total_amount + flat_fee_total_amount;
 
         var discount_amount = parseFloat($("#discount_total_text").val());
         var addition_amount = parseFloat($("#addition_total_text").val());
@@ -2928,11 +3109,63 @@ if(!isset($adjustment_token)){
         });
     }
 
+    function actionFlatFeeEntry(action) {
+        $('#removeExistingFlatFeeEntryForm').submit(function (e) {
+
+            beforeLoader();
+            e.preventDefault();
+
+            if (!$('#removeExistingFlatFeeEntryForm').valid()) {
+                beforeLoader();
+                return false;
+            }
+            var dataString = '';
+            dataString = $("#removeExistingFlatFeeEntryForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/deleteFlatFeeEntry", // json datasource
+                data: dataString,
+                beforeSend: function (xhr, settings) {
+                    settings.data += '&delete=yes&action=' + action;
+                },
+                success: function (res) {
+                    beforeLoader();
+                    if (res.errors != '') {
+                        $('.showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('.showError').append(errotHtml);
+                        $('.showError').show();
+                        afterLoader();
+                        return false;
+                    } else {
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                }
+            });
+        });
+    }
+
     function openTimeDelete(id) {
         $("#delete_existing_dialog").modal("show");
         $("#delete_time_entry_id").val(id);
     }
-
+    function openFlatFeeDelete(id) {
+        $("#flat_fee_delete_existing_dialog").modal("show");
+        $("#flat_fee_delete_entry_id").val(id);
+    }
     function addSingleTimeEntry() {
         $('.showError').html('');
         beforeLoader();
@@ -3031,13 +3264,60 @@ if(!isset($adjustment_token)){
         })
     }
 
+    function editSingleFlatFeeEntry(id) {
+        $('.showError').html('');
+        beforeLoader();
+        $("#editNewFlatFeeEntryArea").html('');
+        $("#editNewFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/editSingleFlatFeeEntry",
+            data: {
+                "id": id
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#editNewFlatFeeEntryArea").html('');
+                    $('#editNewTimeEntry').animate({
+                        scrollTop: 0
+                    }, 'slow');
+
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#editNewFlatFeeEntryArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                $('#editNewTimeEntry').animate({
+                    scrollTop: 0
+                }, 'slow');
+
+                afterLoader();
+            }
+        })
+    }
 
 
     function addSingleFlatFeeEntry() {
         $('.showError').html('');
         beforeLoader();
-        $("#addSingleFlatFeeEntryArea").html('');
-        $("#addSingleFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
+        $("#addNewFlatFeeEntryArea").html('');
+        $("#addNewFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
@@ -3053,15 +3333,15 @@ if(!isset($adjustment_token)){
                     $('.showError').show();
                     afterLoader();
                     $("#preloader").hide();
-                    $("#addNewTimeEntryArea").html('');
-                    $('#addNewTimeEntry').animate({
+                    $("#addNewFlatFeeEntryArea").html('');
+                    $('#addSingleFlatFeeEntry').animate({
                         scrollTop: 0
                     }, 'slow');
 
                     return false;
                 } else {
                     afterLoader()
-                    $("#addNewTimeEntryArea").html(res);
+                    $("#addNewFlatFeeEntryArea").html(res);
                     $("#preloader").hide();
                     return true;
                 }
@@ -3072,7 +3352,7 @@ if(!isset($adjustment_token)){
                     '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
                 $('.showError').append(errotHtml);
                 $('.showError').show();
-                $('#addNewTimeEntry').animate({
+                $('#addSingleFlatFeeEntry').animate({
                     scrollTop: 0
                 }, 'slow');
 

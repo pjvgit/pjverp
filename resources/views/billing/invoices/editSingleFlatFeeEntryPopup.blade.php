@@ -1,8 +1,7 @@
 
     <form class="saveFlatFeeForm" id="saveFlatFeeForm" name="saveFlatFeeForm" method="POST">
         @csrf
-        <input type="hidden" value="{{$case_id}}" name="case_id" id="case_id">
-        <input type="hidden" value="{{$invoice_id}}" name="invoice_id" id="invoice_id">
+        <input type="hidden" value="{{$FlatFeeEntry['id']}}" name="activity_id" id="activity_id">
 
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case</label>
@@ -16,8 +15,8 @@
             <div class="col-10 form-group mb-3">
                 <select class="form-control staff_user select2" id="staff_user" name="staff_user">
                     <?php foreach ($loadFirmStaff as $loadFirmStaffkey => $CasevloadFirmStaffvalal) {?>
-                    <option value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
-                        {{$CasevloadFirmStaffvalal->last_name}}</option>
+                    <option value="{{$CasevloadFirmStaffvalal->id}}"   <?php if($CasevloadFirmStaffvalal->id==$FlatFeeEntry['user_id']){ echo "selected=selected";} ?>>
+{{$CasevloadFirmStaffvalal->first_name}} {{$CasevloadFirmStaffvalal->last_name}}</option>
                     <?php }?>
                 </select>
                 <span id="usError"></span>
@@ -26,8 +25,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Description</label>
             <div class="col-md-10 form-group mb-3">
-                <textarea name="case_description" class="form-control"
-                    rows="5"></textarea>
+                <textarea name="case_description" class="form-control" rows="5">{{$FlatFeeEntry['description']}}</textarea>
 
             </div>
         </div>
@@ -35,7 +33,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Date</label>
             <div class="col-md-10 form-group mb-3">
                 <div class="input-group">
-                <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y')}}" name="start_date"
+                <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime($FlatFeeEntry['entry_date']))}}" name="start_date"
                         type="text" placeholder="mm/dd/yyyy">
                 </div>
             </div>
@@ -45,7 +43,7 @@
             <div class="col-md-10 form-group mb-3">
                 <div class="input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                        <input id="rate_field_id" name="rate_field_id" maxlength="15" class="form-control number" value="">
+                        <input id="rate_field_id" name="rate_field_id" maxlength="15" class="form-control number" value="{{$FlatFeeEntry['cost']}}">
                     </div>
                 </div>
             </div>
@@ -59,7 +57,7 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
             </a>
-            <button type="submit" id="submit1" class="btn btn-primary submit">Save Flat Fee</button>
+            <button type="submit" id="submit1" class="btn btn-primary submit">Update Flat Fee</button>
         </div>
     </form>
 <script type="text/javascript">
@@ -75,7 +73,7 @@
             allowClear: true,
             placeholder: "Select a user...",
             theme: "classic",
-            dropdownParent: $("#addNewFlatFeeEntry"),
+            dropdownParent: $("#editNewFlatFeeEntry"),
         });
 
         $("#saveFlatFeeForm").validate({
@@ -120,7 +118,7 @@
             dataString = $("#saveFlatFeeForm").serialize();
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/bills/invoices/saveSingleFlatFeeEntry", // json datasource
+                url: baseUrl + "/bills/invoices/updateSingleFlatFeeEntry", // json datasource
                 data: dataString,
                 success: function (res) {
                     beforeLoader();
@@ -139,7 +137,7 @@
                         afterLoader();
                         return false;
                     } else {
-                        toastr.success('Your flat fees has been added', "", {
+                        toastr.success('Your flat fees has been updated', "", {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });

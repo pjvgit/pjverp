@@ -21,6 +21,8 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             <span id="response"></span>
             @csrf
             <input type="hidden" name="timer_value" class="timer_count">
+            <input type="hidden" name="st" class="st">
+
             <div class="col-md-12">
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Date and time</label>
@@ -116,6 +118,8 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     <a href="#">
                         <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
                     </a>
+                    <button type="submit" onclick="getButton('st')" data-testid="save-and-add-time" id="save_and_add_time_entry" class="save_and_add_time_entry btn btn-secondary m-1">Save + <i class="far fa-clock fa-lg"></i></button>
+
                     <button class="btn btn-primary ladda-button example-button m-1 submit" id="submitButton" type="submit">Save</button>
                 </div>
             </div>
@@ -222,6 +226,8 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     <a href="#">
                         <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
                     </a>
+                    <button type="submit" onclick="getButton('st')" data-testid="save-and-add-time" id="save_and_add_time_entry" class="save_and_add_time_entry btn btn-secondary m-1">Save + <i class="far fa-clock fa-lg"></i></button>
+
                     <button class="btn btn-primary ladda-button example-button m-1 submit" id="submitButton" type="submit">Save</button>
                 </div>
             </div>
@@ -233,6 +239,43 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
 <script type="text/javascript">
     $(document).ready(function () {
         $(".timewidget").hide();
+        
+        $(".save_and_add_time_entry").hide();
+        // $("#case").on("select2-selecting", function(e) {
+        //     $(".timewidget").hide();
+        //     var uType=$("#case option:selected").attr('uType');
+        //     alert(uType);
+        //     if(uType=="case"){
+        //         $(".timewidget").show();
+        //         $("#t").timer({ action: 'start' });
+        //         $("#it").timer({ action: 'start' });
+        //         $(".save_and_add_time_entry").show();
+
+        //     }else{
+        //         $("#t").timer({ action: 'reset' });
+        //         $("#it").timer({ action: 'reset' });
+        //         $(".timewidget").hide();
+        //         $(".save_and_add_time_entry").hide();
+
+        //     }
+        // });
+        // $("#case_out").on("select2-selecting", function(e) {
+        //     $(".timewidget").hide();
+        //     var uType=$("#case_out option:selected").attr('uType');
+        //     if(uType=="case"){
+        //         $(".timewidget").show();
+        //         $("#t").timer({action: 'start' });
+        //         $("#it").timer({ action: 'start' });
+        //         $(".save_and_add_time_entry").show();
+        //     }else{
+        //         $("#t").timer({action: 'reset'});
+        //         $("#it").timer({action: 'reset'});
+        //         $(".timewidget").hide();
+        //         $(".save_and_add_time_entry").hide();
+        //     }
+        // });
+    
+
         $("#btn").click(function(){
             switch($(this).attr('class').toLowerCase())
             {
@@ -314,6 +357,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $("#it").timer({
                     action: 'start'
                 });
+                $(".save_and_add_time_entry").show();
             }else{
                 $("#t").timer({
                     action: 'reset'
@@ -322,6 +366,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     action: 'reset'
                 });
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
             }
         });
         $("#call_for").select2({
@@ -352,6 +397,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 $("#it").timer({
                     action: 'start'
                 });
+                $(".save_and_add_time_entry").show();
             }else{
                 $("#t").timer({
                     action: 'reset'
@@ -360,6 +406,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     action: 'reset'
                 });
                 $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
             }
         });
         
@@ -633,5 +680,9 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 afterLoader();
             }
         })
+    }
+
+    function getButton(type){
+        $(".st").val(type);
     }
 </script>

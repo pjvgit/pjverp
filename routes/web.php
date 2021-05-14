@@ -891,9 +891,14 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/saveSingleTimeEntry', 'BillingController@saveSingleTimeEntry')->name('bills/invoices/saveSingleTimeEntry');
     Route::post('bills/invoices/editSingleTimeEntry', 'BillingController@editSingleTimeEntry')->name('bills/invoices/editSingleTimeEntry');
     Route::post('bills/invoices/updateSingleTimeEntry', 'BillingController@updateSingleTimeEntry')->name('bills/invoices/updateSingleTimeEntry');
+    Route::post('bills/invoices/deleteAllFlatFeeEntry', 'BillingController@deleteAllFlatFeeEntry')->name('bills/invoices/deleteAllFlatFeeEntry');
 
     Route::post('bills/invoices/addSingleFlatFeeEntry', 'BillingController@addSingleFlatFeeEntry')->name('bills/invoices/addSingleFlatFeeEntry');
+    Route::post('bills/invoices/saveSingleFlatFeeEntry', 'BillingController@saveSingleFlatFeeEntry')->name('bills/invoices/saveSingleFlatFeeEntry');
+    Route::post('bills/invoices/editSingleFlatFeeEntry', 'BillingController@editSingleFlatFeeEntry')->name('bills/invoices/editSingleFlatFeeEntry');
+    Route::post('bills/invoices/updateSingleFlatFeeEntry', 'BillingController@updateSingleFlatFeeEntry')->name('bills/invoices/updateSingleFlatFeeEntry');
 
+    Route::post('bills/invoices/deleteFlatFeeEntry', 'BillingController@deleteFlatFeeEntry')->name('bills/invoices/deleteFlatFeeEntry');
 
     Route::post('bills/invoices/deleteExpenseEntry', 'BillingController@deleteExpenseEntry')->name('bills/invoices/deleteExpenseEntry');
     Route::post('bills/invoices/deleteAllExpenseEntry', 'BillingController@deleteAllExpenseEntry')->name('bills/invoices/deleteAllExpenseEntry');

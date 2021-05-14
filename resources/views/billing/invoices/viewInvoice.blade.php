@@ -462,10 +462,111 @@
                         <div style="padding: 20px;">
                             <?php 
                                 $discount=0;
-                                    $addition=0;
-                                 $timeEntryTime=$timeEntryAmount=0;
-                                 $expenseTime=$expenseAmount=0;
-                                if(!$TimeEntryForInvoice->isEmpty()){?>
+                                $addition=0;
+                                $timeEntryTime=$timeEntryAmount=0;
+                                $expenseTime=$expenseAmount=0;
+                                $flatFeeEntryAmount=0;
+                                if(!$FlatFeeEntryForInvoice->isEmpty()){?>
+                                    <div class="line-items-table">
+                                        <h3>Flat Fees</h3>
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <tbody>
+                                                <tr class="invoice_info_row">
+                                                    <td class="invoice_info_bg">
+                                                        Date
+                                                    </td>
+                                                    <td class="invoice_info_bg">
+                                                        EE
+                                                    </td>
+                                                    <td class="invoice_info_bg">
+                                                        Item
+                                                    </td>
+                                                    <td class="invoice_info_bg">
+                                                        Description
+                                                    </td>
+                                                    <td class="invoice_info_bg" style=" text-align: right;width:10%;">
+                                                        Amount
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                                $nonBillDataFlateFee=[];
+                                                foreach($FlatFeeEntryForInvoice as $k=>$v){
+                                                    if($v->time_entry_billable=="yes"){
+                                                        ?>
+                                                    <tr class="invoice_info_row ">
+                                                        <td class="time-entry-date" style="vertical-align: top;">
+                                                            {{date('m/d/Y',strtotime($v->entry_date))}}
+                                                        </td>
+                                                        <td class="time-entry-ee" style="vertical-align: top;">
+                                                            {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                                        </td>
+                                                        <td class="time-entry-activity" style="vertical-align: top;">
+                                                            Flat Fee
+                                                        </td>
+                                                        <td class="time-entry-description" style="vertical-align: top;">
+                                                            <p class="invoice_notes">
+                                                                {{$v->description}}
+                                                            </p>
+                                                        </td>
+                                                        <td style="vertical-align: top; text-align: right;" class="" >
+                                                            ${{number_format($v->cost,2)}}
+                                                        </td>
+                                                        
+                                                    </tr>
+                                                <?php 
+                                                $flatFeeEntryAmount+=$v->cost;
+                                            }else{
+                                                        $nonBillDataFlateFee[]=$v;
+                                                    }
+                                                } ?>
+    
+                                                <?php
+                                                if(!empty($nonBillDataFlateFee)){
+                                                    ?>
+                                                    <tr class="invoice_info_row nonbillable-title">
+                                                        <td class="invoice_info_bg" colspan="7">
+                                                        Non-billable Flat Fees:
+                                                        </td>
+                                                      </tr>
+                                                    <?php 
+                                                    foreach($nonBillDataFlateFee as $k=>$v){
+                                                        ?>
+                                                        <tr class="invoice_info_row ">
+                                                            <td class="time-entry-date" style="vertical-align: top;">
+                                                                {{date('m/d/Y',strtotime($v->entry_date))}}
+                                                            </td>
+                                                            <td class="time-entry-ee" style="vertical-align: top;">
+                                                                {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                                            </td>
+                                                            <td class="time-entry-activity" style="vertical-align: top;">
+                                                                Flat Fee
+                                                            </td>
+                                                            <td class="time-entry-description" style="vertical-align: top;">
+                                                                <p class="invoice_notes">
+                                                                    {{$v->description}}
+                                                                </p>
+                                                            </td>
+                                                            <td style="vertical-align: top; text-align: right;" class="nonbillableRow" >
+                                                                ${{number_format($v->cost,2)}}
+                                                            </td>
+                                                          
+                                                        </tr>
+                                                        <?php
+                                                    }
+    
+                                                }?>
+                                                <tr>
+                                                    <td colspan="4" class="total-summary-column">
+                                                        Flat Fee Total:
+                                                    </td>
+    
+                                                    <td class="total-data-column"> ${{number_format($flatFeeEntryAmount,2)}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php }  if(!$TimeEntryForInvoice->isEmpty()){?>
                                 <div class="line-items-table">
                                     <h3>Time Entries</h3>
                                     <table style="width: 100%; border-collapse: collapse;">
@@ -681,7 +782,7 @@
                                             </td>
                                             <td style="vertical-align: top; text-align: right;" class="">
                                                 <?php
-                                                     echo $Total= ($v->duration * $v->cost);
+                                                     echo "$".$Total= ($v->duration * $v->cost);
                                                         $expenseAmount=$expenseAmount+$Total;
                                                     ?>
                                             </td>
@@ -902,6 +1003,7 @@
                                         </td>
                                         <td style="text-align: right; border-right: none; vertical-align: top; width: 140px; line-height: 1.8;"
                                             rowspan="1">
+                                            Flat Fee Sub-Total:<br>
                                             Time Entry Sub-Total:<br>
                                             Expense Sub-Total:<br>
                                             <span style="font-weight: bold;">Sub-Total:</span><br>
@@ -920,9 +1022,11 @@
                                         </td>
                                         <td style="text-align: right; border-left: none; vertical-align: top; width: 85px; line-height: 1.8;"
                                             rowspan="1">
+                                            
+                                            ${{number_format($flatFeeEntryAmount,2)}}<br>
                                             ${{number_format($timeEntryAmount,2)}}<br>
                                             ${{number_format($expenseAmount,2)}}<br>
-                                            ${{number_format($timeEntryAmount+$expenseAmount,2)}}<br>
+                                            ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount,2)}}<br>
                                             <br>
 
                                             <?php if($discount!="0"){?>
@@ -933,7 +1037,7 @@
                                             ${{number_format($addition,2)}}<br>
                                             <?php } ?>
                                             <br>
-                                            ${{number_format($timeEntryAmount+$expenseAmount-$discount+$addition,2)}}<br>
+                                            ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition,2)}}<br>
                                             ${{number_format($findInvoice->paid_amount,2)}}
                                         </td>
                                     </tr>
@@ -960,7 +1064,7 @@
                                         </td>
                                         <td class="invoice_info_bg" id="invoice-balance-due"
                                             style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
-                                            ${{number_format($timeEntryAmount+$expenseAmount-$discount+$addition,2)}}
+                                            ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition,2)}}
                                         </td>
                                     </tr>
 
