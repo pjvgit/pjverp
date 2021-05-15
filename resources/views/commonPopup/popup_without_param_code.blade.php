@@ -81,7 +81,7 @@
         </div>
     </div>
 </div>
-<div id="loadTimeEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<div id="loadTimeEntryPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -92,6 +92,22 @@
             </div>
             <div class="modal-body">
                 <div id="addTimeEntry">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loadTimeEntryPopupTask" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Time Entry</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="addTimeEntryTask">
                 </div>
             </div>
         </div>
@@ -1053,6 +1069,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
     function loadTimeEntryPopupByCaseWithoutRefresh(case_id) {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="{{LOADER}}"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopupDontRefresh", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#loadCommentPopup").modal("hide");
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
+    function loadTimeEntryPopupByCaseWithoutRefreshTask(case_id) {
         $("#preloader").show();
         $("#addTimeEntry").html('<img src="{{LOADER}}"> Loading...');
         $(function () {

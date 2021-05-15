@@ -96,6 +96,7 @@ class CaseMaster extends Authenticatable
         ->where('task_due_on',">=",date('Y-m-d'))  
         ->where('task_due_on',"!=",'9999-12-30')  
         ->where('status','0')  
+        ->whereNull('deleted_at')  
         ->orderBy('task_due_on','ASC')
         ->limit(1)
         ->get();

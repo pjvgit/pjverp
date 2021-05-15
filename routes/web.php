@@ -433,12 +433,15 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('tasks/savebulkTimeEntry', 'TaskController@savebulkTimeEntry')->name('tasks/savebulkTimeEntry');
      Route::post('tasks/getAndCheckDefaultCaseRate', 'TaskController@getAndCheckDefaultCaseRate')->name('tasks/getAndCheckDefaultCaseRate');
      Route::post('tasks/loadTaskDetailPage', 'TaskController@loadTaskDetailPage')->name('tasks/loadTaskDetailPage');
+     Route::post('tasks/loadTaskViewPage', 'TaskController@loadTaskViewPage')->name('tasks/loadTaskViewPage');
      Route::post('tasks/saveTaskComment', 'TaskController@saveTaskComment')->name('tasks/saveTaskComment');
      Route::post('tasks/loadTaskComment', 'TaskController@loadTaskComment')->name('tasks/loadTaskComment');
+     Route::post('tasks/loadTaskCommentUpdatedView', 'TaskController@loadTaskCommentUpdatedView')->name('tasks/loadTaskCommentUpdatedView');
      Route::post('tasks/loadTaskHistory', 'TaskController@loadTaskHistory')->name('tasks/loadTaskHistory');
      Route::post('tasks/updateCheckList', 'TaskController@updateCheckList')->name('tasks/updateCheckList');
      Route::post('tasks/loadCheckListView', 'TaskController@loadCheckListView')->name('tasks/loadCheckListView');
-     
+     Route::post('tasks/loadCheckListViewForTask', 'TaskController@loadCheckListViewForTask')->name('tasks/loadCheckListViewForTask');
+     Route::post('tasks/singleTaskMarkAsComplete', 'TaskController@singleTaskMarkAsComplete')->name('tasks/singleTaskMarkAsComplete');
      Route::post('tasks/loadTaskRightSection', 'TaskController@loadTaskRightSection')->name('tasks/loadTaskRightSection');
     
 

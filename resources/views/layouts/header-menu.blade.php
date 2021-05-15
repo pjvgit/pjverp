@@ -23,7 +23,7 @@
                         echo "&nbsp;";
                         echo substr(Auth::user()->last_name,0,15);
                     ?>
-                    @if(file_exists( public_path().'/images/users/'.Auth::user()->profile_image ) && Auth::user()->profile_image!='')
+                    @if(file_exists( public_path().'/images/users/'.Auth::user()->profile_image ) && Auth::user()->profile_image!='' && Auth::User()->is_published=="yes")
                     <img src="{{URL::asset('/public/images/users/')}}/{{Auth::user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
                     @else

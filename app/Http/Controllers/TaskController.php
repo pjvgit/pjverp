@@ -1098,6 +1098,36 @@ class TaskController extends BaseController
     exit;   
   }
 
+  public function loadTaskViewPage(Request $request)
+  {        
+    $TaskActivity=TaskActivity::where('status','1')->get();
+    $TaskData=Task::find($request->task_id);
+
+    $TaskCompletedBy = Task::leftJoin("users","task.task_completed_by","=","users.id")
+        ->select('task.*',"users.id as uid","users.user_title","users.user_type",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as completed_by_name'))->where('task.id',$request->task_id)->first();
+// print_r($TaskCompletedBy);
+    $TaskCreatedBy = Task::join("users","task.created_by","=","users.id")
+        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_title")->where('task.id',$request->task_id)->first();
+
+    $TaskAssignedTo = CaseTaskLinkedStaff::join("users","task_linked_staff.user_id","=","users.id")
+        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_title","task_linked_staff.time_estimate_total")->where('task_linked_staff.task_id',$request->task_id)
+       // ->where('task_linked_staff.linked_or_not_with_case','yes')
+        ->get();
+        $CaseMasterData='';
+    if($TaskData->case_id!=''){
+        $CaseMasterData = CaseMaster::find($TaskData->case_id);
+    }
+
+    $TaskReminders=CaseTaskReminder::leftJoin("users","task_reminder.created_by","=","users.id")
+    ->select("task_reminder.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))
+    ->where("task_id", $request->task_id)->get();
+
+    $TaskChecklist = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->orderBy('checklist_order','ASC')->get();
+    $TaskChecklistCompleted = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->where('status','1')->count();
+
+    return view('case.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterData','TaskCompletedBy'));     
+    exit;   
+  }
   public function saveTaskComment(Request $request)
   {
         $TaskComment = new TaskComment; 
@@ -1115,6 +1145,16 @@ class TaskController extends BaseController
         ->select("task_comment.*","users.first_name","users.last_name")
         ->where('task_id',$task_id)->get();
         return view('task.loadTaskComment',compact('TaskCommentData'));     
+        exit;    
+  } 
+
+  public function loadTaskCommentUpdatedView(Request $request)
+  {
+        $task_id=$request->task_id;
+        $TaskCommentData=TaskComment::leftJoin("users","task_comment.created_by","=","users.id")
+        ->select("task_comment.*","users.first_name","users.last_name","users.user_type","users.id as uid")
+        ->where('task_id',$task_id)->get();
+        return view('task.loadTaskCommentUpdatedView',compact('TaskCommentData'));     
         exit;    
   } 
 
@@ -1153,6 +1193,26 @@ class TaskController extends BaseController
       return response()->json(['errors'=>'','id'=>$TaskChecklist->id]);
       exit;    
   }
+
+  public function singleTaskMarkAsComplete(Request $request)
+  {        
+      $TaskChecklist = Task::find($request->task_id);
+      if($TaskChecklist->status=="0"){
+          $TaskChecklist->status="1";
+          $TaskChecklist->task_completed_by=Auth::User()->id;
+          $TaskChecklist->task_completed_date=date('Y-m-d');
+      }else{
+          $TaskChecklist->status="0";
+          $TaskChecklist->task_completed_by=NULL;
+          $TaskChecklist->task_completed_date=NULL;
+      }
+      
+   
+      $TaskChecklist->updated_by=Auth::User()->id;
+      $TaskChecklist->save();
+      return response()->json(['errors'=>'','id'=>$TaskChecklist->id]);
+      exit;    
+  }
   public function loadCheckListView(Request $request)
   {
         $task_id=$request->task_id;
@@ -1161,7 +1221,21 @@ class TaskController extends BaseController
         return view('task.loadCheckListView',compact('TaskChecklist','TaskChecklistCompleted'));     
         exit;    
   } 
-  
+  public function loadCheckListViewForTask(Request $request)
+  {
+        $task_id=$request->task_id;
+        $TaskChecklist = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $task_id)->orderBy('checklist_order','ASC')->get();
+
+        $TaskChecklistCompleted = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $task_id)->where('status','1')->count();
+
+        $TaskCompletedBy = Task::leftJoin("users","task.task_completed_by","=","users.id")
+        ->select('task.*',"users.id as uid","users.user_title","users.user_type",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as completed_by_name'))->where('task.id',$task_id)->first();
+
+        // print_r($TaskCompletedBy);
+        $TaskData=Task::find($task_id);
+        return view('task.loadCheckListViewForTask',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy'));     
+        exit;    
+  } 
 
   public function loadTaskRightSection(Request $request)
   {       

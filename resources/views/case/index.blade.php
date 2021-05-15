@@ -736,6 +736,93 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
+<div id="loadTaskDetailsView" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            
+            <div class="modal-body">
+                <div id="loadTaskDetailsViewArea"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteTask" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Confirmation</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="eventID">
+                        <form class="deleteTaskForm" id="deleteTaskForm" name="deleteTaskForm" method="POST">
+                            <div id="showError2" style="display:none"></div>
+                            @csrf
+                            <input class="form-control" id="task_id" value="" name="task_id" type="hidden">
+                            <div class=" col-md-12">
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label">
+                                        Are you sure you want to delete this task?
+                                        <input type="radio" style="display:none;" name="delete_event_type"
+                                            checked="checked" class="pick-option mr-2" value="SINGLE_EVENT">
+                                    </label>
+                                </div>
+                                <div class="form-group row float-right">
+                                    <a href="#">
+                                        <button class="btn btn-secondary  m-1" type="button"
+                                            data-dismiss="modal">Cancel</button>
+                                    </a>
+                                    <button class="btn btn-primary ladda-button example-button m-1" id="submit"
+                                        type="submit">
+                                        <span class="ladda-label">Yes, Delete</span>
+                                    </button>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
+                                    <div class="col-md-2 form-group mb-3">
+                                        <div class="loader-bubble loader-bubble-primary" id="innerLoader1"
+                                            style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="editTask" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Task</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="editTaskArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
 <style> .modal { overflow: auto !important; }</style>
 @endsection
 
@@ -860,7 +947,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     var taskTitle=taskDate=taskOverDue=taskAllLink='';
                     if(obj_upcoming_task.length > 0){
                     if(obj_upcoming_task[0].task_title!=null && obj_upcoming_task[0].task_title!=''){
-                            taskTitle='<a href="#">'+obj_upcoming_task[0].task_title+'</a> ';
+                            taskTitle='<a data-toggle="modal"  data-target="#loadTaskDetailsView" data-placement="bottom" href="javascript:;"  onclick="loadTaskDetailsView('+obj_upcoming_task[0].id+');">'+obj_upcoming_task[0].task_title+'</a> ';
                     }else{
                             taskTitle='<a href="#">&lt;No Title&gt;</a> ';
                     }
@@ -896,6 +983,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(8)', nRow).html('<div class="text-left" style="white-space: nowrap;"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info"> <i class="fas fa-eye pr-2  align-middle" title="View Details"></i> <a data-toggle="modal"  data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"  onclick="updateCaseDetails('+aData.id+');"><i class="fas fa-pen align-middle"></i></a></a></div>');
                 
                     //  $('td:eq(6)', nRow).html('<div class="text-center"><a data-toggle="tooltip" data-placement="bottom" title="View" class="btn btn-primary btn-sm" href="'+baseUrl+'/project?id='+ aData.decode_id +'"> View</a></div>');
+                    //loadTaskView
                     
                 },
                 "initComplete": function(settings, json) {
@@ -1058,6 +1146,19 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             
         });
     });
+
+    function loadTaskDetailsView(task_id) {
+        $("#loadTaskDetailsViewArea").html('<img src="{{LOADER}}""> Loading...');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/tasks/loadTaskViewPage", // json datasource
+                data: { "task_id": task_id},
+                success: function (res) {
+                    $("#loadTaskDetailsViewArea").html(res);
+                }
+            })
+    }
+
     function modifyFontSize(flag) {  
         var min = 13;
         var max = 19;
