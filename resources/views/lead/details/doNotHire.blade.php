@@ -15,6 +15,7 @@
                     <option value="{{$vcs->id}}">{{$vcs->title}}</option>
                     <?php } ?>
                 </select>
+                <input type="hidden" name="hire_details" value="dot hire details">
                
             </div>
             <label for="inputEmail3" class="col-sm-3 col-form-label"> 
