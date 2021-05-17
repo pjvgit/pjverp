@@ -237,6 +237,8 @@ class BillingController extends BaseController
          $data['user_id']=$TaskTimeEntry->user_id;
          $data['activity']='updated a time entry';
          $data['activity_for']=$TaskTimeEntry->activity_id;
+         $data['time_entry_id']=$TaskTimeEntry->id;
+
          $data['type']='time_entry';
          $data['action']='update';
          $CommonController= new CommonController();
@@ -272,6 +274,7 @@ class BillingController extends BaseController
             $data['user_id']=$TaskTimeEntry['user_id'];
             $data['activity']='deleted a time entry';
             $data['activity_for']=$TaskTimeEntry['activity_id'];
+            $data['time_entry_id']=$TaskTimeEntry->id;
             $data['type']='time_entry';
             $data['action']='delete';
             $CommonController= new CommonController();
@@ -459,6 +462,7 @@ class BillingController extends BaseController
         $data['user_id']=$ExpenseEntry->user_id;
         $data['activity']='added an expense';
         $data['activity_for']=$ExpenseEntry->activity_id;
+        $data['expense_id']=$ExpenseEntry->id;
         $data['type']='expenses';
         $data['action']='add';
         $CommonController= new CommonController();
@@ -505,6 +509,7 @@ class BillingController extends BaseController
                 $data['user_id']=$TaskTimeEntry->user_id;
                 $data['activity']='added an expense';
                 $data['activity_for']=$TaskTimeEntry->activity_id;
+                $data['expense_id']=$TaskTimeEntry->id;
                 $data['type']='expenses';
                 $data['action']='add';
                 $CommonController= new CommonController();
@@ -548,6 +553,7 @@ class BillingController extends BaseController
             $data['user_id']=$ExpenseEntry['user_id'];
             $data['activity']='deleted an expense';
             $data['activity_for']=$ExpenseEntry['activity_id'];
+            
             $data['type']='expenses';
             $data['action']='delete';
             $CommonController= new CommonController();
@@ -635,6 +641,7 @@ class BillingController extends BaseController
          $data['user_id']=$ExpenseEntry->user_id;
          $data['activity']='updated an expense ';
          $data['activity_for']=$ExpenseEntry->activity_id;
+         $data['expense_id']=$ExpenseEntry->id;
          $data['type']='expenses';
          $data['action']='update';
          $CommonController= new CommonController();
@@ -2163,7 +2170,8 @@ class BillingController extends BaseController
             $data['user_id']=$TaskTimeEntry->user_id;
             $data['activity']='added a time entry';
             $data['activity_for']=$TaskTimeEntry->id;
-            $data['type']='time_entry';
+            $data['expense_id']=$TaskTimeEntry->id;
+            $data['type']='time_entry_id';
             $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
@@ -2250,6 +2258,7 @@ class BillingController extends BaseController
             $data['user_id']=$TaskTimeEntry->user_id;
             $data['activity']='updated a time entry';
             $data['activity_for']=$TaskTimeEntry->activity_id;
+            $data['time_entry_id']=$TaskTimeEntry->id;
             $data['type']='time_entry';
             $data['action']='update';
             $CommonController= new CommonController();
@@ -2382,6 +2391,8 @@ class BillingController extends BaseController
         $data['user_id']=$request->staff_user;
         $data['activity']='added an expense';
         $data['activity_for']=$ExpenseEntry->id;
+        $data['expense_id']=$ExpenseEntry->id;
+
         $data['type']='expenses';
         $data['action']='add';
         $CommonController= new CommonController();
@@ -3611,23 +3622,23 @@ class BillingController extends BaseController
             'court_case_id' => 'required|numeric',
             'contact' => 'required|numeric',
             'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required|array',
-            'expenseEntrySelectedArray'=>'required|array'
+            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
+            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array'
         ],["invoice_number_padded.required"=>"Invoice number must be greater than 0",
         "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
         "contact.required"=>"Billing user can't be blank",
         "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
         "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"]);
 
-        // print_r($request->all());exit;
-        $validator = \Validator::make($request->all(), [
-            'invoice_number_padded' => 'required|numeric',
-            'court_case_id' => 'required|numeric',
-            'contact' => 'required|numeric',
-            'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required|array',
-            'expenseEntrySelectedArray'=>'required|array'
-        ],["timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice."]);
+        // // print_r($request->all());exit;
+        // $validator = \Validator::make($request->all(), [
+        //     'invoice_number_padded' => 'required|numeric',
+        //     'court_case_id' => 'required|numeric',
+        //     'contact' => 'required|numeric',
+        //     'total_text' => 'required',
+        //     'timeEntrySelectedArray'=>'required|array',
+        //     'expenseEntrySelectedArray'=>'required|array'
+        // ],["timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice."]);
        
             // print_r($request->all());exit;
             $InvoiceSave=Invoices::find($request->invoice_id);
@@ -3684,14 +3695,14 @@ class BillingController extends BaseController
 
              //Flat fees referance
              if(!empty($request->flatFeeEntrySelectedArray)){
-                FlatFeeForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
+                FlatFeeEntryForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
                 foreach($request->flatFeeEntrySelectedArray as $k=>$v){
-                    $FlatFeeForInvoice=new FlatFeeForInvoice;
-                    $FlatFeeForInvoice->invoice_id=$InvoiceSave->id;                    
-                    $FlatFeeForInvoice->flat_fee_entry_id=$v;
-                    $FlatFeeForInvoice->created_by=Auth::User()->id; 
-                    $FlatFeeForInvoice->created_at=date('Y-m-d h:i:s'); 
-                    $FlatFeeForInvoice->save();
+                    $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                    $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;                    
+                    $FlatFeeEntryForInvoice->flat_fee_entry_id=$v;
+                    $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                    $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                    $FlatFeeEntryForInvoice->save();
                     DB::table('flat_fee_entry')->where("id",$v)->update([
                         'status'=>'paid',
                         'invoice_link'=>$InvoiceSave->id

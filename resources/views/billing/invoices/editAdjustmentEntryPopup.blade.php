@@ -49,7 +49,7 @@
         </div>
 
         <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basic</label>
+            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basis</label>
             <div class="col-9 form-group mb-3">
                 <input id="basic" name="basic" maxlength="15" class="form-control number" value="{{$InvoiceAdjustment['basis']}}">
             </div>
@@ -224,6 +224,22 @@
                 }
             });
         });
+
+
+        var curVal= $("#ad_type").val();
+        if (curVal == "amount") {
+            $("#basic").val("").attr('readonly', true);
+            $("#percentage").val("-").attr('readonly', true);
+            $("#amount").removeAttr('readonly');
+            
+        } else {
+            $("#basic").removeAttr('readonly');
+            $("#percentage").val('').removeAttr('readonly');
+            $("#basic").val($("#time_entry_sub_total_text").val());
+            $("#amount").attr('readonly', true);
+        }
+
+
     });
 
     function showText() {

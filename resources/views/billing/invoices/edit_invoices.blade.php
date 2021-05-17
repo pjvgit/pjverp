@@ -2919,6 +2919,9 @@
         var addition_amount = parseFloat($("#addition_total_text").val());
 
         var final_total=total-discount_amount+addition_amount;
+        if(final_total <= 0 ){
+            final_total=0;
+        }
         $(".sub_total_amount").html(total);
         $("#sub_total_text").val(total);
         $('.sub_total_amount').number(true, 2);

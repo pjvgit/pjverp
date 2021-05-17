@@ -201,6 +201,10 @@ CREATE TABLE IF NOT EXISTS `flat_fee_entry_for_invoice` (
 //flat_fee_entry_for_invoice
 //flat_fee_entry
 
+
+ALTER TABLE `all_history` ADD `expense_id` INT(11) NULL AFTER `event_id`, ADD `time_entry_id` INT(11) NULL AFTER `expense_id`;
+
+
 -- --------------------------------------------------------
 
 --

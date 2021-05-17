@@ -85,6 +85,8 @@ class CommonController extends BaseController {
        $AllHistory=new AllHistory;
        $AllHistory->case_id=($data['case_id'])??NULL;
        $AllHistory->user_id=($data['user_id'])??NULL;
+       $AllHistory->expense_id=($data['expense_id'])??NULL;
+       $AllHistory->time_entry_id=($data['time_entry_id'])??NULL;
        $AllHistory->activity=($data['activity'])??NULL;
        $AllHistory->activity_for=($data['activity_for'])??NULL;
        $AllHistory->notes_for_client=($data['notes_for_client'])??NULL;

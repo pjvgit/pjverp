@@ -7,7 +7,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right">Item</label>
             <div class="col-9 form-group mb-3">
-                <select class="form-control staff_user select2" id="item" name="item">
+                <select class="form-control staff_user select2" id="item1" name="item">
                     <option></option>
                     <option value="discount">Discount</option>
                     <option value="intrest">Intrest</option>
@@ -20,7 +20,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Applied To</label>
             <div class="col-9 form-group mb-3">
-                <select class="form-control staff_user select2" id="applied_to" name="applied_to">
+                <select class="form-control staff_user select2" id="applied_to1" name="applied_to">
                     <option></option>
                     <option value="flat_fees">Flat Fees</option>
                     <option value="time_entries">Time Entries</option>
@@ -34,7 +34,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Type</label>
             <div class="col-9 form-group mb-3">
-                <select class="form-control staff_user select2" id="ad_type" name="ad_type">
+                <select class="form-control staff_user select2" id="ad_type1" name="ad_type">
                     <option></option>
                     <option value="percentage">% - Percentage</option>
                     <option value="amount">$ - Amount</option>
@@ -43,14 +43,14 @@
             </div>
         </div>
         <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Type</label>
+            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Notes</label>
             <div class="col-9 form-group mb-3">
                 <textarea name="notes" class="form-control" rows="5"></textarea>
             </div>
         </div>
 
         <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basic</label>
+            <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basis</label>
             <div class="col-9 form-group mb-3">
                 <input id="basic" name="basic" maxlength="15" class="form-control number" value="">
             </div>
@@ -121,7 +121,7 @@
             errorPlacement: function (error, element) {
                 if (element.is('#item')) {
                     error.appendTo('#1Error');
-                } else if (element.is('#applied_to')) {
+                } else if (element.is('#applied_to1')) {
                     error.appendTo('#2Error');
                 } else if (element.is('#ad_type')) {
                     error.appendTo('#3Error');
@@ -132,8 +132,8 @@
         });
 
       
-        $('#item').on("select2:unselect", function (e) {
-            $("#applied_to").html('');
+        $('#item1').on("select2:unselect", function (e) {
+            $("#applied_to1").html('');
             $("#ad_type").html('');
             $('#saveAdjustmentForm')[0].reset();
             $("#basic").removeAttr('readonly');
@@ -142,7 +142,7 @@
         });
 
 
-        $('#applied_to').on("select2:select", function (e) {
+        $('#applied_to1').on("select2:select", function (e) {
             var curVal = $(this).val();
             if (curVal == "expenses") {
                 $("#basic").val($("#expense_sub_total_text").val());
@@ -154,7 +154,7 @@
             // $('#basic').number(true, 2);
         });
 
-        $('#ad_type').on("select2:select", function (e) {
+        $('#ad_type1').on("select2:select", function (e) {
             var curVal = $(this).val();
             if (curVal == "amount") {
                 $("#basic").val("").attr('readonly', true);
