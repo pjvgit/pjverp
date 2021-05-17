@@ -46,7 +46,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                     <td class="text-center border-top-0 border-right-0 task-checkbox-column float-left">
                     <?php $findComletedPErcent = ($TaskChecklistCompleted / count($TaskChecklist) * 100);?>
 
-                        <span class="checklist-completion-percentage-details checklist-details-completion-percentage-19667270">{{$findComletedPErcent}}%</span>
+                        <span class="checklist-completion-percentage-details checklist-details-completion-percentage-19667270">{{number_format($findComletedPErcent)}}%</span>
                     </td>
 
                     <td class="border-top-0 border-left-0">
