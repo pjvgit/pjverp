@@ -48,6 +48,7 @@ $userTitle = unserialize(USER_TITLE);
                                     ?>
 
                                 </div>
+                                
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Default Rate:</div>
 

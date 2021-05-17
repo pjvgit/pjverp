@@ -182,12 +182,12 @@
                                     <button type="button" class="p-0 text-left edit-user-case-rate btn btn-link">
                                     <span class="billing-rate-19798316 user-case-rate">
                                                 <?php 
-                                               
-                                                if($v->rate_type==0){
-                                                    $rate=$v->user_default_rate;
-                                                }else{
-                                                    $rate=$v->staff_rate_amount;
-                                                }
+                                                $rate=$v->staff_rate_amount;
+                                                // if($v->rate_type==0){
+                                                //     $rate=$v->user_default_rate;
+                                                // }else{
+                                                //     $rate=$v->staff_rate_amount;
+                                                // }
                                                 ?>${{($rate)??0}}/hr (case)
                                                 </span></button></a></div>
                                 </td>

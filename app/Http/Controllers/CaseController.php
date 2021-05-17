@@ -4355,14 +4355,16 @@ class CaseController extends BaseController
         $staff_id=$request->staff_id;
         $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->where("user_id",$staff_id)->first();
         $rateType='';
-        if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
-            $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
-            $default_rate=($defaultRate['default_rate'])??0.00;
-            $rateType="default";
-        }else{
-            $default_rate=($rateUsers['rate_amount'])??0.00;
-            $rateType="case";
-        }
+        // if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
+        //     $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
+        //     $default_rate=($defaultRate['default_rate'])??0.00;
+        //     $rateType="default";
+        // }else{
+        //     $default_rate=($rateUsers['rate_amount'])??0.00;
+        //     $rateType="case";
+        // }
+        $default_rate=($rateUsers['rate_amount'])??0.00;
+        $rateType="case";
         return view('case.view.loadRateBox',compact('default_rate','rateType','case_id','staff_id'));     
         exit;    
     }
@@ -4379,14 +4381,16 @@ class CaseController extends BaseController
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
             $rate_type=$request->rate_type;
-            if($rate_type=="case"){
-                CaseStaff::where('user_id',$request->staff_id)->where('case_id',$request->case_id)
+            CaseStaff::where('user_id',$request->staff_id)->where('case_id',$request->case_id)
                 ->update(['rate_amount'=>str_replace(",","",$request->default_rate)]);
-            }else{
-                $defaultRate = User::find($request->staff_id);
-                $defaultRate->default_rate=str_replace(",","",$request->default_rate);
-                $defaultRate->save();
-            }
+            // if($rate_type=="case"){
+            //     CaseStaff::where('user_id',$request->staff_id)->where('case_id',$request->case_id)
+            //     ->update(['rate_amount'=>str_replace(",","",$request->default_rate)]);
+            // }else{
+            //     $defaultRate = User::find($request->staff_id);
+            //     $defaultRate->default_rate=str_replace(",","",$request->default_rate);
+            //     $defaultRate->save();
+            // }
            return response()->json(['errors'=>'']);
            exit;
        }
