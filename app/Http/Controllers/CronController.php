@@ -181,12 +181,12 @@ class CronController extends BaseController
             unlink($file);
         }
 
-        $c = glob("public/download/*"); 
-        foreach($c as $file){
-            if(!is_dir($file)){
-                unlink($file);
-            }
-        }
+        // $c = glob("public/download/*"); 
+        // foreach($c as $file){
+        //     if(!is_dir($file)){
+        //         unlink($file);
+        //     }
+        // }
         return response()->json(['errors'=>'']);
         exit;
     }

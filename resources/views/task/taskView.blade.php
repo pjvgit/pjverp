@@ -316,7 +316,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("[data-toggle=popover]").popover();
-
+       
         $('[data-toggle="tooltip"]').tooltip();
                 $('#closeView').on('click', function () {
             // window.location.reload();

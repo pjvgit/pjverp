@@ -1972,6 +1972,7 @@ class BillingController extends BaseController
     }
     public function addSingleFlatFeeEntry(Request $request)
     {
+        // print_r($request->all());exit;
         $validator = \Validator::make($request->all(), [
             'id' => 'required',
         ]);
@@ -2007,12 +2008,24 @@ class BillingController extends BaseController
             $FlatFeeEntry = new FlatFeeEntry;
             $FlatFeeEntry->case_id =$request->case_id;
             $FlatFeeEntry->user_id =$request->staff_user;
+            if(isset($request->invoice_id)){
+                $FlatFeeEntry->invoice_link =$request->invoice_id;
+            }
             $FlatFeeEntry->description=$request->case_description;
             $FlatFeeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
             $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
             $FlatFeeEntry->created_by=Auth::User()->id; 
             $FlatFeeEntry->save();
+
+            if(isset($request->invoice_id)){
+                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                $FlatFeeEntryForInvoice->invoice_id=$FlatFeeEntry->invoice_link;                    
+                $FlatFeeEntryForInvoice->flat_fee_entry_id=$FlatFeeEntry->id;
+                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                $FlatFeeEntryForInvoice->save();
+            }
             return response()->json(['errors'=>'','id'=>$FlatFeeEntry->id]);
             exit;
         }

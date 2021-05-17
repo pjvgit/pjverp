@@ -419,7 +419,9 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('tasks/loadEditTaskPopup', 'TaskController@loadEditTaskPopup')->name('tasks/loadEditTaskPopup');
      Route::post('tasks/saveEditTaskPopup', 'TaskController@saveEditTaskPopup')->name('tasks/saveEditTaskPopup');
      Route::post('tasks/loadTaskReminderPopupIndex', 'TaskController@loadTaskReminderPopupIndex')->name('tasks/loadTaskReminderPopupIndex');
+     Route::post('tasks/loadReminderPopupIndexDontRefresh', 'TaskController@loadReminderPopupIndexDontRefresh')->name('tasks/loadReminderPopupIndexDontRefresh');
      Route::post('tasks/saveTaskReminderPopup', 'TaskController@saveTaskReminderPopup')->name('tasks/saveTaskReminderPopup');
+     Route::post('tasks/loadReminderArea', 'TaskController@loadReminderArea')->name('tasks/loadReminderArea');
     
      Route::post('tasks/loadTimeEntryPopup', 'TaskController@loadTimeEntryPopup')->name('tasks/loadTimeEntryPopup');
      Route::post('tasks/saveTimeEntryPopup', 'TaskController@saveTimeEntryPopup')->name('tasks/saveTimeEntryPopup');

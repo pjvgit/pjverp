@@ -86,7 +86,7 @@ $finalAmt=$invoice-$paid;
 <?php   $discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;?>
 
 <?php
-    if(!$FlatFeeEntryForInvoice->isEmpty()){?>
+    if(isset($FlatFeeEntryForInvoice) && !$FlatFeeEntryForInvoice->isEmpty()){?>
 <b>Flat Fee</b>
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
     <tbody>
@@ -188,6 +188,7 @@ $finalAmt=$invoice-$paid;
 <?php } ?>
 <br>
 <?php
+$flatFeeEntryAmount=0;
     if(!$TimeEntryForInvoice->isEmpty()){?>
 <b>Time Entries</b>
 <table style="width: 100%; border-collapse: collapse;" border="1">

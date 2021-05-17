@@ -1802,6 +1802,46 @@
         </div>
     </div>
 </div>
+
+
+<div id="addNewFlatFeeEntry" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Add Flat Fee</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="addNewFlatFeeEntryArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="editNewFlatFeeEntry" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Edit Flat Fee</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="editNewFlatFeeEntryArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <style>
         .strike{
         text-decoration: line-through;
@@ -3051,7 +3091,54 @@
     }
 
 
+    function addSingleFlatFeeEntry() {
+        $('.showError').html('');
+        beforeLoader();
+        $("#addNewFlatFeeEntryArea").html('');
+        $("#addNewFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
+            data: {
+                "id": "{{base64_encode($caseMaster['id'])}}",
+                "invoice_id":"{{$findInvoice->id}}"
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#addNewFlatFeeEntryArea").html('');
+                    $('#addSingleFlatFeeEntry').animate({
+                        scrollTop: 0
+                    }, 'slow');
 
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#addNewFlatFeeEntryArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                $('#addSingleFlatFeeEntry').animate({
+                    scrollTop: 0
+                }, 'slow');
+
+                afterLoader();
+            }
+        })
+    }
     function openExpenseDelete(id) {
         $("#delete_expense_existing_dialog").modal("show");
         $("#delete_expense_entry_id").val(id);

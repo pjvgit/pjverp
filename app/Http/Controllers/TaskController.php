@@ -817,8 +817,26 @@ class TaskController extends BaseController
       return view('task.loadReminderPopupIndex',compact('task_id','TaskReminder','from_view'));     
       exit;    
   }
- 
-
+  public function loadReminderPopupIndexDontRefresh(Request $request)
+  {
+      $task_id=$request->task_id;
+      $TaskReminder = TaskReminder::where("task_id",$task_id)->get();
+      $from_view="no";
+      if(isset($request->from_view) && $request->from_view=='yes'){
+          $from_view="yes";
+      }
+      return view('task.loadReminderPopupIndexDontRefresh',compact('task_id','TaskReminder','from_view'));     
+      exit;    
+  }
+  public function loadReminderArea(Request $request)
+  {
+      $task_id=$request->task_id;
+      $TaskReminders=CaseTaskReminder::leftJoin("users","task_reminder.created_by","=","users.id")
+      ->select("task_reminder.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))
+      ->where("task_id", $task_id)->get();
+      return view('task.loadReminderArea',compact('task_id','TaskReminders'));     
+      exit;    
+  }
   public function saveTaskReminderPopup(Request $request)
   {
         $ses='';

@@ -802,6 +802,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 
 
+<div id="loadReminderPopupIndexInViewOverlay" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Set Task Reminders</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reminderDataIndexInView">
+
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
 <div id="editTask" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
@@ -1050,8 +1070,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 // dataTable.ajax.reload();
                 window.location.reload(null, false);   
         
-            });
-
+            });    
+            
+            
             $('#AddContactModal').on('hidden.bs.modal', function () {
                 //loadStep1();
                 $('#AddCaseModel').modal('show');  
@@ -1149,14 +1170,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     function loadTaskDetailsView(task_id) {
         $("#loadTaskDetailsViewArea").html('<img src="{{LOADER}}""> Loading...');
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/tasks/loadTaskViewPage", // json datasource
-                data: { "task_id": task_id},
-                success: function (res) {
-                    $("#loadTaskDetailsViewArea").html(res);
-                }
-            })
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/loadTaskViewPage", // json datasource
+            data: { "task_id": task_id},
+            success: function (res) {
+                $("#loadTaskDetailsViewArea").html(res);
+            }
+        })
     }
 
     function modifyFontSize(flag) {  
@@ -1358,8 +1379,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $('#smartwizard').smartWizard('prev');
         
     }
-   
-   
+
+    function loadReminderPopupIndexInCaseList(task_id) {
+        $("#reminderDataIndexInView").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/tasks/loadReminderPopupIndexDontRefresh", // json datasource
+                data: {
+                    "task_id": task_id,
+                    "from_view":"yes"
+                },
+                success: function (res) {
+                    $("#reminderDataIndexInView").html(res);
+                }
+            })
+        })
+    }
+
     function saveFinalStep() {
         var dataString = $("#createCase").serialize();
 
@@ -1390,7 +1427,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         
     }
     
-   
     $("#addMoreReminder").hide();
     $("#innerLoader1").css('display', 'none');
     $("#area_text").css('display', 'none');

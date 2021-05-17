@@ -173,18 +173,24 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                 </tr>
                 <tr>
                     <th class="w-25">Reminders</th>
-                    <td id="reminder_info" data-reminder-id="19667270">
-                    <?php if (!$TaskReminders->isEmpty()) {
+                    <td id="reminderAreaUpdate" data-reminder-id="19667270">
+                        <?php if (!$TaskReminders->isEmpty()) {
                         foreach ($TaskReminders as $kr => $kv) {?>
                             <div>
                                 <div><strong>{{ucfirst($kv->reminder_user_type)}}</strong> - {{ucfirst($kv->reminder_type)}} {{$kv->reminer_number}} day before due date.</div>
-                                <small class="text-black-50">Created by {{$kv->created_by_name}}</small>
                             </div>
                         <?php }
                         } else { ?>
                             <div class="mb-3"><span class="text-black-50">None</span></div>
                         <?php } ?>
-                        <button class="btn btn-link px-0" data-toggle="modal" data-target="#loadReminderPopupIndexInViewOverlay" data-placement="bottom" href="javascript:;" onclick="loadReminderPopupIndexInCaseList({{$TaskData->id}});">Edit Reminders</button>
+                    </td>
+                   
+                </tr>
+                <tr> <th class="w-25"></th>
+                    <td>
+                        <a class=" ml-1 task-form-link" data-toggle="modal"  data-target="#loadReminderPopupIndexInViewOverlay" data-placement="bottom" href="javascript:;" onclick="loadReminderPopupIndexInCaseList({{$TaskData->id}});">
+                        Edit Reminders
+                        </a>
                     </td>
                 </tr>
             </tbody>
@@ -417,8 +423,23 @@ $controllerLoad = new App\Http\Controllers\CommonController();
         })
     }
 
+    $('#loadReminderPopupIndexInViewOverlay').on('hidden.bs.modal', function () {
+        reloadReminderArea({{$TaskData->id}});
+        // alert("S")
+    });
 
-
+    function reloadReminderArea(task_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/loadReminderArea", // json datasource
+            data: {
+                "task_id": task_id
+            },
+            success: function (res) {
+                $("#reminderAreaUpdate").html(res);
+            }
+        })
+    }
     function loadChecklistView(task_id) {
 
         $.ajax({
@@ -502,21 +523,5 @@ $controllerLoad = new App\Http\Controllers\CommonController();
             })
         })
     }
-
-    function loadReminderPopupIndexInCaseList(task_id) {
-        $("#reminderDataIndexInView").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/tasks/loadTaskReminderPopupIndex", // json datasource
-                data: {
-                    "task_id": task_id,
-                    "from_view":"yes"
-                },
-                success: function (res) {
-                    $("#reminderDataIndexInView").html(res);
-                }
-            })
-        })
-    }
+    
 </script>
