@@ -1784,7 +1784,11 @@ class BillingController extends BaseController
             $maxInvoiceNumber=Invoices::max("id")+1;
 
             $adjustment_token=$request->token;
-            return view('billing.invoices.scratch_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate'));
+
+            $selectedClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->select("*")->get();
+            $selectedClient = User::where('user_level',2)->whereIn('id',$selectedClient->pluck('selected_user'))->first();
+            
+            return view('billing.invoices.scratch_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','selectedClient'));
         }else{
             return view('pages.404');
         }
