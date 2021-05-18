@@ -4331,7 +4331,7 @@ class CaseController extends BaseController
         $case_id=$request->case_id;
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
-        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","user_type");
         if($case_id!=""){
             $task = $task->where("task.case_id",$case_id);
         }

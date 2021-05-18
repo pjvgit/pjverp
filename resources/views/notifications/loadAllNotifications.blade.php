@@ -76,7 +76,7 @@ if(!$commentData->isEmpty()){
                             ?>
                             <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                             <a class="name"
-                                href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                                href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                                 {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
                                 href="{{BASE_URL}}tasks?id={{$v->task_id}}"> {{$v->task_name}} </a> </a> <abbr class="timeago"
                                 title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
@@ -107,7 +107,7 @@ if(!$commentData->isEmpty()){
                     ?>
                     <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
                         href="{{BASE_URL}}event/view/{{base64_encode($v->event_id)}}"> {{$v->event_name}} </a> </a>
                     <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
@@ -181,11 +181,12 @@ if(!$commentData->isEmpty()){
                     $imageLink["update"]="activity_expense_updated.png";
                     $imageLink["delete"]="activity_expense_deleted.png";
                     $image=$imageLink[$v->action];
+
                 ?>
                     <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for {{$v->title}}</a> <abbr
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for  <?php if($v->action!="delete"){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  <abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
                         href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
@@ -206,8 +207,8 @@ if(!$commentData->isEmpty()){
                 ?>
                     <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for {{$v->title}}</a> <abbr
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for <?php if($v->action!="delete"){ ?> <a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup({{$v->time_entry_id}});"> {{$v->title}}</a>  <?php }else{ ?> {{$v->title}}<?php } ?><abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
                         href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
@@ -230,8 +231,8 @@ if(!$commentData->isEmpty()){
                                         if(in_array($v->action,["add","update","delete"])){ ?>
                     <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}}
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a href="{{BASE_URL}}bills/invoices/view/{{base64_encode($v->activity_for)}}">
                     #{{sprintf('%06d', $v->activity_for)}}</a> <abbr class="timeago"
                         title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
@@ -239,7 +240,7 @@ if(!$commentData->isEmpty()){
                     <?php } else{ ?>
                     <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for {{$v->title}}</a> <abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"

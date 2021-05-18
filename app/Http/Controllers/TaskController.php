@@ -1118,6 +1118,7 @@ class TaskController extends BaseController
 
   public function loadTaskViewPage(Request $request)
   {        
+    $task_id=$request->task_id;
     $TaskActivity=TaskActivity::where('status','1')->get();
     $TaskData=Task::find($request->task_id);
 
@@ -1143,9 +1144,18 @@ class TaskController extends BaseController
     $TaskChecklist = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->orderBy('checklist_order','ASC')->get();
     $TaskChecklistCompleted = TaskChecklist::leftJoin('users','users.id','=','task_checklist.updated_by')->select("task_checklist.*","users.first_name","users.last_name","users.id as uid","users.user_type")->where("task_id", $request->task_id)->where('status','1')->count();
 
-    return view('case.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterData','TaskCompletedBy'));     
+    return view('case.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterData','TaskCompletedBy','task_id'));     
     exit;   
   }
+
+  public function reloadTaskCounter(Request $request)
+  {
+        $task_id=$request->task_id;
+        $TaskChecklistAll =  TaskChecklist::where("task_id",$task_id)->count();
+        $TaskChecklistDone =  TaskChecklist::where("task_id",$task_id)->where("status","1")->count();
+        return view('task.reloadTaskCounter',compact('TaskChecklistDone','TaskChecklistAll'));     
+        exit;    
+  } 
   public function saveTaskComment(Request $request)
   {
         $TaskComment = new TaskComment; 
@@ -1251,7 +1261,7 @@ class TaskController extends BaseController
 
         // print_r($TaskCompletedBy);
         $TaskData=Task::find($task_id);
-        return view('task.loadCheckListViewForTask',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy'));     
+        return view('task.loadCheckListViewForTask',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy','task_id'));     
         exit;    
   } 
 

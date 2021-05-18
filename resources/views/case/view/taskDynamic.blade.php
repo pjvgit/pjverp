@@ -14,18 +14,19 @@ foreach ($task as $element) {
     <table class="display table table-striped table-bordered" style="width:100%">
         <thead>
             <tr class="labels data">
-                <th class="text-center" style="cursor: initial;">
+                <th class="text-center" style="cursor: initial;width:5%;">
                     <label class="sr-only ">Select all rows</label>
                     <input type="checkbox" class="mx-1" name="all" id="checkall">
                 </th>
                 <th class="task-status-cell align-middle" style="cursor: pointer;"></th>
-                <th class="task-name-cell align-middle" style="cursor: pointer;">Name</th>
-                <th class="task-priority-cell align-middle text-nowrap YXd6tPOgoO-RylXVRzzZh" style="cursor: pointer;">
+                <th class="task-name-cell align-middle" style="cursor: pointer;width: 55%; border-left: none;">Name</th>
+                <th class="task-priority-cell align-middle text-nowrap" style="cursor: pointer;width:5%;"></th>
+                <th class="task-priority-cell align-middle text-nowrap YXd6tPOgoO-RylXVRzzZh" style="width:5%; cursor: pointer;">
                     Priority</th>
-                <th class="task-due-cell align-middle" style="cursor: pointer;"> Due</th>
-                <th class="task-assigned-to-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;">
+                <th class="task-due-cell align-middle" style="cursor: pointer;width:10%;"> Due</th>
+                <th class="task-assigned-to-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;width:10%;">
                     Assigned To</th>
-                <th class="task-actions-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;"></th>
+                <th class="task-actions-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;width:5%;"></th>
             </tr>
         </thead>
         @foreach($result as $key=>$row)
@@ -84,22 +85,38 @@ foreach ($task as $element) {
             <td class="task-name-cell align-middle">
 
                 <?php if($subrow->task_due_on > date('Y-m-d')){?>
-                <a href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
-                    class="p-0 w-100 text-left  btn btn-link">{{ $subrow->task_title }}</a>
+                    <a data-toggle="modal"  data-target="#loadTaskDetailsView" data-placement="bottom" href="javascript:;"  onclick="loadTaskDetailsView({{$subrow->id}});">{{ $subrow->task_title }}</a>
                 <?php }else{ ?>
-                <a href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
-                    class="p-0 w-100 text-left text-danger btn btn-link">{{ $subrow->task_title }}</a>
+                    <a data-toggle="modal"  data-target="#loadTaskDetailsView" data-placement="bottom" href="javascript:;"  onclick="loadTaskDetailsView({{$subrow->id}});">{{ $subrow->task_title }}</a>
 
                 <?php } ?>
                 <?php if($subrow->status=='1'){
                      $OwnDate=$CommonController->convertUTCToUserTime($subrow->task_completed_date,Auth::User()->user_timezone);
                  ?>
-                <small class="text-muted">Completed by {{$subrow->task_completed['first_name']}}
-                    {{$subrow->task_completed['last_name']}} on
+                <br><small class="text-muted">Completed by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->uid)}}"> {{$subrow->task_completed['first_name']}}
+                    {{$subrow->task_completed['last_name']}}   ({{$CommonController->getUserLevelText($subrow->user_type)}}) </a> on
                     {{date('m/d/Y',strtotime($OwnDate))}}</small>
                 <?php } ?>
-            </td>
 
+               
+            </td>
+            <td class="task-name-cell align-middle">
+                <?php
+                if($subrow->checklist_counter!=""){?>
+                <a href="#" onclick="loadChecklistView({{$subrow->id}});" data-toggle="dropdown" class="dropdown-toggle1" id="taskCounter_{{$subrow->id}}">
+                    <img src="{{BASE_URL}}public/images/checklist_icon_dark.png">
+                    <span style=""> {{$subrow->checklist_counter}}</span>
+                </a>
+                <div class="dropdown-menu bg-transparent shadow-none p-0 m-0 " x-placement="bottom-start">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table table-bordered mt-3" id="taskReviewArea_{{$subrow->id}}">
+                                
+                            </table>
+                    </div>
+                </div>
+                <?php } ?>
+            </td>
             <td class="task-priority-cell align-middle text-nowrap">
                 <?php if($subrow->task_priority == "1"){?>
                 <i class="fas fa-circle fa-sm  mr-1 text-black-50"></i>Low
@@ -108,7 +125,7 @@ foreach ($task as $element) {
                 <?php }else if($subrow->task_priority == "3") {?>
                 <i class="fas fa-circle fa-sm mr-1 text-warning"></i>High
                 <?php }else{ ?>
-                <div></div>
+                <div>No Priority</div>
                 <?php } ?>
             </td>
             <td class="task-due-cell align-middle">
@@ -131,20 +148,20 @@ foreach ($task as $element) {
                                 $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.base64_encode($linkuserValue->id)."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
                             }
                         ?>
-                <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
+                <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
                     data-toggle="popover" data-trigger="hover" title="" data-content="{{$userListHtml}}"
                     data-html="true" data-original-title="" style="float:left;">{{count($subrow->task_user)}}
                     Users</a>
                 <?php 
                     }else{
                         if(isset($subrow->task_user[0])){?>
-                <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                <a class=" event-name d-flex align-items-center" tabindex="0" role="button"
                     href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
                     {{substr($subrow->task_user[0]->last_name,0,15)}}</a>
                 <?php }
                     }
                 }else{ 
-                    ?> <i class="table-cell-placeholder mt-3"></i>
+                    ?> <i class="table-cell-placeholder"></i>
                 <?php
                 }
                 ?>
@@ -192,11 +209,51 @@ foreach ($task as $element) {
     </table>
     <span class="taskListPager">{!! $task->links() !!}</span>
 </div>
+<div id="loadTaskDetailsView" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            
+            <div class="modal-body">
+                <div id="loadTaskDetailsViewArea"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="loadReminderPopupIndexInViewOverlay" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Set Task Reminders</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reminderDataIndexInView">
+
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        overflow: auto !important;
+    }
+</style>
 
 <script>
     $(document).ready(function () {
         $("[data-toggle=popover]").popover();
         $('.dropdown-toggle').dropdown();  
+        $('.dropdown-toggle1').dropdown();  
         $('#checkall').on('change', function () {
             $('.task_checkbox').prop('checked', $(this).prop("checked"));
             if ($('.task_checkbox:checked').length == "0") {
@@ -220,5 +277,86 @@ foreach ($task as $element) {
             }
         });
     });
-    // 
+
+    function loadTaskDetailsView(task_id) {
+        $("#loadTaskDetailsViewArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/loadTaskViewPage", // json datasource
+            data: { "task_id": task_id},
+            success: function (res) {
+                $("#loadTaskDetailsViewArea").html(res);
+            }
+        })
+    }
+    function loadReminderPopupIndexInCaseList(task_id) {
+        $("#reminderDataIndexInView").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/tasks/loadReminderPopupIndexDontRefresh", // json datasource
+                data: {
+                    "task_id": task_id,
+                    "from_view":"yes"
+                },
+                success: function (res) {
+                    $("#reminderDataIndexInView").html(res);
+                }
+            })
+        })
+    }
+    function loadChecklistView(task_id) {
+        // $("#taskReviewArea_"+task_id).html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/loadCheckListViewForTask", // json datasource
+            data: {
+                "task_id": task_id
+            },
+            success: function (res) {
+                $("#taskReviewArea_"+task_id).html(res);
+
+            }
+        })
+    }
+    function updateCheckList(id, status,task_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/updateCheckList", // json datasource
+            data: {
+                "id": id,
+                "status": status
+            },
+            success: function (res) {
+                loadChecklistView(task_id);
+                reloadCounter(task_id);
+            }
+        })
+    }
+
+    function markAsCompleteTask(task_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/singleTaskMarkAsComplete", // json datasource
+            data: {
+                "task_id": task_id
+            },
+            success: function (res) {
+                loadChecklistView(task_id);
+             
+            }
+        })
+    }
+    function reloadCounter(task_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/reloadCounter", // json datasource
+            data: {
+                "task_id": task_id
+            },
+            success: function (res) {
+                $("#taskCounter_"+task_id).html(res);
+            }
+        })
+    }
 </script>

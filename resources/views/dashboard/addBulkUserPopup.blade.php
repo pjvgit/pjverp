@@ -16,8 +16,9 @@
                             <div class="">
                                 <div class="input-group">
                                     <input id="first_name1" name="first_name[1]" autocomplete="off"
-                                        class="form-control " type="text" placeholder="First Name"
+                                        class="form-control" type="text" placeholder="First Name"
                                         data-testid="first_name" value="">
+                                        
                                 </div>
                             </div>
                         </div>
@@ -156,7 +157,7 @@
             rel="noopener noreferrer"> Please go here to learn more about new users and pricing.</a> Access can always
         be granted at a later date.</div>
     <div class="modal-footer pb-0">
-        <button type="submit" name="save" value="s" class="btn btn-primary submitbutton">Create Users</button>
+        <button type="submit" name="save" value="s" id="submitbutton" class="btn btn-primary submitbutton">Create Users</button>
     </div>
     <input type="hidden" name="hideinputcount2" id="hideinputcount2" value="1" />
 </form>
@@ -168,7 +169,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
-
+        $("#submitbutton").attr("disabled","disabled");
         $('#saveBulkUser').submit(function (e) {
                 e.preventDefault();
                 $('.showError').html('');
@@ -283,6 +284,9 @@
 
                 $("#saveBulkUser").validate();
             }
+        });
+        $(".form-control").on("keypress",function(){
+            $('#submitbutton').removeAttr("disabled");
         });
     });
 

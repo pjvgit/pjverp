@@ -1,11 +1,11 @@
 <ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
+    <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic111" role="tab"
             aria-controls="homeBasic" aria-selected="true">Single</a></li>
-    <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
+    <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic1111" role="tab"
             aria-controls="profileBasic" aria-selected="false">Bulk</a></li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="homeBasic" role="tabpanel" aria-labelledby="home-basic-tab">
+    <div class="tab-pane fade show active" id="homeBasic111" role="tabpanel" aria-labelledby="home-basic-tab">
         <form class="savenewTimeEntry" id="savenewTimeEntry" name="savenewTimeEntry" method="POST">
             <input class="form-control" id="id" value="{{$task_id}}" name="task_id" type="hidden">
             <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
@@ -23,6 +23,7 @@
                         <?php } ?>
 
                     </select>
+                    <span id="csError"></span>
 
                 </div>
             </div>
@@ -36,6 +37,7 @@
                             {{$CasevloadFirmStaffvalal->last_name}}</option>
                         <?php } ?>
                     </select>
+                    <span id="uError"></span>
 
                 </div>
             </div>
@@ -49,6 +51,8 @@
                         <option value="{{$v->id}}">{{$v->title}}</option>
                         <?php } ?>
                     </select>
+                    <span id="aError"></span>
+
                 </div>
                 <label for="inputEmail3" class="col-sm-4 col-form-label"> <a onclick="showText();"
                         href="javascript:;">Add
@@ -149,13 +153,13 @@
                 <div class="col-md-2 form-group mb-3">
                     <div class="loader-bubble loader-bubble-primary" id="innerLoader" style="display: none;"></div>
                 </div>
-                <button type="submit" id="submit" name="savenew" value="sn" class="btn btn-light submitbutton">Save and New</button>
+                <button type="submit" id="submit" name="savenew" value="sn" class="btn btn-secondary submitbutton">Save and New</button>
                 <button type="submit" id="submit1" name="save" value="s" class="btn btn-primary submitbutton">Save</button>
             </div>
 
         </form>
     </div>
-    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade" id="profileBasic1111" role="tabpanel" aria-labelledby="profile-basic-tab">
         <form class="savebulkTimeEntry" id="savebulkTimeEntry" name="savebulkTimeEntry" method="POST">
             <input class="form-control" id="id" value="{{$task_id}}" name="task_id" type="hidden">
             @csrf
@@ -176,7 +180,6 @@
                             {{$CasevloadFirmStaffvalal->last_name}}</option>
                         <?php } ?>
                     </select>
-
                 </div>
             </div>
             <h5 class="mb-3 bold">Time Entries</h5>
@@ -338,13 +341,13 @@
             placeholder: "Select...",
             theme: "classic",
             allowClear: true,
-            dropdownParent: $("#loadTimeEntryPopup"),
+            dropdownParent: $("#loadTimeEntryPopupInView"),
         });
     $(".dropdown_activity").select2({
         placeholder: "Select activity",
         theme: "classic",
         allowClear: true,
-        dropdownParent: $("#loadTimeEntryPopup"),
+        dropdownParent: $("#loadTimeEntryPopupInView"),
     });
         
         loadDefault();
@@ -682,6 +685,17 @@
                     required: "Duration can't be blank",
                     number: "Allows number only."
                 }
+            },
+            errorPlacement: function (error, element) {
+                if (element.is('#case_or_lead')) {
+                    error.appendTo('#csError');
+                }else if (element.is('#staff_user')) {
+                    error.appendTo('#uError');
+                }else if (element.is('#activity')) {
+                    error.appendTo('#aError');
+                } else {
+                    element.after(error);
+                }
             }
         });
         var buttonpressed;
@@ -777,13 +791,11 @@
             url: baseUrl + "/task/loadTaskActivity", // json datasource
             data: '',
             success: function (res) {
-
                 $("#TaskActivityDown").html(res);
                 $("#preloader").hide();
             }
         })
     }
-
 
     function loadDefault() {
         var hideinputcount2 = $('#hideinputcount2').val();
@@ -797,7 +809,7 @@
                 .removeAttr('id')
                 .attr('id', 'div' + (parseInt(hideinputcount2) + parseInt(1)) + '')
                 .insertBefore($template),
-                $option = $clone.find('[name="case_or_lead[]"]');
+            $option = $clone.find('[name="case_or_lead[]"]');
             $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('dvid',  + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -886,8 +898,8 @@
         });
     }
 
-   //Amount validation
-   $(document).on('keypress , paste', '.number', function (e) {
+    //Amount validation
+    $(document).on('keypress , paste', '.number', function (e) {
         if (/^-?\d*[,.]?(\d{0,3},)*(\d{3},)?\d{0,3}$/.test(e.key)) {
             $('.number').on('input', function () {
                 e.target.value = numberSeparator(e.target.value);
@@ -896,6 +908,6 @@
             e.preventDefault();
             return false;
         }
-    }
+    });
 
 </script>

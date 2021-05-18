@@ -60,7 +60,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                 if ($ckval->status == "1") {?>
                                     <tr class="checklist-item-details">
                                         <td class="text-center task-checkbox-column">
-                                            <input type="checkbox"  checked="checked" class="cursor-pointer form-control" style="width:20px;" name="complete_checklist_item_18768293" id="complete_checklist_item_18768293" value="1" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}});"  style="">
+                                            <input type="checkbox"  checked="checked" class="cursor-pointer form-control" style="width:20px;" name="complete_checklist_item_18768293" id="complete_checklist_item_18768293" value="1" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}},{{$task_id}});"  style="">
                                         </td>
                                         <td class="checklist-item-name-details">
                                             <a href="javascript:void(0);" >
@@ -74,10 +74,10 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                 <?php } else {?>
                                     <tr class="checklist-item-details">
                                         <td class="text-center task-checkbox-column">
-                                            <input type="checkbox"  class="cursor-pointer form-control" style="width:20px;" name="complete_checklist_item_18768293" id="complete_checklist_item_18768293" value="1" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}});"  style="">
+                                            <input type="checkbox"  class="cursor-pointer form-control" style="width:20px;" name="complete_checklist_item_18768293" id="complete_checklist_item_18768293" value="1" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}},{{$task_id}});"  style="">
                                         </td>
                                         <td class="checklist-item-name-details">
-                                            <a href="javascript:void(0);" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}});" >
+                                            <a href="javascript:void(0);" onclick="updateCheckList({{$ckval->id}},{{$ckval->status}},{{$task_id}});" >
                                                 {{$ckval->title}}
                                             </a>
                                             <div>
@@ -409,7 +409,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
         })
     }
 
-    function updateCheckList(id, status) {
+    function updateCheckList(id, status,task_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/updateCheckList", // json datasource
@@ -418,7 +418,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                 "status": status
             },
             success: function (res) {
-                loadChecklistView({{$TaskData->id}});
+                loadChecklistView(task_id);
             }
         })
     }

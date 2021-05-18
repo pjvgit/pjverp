@@ -96,12 +96,12 @@ $userTitle = unserialize(USER_TITLE);
                                     <?php } else { ?>
                                     <div class="d-flex align-items-start mb-3">
                                         <div class="mr-1">
-                                          
-                                            <?php if($val->profile_image!="" && $val->is_published=="yes"){
-                                                ?><img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$val->profile_image}}" width="32" height="32"><?php
-                                            }else{
-                                                ?><i class="fas fa-2x fa-user-circle text-black-50"></i><?php
-                                            }?>
+                                            @if(file_exists(public_path().'/images/users/'.$val->profile_image) && $val->profile_image!='')
+                                                <img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$val->profile_image}}" width="32" height="32">
+                                            @else
+                                            <i class="fas fa-2x fa-user-circle text-black-50"></i>
+                                            @endif
+
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
                                             <div class="d-flex flex-wrap align-items-center">
@@ -117,30 +117,20 @@ $userTitle = unserialize(USER_TITLE);
                                     <?php 
                                   }
                                     }?>
-
-
-
                                 </div>
-
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Opened:</div>
                                     <?php 
                                     if(isset($CaseMaster->case_open_date)){
                                       echo date('m/d/Y',strtotime($CaseMaster->case_open_date));
-
                                     }else{
                                       echo "Not Specified";
                                     }?>
-
                                 </div>
                                 <?php if(isset($CaseMaster->case_close_date)){ ?>
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Closed:</div>
-                                    <?php 
-                                
-                                      echo date('m/d/Y',strtotime($CaseMaster->case_close_date));
-                                ?>
-
+                                    <?php echo date('m/d/Y',strtotime($CaseMaster->case_close_date)); ?>
                                 </div>
                                 <?php } ?>
                                 <div class="mb-4">
