@@ -50,7 +50,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case stage
             </label>
-            <div class="col-md-10 form-group mb-3">
+            <div class="col-md-10 form-group mb-3"> 
                 <select id="case_status" name="case_status" class="form-control custom-select col">
                     <option value=""></option>
                     <?php 
@@ -74,7 +74,9 @@
             </label>
             <div class="col-md-10 form-group mb-3">
                 <select id="case_office" name="case_office" class="form-control custom-select col">
-                    <option value="1">Primary</option>
+                    <?php  foreach($firmAddress as $k=>$v){?>
+                        <option value="{{ $v->id }}" <?php if($CaseMaster->case_office==$v->id){ echo "selected=selected"; }?> >{{ $v->office_name }}</option>
+                    <?php } ?>
                     
                 </select>
             </div>

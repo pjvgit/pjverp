@@ -69,8 +69,8 @@ class CaseController extends BaseController
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
         $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
-
-        return view('case.index',compact('CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
+        $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+        return view('case.index',compact('CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
     }
 
     public function loadCase()
@@ -762,8 +762,9 @@ class CaseController extends BaseController
         $getChildUsers=$this->getParentAndChildUserIds();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
 
+        $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
 
-        return view('case.editCase',compact('CaseMaster','practiceAreaList','caseStageList','CaseSolReminder'));
+        return view('case.editCase',compact('CaseMaster','practiceAreaList','caseStageList','CaseSolReminder','firmAddress'));
     }
     public function saveEditCase(Request $request)
     {

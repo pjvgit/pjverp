@@ -286,8 +286,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </label>
                                                 <div class="col-md-10 form-group mb-3">
                                                     <select id="case_office" name="case_office" class="form-control custom-select col">
-                                                        <option value="1">Primary</option>
-                                                        
+                                                        <?php  foreach($firmAddress as $k=>$v){?>
+                                                            <option value="{{ $v->id }}">{{ $v->office_name }}</option>
+                                                        <?php } ?>
                                                     </select>
                                                 </div>
 

@@ -108,7 +108,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                                             <div class="card office-204822">
                                                 <div class="card-header office-name">
-                                                    <?php if($v->is_primary=="yes"){ echo "Primary";} ?>
+                                                    <?php if($v->is_primary=="yes"){ echo $v->office_name;} ?>
                                                     <span class="text-muted font-italic primary-label">
                                                         <?php if($v->is_primary=="yes"){ echo "(primary)";}else{ echo $v->office_name;} ?></span>
                                                     <div class="float-right">
