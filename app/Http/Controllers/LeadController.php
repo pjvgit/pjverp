@@ -5668,6 +5668,20 @@ class LeadController extends BaseController
             $PotentialCaseInvoice->status="2";
             $PotentialCaseInvoice->created_by=Auth::user()->id; 
             $PotentialCaseInvoice->save();
+
+            $invoiceHistory=[];
+            $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice->id;
+            $invoiceHistory['acrtivity_title']='Invoice Created';
+            $invoiceHistory['pay_method']=NULL;
+            $invoiceHistory['amount']=NULL;
+            $invoiceHistory['responsible_user']=Auth::User()->id;
+            $invoiceHistory['deposit_into']=NULL;
+            $invoiceHistory['notes']=NULL;
+            $invoiceHistory['created_by']=Auth::User()->id;
+            $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+            $CommonController= new CommonController();
+            $CommonController->invoiceHistory($invoiceHistory);
+
             // session(['popup_success' => 'Invoice successfully created.']);
             return response()->json(['errors'=>'','invoice_id'=>$PotentialCaseInvoice->id]);
             exit;   
@@ -5704,6 +5718,22 @@ class LeadController extends BaseController
             $PotentialCaseInvoice->description=$request->description;
             $PotentialCaseInvoice->updated_by=Auth::user()->id; 
             $PotentialCaseInvoice->save();
+
+            $invoiceHistory=[];
+            $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice->id;
+            $invoiceHistory['acrtivity_title']='Invoice Updated';
+            $invoiceHistory['pay_method']=NULL;
+            $invoiceHistory['amount']=NULL;
+            $invoiceHistory['responsible_user']=Auth::User()->id;
+            $invoiceHistory['deposit_into']=NULL;
+            $invoiceHistory['notes']=NULL;
+            $invoiceHistory['created_by']=Auth::User()->id;
+            $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+            $CommonController= new CommonController();
+            $CommonController->invoiceHistory($invoiceHistory);
+
+
+
             session(['popup_success' => 'Invoice successfully updated.']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -5719,6 +5749,8 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             PotentialCaseInvoice::where('id',$request->invoice_id)->delete();
+            InvoiceHistory::where('lead_invoice_id',$request->invoice_id)->delete();
+
             return response()->json(['errors'=>'','id'=>$request->invoice_id]);
             exit;
         }
@@ -5745,6 +5777,24 @@ class LeadController extends BaseController
             $PotentialCaseInvoice=PotentialCaseInvoice::where("id",$invoice_id)->first();
             $firmData=Firm::find(Auth::User()->firm_name);
             if($request->sent_by=="email"){
+
+                
+                $invoiceHistory=[];
+                $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice['id'];
+                $invoiceHistory['acrtivity_title']='Emailed Invoice';
+                $invoiceHistory['lead_message']=$request->email_message;
+                $invoiceHistory['lead_id']=$PotentialCaseInvoice['lead_id'];
+                $invoiceHistory['pay_method']=NULL;
+                $invoiceHistory['amount']=NULL;
+                $invoiceHistory['responsible_user']=Auth::User()->id;
+                $invoiceHistory['deposit_into']=NULL;
+                $invoiceHistory['notes']=NULL;
+                $invoiceHistory['created_by']=Auth::User()->id;
+                $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                $CommonController= new CommonController();
+                $CommonController->invoiceHistory($invoiceHistory);
+
+                
                 $getTemplateData = EmailTemplate::find(8);
                 $token=url('bills/invoice', $PotentialCaseInvoice->invoice_unique_id);
                 $mail_body = $getTemplateData->content;
@@ -5816,7 +5866,7 @@ class LeadController extends BaseController
         
         $firmData=Firm::find($userData['firm_name']);
         $PotentialCaseInvoicePayment=PotentialCaseInvoicePayment::select("potential_case_invoice_payment.*","users.id","users.first_name","users.last_name","users.user_title")->leftJoin('users','users.id',"=","potential_case_invoice_payment.created_by")->where("invoice_id",$PotentialCaseInvoice['id'])->get();
-        $filename="Invoice_".$PotentialCaseInvoice['id'].'.pdf';
+        $filename="Invoice_".$PotentialCaseInvoice['id'].'_'.time().'.pdf';
         $PDFData=view('lead.details.case_detail.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','PotentialCaseInvoice','firmAddress','PotentialCaseInvoicePayment'));
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){

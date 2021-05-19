@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\CaseEventLocation;
-use App\Firm,App\FirmAddress;
+use App\Firm,App\FirmAddress,App\PotentialCaseInvoice;
 use App\FirmEventReminder,App\FirmSolReminder,App\FlatFeeEntry;
 use App\TaskTimeEntry,App\CaseMaster,App\TaskActivity,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\RequestedFund,App\InvoiceAdjustment;
@@ -1638,6 +1638,34 @@ class BillingController extends BaseController
                 exit;  
         }  
     }
+
+    public function deleteLeadInvoiceForm(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+           'invoice_id' => 'required|numeric',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+                $id=$request->invoice_id;
+                $Invoices=PotentialCaseInvoice::find($id);
+                    //Add Invoice history
+                $data=[];
+                $data['case_id']=NULL;
+                $data['user_id']=$Invoices['lead_id'];
+                $data['activity']='deleted an invoice';
+                $data['activity_for']=$Invoices['id'];
+                $data['type']='invoices';
+                $data['action']='delete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+                PotentialCaseInvoice::where("id", $id)->delete();
+                session(['popup_success' => 'Invoice was deleted']);
+                return response()->json(['errors'=>'']);
+                exit;  
+        }  
+    }
     public function open()
     {
         $id=Auth::user()->id;
@@ -3008,6 +3036,7 @@ class BillingController extends BaseController
     {
             $InvoiceHistory = new InvoiceHistory; 
             $InvoiceHistory->invoice_id=$historyData['invoice_id'];
+            $InvoiceHistory->lead_invoice_id=($historyData['lead_invoice_id'])??NULL;
             $InvoiceHistory->acrtivity_title= $historyData['acrtivity_title'];
             $InvoiceHistory->pay_method= $historyData['pay_method'];
             $InvoiceHistory->amount= $historyData['amount'];
@@ -5175,48 +5204,28 @@ class BillingController extends BaseController
       {
           $invoiceID=base64_decode($request->id);
           // echo Hash::make($invoiceID);
-          $findInvoice=Invoices::find($invoiceID);
+          $findInvoice=PotentialCaseInvoice::find($invoiceID);
           if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
           {
               return view('pages.404');
           }else{
+              $LeadDetails=User::find($findInvoice['lead_id']);
               $firmData = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->first();
   
-              $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoiceID)->orderBy("id","DESC")->get();
+              $InvoiceHistory=InvoiceHistory::leftJoin("users","invoice_history.lead_id","=","users.id")->select("invoice_history.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'))->where("lead_invoice_id",$invoiceID)->orderBy("invoice_history.id","DESC")->get();
   
               $lastEntry= $InvoiceHistory->first();
             
-              $TimeEntryForInvoice = TimeEntryForInvoice::join("task_time_entry",'task_time_entry.id',"=","time_entry_for_invoice.time_entry_id")
-              ->leftJoin("users","task_time_entry.user_id","=","users.id")
-              ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
-              ->select('users.*','task_time_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")
-              ->where("time_entry_for_invoice.invoice_id",$invoiceID)
-              ->get();
-  
-              $ExpenseForInvoice = ExpenseForInvoice::leftJoin("expense_entry",'expense_entry.id',"=","expense_for_invoice.expense_entry_id")
-               ->leftJoin("users","expense_entry.user_id","=","users.id")
-              ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
-              ->select('users.*','expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")
-              ->where("expense_for_invoice.invoice_id",$invoiceID)
-              ->get();
-  
-              //Get the Adjustment list
-              $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->get();
-  
-              $caseMaster=CaseMaster::find($findInvoice->case_id);
               $userMaster=User::find($findInvoice->user_id);
               
               $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
   
-              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+              $InvoiceHistoryTransaction=InvoiceHistory::where("lead_invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
   
   
               $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
-              if(!file_exists(public_path('download/pdf/'."Invoice_".$invoiceID.".pdf")))
-              {
-                  $this->generateInvoicePdfAndSave($request);
-              }
-              return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction'));     
+              
+              return view('billing.invoices.viewIpotentialnvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','LeadDetails'));     
               exit; 
           }
       }

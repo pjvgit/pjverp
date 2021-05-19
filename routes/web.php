@@ -118,7 +118,7 @@ Route::view('others/pricing-table', 'others.pricing-table')->name('pricing-table
 Route::view('others/search-result', 'others.search-result')->name('search-result');
 
 Route::get('/', function () {
-    return redirect()->intended('/home');
+    return redirect()->intended('/dashboard');
 });  
 Route::get('locale/{locale}', function ($locale){
     Session::put('locale', $locale);
@@ -886,6 +886,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/saveTrustInvoicePayment', 'BillingController@saveTrustInvoicePayment')->name('bills/invoices/saveTrustInvoicePayment');
     Route::post('bills/invoices/saveInvoicePayment', 'BillingController@saveInvoicePayment')->name('bills/invoices/saveInvoicePayment');
     Route::post('bills/invoices/deleteInvoiceForm', 'BillingController@deleteInvoiceForm')->name('bills/invoices/deleteInvoiceForm');
+    Route::post('bills/invoices/deleteLeadInvoiceForm', 'BillingController@deleteLeadInvoiceForm')->name('bills/invoices/deleteLeadInvoiceForm');
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');

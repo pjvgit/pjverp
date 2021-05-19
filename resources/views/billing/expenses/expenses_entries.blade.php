@@ -327,8 +327,8 @@ if(isset($_GET['type'])){
             processing: true,
             stateSave: true,
             searching: false,
-            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] },{'bSortable': false,'aTargets': ['nosort']}],
-            "order": [[0, "desc"]],
+            "aoColumnDefs": [{'bSortable': false,'aTargets': ['nosort']}],
+            "order": [[1, "desc"]],
             "ajax":{
                 url :baseUrl +"/bills/expenses/loadExpensesEntry", // json datasource
                 type: "post",  // method  , by default get
@@ -400,8 +400,9 @@ if(isset($_GET['type'])){
                     });
                 }
         });
-
-        
+        $('#epensesEntryGridList').on( 'page.dt', function () {
+            $('#checkall').prop('checked', false);
+        });
         $('#actionbutton').attr('disabled', 'disabled');
         $('#loadExpenseEntryPopup').on('hidden.bs.modal', function () {
             epensesEntryGridList.ajax.reload(null, false);

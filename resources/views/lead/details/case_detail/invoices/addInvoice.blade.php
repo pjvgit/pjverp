@@ -104,7 +104,7 @@
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
-            'clearBtn': true
+            'clearBtn': true,
              'todayHighlight': true
         });
 

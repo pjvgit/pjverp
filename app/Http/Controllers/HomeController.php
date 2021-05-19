@@ -19,7 +19,7 @@ use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory;
-use App\Invoices;
+use App\Invoices,App\EmailTemplate;
 use App\Http\Requests\MultiuserRequest;
 use Illuminate\Support\Str;
 class HomeController extends BaseController
@@ -219,7 +219,7 @@ class HomeController extends BaseController
             {
                 if($request->first_name[$key]!=""){
                     
-                    $request->first_name[$key];
+                    
                     $user = new User;
                     $user->first_name=$request->first_name[$key];
                     $user->last_name=$request->last_name[$key];
@@ -243,31 +243,35 @@ class HomeController extends BaseController
                     $user->save();
 
                     $totalUser[]=$user->id;
-                    // $getTemplateData = EmailTemplate::find(6);
-                    // $fullName=$request->first_name. ' ' .$request->last_name;
-                    // $email=$request->email;
-                    // $token=url('firmuser/verify', $user->token);
-                    // $mail_body = $getTemplateData->content;
-                    // $mail_body = str_replace('{name}', $fullName, $mail_body);
-                    // $mail_body = str_replace('{email}', $email,$mail_body);
-                    // $mail_body = str_replace('{token}', $token,$mail_body);
-                    // $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                    // $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-                    // $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
-                    // $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-                    // $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
-                    // $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                    // $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
-                    // $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
-                    // $userEmail = [
-                    //     "from" => FROM_EMAIL,
-                    //     "from_title" => FROM_EMAIL_TITLE,
-                    //     "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
-                    //     "to" => $request->email,
-                    //     "full_name" => $fullName,
-                    //     "mail_body" => $mail_body
-                    // ];
-                    //   $sendEmail = $this->sendMail($userEmail);
+
+                    if(isset($request->portal_access[$key]) &&  $request->portal_access[$key]=="on"){
+                        $getTemplateData = EmailTemplate::find(6);
+                        $userData=User::find($user->id);
+                        $fullName=$userData['first_name']. ' ' .$userData['last_name'];
+                        $email=$userData['email'];
+                        $token=url('firmuser/verify', $user->token);
+                        $mail_body = $getTemplateData->content;
+                        $mail_body = str_replace('{name}', $fullName, $mail_body);
+                        $mail_body = str_replace('{email}', $email,$mail_body);
+                        $mail_body = str_replace('{token}', $token,$mail_body);
+                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                        $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+                        $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
+                        $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+                        $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
+                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
+                        $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
+                        $userEmail = [
+                            "from" => FROM_EMAIL,
+                            "from_title" => FROM_EMAIL_TITLE,
+                            "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
+                            "to" => $userData['email'],
+                            "full_name" => $fullName,
+                            "mail_body" => $mail_body
+                        ];
+                        $sendEmail = $this->sendMail($userEmail);
+                    }
                 }
             }
             return response()->json(['errors'=>'','totalUser'=>count($totalUser)]);

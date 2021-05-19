@@ -26,7 +26,7 @@
     </ul>
 
     <div class="ml-auto d-flex align-items-center d-print-none">
-        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">Customize</a>
+        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}lead_setting#Statuses">Customize</a>
 
         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">Tell us what you
             think</a>  

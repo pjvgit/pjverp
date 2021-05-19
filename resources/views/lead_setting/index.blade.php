@@ -17,25 +17,25 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <p></p>
                 <ul class="nav nav-tabs" id="tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active show" onclick="callTab('ref')" id="ref" data-toggle="tab" href="#homeBasic"
+                        <a class="nav-link active show" onclick="callTab('ref')" id="ref" data-toggle="tab" href="#ReferralSources"
                             role="tab" aria-controls="homeBasic" aria-selected="false">Referral
                             Sources
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="sta" onclick="callTab('sta')" data-toggle="tab" href="#profileBasic" role="tab"
+                        <a class="nav-link" id="sta" onclick="callTab('sta')" data-toggle="tab" href="#Statuses" role="tab"
                             aria-controls="profileBasic" aria-selected="false">Statuses
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " id="did" onclick="callTab('did')" data-toggle="tab" href="#contactBasic" role="tab"
+                        <a class="nav-link " id="did" onclick="callTab('did')" data-toggle="tab" href="#DidNotHireReasons" role="tab"
                             aria-controls="contactBasic" aria-selected="true">Did Not
                             Hire Reasons
                         </a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade  active show" id="homeBasic" role="tabpanel"
+                    <div class="tab-pane fade  active show" id="ReferralSources" role="tabpanel"
                         aria-labelledby="home-basic-tab">
                         <div id="lead-referral-source-settings">
                             <div class="d-flex flex-row-reverse">
@@ -79,7 +79,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </div>
 
                     </div>
-                    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+                    <div class="tab-pane fade" id="Statuses" role="tabpanel" aria-labelledby="profile-basic-tab">
                         <div id="lead-referral-source-settings">
                             <div class="d-flex flex-row-reverse">
                                 <a data-toggle="modal" onclick="addStatus();"
@@ -123,7 +123,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="contactBasic" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade" id="DidNotHireReasons" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div id="lead-referral-source-settings">
                             <div class="d-flex flex-row-reverse">
                                 <a data-toggle="modal" onclick="addReason();"
@@ -535,8 +535,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         });
 
         function addReferalResourcePopup() {
-            $("#preloader").show();
-            $("#addReferalResourceArea").html('');
+            $("#addReferalResourceArea").html('<img src="{{LOADER}}""> Loading...');;
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -544,15 +543,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     data: '',
                     success: function (res) {
                         $("#addReferalResourceArea").html(res);
-                        $("#preloader").hide();
                     }
                 })
             })
         }
 
         function editReferalResourcePopup(id) {
-            $("#preloader").show();
-            $("#editReferalResourceArea").html('');
+            $("#editReferalResourceArea").html('<img src="{{LOADER}}""> Loading...');;
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -562,7 +559,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     },
                     success: function (res) {
                         $("#editReferalResourceArea").html(res);
-                        $("#preloader").hide();
                     }
                 })
             })
@@ -574,8 +570,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
 
         function addStatus() {
-            $("#preloader").show();
-            $("#addStatusArea").html('');
+            $("#addStatusArea").html('<img src="{{LOADER}}""> Loading...');
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -583,14 +578,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     data: 'loadStep1',
                     success: function (res) {
                     $("#addStatusArea").html(res);
-                        $("#preloader").hide();
                     }
                 })
             })
         }
         function editStatusPopup(id) {
-            $("#preloader").show();
-            $("#editStatusArea").html('');
+            $("#editStatusArea").html('<img src="{{LOADER}}""> Loading...');
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -598,7 +591,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     data: {'status_id':id},
                     success: function (res) {
                     $("#editStatusArea").html(res);
-                        $("#preloader").hide();
                     }
                 })
             })
@@ -611,8 +603,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             localStorage.setItem("activeTab", id);    
         }
         function addReason() {
-            $("#preloader").show();
-            $("#addReasonArea").html('');
+            $("#addReasonArea").html('<img src="{{LOADER}}""> Loading...');
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -620,7 +611,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     data: 'loadStep1',
                     success: function (res) {
                     $("#addReasonArea").html(res);
-                        $("#preloader").hide();
                     }
                 })
             })

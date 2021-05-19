@@ -71,7 +71,7 @@
             <div class="">
                 <div class="d-inline-flex align-items-center">
                     <label class="switch pr-5 switch-success mr-3">
-                        <input id="portalAccess1" type="checkbox" class="portalAccess" name="portal_access[]"><span
+                        <input id="portalAccess1" type="checkbox" class="portalAccess" name="portal_access[1]"><span
                             class="slider"></span>
                     </label>
                 </div>
@@ -157,8 +157,12 @@
             rel="noopener noreferrer"> Please go here to learn more about new users and pricing.</a> Access can always
         be granted at a later date.</div>
     <div class="modal-footer pb-0">
-        <button type="submit" name="save" value="s" id="submitbutton" class="btn btn-primary submitbutton">Create Users</button>
+        <div class="col-md-2 form-group mb-3">
+                <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"></div>
+            </div>
+        <button type="submit" name="save" value="s" id="submitbutton" class="btn btn-primary submitbutton submit">Create Users</button>
     </div>
+    
     <input type="hidden" name="hideinputcount2" id="hideinputcount2" value="1" />
 </form>
 <style>
@@ -169,15 +173,18 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
+        afterLoader();
         $("#submitbutton").attr("disabled","disabled");
         $('#saveBulkUser').submit(function (e) {
                 e.preventDefault();
+                beforeLoader();
                 $('.showError').html('');
                 $("#innerLoader").css('display', 'block');
 
                 if (!$('#saveBulkUser').valid()) {
                     $("#innerLoader").css('display', 'none');
                     $('.submitbutton').removeAttr("disabled");
+                    afterLoader();
                     return false;
                 }
 
@@ -212,7 +219,7 @@
                                     $('#AddBulkUserModal').animate({
                                             scrollTop: 0
                                         }, 'slow');
-
+                                        afterLoader();
                                     return false;
                                 } else {
 

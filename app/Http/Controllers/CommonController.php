@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Validator, Response, Mail,Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\AllHistory;
+use App\AllHistory,App\InvoiceHistory;
 use Illuminate\Support\Str;
 
 class CommonController extends BaseController {
@@ -109,6 +109,30 @@ class CommonController extends BaseController {
        $AllHistory->created_at=date('Y-m-d H:i:s');  
        $AllHistory->save();
        return true;
+    }
+
+    
+    public function invoiceHistory($historyData)
+    {
+        $InvoiceHistory = new InvoiceHistory; 
+        $InvoiceHistory->invoice_id=($historyData['invoice_id'])??NULL;
+        $InvoiceHistory->lead_invoice_id=($historyData['lead_invoice_id'])??NULL;
+        $InvoiceHistory->lead_id=($historyData['lead_id'])??NULL;
+        $InvoiceHistory->lead_message=($historyData['lead_message'])??NULL;
+        $InvoiceHistory->acrtivity_title= ($historyData['acrtivity_title'])??NULL;
+        $InvoiceHistory->pay_method= ($historyData['pay_method'])??NULL;
+        $InvoiceHistory->amount= (str_replace(",","",$historyData['amount']))??NULL;
+        $InvoiceHistory->responsible_user= ($historyData['responsible_user'])??NULL;
+        $InvoiceHistory->deposit_into= ($historyData['deposit_into'])??NULL;
+        $InvoiceHistory->deposit_into_id= ($historyData['deposit_into_id'])??NULL;
+        $InvoiceHistory->invoice_payment_id= ($historyData['invoice_payment_id'])??NULL;
+        $InvoiceHistory->notes= ($historyData['notes'])??NULL;
+        $InvoiceHistory->status= ($historyData['status'])??0;
+        $InvoiceHistory->refund_ref_id= ($historyData['refund_ref_id'])??NULL;
+        $InvoiceHistory->created_by=$historyData['created_by'];
+        $InvoiceHistory->created_at=$historyData['created_at'];
+        $InvoiceHistory->save();
+        return true;
     }
     
     public static function getToken(){

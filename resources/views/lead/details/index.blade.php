@@ -1220,7 +1220,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id',sortable:false}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
 
-                    $('td:eq(0)', nRow).html('<div class="text-left"><a href="##'+baseUrl+'/bill/invoices/potentialview/'+aData.decoded_id+'">'+aData.invoice_num+'</a></div>'); 
+                    $('td:eq(0)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decoded_id+'">'+aData.invoice_num+'</a></div>'); 
                    
                     if(aData.invoice_amount==null){
                         $('td:eq(1)', nRow).html('<div class="text-left"></div>'); 

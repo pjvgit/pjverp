@@ -778,10 +778,10 @@ class UserController extends BaseController
             "full_name" => $fullName,
             "mail_body" => $mail_body
             ];
-        // $sendEmail = $this->sendMail($user);
-        // if($sendEmail==1){ 
-        //     echo "Test Email Sent ";
-        // }
+        $sendEmail = $this->sendMail($user);
+        if($sendEmail==1){ 
+            echo "Test Email Sent ";
+        }
     }
 
     public function testmail(Request $request)
