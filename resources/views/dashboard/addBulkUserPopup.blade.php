@@ -16,7 +16,7 @@
                             <div class="">
                                 <div class="input-group">
                                     <input id="first_name1" name="first_name[1]" autocomplete="off"
-                                        class="form-control" type="text" placeholder="First Name"
+                                        class="form-control " type="text" placeholder="First Name"
                                         data-testid="first_name" value="">
                                         
                                 </div>
@@ -194,6 +194,7 @@
                                 $("#innerLoader").css('display', 'block');
 
                                 if (res.errors != '') {
+                                    printErrorMsg(res.errors)
                                     $('#showError').html('');
                                     var errotHtml =
                                         '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
@@ -302,6 +303,13 @@
                 .attr('id', 'div' + (parseInt(hideinputcount2) + parseInt(1)) + '')
                 .insertBefore($template);
 
+
+                $option2 = $clone.find('[name="first_name[]"]');
+                $option2.attr('id', 'first_name' + (parseInt(hideinputcount2) + parseInt(1)) + '');
+                $option2.attr('name', 'first_name[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+
+
+
                 $option2 = $clone.find('[name="last_name[]"]');
                 $option2.attr('id', 'last_name' + (parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option2.attr('name', 'last_name[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
@@ -331,5 +339,9 @@
   
 
     loadDefault();
-  
+    function printErrorMsg (msg) {
+        $.each( msg, function( key, value ) {
+            $('.'+key+'_err').text(value);
+        });
+    }
 </script>

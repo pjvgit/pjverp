@@ -189,15 +189,24 @@ class HomeController extends BaseController
     {
         
         $rules = $messages= [];
-        foreach($request->first_name as $key => $val)
+
+        $verifyData=[];
+        for($i=1;$i<=count($request->first_name);$i++){
+            if($request->first_name[$i]!="" || $request->last_name[$i]!="" || $request->email[$i]!=""){
+                $verifyData[$i]=$i;
+            }
+        }
+        foreach($verifyData as $key => $val)
         {
             if($val!=""){
+                $rules['first_name.'.$key] = 'required|min:1';
                 $rules['last_name.'.$key] = 'required|min:1';
                 $rules['email.'.$key] = 'required|email|unique:users,email,NULL,id,firm_name,'.Auth::User()->firm_name;
-                $messages['last_name.'.$key.'.required'] = 'The last name '.$key.' can\'t be blank.';
-                $messages['email.'.$key.'.email'] = 'The Email '.$key.' is not formatted correctly';
-                $messages['email.'.$key.'.required'] = 'The Email '.$key.' can\'t be blank';
-                $messages['email.'.$key.'.unique'] = 'The Email '.$key.' is already exist.';
+                $messages['first_name.'.$key.'.required'] = 'The Row '.$key.' first name  can\'t be blank.';
+                $messages['last_name.'.$key.'.required'] = 'The Row '.$key.' last name  can\'t be blank.';
+                $messages['email.'.$key.'.email'] = 'The Row '.$key.' email  is not formatted correctly';
+                $messages['email.'.$key.'.required'] = 'The Row '.$key.' email can\'t be blank';
+                $messages['email.'.$key.'.unique'] = 'The Row '.$key.' email  is already exist.';
             }
         }
         $validator = \Validator::make($request->all(),$rules,$messages);

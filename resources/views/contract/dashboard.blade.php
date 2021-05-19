@@ -28,7 +28,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                         </a>
                     </div>
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a id="add-bulk-users-link" href="#add-bulk-users">
+                        <a id="add-bulk-users-link" data-toggle="modal" data-target="#AddBulkUserModal"
+                            data-placement="bottom" href="javascript:;" onclick="AddBulkUserModal();">
                             <i class="i-Add-User i-Plus text-32 mr-3" height="40"></i>
                             <div class="mt-1">Add Multiple Users</div>
                         </a>
@@ -140,12 +141,46 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
     </div>
 </div>
 
-@section('page-js-script')
+<div id="AddBulkUserModal" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Bulk User Add</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="AddBulkUserModalArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+@section('page-js')
 <script type="text/javascript">
     $(document).ready(function () {
         $('.country').select2();
     });
-
+    function AddBulkUserModal() {
+        $("#AddBulkUserModalArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/dashboard/AddBulkUserModal", // json datasource
+            data: 'bulkAdd',
+            success: function (res) {
+                $("#AddBulkUserModalArea").html(res);
+                return false;
+            }
+        })
+    }
 </script>
-@stop
+
 @endsection
+
