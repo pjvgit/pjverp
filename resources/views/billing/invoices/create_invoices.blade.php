@@ -88,7 +88,7 @@
 
                             <button class="btn btn-info btn-rounded m-1" type="submit">Apply Filters</button>
                             <button type="button" class="test-clear-filters text-black-50 btn btn-link"><a
-                                    href="{{route('court_cases')}}">Clear Filters</a></button>
+                                    href="{{route('bills/invoices/open')}}">Clear Filters</a></button>
                         </div>
 
                     </div>
