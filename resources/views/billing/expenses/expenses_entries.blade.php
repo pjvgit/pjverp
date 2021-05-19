@@ -118,7 +118,7 @@ if(isset($_GET['type'])){
                     <table class="display table table-striped table-bordered" id="epensesEntryGridList" style="width:100%">
                         <thead>
                             <tr>
-                                <th class="col-md-auto"><input type="checkbox" id="checkall"></th>
+                                <th class="col-md-auto nosort"><input type="checkbox" id="checkall"></th>
                                 <th>Date</th>
                                 <th>Activity</th>
                                 <th>Quantity</th>
@@ -283,14 +283,11 @@ if(isset($_GET['type'])){
         color: #2c2c2c;
         background-color: #cde2f2;
     }
-
     .pagination {
         width: 80%;
         float: right;
     }
-  
 </style>
-
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
@@ -330,6 +327,7 @@ if(isset($_GET['type'])){
             processing: true,
             stateSave: true,
             searching: false,
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] },{'bSortable': false,'aTargets': ['nosort']}],
             "order": [[0, "desc"]],
             "ajax":{
                 url :baseUrl +"/bills/expenses/loadExpensesEntry", // json datasource
@@ -397,9 +395,13 @@ if(isset($_GET['type'])){
                            
                         }
                     });
-                   
+                    $(".paginate_button").on("click",function(){
+                        $('#checkall').prop('checked', false);
+                    });
                 }
         });
+
+        
         $('#actionbutton').attr('disabled', 'disabled');
         $('#loadExpenseEntryPopup').on('hidden.bs.modal', function () {
             epensesEntryGridList.ajax.reload(null, false);

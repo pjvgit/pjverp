@@ -490,7 +490,7 @@ class BillingController extends BaseController
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
                 $TaskTimeEntry->user_id =$request->staff_user;
                 $TaskTimeEntry->activity_id=$request->activity[$i];
-                if($request->billable[$i]=="on"){
+                if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
                     $TaskTimeEntry->time_entry_billable="yes";
                 }else{
                     $TaskTimeEntry->time_entry_billable="no";

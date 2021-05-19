@@ -5984,10 +5984,6 @@ class LeadController extends BaseController
         $Calls = $Calls->leftJoin('users as u2','calls.caller_name','=','u2.id');        
         $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');   
 
-      
-        $totalData=$Calls->count();
-        $totalFiltered = $totalData; 
-       
         if(isset($requestData['callfor']) && $requestData['callfor']!=''){
             $Calls = $Calls->where("calls.call_for",$requestData['callfor']);
         }
@@ -6000,7 +5996,9 @@ class LeadController extends BaseController
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $Calls = $Calls->where("calls.case_id",$requestData['case_id']);
         }
-        
+        $totalData=$Calls->count();
+        $totalFiltered = $totalData; 
+
         $Calls = $Calls->offset($requestData['start'])->limit($requestData['length']);
         $Calls = $Calls->orderBy('created_at','DESC');
         $Calls = $Calls->get();
