@@ -935,6 +935,7 @@ class TaskController extends BaseController
         $data['user_id']=$TaskTimeEntry->user_id;
         $data['activity']='added an time entry';
         $data['activity_for']=$TaskTimeEntry->activity_id;
+        $data['time_entry_id']=$TaskTimeEntry->id;
         $data['type']='time_entry';
         $data['action']='add';
         $CommonController= new CommonController();
@@ -998,6 +999,8 @@ class TaskController extends BaseController
                 $data['user_id']=$TaskTimeEntry->user_id;
                 $data['activity']='added an time entry';
                 $data['activity_for']=$TaskTimeEntry->activity_id;
+                $data['time_entry_id']=$TaskTimeEntry->id;
+
                 $data['type']='time_entry';
                 $data['action']='add';
                 $CommonController= new CommonController();
