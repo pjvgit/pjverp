@@ -77,7 +77,10 @@ class BillingController extends BaseController
             $case = $case->where("case_master.id",$requestData['c']);
         }
         if(isset($requestData['from']) && $requestData['from']!='' && isset($requestData['to']) && $requestData['to']!=''){
-            $case = $case->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($requestData['from'])),date('Y-m-d',strtotime($requestData['to']))]);
+            // $case = $case->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($requestData['from'])),date('Y-m-d',strtotime($requestData['to']))]);
+
+            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime($requestData['from'])))
+                           ->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime($requestData['to'])));
         }
         
         if(isset($requestData['type']) && $requestData['type']=='own'){
@@ -561,6 +564,23 @@ class BillingController extends BaseController
 
             ExpenseEntry::where("id", $id)->delete();
             session(['popup_success' => 'Expense has been deleted.']);
+            return response()->json(['errors'=>'','id'=>$id]);
+            exit;  
+        }  
+    }
+    public function deleteAdustmentEntry(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'adjustment_entry_id' => 'required',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $id=$request->adjustment_entry_id;
+            $InvoiceAdjustment=InvoiceAdjustment::find($id);
+            InvoiceAdjustment::where("id", $id)->delete();
+            session(['popup_success' => 'Adjustment has been deleted.']);
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
         }  
@@ -3290,7 +3310,8 @@ class BillingController extends BaseController
 
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $getTemplateData = EmailTemplate::find(12);
-                $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
+                // $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
+                $token=url('bills/invoices/view/'.base64_encode($FindInvoice['id']));
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{token}', $token,$mail_body);
                 $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);

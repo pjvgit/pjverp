@@ -892,6 +892,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+
+<div id="typeSelect" class="modal fade bd-example-modal-lg show" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="ModelData">
+                        <div class="loader-bubble loader-bubble-primary" style="display: block;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     function payinvoice(id) {
         $('.showError').html('');
@@ -1136,7 +1156,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-
     function loadAddTaskPopup(case_id=null) {
         $("#addTaskArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -1604,6 +1623,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $("#preloader").hide();
                     $("#innerLoader").css('display', 'none');
                     return false;
+                }
+            })
+        })
+    }
+    
+    function typeSelection() {  
+        $("#preloader").show();
+      
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/loadTypeSelection", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                     $("#ModelData").html('');
+                    $("#ModelData").html(res);
+                    $("#preloader").hide();
                 }
             })
         })

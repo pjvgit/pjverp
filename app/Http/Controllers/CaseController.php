@@ -4239,13 +4239,27 @@ class CaseController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{   
             $case_id=$request->case_id;
-            Task::where("case_id", $case_id)->delete();
-            TaskTimeEntry::where("case_id", $case_id)->delete();
-            ExpenseEntry::where("case_id", $case_id)->delete();
-            CaseNotes::where("case_id", $case_id)->delete();
-            Invoices::where("case_id", $case_id)->delete();
-            CaseEvent::where("case_id", $case_id)->delete();
-            CaseMaster::where("id", $case_id)->delete();
+            // Task::where("case_id", $case_id)->delete();
+            // TaskTimeEntry::where("case_id", $case_id)->delete();
+            // ExpenseEntry::where("case_id", $case_id)->delete();
+            // CaseNotes::where("case_id", $case_id)->delete();
+            // Invoices::where("case_id", $case_id)->delete();
+            // CaseEvent::where("case_id", $case_id)->delete();
+            // CaseMaster::where("id", $case_id)->delete();
+
+
+            //if current zero case available then popup field enabled :: Start
+            $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+            $getChildUsers=$this->getParentAndChildUserIds();
+            $case = $case->whereIn("case_master.created_by",$getChildUsers);
+            $case=$case->count();
+            if($case<=0){
+                $userMaster = User::find(Auth::User()->id);
+                $userMaster->popup_after_first_case="yes";
+                $userMaster->save();       
+            }
+            //if current zero case available then popup field enabled :: End
+
             session(['popup_success' => 'Case has been deleted.']);
             return response()->json(['errors'=>'']);
             exit;
@@ -4436,7 +4450,7 @@ class CaseController extends BaseController
                 $caseStageHistory = CaseStageUpdate::find($v);
                 $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
                 $caseStageHistory->save();
-                $ids[]=$v;
+                $ids[]=$v;  
             }
             if(!empty($ids)){
                 $CaseStageUpdate=CaseStageUpdate::whereNotIn("id",$ids)->where("case_id",$request->case_id)->delete();
@@ -4454,5 +4468,13 @@ class CaseController extends BaseController
            exit;
        }
    }
+
+    //Hide the popup when page reload or second time it will open
+   public function dismissCaseModal(Request $request)
+   {
+       $userMaster = User::find(Auth::User()->id);
+       $userMaster->popup_after_first_case="no";
+       $userMaster->save();        
+   } 
 }
   

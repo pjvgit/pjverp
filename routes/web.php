@@ -367,6 +367,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('court_cases/hideAddEventGuide', 'CaseController@hideAddEventGuide')->name('court_cases/hideAddEventGuide');
     Route::post('court_cases/loadEventRightSection', 'CaseController@loadEventRightSection')->name('court_cases/loadEventRightSection');
     Route::post('court_cases/loadLeadRightSection', 'CaseController@loadLeadRightSection')->name('court_cases/loadLeadRightSection');
+    Route::post('court_cases/dismissCaseModal', 'CaseController@dismissCaseModal')->name('court_cases/dismissCaseModal');
 
     //Client
     Route::get('contacts/client','ContractController@clientIndex')->name('contacts/client');
@@ -906,7 +907,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/updateSingleFlatFeeEntry', 'BillingController@updateSingleFlatFeeEntry')->name('bills/invoices/updateSingleFlatFeeEntry');
 
     Route::post('bills/invoices/deleteFlatFeeEntry', 'BillingController@deleteFlatFeeEntry')->name('bills/invoices/deleteFlatFeeEntry');
-
+    Route::post('bills/invoices/deleteAdustmentEntry', 'BillingController@deleteAdustmentEntry')->name('bills/invoices/deleteAdustmentEntry');
     Route::post('bills/invoices/deleteExpenseEntry', 'BillingController@deleteExpenseEntry')->name('bills/invoices/deleteExpenseEntry');
     Route::post('bills/invoices/deleteAllExpenseEntry', 'BillingController@deleteAllExpenseEntry')->name('bills/invoices/deleteAllExpenseEntry');
     Route::post('bills/invoices/addSingleExpenseEntry', 'BillingController@addSingleExpenseEntry')->name('bills/invoices/addSingleExpenseEntry');

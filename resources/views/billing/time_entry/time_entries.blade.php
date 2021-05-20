@@ -81,13 +81,13 @@ if(isset($_GET['st'])){
                         </div>
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Date Range From</label>
-                            <input type="text" class="form-control datepicker" id="daterange" name="from" value="{{$from}}"
+                            <input type="text" class="form-control datepicker" autocomplete="off" id="daterange" name="from" value="{{$from}}"
                                 placeholder="Start Date" />
                         </div>
 
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Date Range To</label>
-                            <input type="text" class="form-control datepicker" id="daterange" name="to" value="{{$to}}"
+                            <input type="text" class="form-control datepicker" autocomplete="off" id="daterange" name="to" value="{{$to}}"
                                 placeholder="End Date" />
                         </div>
                         <div class="col-md- form-group mb-3 mt-3 pt-2">
@@ -245,8 +245,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
-            startDate: "dateToday",
-            'todayHighlight': true
+            'startDate': "dateToday",
+            'todayHighlight': true,
+            'orientation': "bottom",
         });
 
 

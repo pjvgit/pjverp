@@ -811,7 +811,7 @@
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
                                                 <a class="image_link_sprite image_link_sprite_cancel"
-                                                    href="javascript:void(0);" onclick="openExpenseDelete({{$v->id}});"><i
+                                                    href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}});"><i
                                                         class="fas fa-times"></i></a>
                                             </div>
                                         </td>
@@ -1626,6 +1626,7 @@
         </form>
     </div>
 </div>
+
 <div id="removeAlllExistingExpenseEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
@@ -1743,6 +1744,49 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="delete_flatfee_existing_dialog_bbox" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="removeExistingFlateFeesForm" id="removeExistingFlateFeesForm"
+            name="removeExistingFlateFeesForm" method="POST">
+            @csrf
+            <input type="hidden" value="" name="adjustment_entry_id" id="delete_flatefees_existing_dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Would you like to <strong>remove</strong> the selected entry from this invoice or
+                            permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-10  text-center">
+                        <div class="form-group row float-left">
+                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                                style="display: none;"></div>
+                        </div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <input class="btn btn-primary ladda-button example-button m-1 submit"
+                                onclick="actionAdjustmentEntry('delete')" name="action" value="Delete" id="submit"
+                                type="submit">
+                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                                value="Remove" id="submit" onclick="actionAdjustmentEntry('remove')" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <!-- For Adjustment Entry -->
@@ -3467,6 +3511,59 @@
         })
     }
     // $('input[name=client_portal_enable]').attr("checked",false);
+
+
+    function openAdjustmentDelete(id) {
+        $("#delete_flatfee_existing_dialog_bbox").modal("show");
+        $("#delete_flatefees_existing_dialog").val(id);
+    }
+
+    function actionAdjustmentEntry(action) {
+        $('#removeExistingFlateFeesForm').submit(function (e) {
+            beforeLoader();
+            e.preventDefault();
+            if (!$('#removeExistingFlateFeesForm').valid()) {
+                beforeLoader();
+                return false;
+            }
+            var dataString = '';
+            dataString = $("#removeExistingFlateFeesForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/deleteAdustmentEntry", // json datasource
+                data: dataString,
+                beforeSend: function (xhr, settings) {
+                    settings.data += '&delete=yes&action=' + action;
+                },
+                success: function (res) {
+                    beforeLoader();
+                    if (res.errors != '') {
+                        $('.showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('.showError').append(errotHtml);
+                        $('.showError').show();
+                        afterLoader();
+                        return false;
+                    } else {
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                }
+            });
+        });
+    }
 
     setTimeout(function(){  $("#payment_plan_balance").html("{{($findInvoice->total_amount-$sum)}}");
     $('#payment_plan_balance').number(true, 2); }, 1000);

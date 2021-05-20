@@ -5,6 +5,7 @@
 <?php
 $timezoneData = unserialize(TIME_ZONE_DATA); 
 $userTitle = unserialize(USER_TITLE); 
+$adjustment_token=round(microtime(true) * 1000);
 
 ?><div class="d-flex align-items-center pl-4 pb-4">
     <i class="fas fa-3x fa-suitcase"></i>
@@ -641,6 +642,89 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </form>
     </div>
 </div>
+
+<div id="firstCaseModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">You've created your first case!</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            <h5 class="text-center my-4"> <strong> What would you like to do next? </strong> </h5>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                    <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;" onclick="dismissCaseModal(); loadTimeEntryPopupByCase('{{$CaseMaster->case_id}}');">
+                            <div class="card card-icon mb-4" style="border:1px solid;">
+                                <div class="card-body text-center"><i class="i-Timer1"></i>
+                                    <p class="text-muted mt-2 mb-2">Start tracking time you spend on this case.</p>
+                                    <p class="lead text-10 m-0">Add Time Entry</p>
+                                </div>
+
+                            </div>
+                        </a>
+                    </div>
+                    <?php
+                    if(!$caseCllientSelection->isEmpty() && isset($caseCllientSelection[0]->id)){
+                        $cId=$caseCllientSelection[0]->id;
+                        ?>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                        <a  data-placement="bottom" onclick="dismissCaseModal();"
+                            href="{{BASE_URL}}bills/invoices/load_new?court_case_id={{$CaseMaster->case_id}}&token={{$adjustment_token}}&contact={{$cId}}">
+                            <div class="card card-icon mb-4" style="border:1px solid;">
+                                <div class="card-body text-center"><i class="i-Billing"></i>
+                                    <p class="text-muted mt-2 mb-2">Create an invoice with unbilled items.</p>
+                                    <p class="lead text-10 m-0">Create Invoice</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <?php
+                    }else{
+                        ?>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                        <a  data-toggle="modal" data-target="#typeSelect" data-placement="bottom" href="javascript:;" onclick="dismissCaseModal();typeSelection();">
+                            <div class="card card-icon mb-4" style="border:1px solid;">
+                                <div class="card-body text-center"><i class="i-Add-User"></i>
+                                    <p class="text-muted mt-2 mb-2">Add a contact so you can create invoices.</p>
+                                    <p class="lead text-10 m-0">Add Contact</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <?php
+                    }
+                    ?>
+                    
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <a  href="javascript:;">
+                            <div class="card card-icon mb-4" style="border:1px solid;">
+                                <div class="card-body text-center"><i class="i-File-Block"></i>
+                                    <p class="text-muted mt-2 mb-2">Upload, organize, and create documents for this case.</p>
+                                    <p class="lead text-10 m-0">Add Document</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                    
+                        <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom" href="javascript:;" onclick="dismissCaseModal(); loadAddEventPopupWithCase();">
+                            <div class="card card-icon mb-4" style="border:1px solid;">
+                                <div class="card-body text-center"><i class="i-Calendar-4"></i>
+                                    <p class="text-muted mt-2 mb-2">Create a meeting, reminder, or important event.</p>
+                                    <p class="lead text-10 m-0">Add Event</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
 @include('commonPopup.popup_without_param_code')
 @endsection
 @section('page-js')
@@ -1089,12 +1173,53 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
+    } 
+    
+    function loadAddEventPopupWithCase() {
+        $("#AddEventPage").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/loadAddEventPage", // json datasource
+                data: {
+                    "case_id": <?=$CaseMaster->case_id?>
+                },
+                success: function (res) {
+                    $("#AddEventPage").html(res);
+                }
+            })
+        })
     }
+    //Update the user account for modal show/hide
+    function dismissCaseModal() {
+        $("#firstCaseModal").modal("hide");
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/dismissCaseModal", // json datasource
+            data: {"hide":'yes'},
+            success: function (res) {
+            }
+        })
+    }
+    //Dismiss the modal when close the popup and never open again
+    $('#firstCaseModal').on('hidden.bs.modal', function () {
+        dismissCaseModal();
+    });
+    //Load modal for first time onlh
+    <?php if(Auth::User()->popup_after_first_case=="yes"){?>
+    $("#firstCaseModal").modal("show")
+    <?php } ?>
+    
+
     $(document).on('click', '.taskListPager .pagination a', function(event){
         event.preventDefault(); 
         var page = $(this).attr('href').split('page=')[1];
         loadTaskPortion(page);
     });
     <?php if(Route::currentRouteName()=="tasks"){  ?> loadTaskPortion("1","all_task"); <?php } ?>
+
+    // $("#firstCaseModal").modal("show")
+
+    
 </script>
 @stop

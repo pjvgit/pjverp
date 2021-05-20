@@ -46,14 +46,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php  if(!$caseCllientSelection->isEmpty()){
                         // print_r($linkedCompany);
                         foreach($caseCllientSelection as $clistKey=>$clistVal){?>
                         <tr class="case-contact-row">
                             <td class="user-avatar align-middle c-pointer">
                                 {{-- {{$clistVal->multiple_compnay_id}} --}}
                                 <?php if($clistVal->user_level==2){?>
-                                    <?php if($clistVal->profile_image!="" && $clistVal->is_published=="yes"){
+                                    <?php if(file_exists(public_path().'/images/users/'.$clistVal->profile_image) && $clistVal->profile_image!="" && $clistVal->is_published=="yes"){
                                         ?><img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$clistVal->profile_image}}" width="32" height="25"><?php
                                     }else{
                                         ?><i class="fas fa-2x fa-user-circle text-black-50"></i><?php
@@ -118,7 +118,125 @@
                             <td class="text-right user-edit d-print-none align-middle"><span
                                     class="px-0 text-black-50 c-pointer"><a href="javascript:;" onclick="onClickDelete({{$clistVal->case_client_selection_id}},'{{$clistVal->first_name}} {{$clistVal->last_name}}');" ><i class="fas fa-times-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"  ></a></span></td>
                         </tr>
-                        <?php } ?>
+                        <?php } 
+                      }else{
+                          ?>
+                            <tr class="case-contact-row">
+                                <td class="user-avatar align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-name align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-group align-middle pl-0 c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-phone align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-left user-email align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-right user-edit d-print-none align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                            </tr>
+                            <tr class="case-contact-row">
+                                <td class="user-avatar align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-name align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-group align-middle pl-0 c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-phone align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-left user-email align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-right user-edit d-print-none align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                            </tr>
+                            <tr class="case-contact-row">
+                                <td class="user-avatar align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-name align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-group align-middle pl-0 c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-phone align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-left user-email align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-right user-edit d-print-none align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                            </tr>
+                            <tr class="case-contact-row">
+                                <td class="user-avatar align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-name align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-group align-middle pl-0 c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-phone align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-left user-email align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-right user-edit d-print-none align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                            </tr>
+                            <tr class="case-contact-row">
+                                <td class="user-avatar align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-name align-middle c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-group align-middle pl-0 c-pointer">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="user-phone align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-left user-email align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                                <td class="text-right user-edit d-print-none align-middle">
+                                    <div><i class="table-cell-placeholder"></i></div>
+                                </td>
+                            </tr>
+                          <?php }  ?>
                     </tbody>
                 </table>
             </div>
@@ -155,6 +273,8 @@
                                     style="cursor: initial;"></th>
                             </tr>
                         </thead>
+                        <?php 
+                        if(!$staffList->isEmpty()){?>
                         <tbody>
                             <?php 
                             foreach($staffList as $k=>$v){
@@ -197,6 +317,80 @@
                             </tr>
                         <?php } ?>
                         </tbody>
+                        <?php } else{ ?>
+                            <tbody>
+                                <tr class="case-staff-row">
+                                    <td class="user-avatar align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-name align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-rate align-middle px-0">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="text-right user-edit d-print-none align-middle">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                </tr>
+                                <tr class="case-staff-row">
+                                    <td class="user-avatar align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-name align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-rate align-middle px-0">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="text-right user-edit d-print-none align-middle">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                </tr>
+                                <tr class="case-staff-row">
+                                    <td class="user-avatar align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-name align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-rate align-middle px-0">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="text-right user-edit d-print-none align-middle">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                </tr>
+                                <tr class="case-staff-row">
+                                    <td class="user-avatar align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-name align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-rate align-middle px-0">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="text-right user-edit d-print-none align-middle">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                </tr>
+                                <tr class="case-staff-row">
+                                    <td class="user-avatar align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-name align-middle c-pointer">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="user-rate align-middle px-0">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                    <td class="text-right user-edit d-print-none align-middle">
+                                        <div><i class="table-cell-placeholder"></i></div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                        <?php }?>
                     </table>
                 </div>
             </fieldset>

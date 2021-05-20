@@ -963,7 +963,11 @@ td,th{
                    
                 }
         });
-        
+        $('#invoiceGrid').on( 'page.dt', function () {
+            $('#checkall').prop('checked', false);
+            $('#actionbutton').attr('disabled', 'disabled');
+
+        });
         $('#invoiceGrid tbody').on('change', 'input[type="checkbox"]', function(){
             if ($('.task_checkbox:checked').length == "0") {
                     $('#actionbutton').attr('disabled', 'disabled');

@@ -15,6 +15,8 @@ $CommonController= new App\Http\Controllers\CommonController();
                     </span>
                 </div>
             </div>
+            <span class="showError"></span>
+
             <div class="row">
                 <div class="col-12">
                     <p class="helper-text">Send an email reminder to: </p>
@@ -68,9 +70,9 @@ $CommonController= new App\Http\Controllers\CommonController();
                     <a href="#" target="_blank" rel="noopener noreferrer">What does my client see?</a>
                 </div>
                
-                <div>
-                    <div class="loader-bubble loader-bubble-primary innerLoader mr-5 mb-2" id="innerLoaderTime"
-                    style="display:none ;">
+                <div class="col-md-2 form-group mb-3">
+                    <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;">
+                    </div>
                 </div>
                     <a href="#">
                         <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
@@ -140,7 +142,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                     if (res.errors != '') {
                         $('.showError').html('');
                         var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                            '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><ul>';
                         $.each(res.errors, function (key, value) {
                             errotHtml += '<li>' + value + '</li>';
                         });
@@ -156,7 +158,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                 error: function (xhr, status, error) {
                     $('.showError').html('');
                     var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                        '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
                     $('.showError').append(errotHtml);
                     $('.showError').show();
                     afterLoader();

@@ -51,12 +51,12 @@ if(!isset($adjustment_token)){
                                                     <option></option>
                                                     <optgroup label="Client">
                                                         <?php foreach($ClientList as $key=>$val){ ?>
-                                                        <option uType="client" <?php if($val->id==$selectedClient->id){ echo "selected=selected";} ?> value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client)</option>
+                                                        <option uType="client"  value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client)</option>
                                                         <?php } ?>
                                                     </optgroup>
                                                     <optgroup label="Company">
                                                         <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                                        <option uType="company" <?php if($CompanyListVal->id==$selectedClient->id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?>
+                                                        <option uType="company" value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?>
                                                     </optgroup>
                                                 </select>
                                                 <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;"  onclick="AddContactModal();">Add new contact</a>
