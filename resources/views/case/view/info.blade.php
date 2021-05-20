@@ -603,8 +603,8 @@
     $(document).ready(function () {
         $('.dropdown-toggle').dropdown();  
         <?php if ($caseCount == 1) {?>
-            $("#forfirstcase").trigger('click');
-            loadAfterFirstCase(); 
+            // $("#forfirstcase").trigger('click');
+            // loadAfterFirstCase(); 
             <?php } ?>
     });
     function loadCaseUpdate(id) {
