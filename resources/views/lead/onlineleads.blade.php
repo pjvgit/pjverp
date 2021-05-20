@@ -172,7 +172,7 @@
             { data: 'id','orderable': false},
             { data: 'id','orderable': false},],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
-                $('td:eq(0)', nRow).html('<div class="text-center"><input id="select-row-'+aData.id+'" type="checkbox" value="'+aData.id+'" class="leadRow checkboxRow" onclick="getGG();"> </div>');    
+                $('td:eq(0)', nRow).html('<div class="text-center"><input name="cLead[]" id="select-row-'+aData.id+'" type="checkbox" value="'+aData.id+'" class="leadRow checkboxRow" onclick="getGG();"> </div>');    
                 $('td:eq(1)', nRow).html('<div class="text-center"><i class="fas fa-2x fa-user text-black-50 ml-1"></i></div>');
 
                 $nameCell='<div class="name-cell"><span>'+aData.leadName+'</span>';
@@ -233,6 +233,7 @@
         });
         
         $('#DeleteBulkLeadForm').submit(function (e) {
+           
             $("#submit").attr("disabled", true);
             $("#innerLoader").css('display', 'block');
             e.preventDefault();
@@ -245,7 +246,7 @@
             var dataString = '';
             dataString = $("#DeleteBulkLeadForm").serialize();
             var array = [];
-            $("input[class=leadRow]:checked").each(function (i) {
+            $("input[name='cLead[]']:checked").each(function (i) {
                 array.push($(this).val());
             });
             $.ajax({

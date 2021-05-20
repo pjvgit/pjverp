@@ -145,6 +145,10 @@
             var curVal = $(this).val();
             if (curVal == "expenses") {
                 $("#basic").val($("#expense_sub_total_text").val());
+            } else if (curVal == "sub_total") {
+                $("#basic").val($("#sub_total_text").val());
+            } else if (curVal == "flat_fees") {
+                $("#basic").val($("#flat_fee_sub_total_text").val());
             } else if (curVal == "time_entries") {
                 $("#basic").val($("#time_entry_sub_total_text").val());
             } else {
