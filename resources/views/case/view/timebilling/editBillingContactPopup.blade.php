@@ -54,8 +54,10 @@
     <div class="justify-content-between modal-footer">
         <div>
             <div>
+                <?php if(isset($caseCllientUpdateCreated) && $caseCllientUpdateCreated!=''){?>
                 <div><b>Originally Created: </b>{{date('l, F jS Y',strtotime($caseCllientUpdateCreated['created_at']))}} by
                     {{substr($caseCllientUpdateCreated['first_name'],0,15)}} {{substr($caseCllientUpdateCreated['last_name'],0,15)}}</div>
+                <?php } ?>
                 <?php if(isset($caseCllientUpdateUpdated) && $caseCllientUpdateUpdated!=''){?>
                 <div><b>Last Modified: </b>{{date('l, F jS Y',strtotime($caseCllientUpdateUpdated['updated_at']))}} by
                     {{substr($caseCllientUpdateUpdated['first_name'],0,15)}}
