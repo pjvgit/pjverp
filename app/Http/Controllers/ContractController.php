@@ -878,6 +878,17 @@ class ContractController extends BaseController
            $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
            $this->saveClientActivity($ClientActivityHistory);
            
+
+        //    $data=[];
+        //     $data['user_id']=$user->id;
+        //     $data['client_id']=$user->id;
+        //     $data['activity']='added contact';
+        //     $data['type']='contact';
+        //     $data['action']='add';
+        //     $CommonController= new CommonController();
+        //     $CommonController->addMultipleHistory($data);
+
+
            if(!isset($request->fromCase)){ 
             session(['popup_success' => 'Your client has been created.']); 
            }
@@ -972,15 +983,24 @@ class ContractController extends BaseController
             $UsersAdditionalInfo->save();
 
             $ClientActivityHistory=[];
-           $ClientActivityHistory['acrtivity_title']='update contact';
-           $ClientActivityHistory['activity_by']=Auth::User()->id;
-           $ClientActivityHistory['activity_for']=($user->id)??NULL;
-           $ClientActivityHistory['type']="2";
-           $ClientActivityHistory['task_id']=NULL;
-           $ClientActivityHistory['case_id']=NULL;
-           $ClientActivityHistory['created_by']=Auth::User()->id;
-           $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
-           $this->saveClientActivity($ClientActivityHistory);
+            $ClientActivityHistory['acrtivity_title']='update contact';
+            $ClientActivityHistory['activity_by']=Auth::User()->id;
+            $ClientActivityHistory['activity_for']=($user->id)??NULL;
+            $ClientActivityHistory['type']="2";
+            $ClientActivityHistory['task_id']=NULL;
+            $ClientActivityHistory['case_id']=NULL;
+            $ClientActivityHistory['created_by']=Auth::User()->id;
+            $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
+            $this->saveClientActivity($ClientActivityHistory);
+
+            // $data=[];
+            // $data['user_id']=$user->id;
+            // $data['client_id']=$user_id;
+            // $data['activity']='Update Contact';
+            // $data['type']='contact';
+            // $data['action']='update';
+            // $CommonController= new CommonController();
+            // $CommonController->addMultipleHistory($data);
 
             session(['popup_success' => 'Your client has been updated.']);
             return response()->json(['errors'=>'','user_id'=>$user->id]);

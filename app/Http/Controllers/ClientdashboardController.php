@@ -315,7 +315,15 @@ class ClientdashboardController extends BaseController
                     $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
                     $this->saveClientActivity($ClientActivityHistory);
     
-    
+                    // $data=[];
+                    // $data['user_id']=$request->client_id;
+                    // $data['client_id']=$request->client_id;
+                    // $data['case_id']=$request->case_id;
+                    // $data['activity']='link contact';
+                    // $data['type']='contact';
+                    // $data['action']='link';
+                    // $CommonController= new CommonController();
+                    // $CommonController->addMultipleHistory($data);
                     return response()->json(['errors'=>'','user_id'=>$request->client_id]);
                     exit;
                 }else{

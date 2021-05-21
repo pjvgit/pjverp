@@ -955,6 +955,14 @@ if(!isset($adjustment_token)){
                              </div>
                         </div>
                      <?php } ?>
+
+                     <?php 
+                    if(!isset($flateFeeTotal)){ $flateFeeTotal=0;}
+                    if(!isset($timeEntryAmount)){ $timeEntryAmount=0;}
+                    if(!isset($expenseAmount)){ $expenseAmount=0;}
+                    if(!isset($discount)){ $discount=0;}
+                    if(!isset($addition)){ $addition=0;}
+                    ?>
                     <div id="invoice_totals" style="margin: 5px; margin-top: 20px; border: 1px solid #DBDBDB;">
                         <table class="data invoice_entries">
                             <tbody>
@@ -990,6 +998,7 @@ if(!isset($adjustment_token)){
                                     <td style="text-align: right; width: 105px;">
                                         <div class="locked" style="padding-bottom: 15px;">
                                             <div id="flat_fee_bottom_total" class="flat-fee-totals" style="border: none; padding-bottom: 7px;">
+                                           
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
@@ -1500,7 +1509,6 @@ if(!isset($adjustment_token)){
             </div>
         </form>
     </div>
-</div>
 </div>
 <!-- For Time Entry -->
 <div id="delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -2881,9 +2889,10 @@ if(!isset($adjustment_token)){
      
     }
     function checkPortalAccess(id){
+        // alert(id)
         var em=pa="";
         em=$("#portalAccess_"+id).attr("em");
-        pa=$("#portalAccess_"+id).attr("pa");
+        pa=$("#portalAccess_"+id).attr("pe");
        
         if ($("#portalAccess_"+id).prop('checked') == true && (em=="" || pa=="0")) {
             $("#portalAccess_"+id).prop('checked', false);

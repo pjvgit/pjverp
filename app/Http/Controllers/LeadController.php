@@ -5592,7 +5592,7 @@ class LeadController extends BaseController
         $PDFData=view('lead.details.case_detail.intakeFormPDF',compact('intakeForm','country','firmData','alreadyFilldedData','intakeFormFields'));
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+            $pdf->binary = EXE_PATH;
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
@@ -5870,7 +5870,7 @@ class LeadController extends BaseController
         $PDFData=view('lead.details.case_detail.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','PotentialCaseInvoice','firmAddress','PotentialCaseInvoicePayment'));
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+            $pdf->binary = EXE_PATH;
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);

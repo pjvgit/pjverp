@@ -49,10 +49,10 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             <div class="mb-4">
                                 <div class="d-flex justify-content-center align-items-end">
                                     
-                                    <?php if($userProfile->is_published=="no"){ ?>
-                                            <i class="fas fa-10x fa-user-circle text-black-50"></i>
+                                    <?php if($userProfile->is_published=="yes" && $userProfile->profile_image!="" && file_exists(public_path().'/profile/'.$userProfile->profile_image) ){ ?>
+                                        <img class="rounded-circle" src="{{BASE_URL}}public/profile/{{$userProfile->profile_image}}" width="126" height="130">
                                     <?php } else{ ?> 
-                                            <img class="rounded-circle" src="{{BASE_URL}}public/profile/{{$userProfile->profile_image}}" width="126" height="130">
+                                        <i class="fas fa-10x fa-user-circle text-black-50"></i>
                                     <?php } ?>
                                     <button id="edit_client_picture_button" class="btn btn-link text-black-50 p-0 border-0">
                                         <?php if($userProfile->profile_image==NULL && $userProfile->is_published=="no"){ ?>
@@ -384,6 +384,29 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_activity"){ ?>
                             @include('client_dashboard.loadActivity')
+                            <!-- <div class="tab-pane fade active show" id="allEntry" role="tabpanel"
+                                    aria-labelledby="home-basic-tab">
+                                    
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="files-per-page-selector float-right" style="white-space: nowrap; ">
+                                        <label class="mr-2">Rows Per Page:</label>
+                                        <select id="per_page" onchange="onchangeLength();" name="per_page" class="custom-select w-auto">
+                                            <option value="10" selected="">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <style>
+                            .pagination {
+                                /* width: 80%; */
+                                float: left !important;
+                            }
+                            </style> -->
                         <?php } ?>                    
                     </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
@@ -2682,12 +2705,39 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
             });
         });
-
+       
         $('#cropeProfileImageModal').on('hidden.bs.modal', function () {
             window.location.reload();
         });
+        $(document).on('click', '.AllNotify .pagination a', function(event){
+            event.preventDefault(); 
+            var page = $(this).attr('href').split('page=')[1];
+            loadAllNotification(page);
+        });
+
     });
 
+    <?php if(Route::currentRouteName()=="contacts_clients_activity"){?>
+        loadAllNotification(1);
+    <?php } ?>
+    function onchangeLength(){
+        loadAllNotification(1);
+    }
+    function loadAllNotification(page=null) {
+       $("#innerLoader").css('display', 'none');
+       $("#allEntry").html('<img src="{{LOADER}}""> Loading...');
+       $(function () {
+           $.ajax({
+               type: "POST",
+               url: baseUrl + "/notifications/loadAllNotification?per_page="+$("#per_page").val()+"&user_id={{$userProfile->id}}&page="+page, // json datasource
+               data: 'bulkload',
+               success: function (res) {
+                   $("#allEntry").html(res);
+                   return false;
+               }
+           })
+       })
+   }
     function expandAllnote(){
         $('.collapse').collapse('show');
         $("#co").show();

@@ -271,6 +271,16 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('court_cases/loadRate','CaseController@loadRate')->name('court_cases/loadRate');
     Route::post('court_cases/saveRate','CaseController@saveCaseRate')->name('court_cases/saveRate');
 
+    Route::post('court_cases/addIntakeForm', 'CaseController@addIntakeForm')->name('court_cases/addIntakeForm');
+    Route::post('court_cases/saveIntakeForm', 'CaseController@saveIntakeForm')->name('court_cases/saveIntakeForm');
+    Route::post('court_cases/loadIntakeForms', 'CaseController@loadIntakeForms')->name('court_cases/loadIntakeForms');
+    Route::post('court_cases/popupOpenSendEmailIntakeFormFromList', 'CaseController@popupOpenSendEmailIntakeFormFromList')->name('court_cases/popupOpenSendEmailIntakeFormFromList');
+    Route::post('court_cases/sendEmailIntakeFormCase', 'CaseController@sendEmailIntakeFormCase')->name('court_cases/sendEmailIntakeFormCase');
+    Route::post('court_cases/deleteIntakeFormFromList', 'CaseController@deleteIntakeFormFromList')->name('court_cases/deleteIntakeFormFromList');
+    Route::post('court_cases/saveDeleteIntakeFormFromList', 'CaseController@saveDeleteIntakeFormFromList')->name('court_cases/saveDeleteIntakeFormFromList');
+    Route::post('court_cases/downloadIntakeForm', 'CaseController@downloadIntakeForm')->name('court_cases/downloadIntakeForm');
+
+
     //Calender Tab
     Route::post('court_cases/loadAddEventPage', 'CaseController@loadAddEventPage')->name('court_cases/loadAddEventPage');
     Route::post('court_cases/saveAddEventPage', 'CaseController@saveAddEventPage')->name('court_cases/saveAddEventPage');

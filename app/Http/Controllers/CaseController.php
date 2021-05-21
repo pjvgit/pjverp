@@ -18,7 +18,7 @@ use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo;
 use App\Invoices,App\TaskTimeEntry;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
-use App\ExpenseEntry,App\CaseNotes;
+use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use Illuminate\Support\Str;
 class CaseController extends BaseController
 {
@@ -1008,9 +1008,15 @@ class CaseController extends BaseController
         
             $caseStat = DB::table('view_case_state')->select("*")->where("id",$case_id)->first();
 
+
+            $totalCaseIntakeForm=0;
+            if(\Route::current()->getName()=="intake_forms"){
+                $totalCaseIntakeForm= $allForms = CaseIntakeForm::leftJoin('intake_form','intake_form.id','=','case_intake_form.intake_form_id')->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*")->where("case_id",$case_id)->count();
+            }
+
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
-            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase'));
+            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm'));
         }
     }
 
@@ -4476,5 +4482,210 @@ class CaseController extends BaseController
        $userMaster->popup_after_first_case="no";
        $userMaster->save();        
    } 
+
+   public function addIntakeForm(Request $request)
+    {
+        $case_id=$request->case_id;
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $IntakeForm=IntakeForm::where("firm_name",Auth::User()->firm_name)->get();
+        $clientList= CaseClientSelection::leftJoin('users','users.id','=','case_client_selection.selected_user')->where("case_id",$case_id)->get();
+
+        return view('case.view.addIntakeForm',compact('IntakeForm','firmData','clientList','case_id'));
+
+    }
+    public function saveIntakeForm(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'intake_form' => 'required',
+            'email_address' => 'required|email'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            
+            $CaseIntakeForm = new CaseIntakeForm;
+            $CaseIntakeForm->intake_form_id=$request->intake_form; 
+            $CaseIntakeForm->form_unique_id=md5(time());
+            if($request->current_submit=="savenow"){
+                $CaseIntakeForm->status="0";
+            }else{
+                $CaseIntakeForm->status="3";
+            }
+          
+            $CaseIntakeForm->submited_at=date('Y-m-d h:i:s');
+            $CaseIntakeForm->firm_id=Auth::user()->firm_name;
+            $CaseIntakeForm->submited_to=$request->email_address;
+            $CaseIntakeForm->lead_id=NULL;
+            $CaseIntakeForm->case_id=$request->case_id;
+            $CaseIntakeForm->client_id=$request->contact;
+            $CaseIntakeForm->unique_token=$this->generateUniqueToken();
+            $CaseIntakeForm->created_by=Auth::user()->id; 
+            $CaseIntakeForm->save();
+
+            $form_id=$request->intake_form;
+            $intakeForm=IntakeForm::where("id",$form_id)->first();
+            
+            $getTemplateData = EmailTemplate::find(7);
+            $email=$request->email;
+            $token=url('cform', $CaseIntakeForm->form_unique_id);
+            $mail_body = $getTemplateData->content;
+            $mail_body = str_replace('{message}', $request->email_message, $mail_body);
+            $mail_body = str_replace('{email}', $email,$mail_body);
+            $mail_body = str_replace('{token}', $token,$mail_body);
+            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+            $mail_body = str_replace('{regards}', REGARDS, $mail_body);
+            $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+
+            $user = [
+                "from" => FROM_EMAIL,
+                "from_title" => FROM_EMAIL_TITLE,
+                "subject" => $request->email_subject,
+                "to" => $request->email_address,
+                "full_name" => "",
+                "mail_body" => $mail_body
+            ];
+            if($request->current_submit=="savenow"){
+                $sendEmail = $this->sendMail($user);
+            }
+            session(['popup_success' => 'Added intake form.']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    }   
+
+    public function loadIntakeForms()
+    {   
+        $requestData= $_REQUEST;
+        $allForms = CaseIntakeForm::leftJoin('intake_form','intake_form.id','=','case_intake_form.intake_form_id');
+        $allForms = $allForms->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*");      
+        $allForms = $allForms->where("case_id",$requestData['case_id']);  
+        $totalData=$allForms->count();
+        $totalFiltered = $totalData; 
+        
+        $allForms = $allForms->offset($requestData['start'])->limit($requestData['length']);
+        $allForms = $allForms->orderBy('case_intake_form.created_at','DESC');
+        $allForms = $allForms->get();
+        $json_data = array(
+            "draw"            => intval( $requestData['draw'] ),   
+            "recordsTotal"    => intval( $totalData ),  
+            "recordsFiltered" => intval( $totalFiltered ), 
+            "data"            => $allForms 
+        );
+        echo json_encode($json_data);  
+    }
+
+    public function popupOpenSendEmailIntakeFormFromList(Request $request)
+    {
+        $formId=$request->form_id;
+        $caseIntakeForm=CaseIntakeForm::where("intake_form_id",$formId)->where("case_id",$request->case_id)->first();
+        $intakeForm=IntakeForm::where("id",$formId)->first();
+        $firmData=Firm::find(Auth::User()->firm_name);
+        return view('case.view.emailIntakeForm',compact('intakeForm','formId','firmData','caseIntakeForm'));
+
+    }
+
+    public function sendEmailIntakeFormCase(Request $request)
+    {
+        
+        $validator = \Validator::make($request->all(), [
+            'email_address' => 'required|email'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+                
+            $form_id=$request->form_id;
+            $CaseIntakeForm =CaseIntakeForm::find($form_id);
+            $CaseIntakeForm->status="0";
+            $CaseIntakeForm->save();
+            $CaseIntakeForm=CaseIntakeForm::where("id",$form_id)->first();
+
+            $getTemplateData = EmailTemplate::find(7);
+            $fullName=$request->first_name. ' ' .$request->last_name;
+            $email=$request->email;
+            $token=url('cform', $CaseIntakeForm->form_unique_id);
+            $mail_body = $getTemplateData->content;
+            $mail_body = str_replace('{message}', $request->email_message, $mail_body);
+            $mail_body = str_replace('{email}', $email,$mail_body);
+            $mail_body = str_replace('{token}', $token,$mail_body);
+            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+            $mail_body = str_replace('{regards}', REGARDS, $mail_body);
+            $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+
+            $user = [
+                "from" => FROM_EMAIL,
+                "from_title" => FROM_EMAIL_TITLE,
+                "subject" => $request->email_suubject,
+                "to" => $request->email_address,
+                "full_name" => "",
+                "mail_body" => $mail_body
+            ];
+            $sendEmail = $this->sendMail($user);
+            session(['popup_success' => 'Email sent successfully.']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    }
+    //Open popup for Remove intake form from the list 
+    public function deleteIntakeFormFromList(Request $request)
+    {
+        $intakeForm=IntakeForm::where("id",$request->id)->first();
+        $primary_id=$request->primary_id;
+        return view('case.view.deleteIntakeform',compact('intakeForm','primary_id'));
+    } 
+
+    //Remove intake form from the list 
+    public function saveDeleteIntakeFormFromList(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+                
+            $id=$request->id;
+            CaseIntakeForm::where("id", $id)->delete();
+            session(['popup_success' => 'Successfully deleted intake form.']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    } 
+    
+    //Download intake form pdf from url EG: http://bne.poderjudicialvirtual.com/court_cases/609E6ED496F02/intake_forms
+    public function downloadIntakeForm(Request $request)
+    {
+        $id=$request->id;
+        $caseIntakeForm=CaseIntakeForm::where("id",$id)->first();
+        $intakeForm=IntakeForm::where("id",$caseIntakeForm['intake_form_id'])->first();
+        $intakeFormFields=IntakeFormFields::where("intake_form_id",$caseIntakeForm['intake_form_id'])->orderBy("sort_order","ASC")->get();
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $country = Countries::get();
+        $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm->id)->first();
+
+        $search=array(' ',':');
+        $filename=str_replace($search,"_",$intakeForm['form_name'])."_".time().'.pdf';
+        $PDFData=view('case.view.intakeFormPDF',compact('intakeForm','country','firmData','alreadyFilldedData','intakeFormFields'));
+        $pdf = new Pdf;
+        if($_SERVER['SERVER_NAME']=='localhost'){
+            $pdf->binary = EXE_PATH;
+        }
+        $pdf->addPage($PDFData);
+        $pdf->setOptions(['javascript-delay' => 5000]);
+        $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
+        $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
+        $pdf->saveAs(public_path("download_intakeform/pdf/".$filename));
+        $path = public_path("download_intakeform/pdf/".$filename);
+        // return response()->download($path);
+        // exit;
+
+        return response()->json([ 'success' => true, "url"=>url('public/download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
+        exit;
+    }
 }
   

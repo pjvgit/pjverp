@@ -291,7 +291,7 @@ $adjustment_token=round(microtime(true) * 1000);
             <div class="card-body" style="min-height:1000px;">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks"])){ echo "active show"; } ?> " id="profile-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/info')}}" >Items & Info</a>
+                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks","intake_forms"])){ echo "active show"; } ?> " id="profile-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/info')}}" >Items & Info</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link   <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","payment_activity"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}" >Time & Billing</a>
@@ -308,7 +308,7 @@ $adjustment_token=round(microtime(true) * 1000);
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade  <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel"
+                    <div class="tab-pane fade  <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks","intake_forms"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item">
@@ -352,7 +352,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             </div>
 
                             <div class="nav-item">
-                                <a class="nav-link pendo-case-intake-forms" data-page="intake_forms"
+                                <a class="nav-link pendo-case-intake-forms <?php if(Route::currentRouteName()=="intake_forms"){ echo "active"; } ?> " data-page="intake_forms"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/intake_forms')}}"><span><i
                                             class="i-Settings-Window  text-16 mr-1"></i> Intake Forms</span></a>
                             </div>
@@ -382,8 +382,12 @@ $adjustment_token=round(microtime(true) * 1000);
                                 @include('case.view.loadNotes',['CaseMaster'])
                             <?php } ?>
                             <?php  if(Route::currentRouteName()=="tasks"){?>
-                               
                                 @include('case.view.task',['CaseMaster'])
+                            <?php } ?>
+
+                            <?php  if(Route::currentRouteName()=="intake_forms"){?>
+                                @include('case.view.intakeFormList',['CaseMaster'])
+
                             <?php } ?>
                         </div>
                     </div>
@@ -725,6 +729,69 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+
+<div id="addIntakeFormFromCase" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Intake Form</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="addIntakeFormFromCaseArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="emailIntakeFormFromCase" class="modal fade show" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Email Intake Form</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="emailIntakeFormFromCaseArea">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteIntakeFromFromListCase" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Delete Intake Form</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="deleteIntakeFromFromListCaseArea">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="text" value="" id="copyFormLinkText" style="opacity: 00000;">
+
 @include('commonPopup.popup_without_param_code')
 @endsection
 @section('page-js')
@@ -931,7 +998,151 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             });
         });
+        var intakeFormListDataTable =  $('#intakeFormList').DataTable( {
+            serverSide: true,
+            "dom": '<"top">rt<"bottom"p><"clear">',
+            responsive: false,
+            processing: true,
+            stateSave: true,
+            searching: false, "ordering": false,
+            "ajax":{
+                url :baseUrl +"/court_cases/loadIntakeForms", // json datasource
+                type: "post", 
+                data :{ 'case_id' :"{{$CaseMaster->case_id}}" },
+                error: function(){  
+                    $(".employee-grid-error").html("");
+                    $("#employee-grid").append('<tbody class="employee-grid-error"><tr><th colspan="8">No data found in the server</th></tr></tbody>');
+                    $("#employee-grid_processing").css("display","none");
+                }
+            },
+            pageResize: true,  
+            pageLength:{{USER_PER_PAGE_LIMIT}},
+            columns: [
+                { data: 'id',sortable:false},
+                { data: 'id',sortable:false},
+                { data: 'id',sortable:false},
+                { data: 'id',sortable:false}],
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+
+                    if(aData.is_filled=='yes'){
+                        $('td:eq(0)', nRow).html('<div class="text-left"><a target="_blank" href="'+baseUrl+'/forms/'+aData.unique_token+'/show_pdf">'+aData.form_name+'</a></div>'); 
+                    }else{
+                        $('td:eq(0)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/cform/'+aData.form_unique_id+'">'+aData.form_name+'</a></div>'); 
+                    }
+
+                    $('td:eq(1)', nRow).html('<div class="text-left">'+aData.added_date+'</div>'); 
+
+                    if(aData.status=="0"){
+                        var fLabel='<span class="intake-form-status d-flex align-items-center">Sent via  {{config('app.name')}}</span>';
+                    }else if(aData.status=="1"){
+                        var fLabel='<span class="intake-form-status d-flex align-items-center"><i class="fas fa-circle text-warning mr-2"></i>Pending</span>';
+                    }else if(aData.status=="2"){
+                        var fLabel='<span class="intake-form-status d-flex align-items-center"><i class="fas fa-circle text-success mr-2"></i>Submitted '+aData.submitted_date+'</span>';
+                    }else if(aData.status=="3"){
+                        var fLabel='<span class="intake-form-status d-flex align-items-center"><i class="far fa-circle text-black-50 mr-2"></i>Pending</span>';
+                    }
+                    $('td:eq(2)', nRow).html('<div class="text-left">'+fLabel+'</div>');
+
+                    if(aData.is_filled=='yes'){
+                        var downloadOption='<a  onclick="downloadIntakeForm('+aData.id+');" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
+                        // var downloadOption='<a onclick="showLoad()" href="{{BASE_URL}}leads/downloadIntakeForm?id='+aData.id+'" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
+
+                    }else{
+                        var downloadOption='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><i class="fas fa-cloud-download-alt align-middle disabled"></i></a>';
+                    }
+
+                    if(aData.status=="2"){
+                        var g='<a  data-testid="edit-button" style="color:gray;" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title=""><i class="fas fa-paper-plane align-middle"></i></span></a><a href="javascript:;"   style="color:gray;" class="btn btn-link copyButton"><span ><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
+                    }else{
+                        var g='<a data-toggle="modal"  data-target="#emailIntakeFormFromCase" onclick="emailFormFunction('+aData.intake_form_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Send Email"><i class="fas fa-paper-plane align-middle"></i></span></a><a onclick="copyIntakeLink('+aData.id+')" link="'+baseUrl+'/cform/'+aData.form_unique_id+'" id="'+aData.id+'" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
+                    }
+
+                    $('td:eq(3)', nRow).html('<div class="d-flex align-items-center float-right">'+downloadOption+''+g+'<a data-toggle="modal"  data-target="#deleteIntakeFromFromListCase" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteIntakeFromFromListCase('+aData.intake_form_id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a></div>');
+                },
+                "initComplete": function(settings, json) { 
+                    $("[data-toggle=popover]").popover();
+                    $("[data-toggle=tooltip]").tooltip();
+                }
+        });
     });
+
+    
+    function addIntakeFormFromCase() {
+        $("#addIntakeFormFromCaseArea").html('<img src="{{LOADER}}"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/addIntakeForm", // json datasource
+                data: {'case_id': {{$CaseMaster->case_id}}},
+                success: function (res) {
+                    $("#addIntakeFormFromCaseArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function emailFormFunction(id) {
+        $("#emailIntakeFormFromCaseArea").html('<img src="{{LOADER}}"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/court_cases/popupOpenSendEmailIntakeFormFromList", // json datasource
+                data: {'form_id':id,"case_id":{{$CaseMaster->case_id}}},
+                success: function (res) {
+                    $("#emailIntakeFormFromCaseArea").html(res);
+                }
+            })
+        }) 
+    }  
+    function copyIntakeLink(id) {
+        var links=$("#"+id).attr("link");
+        $("#copyFormLinkText").val(links);
+            var copyText = document.getElementById("copyFormLinkText");
+            /* Select the text field */
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+            /* Copy the text inside the text field */
+            document.execCommand("copy");
+            /* Alert the copied text */
+            // alert("Copied the text: " + copyText.value);
+
+            toastr.success('Link Copied', "", {
+                progressBar: !0,
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            });
+    }
+    function deleteIntakeFromFromListCase(id,primary_id) {
+       $("#deleteIntakeFromFromListCaseArea").html('<img src="{{LOADER}}"> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/deleteIntakeFormFromList", // json datasource
+            data: {"id": id,'primary_id':primary_id},
+            success: function (res) {
+                $("#deleteIntakeFromFromListCaseArea").html(res);
+                $("#preloader").hide();
+            }
+       })
+   }
+   function downloadIntakeForm(id) {
+        $("#preloader").show();
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/leads/downloadIntakeForm?id="+id, // json datasource
+                data: {'id':id},
+                success: function (res) {
+                    var url = res.url;
+                    var link = document.createElement('a');
+                    link.href = res.url;
+                    link.download = res.file_name;
+                    link.click();
+                    link.remove()
+                    $("#preloader").hide();
+                }
+            })
+        }) 
+    }
     function modifyFontSize(flag) {  
         var min = 13;
         var max = 19;

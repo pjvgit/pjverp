@@ -6,7 +6,40 @@ if(!$commentData->isEmpty()){
     role="grid">
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>
-        <?php if($v->type=="document"){?>
+            <?php if($v->type=="contact"){?>
+            <tr role="row" class="odd">
+                <td class="sorting_1" style="font-size: 13px;">
+                    <div class="text-left">
+                        <?php 
+                        $ImageArray=[];
+                        $ImageArray['add']="activity_client_added.png";
+                        $ImageArray['update']="activity_client_updated.png";
+                        $ImageArray['link']="activity_client_linked.png";
+                        $image=$ImageArray[$v->action];
+                        ?>
+                        <img src="{{BASE_URL}}public/images/{{$image}}" width="27" height="21">
+                            <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">
+                            {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                            </a> {{$v->activity}} 
+                            
+                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{BASE_URL}}contacts/clients/{{$v->client_id}}">{{$v->fullname}} (Client)</a>
+                            <?php } ?>
+                            
+                            <?php if($v->ulevel=="4"){?> <a class="name" href="{{BASE_URL}}contacts/companies/{{$v->client_id}}">{{$v->fullname}} (Company)</a>
+                            <?php } ?>
+
+                            <?php if($v->action=="link"){ ?> to case <?php } ?>
+                            
+                            <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
+                            <?php
+                            if($v->case_title!=""){?>
+                    |       <a class="name" href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>                    
+                    <?php } ?>
+                        </div>
+                </td>
+            </tr>
+
+        <?php }else if($v->type=="document"){?>
             <tr role="row" class="odd">
                 <td class="sorting_1" style="font-size: 13px;">
                     <div class="text-left">

@@ -1167,6 +1167,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $('.test-all-users-checkbox').prop('checked', $(this).prop("checked"));
             
         });
+        
+
     });
 
     function loadTaskDetailsView(task_id) {
