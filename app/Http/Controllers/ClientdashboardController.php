@@ -477,7 +477,7 @@ class ClientdashboardController extends BaseController
         $LeadNotes->save();
         $note_id=$LeadNotes->id;
 
-        return view('client_dashboard.addNoteForDashboard',compact('CaseMasterClient','CaseMasterCompany','CaseMasterData','client_id','note_id','case_id'));
+        return view('client_dashboard.addNoteForDashboard',compact('CaseMasterClient','CaseMasterCompany','CaseMasterData','note_id'));
     }
     public function saveNoteForDashboard(Request $request)
     {
