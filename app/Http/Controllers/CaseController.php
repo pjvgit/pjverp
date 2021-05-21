@@ -1024,7 +1024,7 @@ class CaseController extends BaseController
         $caseCllientUpdateCreated = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
         ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.user_role as user_role","case_client_selection.*")->where("case_client_selection.case_id",$case_id)->first();
         $caseCllientUpdateUpdated='';
-        if($caseCllientUpdateCreated['updated_by']!=NULL){
+        if((isset($caseCllientUpdateUpdated)) && ($caseCllientUpdateCreated['updated_by']!=NULL)){
             $caseCllientUpdateUpdated = CaseClientSelection::join('users','users.id','=','case_client_selection.updated_by')
             ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.user_role as user_role","case_client_selection.*")->where("case_client_selection.case_id",$case_id)->first();
         }
