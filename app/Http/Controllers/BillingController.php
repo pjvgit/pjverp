@@ -4441,7 +4441,8 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $TrustInvoice=InvoiceHistory::find($request->payment_id);
-            $PaymentMaster=InvoiceHistory::find($TrustInvoice['refund_ref_id']);
+            // $PaymentMaster=InvoiceHistory::find($TrustInvoice['refund_ref_id']);
+            $PaymentMaster=InvoiceHistory::find($request->payment_id);
             if($PaymentMaster['deposit_into']=="Trust Account"){
                 $IPayment=InvoicePayment::find($PaymentMaster['invoice_payment_id']);
                 
