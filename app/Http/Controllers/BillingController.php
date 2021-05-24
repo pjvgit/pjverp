@@ -1952,7 +1952,7 @@ class BillingController extends BaseController
     {
             $client_id=$request->id;
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
-            $caseListByClient = CaseMaster::whereIn("case_master.id",$caseCllientSelection)->select("*","case_master.id as case_id")->orderBy("id","DESC")->get();
+            $caseListByClient = CaseMaster::whereIn("case_master.id",$caseCllientSelection)->where("case_master.is_entry_done","1")->select("*","case_master.id as case_id")->orderBy("id","DESC")->get();
             return view('billing.invoices.caseListReaload',compact('caseListByClient'));
     }
     public function deleteTimeEntry(Request $request)
@@ -4441,7 +4441,8 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $TrustInvoice=InvoiceHistory::find($request->payment_id);
-            $PaymentMaster=InvoiceHistory::find($TrustInvoice['refund_ref_id']);
+            // $PaymentMaster=InvoiceHistory::find($TrustInvoice['refund_ref_id']);
+            $PaymentMaster=InvoiceHistory::find($request->payment_id);
             if($PaymentMaster['deposit_into']=="Trust Account"){
                 $IPayment=InvoicePayment::find($PaymentMaster['invoice_payment_id']);
                 
