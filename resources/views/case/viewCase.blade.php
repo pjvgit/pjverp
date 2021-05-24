@@ -28,15 +28,17 @@ $adjustment_token=round(microtime(true) * 1000);
                 data-sol-date="" data-sol-satisfied="false">
                 <div class="d-flex align-items-center pl-2 d-print-none">
                     <div class="pr-2">Statute of Limitations:</div>
-                    <div class="text-muted">
-                        <?php 
-                      if(isset($CaseMaster->case_statute_date)){
-                        echo date('m/d/Y',strtotime($CaseMaster->case_statute_date));
-
-                      }else{
-                        echo "Not Specified";
-                      }?>
-                    </div>
+                    <?php if(isset($CaseMaster->case_statute_date)){?>
+                        <label class="switch pr-0 switch-success mr-3">
+                            
+                            <span class="text-success" id="IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Satisfied </span>
+                            <span class="error" id="InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Unsatisfied </span>
+                            <input type="checkbox" <?php if($CaseMaster->conflict_check=="1"){ echo "checked=checked"; }?> name="conflict_check" id="Icall_resolved"><span class="slider"></span>
+                        </label>
+                        <div><a  data-toggle="modal" data-target="#addCaseReminderPopup" data-placement="bottom" href="javascript:;" onclick="addCaseReminder({{$CaseMaster->case_id}});"> <span aria-hidden="true" class="fas fa-bell text-black-50 pb-2 mb-1 c-pointer pendo-sol-reminder-icon"  data-toggle="tooltip" data-placement="right" title="" data-original-title="<strong><span> Edit Statute of Limitations Reminders</span> </strong>" data-html="true" data-original-title="" id="editSolReminders" data-testid="sol-reminders" ></span></a></div>
+                    <?php }else{ ?>
+                        <div class="text-muted">Not Specified </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -297,7 +299,7 @@ $adjustment_token=round(microtime(true) * 1000);
                         <a class="nav-link   <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","payment_activity"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}" >Time & Billing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/mailbox","communications/chat_conversations"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  <?php if(Route::currentRouteName()=="case_link"){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/case_link')}}" >Contacts & Staff</a>
@@ -443,7 +445,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             <?php } ?>
                         </div>
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-recent-activity <?php if(Route::currentRouteName() =="communications/messages"){ echo "active"; } ?>" data-page="recent_activity"
@@ -461,6 +463,11 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <span> <i class="i-Email  text-16 mr-1"></i>Emails</span>
                                 </a>
                             </div>
+                            <div class="nav-item">
+                                <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/chat_conversations"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/chat_conversations')}}">
+                                    <span> <i class="far fa-comments fa-lg pr-11"></i> Chat Conversations</span><label class="badge badge-success p-1 ml-2 align-top">NEW</label>
+                                </a>
+                            </div>
                         </div>
                         <div class="row">
                             <?php if(Route::currentRouteName()=="communications/messages"){ ?>
@@ -472,6 +479,10 @@ $adjustment_token=round(microtime(true) * 1000);
 
                             <?php if(Route::currentRouteName()=="communications/emails"){ ?>
                                 @include('case.view.timebilling.email')
+                            <?php } ?>             
+                            
+                            <?php if(Route::currentRouteName()=="communications/chat_conversations"){ ?>
+                                @include('case.view.timebilling.chat_conversations')
                             <?php } ?>
 
                         </div>
@@ -790,6 +801,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
+<div id="addCaseReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Set Statute of Limitations Reminders</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="addCaseReminderPopupArea">
+
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
 <input type="text" value="" id="copyFormLinkText" style="opacity: 00000;">
 
 @include('commonPopup.popup_without_param_code')
@@ -798,6 +829,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script type="text/javascript">
     $(document).ready(function () {
         $('[data-toggle="popover"]').popover();
+        $('[data-toggle="tooltip"]').tooltip();
         $('#duedate').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -1431,6 +1463,68 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     // $("#firstCaseModal").modal("show")
 
+    $("input:checkbox#Icall_resolved").click(function () {
+        if ($(this).is(":checked")) {
+            $("#InonResolveText").hide();
+            $("#IresolveText").show();
+
+            var case_id={{$CaseMaster->case_id}};
+            var type="yes";
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/saveSolStatus", // json datasource
+                data: {"case_id": case_id,"type": type},
+                success: function (res) {
+                }
+            })
+
+        } else {
+            $("#InonResolveText").show();
+            $("#IresolveText").hide();
+            var case_id={{$CaseMaster->case_id}};
+            var type="no";
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/saveSolStatus", // json datasource
+                data: {"case_id": case_id,"type": type},
+                success: function (res) {
+                }
+            })
+        }
+    });
     
+    <?php if($CaseMaster->conflict_check=="0"){?>
+        $("#InonResolveText").show();
+        $("#IresolveText").hide();
+      
+    <?php }else{ ?>
+        $("#InonResolveText").hide();
+        $("#IresolveText").show();
+    <?php }?>
+   
+    function addCaseReminder(case_id) {
+        $("#reminderDataIndexInView").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/addCaseReminderPopup", // json datasource
+                data: {"case_id": case_id},
+                success: function (res) {
+                    $("#addCaseReminderPopupArea").html(res);
+                }
+            })
+        })
+    }
+    function saveSolStatus(case_id,type) {
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/saveSolStatus", // json datasource
+                data: {"case_id": case_id,"type": type},
+                success: function (res) {
+                }
+            })
+        })
+    }
 </script>
 @stop

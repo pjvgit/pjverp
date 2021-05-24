@@ -1172,5 +1172,12 @@ class CalendarController extends BaseController
         }
         
     }
+
+    public function itemCategories(Request $request)
+    {        
+        $allEventType = EventType::select("*")->where('status',1)->where('firm_id',Auth::User()->firm_name)->get();
+        return view('item_categories.items',compact('allEventType'));          
+        exit;    
+    }
 }
   

@@ -123,7 +123,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                         <button type="button" class="edit-event-types-calendar-picker btn btn-link"><i
                                 aria-hidden="true" class="fa fa-plus icon-plus icon"></i><span
-                                class="ml-2">Customize</span></button>
+                                class="ml-2"><a href="{{BASE_URL}}item_categories">Customize</a></span></button>
                         </div>
                     </div>
                 </div>
@@ -497,6 +497,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     day:      'Day',
                     today : 'Today'
                 },
+
+                lazyFetching:true,
                 firstDay: 0,
                 // defaultDate: moment('2020-09-01'),
                 displayEventTime: false,

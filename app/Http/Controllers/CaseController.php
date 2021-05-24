@@ -123,6 +123,10 @@ class CaseController extends BaseController
         //         $case = $case->whereIn("case_master.id",$childUSersCase);
         //     }
         // }
+
+        ///Load case base on user type
+        // If user type is parent then load all child and own case
+        // If user type is staff then load onw case only. 
         if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
@@ -221,6 +225,7 @@ class CaseController extends BaseController
             if(isset($request->case_statute)) {
                 $var = $request->case_statute;
                 $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
+                $CaseMaster->sol_satisfied="yes";
             }
              if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
@@ -4687,5 +4692,43 @@ class CaseController extends BaseController
         return response()->json([ 'success' => true, "url"=>url('public/download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
         exit;
     }
+
+
+    
+  public function addCaseReminderPopup(Request $request)
+  {
+      $case_id=$request->case_id;
+      $CaseSolReminder = CaseSolReminder::where("case_id",$case_id)->get();
+      return view('case.loadReminderPopup',compact('case_id','CaseSolReminder'));     
+      exit;    
+  }
+
+  public function saveCaseReminderPopup(Request $request)
+  {
+      $request=$request->all();
+    //   print_r($request);exit;
+      $case_id=$request['case_id'];
+        CaseSolReminder::where("case_id", $case_id)->delete();
+        for($i=0;$i<count($request['reminder_type'])-1;$i++){
+            $CaseSolReminder = new CaseSolReminder;
+            $CaseSolReminder->case_id=$case_id; 
+            $CaseSolReminder->reminder_type=$request['reminder_type'][$i];
+            $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
+            $CaseSolReminder->created_by=Auth::user()->id; 
+            $CaseSolReminder->save();
+        }
+        return response()->json(['errors'=>'']);
+        exit;
+    }
+
+    public function saveSolStatus(Request $request)
+    {
+        
+        $caseMaster=CaseMaster::find($request->case_id);
+        $caseMaster->sol_satisfied=$request->type;
+        $caseMaster->save();
+        return response()->json(['errors'=>'']);
+        exit;
+      }
 }
   

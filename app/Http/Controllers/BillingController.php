@@ -2840,7 +2840,7 @@ class BillingController extends BaseController
                     $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
                     $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $FlatFeeEntryForInvoice->save();
-                    DB::table('flat_Fee_entry')->where("id",$v)->update([
+                    DB::table('flat_fee_entry')->where("id",$v)->update([
                         'status'=>'paid',
                         'invoice_link'=>$InvoiceSave->id
                     ]);

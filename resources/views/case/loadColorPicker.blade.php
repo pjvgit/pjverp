@@ -108,6 +108,5 @@
 <style>
     .colorSelector {
         background: url('{{BASE_LOGO_URL}}/public/assets/styles/css/images/select.png');
-        background-color: {{$user[0]->default_color}};
     }
 </style>

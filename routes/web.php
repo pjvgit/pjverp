@@ -357,6 +357,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('court_cases/{id}/communications/messages','CaseController@showCaseDetails')->name('communications/messages');
     Route::get('court_cases/{id}/communications/calls','CaseController@showCaseDetails')->name('communications/calls');
     Route::get('court_cases/{id}/communications/emails','CaseController@showCaseDetails')->name('communications/emails');
+    Route::get('court_cases/{id}/communications/chat_conversations','CaseController@showCaseDetails')->name('communications/chat_conversations');
 
     Route::post('court_cases/overview/editBillingContactPopup','CaseController@editBillingContactPopup')->name('court_cases/overview/editBillingContactPopup');
     Route::post('court_cases/overview/saveBillingContactPopup','CaseController@saveBillingContactPopup')->name('court_cases/overview/saveBillingContactPopup');
@@ -378,6 +379,10 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('court_cases/loadEventRightSection', 'CaseController@loadEventRightSection')->name('court_cases/loadEventRightSection');
     Route::post('court_cases/loadLeadRightSection', 'CaseController@loadLeadRightSection')->name('court_cases/loadLeadRightSection');
     Route::post('court_cases/dismissCaseModal', 'CaseController@dismissCaseModal')->name('court_cases/dismissCaseModal');
+
+    Route::post('court_cases/addCaseReminderPopup', 'CaseController@addCaseReminderPopup')->name('court_cases/addCaseReminderPopup');
+    Route::post('court_cases/saveCaseReminderPopup', 'CaseController@saveCaseReminderPopup')->name('court_cases/saveCaseReminderPopup');
+    Route::post('court_cases/saveSolStatus', 'CaseController@saveSolStatus')->name('court_cases/saveSolStatus');
 
     //Client
     Route::get('contacts/client','ContractController@clientIndex')->name('contacts/client');
@@ -411,6 +416,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/loadEditClientGroup', 'ContractController@loadEditClientGroup')->name('contacts/loadEditClientGroup');
     Route::post('contacts/saveEditClientGroup', 'ContractController@saveEditClientGroup')->name('contacts/saveEditClientGroup');
    
+    
 
      //Task module
      Route::get('tasks','TaskController@index')->name('tasks');
@@ -475,7 +481,8 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('court_cases/saveConfirmGrantAccessPage', 'CalendarController@saveConfirmGrantAccessPage')->name('court_cases/saveConfirmGrantAccessPage');
 
      Route::post('loadEventCalendar/loadAgenda', 'CalendarController@loadAgenda')->name('loadEventCalendar/loadAgenda');
-
+     Route::get('item_categories', 'CalendarController@itemCategories')->name('item_categories');
+     
 
      //Locations
      Route::get('locations','LocationController@index')->name('locations');
