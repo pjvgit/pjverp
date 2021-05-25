@@ -270,6 +270,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('case_stages/reloadCaserStages','CaseController@reloadCaserStages')->name('case_stages/reloadCaserStages');
     Route::post('court_cases/loadRate','CaseController@loadRate')->name('court_cases/loadRate');
     Route::post('court_cases/saveRate','CaseController@saveCaseRate')->name('court_cases/saveRate');
+    Route::post('case_stages/saveTypeOfCase','CaseController@saveTypeOfCase')->name('case_stages/saveTypeOfCase');
 
     Route::post('court_cases/addIntakeForm', 'CaseController@addIntakeForm')->name('court_cases/addIntakeForm');
     Route::post('court_cases/saveIntakeForm', 'CaseController@saveIntakeForm')->name('court_cases/saveIntakeForm');
@@ -1082,6 +1083,7 @@ Route::get('deletepdf','CronController@deletePdf')->name('deletepdf');
 Route::get('removeuser','CronController@removeDuplicateUser')->name('removeuser');
 Route::get('adduser','CronController@addUser')->name('adduser');
 Route::get('sentInvoiceReminder','CronController@sentInvoiceReminder')->name('sentInvoiceReminder');
+Route::get('createEventType','CronController@createEventType')->name('createEventType');
 
 // check email
 

@@ -17,7 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\ClientGroup;
-use App\Invoices;
+use App\Invoices,App\Firm;
 class CronController extends BaseController
 {
     public function __construct()
@@ -229,6 +229,23 @@ class CronController extends BaseController
         $BeforeInvoices=Invoices::select("*")->whereNotIn("status",["Paid","Partial"])->whereDate("due_date","=",$seven_day_before)->get();
         $AfterInvoices=Invoices::select("*")->whereNotIn("status",["Paid","Partial"])->whereDate("due_date","=",$seven_day_after)->get();
         
+    }
+
+    function createEventType(){
+        $firmData=Firm::get();
+        foreach($firmData as $k=>$v){
+            $event_type=EventType::select('id')->where('firm_id',$v->id)->count();
+            if( $event_type<=0){
+            $eventTypeArray = array(
+                array('title' => 'Court','color_code'=>'#6edcff','status' => '1','status_order' => '1','firm_id' => $v->id,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+                array('title' => 'Client Meeting','color_code'=>'#6dd507','status' => '1','status_order' => '2','firm_id' => $v->id,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+                array('title' => 'Consult','color_code'=>'#ceaff2','status' => '1','status_order' => '3','firm_id' => $v->id,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+                array('title' => 'Travel','color_code'=>'#ff8c00','status' => '1','status_order' => '4','firm_id' => $v->id,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+            );
+                EventType::insert($eventTypeArray);
+            } 
+        }
+
     }
 }
   

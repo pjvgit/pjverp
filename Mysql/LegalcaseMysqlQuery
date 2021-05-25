@@ -217,6 +217,8 @@ ALTER TABLE `all_history` ADD `client_id` INT(11) NULL AFTER `firm_id`;
 ALTER TABLE `case_master` ADD `sol_satisfied` ENUM('yes','no') NOT NULL DEFAULT 'no' AFTER `case_statute_date`;
 ALTER TABLE `event_type` ADD `firm_id` INT(11) NULL AFTER `status`;
 
+ALTER TABLE `event_type` ADD `status_order` INT(11) NULL AFTER `status`;
+
 -- --------------------------------------------------------
 
 --

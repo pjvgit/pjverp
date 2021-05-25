@@ -216,7 +216,7 @@ class TaskController extends BaseController
         $eventLocation = CaseEventLocation::get();
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          return view('task.loadAddTaskPopup',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList'));          
     }
     public function loadCaseLinkedStaffForTask(Request $request)

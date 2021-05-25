@@ -1857,7 +1857,7 @@ class CaseController extends BaseController
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
         return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id'));          
      }
       public function saveAddEventPage(Request $request)
@@ -3688,7 +3688,7 @@ class CaseController extends BaseController
             $currentDateTime=$this->getCurrentDateAndTime();
         
             //Get event type 
-            $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+            $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
 
             //Event created By user name
             $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
@@ -3703,7 +3703,7 @@ class CaseController extends BaseController
                 $eventLocationAdded = CaseEventLocation::where("id",$evetData->event_location_id)->first();
             }
         
-            $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->pluck('color_code');
+            $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
 
             $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
 
@@ -3735,7 +3735,7 @@ class CaseController extends BaseController
            $currentDateTime=$this->getCurrentDateAndTime();
        
            //Get event type 
-           $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+           $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
 
            //Event created By user name
            $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
@@ -3746,7 +3746,7 @@ class CaseController extends BaseController
                $updatedEvenByUserData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->updated_by)->first();
            }
        
-           $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->pluck('color_code');
+           $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
            $eventLocationAdded=[];
            if($evetData->event_location_id!=""){
               
@@ -4730,5 +4730,58 @@ class CaseController extends BaseController
         return response()->json(['errors'=>'']);
         exit;
       }
+
+    public function saveTypeOfCase(Request $request)
+    {
+
+        // print_r($request->all());exit;
+        // echo $request->Newtitle;
+        if(isset($request['Newtitle']) && $request['Newtitle']==""){
+            $validator = \Validator::make($request->all(), [
+                'Newtitle' => 'required'
+            ],["Newtitle.required"=>"1Event type name cannot be empty"]);
+        }else{
+            $validator = \Validator::make($request->all(), [
+                'title.*' => 'required'
+            ],["title.*.required"=>"Event type name cannot be empty"]);
+        }
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+
+            $sr=1;
+            foreach($request->title as $k=>$v){
+              
+                $EventType=EventType::find($k);
+                $EventType->color_code=$request->Ccode[$k];
+                $EventType->title=$v;
+                $EventType->status_order=$sr;
+                $EventType->save();
+                $sr++;
+            }
+
+            if(isset($request['Newtitle']) && $request['Newtitle']!=""){
+                $EventType=new EventType;
+                $EventType->color_code=$request->NewCcode;
+                $EventType->title=$request->Newtitle;
+                $EventType->firm_id=Auth::user()->firm_name; 
+                $EventType->status_order=EventType::where('firm_id',Auth::User()->firm_name)->max('status_order') + 1;
+                $EventType->created_by=Auth::user()->id; 
+                $EventType->save();
+            }
+
+            if(isset($request['del']) && $request['del']!=""){
+                $ids=explode(",",$request['del']);
+                EventType::whereIn("id",$ids)->delete();
+                CaseEvent::whereIn("event_type",$ids)
+                ->update([ 'event_type'=>NULL]);
+
+            }
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    } 
+    
 }
   

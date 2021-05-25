@@ -1760,7 +1760,7 @@ class LeadController extends BaseController
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          
          if(isset($request->case_id)){
              $case_id=$request->case_id;
@@ -2062,7 +2062,7 @@ class LeadController extends BaseController
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
     
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          $from_view="no";
          if(isset($request->from_view) && $request->from_view=='yes'){
              $from_view="yes";
@@ -2713,7 +2713,7 @@ class LeadController extends BaseController
         $eventLocation = CaseEventLocation::get();
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          return view('lead.details.case_detail.loadAddTaskPopup',compact('caseLeadList','CaseMasterData','country','currentDateTime','eventLocation','allEventType','user_id'));          
     }
 
@@ -2867,7 +2867,7 @@ class LeadController extends BaseController
       $eventLocation = CaseEventLocation::get();
       $currentDateTime=$this->getCurrentDateAndTime();
        //Get event type 
-       $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+       $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
       return view('lead.details.case_detail.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id'));          
    }
 
@@ -2942,7 +2942,7 @@ class LeadController extends BaseController
           $currentDateTime=$this->getCurrentDateAndTime();
       
           //Get event type 
-          $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+          $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
 
           //Event created By user name
           $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
@@ -2957,7 +2957,7 @@ class LeadController extends BaseController
               $eventLocationAdded = CaseEventLocation::where("id",$evetData->event_location_id)->first();
           }
       
-          $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->pluck('color_code');
+          $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
 
           $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
 
@@ -2988,7 +2988,7 @@ class LeadController extends BaseController
          $currentDateTime=$this->getCurrentDateAndTime();
      
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
 
          //Event created By user name
          $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
@@ -2999,7 +2999,7 @@ class LeadController extends BaseController
              $updatedEvenByUserData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->updated_by)->first();
          }
      
-         $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->pluck('color_code');
+         $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
          $eventLocationAdded=[];
          if($evetData->event_location_id!=""){
             
@@ -6185,7 +6185,7 @@ class LeadController extends BaseController
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->get();
+         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          
          $case_id='';
          if(isset($request->case_id)){

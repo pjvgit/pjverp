@@ -119,6 +119,17 @@ class HomeController extends BaseController
         // print_r($caseEventData);
         
 
+        $event_type=EventType::select('id')->where('firm_id',Auth::User()->firm_name)->count();
+        if( $event_type<=0){
+        $eventTypeArray = array(
+            array('title' => 'Court','color_code'=>'#6edcff','status' => '1','status_order' => '1','firm_id' => Auth::User()->firm_name,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+            array('title' => 'Client Meeting','color_code'=>'#6dd507','status' => '1','status_order' => '2','firm_id' => Auth::User()->firm_name,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+            array('title' => 'Consult','color_code'=>'#ceaff2','status' => '1','status_order' => '3','firm_id' => Auth::User()->firm_name,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+            array('title' => 'Travel','color_code'=>'#ff8c00','status' => '1','status_order' => '4','firm_id' => Auth::User()->firm_name,'created_by' => Auth::User()->id,'created_at' => date('Y-m-d h:i:s')),
+           );
+            EventType::insert($eventTypeArray);
+        }
+
         //Set unique token
         $CaseIntakeForm=CaseIntakeForm::get();
         foreach($CaseIntakeForm as $k=>$v){

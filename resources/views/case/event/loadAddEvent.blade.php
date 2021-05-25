@@ -88,7 +88,7 @@
                             <?php } ?>
                             <div id="customize-types" class="align-items-start"
                                 style="border-top: 1px solid rgb(229, 229, 229); color: rgb(0, 112, 187); cursor: pointer; height: 25px; margin: 5px; padding-top: 5px;"
-                                data-color="#0070bb">Customize Types</div>
+                                data-color="#0070bb"><a href="{{BASE_URL}}item_categories">Customize Types</a></div>
                         </div>
                     </div>
 
