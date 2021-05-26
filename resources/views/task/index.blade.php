@@ -349,7 +349,7 @@ if(isset($_GET['task_read'])){
                             <td class="task-case-lead-cell align-middle">
                                 <?php
                                             if(isset($subrow->case_name)){?>
-                                <a href="{{BASE_URL}}/court_cases/{{$subrow->case_name['case_unique_number']}}/info">{{$subrow->case_name['case_title']}}
+                                <a href="{{BASE_URL}}court_cases/{{$subrow->case_name['case_unique_number']}}/info">{{$subrow->case_name['case_title']}}
                                 </a>
                                 <?php } ?>
                             </td>
@@ -371,7 +371,7 @@ if(isset($_GET['task_read'])){
                                                 }else{
                                                     if(isset($subrow->task_user[0])){?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
+                                    href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
                                     {{substr($subrow->task_user[0]->last_name,0,15)}}</a>
                                 <?php }
                                                 }
@@ -658,7 +658,7 @@ if(isset($_GET['task_read'])){
                             </td>
                             <td class="task-case-lead-cell align-middle">
                                 <?php if(isset($subrow->case_name)){?>
-                                        <a href="{{BASE_URL}}/court_cases/{{$subrow->case_name['case_unique_number']}}/info">       {{$subrow->case_name['case_title']}}
+                                        <a href="{{BASE_URL}}court_cases/{{$subrow->case_name['case_unique_number']}}/info">       {{$subrow->case_name['case_title']}}
                                         </a>
                                 <?php }else if($subrow->lead_id){
                                     ?><a href="{{BASE_URL}}leads/{{$subrow->lead_id}}/lead_details/info">
@@ -684,7 +684,7 @@ if(isset($_GET['task_read'])){
                                                 }else{
                                                     if(isset($subrow->task_user[0])){?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
+                                    href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
                                     {{substr($subrow->task_user[0]->last_name,0,15)}}</a>
                                 <?php }
                                                 }
