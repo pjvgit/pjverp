@@ -603,7 +603,7 @@
                 $('.submit').removeAttr("disabled");
                 return false;
             }
-            var dataString = $("form").serialize();
+            var dataString = $("#createEvent").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/leads/saveCaseEvent", // json datasource
@@ -812,24 +812,48 @@
     }
     
     function changeCaseUser() {
-        var selectdValue = $("#case_or_lead option:selected").val() // or
+        // $("#text_lead_id").val('');
+        // $("#text_case_id").val('');
+        // var uType=$("#case_or_lead option:selected").attr('uType');
+        // var selectdValue = $("#case_or_lead option:selected").val() 
        
-        if(selectdValue!=""){
-            loadCaseClient(selectdValue);
-            loadCaseNoneLinkedStaff(selectdValue);
-            loadCaseLinkedStaff(selectdValue);
-            $("#hideUser").hide();            
-            $("#showUSer").show();
-            $("#showStaffList").hide();
-            
-        }else{
-            $("#showStaffList").show();
-            loadAllFirmStaff();
-            $("#hideUser").show();            
-            $("#showUSer").hide();
-
-        }
+        // if(selectdValue!=''){
+        //     if(uType=="case"){
+        //         $("#text_case_id").val(selectdValue);
+        //         $("#HideShowNonlink").show();
+        //         loadRightSection(selectdValue);
+        //     }else{
+        //         $("#time_tracking_enabled").prop('checked',false)
+        //         $("#text_lead_id").val(selectdValue);
+        //         loadLeadUsers(selectdValue);
+        //     }
+        //     $(".hideUser").hide();
+        // }else{
+        //    $(".hideUser").show();
+        //     $("#loadTaskSection").html('');
+        //     $("#HideShowNonlink").hide();
+           
+        // }
     }
+    // function changeCaseUser() {
+    //     var selectdValue = $("#case_or_lead option:selected").val() // or
+       
+    //     if(selectdValue!=""){
+    //         loadCaseClient(selectdValue);
+    //         loadCaseNoneLinkedStaff(selectdValue);
+    //         loadCaseLinkedStaff(selectdValue);
+    //         $("#hideUser").hide();            
+    //         $("#showUSer").show();
+    //         $("#showStaffList").hide();
+            
+    //     }else{
+    //         $("#showStaffList").show();
+    //         loadAllFirmStaff();
+    //         $("#hideUser").show();            
+    //         $("#showUSer").hide();
+
+    //     }
+    // }
     $(".add_event_guide").click(function () {
         $.ajax({
             type: "POST",
@@ -897,20 +921,26 @@
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-
-                firmStaff();
+                loadLeadUsers(selectdValue);
             }
-          
-            if($("input:checkbox#time_tracking_enabled").is(":checked")){
-                loadTimeEstimationUsersLinkedStaffList1();
-            }
-            $("#hideUser").hide();
+            $(".hideUser").hide();
         }else{
-            $("#hideUser").show();
+           $(".hideUser").show();
             $("#loadTaskSection").html('');
             $("#HideShowNonlink").hide();
            
         }
+    }
+    function loadLeadUsers(lead_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadLeadRightSection",
+            data: {"lead_id": lead_id},
+            success: function (res) {
+                $("#loadTaskSection").html(res);
+              
+            }
+        })
     }
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {

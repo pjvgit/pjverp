@@ -446,7 +446,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 url: baseUrl + "/court_cases/loadEditEventPage", // json datasource
                 data: {
-                    "evnt_id":evnt_id
+                    "evnt_id":evnt_id,
+                    "from":"edit"
                 },
                 success: function (res) {
                     $("#loadCommentPopup").modal('hide');

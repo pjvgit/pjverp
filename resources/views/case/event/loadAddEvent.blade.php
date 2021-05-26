@@ -638,7 +638,7 @@
                 $('.submit').removeAttr("disabled");
                 return false;
             }
-            var dataString = $("form").serialize();
+            var dataString = $("#createEvent").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveAddEventPage", // json datasource

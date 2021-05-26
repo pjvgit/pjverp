@@ -8,8 +8,8 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" type="checkbox"></td>
-                <td><input name="client-attend-all" type="checkbox"></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteLead)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingLead)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
                     foreach($caseCllientSelection as $key=>$val){?>
@@ -29,15 +29,15 @@
                         <?php 
                         if($val->client_portal_enable=="0"){
                         ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
+                        <input data-email-present="false" name="LeadInviteClientCheckbox[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}" <?php if(in_array($val->id,$caseLinkeSavedInviteLead)){ ?> checked="checked" <?php } ?> 
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
+                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
                         <?php
                         }else{
                             ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
+                        <input data-email-present="false" name="LeadInviteClientCheckbox[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}" <?php if(in_array($val->id,$caseLinkeSavedInviteLead)){ ?> checked="checked" <?php } ?> 
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
+                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
                         <?php
                         }?>
 
@@ -45,7 +45,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" name="attend-checkbox" type="checkbox">
+                        <input disabled="" class="lead_client_attend_all_users"  name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php } ?>>
                     </label>
                 </td>
 
@@ -200,6 +200,29 @@
         });
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
+        });
+
+        $("#SelectAllLeadShare").click(function () {
+            $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+            $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+        });
+        $(".lead_client_share_all_users ").click(function () {
+            if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
+                $("#SelectAllLeadShare").prop('checked', "checked")
+            } else {
+                $("#SelectAllLeadShare").prop('checked', false)
+            }
+        });
+        $("#SelectAllLeadAttend").click(function () {
+            $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+            // $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+        });
+        $(".lead_client_attend_all_users ").click(function () {
+            if ($('.lead_client_attend_all_users:checked').length == $('.lead_client_attend_all_users').length) {
+                $("#SelectAllLeadAttend").prop('checked', "checked")
+            } else {
+                $("#SelectAllLeadAttend").prop('checked', false)
+            }
         });
     });
 

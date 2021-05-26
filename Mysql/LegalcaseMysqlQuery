@@ -219,6 +219,9 @@ ALTER TABLE `event_type` ADD `firm_id` INT(11) NULL AFTER `status`;
 
 ALTER TABLE `event_type` ADD `status_order` INT(11) NULL AFTER `status`;
 
+ALTER TABLE `users` ADD `event_type_preferance` ENUM('event_type_color','user_type_color') NULL DEFAULT NULL AFTER `popup_after_first_case`;
+ALTER TABLE `case_event_linked_contact_lead` ADD `lead_id` INT(11) NULL AFTER `user_tpe`, ADD `contact_id` INT(11) NULL AFTER `lead_id`;
+
 -- --------------------------------------------------------
 
 --

@@ -10,17 +10,16 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox"></td>
-                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox"></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
-                    foreach($caseCllientSelection as $key=>$val){?>
+            foreach($caseCllientSelection as $key=>$val){?>
             <tr class="sharing-user">
-                <td class="d-flex  no-border "><span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#"
-                        data-toggle="popover" title=""
-                        data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
-                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
+                <td class="d-flex no-border">
+                    <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
+                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#" data-toggle="popover" title=""
+                        data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
                         data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
@@ -28,26 +27,20 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <?php 
-                        if($val->client_portal_enable=="0"){
-                        ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
+                        <?php if($val->client_portal_enable=="0"){ ?>
+                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
                             class="lead_client_share_all_users client-login-not-enabled handler-attached">
-                        <?php
-                        }else{
-                            ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
+                        <?php }else{ ?>
+                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
                             class="lead_client_share_all_users client-login-not-enabled handler-attached">
-                        <?php
-                        }?>
-
+                        <?php } ?>
                     </label>
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" class="lead_client_attend_all_users" name="attend-checkbox" type="checkbox">
+                        <input disabled="" class="lead_client_attend_all_users" name="ContactAttendClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" type="checkbox">
                     </label>
                 </td>
             </tr>
@@ -60,37 +53,35 @@
 <div class="sharing-table staff-table-nonlinked" style="display:none;">
     <div class="table-responsive">
         <table class="table table-lg" id="CaseNoneLinkedStaffSection">
-
             <tr class="no-border" style="background-color:#FBFBFC;">
                 <th class="sharing-list-header no-border w-75">Staff (Non-Linked)</th>
                 <th class="no-border">Share</th>
                 <th class="no-border">Attend</th>
             </tr>
             <?php foreach($loadFirmUser as $key=>$val){?>
-
-            <tr class="sharing-user">
-                <td class=" no-border ">
-                    <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    
-                </td>
-                <td>
-                    <label class="mb-0">
-                        <input data-email-present="false" rowVal="{{$val->id}}" value="{{$val->id}}"
-                        <?php if(in_array($val->id,$caseLinkeSaved)){ ?> checked="checked" <?php } ?>
-                            name="share_checkbox_nonlinked[]" id="share_checkbox_nonlinked_{{$val->id}}" type="checkbox"
-                            class="client-login-not-enabled handler-attached share_checkbox_nonlinked"></label>
-                </td>
-                <td>
-                    <label class="mb-0"><input name="attend_checkbox_nonlinked[]"  value="{{$val->id}}"
-                        <?php if(in_array($val->id,$caseLinkeSavedAttending)){ ?> checked="checked" <?php } else { ?> disabled="disabled" <?php } ?>
-                            id="attend_checkbox_nonlinked_{{$val->id}}" type="checkbox"></label>
-                </td>
-            </tr>
+                <tr class="sharing-user">
+                    <td class=" no-border ">
+                        <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
+                        
+                    </td>
+                    <td>
+                        <label class="mb-0">
+                            <input data-email-present="false" rowVal="{{$val->id}}" value="{{$val->id}}"
+                            <?php if(in_array($val->id,$caseLinkeSaved)){ ?> checked="checked" <?php } ?>
+                                name="share_checkbox_nonlinked[]" id="share_checkbox_nonlinked_{{$val->id}}" type="checkbox"
+                                class="client-login-not-enabled handler-attached share_checkbox_nonlinked"></label>
+                    </td>
+                    <td>
+                        <label class="mb-0"><input name="attend_checkbox_nonlinked[]"  value="{{$val->id}}"
+                            <?php if(in_array($val->id,$caseLinkeSavedAttending)){ ?> checked="checked" <?php } else { ?> disabled="disabled" <?php } ?>
+                                id="attend_checkbox_nonlinked_{{$val->id}}" type="checkbox"></label>
+                    </td>
+                </tr>
             <?php } 
             if($loadFirmUser->isEmpty()){ ?>
-            <tr class="sharing-user">
-                <td class=" no-border" colspan="3"> Non linked staff member not available</td>
-            </tr>
+                <tr class="sharing-user">
+                    <td class=" no-border" colspan="3"> Non linked staff member not available</td>
+                </tr>
             <?php } ?>
         </table>
     </div>
@@ -103,7 +94,6 @@
                 <th class="no-border">Share</th>
                 <th class="no-border">Attend</th>
             </tr>
-
             <tr>
                 <td><b>Select All</b></td>
                 <td>
@@ -111,7 +101,6 @@
                         <input name="client_share_all" id="client_share_all"
                         <?php if(count($caseLinkedStaffList)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
-                    
                     <?php }else{ ?>
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
                     <?php } ?>

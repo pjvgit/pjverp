@@ -1132,7 +1132,11 @@ class CalendarController extends BaseController
   {
       $client_id=$request->client_id;
       $UserMasterData = User::find($client_id);
-      $UserAdditionInfo=DB::table('users_additional_info')->where("user_id",$client_id)->first();
+      if($UserMasterData->user_level=="5"){
+        $UserAdditionInfo=LeadAdditionalInfo::where("user_id",$client_id)->first();
+      }else{
+        $UserAdditionInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();
+      }
       if($UserAdditionInfo->client_portal_enable=="0"){
         return view('case.event.loadGrantAccessPage',compact('UserMasterData'));  
       }else{

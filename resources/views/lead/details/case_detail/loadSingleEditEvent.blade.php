@@ -648,7 +648,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                 return false;
             }
             var dataString ='';
-             dataString = $("form").serialize();
+             dataString = $("#EditEventForm").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource
@@ -924,7 +924,6 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             data: "",
             success: function (res) {
                 $("#loadTaskSection").html(res);
-              
             }
         })
     }
@@ -943,6 +942,17 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             }
         })
     }
+    function loadLeadUsers(lead_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadLeadRightSection",
+            data: {"lead_id": lead_id,"from":"edit"},
+            success: function (res) {
+                $("#loadTaskSection").html(res);
+              
+            }
+        })
+    }
     function changeCaseUserEdits() {
         var selectdValue = $(".caseleadSingleEvent option:selected").val() // or
         var uType=$(".caseleadSingleEvent option:selected").attr('uType');
@@ -954,7 +964,8 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-                firmStaff();
+                loadLeadUsers(selectdValue);
+
             }
             $("#hideUSer").show();          
             $("#showUSer").show();
@@ -1032,12 +1043,12 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
      selectColor('{{$getEventColorCode}}', '{{$evetData->event_type}}');
     <?php } ?>
     <?php if($evetData->case_id!=NULL){?>
-        changeCaseUserEdits();
+        // changeCaseUserEdits();
     <?php } ?>    
     
     <?php if($evetData->lead_id!=NULL){?>
         changeCaseUserEdits({{$lead_id}});
     <?php } ?>
-    setTimeout(function(){  firmStaffOnload({{$evetData->id}}) }, 1000);
+    // setTimeout(function(){  firmStaffOnload({{$evetData->id}}) }, 1000);
 
 </script>

@@ -384,6 +384,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('court_cases/addCaseReminderPopup', 'CaseController@addCaseReminderPopup')->name('court_cases/addCaseReminderPopup');
     Route::post('court_cases/saveCaseReminderPopup', 'CaseController@saveCaseReminderPopup')->name('court_cases/saveCaseReminderPopup');
     Route::post('court_cases/saveSolStatus', 'CaseController@saveSolStatus')->name('court_cases/saveSolStatus');
+    Route::post('court_cases/saveEventPrefernace', 'CaseController@saveEventPrefernace')->name('court_cases/saveEventPrefernace');
 
     //Client
     Route::get('contacts/client','ContractController@clientIndex')->name('contacts/client');

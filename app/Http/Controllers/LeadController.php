@@ -21,7 +21,7 @@ use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\IntakeForm,App\Firm,App\IntakeFormFields;
 use App\LeadNotesActivity,App\LeadNotes,App\LeadNotesActivityHistory;
 use App\LeadCaseActivityHistory,App\CaseNotes,App\CaseIntakeForm;
-use App\CaseIntakeFormFieldsData,App\PotentialCaseInvoice;
+use App\CaseIntakeFormFieldsData,App\PotentialCaseInvoice,App\CaseEventLinkedContactLead;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
@@ -2957,7 +2957,7 @@ class LeadController extends BaseController
               $eventLocationAdded = CaseEventLocation::where("id",$evetData->event_location_id)->first();
           }
       
-          $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
+          $getEventColorCode = EventType::select("color_code","id")->where('firm_id',Auth::User()->firm_name)->where('id',$evetData->event_type)->pluck('color_code');
 
           $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
 
@@ -2999,7 +2999,7 @@ class LeadController extends BaseController
              $updatedEvenByUserData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->updated_by)->first();
          }
      
-         $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
+         $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->pluck('color_code');
          $eventLocationAdded=[];
          if($evetData->event_location_id!=""){
             
@@ -3083,7 +3083,9 @@ class LeadController extends BaseController
         $CaseEvent->save();
         $this->saveEventReminder($request->all(),$CaseEvent->id); 
         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
         $this->saveEventHistory($CaseEvent->id);
         
 
@@ -3214,7 +3216,9 @@ class LeadController extends BaseController
                    
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id);   
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                     $this->saveEventHistory($CaseEvent->id);
 
                     $startTime = strtotime('+'.$event_interval_day.' day',$startTime); 
@@ -3288,7 +3292,8 @@ class LeadController extends BaseController
                        
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
 
                     }
@@ -3365,7 +3370,8 @@ class LeadController extends BaseController
                        
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
 
                     }  $startTime = strtotime('+1 day',$startTime); 
@@ -3467,7 +3473,8 @@ class LeadController extends BaseController
                         $i++;
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
 
 
@@ -3551,7 +3558,8 @@ class LeadController extends BaseController
                     
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                     $this->saveEventHistory($CaseEvent->id);
 
                     $startTime = strtotime('+'.$event_interval_month.' months',$startTime);
@@ -3637,7 +3645,8 @@ class LeadController extends BaseController
                    
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                     $this->saveEventHistory($CaseEvent->id);
 
                     
@@ -3769,7 +3778,8 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id);                               
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                      $this->saveEventHistory($CaseEvent->id);
 
                     $startTime = strtotime('+'.$event_interval_day.' day',$startTime); 
@@ -3846,7 +3856,8 @@ class LeadController extends BaseController
                         }
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
 
                     }
@@ -3929,7 +3940,8 @@ class LeadController extends BaseController
                         }
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
 
                     }  $startTime = strtotime('+1 day',$startTime); 
@@ -4034,7 +4046,8 @@ class LeadController extends BaseController
                         $i++;
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
                     }
                 }
@@ -4122,7 +4135,8 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                     $this->saveEventHistory($CaseEvent->id);
 
                     
@@ -4215,7 +4229,8 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                     $this->saveEventHistory($CaseEvent->id);
                     
                     $startTime = strtotime('+'.$event_interval_year.' years',$startTime);
@@ -4301,7 +4316,9 @@ class LeadController extends BaseController
             $CaseEvent->save();
             $this->saveEventReminder($request->all(),$CaseEvent->id); 
             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
             // $this->saveEventHistory($CaseEvent->id);
               
               
@@ -4371,7 +4388,9 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                     // $this->saveEventHistory($CaseEvent->id);
                     
                     $startTime = strtotime('+'.$event_interval_day.' day',$startTime); 
@@ -4441,7 +4460,9 @@ class LeadController extends BaseController
                         }
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                         // $this->saveEventHistory($CaseEvent->id);
                     }
                     $i++;
@@ -4512,7 +4533,9 @@ class LeadController extends BaseController
                         }
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                         // $this->saveEventHistory($CaseEvent->id);
 
                     }  $startTime = strtotime('+1 day',$startTime); 
@@ -4610,7 +4633,9 @@ class LeadController extends BaseController
                         $i++;
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
                         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                         // $this->saveEventHistory($CaseEvent->id);
                     }
                 }
@@ -4690,7 +4715,9 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                     //  $this->saveEventHistory($CaseEvent->id);
                     $startTime = strtotime('+'.$event_interval_month.' months',$startTime);
                     $i++;
@@ -4773,7 +4800,9 @@ class LeadController extends BaseController
                     }
                     $this->saveEventReminder($request->all(),$CaseEvent->id); 
                     $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
                     // $this->saveEventHistory($CaseEvent->id);
 
                     
@@ -4835,7 +4864,9 @@ class LeadController extends BaseController
         $CaseEvent->save();
         $this->saveEventReminder($request->all(),$CaseEvent->id); 
         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+$this->saveContactLeadData($request->all(),$CaseEvent->id); 
+ 
       }
 
       public function saveLocationOnce($locationdata){
@@ -6196,6 +6227,53 @@ class LeadController extends BaseController
          
          
     }
+    public function saveContactLeadData($request,$event_id)
+    {
+     //   print_r($request);exit;
+        CaseEventLinkedContactLead::where("event_id", $event_id)->where("created_by", Auth::user()->id)->delete();
+        if(isset($request['LeadInviteClientCheckbox'])){
+            $alreadyAdded=[];
+            for($i=0;$i<count(array_unique($request['LeadInviteClientCheckbox']));$i++){
+                $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
+                $CaseEventLinkedContactLead->event_id=$event_id; 
+                $CaseEventLinkedContactLead->user_type='lead'; 
+                $CaseEventLinkedContactLead->lead_id=$request['LeadInviteClientCheckbox'][$i];
+                if(isset($request['LeadAttendClientCheckbox'][$i])){
+                    $attend="yes";
+                }else{
+                    $attend="no";
+                }
+                $CaseEventLinkedContactLead->attending=$attend;
+                $CaseEventLinkedContactLead->invite="yes";
+                $CaseEventLinkedContactLead->created_by=Auth::user()->id; 
+                if(!in_array($request['LeadInviteClientCheckbox'][$i],$alreadyAdded)){
+                    $CaseEventLinkedContactLead->save();
+                }
+                $alreadyAdded[]=$request['LeadInviteClientCheckbox'][$i];
+            }
+        }else if(isset($request['ContactInviteClientCheckbox'])){
+         $alreadyAdded=[];
+         for($i=0;$i<count(array_unique($request['ContactInviteClientCheckbox']));$i++){
+             $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
+             $CaseEventLinkedContactLead->event_id=$event_id; 
+             $CaseEventLinkedContactLead->user_type='contact'; 
+             $CaseEventLinkedContactLead->contact_id=$request['ContactInviteClientCheckbox'][$i];
+             if(isset($request['ContactAttendClientCheckbox'][$i])){
+                 $attend="yes";
+             }else{
+                 $attend="no";
+             }
+             $CaseEventLinkedContactLead->attending=$attend;
+             $CaseEventLinkedContactLead->invite="yes";
+             $CaseEventLinkedContactLead->created_by=Auth::user()->id; 
+             if(!in_array($request['ContactInviteClientCheckbox'][$i],$alreadyAdded)){
+                 $CaseEventLinkedContactLead->save();
+             }
+             $alreadyAdded[]=$request['ContactInviteClientCheckbox'][$i];
+         }
+     }
+ 
+   }
     /***********************COMMUNICATION TAB******************************/
 
 

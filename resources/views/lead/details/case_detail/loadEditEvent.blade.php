@@ -1086,6 +1086,17 @@
             }
         })
     }
+    function loadLeadUsers(lead_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadLeadRightSection",
+            data: {"lead_id": lead_id,"from":"edit"},
+            success: function (res) {
+                $("#loadTaskSection").html(res);
+              
+            }
+        })
+    }
     function changeCaseUser() {
 
         $("#dynamicUSerTimes").html('');
@@ -1102,7 +1113,7 @@
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-                firmStaff();
+                loadLeadUsers(selectdValue);
             }
            
         }else{
@@ -1111,6 +1122,7 @@
             loadDefaultContent();
         }
     }
+  
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
             $("#time_tracking_enabled").prop('checked',false)
@@ -1150,15 +1162,12 @@
      selectColor('{{$getEventColorCode}}', '{{$evetData->event_type}}');
     <?php } ?>
 
-    <?php if($evetData->case_id!=NULL){?>
-        changeCaseUser();
-    <?php } ?>
 
     // loadAllFirmStaff({{$evetData->id}})
 
     <?php if($evetData->lead_id!=NULL){?>
         changeCaseUser({{$lead_id}});
     <?php } ?>
-    setTimeout(function(){  firmStaffOnload({{$evetData->id}}) }, 1000);
+    // setTimeout(function(){  firmStaffOnload({{$evetData->id}}) }, 1000);
 
 </script>

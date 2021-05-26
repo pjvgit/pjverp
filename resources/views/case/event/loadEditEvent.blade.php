@@ -760,7 +760,7 @@
                 return false;
             }
             var dataString ='';
-             dataString = $("form").serialize();
+             dataString = $("#EditEventForm").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource

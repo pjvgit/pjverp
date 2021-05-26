@@ -1082,7 +1082,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadLeadRightSection",
-            data: {"lead_id": lead_id},
+            data: {"lead_id": lead_id,"from":"edit"},
             success: function (res) {
                 $("#loadTaskSection").html(res);
               

@@ -178,41 +178,37 @@
 <div class="modal-footer">
     <div class="action-buttons">
         <div>
-            
-            <?php 
-                if($evetData->parent_evnt_id=="0"){
-                    ?>
-                        <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                         data-placement="bottom" href="javascript:;"
                         onclick="deleteEventFromCommentFunction({{$evetData->id}},'single');">
-                        <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> </a>
-                    <?php
-                }else{?>
-                <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
+                        <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> 
+                    </a>
+            <?php }else{ ?>
+                    <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                     data-placement="bottom" href="javascript:;"
                     onclick="deleteEventFromCommentFunction({{$evetData->id}},'multiple');">
-                    <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button></a>
-                <?php } ?>
+                    <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button>
+                    </a>
+            <?php } ?>
+            <?php if(!empty($CaseMasterData)){?>
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                     <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$CaseMasterData->id}}');">
                     Add Time Entry
                     </button>
                 </a>
-                <?php 
-                if($evetData->parent_evnt_id=="0"){
-                    ?>
+                <?php } ?>
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                 data-placement="bottom" href="javascript:;"
                 onclick="editSingleEventFunction({{$evetData->id}});">
                 <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
-                <?php }else{?>
+            <?php }else{?>
                     <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                     data-placement="bottom" href="javascript:;"
                     onclick="editEventFunction({{$evetData->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
-                <?php } ?>
-
-            
+            <?php } ?>
         </div>
     </div>
 </div>
