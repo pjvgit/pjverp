@@ -18,7 +18,7 @@ class CaseEvent extends Authenticatable
     protected $fillable = [
         'id', 'case_id', 'event_title', 'event_type', 'start_date', 'start_time', 'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private'
     ];    
-    protected $appends  = ['caseuser','etext','decode_id','start_time_user','colorcode','st','et','sdt','edt'];
+    protected $appends  = ['caseuser','etext','decode_id','start_time_user','st','et','sdt','edt']; //colorcode
 
 
     public function getEventTyspeTexttAttribute(){
@@ -29,6 +29,7 @@ class CaseEvent extends Authenticatable
         return base64_encode($this->id);
     }  
     public function getEtextAttribute(){
+        // return "";
         if($this->event_type!=''){
             $typeEventText =  EventType::select('title','color_code');
             $typeEventText=$typeEventText->where('status',"1");
@@ -40,6 +41,7 @@ class CaseEvent extends Authenticatable
         }
     } 
     public function getCaseuserAttribute(){
+     
         $ContractUserCase =  CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.id as user_id","users.user_type")
         ->where('case_event_linked_staff.event_id',$this->id)  
         ->get();
@@ -85,6 +87,7 @@ class CaseEvent extends Authenticatable
     }
 
     public function getSdtAttribute(){
+        return "";
         $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->start_time!=''){
@@ -107,7 +110,6 @@ class CaseEvent extends Authenticatable
         }
     }
     public function getColorcodeAttribute(){
-        
         if(isset(request()->all()['byuser'])){
         $allUser=json_decode(request()->all()['byuser'], TRUE);
         if($this->event_type==''){

@@ -390,6 +390,8 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                                                     <option <?php if($rval->reminder_user_type=="attorney"){ echo "selected=selected"; } ?> value="attorney">Attorneys</option>
                                                                     <option <?php if($rval->reminder_user_type=="paralegal"){ echo "selected=selected"; } ?>  value="paralegal">Paralegals</option>
                                                                     <option <?php if($rval->reminder_user_type=="staff"){ echo "selected=selected"; } ?>  value="staff">Staff</option>
+                                                                    <option <?php if($rval->reminder_user_type=="client_lead"){ echo "selected=selected"; } ?>  value="client_lead">Client/Lead</option>
+
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -437,12 +439,12 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                     <div class="pl-0 col-3">
                                         <div>
                                             <div class="">
-                                                <select id="reminder_user_type" name="reminder_user_type[]"
-                                                    class="form-control custom-select  ">
+                                                <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
                                                     <option value="me">Me</option>
                                                     <option value="attorney">Attorneys</option>
                                                     <option value="paralegal">Paralegals</option>
                                                     <option value="staff">Staff</option>
+                                                    <option value="client_lead">Client/Lead</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -526,18 +528,13 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                         <a href="#">
                             <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
                         </a>
-                    
                         <button class="btn btn-primary example-button m-1" id="submit" type="submit" data-style="expand-left">Save Event </button>
-                        
                     </div>
                 </div>
             </div>
-            
         </form>
     </div>
 </div><!-- end of main-content -->
-
-
 <script type="text/javascript">
     $(document).ready(function () {
         // loadCaseClient({{$case_id}});
@@ -946,7 +943,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadLeadRightSection",
-            data: {"lead_id": lead_id,"from":"edit"},
+            data: {"lead_id": lead_id,"from":"edit","event_id":{{ $evetData->id}}},
             success: function (res) {
                 $("#loadTaskSection").html(res);
               

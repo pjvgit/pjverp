@@ -3959,7 +3959,7 @@ class CaseController extends BaseController
    }
    public function saveContactLeadData($request,$event_id)
    {
-    //   print_r($request);exit;
+    //   print_r($reques[t);exit;
        CaseEventLinkedContactLead::where("event_id", $event_id)->where("created_by", Auth::user()->id)->delete();
        if(isset($request['LeadInviteClientCheckbox'])){
            $alreadyAdded=[];
@@ -3979,6 +3979,7 @@ class CaseController extends BaseController
                if(!in_array($request['LeadInviteClientCheckbox'][$i],$alreadyAdded)){
                    $CaseEventLinkedContactLead->save();
                }
+            //    print_r(CaseEventLinkedContactLead);
                $alreadyAdded[]=$request['LeadInviteClientCheckbox'][$i];
            }
        }else if(isset($request['ContactInviteClientCheckbox'])){

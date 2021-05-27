@@ -15,6 +15,7 @@ if(!$commentData->isEmpty()){
                         $ImageArray['add']="activity_client_added.png";
                         $ImageArray['update']="activity_client_updated.png";
                         $ImageArray['link']="activity_client_linked.png";
+                        $ImageArray["pay"]="activity_ledger_deposited.png";
                         $image=$ImageArray[$v->action];
                         ?>
                         <img src="{{BASE_URL}}public/images/{{$image}}" width="27" height="21">

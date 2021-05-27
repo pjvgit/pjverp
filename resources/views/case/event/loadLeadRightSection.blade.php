@@ -45,7 +45,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" class="lead_client_attend_all_users"  name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php } ?>>
+                        <input  class="lead_client_attend_all_users"  name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php }else{ ?>disabled="" <?php } ?>>
                     </label>
                 </td>
 
@@ -69,7 +69,6 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client_share_all" id="client_share_all"
-                        <?php if(count($caseLinkedStaffList)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>
@@ -79,7 +78,6 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client-attend-all" id="client_attend_all"
-                        <?php if(count($caseLinkedStaffList)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>

@@ -568,11 +568,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                     } else {
                                         var tTitle = r.event_title
                                     }
-                                    if(r.etext!=''){
-                                        var color= r.etext.color_code
-                                    }else{
-                                        var color= r.colorcode
-                                    }
+                                    // if(r.etext!=''){
+                                    //     var color= r.etext.color_code
+                                    // }else{
+                                    //     var color= r.colorcode
+                                    // }
+                                    var color="#00cfd2"
                                     if (r.event_title == null) {
                                         var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
                                             ' -' + "<No Title>";
@@ -586,7 +587,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                         tTitle: tTitle,
                                         start: r.start_date+'T'+r.st,
                                         end: r.end_date+'T'+r.et,
-                                        backgroundColor: '#F7F7F7',  
+                                        backgroundColor: '#d5e9ce',  
                                         textColor:'#000000'
                                     });
                                 });

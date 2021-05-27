@@ -993,14 +993,14 @@ class ContractController extends BaseController
             $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
             $this->saveClientActivity($ClientActivityHistory);
 
-            // $data=[];
-            // $data['user_id']=$user->id;
-            // $data['client_id']=$user_id;
-            // $data['activity']='Update Contact';
-            // $data['type']='contact';
-            // $data['action']='update';
-            // $CommonController= new CommonController();
-            // $CommonController->addMultipleHistory($data);
+            $data=[];
+            $data['user_id']=$user->id;
+            $data['client_id']=$user_id;
+            $data['activity']='Update Contact';
+            $data['type']='contact';
+            $data['action']='update';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
             session(['popup_success' => 'Your client has been updated.']);
             return response()->json(['errors'=>'','user_id'=>$user->id]);

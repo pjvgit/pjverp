@@ -392,6 +392,8 @@
                                                                     <option <?php if($rval->reminder_user_type=="attorney"){ echo "selected=selected"; } ?> value="attorney">Attorneys</option>
                                                                     <option <?php if($rval->reminder_user_type=="paralegal"){ echo "selected=selected"; } ?>  value="paralegal">Paralegals</option>
                                                                     <option <?php if($rval->reminder_user_type=="staff"){ echo "selected=selected"; } ?>  value="staff">Staff</option>
+                                                                    <option <?php if($rval->reminder_user_type=="client_lead"){ echo "selected=selected"; } ?>  value="client_lead">Client/Lead</option>
+
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -445,6 +447,8 @@
                                                     <option value="attorney">Attorneys</option>
                                                     <option value="paralegal">Paralegals</option>
                                                     <option value="staff">Staff</option>
+                                                    <option value="client_lead">Client/Lead</option>
+
                                                 </select>
                                             </div>
                                         </div>

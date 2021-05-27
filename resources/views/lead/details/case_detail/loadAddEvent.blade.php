@@ -360,7 +360,7 @@
                                         <option value="attorney">Attorneys</option>
                                         <option value="paralegal">Paralegals</option>
                                         <option value="staff">Staff</option>
-                                        <option value="client-lead">Client/Lead</option>
+                                        <option value="client_lead">Client/Lead</option>
                                     </select>
                                 </div>
                             </div>

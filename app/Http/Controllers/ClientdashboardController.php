@@ -315,15 +315,15 @@ class ClientdashboardController extends BaseController
                     $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
                     $this->saveClientActivity($ClientActivityHistory);
     
-                    // $data=[];
-                    // $data['user_id']=$request->client_id;
-                    // $data['client_id']=$request->client_id;
-                    // $data['case_id']=$request->case_id;
-                    // $data['activity']='link contact';
-                    // $data['type']='contact';
-                    // $data['action']='link';
-                    // $CommonController= new CommonController();
-                    // $CommonController->addMultipleHistory($data);
+                    $data=[];
+                    $data['user_id']=$request->client_id;
+                    $data['client_id']=$request->client_id;
+                    $data['case_id']=$request->case_id;
+                    $data['activity']='link contact';
+                    $data['type']='contact';
+                    $data['action']='link';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                     return response()->json(['errors'=>'','user_id'=>$request->client_id]);
                     exit;
                 }else{
@@ -977,6 +977,17 @@ class ClientdashboardController extends BaseController
 
             $firmData=Firm::find(Auth::User()->firm_name);
             $msg="Thank you. Your deposit of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
+            
+            
+            $data=[];
+            $data['user_id']=$request->client_id;
+            $data['client_id']=$request->client_id;
+            $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
+            $data['type']='contact';
+            $data['action']='pay';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+            
             return response()->json(['errors'=>'','msg'=>$msg]);
             exit;   
         }
@@ -1277,7 +1288,8 @@ class ClientdashboardController extends BaseController
             $data=[];
             $data['deposit_id']=$RequestedFund->id;
             $data['deposit_for']=$RequestedFund->client_id;
-            $data['user_id']=Auth::User()->id;
+            $data['user_id']=$RequestedFund->client_id;
+            $data['client_id']=$RequestedFund->client_id;
             $data['activity']='sent deposit request';
             $data['type']='deposit';
             $data['action']='add';
@@ -1373,10 +1385,13 @@ class ClientdashboardController extends BaseController
             $data['deposit_for']=$RequestedFund->client_id;
             $data['user_id']=Auth::User()->id;
             $data['activity']='updated deposit request';
+            $data['user_id']=$RequestedFund->client_id;
+            $data['client_id']=$RequestedFund->client_id;
             $data['type']='deposit';
             $data['action']='update';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
+
 
             session(['popup_success' => ' Deposit request updated']);
             return response()->json(['errors'=>'']);

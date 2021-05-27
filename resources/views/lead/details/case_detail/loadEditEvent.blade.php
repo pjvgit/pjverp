@@ -9,15 +9,11 @@
  <div class="modal-header">
     <h5 class="modal-title" id="editEtitle">Edit Event Details</h5>
     <h5 class="modal-title" id="editRtitle">Edit Recurring Event</h5>
-
-    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">×</span></button>
+    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 </div>
 <div class="modal-body">
     <div class="row">
         <div class="col-md-12" >
-        
-
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
@@ -29,9 +25,11 @@
                             <div class="add-event-helper-tip px-2" id="add_event_guide">
                                 <div class="alert alert-info alert-dismissible fade show" role="alert">
                                     <a class="close add_event_guide">×</a>
-                                    <p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="https://help.mycase.com/s/article/Creating-a-New-Calendar-Event" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a></p></div></div>
+                                    <p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="#" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a>
+                                    </p>
+                                </div>
+                            </div>
                     <?php } ?>
-                      
                         <div class="add-event-helper-tip px-2"></div>
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-3 col-form-label"></label>
@@ -58,7 +56,6 @@
                                         <?php } ?>
                                     </optgroup>
                                 </select>
-
                             </div>
                         </div>
                         <div class="form-group row">
@@ -68,12 +65,9 @@
                                 <input class="Edit_case_or_lead mr-2 no_case_link" type="checkbox" <?php if($evetData->case_id=='' && $evetData->lead_id==''){?> checked="checked" <?php } ?> id="no_case_link" name="no_case_link">
                                     <span>This event is not linked to a case</span>
                                 </label>
-
                                 <span id="CaseListError"></span>
-
                             </div>
                         </div>
-
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-2 col-form-label">Event name</label>
                             <div class="col-md-6 form-group mb-3">
@@ -115,17 +109,14 @@
                                             data-color="#0070bb"><a href="{{BASE_URL}}item_categories">Customize Types</a></div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-
                         <span id="dateInputPanel">
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
                                     <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text"
                                         placeholder="mm/dd/yyyy">
-    
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php 
@@ -133,19 +124,16 @@
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
                                     <input class="form-control  input-time input-start" id="start_time"
                                         value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder="">
-    
                                 </div>
                                 <div class="col-md-2 form-group mb-3 pt-2">
-                                    <label class="form-check-label"><input class="mr-2 all-day all_day" type="checkbox" id="all_day"
-                                    name="all_day"><span>All
-                                            day</span></label>
-    
+                                    <label class="form-check-label"><input class="mr-2 all-day all_day" type="checkbox" id="all_day" name="all_day">
+                                        <span>All day</span>
+                                    </label>
                                 </div>
                                 <div class="col-md-3 form-group mb-3 pt-2">
                                     <label class="form-check-label"><input title="You can not edit recurring events"
-                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->recuring_event=='yes'){?> checked="checked" <?php } ?>  name="recuring_event" type="checkbox"><span>This event
-                                            repeats</span></label>
-    
+                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->recuring_event=='yes'){?> checked="checked" <?php } ?>  name="recuring_event" type="checkbox"><span>This event repeats</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -153,21 +141,14 @@
                                 <div class="col-md-2 form-group mb-3">
                                     <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text"
                                         placeholder="mm/dd/yyyy">
-    
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
                                     <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}"
                                         name="end_time" type="text" placeholder="">
-    
                                 </div>
-                                
-    
                             </div>
                         </span>
-
-
-
                         <div class="form-group row" id="repeat_dropdown">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-md-3 form-group mb-3">
@@ -402,6 +383,7 @@
                                                                     <option <?php if($rval->reminder_user_type=="attorney"){ echo "selected=selected"; } ?> value="attorney">Attorneys</option>
                                                                     <option <?php if($rval->reminder_user_type=="paralegal"){ echo "selected=selected"; } ?>  value="paralegal">Paralegals</option>
                                                                     <option <?php if($rval->reminder_user_type=="staff"){ echo "selected=selected"; } ?>  value="staff">Staff</option>
+                                                                    <option <?php if($rval->reminder_user_type=="client_lead"){ echo "selected=selected"; } ?>  value="client_lead">Client/Lead</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -455,6 +437,8 @@
                                                     <option value="attorney">Attorneys</option>
                                                     <option value="paralegal">Paralegals</option>
                                                     <option value="staff">Staff</option>
+                                                    <option  value="client_lead">Client/Lead</option>
+
                                                 </select>
                                             </div>
                                         </div>

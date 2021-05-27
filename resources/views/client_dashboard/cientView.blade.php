@@ -383,8 +383,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_activity"){ ?>
-                            @include('client_dashboard.loadActivity')
-                            <!-- <div class="tab-pane fade active show" id="allEntry" role="tabpanel"
+                            <!-- @include('client_dashboard.loadActivity') -->
+                            <div class="tab-pane fade active show" id="allEntry" role="tabpanel"
                                     aria-labelledby="home-basic-tab">
                                     
                             </div>
@@ -406,7 +406,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 /* width: 80%; */
                                 float: left !important;
                             }
-                            </style> -->
+                            </style>
                         <?php } ?>                    
                     </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">

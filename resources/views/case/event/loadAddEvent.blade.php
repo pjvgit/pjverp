@@ -8,7 +8,10 @@
                 <div class="add-event-helper-tip px-2" id="add_event_guide">
                     <div class="alert alert-info alert-dismissible fade show" role="alert">
                         <a class="close add_event_guide">×</a>
-                        <p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="#" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a></p></div></div>
+                        <p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="#" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a>
+                        </p>
+                    </div>
+                </div>
         <?php } ?>
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-3 col-form-label"></label>
@@ -360,7 +363,7 @@
                                         <option value="attorney">Attorneys</option>
                                         <option value="paralegal">Paralegals</option>
                                         <option value="staff">Staff</option>
-                                        <option value="client-lead">Client/Lead</option>
+                                        <option value="client_lead">Client/Lead</option>
                                     </select>
                                 </div>
                             </div>

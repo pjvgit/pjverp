@@ -33,7 +33,9 @@ class CalendarController extends BaseController
     }
     public function loadEventCalendar (Request $request)
     {        
-        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
+        $CommonController= new CommonController();
+
+        $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
         if($request->event_type!="[]"){
             $event_type=json_decode($request->event_type, TRUE);
             $CaseEvent=$CaseEvent->whereIn('event_type',$event_type);
@@ -58,6 +60,44 @@ class CalendarController extends BaseController
 
         $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
         $CaseEvent=$CaseEvent->get();
+        $newarray = array();
+
+        $timezone=Auth::User()->user_timezone;
+        foreach($CaseEvent as $k=>$v){
+            
+            if($v->start_time!=""){
+                $tm=$v->start_date . $v->start_time;
+                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+                $v->st=date('H:i:s',strtotime($currentConvertedDate));
+            }else{
+                $v->st="";
+            }
+
+            if($v->end_time!=""){
+                $tm=$v->end_date . $v->end_time;
+                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+                $v->et=date('H:i:s',strtotime($currentConvertedDate));
+            }else{
+                $v->et="";
+            }
+
+            if($v->event_type!=""){
+            $typeEventText =  DB::table("event_type")->select('title','color_code')->where('status',"1")->where('id',$v->event_type)->first();
+            $v->etext=$typeEventText;
+            }else{
+                $v->etext="";
+            }
+            if($v->start_time!=''){
+                $tm=$v->start_date . $v->start_time;
+                $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+                $v->start_time_user=date('h:ia',strtotime($currentConvertedDate));
+            }else{
+                $v->start_time_user="";
+            }
+            
+            $newarray[] = $v;
+        }
+        // print_r($CaseEvent);
         if(isset($request->searchbysol) && $request->searchbysol=="true"){
             $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
             ->select("case_master.case_unique_number as case_unique_number","case_events.*")
@@ -77,7 +117,7 @@ class CalendarController extends BaseController
         }else{
             $Task='';
         }
-        return response()->json(['errors'=>'','result'=>$CaseEvent,'sol_result'=>$CaseEventSOL,'mytask'=>$Task]);
+        return response()->json(['errors'=>'','result'=>$newarray,'sol_result'=>$CaseEventSOL,'mytask'=>$Task]);
         exit;    
     }
     public function loadAgenda (Request $request)
