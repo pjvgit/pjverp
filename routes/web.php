@@ -580,6 +580,7 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('lead_setting/editReason', 'LeadController@editReason')->name('lead_setting/editReason');
      Route::post('lead_setting/updateReason', 'LeadController@updateReason')->name('lead_setting/updateReason');
      Route::post('lead_setting/deleteReason', 'LeadController@deleteReason')->name('lead_setting/deleteReason');
+     Route::get('custom_fields', 'LeadController@custom_fields')->name('custom_fields');
 
 
 
@@ -1085,6 +1086,7 @@ Route::get('removeuser','CronController@removeDuplicateUser')->name('removeuser'
 Route::get('adduser','CronController@addUser')->name('adduser');
 Route::get('sentInvoiceReminder','CronController@sentInvoiceReminder')->name('sentInvoiceReminder');
 Route::get('createEventType','CronController@createEventType')->name('createEventType');
+Route::get('createPracticeArea','CronController@createPracticeArea')->name('createPracticeArea');
 
 // check email
 

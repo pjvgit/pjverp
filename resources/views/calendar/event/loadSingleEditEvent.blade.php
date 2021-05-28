@@ -986,7 +986,9 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-                firmStaff();
+                // firmStaff();
+                loadLeadUsers(selectdValue);
+
             }
             $(".hideUser").hide();
         }else{
@@ -1000,7 +1002,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadEventRightSection",
-            data: {"case_id": case_id},
+            data: {"case_id": case_id, "event_id":{{ $evetData->id}}},
             success: function (res) {
                 $("#loadTaskSection").html(res);
             }
@@ -1094,7 +1096,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         $('.no_case_link').prop('checked', true);
     <?php } ?>
     
-    loadAllFirmStaff({{$evetData->id}});
+    // loadAllFirmStaff({{$evetData->id}});
 
     <?php  
     if($evetData->case_id=="" && $evetData->lead_id==""){  ?>

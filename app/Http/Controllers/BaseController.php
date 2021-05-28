@@ -21,7 +21,10 @@ class BaseController extends Controller
         try{
              Mail::send('emails.reminder', ['user' => $user], function ($m) use ($user) {
                 $m->from($user['from'], $user['from_title']);
-
+                if(isset($user['replyto'])){
+                    $m->replyTo($user['replyto'], $user['replyto_title']);
+                }
+                
                 $m->to($user['to'],$user['full_name'])->subject($user['subject']);
             });
             

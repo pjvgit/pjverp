@@ -34,7 +34,7 @@ class CaseController extends BaseController
         $CaseMaster = CaseMaster::latest()->get();
         $country = Countries::get();
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         $getChildUsers=$this->getParentAndChildUserIds();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
@@ -54,7 +54,7 @@ class CaseController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         // $caseStageList = CaseStage::where("status","1")->get();
         $getChildUsers=$this->getParentAndChildUserIds();
@@ -177,7 +177,7 @@ class CaseController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         // $caseStageList = CaseStage::where("status","1")->get();
         $getChildUsers=$this->getParentAndChildUserIds();
@@ -235,6 +235,7 @@ class CaseController extends BaseController
             if(isset($request->practice_area_text)) { 
                 $CasePracticeArea = new CasePracticeArea;
                 $CasePracticeArea->title=$request->practice_area_text; 
+                $CasePracticeArea->firm_id =Auth::User()->firm_name;
                 $CasePracticeArea->created_by=Auth::User()->id; 
                 $CasePracticeArea->save();
                 
@@ -448,7 +449,7 @@ class CaseController extends BaseController
     public function loadStep2(Request $request)
     {
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         // $caseStageList = CaseStage::where("status","1")->get();
         $getChildUsers=$this->getParentAndChildUserIds();
@@ -494,6 +495,7 @@ class CaseController extends BaseController
             if(isset($request->practice_area_text)) { 
                 $CasePracticeArea = new CasePracticeArea;
                 $CasePracticeArea->title=$request->practice_area_text; 
+                $CasePracticeArea->firm_id=Auth::User()->firm_name; 
                 $CasePracticeArea->created_by=Auth::User()->id; 
                 $CasePracticeArea->save();
                 
@@ -758,7 +760,7 @@ class CaseController extends BaseController
     {   
         $CaseMaster = CaseMaster::find($request->case_id);
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         $CaseSolReminder = CaseSolReminder::where("case_id",$request->case_id)->get();
 
@@ -801,6 +803,7 @@ class CaseController extends BaseController
                 $CasePracticeArea = new CasePracticeArea;
                 $CasePracticeArea->title=$request->practice_area_text; 
                 $CasePracticeArea->created_by=Auth::User()->id; 
+                $CasePracticeArea->firm_id=Auth::User()->firm_name; 
                 $CasePracticeArea->save();
                 
                 $CaseMaster->practice_area=$CasePracticeArea->id;
@@ -995,7 +998,7 @@ class CaseController extends BaseController
             }
 
             $getChildUsers=$this->getParentAndChildUserIds();
-            $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
           
       
             $caseStageList = CaseStage::select("*")->where("status","1");
@@ -1491,7 +1494,7 @@ class CaseController extends BaseController
      {
      
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
          return view('practice_area.index',compact('practiceAreaList'));
      }
  
@@ -1500,7 +1503,7 @@ class CaseController extends BaseController
          $columns = array('id', 'title', 'status','created_at');
          $requestData= $_REQUEST;
          $getChildUsers=$this->getParentAndChildUserIds();
-         $case = CasePracticeArea::select('case_practice_area.*')->whereIn("case_practice_area.created_by",$getChildUsers);
+         $case = CasePracticeArea::select('case_practice_area.*')->where("firm_id",Auth::User()->firm_name);
          $totalData=$case->count();
          $totalFiltered = $totalData; 
          if( !empty($requestData['search']['value']) ) {   
@@ -1552,6 +1555,7 @@ class CaseController extends BaseController
             $CasePracticeArea=new CasePracticeArea;
             $CasePracticeArea->title=$request->area_name; 
             $CasePracticeArea->status="1";
+            $CasePracticeArea->firm_id =Auth::User()->firm_name;
             $CasePracticeArea->created_by =Auth::User()->id;
             $CasePracticeArea->save();
             session(['popup_success' => 'Your practice area has been created.']);

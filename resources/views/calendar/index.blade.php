@@ -257,10 +257,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" id="EditEventPage">
-           
-           
-                  
-
         </div>
     </div>
 </div>
@@ -356,9 +352,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </div>
                     </div><!-- end of main-content -->
                 </div>
-           
                 <div class="modal-footer">
-                   
                     <div class="form-group row float-right">
                         <div class="loader-bubble loader-bubble-primary" id="innerLoader" style="display: none;"></div>
                          <a href="#">
@@ -397,7 +391,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#preloaderData").hide();
+        // $("#preloaderData").hide();
         //$(".datepicker" ).datepicker();
         // $('#datepicker').datepicker({
         //     onSelect: function(dateText, inst) { 
@@ -657,7 +651,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
                         var dateText= $("#datepicker").val();
                         date = moment(dateText).format('YYYY-MM-DD');
-                        $("#calendarq").fullCalendar('gotoDate', date);
+                        // $("#calendarq").fullCalendar('gotoDate', date);
                     }
                 },
                 eventAfterAllRender: function (view) {
@@ -767,20 +761,20 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadCommentPopup,#loadEditEventPopup').on('hidden.bs.modal', function () {
+        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
               $('#calendarq').fullCalendar('refetchEvents');
         });
 
-        $('#loadCommentPopup,#deleteFromCommentBox').on('hidden.bs.modal', function () {
-              $('#calendarq').fullCalendar('refetchEvents');
-        });
-        $('#loadCommentPopup').on('hidden.bs.modal', function () {
-              $('#calendarq').fullCalendar('refetchEvents');
-        });
+        // $('#loadCommentPopup,#deleteFromCommentBox').on('hidden.bs.modal', function () {
+        //       $('#calendarq').fullCalendar('refetchEvents');
+        // });
+        // $('#loadCommentPopup').on('hidden.bs.modal', function () {
+        //       $('#calendarq').fullCalendar('refetchEvents');
+        // });
 
-        $('#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
-              $('#calendarq').fullCalendar('refetchEvents');
-        });
+        // $('#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
+        //       $('#calendarq').fullCalendar('refetchEvents');
+        // });
 
 
 

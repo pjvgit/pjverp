@@ -1066,7 +1066,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/leads/loadRightSection",
-            data: {"case_id": case_id},
+            data: {"case_id": case_id, "event_id":{{ $evetData->id}}},
             success: function (res) {
                 $("#loadTaskSection").html(res);
             }
@@ -1115,7 +1115,9 @@
             }else{
                 $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
-                firmStaff();
+                // firmStaff();
+                loadLeadUsers(selectdValue);
+
             }
            
         }else{
@@ -1123,6 +1125,17 @@
             $("#HideShowNonlink").hide();
             // loadDefaultContent();
         }
+    }
+    function loadLeadUsers(lead_id) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/court_cases/loadLeadRightSection",
+            data: {"lead_id": lead_id,"from":"edit"},
+            success: function (res) {
+                $("#loadTaskSection").html(res);
+              
+            }
+        })
     }
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {

@@ -130,6 +130,29 @@ class HomeController extends BaseController
             EventType::insert($eventTypeArray);
         }
 
+        $CasePracticeArea=CasePracticeArea::select('id')->where('firm_id',Auth::User()->firm_name)->count();
+        if( $CasePracticeArea<=0){
+            $CasePracticeArea = array(
+                array('title'=>'Bankruptcy','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Business','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Civil Party','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Criminal Defense','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Divorce/Separation','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'DUI/DWI','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Employment','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Estate Planning','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Family','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Foreclosure','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Immigration','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Landlord/Tenant','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Personal Injury','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Real Estate','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                array('title'=>'Tax','status' => '1','firm_id' => Auth::User()->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => Auth::User()->id),
+                );
+                CasePracticeArea::insert($CasePracticeArea);
+        }
+
+
         //Set unique token
         $CaseIntakeForm=CaseIntakeForm::get();
         foreach($CaseIntakeForm as $k=>$v){
@@ -144,7 +167,7 @@ class HomeController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         // $caseStageList = CaseStage::where("status","1")->get();
         $getChildUsers=$this->getParentAndChildUserIds();

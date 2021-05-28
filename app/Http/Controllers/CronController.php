@@ -247,5 +247,16 @@ class CronController extends BaseController
         }
 
     }
+
+    function createPracticeArea(){
+        $CasePracticeArea=CasePracticeArea::get();
+        foreach($CasePracticeArea as $k=>$v){
+           $u=User::find($v->created_by);
+           if(!empty($u)){
+                CasePracticeArea::where('id',$v->id)->update(['firm_id'=>$u['firm_name']]);
+           }
+        }
+
+    }
 }
   

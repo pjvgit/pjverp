@@ -1692,7 +1692,7 @@ class BillingController extends BaseController
          $user = User::find($id);
         if(!empty($user)){
             $getChildUsers=$this->getParentAndChildUserIds();
-            $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
             $upcomingInvoice=1;
             return view('billing.invoices.create_invoices',compact('practiceAreaList','upcomingInvoice'));
         }else{
@@ -5450,7 +5450,7 @@ class BillingController extends BaseController
             $firmData=Firm::find(Auth::User()->firm_name);
 
             $getChildUsers=$this->getParentAndChildUserIds();
-            $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
 
 
             $leadAttorneysCases= Invoices::where("invoices.created_by",$id)->select("*")->get()->pluck("case_id");
@@ -5657,7 +5657,7 @@ class BillingController extends BaseController
             $firmData=Firm::find(Auth::User()->firm_name);
 
             $getChildUsers=$this->getParentAndChildUserIds();
-            $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
 
 
             $leadAttorneysCases= Invoices::where("invoices.created_by",$id)->select("*")->get()->pluck("case_id");
