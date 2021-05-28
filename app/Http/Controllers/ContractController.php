@@ -32,6 +32,7 @@ class ContractController extends BaseController
         $user = User::select('*',DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as name'));
         $user = $user->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
+        $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $totalData=$user->count();
         $totalFiltered = $totalData;  // when there is no search parameter then total number rows = total number filtered rows.
         if( !empty($requestData['search']['value']) ) {   // if there is a search parameter, $requestData['search']['value'] contains search parameter
@@ -770,7 +771,7 @@ class ContractController extends BaseController
 
             $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
-            $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
+            $user->user_status  = "1";  // Default status is active for client.
             $user->user_level  = "2";  // Default status is inactive once verified account it will activated.
             $user->created_by =Auth::User()->id;
             $user->save();

@@ -171,4 +171,13 @@ class User extends Authenticatable
         return count($g);
     }
 
+    /**
+     * Get the userDeactivated associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function deactivateUserDetail()
+    {
+        return $this->hasOne("App\DeactivatedUser", 'user_id');
+    }
 }

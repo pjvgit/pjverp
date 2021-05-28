@@ -107,7 +107,7 @@ $('#deleteInvoiceFormCommon').submit(function (e) {
     dataString = $("#deleteInvoiceFormCommon").serialize();
     $.ajax({
         type: "POST",
-        url: baseUrl + "/bills/invoices/deleteInvoiceForm2", // json datasource
+        url: baseUrl + "/bills/invoices/deleteInvoiceForm", // json datasource
          data: dataString,
         beforeSend: function (xhr, settings) {
             settings.data += '&delete=yes';

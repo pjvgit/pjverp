@@ -15,7 +15,7 @@ class DeactivatedUser extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'id'
+        'id', 'user_id', 'reason', 'other_reason', 'assign_to'
      ];
        
 }

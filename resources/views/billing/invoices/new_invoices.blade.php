@@ -229,7 +229,7 @@ if(!isset($adjustment_token)){
                             <table>
                                 <tr>
                                     <td width="100%">
-                                        <h3 class="entry-header">Falt Fees</h3>
+                                        <h3 class="entry-header">Flat Fees</h3>
                                     </td>
                                     <td width="1%">
                                     <?php if(!$FlatFeeEntry->isEmpty()){?>
