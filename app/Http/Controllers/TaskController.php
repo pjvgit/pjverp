@@ -28,7 +28,7 @@ class TaskController extends BaseController
         $CaseMaster = Task::latest()->get();
         $country = Countries::get();
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
       
         $getChildUsers=$this->getParentAndChildUserIds();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          

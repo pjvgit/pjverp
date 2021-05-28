@@ -16,8 +16,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link "
-                            href="https://mylegal1.mycase.com/custom_fields?group=court_case">Custom Fields</a>
+                        <a class="nav-link {{ request()->is('custom_fields*') ? 'active' : '' }}"
+                            href="{{ route('custom_fields') }}?group=court_case">Custom Fields</a>
                     </li>
 
                     <li class="nav-item">

@@ -1,4 +1,30 @@
 
+
+///27-05-2021///
+DROP TABLE IF EXISTS `case_event_linked_contact_lead`;
+CREATE TABLE IF NOT EXISTS `case_event_linked_contact_lead` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` int(11) DEFAULT NULL,
+  `user_type` enum('lead','contact') DEFAULT NULL,
+  `lead_id` int(11) DEFAULT NULL,
+  `contact_id` int(11) DEFAULT NULL,
+  `attending` enum('yes','no') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `invite` enum('yes','no') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+
+
+
+ALTER TABLE `case_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client_lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `case_practice_area` ADD `firm_id` INT(11) NULL AFTER `status`;
+
+///27-05-2021///
+
 ALTER TABLE `lead_additional_info` CHANGE `lead_status` `lead_status` INT(11) NULL COMMENT 'ref: lead_status->id';
 ALTER TABLE `case_notes` ADD `case_id` INT(11) NOT NULL AFTER `id`;
 
@@ -220,9 +246,6 @@ ALTER TABLE `event_type` ADD `firm_id` INT(11) NULL AFTER `status`;
 ALTER TABLE `event_type` ADD `status_order` INT(11) NULL AFTER `status`;
 
 ALTER TABLE `users` ADD `event_type_preferance` ENUM('event_type_color','user_type_color') NULL DEFAULT NULL AFTER `popup_after_first_case`;
-ALTER TABLE `case_event_linked_contact_lead` ADD `lead_id` INT(11) NULL AFTER `user_tpe`, ADD `contact_id` INT(11) NULL AFTER `lead_id`;
-
-ALTER TABLE `case_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client_lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 
 -- --------------------------------------------------------
 

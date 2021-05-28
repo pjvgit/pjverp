@@ -1,0 +1,3114 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://localhost/legalcase7_git/custom_fields -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <link rel="shortcut icon" type="image/x-icon" href="http://localhost/legalcase7_git/public/images/fav.png">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">
+    <title>Custom Fields</title>
+    <link href="./Custom Fields_files/css" rel="stylesheet">
+        
+    <link id="gull-theme" rel="stylesheet" href="./Custom Fields_files/lite-purple.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/perfect-scrollbar.css">
+    <link rel="stylesheet" href="./Custom Fields_files/all.css">
+    <link rel="stylesheet" href="./Custom Fields_files/metisMenu.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/toastr.css">
+    <link rel="stylesheet" href="./Custom Fields_files/ladda-themeless.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/datatables.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/smart_wizard.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/smart_wizard_theme_circles.min.css">
+    <link rel="stylesheet" media="screen" type="text/css" href="./Custom Fields_files/colorpicker.css">
+    <link rel="stylesheet" href="./Custom Fields_files/sweetalert2.min.css">
+    <link rel="stylesheet" href="./Custom Fields_files/custome.css">
+    <link rel="stylesheet" href="./Custom Fields_files/jquery-ui.css">
+    <link rel="stylesheet" href="./Custom Fields_files/jquery.timepicker.css">
+    <link href="./Custom Fields_files/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="./Custom Fields_files/fullcalendar.min.css">
+    
+    <link rel="stylesheet" href="./Custom Fields_files/hopscotch.css">
+    
+    <link rel="stylesheet" href="./Custom Fields_files/select2.min.css">
+    
+    <link rel="stylesheet" href="./Custom Fields_files/bootstrap-datepicker3.min.css">
+    
+    <link rel="stylesheet" href="./Custom Fields_files/daterangepicker.css">
+    <link rel="stylesheet" href="./Custom Fields_files/rcrop.min.css">
+    
+        <script>
+        var baseUrl = 'http://localhost/legalcase7_git';
+        var loaderImage = 'http://localhost/legalcase7_git/public/images/ajax_arrows.gif';
+    </script>
+<style type="text/css"></style><style type="text/css">.apexcharts-canvas {
+  position: relative;
+  user-select: none;
+  /* cannot give overflow: hidden as it will crop tooltips which overflow outside chart area */
+}
+
+/* scrollbar is not visible by default for legend, hence forcing the visibility */
+.apexcharts-canvas ::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 6px;
+}
+.apexcharts-canvas ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.5);
+  box-shadow: 0 0 1px rgba(255,255,255,.5);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+.apexcharts-canvas.dark {
+  background: #343F57;
+}
+
+.apexcharts-inner {
+  position: relative;
+}
+
+.legend-mouseover-inactive {
+  transition: 0.15s ease all;
+  opacity: 0.20;
+}
+
+.apexcharts-series-collapsed {
+  opacity: 0;
+}
+
+.apexcharts-gridline, .apexcharts-text {
+  pointer-events: none;
+}
+
+.apexcharts-tooltip {
+  border-radius: 5px;
+  box-shadow: 2px 2px 6px -4px #999;
+  cursor: default;
+  font-size: 14px;
+  left: 62px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 12;
+  transition: 0.15s ease all;
+}
+.apexcharts-tooltip.light {
+  border: 1px solid #e3e3e3;
+  background: rgba(255, 255, 255, 0.96);
+}
+.apexcharts-tooltip.dark {
+  color: #fff;
+  background: rgba(30,30,30, 0.8);
+}
+.apexcharts-tooltip * {
+  font-family: inherit;
+}
+
+.apexcharts-tooltip .apexcharts-marker,
+.apexcharts-area-series .apexcharts-area,
+.apexcharts-line {
+  pointer-events: none;
+}
+
+.apexcharts-tooltip.active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-tooltip-title {
+  padding: 6px;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.apexcharts-tooltip.light .apexcharts-tooltip-title {
+  background: #ECEFF1;
+  border-bottom: 1px solid #ddd;
+}
+.apexcharts-tooltip.dark .apexcharts-tooltip-title {
+  background: rgba(0, 0, 0, 0.7);
+  border-bottom: 1px solid #333;
+}
+
+.apexcharts-tooltip-text-value,
+.apexcharts-tooltip-text-z-value {
+  display: inline-block;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.apexcharts-tooltip-text-z-label:empty,
+.apexcharts-tooltip-text-z-value:empty {
+  display: none;
+}
+
+.apexcharts-tooltip-text-value, 
+.apexcharts-tooltip-text-z-value {
+  font-weight: 600;
+}
+
+.apexcharts-tooltip-marker {
+  width: 12px;
+  height: 12px;
+  position: relative;
+  top: 0px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.apexcharts-tooltip-series-group {
+  padding: 0 10px;
+  display: none;
+  text-align: left;
+  justify-content: left;
+  align-items: center;
+}
+
+.apexcharts-tooltip-series-group.active .apexcharts-tooltip-marker {
+  opacity: 1;
+}
+.apexcharts-tooltip-series-group.active, .apexcharts-tooltip-series-group:last-child {
+  padding-bottom: 4px;
+}
+.apexcharts-tooltip-y-group {
+  padding: 6px 0 5px;
+}
+.apexcharts-tooltip-candlestick {
+  padding: 4px 8px;
+}
+.apexcharts-tooltip-candlestick > div {
+  margin: 4px 0;
+}
+.apexcharts-tooltip-candlestick span.value {
+  font-weight: bold;
+}
+
+.apexcharts-xaxistooltip {
+  opacity: 0;
+  padding: 9px 10px;
+  pointer-events: none;
+  color: #373d3f;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+	background: #ECEFF1;
+  border: 1px solid #90A4AE;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-xaxistooltip.dark {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.apexcharts-xaxistooltip:after, .apexcharts-xaxistooltip:before {
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.apexcharts-xaxistooltip:after {
+	border-color: rgba(236, 239, 241, 0);
+	border-width: 6px;
+	margin-left: -6px;
+}
+.apexcharts-xaxistooltip:before {
+	border-color: rgba(144, 164, 174, 0);
+	border-width: 7px;
+	margin-left: -7px;
+}
+
+.apexcharts-xaxistooltip-bottom:after, .apexcharts-xaxistooltip-bottom:before {
+  bottom: 100%;
+}
+
+.apexcharts-xaxistooltip-top:after, .apexcharts-xaxistooltip-top:before {
+  top: 100%;
+}
+
+.apexcharts-xaxistooltip-bottom:after {
+  border-bottom-color: #ECEFF1;
+}
+.apexcharts-xaxistooltip-bottom:before {
+  border-bottom-color: #90A4AE;
+}
+
+.apexcharts-xaxistooltip-bottom.dark:after {
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+.apexcharts-xaxistooltip-bottom.dark:before {
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-xaxistooltip-top:after {
+  border-top-color:#ECEFF1
+}
+.apexcharts-xaxistooltip-top:before {
+  border-top-color: #90A4AE;
+}
+.apexcharts-xaxistooltip-top.dark:after {
+  border-top-color:rgba(0, 0, 0, 0.5);
+}
+.apexcharts-xaxistooltip-top.dark:before {
+  border-top-color: rgba(0, 0, 0, 0.5);
+}
+
+
+.apexcharts-xaxistooltip.active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-yaxistooltip {
+  opacity: 0;
+  padding: 4px 10px;
+  pointer-events: none;
+  color: #373d3f;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+	background: #ECEFF1;
+  border: 1px solid #90A4AE;
+}
+
+.apexcharts-yaxistooltip.dark {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.apexcharts-yaxistooltip:after, .apexcharts-yaxistooltip:before {
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.apexcharts-yaxistooltip:after {
+	border-color: rgba(236, 239, 241, 0);
+	border-width: 6px;
+	margin-top: -6px;
+}
+.apexcharts-yaxistooltip:before {
+	border-color: rgba(144, 164, 174, 0);
+	border-width: 7px;
+	margin-top: -7px;
+}
+
+.apexcharts-yaxistooltip-left:after, .apexcharts-yaxistooltip-left:before {
+  left: 100%;
+}
+
+.apexcharts-yaxistooltip-right:after, .apexcharts-yaxistooltip-right:before {
+  right: 100%;
+}
+
+.apexcharts-yaxistooltip-left:after {
+  border-left-color: #ECEFF1;
+}
+.apexcharts-yaxistooltip-left:before {
+  border-left-color: #90A4AE;
+}
+.apexcharts-yaxistooltip-left.dark:after {
+  border-left-color: rgba(0, 0, 0, 0.5);
+}
+.apexcharts-yaxistooltip-left.dark:before {
+  border-left-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip-right:after {
+  border-right-color: #ECEFF1;
+}
+.apexcharts-yaxistooltip-right:before {
+  border-right-color: #90A4AE;
+}
+.apexcharts-yaxistooltip-right.dark:after {
+  border-right-color: rgba(0, 0, 0, 0.5);
+}
+.apexcharts-yaxistooltip-right.dark:before {
+  border-right-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip.active {
+  opacity: 1;
+}
+
+.apexcharts-xcrosshairs, .apexcharts-ycrosshairs {
+  pointer-events: none;
+  opacity: 0;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-xcrosshairs.active, .apexcharts-ycrosshairs.active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-ycrosshairs-hidden {
+  opacity: 0;
+}
+
+.apexcharts-zoom-rect {
+  pointer-events: none;
+}
+.apexcharts-selection-rect {
+  cursor: move;
+}
+
+.svg_select_points, .svg_select_points_rot {
+  opacity: 0;
+  visibility: hidden;
+}
+.svg_select_points_l, .svg_select_points_r {
+  cursor: ew-resize;
+  opacity: 1;
+  visibility: visible;
+  fill: #888;
+}
+.apexcharts-canvas.zoomable .hovering-zoom {
+  cursor: crosshair
+}
+.apexcharts-canvas.zoomable .hovering-pan {
+  cursor: move
+}
+
+.apexcharts-xaxis,
+.apexcharts-yaxis {
+  pointer-events: none;
+}
+
+.apexcharts-zoom-icon, 
+.apexcharts-zoom-in-icon,
+.apexcharts-zoom-out-icon,
+.apexcharts-reset-zoom-icon, 
+.apexcharts-pan-icon, 
+.apexcharts-selection-icon,
+.apexcharts-menu-icon, 
+.apexcharts-toolbar-custom-icon {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  line-height: 24px;
+  color: #6E8192;
+  text-align: center;
+}
+
+
+.apexcharts-zoom-icon svg, 
+.apexcharts-zoom-in-icon svg,
+.apexcharts-zoom-out-icon svg,
+.apexcharts-reset-zoom-icon svg,
+.apexcharts-menu-icon svg {
+  fill: #6E8192;
+}
+.apexcharts-selection-icon svg {
+  fill: #444;
+  transform: scale(0.76)
+}
+
+.dark .apexcharts-zoom-icon svg, 
+.dark .apexcharts-zoom-in-icon svg,
+.dark .apexcharts-zoom-out-icon svg,
+.dark .apexcharts-reset-zoom-icon svg, 
+.dark .apexcharts-pan-icon svg, 
+.dark .apexcharts-selection-icon svg,
+.dark .apexcharts-menu-icon svg, 
+.dark .apexcharts-toolbar-custom-icon svg{
+  fill: #f3f4f5;
+}
+
+.apexcharts-canvas .apexcharts-zoom-icon.selected svg, 
+.apexcharts-canvas .apexcharts-selection-icon.selected svg, 
+.apexcharts-canvas .apexcharts-reset-zoom-icon.selected svg {
+  fill: #008FFB;
+}
+.light .apexcharts-selection-icon:not(.selected):hover svg,
+.light .apexcharts-zoom-icon:not(.selected):hover svg, 
+.light .apexcharts-zoom-in-icon:hover svg, 
+.light .apexcharts-zoom-out-icon:hover svg, 
+.light .apexcharts-reset-zoom-icon:hover svg, 
+.light .apexcharts-menu-icon:hover svg {
+  fill: #333;
+}
+
+.apexcharts-selection-icon, .apexcharts-menu-icon {
+  position: relative;
+}
+.apexcharts-reset-zoom-icon {
+  margin-left: 5px;
+}
+.apexcharts-zoom-icon, .apexcharts-reset-zoom-icon, .apexcharts-menu-icon {
+  transform: scale(0.85);
+}
+
+.apexcharts-zoom-in-icon, .apexcharts-zoom-out-icon {
+  transform: scale(0.7)
+}
+
+.apexcharts-zoom-out-icon {
+  margin-right: 3px;
+}
+
+.apexcharts-pan-icon {
+  transform: scale(0.62);
+  position: relative;
+  left: 1px;
+  top: 0px;
+}
+.apexcharts-pan-icon svg {
+  fill: #fff;
+  stroke: #6E8192;
+  stroke-width: 2;
+}
+.apexcharts-pan-icon.selected svg {
+  stroke: #008FFB;
+}
+.apexcharts-pan-icon:not(.selected):hover svg {
+  stroke: #333;
+}
+
+.apexcharts-toolbar {
+  position: absolute;
+  z-index: 11;
+  top: 0px;
+  right: 3px;
+  max-width: 176px;
+  text-align: right;
+  border-radius: 3px;
+  padding: 0px 6px 2px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+}
+
+.apexcharts-toolbar svg {
+  pointer-events: none;
+}
+
+.apexcharts-menu {
+  background: #fff;
+  position: absolute;
+  top: 100%;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 3px;
+  right: 10px;
+  opacity: 0;
+  min-width: 110px;
+  transition: 0.15s ease all;
+  pointer-events: none;
+}
+
+.apexcharts-menu.open {
+  opacity: 1;
+  pointer-events: all;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-menu-item {
+  padding: 6px 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.light .apexcharts-menu-item:hover {
+  background: #eee;
+}
+.dark .apexcharts-menu {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+@media screen and (min-width: 768px) {
+  .apexcharts-toolbar {
+    /*opacity: 0;*/
+  }
+
+  .apexcharts-canvas:hover .apexcharts-toolbar {
+    opacity: 1;
+  } 
+}
+
+.apexcharts-datalabel.hidden {
+  opacity: 0;
+}
+
+.apexcharts-pie-label,
+.apexcharts-datalabel, .apexcharts-datalabel-label, .apexcharts-datalabel-value {
+  cursor: default;
+  pointer-events: none;
+}
+
+.apexcharts-pie-label-delay {
+  opacity: 0;
+  animation-name: opaque;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease;
+}
+
+.apexcharts-canvas .hidden {
+  opacity: 0;
+}
+
+.apexcharts-hide .apexcharts-series-points {
+  opacity: 0;
+}
+
+.apexcharts-area-series .apexcharts-series-markers .apexcharts-marker.no-pointer-events,
+.apexcharts-line-series .apexcharts-series-markers .apexcharts-marker.no-pointer-events, .apexcharts-radar-series path, .apexcharts-radar-series polygon {
+  pointer-events: none;
+}
+
+/* markers */
+
+.apexcharts-marker {
+  transition: 0.15s ease all;
+}
+
+@keyframes opaque {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}</style></head>
+
+
+<body class="text-left">
+          
+    <!-- Pre Loader Strat  -->
+    <div class="loadscreen" id="preloader" style="display: none;">
+        <div class="loader"><img class="logo mb-3" src="./Custom Fields_files/logo.png" style="display: none" alt="">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+    </div>
+    <!-- Pre Loader end  -->
+    <!-- ============ Compact Layout start ============= -->
+        <div class="app-admin-wrap layout-horizontal-bar clearfix">
+        <div class="main-header">
+        <div class="logo">
+            <a href="http://localhost/legalcase7_git/dashboard">
+            <img src="./Custom Fields_files/logo(1).png" alt="">
+            </a>
+        </div>
+        <div class="d-flex align-items-center">
+           
+            <div class="search-bar">
+                <input type="text" placeholder="Search"><i class="search-icon text-muted i-Magnifi-Glass1"></i>
+            </div>
+        </div>
+
+        <div style="margin: auto"></div>
+
+        <div class="header-part-right">
+            <!-- User avatar dropdown -->
+            <div class="dropdown">
+                <div class="user col align-self-end">
+                  
+                    Parent&nbsp;User2                                        <img src="./Custom Fields_files/default_face.svg" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(134px, 36px, 0px);">
+                        <div class="dropdown-header">
+                                                        <i class="i-Lock-User mr-1"></i>
+                            Parent&nbsp;User2                        </div>
+                        <a class="dropdown-item" href="http://localhost/legalcase7_git/load_profile">Account Settings</a>
+                        <a class="dropdown-item">Billing history</a>
+                        <a data-toggle="modal" data-target="#logoutModel" data-placement="bottom" href="javascript:;" class="dropdown-item">Sign out </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="logoutModel" class="modal fade text-danger" role="dialog">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <form id="logout-form" name="logout-form" action="http://localhost/legalcase7_git/logout" method="POST">
+                <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title ">Logout Confirmation?</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body bg-font-purpul">
+
+                        <p>Do you really want to logout from the system?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <center>
+                            <a href="http://localhost/legalcase7_git/custom_fields#">
+                                <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">No</button>
+                            </a>
+                            <button type="submit" name="sss" class="btn btn-success ">Yes, Sure</button>
+                        </center>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- header top menu end -->
+        <!-- ============ end of header menu ============= -->
+        <div class="horizontal-bar-wrap">
+    <div class="header-topnav">
+        <div class="container-fluid">
+            <div class="topnav rtl-ps-none ps ps--active-y" id="" data-perfect-scrollbar="" data-suppress-scroll-x="true">
+                <ul class="menu float-left">
+                    <li class=" ">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Home
+                                </label>
+                                <a href="http://localhost/legalcase7_git/dashboard">
+                                    Home
+                                </a>
+                                <input type="checkbox" id="drop-2">
+                                <ul>
+                                    <li class="nav-item ">
+                                        <a class="" href="http://localhost/legalcase7_git/dashboard">
+                                            <span class="item-name">Dashboard</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/notifications" class="">
+                                            <span class="item-name">Recent Activity</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Calender
+                                </label>
+                                <a href="http://localhost/legalcase7_git/events">Calender</a><input type="checkbox" id="drop-2"><input type="checkbox" id="drop-2">
+                                <ul>
+
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/events?view=day" class="">
+                                            <span class="item-name">Day</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/events?view=week" class="">
+                                            <span class="item-name">Week</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/events?view=month" class="">
+                                            <span class="item-name">Month</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/custom_fields#" class="">
+                                            <span class="item-name">Agenda</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/locations" class="">
+                                            <span class="item-name">Location</span>
+                                        </a>
+                                    </li>
+
+
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end ui kits -->
+
+                    <li class="">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">Tasks</label>
+                                <a href="http://localhost/legalcase7_git/tasks">Tasks</a><input type="checkbox" id="drop-2">
+
+                            </div>
+                        </div>
+                    </li>
+                    <li class="">
+
+                        <div>
+
+
+                            <div>
+                                <label class="toggle" for="drop-2">Contacts</label>
+                                <a href="http://localhost/legalcase7_git/contacts/client?target=active">Contacts</a><input type="checkbox" id="drop-2">
+                                <ul>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/contacts/client?target=active" title="">
+                                            <span class="item-name">Clients</span>
+                                        </a>
+                                    </li>
+                                    <li><a class="" href="http://localhost/legalcase7_git/contacts/company?target=active"> Companies </a></li>
+                                    <li><a class="" href="http://localhost/legalcase7_git/contacts/contact_groups"> Contact Groups </a></li>
+
+
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">Cases</label>
+                                <a href="http://localhost/legalcase7_git/court_cases">Cases</a><input type="checkbox" id="drop-2">
+                                <ul>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/court_cases" title="">
+                                            <span class="item-name">My Open Cases</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/court_cases?i=c" title="">
+                                            <span class="item-name">My Close Cases</span>
+                                        </a>
+                                    </li>
+
+
+                                    <li><a class="" href="http://localhost/legalcase7_git/charts/apexAreaCharts"> Firm Open Cases </a></li>
+                                    <li><a class="" href="http://localhost/legalcase7_git/charts/apexBarCharts"> Firm Close Cases </a></li>
+                                    <li><a class="" href="http://localhost/legalcase7_git/practice_areas"> Practice Areas </a></li>
+                                    <li><a class="" href="http://localhost/legalcase7_git/charts/apexColumnCharts"> Case Insights </a></li>
+
+
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end extra uikits -->
+
+                    <li class="">
+
+                        <div>
+
+
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Documents
+                                </label>
+                                <a href="http://localhost/legalcase7_git/custom_fields#">
+                                    Documents
+                                </a><input type="checkbox" id="drop-2">
+                                <ul>
+
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/custom_fields#" class="">
+                                            <span class="item-name">Case Documents</span>
+                                        </a>
+                                    </li>
+
+
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/custom_fields#" class="">
+                                            <span class="item-name">Unread Case Documents</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end apps -->
+
+                    <li class=" ">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Billing
+                                </label>
+                                <a href="http://localhost/legalcase7_git/bills/dashboard">
+                                    Billing
+                                </a><input type="checkbox" id="drop-2">
+                                <ul>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/dashboard">
+                                            <span class="item-name">Dashboard</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/time_entries?i=o&amp;type=own">
+                                            <span class="item-name">Time Entries</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/expenses?i=o&amp;type=own">
+                                            <span class="item-name">Expenses</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/retainer_requests">
+                                            <span class="item-name">Requested Funds</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/invoices?type=all">
+                                            <span class="item-name">Invoices</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/payment_plans">
+                                            <span class="item-name">Payment Plans</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/activities">
+                                            <span class="item-name">Saved Activities</span>
+                                        </a>
+                                    </li>
+                                   
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/bills/account_activity">
+                                            <span class="item-name">Account Activity</span>
+                                        </a>
+                                    </li>  
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/insights/financials">
+                                            <span class="item-name">Financial Insights</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/time_entries/timesheet_calendar">
+                                            <span class="item-name">Timesheet Calendar</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end Forms -->
+
+
+                    <li class="">
+
+                        <div>
+
+
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Reports
+                                </label>
+                                <a href="http://localhost/legalcase7_git/custom_fields#">
+                                    Reports
+                                </a><input type="checkbox" id="drop-2">
+                                <ul>
+
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/charts/echarts" title="charts">
+                                            <i class="nav-icon mr-2 i-Bar-Chart-2"></i>
+                                            <span class="item-name">echarts</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/charts/chartjs">
+                                            <i class="nav-icon mr-2 i-File-Clipboard-Text--Image"></i>
+                                            <span class="item-name">ChartJs</span>
+                                        </a>
+                                    </li>
+
+
+
+                                </ul>
+
+
+                            </div>
+                        </div>
+                    </li>
+                    <li class="">
+
+                        <div>
+
+
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Communications
+                                </label>
+                                <a href="http://localhost/legalcase7_git/custom_fields#">
+                                    Communications
+                                </a><input type="checkbox" id="drop-2">
+                                <ul>
+
+                                    <li class="nav-item">
+                                        <a class="" href="http://localhost/legalcase7_git/forms/forms-basic">
+                                            <i class="nav-icon mr-2 i-File-Clipboard-Text--Image"></i>
+                                            <span class="item-name">Basic Elements</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="">
+                        <div>
+                            <div>
+                                <label class="toggle" for="drop-2">
+                                    Leads
+                                </label>
+                                <a href="http://localhost/legalcase7_git/leads/statuses">Leads</a>
+
+                                <ul class="text-nowrap">
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/leads/statuses" class="">
+                                            <span class="item-name">Manage Pipeline</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/leads/tasks" class="">
+                                            <span class="item-name">Tasks</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="http://localhost/legalcase7_git/leads/statuses" class="">
+                                            <span class="item-name">Lead Insight</span>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end charts -->
+
+
+
+                </ul>
+
+
+            <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; height: 48px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 5px;"></div></div><div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; height: 48px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 5px;"></div></div></div>
+        </div>
+    </div>
+
+</div>
+<!--=============== Horizontal bar End ================-->
+<style>
+    .nav-item
+    {width: auto !important;
+    }
+    </style>        <!-- ============ end of left sidebar ============= -->
+        <!-- ============ Body content start ============= -->
+        <div class="main-content-wrap  d-flex flex-column">
+            <div class="main-content">
+                <div class="breadcrumb">
+    <h3>Custom Fields</h3>
+
+</div>
+<div class="border-top mb-2"></div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="card mb-4">
+    <div class="card-body">
+        <nav class="test-general-settings-nav p-0 pt-0" role="navigation">
+            <ul class="nav nav-pills flex-column text-wrap">
+                <div class="mb-3">
+                    <h5 class="pl-3 py-2 border-bottom border-dark">General</h5>
+
+                    <li class="nav-item">
+                        <a class="nav-link  " href="http://localhost/legalcase7_git/account/dashboard">Dashboard</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="http://localhost/legalcase7_git/imports/contacts">Import/Export</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="http://localhost/legalcase7_git/custom_fields">Custom Fields</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="http://localhost/legalcase7_git/form_templates">Intake Forms</a>
+                     
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="https://mylegal1.mycase.com/workflows">Workflows</a>
+                    </li>
+
+                    <li class="nav-item  ">
+                        <a class="nav-link " href="http://localhost/legalcase7_git/case_stages">Case Stages</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="http://localhost/legalcase7_git/lead_setting">Leads</a>
+                    </li>
+
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="pl-3 py-2 border-bottom border-dark">Personal</h5>
+
+                    <li class="nav-item">
+                        <a class="nav-link  " href="http://localhost/legalcase7_git/load_profile">My Profile</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link  " href="http://localhost/legalcase7_git/account/preferences">My
+                            Settings</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="http://localhost/legalcase7_git/custom_fields#account/notifications">My
+                            Notifications</a>
+                    </li>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="pl-3 py-2 border-bottom border-dark">Firm</h5>
+                    <li class="nav-item">
+                        <a class="nav-link  " href="http://localhost/legalcase7_git/contacts/attorneys">Users</a>
+                    </li>
+                                        <li class="nav-item">
+                        <a class="nav-link  " href="http://localhost/legalcase7_git/firms/setting">Firm Settings</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link " href="https://mylegal1.mycase.com/firms/mylegal1/billing_settings">Client Billing
+                            &amp; Invoice Settings</a>
+                    </li>
+                                </div>
+            </ul>
+        </nav>
+    </div>
+</div>    </div>
+    <div class="col-md-10">
+        <div class="card mb-4 o-hidden">
+           
+            <div class="card-body" id="infopage">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="nav nav-tabs w-100" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link  " id="profile-basic-tab" href="http://localhost/legalcase7_git/imports/contacts" aria-controls="tba2" aria-selected="true">Cases / Matters</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link  " id="profile-basic-tab2" href="http://localhost/legalcase7_git/imports/court_cases" aria-controls="tba2" aria-selected="true">Contacts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="http://localhost/legalcase7_git/custom_fields#tab3" role="tab" aria-controls="tba2" aria-selected="true">Companies</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="http://localhost/legalcase7_git/custom_fields#tab3" role="tab" aria-controls="tba2" aria-selected="true">Time &amp; Expense</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content w-100" id="myTabContent">
+                        <div class="tab-pane fade   " id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab">
+                            <div class="m-2">
+                                <div class="d-flex align-items-center flex-row-reverse mb-2">
+                                    <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#importContacts" data-placement="bottom" href="javascript:;">Import
+                                        Contacts</a>
+
+                                    <a data-toggle="modal" data-target="#exportContacts" data-placement="bottom" href="javascript:;">
+                                        <button class="btn btn-outline-secondary m-1" type="button">Export
+                                            Contacts</button>
+                                    </a>
+
+                                </div>
+
+                                <div class="mb-2">
+                                    Import contacts from other legal practice management software using our Contact
+                                    Import Spreadsheet
+                                    (<a href="javascript:void(0);" onclick="downloadFile(&#39;contact&#39;)">download template</a>)
+                                    or our Company Import Spreadsheet
+                                    (<a href="javascript:void(0);" onclick="downloadFile(&#39;company&#39;)">download template</a>).
+                                    Or, easily import your contacts from
+                                    <a href="javascript:void(0);" target="_blank">Outlook</a> or
+                                    <a href="javascript:void(0);" target="_blank">Google/Gmail</a>.
+                                    Learn more about
+                                    <a href="javascript:void(0);" target="_blank">importing contacts</a>.
+                                </div>
+
+                                <div id="import_page_list">
+
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="display table table-striped table-bordered" id="importExportHistorty" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>File</th>
+                                            <th>Uploaded</th>
+                                            <th>Status</th>
+                                            <th><span class="sr-only">Actions</span></th>
+                                          </tr>
+                                    </thead>
+                                </table>
+                                
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade   " id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
+                            <div class="m-2">
+                                <div class="d-flex align-items-center flex-row-reverse mb-2">
+                                    <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#importContacts" data-placement="bottom" href="javascript:;">Import
+                                        Cases</a>
+
+                                    <a data-toggle="modal" data-target="#exportCourtCase" data-placement="bottom" href="javascript:;">
+                                        <button class="btn btn-outline-secondary m-1" type="button">Export
+                                            Cases</button>
+                                    </a>
+                                </div>
+
+                                <div class="mb-2">
+                                    Import cases from other legal practice management software using our Case Import Spreadsheet
+                                    (<a href="javascript:void(0);" onclick="downloadFile(&#39;cases&#39;)">download template</a>).
+                                    Learn more about
+                                    <a href="http://localhost/legalcase7_git/custom_fields#" target="_blank">importing contacts</a>.
+                                </div>
+                                <div id="import_page_list">
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="display table table-striped table-bordered" id="CaseImportExportHistorty" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>File</th>
+                                            <th>Uploaded</th>
+                                            <th>Status</th>
+                                            <th><span class="sr-only">Actions</span></th>
+                                          </tr>
+                                    </thead>
+                                </table>
+                                
+                            </div>
+                        </div>
+                    </div>  
+                    </div> 
+                </div>
+               
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+                <div id="payInvoice" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Record Payment</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="showError"></span>
+                        <div id="payInvoiceArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="depositIntoTrustAccount" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depositIntoTrustTitle">Deposit Trust Funds for <span id="dynTitle"></span>
+                </h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="showError"></span>
+                        <div id="depositIntoTrustAccountArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="depositIntoNonTrustAccount" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depositIntoTrustTitle">Deposit Non-Trust Funds for <span id="dynTitleForNonTrust"></span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="showError"></span>
+                        <div id="depositIntoNonTrustAccountArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-xl ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Request Funds</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="addRequestFundArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loadTimeEntryPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Time Entry</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="addTimeEntry">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loadTimeEntryPopupTask" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Time Entry</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="addTimeEntryTask">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loadExpenseEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Expense</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="loadExpenseEntryPopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loadAddEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Event</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="AddEventPage">
+
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="loadAddTaskPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Task</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="addTaskArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="addLead" class="modal fade bd-example-modal-lg" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Lead</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="addLeadArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="typeSelectDashboard" class="modal fade bd-example-modal-lg show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="ModelData">
+                    <h5 class="text-center my-4"> What type of contact would you like to add?                    </h5>
+                    <div class="row">
+                       
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <a data-toggle="modal" data-target="#addContact" data-placement="bottom" onclick="addContact();" href="javascript:;">
+
+                                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                                    <div class="card-body text-center"> 
+                                        <img src="./Custom Fields_files/contact.svg" width="60" height="60">
+                   
+                                        <div class="content">
+                                            <p class="text-muted mt-2 mb-0">New Contact</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <a data-toggle="modal" data-target="#addCompany" data-placement="bottom" onclick="addCompany();" href="javascript:;">
+
+                                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                                    <div class="card-body text-center"><img src="./Custom Fields_files/company.svg" width="60" height="60">
+                                        <div class="content">
+                                            <p class="text-muted mt-2 mb-0">Add Company</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addContact" class="modal fade bd-example-modal-lg show" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="AddContact">
+                        <div class="loader-bubble loader-bubble-primary" style="display: block;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addCompany" class="modal fade bd-example-modal-lg show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Company</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="AddCompany">
+                        <div class="loader-bubble loader-bubble-primary" style="display: block;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="addNewMessagePopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">New Message</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="addNewMessagePopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addNoteModal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Note</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="addNoteModalArea">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="depositIntoTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Deposit Into Trust</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="depositIntoTrustArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="loadEditTimeEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Time Entry</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="loadEditTimeEntryPopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="deleteTimeEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteTimeEntryForm" id="deleteTimeEntryForm" name="deleteTimeEntryForm" method="POST">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <input type="hidden" value="" name="entry_id" id="delete_entry_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Time Entry</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this time entry?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="loadEditExpenseEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Expense</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="loadEditExpenseEntryPopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteExpenseEntryCommon" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteExpenseEntryFormUnique" id="deleteExpenseEntryFormUnique" name="deleteExpenseEntryFormUnique" method="POST">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <input type="hidden" value="" name="entry_id" id="delete_expense_entry_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Confirm Delete</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this Expense?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="deleteInvoiceCommon" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteInvoiceFormCommon" id="deleteInvoiceFormCommon" name="deleteInvoiceFormCommon" method="POST">
+            <input type="hidden" id="delete_invoice_id" name="invoice_id">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Confirm Delete</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this Invoice?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="sendInvoiceReminder" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Send Reminder</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <span class="showError"></span>
+                <div id="sendInvoiceReminderArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addNoteModal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Note</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="addNoteModalArea">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editNoteModal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Note</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="editNoteModalArea">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="discardNotes" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="discardNotesForm" id="discardNotesForm" name="discardNotesForm" method="POST">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <input type="hidden" value="" name="note_id" id="discard_note_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Discard Note</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to discard this note?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Discard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="discardDeleteNotes" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="discardDeleteNotesForm" id="discardDeleteNotesForm" name="discardDeleteNotesForm" method="POST">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <input type="hidden" value="" name="note_id" id="discard_delete_note_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Discard Note</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to discard the draft? All your changes to the note will be discarded. If the note has never been published, it will be deleted.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Discard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="deleteNote" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteNoteForm" id="deleteNoteForm" name="deleteNoteForm" method="POST">
+            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">            <input type="hidden" value="" name="note_id" id="delete_note_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Note</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this note?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="depositAmountPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Deposit Trust Fund</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="depositAmountPopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loadReminderPopupIndexCommon" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Set Task Reminders</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reminderDataIndex">
+
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="editTask" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Task</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="editTaskArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="deleteTask" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Confirmation</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="eventID">
+                        <form class="deleteTaskForm" id="deleteTaskForm" name="deleteTaskForm" method="POST">
+                            <div id="showError2" style="display:none"></div>
+                            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">                            <input class="form-control" id="task_id" value="" name="task_id" type="hidden">
+                            <div class=" col-md-12">
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label">
+                                        Are you sure you want to delete this task?
+                                    </label>
+                                </div>
+                                <div class="form-group row float-right">
+                                    <a href="http://localhost/legalcase7_git/custom_fields#">
+                                        <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
+                                    </a>
+                                    <button class="btn btn-primary ladda-button example-button m-1" id="submit" type="submit">
+                                        <span class="ladda-label">Yes, Delete</span>
+                                    </button>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
+                                    <div class="col-md-2 form-group mb-3">
+                                        <div class="loader-bubble loader-bubble-primary" id="innerLoader1" style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="changeDueDate" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Change Due Date</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="eventID">
+                        <form class="dueDateChange" id="dueDateChange" name="dueDateChange" method="POST">
+                            <div id="showError2" style="display:none"></div>
+                            <input type="hidden" name="_token" value="pe1YSAavJGjBjv62vXWjNLYGc4Ivknk8CfIgW4o3">                            <div class="col-md-12 form-group mb-3">
+                                <label for="firstName1">Change due date to:</label>
+                                <input type="text" class="form-control" name="duedate" id="duedate">
+
+                            </div>
+                            <div class=" col-md-12">
+                                <div class="form-group row float-right">
+                                    <a href="http://localhost/legalcase7_git/custom_fields#">
+                                        <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
+                                    </a>
+                                    <button class="btn btn-primary ladda-button example-button m-1" id="submit" type="submit">
+                                        <span class="ladda-label">Update</span>
+                                    </button>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
+                                    <div class="col-md-2 form-group mb-3">
+                                        <div class="loader-bubble loader-bubble-primary" id="innerLoader1" style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addCaseLinkWithOption" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalCenterTitle">Add Case Link</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+            <h5 class="text-center my-4">Would you like to add a new or existing court case?</h5>
+
+            <section class="ul-widget-stat-s1">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <a data-toggle="modal" data-target="#AddCaseModelUpdate" onclick="loadAllStep();" data-placement="bottom" href="javascript:;">
+                            <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                            <div class="card-body text-center">
+                                <img src="./Custom Fields_files/court_case_add.svg" width="60" height="60">
+                                <div class="content">
+                                    <p class="text-muted mt-2 mb-0">New Case</p>
+                                    <p class="text-primary text-24 line-height-1 mb-2"></p>
+                                </div>
+                            </div>
+                        </div></a>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <a data-toggle="modal" data-target="#addExistingCase" data-placement="bottom" href="javascript:;" onclick="addExistingCase();"> 
+                        <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                            <div class="card-body text-center">
+                                <img src="./Custom Fields_files/exisiting_case.svg" width="60" height="60">
+                                <div class="content">
+                                    <p class="text-muted mt-2 mb-0">Existing Case</p>
+                                    <p class="text-primary text-24 line-height-1 mb-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                </div>
+            </section> 
+            </div>
+        </div>
+    </div>
+</div>
+<div id="AddContactModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="step-1-again">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addExistingCase" class="modal fade bd-example-modal-lg " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Existing Case</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="addExistingCaseArea">
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="typeSelect" class="modal fade bd-example-modal-lg show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="ModelData">
+                        <div class="loader-bubble loader-bubble-primary" style="display: block;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function payinvoice(id) {
+        $('.showError').html('');
+        beforeLoader();
+        $("#preloader").show();
+        $("#payInvoiceArea").html('');
+        $("#payInvoiceArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/payInvoicePopup",
+            data: {
+                'id': id
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#payInvoiceArea").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#payInvoiceArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $("#preloader").hide();
+                $("#payInvoiceArea").html('');
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        })
+    }
+
+    function depositIntoTrustPopup(id) {
+        $('.showError').html('');
+        beforeLoader();
+        $("#preloader").show();
+        $("#depositIntoTrustAccountArea").html('');
+        $("#depositIntoTrustAccountArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/dashboard/depositIntoTrustPopup",
+            data: {
+                'id': id
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#depositIntoTrustAccountArea").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#depositIntoTrustAccountArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $("#preloader").hide();
+                $("#depositIntoTrustAccountArea").html('');
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        })
+    }
+
+    function depositIntoNonTrustAccount(id) {
+        $('.showError').html('');
+        $("#preloader").show();
+        $("#depositIntoNonTrustAccountArea").html('');
+        $("#depositIntoNonTrustAccountArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/dashboard/depositIntoNonTrustPopup",
+            data: {
+                'id': id
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    $("#preloader").hide();
+                    $("#depositIntoNonTrustAccountArea").html('');
+                    return false;
+                } else {
+                    $("#depositIntoNonTrustAccountArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $("#preloader").hide();
+                $("#depositIntoNonTrustAccountArea").html('');
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+            }
+        })
+    }
+
+    function addRequestFundPopup() {
+        $("#preloader").show();
+        $("#addRequestFundArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/companies/addRequestFundPopup",
+                data: {
+                    "user_id": ""
+                },
+                success: function (res) {
+                    $("#addRequestFundArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
+    function loadTimeEntryPopup() {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
+                data: {},
+                success: function (res) {
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadTimeEntryPopupByCase(case_id) {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadTimeEntryPopupByCaseWithoutRefresh(case_id) {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopupDontRefresh", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#loadCommentPopup").modal("hide");
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
+    function loadTimeEntryPopupByCaseWithoutRefreshTask(case_id) {
+        $("#preloader").show();
+        $("#addTimeEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadTimeEntryPopupDontRefresh", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#loadCommentPopup").modal("hide");
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadExpenseEntryPopup(case_id=null) {
+        $("#preloader").show();
+        $("#loadExpenseEntryPopupArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/expenses/loadExpenseEntryPopup", // json datasource
+                data: {"case_id":case_id},
+                success: function (res) {
+                    $("#loadExpenseEntryPopupArea").html('');
+                    $("#loadExpenseEntryPopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
+    function loadAddEventPopup() {
+        $("#AddEventPage").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif"> Loading...');
+        $("#preloader").show();
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/loadAddEventPageFromCalendar", // json datasource
+                data: {},
+                success: function (res) {
+                    $("#AddEventPage").html('Loading...');
+                    $("#AddEventPage").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadAddTaskPopup(case_id=null) {
+        $("#addTaskArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/tasks/loadAddTaskPopup", // json datasource
+                data: {
+                    "user_id": '',
+                    "case_id":case_id
+                },
+                success: function (res) {
+                    $("#addTaskArea").html(res);
+                }
+            })
+        })
+    }
+
+    function addLead() {
+        $("#preloader").show();
+        $("#addLeadArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/leads/addLead", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                    $.fn.modal.Constructor.prototype._enforceFocus = function () {};
+
+                    $("#addLeadArea").html(res);
+
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    
+    function addContact() {  
+        $("#preloader").show();
+        $("#AddContact").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/loadAddContact", // json datasource
+                data: {},
+                success: function (res) {
+                    $("#AddContact").html('');
+                    $("#AddContact").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function addCompany() {  
+        $("#preloader").show();
+        $("#AddCompany").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/loadAddCompany", // json datasource
+                data: {},
+                success: function (res) {
+                    $("#AddCompany").html('');
+                    $("#AddCompany").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    } 
+
+    function addNewMessagePopup() {
+        $("#preloader").show();
+        $("#addNewMessagePopupArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/addNewMessagePopup", 
+                data: {"user_id": ""},
+                success: function (res) {
+                    $("#addNewMessagePopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadAddNotBox() {
+        $("#preloader").show();
+        $("#addNoteModalArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/addNotesFromDashboard", 
+                data: {"user_id": ""},
+                success: function (res) {
+                    $("#addNoteModalArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function loadInvoiceActivity() {
+        $('.showError').html('');
+        
+        $("#invoiceEntry").html('');
+        $("#invoiceEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/dashboard/loadInvoiceHistory",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                  
+                    $("#invoiceEntry").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#invoiceEntry").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+              
+            }
+        })
+    }
+    function loadAllActivity() {
+        $('.showError').html('');
+        $("#allEntry").html('');
+        $("#allEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/dashboard/loadAllHistoryForDashboard",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    $("#allEntry").html('');
+                    return false;
+                } else {
+                    $("#allEntry").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+            }
+        })
+    }
+    function loadEventActivity() {
+        $('.showError').html('');
+        
+        $("#eventEntry").html('');
+        $("#eventEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/dashboard/loadEventHistoryForDashboard",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                  
+                    $("#eventEntry").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#eventEntry").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+              
+            }
+        })
+    }
+    function loadTaskActivity() {
+        $('.showError').html('');
+        
+        $("#taskActivity").html('');
+        $("#taskActivity").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/dashboard/loadTaskHistoryForDashboard",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                  
+                    $("#taskActivity").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#taskActivity").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+              
+            }
+        })
+    }
+    function loadDocumentActivity() {
+        $('.showError').html('');
+        
+        $("#documentsEntry").html('');
+        $("#documentsEntry").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/dashboard/loadDocumentHistoryForDashboard",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                  
+                    $("#documentsEntry").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#documentsEntry").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+              
+            }
+        })
+    }
+    function depositIntoTrust() {
+        $('.showError').html('');
+        
+        // $("#preloader").show();
+        $("#depositIntoTrustArea").html('');
+        $("#depositIntoTrustArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/dashboard/depositIntoTrust",
+            data: {
+                "id": null
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                  
+                    $("#preloader").hide();
+                    $("#depositIntoTrustArea").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#depositIntoTrustArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+              
+            }
+        })
+    }
+    function loadEditTimeEntryPopup(id=null) {
+        // $("#preloader").show();
+        $("#loadEditTimeEntryPopupArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/loadEditTimeEntryPopup", // json datasource
+                data: {'entry_id':id},
+                success: function (res) {
+                    $("#loadEditTimeEntryPopupArea").html('');
+                    $("#loadEditTimeEntryPopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function deleteTimeEntry(id=null) {
+       $("#deleteTimeEntry").modal("show");
+       $("#delete_entry_id").val(id);
+    }
+    function loadEditExpenseEntryPopup(id) {
+        // $("#preloader").show();
+        $("#loadEditExpenseEntryPopupArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/expenses/loadEditExpenseEntryPopup", // json datasource
+                data: {'entry_id': id},
+                success: function (res) {
+                    $("#loadEditExpenseEntryPopupArea").html('');
+                    $("#loadEditExpenseEntryPopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function deleteExpenseEntryCommon(id) {
+        $("#deleteExpenseEntryCommon").modal("show");
+        $("#delete_expense_entry_id").val(id);
+    }
+    function deleteInvoiceCommon(id) {
+        $("#deleteInvoiceCommon").modal("show");
+        $("#delete_invoice_id").val(id);
+    }
+    function sendInvoiceReminder(id,invoice_id) {
+        beforeLoader();
+        // $("#preloader").show();
+        $("#sendInvoiceReminderArea").html('');
+        $("#sendInvoiceReminderArea").html('<img src="http://localhost/legalcase7_git/public/images/ajax_arrows.gif""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/sendInvoiceReminder", 
+            data: {"id": id,"invoice_id":invoice_id},
+            success: function (res) {
+                if(typeof(res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#sendInvoiceReminderArea").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#sendInvoiceReminderArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },error: function (xhr, status, error) {
+                $("#preloader").hide();
+                $("#sendInvoiceReminderArea").html('');
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        })
+    }
+    function discardNotes(id) {
+       
+       $("#discardNotes").modal("show");
+       $("#discard_note_id").val(id);
+   }
+    function discardDeleteNotes(id) {
+       $("#discardDeleteNotes").modal("show");
+       $("#discard_delete_note_id").val(id);
+   }
+    function deleteNote(id) {
+        $("#deleteNote").modal("show");
+        $("#delete_note_id").val(id);
+    }
+    function deleteTaskFunction(id) {
+        $("#task_id").val(id);
+    }
+    function AddContactModal() {
+        $("#innerLoader").css('display', 'none');
+        $("#preloader").show();
+        $("#step-1-again").html('');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                    $("#step-1-again").html(res);
+                    $("#preloader").hide();
+                    $("#innerLoader").css('display', 'none');
+                    return false;
+                }
+            })
+        })
+    }
+    
+    function typeSelection() {  
+        $("#preloader").show();
+      
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/loadTypeSelection", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                     $("#ModelData").html('');
+                    $("#ModelData").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+</script>
+            </div>
+            <!-- Footer Start -->
+<div class="flex-grow-1"></div>
+<div class="app-footer">
+    <div class="row">
+       
+    <div class="footer-bottom  d-flex flex-column flex-sm-row align-items-center">
+        <span class="flex-grow-1"></span>
+        <div class="d-flex align-items-center">
+            <img class="logo" src="./Custom Fields_files/logo(1).png" alt="">
+            <div>
+                <p class="m-0">© 2021 Legalcase</p>
+                <p class="m-0">All rights reserved</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- fotter end -->        </div>
+        <!-- ============ Body content End ============= -->
+    </div>
+    <!--=============== End app-admin-wrap ================-->
+    <!-- ============ Search UI Start ============= -->
+    <!-- ============ Search UI Start ============= -->
+  <div class="search-ui">
+        <div class="search-header">
+            <img src="./Custom Fields_files/logo(1).png" alt="" class="logo">
+            <button class="search-close btn btn-icon bg-transparent float-right mt-2">
+                <i class="i-Close-Window text-22 text-muted"></i>
+            </button>
+        </div>
+
+        <input type="text" placeholder="Type here" class="search-input" autofocus="">
+
+        <div class="search-title">
+            <span class="text-muted">Search results</span>
+        </div>
+
+        <div class="search-results list-horizontal">
+            <div class="list-item col-md-12 p-0">
+                <div class="card o-hidden flex-row mb-4 d-flex">
+                    <div class="list-thumb d-flex">
+                        <!-- TUMBNAIL -->
+                        <img src="./Custom Fields_files/headphone-1.jpg" alt="">
+                    </div>
+                    <div class="flex-grow-1 pl-2 d-flex">
+                        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
+                            <!-- OTHER DATA -->
+                            <a href="http://localhost/legalcase7_git/custom_fields" class="w-40 w-sm-100">
+                                <div class="item-title">Headphone 1</div>
+                            </a>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">Gadget</p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">
+                                $300
+                                <del class="text-secondary">$400</del>
+                            </p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100 d-none d-lg-block item-badges">
+                                <span class="badge badge-danger">Sale</span>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="list-item col-md-12 p-0">
+                <div class="card o-hidden flex-row mb-4 d-flex">
+                    <div class="list-thumb d-flex">
+                        <!-- TUMBNAIL -->
+                        <img src="./Custom Fields_files/headphone-2.jpg" alt="">
+                    </div>
+                    <div class="flex-grow-1 pl-2 d-flex">
+                        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
+                            <!-- OTHER DATA -->
+                            <a href="http://localhost/legalcase7_git/custom_fields" class="w-40 w-sm-100">
+                                <div class="item-title">Headphone 1</div>
+                            </a>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">Gadget</p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">
+                                $300
+                                <del class="text-secondary">$400</del>
+                            </p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100 d-none d-lg-block item-badges">
+                                <span class="badge badge-primary">New</span>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="list-item col-md-12 p-0">
+                <div class="card o-hidden flex-row mb-4 d-flex">
+                    <div class="list-thumb d-flex">
+                        <!-- TUMBNAIL -->
+                        <img src="./Custom Fields_files/headphone-3.jpg" alt="">
+                    </div>
+                    <div class="flex-grow-1 pl-2 d-flex">
+                        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
+                            <!-- OTHER DATA -->
+                            <a href="http://localhost/legalcase7_git/custom_fields" class="w-40 w-sm-100">
+                                <div class="item-title">Headphone 1</div>
+                            </a>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">Gadget</p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">
+                                $300
+                                <del class="text-secondary">$400</del>
+                            </p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100 d-none d-lg-block item-badges">
+                                <span class="badge badge-primary">New</span>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="list-item col-md-12 p-0">
+                <div class="card o-hidden flex-row mb-4 d-flex">
+                    <div class="list-thumb d-flex">
+                        <!-- TUMBNAIL -->
+                        <img src="./Custom Fields_files/headphone-4.jpg" alt="">
+                    </div>
+                    <div class="flex-grow-1 pl-2 d-flex">
+                        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
+                            <!-- OTHER DATA -->
+                            <a href="http://localhost/legalcase7_git/custom_fields" class="w-40 w-sm-100">
+                                <div class="item-title">Headphone 1</div>
+                            </a>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">Gadget</p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100">
+                                $300
+                                <del class="text-secondary">$400</del>
+                            </p>
+                            <p class="m-0 text-muted text-small w-15 w-sm-100 d-none d-lg-block item-badges">
+                                <span class="badge badge-primary">New</span>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- PAGINATION CONTROL -->
+        <div class="col-md-12 mt-5 text-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination d-inline-flex">
+                    <li class="page-item">
+                        <a class="page-link" href="http://localhost/legalcase7_git/custom_fields#" aria-label="Previous">
+                            <span aria-hidden="true">«</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="http://localhost/legalcase7_git/custom_fields#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="http://localhost/legalcase7_git/custom_fields#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="http://localhost/legalcase7_git/custom_fields#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="http://localhost/legalcase7_git/custom_fields#" aria-label="Next">
+                            <span aria-hidden="true">»</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <!-- ============ Search UI End ============= -->
+    <!-- ============ Search UI End ============= -->
+    
+    <!-- ============ Horizontal Layout End ============= -->
+    <!-- ============ Vetical SIdebar Layout start ============= -->
+        
+    
+    <script src="./Custom Fields_files/common-bundle-script.js.download"></script>
+    
+    
+
+
+    <script type="text/javascript">
+        "use strict";
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+    </script>                                        
+    
+        <script type="text/javascript">
+    $(document).ready(function () {
+        $(".country").select2({
+            placeholder: "Select country",
+            theme: "classic",
+            allowClear: true
+        });
+        $('.cropper').rcrop({
+            minSize : [200,200],
+            preserveAspectRatio : true,
+            grid : false,
+        });
+        $('.cropper').on('rcrop-ready', function(){
+            var srcResized = $(this).rcrop('getDataURL', 130,130);
+            $('#imageCode').val(srcResized);
+        });
+        $('.cropper').on('rcrop-changed', function(){
+            var srcResized = $(this).rcrop('getDataURL', 130,130);
+            $('#imageCode').val(srcResized);
+        });
+        $('#inputGroupFile02').on('change', function(e) {
+            //get the file name
+            var fileName = e.target.files[0].name;
+            //replace the "Choose a file" label
+            $(this).next('.custom-file-label').html(fileName);
+        });
+
+        $('#removeImageForm').submit(function (e) {
+            $(".innerLoader").css('display', 'block');
+            e.preventDefault();
+            if (!$('#removeImageForm').valid()) {
+                $(".innerLoader").css('display', 'none');
+                return false;
+            }
+            var dataString = $("#removeImageForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/removeProfileImage", // json datasource
+                data: dataString ,
+                success: function (res) {
+                    $(".innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('.showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('.showError').append(errotHtml);
+                        $('.showError').show();
+                        $(".innerLoader").css('display', 'none');
+                        return false;
+                    } else {
+                        window.location.href=baseUrl+'/load_profile';
+                    }
+                }
+            });
+        });
+                        
+
+    });
+    
+            
+    function removeImage(){
+        $("#removeImageModal").modal("show");
+    }
+</script>
+    <script src="./Custom Fields_files/script.js.download"></script>
+    <script src="./Custom Fields_files/sidebar-horizontal.script.js.download"></script>
+    <script src="./Custom Fields_files/customizer.script.js.download"></script>
+    <script src="./Custom Fields_files/toastr.min.js.download"></script>
+    <script src="./Custom Fields_files/spin.min.js.download"></script>
+    <script src="./Custom Fields_files/ladda.min.js.download"></script>
+    <script src="./Custom Fields_files/datatables.min.js.download"></script>
+    <script src="./Custom Fields_files/datatables.script.min.js.download"></script>
+    <script src="./Custom Fields_files/jquery.smartWizard.min.js.download"></script>
+    <script src="./Custom Fields_files/jquery.validate.min.js.download"></script>
+    <script type="text/javascript" src="./Custom Fields_files/colorpicker.js.download"></script>
+    <script src="./Custom Fields_files/sweetalert2.min.js.download"></script>
+    <script type="text/javascript" src="./Custom Fields_files/jquery.timepicker.js.download"></script>
+    <script src="./Custom Fields_files/jquery-ui.js.download"></script>
+    
+    <script src="./Custom Fields_files/custome.js.download"></script>
+    <script src="./Custom Fields_files/quill.min.js.download" type="text/javascript"></script>
+    
+    <script src="./Custom Fields_files/moment.min.js.download"></script>
+    
+    <script src="./Custom Fields_files/daterangepicker.min.js.download"></script>
+    
+    <script src="./Custom Fields_files/jquery.mask.min.js.download"></script>
+    
+    <script src="./Custom Fields_files/additional-methods.js.download"></script>
+    <script src="./Custom Fields_files/bootstrap.bundle.min.js.download"></script>
+    <script src="./Custom Fields_files/fullcalendar.min.js.download"></script>
+    
+    
+    
+    <script src="./Custom Fields_files/hopscotch.min.js.download"></script>
+    <script src="./Custom Fields_files/main.min.js.download"></script>
+    <script src="./Custom Fields_files/Sortable.js.download"></script>
+    <script src="./Custom Fields_files/select2.min.js.download"></script>
+    <script src="./Custom Fields_files/bootstrap-datepicker.js.download" type="text/javascript"></script>
+    <script src="./Custom Fields_files/datepair.js.download" type="text/javascript"></script>
+    <script src="./Custom Fields_files/timer.jquery.min.js.download" type="text/javascript"></script> 
+    <script src="./Custom Fields_files/jquery.number.js.download" type="text/javascript"></script> 
+    <script src="./Custom Fields_files/script.min.js.download" type="text/javascript"></script> 
+    <script src="./Custom Fields_files/jquery.number.js.download" type="text/javascript"></script>
+    <script src="./Custom Fields_files/apexcharts.min.js.download"></script>
+    <script src="./Custom Fields_files/action.js.download"></script>
+    <script src="./Custom Fields_files/rcrop.min.js.download"></script>
+    
+                        <script>
+          $(document).ready(function () {
+             $("[data-toggle=popover]").popover();
+          });
+        $("#userDropdown").trigger("click");
+        $(".settingButtons").trigger("click");
+  
+          // Initialize Date Pickers
+        $('.datepicker').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        });
+        $(document).on('keypress , paste', '.number', function (e) {
+            if (/^-?\d*[,.]?(\d{0,3},)*(\d{3},)?\d{0,3}$/.test(e.key)) {
+                $('.number').on('input', function () {
+                    e.target.value = numberSeparator(e.target.value);
+                });
+            } else {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Show idle timeout warning dialog.
+        function IdleWarning() {
+         $("#timeoutPopup").modal("show");
+        }
+        // Logout the user.
+        function IdleTimeout() {
+            // $("#logout-form").submit();
+            window.location = baseUrl + '/autologout';
+        }
+
+        function ResetTimers(){
+            $("#timeoutPopup").modal("hide");
+        }
+               
+    </script>
+<style>
+.search-ui {background-color: #ffffff !important;}
+</style>
+
+
+<div id="timeoutPopup" class="modal fade bd-example-modal-lg" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" tabindex="-1" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Session About To Timeout</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>You will be automatically logged out in <strong><span id="ReminingTimeForLogout"></span> </strong><br>
+                            To remain logged in please move the mouse on the screen.
+                    </p></div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div><svg id="SvgjsSvg1001" width="2" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" style="overflow: hidden; top: -100%; left: -100%; position: absolute; opacity: 0;"><defs id="SvgjsDefs1002"></defs><polyline id="SvgjsPolyline1003" points="0,0"></polyline><path id="SvgjsPath1004" d="M0 0 "></path></svg></body></html>

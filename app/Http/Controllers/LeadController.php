@@ -260,7 +260,7 @@ class LeadController extends BaseController
         $LeadStatus=LeadStatus::select('*')->where('firm_id',Auth::User()->firm_name)->orderBy('status_order','ASC')->get();
      
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
@@ -752,7 +752,7 @@ class LeadController extends BaseController
         $LeadStatus=LeadStatus::select('*')->where('firm_id',Auth::User()->firm_name)->get();
         
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
@@ -878,7 +878,7 @@ class LeadController extends BaseController
         $LeadStatus=LeadStatus::select('*')->where('firm_id',Auth::User()->firm_name)->get();
         
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
@@ -938,7 +938,7 @@ class LeadController extends BaseController
         $UserMaster=User::find($id);
         $LeadAdditionalInfo=LeadAdditionalInfo::where("user_id",$id)->first();
         $getChildUsers=$this->getParentAndChildUserIds();
-        $practiceAreaList = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
         return view('lead.loadStep2',compact('practiceAreaList','caseStageList','UserMaster','id','LeadAdditionalInfo'));
     }
@@ -985,6 +985,7 @@ class LeadController extends BaseController
             if(isset($request->practice_area_text)) { 
                 $CasePracticeArea = new CasePracticeArea;
                 $CasePracticeArea->title=$request->practice_area_text; 
+                $CasePracticeArea->firm_id =Auth::User()->firm_name;
                 $CasePracticeArea->created_by=Auth::User()->id; 
                 $CasePracticeArea->save();
                 
@@ -1584,7 +1585,7 @@ class LeadController extends BaseController
 
         $leadStatus=LeadStatus::select('id','title')->where("firm_id",$OnlineLeadSubmit['firm_id'])->orderBy('status_order',"ASC")->first();
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->orderBy("id","ASC")->first();
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->orderBy("id","ASC")->first();
 
         $LeadAdditionalInfoMaster = new LeadAdditionalInfo;
         $LeadAdditionalInfoMaster->user_id=$UserMaster->id;
@@ -1650,7 +1651,7 @@ class LeadController extends BaseController
 
             $leadStatus=LeadStatus::select('id','title')->where("firm_id",$OnlineLeadSubmit['firm_id'])->orderBy('status_order',"ASC")->first();
             $getChildUsers=$this->getParentAndChildUserIds();
-            $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->orderBy("id","ASC")->first();
+            $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->orderBy("id","ASC")->first();
 
             $LeadAdditionalInfoMaster = new LeadAdditionalInfo;
             $LeadAdditionalInfoMaster->user_id=$UserMaster->id;
@@ -2434,7 +2435,7 @@ class LeadController extends BaseController
         $LeadStatus=LeadStatus::select('*')->where('firm_id',Auth::User()->firm_name)->get();
         
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
@@ -2608,7 +2609,7 @@ class LeadController extends BaseController
         $LeadStatus=LeadStatus::select('*')->where('firm_id',Auth::User()->firm_name)->get();
         
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CasePracticeArea = CasePracticeArea::where("status","1")->whereIn("created_by",$getChildUsers)->get();  
+        $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
         $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
@@ -6276,7 +6277,10 @@ $this->saveContactLeadData($request->all(),$CaseEvent->id);
    }
     /***********************COMMUNICATION TAB******************************/
 
-
+    public function custom_fields(Request $request)
+    {
+        return view('custom_fields.custom_field'); 
+    }
 
 }
   

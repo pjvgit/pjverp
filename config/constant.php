@@ -16,7 +16,8 @@ define("ERROR",150);
 //Email Settings
 define("FROM_EMAIL", "test@poderjudicialvirtual.com");
 define("FROM_EMAIL_TITLE", "Legalcase");
-define("DO_NOT_REPLAY_FROM_EMAIL_TITLE", "No-Replay");
+define("DO_NOT_REPLAY_FROM_EMAIL_TITLE", "No-Reply");
+define("DO_NOT_REPLAY_FROM_EMAIL", "no-reply@legalcase.com");
 
 define("SUPPORT_EMAIL", "test@poderjudicialvirtual.com");
 define("REGARDS", "LegalCase");

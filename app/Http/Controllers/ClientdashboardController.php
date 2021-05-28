@@ -1742,7 +1742,10 @@ class ClientdashboardController extends BaseController
             if(isset($clientData->email)){
             $user = [
                 "from" => FROM_EMAIL,
-                "from_title" => FROM_EMAIL_TITLE,
+                // "from_title" => FROM_EMAIL_TITLE,
+                "from_title" => $firmData->firm_name,
+                "replyto"=>DO_NOT_REPLAY_FROM_EMAIL,
+                "replyto_title"=>DO_NOT_REPLAY_FROM_EMAIL_TITLE,
                 "subject" => "You have a new message on ".$firmData->firm_name,
                 "to" => $clientData->email,
                 "full_name" => "",

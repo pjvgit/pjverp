@@ -109,8 +109,9 @@
                 <label for="firstName1">Case Link</label>
                 <select class="form-control contact_group" id="case_link" name="case_link"
                     data-placeholder="Type a name">
-                    <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                     <option></option>
+                    <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
+                    
                     <option uType="case" data-set="case" value="case-{{$Caseval->id}}">
                         {{substr($Caseval->case_title,0,100)}}
                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>

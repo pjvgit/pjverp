@@ -54,9 +54,8 @@
                         <a href="{{route('lead_setting')}}" class="dropdown-item">
                             Lead Settings</a>
                      
-
-                        <button type="button" tabindex="0" role="menuitem" class="dropdown-item"
-                            onclick="markAsRead()">Lead Custom Fields</button>
+                        <a href="{{route('custom_fields')}}?group=client" class="dropdown-item">Lead Custom Fields</a>
+                     
                     </div>
                 </div>
             </div>

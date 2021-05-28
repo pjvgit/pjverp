@@ -153,23 +153,42 @@ class UserController extends BaseController
                 );
                 CaseStage::insert($data);
 
-                $case_practice_area = array(
-                    array('title' => 'Bankruptcy','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Business','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Civil','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Criminal Defense','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Divorce/Separation','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'DUI/DWI','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Employment','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Estate Planning','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Family','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Foreclosure','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Immigration','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Landlord/Tenant','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Personal Injury','status' => '1',"created_by"=>$verifyUser->id),
-                    array('title' => 'Real Estate','status' => '1',"created_by"=>$verifyUser->id)
-                  );
-                  CasePracticeArea::insert($case_practice_area);
+                // $case_practice_area = array(
+                //     array('title' => 'Bankruptcy','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Business','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Civil','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Criminal Defense','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Divorce/Separation','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'DUI/DWI','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Employment','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Estate Planning','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Family','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Foreclosure','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Immigration','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Landlord/Tenant','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Personal Injury','status' => '1',"created_by"=>$verifyUser->id),
+                //     array('title' => 'Real Estate','status' => '1',"created_by"=>$verifyUser->id)
+                //   );
+                //   CasePracticeArea::insert($case_practice_area);
+
+                $CasePracticeArea = array(
+                    array('title'=>'Bankruptcy','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Business','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Civil Party','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Criminal Defense','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Divorce/Separation','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'DUI/DWI','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Employment','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Estate Planning','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Family','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Foreclosure','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Immigration','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Landlord/Tenant','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Personal Injury','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Real Estate','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                    array('title'=>'Tax','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
+                );
+                CasePracticeArea::insert($CasePracticeArea);
                 $status = EMAIL_VERIFIED;
                 return redirect('setupprofile/'.$token);
             }
