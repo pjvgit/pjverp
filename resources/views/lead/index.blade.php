@@ -106,7 +106,8 @@ if(isset($_GET['at'])){
                                         <div class="m-0 align-items-center row ">
                                             <div class="pl-0 pr-2 d-flex align-items-center col-7">
                                                 <div class="d-inline-block text-truncate font-weight-bold btn-link">
-                                                    <a class="opportunity-detail-link" href="{{BASE_URL}}leads/{{$vv->user_id}}/case_details/info"
+                                                    {{-- <a class="opportunity-detail-link" href="{{BASE_URL}}leads/{{$vv->user_id}}/case_details/info" --}}
+                                                    <a class="opportunity-detail-link" href="{{ route('case_details/info', $vv->user_id) }}"
                                                         title="{{$vv->first_name}} {{$vv->last_name}}" style="font-size: 0.9rem;">
                                                         {{$vv->first_name}} {{$vv->last_name}}</a>
                                                        
@@ -515,7 +516,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 success: function (res) {
                 $("#addLeadArea").html(res);
                     $("#preloader").hide();
-                    window.location.reload();
+                    // window.location.reload();
                 }
             })
         })

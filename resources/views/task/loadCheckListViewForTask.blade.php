@@ -2,7 +2,8 @@
 $controllerLoad = new App\Http\Controllers\CommonController();
 ?>
 <tbody>
-<tr class="border-bottom-0 task-checklist-background-incomplete <?php if($TaskData->status=="0"){?>  table-info <?php } else{  ?>table-success<?php } ?>">
+            {{-- As discussed with Divyeshbhai, below tr tag commented --}}
+                {{-- <tr class="border-bottom-0 task-checklist-background-incomplete <?php if($TaskData->status=="0"){?>  table-info <?php } else{  ?>table-success<?php } ?>">
                     <td class="align-middle border-bottom-0 border-right-0 text-center task-checkbox-column">
                         <div class="task-completed" data-task-completion-status="complete"></div>
                         <input type="checkbox" <?php if($TaskData->status=="1"){ echo "checked=checked";}?> name="complete_19667270" id="complete_19667270" onclick="markAsCompleteTask({{$TaskData->id}});" class="form-control cursor-pointer" style="width:20px;" value="1" >
@@ -15,7 +16,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                         <div id="task_details_complete"  class="align-middle lead">Mark As Complete</div>
                     <?php } ?>
                     </td>
-                </tr>
+                </tr> --}}
                 <tr class="border-top-0 task-checklist-background-incomplete <?php if($TaskData->status=="0"){?>  table-info <?php } else{  ?>table-success<?php } ?>">
                     <td class="text-center border-top-0 border-right-0 task-checkbox-column float-left">
                     <?php $findComletedPErcent = ($TaskChecklistCompleted / count($TaskChecklist) * 100);?>

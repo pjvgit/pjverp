@@ -234,7 +234,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{BASE_URL}}bills/invoices/open">
+                            <a href="{{ route('bills/invoices/open') }}">
                                 <button class="btn btn-primary btn-rounded m-1" type="button" id="button">Add
                                     Invoice</button>
                             </a>
@@ -880,12 +880,13 @@ td,th{
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     $('td:eq(0)', nRow).html('<div class="text-left"><input id="select-row-74" class="task_checkbox" type="checkbox" value="'+aData.id+'" class="task_checkbox" name="expenceId['+aData.id+']"></div>');
 
-                    $('td:eq(1)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
+                    $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
                    
                     // $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
 
                     // $('td:eq(2)', nRow).html('<div class="text-left">'+aData.invoice_id+'</div>');
-                    $('td:eq(2)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    // $('td:eq(2)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
 
                     $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
 

@@ -948,7 +948,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/reloadRow', 'BillingController@reloadRow')->name('bills/invoices/reloadRow');
     Route::post('bills/invoices/getCaseList', 'BillingController@getCaseList')->name('bills/invoices/getCaseList');
 
-    Route::get('bills/invoices/view/{id}', 'BillingController@viewInvoice')->name('bills/invoices/view/{id}');
+    Route::get('bills/invoices/view/{id}', 'BillingController@viewInvoice')->name('bills/invoices/view');
     Route::post('bills/invoices/deleteInvoice', 'BillingController@deleteInvoice')->name('bills/invoices/deleteInvoice');
     Route::post('bills/invoices/shareInvoice', 'BillingController@shareInvoice')->name('bills/invoices/shareInvoice');
     Route::post('bills/invoices/saveShareInvoice', 'BillingController@saveShareInvoice')->name('bills/invoices/saveShareInvoice');
