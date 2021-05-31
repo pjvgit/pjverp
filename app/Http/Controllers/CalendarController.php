@@ -16,7 +16,7 @@ use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
-use App\TaskHistory,App\UsersAdditionalInfo,App\LeadAdditionalInfo;
+use App\TaskHistory,App\UsersAdditionalInfo,App\LeadAdditionalInfo,App\CaseEventLinkedContactLead;
 class CalendarController extends BaseController
 {
     public function __construct()
@@ -187,7 +187,8 @@ class CalendarController extends BaseController
     }
     $country = Countries::get();
 
-    return view('calendar.event.loadEventCommentPopup',compact('evetData','eventLocation','country','CaseMasterData','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData'));     
+    $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$evnt_id)->get();
+    return view('calendar.event.loadEventCommentPopup',compact('evetData','eventLocation','country','CaseMasterData','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData','CaseEventLinkedContactLead'));     
     exit;    
   }
 

@@ -11,6 +11,8 @@ use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractA
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection,App\UserRole;
 use App\CasePracticeArea,App\CaseStage;
 use Illuminate\Support\Str;
+use App\Jobs\ProcessPodcast;
+
 class ContractController extends BaseController
 {
     public function __construct()
@@ -1002,6 +1004,10 @@ class ContractController extends BaseController
             $data['action']='update';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
+
+            ProcessPodcast::dispatch($user);
+            // ProcessPodcast::dispatch($user)->delay(now()->addMinutes(1));
+            // dispatch(new ProcessPodcast($user))->delay(now()->addMinutes(1));
 
             session(['popup_success' => 'Your client has been updated.']);
             return response()->json(['errors'=>'','user_id'=>$user->id]);
