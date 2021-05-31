@@ -117,23 +117,40 @@
                                             <?php                                              
                                                 $userTypes = unserialize(USER_TYPE);
                                                 if(!$caseLinkedStaffList->isEmpty()){
-                                                    foreach($caseLinkedStaffList as $kstaff=>$vstaff){
-                                                         ?>
-                                            <div class="col-8">
-                                                <div class="d-flex flex-row">
-                                                    <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($vstaff->id)}}"
-                                                        class="d-flex align-items-center user-link"
-                                                        title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
-                                                        {{substr($vstaff->last_name,0,15)}}
-                                                        ({{$userTypes[$vstaff->user_type]}})</a>
-                                                </div>
-                                            </div>
-                                            <div class="col-4"><b
-                                                    style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
-                                            </div>
-                                            <?php 
-                                        } 
-                                    }?>
+                                                    foreach($caseLinkedStaffList as $kstaff=>$vstaff){?>
+                                                        <div class="col-8">
+                                                            <div class="d-flex flex-row">
+                                                                <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($vstaff->id)}}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                                    {{substr($vstaff->last_name,0,15)}}
+                                                                    ({{$userTypes[$vstaff->user_type]}})</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4"><b
+                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
+                                                        </div>
+                                                <?php } 
+                                                }?>
+                                        </div>
+                                        <div class="row ">
+                                            <?php                                              
+                                                if(!$CaseEventLinkedContactLead->isEmpty()){
+                                                    foreach($CaseEventLinkedContactLead as $kstaff=>$vstaff){?>
+                                                        <div class="col-8">
+                                                            <div class="d-flex flex-row">
+                                                                <a href="{{BASE_URL}}contacts/clients/{{$vstaff->contact_id}}"
+                                                                    class="d-flex align-items-center user-link"
+                                                                    title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                                    {{substr($vstaff->last_name,0,15)}}
+                                                                    (Client)</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4"><b
+                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
+                                                        </div>
+                                                <?php } 
+                                                }?>
                                         </div>
                                     </div>
                                 </div>
@@ -176,6 +193,12 @@
     </div>
 </div>
 <div class="modal-footer">
+<div class="form-group row">
+        <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
+        <div class="col-md-2 form-group mb-3">
+            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"></div>
+        </div>
+    </div>
     <div class="action-buttons">
         <div>
             <?php if($evetData->parent_evnt_id=="0"){ ?>
@@ -273,8 +296,11 @@ body >
             theme: 'snow'
         });
 
+        afterLoader();
 
         $('#addComment').submit(function (e) {
+            beforeLoader();
+
             e.preventDefault();
             var delta =quill.root.innerHTML;
             if(delta=='<p><br></p>'){
@@ -282,6 +308,8 @@ body >
                     positionClass: "toast-top-full-width",
                     containerId: "toast-top-full-width"
                 })
+                afterLoader();
+
             }else{
                 var dataString = $("#addComment").serialize();
                 $.ajax({
@@ -292,6 +320,8 @@ body >
                         $(this).find(":submit").prop("disabled", true);
                         $("#innerLoader").css('display', 'block');
                         if (res.errors != '') {
+                            afterLoader();
+
                             return false;
                         } else {
                             toastr.success('Your comment was posted', "", {
@@ -300,6 +330,8 @@ body >
                             });
                             loadCommentHistory({{$evetData->id}});
                             quill.root.innerHTML='';
+                            afterLoader();
+
                         }
                     }
                 });

@@ -79,8 +79,14 @@ if(@$_SERVER['SERVER_NAME']=='localhost'){
     define("BASE_URL", "http://bna.poderjudicialvirtual.com/");
     define("BASE_LOGO_URL", "http://bna.poderjudicialvirtual.com/");
     define("USER_IMAGE_FOLDER_PATH", "users/");
-
 }
+
+//For Queue Constant
+define("QUEUE_BASE_URL", "http://bne.poderjudicialvirtual.com/");
+define("QUEUE_BASE_LOGO_URL", "http://bne.poderjudicialvirtual.com/");
+define("QUEUE_USER_IMAGE_FOLDER_PATH", "local/users/");
+//For Queue Constant
+
 
 /* * get dynamically timezone data* */
 $timezones = [];

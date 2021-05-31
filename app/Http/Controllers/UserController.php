@@ -789,6 +789,22 @@ class UserController extends BaseController
         $mail_body = str_replace('{year}', date('Y'), $mail_body);        
         echo $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
 
+        echo "<hr>";
+        echo "<h3 style='text-align: center;'> Comment sent via email in Event module.</h3>";
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $getTemplateData = EmailTemplate::find(22);
+        $mail_body = $getTemplateData->content;
+        $mail_body = str_replace('{sender}', "Legalcase", $mail_body);
+        $mail_body = str_replace('{subject}', "subject", $mail_body);
+        $mail_body = str_replace('{receiver}', "DES", $mail_body);
+        $mail_body = str_replace('{url}', BASE_URL, $mail_body);
+        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+        $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
+        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+        echo $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+
+
          $user = [
             "from" => FROM_EMAIL,
             "from_title" => FROM_EMAIL_TITLE,
@@ -797,10 +813,10 @@ class UserController extends BaseController
             "full_name" => $fullName,
             "mail_body" => $mail_body
             ];
-        $sendEmail = $this->sendMail($user);
-        if($sendEmail==1){ 
-            echo "Test Email Sent ";
-        }
+        // $sendEmail = $this->sendMail($user);
+        // if($sendEmail==1){ 
+        //     echo "Test Email Sent ";
+        // }
     }
 
     public function testmail(Request $request)

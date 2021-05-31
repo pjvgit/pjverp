@@ -20,6 +20,8 @@ use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use Illuminate\Support\Str;
+use App\Jobs\CommentEmail;
+
 class CaseController extends BaseController
 {
     public function __construct()
@@ -3828,7 +3830,9 @@ class CaseController extends BaseController
         }
         $country = Countries::get();
 
-        return view('case.event.loadEventCommentPopup',compact('evetData','eventLocation','country','CaseMasterData','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData'));     
+        $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$evnt_id)->get();
+
+        return view('case.event.loadEventCommentPopup',compact('evetData','eventLocation','country','CaseMasterData','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData','CaseEventLinkedContactLead'));     
         exit;    
       }
 
@@ -4076,7 +4080,7 @@ class CaseController extends BaseController
 
     public function saveEventComment(Request $request)
     {
-
+       
         $event_id=$request->event_id;
         $CaseEventComment =new CaseEventComment;
         $CaseEventComment->event_id=$request->event_id;
@@ -4084,6 +4088,59 @@ class CaseController extends BaseController
         $CaseEventComment->action_type="0";
         $CaseEventComment->created_by=Auth::user()->id; 
         $CaseEventComment->save();
+
+        $eventData=CaseEvent::find($request->event_id);
+        $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
+        if(!$CaseEventLinkedContactLead->isEmpty()){
+            CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
+
+            // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));
+
+
+            // $CommonController= new CommonController();
+            // foreach($CaseEventLinkedContactLead as $k=>$v){
+            //     $firmData=Firm::find(Auth::User()->firm_name); 
+            //     if($v->lead_id!=NULL){
+            //         $findUSer=User::find($v->lead_id);
+            //     }else{
+            //         $findUSer=User::find($v->contact_id);
+            //     }   
+            //     $getTemplateData = EmailTemplate::find(22);
+            //     $email=$findUSer['email'];
+            //     $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
+            //     $sender=Auth::User()->first_name." ".Auth::User()->last_name;
+              
+            //     $timezone=$findUSer->user_timezone;
+            //     $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($eventData->start_date ." " .$eventData->start_time)),$timezone);
+            //     $Edates=date('m-d-Y h:i A',strtotime($convertedDate));
+
+
+            //     $mail_body = $getTemplateData->content;
+            //     $mail_body = str_replace('{email}', $email,$mail_body);
+            //     $mail_body = str_replace('{receiver}', $fullName,$mail_body);
+            //     $mail_body = str_replace('{sender}', $sender,$mail_body);
+            //     $mail_body = str_replace('{event_name}', $eventData->event_title,$mail_body);
+            //     $mail_body = str_replace('{date_time}', $Edates ,$mail_body);
+            //     $mail_body = str_replace('{comment}', $CaseEventComment->comment,$mail_body);
+            //     $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            //     $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+            //     $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
+            //     $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+            //     $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+            //     $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+            //     $mail_body = str_replace('{url}', BASE_URL."login", $mail_body);  
+
+            //     $userEmail = [
+            //         "from" => FROM_EMAIL,
+            //         "from_title" => $firmData['firm_name'],
+            //         "subject" => $getTemplateData->subject,
+            //         "to" => $email,
+            //         "full_name" => $fullName,
+            //         "mail_body" => $mail_body
+            //         ];
+            //     $sendEmail = $this->sendMail($userEmail);
+            //}
+        }
         return response()->json(['errors'=>'']);
         exit;    
     }
