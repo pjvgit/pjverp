@@ -1299,7 +1299,14 @@ class TaskController extends BaseController
 
         // print_r($TaskCompletedBy);
         $TaskData=Task::find($task_id);
-        return view('task.loadCheckListViewForTask',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy','task_id'));     
+
+        $fromList=$request->list;
+        if($request->forList=="yes"){
+            return view('task.loadCheckListViewForTaskWithoutCheckbox',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy','task_id','fromList'));     
+        
+        }else{
+            return view('task.loadCheckListViewForTask',compact('TaskChecklist','TaskChecklistCompleted','TaskData','TaskCompletedBy','task_id','fromList'));     
+        }
         exit;    
   } 
 

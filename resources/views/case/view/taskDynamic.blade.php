@@ -311,7 +311,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             type: "POST",
             url: baseUrl + "/tasks/loadCheckListViewForTask", // json datasource
             data: {
-                "task_id": task_id
+                "task_id": task_id,
+                "forList":"yes"
             },
             success: function (res) {
                 $("#taskReviewArea_"+task_id).html(res);

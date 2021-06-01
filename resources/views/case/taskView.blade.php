@@ -450,9 +450,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
             },
             success: function (res) {
                 $("#taskReviewArea").html('<img src="{{LOADER}}""> Loading...');
-
                 $("#taskReviewArea").html(res);
-
             }
         })
     }  
