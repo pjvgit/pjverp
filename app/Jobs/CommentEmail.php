@@ -77,14 +77,14 @@ class CommentEmail implements ShouldQueue
             $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
             $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-            $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+            $mail_body = str_replace('{EmailLinkOnLogo}', QUEUE_BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{url}', QUEUE_BASE_URL."login", $mail_body);  
 
             $userEmail = [
                 "from" => FROM_EMAIL,
                 "from_title" => $firmData['firm_name'],
                 "subject" => $getTemplateData->subject,
-                "to" => 'testing.testuser6@gmail.com',
+                "to" => $email,
                 "full_name" => $fullName,
                 "mail_body" => $mail_body
                 ];
