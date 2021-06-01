@@ -204,6 +204,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </form>
     </div>
 </div>
+@include('commonPopup.add_case')
+
 <!--Over-->
 <style>
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
@@ -371,8 +373,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
 
 
-    function loadTimeEntryPopup() {
-        $("#preloader").show();
+    function loadTimeEntryPopup() {        
+        localStorage.setItem("case_id",'');
         $("#addTimeEntry").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
@@ -380,7 +382,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
                 data: {},
                 success: function (res) {
-                    $("#addTimeEntry").html('');
                     $("#addTimeEntry").html(res);
                     $("#preloader").hide();
                 }
@@ -388,7 +389,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
     function loadEditTimeEntryPopup(id) {
-        $("#preloader").show();
+        localStorage.setItem("case_id",'');
         $("#loadEditTimeEntryPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
@@ -396,7 +397,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 url: baseUrl + "/bills/loadEditTimeEntryPopup", // json datasource
                 data: {'entry_id':id},
                 success: function (res) {
-                    $("#loadEditTimeEntryPopupArea").html('');
                     $("#loadEditTimeEntryPopupArea").html(res);
                     $("#preloader").hide();
                 }
@@ -429,8 +429,15 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
 
    }
-   function resetClear(){
-   
+   function loadCaseDropdown(){
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/loadCaseList", // json datasource
+            data: {'case_id':localStorage.getItem("case_id")},
+            success: function (res) {
+                $("#case_or_lead").html(res);
+            }
+        })
    }
 </script>
 @stop

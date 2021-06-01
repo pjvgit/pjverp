@@ -17,6 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
+use App\FirmAddress;
 class TaskController extends BaseController
 {
     public function __construct()
@@ -117,7 +118,23 @@ class TaskController extends BaseController
         $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->where("id","!=",Auth::user()->id)->get();
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
         
-        return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData'));
+
+        $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+        $getChildUsers=$this->getParentAndChildUserIds();
+        $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
+        $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
+        $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+        $getChildUsers[]=Auth::user()->id;
+        $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
+        $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+    
+
+        return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
     }
 
     public function loadTask()
@@ -1118,7 +1135,22 @@ class TaskController extends BaseController
     $TaskChecklist = TaskChecklist::select("*")->where("task_id", $request->task_id)->orderBy('checklist_order','ASC')->get();
     $TaskChecklistCompleted = TaskChecklist::select("*")->where("task_id", $request->task_id)->where('status','1')->count();
 
-    return view('task.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted'));     
+
+    $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+        $getChildUsers=$this->getParentAndChildUserIds();
+        $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
+        $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
+        $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+        $getChildUsers[]=Auth::user()->id;
+        $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
+        $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+    
+    return view('task.taskView',compact('TaskData','CaseMasterData','TaskCreatedBy','TaskAssignedTo','TaskReminders','TaskChecklist','TaskChecklistCompleted','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));     
     exit;   
   }
 

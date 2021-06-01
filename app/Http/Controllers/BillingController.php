@@ -15,6 +15,7 @@ use App\ExpenseEntry,App\RequestedFund,App\InvoiceAdjustment;
 use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePracticeArea,App\InvoicePayment;
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice;
+use App\CaseStage,App\TempUserSelection;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
@@ -54,7 +55,23 @@ class BillingController extends BaseController
             $case = TaskTimeEntry::leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
             ->select('task_time_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
 
-            return view('billing.time_entry.time_entries', compact('user','country','firmData','firmAddress','FirmEventReminder','FirmSolReminder','case'));
+
+            $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+            $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+            $getChildUsers=$this->getParentAndChildUserIds();
+            $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
+            $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
+            $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            $getChildUsers[]=Auth::user()->id;
+            $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+            $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+            // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
+            $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+    
+
+            return view('billing.time_entry.time_entries', compact('user','country','firmData','firmAddress','FirmEventReminder','FirmSolReminder','case','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
         }else{
             return view('pages.404');
         }
@@ -359,7 +376,22 @@ class BillingController extends BaseController
             $case = ExpenseEntry::leftJoin("case_master","case_master.id","=","expense_entry.case_id")
             ->select('expense_entry.*',"case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number","case_master.id as cid")->whereIn('case_master.created_by',$getChildUsers)->groupBy("case_master.id")->get();
 
-            return view('billing.expenses.expenses_entries', compact('user','case'));
+
+            $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+            $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+            $getChildUsers=$this->getParentAndChildUserIds();
+            $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
+            $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
+            $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            $getChildUsers[]=Auth::user()->id;
+            $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+            $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+            // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
+            $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+
+            return view('billing.expenses.expenses_entries', compact('user','case','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
         }else{
             return view('pages.404');
         }
@@ -416,6 +448,9 @@ class BillingController extends BaseController
         $CaseMasterData = CaseMaster::whereIn('created_by',$getChildUsers)->where('is_entry_done',"1")->get();
         $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
+
+
+        
         return view('billing.expenses.loadExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','case_id'));     
         exit;    
     }
@@ -7298,5 +7333,14 @@ class BillingController extends BaseController
         return view('print.index',compact('file'));
         exit;  
      }
+
+     public function loadCaseList(Request $request)
+    {
+        $case_id=$request->case_id;
+        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        return view('billing.loadCaseList', compact('CaseMasterData','case_id'));
+       
+    }
 }
   

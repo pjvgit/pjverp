@@ -25,7 +25,6 @@
                             <div class="actions-cell float-right">
                                 <div class="d-flex align-item-center task-action-buttons-16497173">
                                     <div>
-                                       
                                         <a class="align-items-center" data-toggle="modal"
                                                 data-target="#loadTimeEntryPopupInView" data-placement="bottom"
                                                 href="javascript:;" onclick="loadTimeEntryPopupInView({{$TaskData->id}});">
@@ -320,8 +319,8 @@
         $('[data-toggle="tooltip"]').tooltip();
                 $('#closeView').on('click', function () {
             // window.location.reload();
-            window.location.href=baseUrl+'/tasks';
-            //$("#taskViewArea").fadeOut();
+            // window.location.href=baseUrl+'/tasks';
+            $("#taskViewArea").fadeOut();
 
         });
 
