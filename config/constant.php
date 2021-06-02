@@ -84,6 +84,7 @@ if(@$_SERVER['SERVER_NAME']=='localhost'){
 //For Queue Constant
 define("QUEUE_BASE_URL", "http://bne.poderjudicialvirtual.com/");
 define("QUEUE_BASE_LOGO_URL", "http://bne.poderjudicialvirtual.com/");
+define("QUEUE_BASE_LOGO", "http://bne.poderjudicialvirtual.com/public/images/logo.png");
 define("QUEUE_USER_IMAGE_FOLDER_PATH", "local/users/");
 //For Queue Constant
 

@@ -1744,7 +1744,7 @@ class BillingController extends BaseController
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
-        ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount");
+        ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount","case_master.practice_area");
       
         // $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
         $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
@@ -1762,6 +1762,10 @@ class BillingController extends BaseController
         }else{
             $Invoices = $Invoices->where("case_master.created_by",Auth::User);
 
+        }
+        //Filters
+        if($requestData['practice_area_id']!=''){
+            $Invoices = $Invoices->where("case_master.practice_area",$requestData['practice_area_id']);
         }
         $totalData=$Invoices->count();
         $totalFiltered = $totalData; 
@@ -2078,7 +2082,11 @@ class BillingController extends BaseController
             $user = User::find($id);
             if(!empty($user)){
                 $invoice_id=$request->invoice_id;
-                $case_id=base64_decode($request->id);
+                if($request->id=="0"){
+                    $case_id=0;
+                }else{
+                    $case_id=base64_decode($request->id);
+                }
                 $CaseMasterData = CaseMaster::find($case_id);
                 $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id'));     
@@ -2100,7 +2108,7 @@ class BillingController extends BaseController
         }else{
 
             $FlatFeeEntry = new FlatFeeEntry;
-            $FlatFeeEntry->case_id =$request->case_id;
+            $FlatFeeEntry->case_id =($request->case_id)??'none';
             $FlatFeeEntry->user_id =$request->staff_user;
             if(isset($request->invoice_id)){
                 $FlatFeeEntry->invoice_link =$request->invoice_id;

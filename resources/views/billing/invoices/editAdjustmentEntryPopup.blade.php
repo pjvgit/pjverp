@@ -154,10 +154,11 @@
             } else {
                 $("#basic").val("");
             }
-            // $('#basic').number(true, 2);
+            $('#basic').focus();
         });
 
         $('#ad_type').on("select2:select", function (e) {
+        
             var curVal = $(this).val();
             if (curVal == "amount") {
                 $("#basic").val("").attr('readonly', true);
@@ -167,13 +168,33 @@
             } else {
                 $("#basic").removeAttr('readonly');
                 $("#percentage").val('').removeAttr('readonly');
-                $("#basic").val($("#time_entry_sub_total_text").val());
                 $("#amount").attr('readonly', true);
+                $("#amount").val("");
+
+                var curVal = $("#applied_to :selected").val();
+                if (curVal == "expenses") {
+                    $("#basic").val($("#expense_sub_total_text").val());
+                } else if (curVal == "sub_total") {
+                    $("#basic").val($("#sub_total_text").val());
+                } else if (curVal == "flat_fees") {
+                    $("#basic").val($("#flat_fee_sub_total_text").val());
+                } else if (curVal == "time_entries") {
+                    $("#basic").val($("#time_entry_sub_total_text").val());
+                } else {
+                    $("#basic").val("");
+                }
+                
             }
 
         });
 
         $("#percentage").on("keyup change", function (e) {
+            var basic = $("#basic").val();
+            var percentage = $("#percentage").val();
+            var calculation = (percentage / 100) * basic;
+            $("#amount").val(calculation);
+        });
+        $("#basic").on("blur change", function (e) {
             var basic = $("#basic").val();
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
@@ -238,8 +259,7 @@
             
         } else {
             $("#basic").removeAttr('readonly');
-            $("#percentage").val('').removeAttr('readonly');
-            $("#basic").val($("#time_entry_sub_total_text").val());
+            $("#percentage").removeAttr('readonly');
             $("#amount").attr('readonly', true);
         }
 

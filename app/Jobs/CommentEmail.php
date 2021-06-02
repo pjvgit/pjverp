@@ -72,7 +72,7 @@ class CommentEmail implements ShouldQueue
             $mail_body = str_replace('{event_name}', $eventData->event_title,$mail_body);
             $mail_body = str_replace('{date_time}', $Edates ,$mail_body);
             $mail_body = str_replace('{comment}', $CaseEventComment->comment,$mail_body);
-            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            $mail_body = str_replace('{EmailLogo1}', QUEUE_BASE_LOGO, $mail_body);
             $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
             $mail_body = str_replace('{site_title}', TITLE, $mail_body);  

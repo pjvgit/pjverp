@@ -3330,6 +3330,7 @@ if(!isset($adjustment_token)){
 
 
     function addSingleFlatFeeEntry() {
+        
         $('.showError').html('');
         beforeLoader();
         $("#addNewFlatFeeEntryArea").html('');
@@ -3338,7 +3339,7 @@ if(!isset($adjustment_token)){
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
             data: {
-                "id": "{{base64_encode($caseMaster['id'])}}"
+                "id": "{{($caseMaster['id'])?base64_encode($caseMaster['id']):0}}"
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {

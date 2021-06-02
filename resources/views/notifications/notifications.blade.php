@@ -123,6 +123,12 @@
         </div>
     </div>
 </div>
+<style>
+.notifications_holder a{
+    color:#6d14c7 !important;
+    text-decoration:dashed !important;
+}
+</style>
 @include('commonPopup.popup_without_param_code')
 
 @endsection
