@@ -30,7 +30,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist','clientwise_caselist','contactlist','active_case_counter'];
+    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist','clientwise_caselist','contactlist','active_case_counter', 'full_name'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -179,5 +179,20 @@ class User extends Authenticatable
     public function deactivateUserDetail()
     {
         return $this->hasOne("App\DeactivatedUser", 'user_id');
+    }
+
+    /**
+     * Get all of the userLeads for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userLeads()
+    {
+        return $this->hasMany(LeadAdditionalInfo::class, 'user_id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        return substr($this->first_name,0,100).' '.substr($this->last_name,0,100);
     }
 }

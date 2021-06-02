@@ -186,7 +186,7 @@ $adjustment_token=round(microtime(true) * 1000);
 
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Office:</div>
-                                    Primary
+                                    {{ $CaseMaster->caseOffice->office_name ?? "" }}
                                 </div>
 
                                 <div class="mb-4 test-lead-attorney">
@@ -620,7 +620,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                     <ul>
                                         <li>{{$caseStat->case_event_counter}} events</li>
                                         <li>0 documents</li>
-                                        <li>{{$caseStat->case_event_counter}} tasks</li>
+                                        <li>{{$caseStat->case_task_counter}} tasks</li>
                                         <li>0 messages</li>
                                         <li>{{$caseStat->case_note_counter}} note</li>
                                         <li>{{$caseStat->case_timeentry_counter}} time entry</li>

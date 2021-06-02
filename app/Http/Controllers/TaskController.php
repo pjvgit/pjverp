@@ -210,10 +210,11 @@ class TaskController extends BaseController
             $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
         }
 
-        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
+        /* $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
                             ->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")
                             ->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")
-                            ->where("lead_additional_info.user_status", 1)->get();
+                            ->where("lead_additional_info.user_status", 1)->get(); */
+        $caseLeadList = userLeadList();
 
         $country = Countries::get();
         $eventLocation = CaseEventLocation::get();
@@ -622,7 +623,8 @@ class TaskController extends BaseController
         if(isset($request->from_view) && $request->from_view=='yes'){
             $from_view="yes";
         }
-        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
+        // $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
+        $caseLeadList = userLeadList();
 
          return view('task.loadEditTaskPopup',compact('caseLeadList','CaseMasterClient','CaseMasterData','task_id','Task','TaskChecklist','taskReminderData','from_view'));          
     }

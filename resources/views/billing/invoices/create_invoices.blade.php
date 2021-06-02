@@ -748,7 +748,7 @@
                     ']"> <a class="name" href="' + baseUrl + '/court_cases/' + aData
                     .case_unique_number + '/info">' + aData.ctitle + '</a></div>');
 
-                $('td:eq(1)', nRow).html('<div class="text-left">' + aData.lead_attorney +
+                $('td:eq(1)', nRow).html('<div class="text-left">' + aData.lead_attorney_name +
                     '</div>');
 
                 $('td:eq(2)', nRow).html('<div class="text-left">' + aData.fee_structure +

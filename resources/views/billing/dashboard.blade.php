@@ -23,7 +23,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a class="add-invoice billing-dashboard-add-invoice"
                                                 href="{{route('bills/invoices/open')}}">
                                                 <img class="d-block mx-auto"
-                                                    src="{{BASE_URL}}public/svg/invoice_add.svg" width="42"
+                                                    src="{{ asset('svg/invoice_add.svg') }}" width="42"
                                                     height="42">Add Invoice</a>
                                         </td>
 
@@ -31,7 +31,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a data-toggle="modal" data-target="#recordPayment" data-placement="bottom"
                                                 href="javascript:;" onclick="recordPayment();"
                                                 id="dashboard-record-payment">
-                                                <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/payment.svg"
+                                                <img class="d-block mx-auto" src="{{ asset('svg/payment.svg') }}"
                                                     width="42" height="42">Record Payment
                                             </a>
                                         </td>
@@ -40,7 +40,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a data-toggle="modal" data-target="#depositIntoTrust"
                                                 data-placement="bottom" href="javascript:;"
                                                 onclick="depositIntoTrust();">
-                                                <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/trust.svg"
+                                                <img class="d-block mx-auto" src="{{ asset('svg/trust.svg') }}"
                                                     width="42" height="42">Deposit Into Trust
                                             </a>
                                         </td>
@@ -50,7 +50,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a request-funds-btn" data-toggle="modal" data-target="#addRequestFund"
                                                 onclick="addRequestFundPopup();" href="javascript:;">
                                                 <span><img class="d-block mx-auto"
-                                                        src="{{BASE_URL}}public/svg/request.svg" width="42" height="42">
+                                                        src="{{ asset('svg/request.svg') }}" width="42" height="42">
                                                     Request Funds
                                                 </span>
                                             </a>
@@ -63,7 +63,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 id="billing-dashboard-add-time-entry"
                                                 class="add-time-entry billing-dashboard-add-time-entry"
                                                 onclick="loadTimeEntryPopup();">
-                                                <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/time_entry.svg"
+                                                <img class="d-block mx-auto" src="{{ asset('svg/time_entry.svg') }}"
                                                     width="42" height="42">Add Time Entry
                                             </a>
                                         </td>
@@ -72,7 +72,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a data-toggle="modal" data-target="#loadExpenseEntryPopup"
                                                 data-placement="bottom" href="javascript:;"
                                                 onclick="loadExpenseEntryPopup();" class="add-expense-button">
-                                                <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/expense.svg"
+                                                <img class="d-block mx-auto" src="{{ asset('svg/expense.svg') }}"
                                                     width="42" height="42">Add Expense
                                             </a>
                                         </td>
@@ -84,14 +84,14 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup"
                                                 data-placement="bottom" href="javascript:;"
                                                 onclick="loadDepositIntoCredit();" class="add-expense-button">
-                                                <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/credit_active.svg" width="42" height="42">
+                                                <img class="d-block mx-auto" src="{{ asset('svg/credit_active.svg') }}" width="42" height="42">
                                                 <div >Deposit Into Credit</div>
                                                 </a>
                                             </td>
                                         <?php
                                         }else{?>
                                         <td>
-                                            <img class="d-block mx-auto" src="{{BASE_URL}}public/svg/credit__inactive.svg" width="42"
+                                            <img class="d-block mx-auto" src="{{ asset('svg/credit__inactive.svg') }}" width="42"
                                                 height="42">
                                             <div class="text-muted">Deposit Into Credit</div>
                                         </td>

@@ -8,7 +8,7 @@
                        
                     </div>
                 </div>
-                <a  href="{{BASE_URL}}bills/invoices/new?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">
+                <a  href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">
                 <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                    >Add Invoice</button></a>
             </div>

@@ -1709,7 +1709,11 @@ class BillingController extends BaseController
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
-        ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount");
+        ->leftjoin("case_staff", "case_staff.case_id", "=", "case_master.id")
+        ->leftjoin("users as lau", "lau.id", "=", "case_staff.lead_attorney")
+        ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle",
+                "case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount",
+                DB::raw('CONCAT_WS(" ",lau.first_name,lau.last_name) as lead_attorney_name'));
       
         // $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
         $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
@@ -1760,7 +1764,7 @@ class BillingController extends BaseController
 
     public function newInvoiceScratch(Request $request)
     {
-      
+        // return $request->all();
         $id=Auth::user()->id;
          $user = User::find($id);
          $from_date='';
@@ -1768,16 +1772,20 @@ class BillingController extends BaseController
          $filterByDate='';
         if(!empty($user)){
             //Get all client related to firm
-            $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
-
+            // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
+            $ClientList = userClientList();
             //Get all company related to firm
-            $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
-        
+            // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
+            $CompanyList = userCompanyList();
             $case_id=$request->court_case_id;
             $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->select("*")->first();
           
-            $client_id= Session::get('clientId');
-
+            // $client_id= Session::get('clientId');
+            $client_id = '';
+            if($request->court_case_id) {
+                $case = CaseClientSelection::where("case_id", $request->court_case_id)->where("is_billing_contact", "yes")->first();
+                $client_id = $case->selected_user;
+            }
             $userData=User::find($client_id);
             // $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();
 
@@ -1851,17 +1859,18 @@ class BillingController extends BaseController
          $filterByDate='';
         if(!empty($user)){
             //Get all client related to firm
-            $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
-
+            // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
+            $ClientList = userClientList();
             //Get all company related to firm
-            $CompanyList = User::select("email","first_name","last_name","id","user_level")->whereIn("user_status",[1,2])->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            // $CompanyList = User::select("email","first_name","last_name","id","user_level")->whereIn("user_status",[1,2])->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            $CompanyList = userCompanyList();
         
             $case_id=$request->court_case_id;
             $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->select("*")->first(); //->where('case_client_selection.is_billing_contact','yes')
           
             $client_id=$request->contact;
             if($client_id==""){
-                $client_id=$caseClient['selected_user'];
+                $client_id=$caseClient['selected_user'] ?? "";
             }
             $userData=User::find($client_id);
             // $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();

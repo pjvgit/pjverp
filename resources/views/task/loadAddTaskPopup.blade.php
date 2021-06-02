@@ -24,9 +24,13 @@
                             <?php } ?>
                         </optgroup>
                         <optgroup label="Leads">
-                            <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
+                            {{-- <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
                             <option uType="lead" value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
-                            <?php } ?>
+                            <?php } ?> --}}
+                            @forelse ($caseLeadList as $key => $item)
+                                <option uType="lead" value="{{ $key }}">{{ $item }}</option>
+                            @empty
+                            @endforelse
                         </optgroup>
                     </select>
 

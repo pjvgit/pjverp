@@ -50,13 +50,21 @@ if(!isset($adjustment_token)){
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
-                                                        <?php foreach($ClientList as $key=>$val){ ?>
+                                                        {{-- <?php foreach($ClientList as $key=>$val){ ?>
                                                         <option uType="client"  value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client)</option>
-                                                        <?php } ?>
+                                                        <?php } ?> --}}
+                                                        @forelse ($ClientList as $key => $item)
+                                                        <option uType="client"  value="{{ $key }}" {{ (isset($client_id) && $key == $client_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Client)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                     <optgroup label="Company">
-                                                        <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                                        <option uType="company" value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?>
+                                                        {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
+                                                        <option uType="company" value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
+                                                        @forelse ($CompanyList as $key => $item)
+                                                        <option uType="company"  value="{{ $key }}"> {{ substr($item,0,200) }} (Company)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                 </select>
                                                 <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;"  onclick="AddContactModal();">Add new contact</a>
@@ -803,6 +811,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
+        @if(!empty($caseMaster))
+        $("#court_case_id").trigger("change");
+        @endif
+
         $("#payment_plan").prop('checked',false);
         $("#first_payment_amount").attr("disabled",true);
         $("#with_first_payment").attr("checked",false);
