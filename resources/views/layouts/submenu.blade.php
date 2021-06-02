@@ -48,7 +48,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('account/preferences*') ? 'active' : '' }} " href="{{BASE_URL}}account/preferences">My
+                        <a class="nav-link {{ request()->is('account/preferences*') ? 'active' : '' }} " href="{{ route('account/preferences') }}">My
                             Settings</a>
                     </li>
 

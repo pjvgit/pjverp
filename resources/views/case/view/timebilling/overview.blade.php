@@ -17,7 +17,7 @@
                             </div>
                            
                             <div class="pl-1 col-8">
-                                <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{BASE_URL}}bills/invoices/new?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">Add Invoice</a>
+                                <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">Add Invoice</a>
                                 </div>
                         </div>
 

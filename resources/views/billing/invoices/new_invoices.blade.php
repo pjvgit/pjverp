@@ -64,13 +64,21 @@ if(!isset($adjustment_token)){
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
-                                                        <?php foreach($ClientList as $key=>$val){ ?>
+                                                        {{-- <?php foreach($ClientList as $key=>$val){ ?>
                                                         <option uType="client" <?php if($val->id==$client_id){ echo "selected=selected";} ?> value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client) </option>
-                                                        <?php } ?>
+                                                        <?php } ?> --}}
+                                                        @forelse ($ClientList as $key => $item)
+                                                        <option uType="client"  value="{{ $key }}" {{ (isset($client_id) && $key == $client_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Client)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                     <optgroup label="Company">
-                                                        <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                                        <option uType="company" <?php if($CompanyListVal->id==$client_id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?>
+                                                        {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
+                                                        <option uType="company" <?php if($CompanyListVal->id==$client_id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
+                                                        @forelse ($CompanyList as $key => $item)
+                                                        <option uType="company"  value="{{ $key }}" {{ (isset($client_id) && $key == $client_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Company)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                 </select>
                                                 

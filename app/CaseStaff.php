@@ -18,4 +18,14 @@ class CaseStaff extends Model
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
+
+    /**
+     * Get the leadAttorney that owns the CaseStaff
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadAttorney()
+    {
+        return $this->belongsTo(User::class, 'lead_attorney');
+    }
 }

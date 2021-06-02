@@ -478,8 +478,10 @@ class ContractController extends BaseController
                 $getChildUsers=$this->getParentAndChildUserIds();
                 $childUSersCase = CaseStaff::select("case_id")->where('user_id',$contractUserID)->get()->pluck('case_id');
                 $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
-                $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-                $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+                // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+                $CaseMasterClient = userClientList();
+                // $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+                $CaseMasterCompany = userCompanyList();
                 $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
                 $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();  
                 $selectdUSerList = TempUserSelection::join('users','users.id',"=","temp_user_selection.selected_user")->select("users.id","users.first_name","users.last_name","users.user_level")->where("temp_user_selection.user_id",Auth::user()->id)->get();
@@ -1460,7 +1462,7 @@ class ContractController extends BaseController
             $CaseStaff=User::find($request->user_id);
             $CaseStaff->default_rate=str_replace(",","",$request->case_rate);
             $CaseStaff->save();
-            return response()->json(['errors'=>'','id'=>$CaseStaff->id]);
+            return response()->json(['errors'=>'', 'id'=>$CaseStaff->id, 'default_rate' => number_format((float)@$CaseStaff->default_rate, 2, '.', '')]);
             exit;
         }
     }

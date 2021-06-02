@@ -53,7 +53,7 @@ $userTitle = unserialize(USER_TITLE);
                                     <div class="font-weight-bold">Default Rate:</div>
 
                                     <a id="link_rate19630204" class="default-rate-link btn btn-link pl-0" href="#"
-                                        onclick="setDefaultRate({{$userProfile->id}},{{$userProfile->default_rate}});">$<?php echo ($userProfile->default_rate??'0.0');?>/
+                                        onclick="setDefaultRate({{$userProfile->id}}, {{$userProfile->default_rate}});">$<span><?php echo ($userProfile->default_rate??'0.0');?></span>/
                                         hr</a>
 
 
@@ -485,17 +485,25 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         data-placeholder="Search for an existing contact or company">
                                                         <option value="">Search for an existing contact or company</option>
                                                         <optgroup label="Client">
-                                                            <?php
+                                                            {{-- <?php
                                                         foreach($CaseMasterClient as $Clientkey=>$Clientval){
                                                             ?>
                                                             <option value="{{$Clientval->id}}">{{substr($Clientval->first_name,0,30)}}
                                                                 {{substr($Clientval->last_name,0,30)}}</option>
-                                                            <?php } ?>
+                                                            <?php } ?> --}}
+                                                            @forelse ($CaseMasterClient as $key => $item)
+                                                            <option uType="client"  value="{{ $key }}" > {{ substr($item,0,200) }}</option>
+                                                            @empty
+                                                            @endforelse
                                                         </optgroup>
                                                         <optgroup label="Company">
-                                                            <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
+                                                            {{-- <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
                                                             <option value="{{$Companyval->id}}">{{substr($Companyval->first_name,0,50)}}</option>
-                                                            <?php } ?>
+                                                            <?php } ?> --}}
+                                                            @forelse ($CaseMasterCompany as $key => $item)
+                                                            <option uType="company"  value="{{ $key }}"> {{ substr($item,0,200) }}</option>
+                                                            @empty
+                                                            @endforelse
                                                         </optgroup>
                                                     </select>
                                                     <span id="UserTypeError"></span>
@@ -1198,11 +1206,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(".swal2-input").number(true, 2);
     }
     function setDefaultRate(user_id,rate){
+        var rate = $("#link_rate19630204 span").text();
         swal({
             title: "Default Rate",
             text: "Please Note: changing a user's default billing rate will not impact their pre-set case rates.",
             input: "text",
-            inputValue: rate,
+            inputValue: rate, 
             showCancelButton: true,
             closeOnConfirm: false,
             inputPlaceholder: "100.00",
@@ -1211,7 +1220,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             confirmButtonClass: 'btn btn-success  mr-2',
             cancelButtonClass: 'btn btn-danger  mr-2',
             allowOutsideClick: false,
-            reverseButtons: true
+            reverseButtons: true,
         }).then(function (inputValue) {
             if (inputValue != "") {
                 $.ajax({
@@ -1219,6 +1228,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     url: baseUrl + "/contacts/attorneys/updateDefaultRateForStaff",
                     data: {"case_rate": inputValue,'user_id':user_id},
                     success: function (res) {
+                        if(res.errors == "") {
+                            $("#link_rate19630204 span").text(res.default_rate);
+                        }
                         StaffLinkedCaseList.ajax.reload(function(){
                             $('.amount').number(true, 2);
                         }, false);
@@ -1366,7 +1378,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         }, 'slow');
                         return false;
                     } else {
-                        window.location.href=baseUrl+'/court_cases/'+res.case_unique_number+'/info';
+                        // window.location.href=baseUrl+'/court_cases/'+res.case_unique_number+'/info';
+                        window.location.href = "{{ route('contacts/attorneys/cases', $id) }}";
                     }
                 }
             });
@@ -1425,6 +1438,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
+    }
+
+    function selectLeadAttorney() {
+        var selectdValue = $("#lead_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+
+    function selectAttorney() {
+        var selectdValue = $("#originating_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
     }
 </script>
 

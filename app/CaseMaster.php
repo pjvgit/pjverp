@@ -278,5 +278,23 @@ class CaseMaster extends Authenticatable
         
     } 
 
-    
+    /**
+     * Get the caseOffice that owns the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function caseOffice()
+    {
+        return $this->belongsTo(FirmAddress::class, 'case_office');
+    }
+
+    /**
+     * Get the caseStaff associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseStaff()
+    {
+        return $this->hasOne("App\CaseStaff", 'case_id', 'id');
+    }
 }
