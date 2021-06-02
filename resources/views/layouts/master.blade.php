@@ -160,6 +160,8 @@
     
     @yield('page-js')
     @yield('page-js-inner')
+    @yield('page-js-common')
+
     <script src="{{asset('assets/js/script.js')}}"></script>
     <script src="{{asset('assets/js/sidebar-horizontal.script.js')}}"></script>
     <script src="{{asset('assets/js/customizer.script.js')}}"></script>

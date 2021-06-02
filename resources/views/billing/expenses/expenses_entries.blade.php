@@ -276,6 +276,8 @@ if(isset($_GET['type'])){
         </div>
     </div>
 </div>
+
+@include('commonPopup.add_case')
 <!--Over-->
 <style>
     .nav-pills .nav-link.active,
@@ -288,9 +290,12 @@ if(isset($_GET['type'])){
         float: right;
     }
 </style>
+
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
+        // Smart Wizard
+     
         $("#button").removeAttr('disabled');
         $('.formSubmit').change(function () {
             this.form.submit();
@@ -519,6 +524,7 @@ if(isset($_GET['type'])){
     }
 
     function loadExpenseEntryPopup() {
+        localStorage.setItem("case_id",'');
         $("#preloader").show();
         $("#loadExpenseEntryPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -536,6 +542,7 @@ if(isset($_GET['type'])){
     }
 
     function loadEditExpenseEntryPopup(id) {
+        localStorage.setItem("case_id",'');
         $("#preloader").show();
         $("#loadEditExpenseEntryPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -618,6 +625,16 @@ if(isset($_GET['type'])){
             })
         })
 
+   }
+   function loadCaseDropdown(){
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/loadCaseList", // json datasource
+            data: {'case_id':localStorage.getItem("case_id")},
+            success: function (res) {
+                $("#case_or_lead").html(res);
+            }
+        })
    }
 </script>
 @stop

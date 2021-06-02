@@ -21,6 +21,8 @@
 
                     </select>
                     <span id="cnl"></span>
+                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
+                Add Case</a>
                 </div>
             </div>
 

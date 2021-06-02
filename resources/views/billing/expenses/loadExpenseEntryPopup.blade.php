@@ -21,10 +21,15 @@
                         <?php } ?>
 
                     </select>
-                    <span id="cnl"></span>
-                </div>
-            </div>
 
+                    <span id="cnl"></span>
+                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
+                Add Case</a>
+                </div>
+                
+
+            </div>
+            
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">User</label>
                 <div class="col-6 form-group mb-3">
@@ -339,6 +344,7 @@
     }
 
 </style>
+
 <script type="text/javascript">
     $(document).ready(function () {
         $('#collapsed').click(function () {

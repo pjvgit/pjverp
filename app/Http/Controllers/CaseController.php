@@ -340,7 +340,7 @@ class CaseController extends BaseController
                 DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
                 session(['popup_success' => 'Case has been created.']);
             }
-            return response()->json(['errors'=>'','user_id'=>'','case_unique_number'=>$CaseMaster->case_unique_number]);
+            return response()->json(['errors'=>'','user_id'=>'','case_unique_number'=>$CaseMaster->case_unique_number,'case_id'=>$CaseMaster->id]);
 
         }
     }

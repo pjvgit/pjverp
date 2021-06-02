@@ -1033,6 +1033,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('payment_plans/PaymentInstallmentsOverTime', 'BillingController@PaymentInstallmentsOverTime')->name('payment_plans/PaymentInstallmentsOverTime');
     Route::post('payment_plans/loadAllPlans', 'BillingController@loadAllPlans')->name('payment_plans/loadAllPlans');
 
+    
     //Prints
     Route::post('bills/invoices/printTimeEntry', 'BillingController@printTimeEntry')->name('bills/invoices/printTimeEntry');
     Route::get('bills/invoices/printTimeEntry', 'BillingController@printTimeEntry')->name('bills/invoices/printTimeEntry');
@@ -1065,7 +1066,8 @@ Route::group(['middleware'=>'auth'], function () {
 
 
     Route::get('print', 'BillingController@printView')->name('print');
-
+    Route::post('bills/loadCaseList', 'BillingController@loadCaseList')->name('bills/loadCaseList');
+    
 
 });
 

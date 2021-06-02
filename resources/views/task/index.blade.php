@@ -119,7 +119,7 @@ if(isset($_GET['task_read'])){
                     <div class="row pl-4 pb-4">
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Assigned To</label>
-                            <select onchange="selectUser();" class="form-control user_type select2" id="user_type" name="at">
+                            <select onchange="selectUser();" class="form-control user_type select2" id="user_type_assign_to" name="at">
 
                                 <option <?php if($at=="allfirmuser"){ echo "selected=selected"; }?> value="allfirmuser">
                                     All Firm User</option>
@@ -303,10 +303,10 @@ if(isset($_GET['task_read'])){
                             <td class="task-name-cell align-middle">
 
                                 <?php if($subrow->task_due_on > date('Y-m-d')){?>
-                                <a href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
+                                <a href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
                                     class="p-0 w-100 text-left  btn btn-link">{{ $subrow->task_title }}</a>
                                 <?php }else{ ?>
-                                <a href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
+                                <a href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
                                     class="p-0 w-100 text-left text-danger btn btn-link">{{ $subrow->task_title }}</a>
 
                                 <?php } ?>
@@ -613,10 +613,10 @@ if(isset($_GET['task_read'])){
                             <td class="task-name-cell align-middle">
 
                                 <?php if($subrow->task_due_on > date('Y-m-d')){?>
-                                <a  href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
+                                <a  href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
                                     class="p-0 w-100 text-left  btn btn-link">{{ $subrow->task_title }}</a>
                                 <?php }else{ ?>
-                                <a  href="javascript:void(0);" onclick="loadTaskView({{ $subrow->id }})"
+                                <a  href="javascript:void(0);" onclick="loadTaskViewFromTask({{ $subrow->id }})"
                                     class="p-0 w-100 text-left text-danger btn btn-link">{{ $subrow->task_title }}</a>
 
                                 <?php } ?>
@@ -1031,6 +1031,7 @@ if(isset($_GET['task_read'])){
     </div>
 </div>
 
+@include('commonPopup.add_case')
 <style>
     .modal {
         overflow: auto !important;
@@ -1040,7 +1041,6 @@ if(isset($_GET['task_read'])){
     }
 
 </style>
-@endsection
 
 @section('page-js')
 <script type="text/javascript">"use strict";
@@ -1054,7 +1054,12 @@ if(isset($_GET['task_read'])){
       });
     });
     $(document).ready(function () {
-
+        $("#user_type_assign_to").select2({
+            placeholder: "Search for an existing contact or company",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#AddCaseModelUpdate"),
+        });
         $(".select2").select2({
             placeholder: "Select...",
             theme: "classic",
@@ -1529,7 +1534,7 @@ if(isset($_GET['task_read'])){
             })
         })
     }
-    function loadTaskView(task_id) {
+    function loadTaskViewFromTask(task_id) {
         $(".task-details-drawer").fadeIn();
         $("#taskViewArea").html('Loading...');
         $("#preloader").show();
@@ -1554,14 +1559,14 @@ if(isset($_GET['task_read'])){
     <?php
     if(Session::get('task_id')!=""){
         ?>
-        loadTaskView({{Session::get('task_id')}}); 
+        loadTaskViewFromTask({{Session::get('task_id')}}); 
         <?php
         Session::put('task_id', "");
     } 
     ?>
     <?php
     if(isset($_REQUEST['id'])){
-        ?>loadTaskView({{$_REQUEST['id']}});<?php
+        ?>loadTaskViewFromTask({{$_REQUEST['id']}});<?php
     }
     ?>
      
@@ -1631,7 +1636,18 @@ if(isset($_GET['task_read'])){
         $('#taskViewArea').addClass('afterLoadClass'); 
     }, 500);
 
-    
+    function loadCaseDropdown(){
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/loadCaseList", // json datasource
+            data: {'case_id':localStorage.getItem("case_id")},
+            success: function (res) {
+                $("#case_or_lead").html(res);
+            }
+        })
+   }
     
 </script>
 @stop
+
+@endsection
