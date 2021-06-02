@@ -51,7 +51,7 @@
                         foreach($caseCllientSelection as $clistKey=>$clistVal){?>
                         <tr class="case-contact-row">
                             <td class="user-avatar align-middle c-pointer">
-                                {{-- {{$clistVal->multiple_compnay_id}} --}}
+                               
                                 <?php if($clistVal->user_level==2){?>
                                     <?php if(file_exists(public_path().'/images/users/'.$clistVal->profile_image) && $clistVal->profile_image!="" && $clistVal->is_published=="yes"){
                                         ?><img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$clistVal->profile_image}}" width="32" height="25"><?php
@@ -61,11 +61,24 @@
                                 <?php }else{ ?>
                                 <i class="fas fa-building fa-2x text-black-50"></i>
                                 <?php  }?>
+                                
                             </td>
                             <td class="user-name align-middle c-pointer">
-                                <div>
-                                    <div>{{$clistVal->first_name}} {{$clistVal->middle_name}}  {{$clistVal->last_name}}</div>
-                                </div>
+                            <?php if($clistVal->user_level==2){?>
+                                <a href="{{BASE_URL}}contacts/clients/{{$clistVal->id}}">
+                            <?php } else{ ?>
+                            
+                                <a href="{{BASE_URL}}contacts/companies/{{$clistVal->id}}">
+                            <?php }?>
+                                    <div>
+                                        <div>{{$clistVal->first_name}} {{$clistVal->middle_name}}  {{$clistVal->last_name}}</div>
+                                    </div>
+                                    <?php $allCompany=explode(",",$clistVal->multiple_compnay_id);
+                                    foreach($allCompany as $kk=>$vv){
+                                        ?><div class="font-italic text-secondary2">{{@$linkedCompany[$vv]}}</div><?php
+                                    }
+                                    ?>
+                                </a>
                             </td>
                             <td class="user-name align-middle c-pointer">
                                 <div>
@@ -688,7 +701,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-<style> .modal { overflow: auto !important; }</style>
+<style> .modal { overflow: auto !important; }.text-secondary2 {
+    color: #27bfad!important;
+}</style>
 
 @section('page-js-inner')
 <script type="text/javascript">

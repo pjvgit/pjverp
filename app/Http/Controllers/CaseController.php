@@ -982,7 +982,10 @@ class CaseController extends BaseController
             }
             $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
             ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
-            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.user_role as user_role","contact_group_id","users.profile_image","users.is_published")->where("case_client_selection.case_id",$case_id)->get();
+            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.user_role as user_role","contact_group_id","users.profile_image","users.is_published","multiple_compnay_id")->where("case_client_selection.case_id",$case_id)->get();
+
+            $linkedCompany=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+           ->where("case_client_selection.case_id",$case_id)->where("user_level","4")->get()->pluck("first_name","selected_user");
             
             $totalCalls=$getAllFirmUser='';
             if(\Route::current()->getName()=="communications/calls"){
@@ -1026,7 +1029,7 @@ class CaseController extends BaseController
 
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
-            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm'));
+            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany'));
         }
     }
 
@@ -1621,37 +1624,76 @@ class CaseController extends BaseController
         $id=$request->selectdValue;
         $case_id=$request->case_id;
         $isExists=CaseClientSelection::where("selected_user", $id)->where("case_id", $case_id)->count();
-        return response()->json(['errors'=>'','count'=>$isExists]);
+        
+        $getUserInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as sel_name'),"users.id","user_level","client_portal_enable")->where("users.id",$id)->first();
+        
+        if(!empty($getUserInfo) && $getUserInfo['user_level']=="4" ){
+            $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
+            ->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'),"users.id","user_level")->where("users.user_level","2");
+            $clientList = $clientList->where("parent_user",Auth::user()->id);
+            $clientList = $clientList->whereRaw("find_in_set($id,`multiple_compnay_id`)");
+            $clientList = $clientList->get();
+        }
+        $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
+
+
+        return view('case.link_contact_view',compact('caseCllientSelection','case_id','clientList','caseCllientSelection','getUserInfo','isExists'));
+
+        // return response()->json(['errors'=>'','count'=>$isExists]);
         exit;
     }
     public function saveLinkSelection(Request $request)
     {
-       
-        if(isset($request->case_id)) {
-            $checkBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->count();
-            if($checkBeforAdd<=0){
-                $CaseClientSelection = new CaseClientSelection;
-                $CaseClientSelection->case_id=$request->case_id; 
-                $CaseClientSelection->selected_user=$request->user_type; 
-                $CaseClientSelection->created_by=Auth::user()->id; 
-                $CaseClientSelection->save();
-                session(['popup_success' => 'Your contact has been added']);
-                return response()->json(['errors'=>'','count'=>$CaseClientSelection->id]);
-                exit;
-            }else{
-                $deleteBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->get();
-                foreach($deleteBeforAdd as $k=>$v){
-                    if($k>0){
-                        CaseClientSelection::where("id",$v->id)->delete();
-                    }
+    //    print_r($request->all());exit;
+       if(isset($request->case_id)) {
+        $checkBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->count();
+        if($checkBeforAdd<=0){
+            $CaseClientSelection = new CaseClientSelection;
+            $CaseClientSelection->case_id=$request->case_id; 
+            $CaseClientSelection->selected_user=$request->user_type; 
+            $CaseClientSelection->created_by=Auth::user()->id; 
+            $CaseClientSelection->save();
+
+            if(!empty($request->client_links)){
+                foreach($request->client_links as $k=>$v ){
+                    $CaseClientSelection = new CaseClientSelection;
+                    $CaseClientSelection->case_id=$request->case_id; 
+                    $CaseClientSelection->selected_user=$v; 
+                    $CaseClientSelection->created_by=Auth::user()->id; 
+                    $CaseClientSelection->save();
                 }
-                return response()->json(['errors'=>'Selected contact already linked.']);
-                exit;
             }
-        }else{
-            return response()->json(['errors'=>'Not saved']);
+            session(['popup_success' => 'Your contact has been added']);
+            return response()->json(['errors'=>'','count'=>$CaseClientSelection->id]);
             exit;
         }
+   
+    }
+        // if(isset($request->case_id)) {
+        //     $checkBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->count();
+        //     if($checkBeforAdd<=0){
+        //         $CaseClientSelection = new CaseClientSelection;
+        //         $CaseClientSelection->case_id=$request->case_id; 
+        //         $CaseClientSelection->selected_user=$request->user_type; 
+        //         $CaseClientSelection->created_by=Auth::user()->id; 
+        //         $CaseClientSelection->save();
+        //         session(['popup_success' => 'Your contact has been added']);
+        //         return response()->json(['errors'=>'','count'=>$CaseClientSelection->id]);
+        //         exit;
+        //     }else{
+        //         $deleteBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->get();
+        //         foreach($deleteBeforAdd as $k=>$v){
+        //             if($k>0){
+        //                 CaseClientSelection::where("id",$v->id)->delete();
+        //             }
+        //         }
+        //         return response()->json(['errors'=>'Selected contact already linked.']);
+        //         exit;
+        //     }
+        // }else{
+        //     return response()->json(['errors'=>'Not saved']);
+        //     exit;
+        // }
     }
 
 

@@ -1,4 +1,4 @@
-<form class="createCase" id="createCase" name="createCase" method="POST">
+<form class="linkContactToCase" id="linkContactToCase" name="linkContactToCase" method="POST">
    
     @csrf
     <?php 
@@ -39,6 +39,8 @@
             </div>
             <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
         </div>
+        <div id="contact_verification" style="border-top: 1px solid #cccccc;">
+        </div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label"></label>
             <label for="inputEmail3" class="col-sm-9 col-form-label"><span id="UserTypeError" class="error">This contact is already linked to this case.</span></label>
@@ -75,7 +77,7 @@
 
        ;
         $("#submit_with_user").attr("disabled", true);
-        $("#createCase").validate({
+        $("#linkContactToCase").validate({
             rules: {
                 user_type: {
                     required: false
@@ -88,16 +90,16 @@
             }
         });
 
-        $('#createCase').submit(function (e) {
+        $('#linkContactToCase').submit(function (e) {
             e.preventDefault();
             $("#submit").attr("disabled", true);
             $("#innerLoader").css('display', 'block');
-            if (!$('#createCase').valid()) {
+            if (!$('#linkContactToCase').valid()) {
                 $("#innerLoader").css('display', 'none');
                 $('#submit').removeAttr("disabled");
                 return false;
             }
-            var dataString = $("form").serialize();
+            var dataString = $("#linkContactToCase").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveLinkSelection", // json datasource
@@ -138,12 +140,11 @@
                     "case_id" : {{$case_id}}
                 },
                 success: function (res) {
+                    $("#contact_verification").html('');
+                    $("#contact_verification").html(res);
                     if(res.count<0){
-                        $("#UserTypeError").css('display', 'block');
                         $("#submit_with_user").attr("disabled", true);
-
                     }else{
-                        $("#UserTypeError").css('display', 'none');
                         $('#submit_with_user').removeAttr("disabled");
                     }
                     $("#innerLoader").css('display', 'none');

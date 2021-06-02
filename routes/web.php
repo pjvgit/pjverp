@@ -462,6 +462,7 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('tasks/updateCheckList', 'TaskController@updateCheckList')->name('tasks/updateCheckList');
      Route::post('tasks/loadCheckListView', 'TaskController@loadCheckListView')->name('tasks/loadCheckListView');
      Route::post('tasks/loadCheckListViewForTask', 'TaskController@loadCheckListViewForTask')->name('tasks/loadCheckListViewForTask');
+     Route::post('tasks/loadCheckListViewForTaskWithoutCheckbox', 'TaskController@loadCheckListViewForTask')->name('tasks/loadCheckListViewForTaskWithoutCheckbox');
      Route::post('tasks/reloadCounter', 'TaskController@reloadTaskCounter')->name('tasks/reloadCounter');
      Route::post('tasks/singleTaskMarkAsComplete', 'TaskController@singleTaskMarkAsComplete')->name('tasks/singleTaskMarkAsComplete');
      Route::post('tasks/loadTaskRightSection', 'TaskController@loadTaskRightSection')->name('tasks/loadTaskRightSection');
