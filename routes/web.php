@@ -696,7 +696,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('download', 'PDFController@download')->name('download');
 
     //CLIENT Dashboard
-    Route::get('contacts/clients/{id}', 'ClientdashboardController@clientDashboardView');
+    Route::get('contacts/clients/{id}', 'ClientdashboardController@clientDashboardView')->name('contacts/clients/view');
     Route::get('contacts/clients/{id}/cases', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_cases');
     Route::get('contacts/clients/{id}/activity', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_activity');
     Route::get('contacts/clients/{id}/notes', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_notes');
@@ -773,7 +773,7 @@ Route::group(['middleware'=>'auth'], function () {
 
 
     //Company Dashboard
-    Route::get('contacts/companies/{id}', 'CompanydashboardController@companyDashboardView');
+    Route::get('contacts/companies/{id}', 'CompanydashboardController@companyDashboardView')->name('contacts/companies/view');
     Route::get('contacts/companies/{id}/clients', 'CompanydashboardController@companyDashboardView')->name('contacts_company_client');
     Route::get('contacts/companies/{id}/cases', 'CompanydashboardController@companyDashboardView')->name('contacts_company_cases');
     Route::get('contacts/companies/{id}/notes', 'CompanydashboardController@companyDashboardView')->name('contacts_company_notes');

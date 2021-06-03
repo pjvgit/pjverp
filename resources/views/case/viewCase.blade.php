@@ -195,7 +195,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                         <?php 
                                     if(!$leadAttorney->isEmpty()){
                                         ?>
-                                         <a class="pendo-left-details-created-by-link" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($leadAttorney[0]->id)}}">
+                                         <a class="pendo-left-details-created-by-link" href="{{ route('contacts/attorneys/info', base64_encode($leadAttorney[0]->id)) }}">
                                             {{substr($leadAttorney[0]->first_name,0,15)}} {{substr($leadAttorney[0]->last_name,0,15)}}</a>
                                             <?php 
                                    
@@ -212,7 +212,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="text-muted test-originating-attorney-value"><?php 
                                       if(!$originatingAttorney->isEmpty()){
                                           ?>
-                                            <a class="pendo-left-details-created-by-link" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($originatingAttorney[0]->id)}}">
+                                            <a class="pendo-left-details-created-by-link" href="{{ route('contacts/attorneys/info', base64_encode($leadAttorney[0]->id)) }}">
                                                 {{substr($originatingAttorney[0]->first_name,0,15)}} {{substr($originatingAttorney[0]->last_name,0,15)}}</a>
                                                 <?php
                                     
@@ -230,7 +230,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                             foreach($staffList as $staffKey=>$staffVal){ ?>
                                             <div>
                                                 <a class="pendo-left-details-staff-link"
-                                                    href="{{BASE_URL}}contacts/attorneys/{{$staffVal->decode_id}}">{{substr($staffVal->first_name,0,15)}}
+                                                    href="{{ route('contacts/attorneys/info', $staffVal->decode_id) }}">{{substr($staffVal->first_name,0,15)}}
                                                     {{substr($staffVal->last_name,0,15)}}
                                                 </a>
                                                 <small><?php
@@ -261,7 +261,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     }else{
                                       echo "-";
                                     }?> by:
-                                    <a class="pendo-left-details-created-by-link" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($CaseMaster->case_created_by)}}">
+                                    <a class="pendo-left-details-created-by-link" href="{{ route('contacts/attorneys/info', base64_encode($CaseMaster->case_created_by)) }}">
                                         {{substr($CaseMaster->first_name,0,15)}} {{substr($CaseMaster->last_name,0,15)}}</a>
                                 </div>
                                 <hr>

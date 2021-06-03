@@ -26,6 +26,8 @@ use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
+use Exception;
+
 class LeadController extends BaseController
 {
     public function __construct()
@@ -945,79 +947,92 @@ class LeadController extends BaseController
     // Save step 2 data to database.
     public function saveStep2(Request $request)
     {
-        if($request->case_id!=''){
-            $validator = \Validator::make($request->all(), [
-                'case_name' => 'required|unique:case_master,case_title,'.$request->case_id.',id,deleted_at,NULL',
-            ]);
-        }else{
-            $validator = \Validator::make($request->all(), [
-                'case_name' => 'required|unique:case_master,case_title'
-            ]);
-        }
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
+        dbStart();
+        try {
             if($request->case_id!=''){
-                $CaseMaster = CaseMaster::firstOrNew(array('id' => $request->case_id));
+                $validator = \Validator::make($request->all(), [
+                    'case_name' => 'required|unique:case_master,case_title,'.$request->case_id.',id,deleted_at,NULL',
+                ]);
             }else{
-                $CaseMaster = new CaseMaster;
+                $validator = \Validator::make($request->all(), [
+                    'case_name' => 'required|unique:case_master,case_title'
+                ]);
             }
-            if(isset($request->case_name)) { $CaseMaster->case_title=$request->case_name; }
-            if(isset($request->case_number)) { $CaseMaster->case_number =$request->case_number; }
-            if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
-            if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
-            if(isset($request->case_open_date)) {
-                $var = $request->case_open_date;
-                $CaseMaster->case_open_date= date('Y-m-d', strtotime($var));
-            }
-
-            if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
-            if(isset($request->case_statute)) {
-                $var = $request->case_statute;
-                $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
-            }
-             if(isset($request->conflict_check)) { 
-                $CaseMaster->conflict_check="1"; 
-                if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
-            }
-            $CaseMaster->case_unique_number=strtoupper(uniqid()); 
-            if(isset($request->practice_area_text)) { 
-                $CasePracticeArea = new CasePracticeArea;
-                $CasePracticeArea->title=$request->practice_area_text; 
-                $CasePracticeArea->firm_id =Auth::User()->firm_name;
-                $CasePracticeArea->created_by=Auth::User()->id; 
-                $CasePracticeArea->save();
-                
-                $CaseMaster->practice_area=$CasePracticeArea->id;
+            if ($validator->fails())
+            {
+                return response()->json(['errors'=>$validator->errors()->all()]);
             }else{
-                if(isset($request->practice_area)) { $CaseMaster->practice_area=$request->practice_area; }
-            }
-           
-            $CaseMaster->created_by=Auth::User()->id; 
-            $CaseMaster->is_entry_done="0"; 
-            $CaseMaster->save();
-
-            if(isset($request->case_statute)){
-                for($i=0;$i<count($request->reminder_type)-1;$i++){
-                    $CaseSolReminder = new CaseSolReminder;
-                    $CaseSolReminder->case_id=$CaseMaster->id; 
-                    $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
-                    $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-                    $CaseSolReminder->created_by=Auth::User()->id; 
-                    $CaseSolReminder->save();
+                if($request->case_id!=''){
+                    $CaseMaster = CaseMaster::firstOrNew(array('id' => $request->case_id));
+                }else{
+                    $CaseMaster = new CaseMaster;
                 }
-            }
+                if(isset($request->case_name)) { $CaseMaster->case_title=$request->case_name; }
+                if(isset($request->case_number)) { $CaseMaster->case_number =$request->case_number; }
+                if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
+                if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
+                if(isset($request->case_open_date)) {
+                    $var = $request->case_open_date;
+                    $CaseMaster->case_open_date= date('Y-m-d', strtotime($var));
+                }
 
-            //Activity tab
-            $data=[];
-            $data['activity_title']='added case';
-            $data['case_id']=$CaseMaster->id;
-            $data['activity_type']='';
-            $this->caseActivity($data);
+                if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
+                if(isset($request->case_statute)) {
+                    $var = $request->case_statute;
+                    $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
+                }
+                if(isset($request->conflict_check)) { 
+                    $CaseMaster->conflict_check="1"; 
+                    if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
+                }
+                $CaseMaster->case_unique_number=strtoupper(uniqid()); 
+                if(isset($request->practice_area_text)) { 
+                    $CasePracticeArea = new CasePracticeArea;
+                    $CasePracticeArea->title=$request->practice_area_text; 
+                    $CasePracticeArea->firm_id =Auth::User()->firm_name;
+                    $CasePracticeArea->created_by=Auth::User()->id; 
+                    $CasePracticeArea->save();
+                    
+                    $CaseMaster->practice_area=$CasePracticeArea->id;
+                }else{
+                    if(isset($request->practice_area)) { $CaseMaster->practice_area=$request->practice_area; }
+                }
+            
+                $CaseMaster->created_by=Auth::User()->id; 
+                $CaseMaster->is_entry_done="0"; 
+                $CaseMaster->save();
+
+                // Assign lead task to case
+                $leadUser = User::whereId($request->id)->with('userLeadTask')->first();
+                if($leadUser) {
+                    $leadUser->userLeadTask()->update(['case_id' => $CaseMaster->id]);
+                }
+
+                if(isset($request->case_statute)){
+                    for($i=0;$i<count($request->reminder_type)-1;$i++){
+                        $CaseSolReminder = new CaseSolReminder;
+                        $CaseSolReminder->case_id=$CaseMaster->id; 
+                        $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
+                        $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
+                        $CaseSolReminder->created_by=Auth::User()->id; 
+                        $CaseSolReminder->save();
+                    }
+                }
+
+                //Activity tab
+                $data=[];
+                $data['activity_title']='added case';
+                $data['case_id']=$CaseMaster->id;
+                $data['activity_type']='';
+                $this->caseActivity($data);
+            }
+            dbCommit();
+            return response()->json(['errors'=>'','case_id'=>$CaseMaster->id,'id'=>$request->id,'user_id'=>$request->user_id]);
+            exit;
+        } catch (Exception $e)  {
+            dbEnd();
+            return response()->json(['errors'=>'Something went wrong']);
         }
-        return response()->json(['errors'=>'','case_id'=>$CaseMaster->id,'id'=>$request->id,'user_id'=>$request->user_id]);
-        exit;
     }
 
       //Load step 3 when click next button in step 2
@@ -1068,11 +1083,12 @@ class LeadController extends BaseController
     public function loadStep4(Request $request)
     {
         $case_id=$request->case_id;
-        $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+        /* $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get(); */
+        $loadFirmUser = firmUserList();
         return view('lead.loadStep4',compact('loadFirmUser','case_id'));
     }
 

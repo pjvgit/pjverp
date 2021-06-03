@@ -439,7 +439,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 var mobile_number=aData.mobile_number;
                 var note=aData.notes;
 
-                var namedata='<div class="name-cell"><a href="{{BASE_URL}}leads/'+aData.user_id+'/case_details/info">'+name+'</a>';
+                var namedata='<div class="name-cell"><a href="'+baseUrl+'/leads/'+aData.user_id+'/case_details/info">'+name+'</a>';
                 if(mobile_number!=null){
                     namedata+='<div class="row ml-1"><i aria-hidden="true" class="fa fa-phone icon-phone icon col- mt-1 pl-0" style="opacity: 0.6; width: 20px;"></i><span class="col-10 p-0">'+mobile_number+'</span></div>';
                 }

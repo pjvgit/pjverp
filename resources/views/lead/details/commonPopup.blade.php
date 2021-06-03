@@ -458,7 +458,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function loadStep1(id) {
+    /* function loadStep1(id) {
         $("#step-1").html('<img src="{{LOADER}}"> Loading...');
         $(function () {
             $.ajax({
@@ -471,7 +471,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
+    } */
 
     function addIntakeFormFromPC(id=null) {
         $("#addIntakeFormFromPCArea").html('<img src="{{LOADER}}"> Loading...');

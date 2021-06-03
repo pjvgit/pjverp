@@ -509,7 +509,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $('.showError').html('');
         
         $("#expensesEntry").html('');
-        $("#expensesEntry").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#expensesEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadExpenseHistory",
@@ -553,7 +553,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $('.showError').html('');
         
         $("#timeEntry").html('');
-        $("#timeEntry").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#timeEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadTimeEntryHistory",
@@ -597,7 +597,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $('.showError').html('');
         
         $("#invoiceEntry").html('');
-        $("#invoiceEntry").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#invoiceEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadInvoiceHistory",
@@ -640,7 +640,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     function loadAllActivity() {
         $('.showError').html('');
         $("#allEntry").html('');
-        $("#allEntry").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#allEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadAllHistory",
@@ -725,7 +725,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $('.showError').html('');
         
         $("#overViewInvoice").html('');
-        $("#overViewInvoice").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#overViewInvoice").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadInvoiceOverview",
@@ -770,7 +770,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $('.showError').html('');
         
         $("#trustAccountOverview").html('');
-        $("#trustAccountOverview").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#trustAccountOverview").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadTrustAccountOverview",
@@ -853,7 +853,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#currentBox").val(type)
         $('.showError').html('');
         
-        $("#loadCalender").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#loadCalender").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadCalender",
@@ -895,7 +895,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     function loadSummary(start,end,type) {
         $('.showError').html('');
         
-        $("#loadSummary").html('<img src="{{BASE_URL}}public/images/ajax_arrows.gif"> Loading...');
+        $("#loadSummary").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/dashboard/loadSummary",

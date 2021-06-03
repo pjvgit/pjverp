@@ -195,4 +195,14 @@ class User extends Authenticatable
     {
         return substr($this->first_name,0,100).' '.substr($this->last_name,0,100);
     }
+
+    /**
+     * Get all of the userLeadTask for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userLeadTask()
+    {
+        return $this->hasMany(Task::class, 'lead_id', 'id');
+    }
 }

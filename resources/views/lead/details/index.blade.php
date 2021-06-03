@@ -841,6 +841,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @endsection
 
 @section('page-js')
+<script src="{{ asset('assets/js/custom/lead/converttocase.js') }}"></script>
 <script type="text/javascript">
   function myFunction(id) {
     var links=$("#"+id).attr("link");

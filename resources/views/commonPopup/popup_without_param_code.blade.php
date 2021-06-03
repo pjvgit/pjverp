@@ -215,7 +215,7 @@
 
                                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                                     <div class="card-body text-center"> 
-                                        <img src="{{BASE_URL}}public/svg/contact.svg" width="60" height="60">
+                                        <img src="{{ asset('svg/contact.svg') }}" width="60" height="60">
                    
                                         <div class="content">
                                             <p class="text-muted mt-2 mb-0">New Contact</p>
@@ -230,7 +230,7 @@
                                 onclick="addCompany();" href="javascript:;">
 
                                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
-                                    <div class="card-body text-center"><img src="{{BASE_URL}}public/svg/company.svg" width="60" height="60">
+                                    <div class="card-body text-center"><img src="{{ asset('svg/company.svg') }}" width="60" height="60">
                                         <div class="content">
                                             <p class="text-muted mt-2 mb-0">Add Company</p>
                                         </div>
@@ -825,7 +825,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal"  data-target="#AddCaseModelUpdate" onclick="loadAllStep();" data-placement="bottom" href="javascript:;" >
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/court_case_add.svg" width="60" height="60">
+                                <img src="{{ asset('svg/court_case_add.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">New Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -837,7 +837,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#addExistingCase" data-placement="bottom" href="javascript:;" onclick="addExistingCase();"> 
                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/exisiting_case.svg" width="60" height="60">
+                                <img src="{{ asset('svg/exisiting_case.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">Existing Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>

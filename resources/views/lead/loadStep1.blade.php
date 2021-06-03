@@ -237,7 +237,8 @@
         $("#show_contact_group_dropdown").show();
 
 
-        $("#saveStep1").validate({
+        // $("#saveStep1").validate({
+        /* var caseStep1ValidateOptions = {
             rules: {
                 first_name: {
                     required: true,
@@ -303,14 +304,46 @@
                 } else {
                     element.after(error);
                 }
+            },
+            submitHandler: function() {    
+                var dataString = '';
+                dataString = $("#saveStep1").serialize();
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "/leads/saveStep1", // json datasource
+                    data: dataString,
+                    beforeSend: function (xhr, settings) {
+                        settings.data += '&saveandaddcase=yes';
+                    },
+                    success: function (res) {
+                        $("#innerLoader").css('display', 'block');
+                        if (res.errors != '') {
+                            $('#showError').html('');
+                            var errotHtml =
+                                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                            $.each(res.errors, function (key, value) {
+                                errotHtml += '<li>' + value + '</li>';
+                            });
+                            errotHtml += '</ul></div>';
+                            $('#showError').append(errotHtml);
+                            $('#showError').show();
+                            $("#innerLoader").css('display', 'none');
+                            $('#submit').removeAttr("disabled");
+                            return false;
+                        } else {
+                            $('#submit').removeAttr("disabled");
+                            loadStep2(res);
+                        }
+                    }
+                });
+                return false;
             }
-        });
+        }; */
         $("#show_company_text").hide();
 
     });
 
-    $('#saveStep1').submit(function (e) {
-        alert();
+    /* $('#saveStep1').submit(function (e) {
         $("#submit").attr("disabled", true);
         $("#innerLoader").css('display', 'block');
         // e.preventDefault();
@@ -322,7 +355,7 @@
         }
         var dataString = '';
         dataString = $("#saveStep1").serialize();
-        /* $.ajax({
+        $.ajax({
             type: "POST",
             url: baseUrl + "/leads/saveStep1", // json datasource
             data: dataString,
@@ -349,8 +382,8 @@
                     loadStep2(res);
                 }
             }
-        }); */
-    });
+        });
+    }); */
 
     $('#collapsed').click(function () {
         $("#collapsed").find('i').toggleClass('fa-sort-up align-bottom').toggleClass(
@@ -364,7 +397,7 @@
     });
 
    
-    function loadStep2(res) {
+    /* function loadStep2(res) {
         console.log(res);
        
         $.ajax({
@@ -384,7 +417,7 @@
         })
 
         return false;
-    }
+    } */
     $('input.decimal').keyup(function (event) {
         // skip for arrow keys
         if (event.which >= 37 && event.which <= 40) return;

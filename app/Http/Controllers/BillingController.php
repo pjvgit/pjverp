@@ -71,7 +71,7 @@ class BillingController extends BaseController
             $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
 
-            return view('billing.time_entry.time_entries', compact('user','country','firmData','firmAddress','FirmEventReminder','FirmSolReminder','case','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
+            return view('billing.time_entry.time_entries', compact('user','country','firmData','firmAddress','FirmEventReminder','FirmSolReminder','case','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
         }else{
             return view('pages.404');
         }
@@ -391,7 +391,7 @@ class BillingController extends BaseController
             // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
             $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
 
-            return view('billing.expenses.expenses_entries', compact('user','case','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
+            return view('billing.expenses.expenses_entries', compact('user','case','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
         }else{
             return view('pages.404');
         }
@@ -1823,7 +1823,9 @@ class BillingController extends BaseController
             $client_id = '';
             if($request->court_case_id) {
                 $case = CaseClientSelection::where("case_id", $request->court_case_id)->where("is_billing_contact", "yes")->first();
-                $client_id = $case->selected_user;
+                if($case) {
+                    $client_id = $case->selected_user;
+                }
             }
             $userData=User::find($client_id);
             // $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();
@@ -1890,7 +1892,7 @@ class BillingController extends BaseController
     }
     public function newInvoice(Request $request)
     {
-      
+        // return $request->all();
         $id=Auth::user()->id;
          $user = User::find($id);
          $from_date='';

@@ -1626,7 +1626,7 @@ class CaseController extends BaseController
         $isExists=CaseClientSelection::where("selected_user", $id)->where("case_id", $case_id)->count();
         
         $getUserInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as sel_name'),"users.id","user_level","client_portal_enable")->where("users.id",$id)->first();
-        
+        $clientList = [];
         if(!empty($getUserInfo) && $getUserInfo['user_level']=="4" ){
             $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
             ->select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'),"users.id","user_level")->where("users.user_level","2");

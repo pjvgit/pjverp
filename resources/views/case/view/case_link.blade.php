@@ -65,10 +65,11 @@
                             </td>
                             <td class="user-name align-middle c-pointer">
                             <?php if($clistVal->user_level==2){?>
-                                <a href="{{BASE_URL}}contacts/clients/{{$clistVal->id}}">
+                                {{-- <a href="{{BASE_URL}}contacts/clients/{{$clistVal->id}}"> --}}
+                                <a href="{{ route('contacts/clients/view', $clistVal->id) }}">
                             <?php } else{ ?>
                             
-                                <a href="{{BASE_URL}}contacts/companies/{{$clistVal->id}}">
+                                <a href="{{ route('contacts/companies/view', $clistVal->id) }}">
                             <?php }?>
                                     <div>
                                         <div>{{$clistVal->first_name}} {{$clistVal->middle_name}}  {{$clistVal->last_name}}</div>

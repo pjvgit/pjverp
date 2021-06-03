@@ -520,7 +520,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
       <p>
         It may take a few minutes for this to take effect.
         <span id='user_delete_loading' style='position: absolute; right: 8px; bottom: 3px; display: none;'>
-          <img style="vertical-align: middle;" class="retina" src="{{BASE_URL}}public/images/ajax_arrows.gif" width="16" height="16" /> Working
+          <img style="vertical-align: middle;" class="retina" src="{{ asset('images/ajax_arrows.gif') }}" width="16" height="16" /> Working
         </span>
       </p>
   

@@ -3,7 +3,7 @@
 <table class="form">
     <tbody>
     <?php
-    if(isset($clientList) && !$clientList->isEmpty()){?>
+    if(isset($clientList) && !empty($clientList)){?>
       <tr>
           <th>Company<br>Contact Link</th>
           <td style="padding-top: 12px !important;">
@@ -67,7 +67,7 @@
       <tbody><tr>
         <th></th>
         <td style="padding-top: 12px !important; color: red;">
-          <img align="absmiddle" src="{{BASE_URL}}public/images/alert_icon.png">
+          <img align="absmiddle" src="{{ asset('images/alert_icon.png') }}">
           This contact is already linked to this case.
         </td>
       </tr>

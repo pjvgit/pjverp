@@ -4,7 +4,7 @@
     @csrf    
     <input class="form-control" value="{{($UserMaster->id)??''}}" id="id" maxlength="250" name="id" type="hidden">
     <input class="form-control" value="{{($LeadAdditionalInfo->id)??''}}" id="id" maxlength="250" name="user_id" type="hidden">
-    <input type="hidden" name="case_id"  id="case_id" value="{{($case_id)??''}}"">
+    {{-- <input type="text" name="case_id"  id="case_id" value="{{@$case_id}}"> --}}
 
     <div class=" col-md-12">
         <div class="form-group row">

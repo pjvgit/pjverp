@@ -2,6 +2,7 @@
 
 use App\LeadAdditionalInfo;
 use App\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Get lead list for add task
@@ -46,4 +47,42 @@ function userCompanyList()
     }
     return $company->get()->pluck("full_name", "id");
     // User::select("email","first_name","last_name","id","user_level")->whereIn("user_status",[1,2])->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+}
+
+/**
+ * Get firm user list
+ */
+function firmUserList()
+{
+    return User::select("first_name","last_name","id","user_level","user_title","default_rate")->where("firm_name", auth()->user()->firm_name)
+                ->where("user_level","3")->get();
+    /* $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
+    $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+    $getChildUsers[]=Auth::user()->id;
+    $getChildUsers[]="0"; //This 0 mean default category need to load in each user
+    $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get(); */
+}
+
+/*
+* Begine Transaction.                  
+*/
+function dbStart()
+{
+    return DB::beginTransaction();
+}
+
+/*
+* Commit Transaction.     
+*/
+function dbCommit()
+{
+    return DB::commit();
+}
+
+/**
+ * RollBack Transaction.                    
+ */
+function dbEnd()
+{
+    return DB::rollback();
 }
