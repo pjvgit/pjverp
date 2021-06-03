@@ -182,11 +182,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the userLeads for the User
+     * Get all of the userLeadAdditionalInfo for the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function userLeads()
+    public function userLeadAdditionalInfo()
     {
         return $this->hasMany(LeadAdditionalInfo::class, 'user_id');
     }

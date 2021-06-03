@@ -310,9 +310,10 @@
     });
 
     $('#saveStep1').submit(function (e) {
+        alert();
         $("#submit").attr("disabled", true);
         $("#innerLoader").css('display', 'block');
-        e.preventDefault();
+        // e.preventDefault();
 
         if (!$('#saveStep1').valid()) {
             $("#innerLoader").css('display', 'none');
@@ -321,7 +322,7 @@
         }
         var dataString = '';
         dataString = $("#saveStep1").serialize();
-        $.ajax({
+        /* $.ajax({
             type: "POST",
             url: baseUrl + "/leads/saveStep1", // json datasource
             data: dataString,
@@ -348,7 +349,7 @@
                     loadStep2(res);
                 }
             }
-        });
+        }); */
     });
 
     $('#collapsed').click(function () {
@@ -371,7 +372,8 @@
             url: baseUrl + "/leads/loadStep2", // json datasource
             data: {
                 "id": res.user_id,
-                "case_id":localStorage.getItem("case_id")
+                "case_id":localStorage.getItem("case_id"),
+                "_token": "{{ csrf_token() }}"
             },
             success: function (res) {
                 $('#smartwizard').smartWizard("next");
