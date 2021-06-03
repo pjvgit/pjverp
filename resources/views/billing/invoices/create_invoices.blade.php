@@ -2,6 +2,9 @@
 @section('title', 'Create New Invoice - Billing')
 @section('main-content')
 @include('billing.submenu')
+<?php
+$practice_area_id=($_GET['practice_area_id'])??'';
+?>
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
 
@@ -46,7 +49,7 @@
                                 <option value="all">Show All</option>
                                 <?php foreach($practiceAreaList as $k=>$v){
                                     ?>
-                                <option value="{{$v->id}}">{{$v->title}}</option>
+                                <option <?php if($practice_area_id==$v->id){ echo "selected=selected"; } ?> value="{{$v->id}}">{{$v->title}}</option>
                                 <?php 
                                 }
                                 ?>
@@ -691,7 +694,8 @@
                 type: "post",
                 data: {
                     'load': 'true',
-                    'type': "all"
+                    'type': "all",
+                    'practice_area_id':"{{$practice_area_id}}"
                 },
                 error: function () {
                     $("#invoiceGrid_processing").css("display", "none");

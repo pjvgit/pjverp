@@ -1,5 +1,6 @@
 <form class="sendEmails" id="sendEmails" name="sendEmails" method="POST">
     @csrf
+
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>
     <div class="col-md-12">
@@ -303,37 +304,37 @@
         allowClear: true,
         dropdownParent: $("#addNewMessagePopup"),
     });
-    $('#sendto').on("select2:select", function (evt) {
-        var element = evt.params.data.element;
-        var $element = $(element);
+    // $('#sendto').on("select2:select", function (evt) {
+    //     var element = evt.params.data.element;
+    //     var $element = $(element);
 
-        $element.detach();
-        $(this).append($element);
-        $(this).trigger("change");
-        beforeLoader();
-        // alert( $(this).find(":selected").data("set"));
-        var selections = (JSON.stringify($("#sendto").select2('data')));
-        console.log('Selected options: ' + selections);
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/clients/checkBeforProceed",
-                data: {
-                    "selections": selections
-                },
-                success: function (res) {
-                    if (res.msg != "") {
-                        $('#sendto option[value="Case551 (asdasdasdas)"]').remove();
-                        // $('#sendto').select2('destroy').val('').select2();
-                        swal('Error!', res.msg, 'error');
-                    }
+    //     $element.detach();
+    //     $(this).append($element);
+    //     $(this).trigger("change");
+    //     beforeLoader();
+    //     // alert( $(this).find(":selected").data("set"));
+    //     var selections = (JSON.stringify($("#sendto").select2('data')));
+    //     console.log('Selected options: ' + selections);
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             url: baseUrl + "/contacts/clients/checkBeforProceed",
+    //             data: {
+    //                 "selections": selections
+    //             },
+    //             success: function (res) {
+    //                 if (res.msg != "") {
+    //                     $('#sendto option[value="Case551 (asdasdasdas)"]').remove();
+    //                     // $('#sendto').select2('destroy').val('').select2();
+    //                     swal('Error!', res.msg, 'error');
+    //                 }
 
-                    afterLoader();
-                }
-            })
-        })
+    //                 afterLoader();
+    //             }
+    //         })
+    //     })
 
-    });
+    // });
     $("#searchResult").hide();
     // $("#sent_to").keyup(function () {
     //     $("#to_autocomplete_spinner").show();
