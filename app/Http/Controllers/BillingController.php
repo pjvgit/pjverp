@@ -2815,7 +2815,40 @@ class BillingController extends BaseController
     {
         // print_r($request->all());exit;
      
-        $request->validate([
+        // return $request->all();
+        $rules = [
+            'invoice_number_padded' => 'required|numeric',
+            'court_case_id' => 'required|numeric',
+            'contact' => 'required|numeric',
+            'total_text' => 'required',
+            // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
+            // 'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
+        ];
+        if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
+            $rules['timeEntrySelectedArray'] = 'nullable|array';
+            $rules['expenseEntrySelectedArray'] = 'rnullable|array';
+        } else {
+            $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
+            $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+        }
+        $request->validate($rules,
+        /* [
+            'invoice_number_padded' => 'required|numeric',
+            'court_case_id' => 'required|numeric',
+            'contact' => 'required|numeric',
+            'total_text' => 'required',
+            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
+            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
+        ], */
+        [
+            "invoice_number_padded.unique"=>"Invoice number is already taken",
+            "invoice_number_padded.required"=>"Invoice number must be greater than 0",
+            "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
+            "contact.required"=>"Billing user can't be blank",
+            "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
+            "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"
+        ]);
+        /* $request->validate([
             'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
             'court_case_id' => 'required|numeric',
             'contact' => 'required|numeric',
@@ -2827,7 +2860,7 @@ class BillingController extends BaseController
         "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
         "contact.required"=>"Billing user can't be blank",
         "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
-        "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"]);
+        "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"]); */
           
        
             // print_r($request->all());exit;
@@ -3725,18 +3758,38 @@ class BillingController extends BaseController
 
     public function updateInvoiceEntry(Request $request)
     {
-        $request->validate([
+        // return $request->all();
+        $rules = [
+            'invoice_number_padded' => 'required|numeric',
+            'court_case_id' => 'required|numeric',
+            'contact' => 'required|numeric',
+            'total_text' => 'required',
+            // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
+            // 'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
+        ];
+        if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
+            $rules['timeEntrySelectedArray'] = 'nullable|array';
+            $rules['expenseEntrySelectedArray'] = 'nullable|array';
+        } else {
+            $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
+            $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+        }
+        $request->validate($rules,
+        /* [
             'invoice_number_padded' => 'required|numeric',
             'court_case_id' => 'required|numeric',
             'contact' => 'required|numeric',
             'total_text' => 'required',
             'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array'
-        ],["invoice_number_padded.required"=>"Invoice number must be greater than 0",
-        "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
-        "contact.required"=>"Billing user can't be blank",
-        "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
-        "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"]);
+            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
+        ], */
+        [
+            "invoice_number_padded.required"=>"Invoice number must be greater than 0",
+            "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
+            "contact.required"=>"Billing user can't be blank",
+            "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
+            "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"
+        ]);
 
         // // print_r($request->all());exit;
         // $validator = \Validator::make($request->all(), [
@@ -7360,6 +7413,14 @@ class BillingController extends BaseController
         $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         return view('billing.loadCaseList', compact('CaseMasterData','case_id'));
        
+    }
+    /**
+     * Get invoice payment history
+     */
+    public function invoicePaymentHistory(Request $request)
+    {
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        return view("billing.invoices.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
     }
 }
   

@@ -168,7 +168,7 @@
             } else {
                 $("#basic").removeAttr('readonly');
                 $("#percentage").val('').removeAttr('readonly');
-                $("#basic").val($("#time_entry_sub_total_text").val());
+                // $("#basic").val($("#time_entry_sub_total_text").val());
                 $("#amount").attr('readonly', true);
             }
 

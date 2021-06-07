@@ -982,7 +982,7 @@ class CaseController extends BaseController
             }
             $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
             ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
-            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.user_role as user_role","contact_group_id","users.profile_image","users.is_published","multiple_compnay_id")->where("case_client_selection.case_id",$case_id)->get();
+            ->select("users.id","users.id as uid","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","case_client_selection.is_billing_contact","contact_group_id","users.profile_image","users.is_published","multiple_compnay_id")->where("case_client_selection.case_id",$case_id)->get();
 
             $linkedCompany=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
            ->where("case_client_selection.case_id",$case_id)->where("user_level","4")->get()->pluck("first_name","selected_user");

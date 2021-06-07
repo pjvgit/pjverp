@@ -73,6 +73,9 @@
                             <?php }?>
                                     <div>
                                         <div>{{$clistVal->first_name}} {{$clistVal->middle_name}}  {{$clistVal->last_name}}</div>
+                                        @if($clistVal->is_billing_contact == "yes")
+                                            <div><strong>Billing Contact</strong></div>
+                                        @endif
                                     </div>
                                     <?php $allCompany=explode(",",$clistVal->multiple_compnay_id);
                                     foreach($allCompany as $kk=>$vv){

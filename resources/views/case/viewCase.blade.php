@@ -212,8 +212,8 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="text-muted test-originating-attorney-value"><?php 
                                       if(!$originatingAttorney->isEmpty()){
                                           ?>
-                                            <a class="pendo-left-details-created-by-link" href="{{ route('contacts/attorneys/info', base64_encode($leadAttorney[0]->id)) }}">
-                                                {{substr($originatingAttorney[0]->first_name,0,15)}} {{substr($originatingAttorney[0]->last_name,0,15)}}</a>
+                                            <a class="pendo-left-details-created-by-link" href="{{ route('contacts/attorneys/info', base64_encode(@$leadAttorney[0]->id)) }}">
+                                                {{substr(@$originatingAttorney[0]->first_name,0,15)}} {{substr(@$originatingAttorney[0]->last_name,0,15)}}</a>
                                                 <?php
                                     
                                       }else{

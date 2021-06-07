@@ -679,7 +679,6 @@
     });
     var beforeload = false;
     $("input:checkbox#time_tracking_enabled").click(function () {
-      
         if ($(this).is(":checked")) {
             $("#dynamicUSerTimes").show();
             if($("input:checkbox#no_case_link").is(":checked")){
@@ -720,15 +719,19 @@
         beforeLoader();
         var selectdValue = $("#case_or_lead option:selected").val() // or
         var SU=getCheckedUser();
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/tasks/loadTimeEstimationCaseWiseUsersList",
-            data: {"case_id":selectdValue,"edit":"edit","task_id":{{$Task->id}}},  //"userList" : JSON.stringify(SU),
-            success: function (res) {
-                $("#dynamicUSerTimes").html(res);
-                afterLoader();
-            }
-        })             
+        if(SU.length > 0) {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/tasks/loadTimeEstimationCaseWiseUsersList",
+                data: {"case_id":selectdValue,"edit":"edit","task_id":{{$Task->id}}},  //"userList" : JSON.stringify(SU),
+                success: function (res) {
+                    $("#dynamicUSerTimes").html(res);
+                    afterLoader();
+                }
+            })   
+        } else {
+            $("#dynamicUSerTimes").html('');
+        }
     }
     function getCheckedUser(){
         var array = [];

@@ -11,13 +11,15 @@
                 <span id="responseMain"></span>
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <h3> Invoice #{{$s}} </h3>
+                    <input type="hidden" value="{{ @$findInvoice->id }}" id="invoice_id">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->invoice_unique_token}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
 
                         <div class="pl-1">
-                            <a class="btn btn-outline-secondary  m-1" href="{{BASE_URL}}bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}">Edit</a>
+                            {{-- <a class="btn btn-outline-secondary  m-1" href="{{BASE_URL}}bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}">Edit</a> --}}
+                            <a class="btn btn-outline-secondary  m-1" href="{{ route('bills/invoices/edit', base64_encode($findInvoice->id)) }}?token={{base64_encode($findInvoice->id)}}">Edit</a>
                         </div>
 
                         <div id="send-pay-link" class="pl-1">
@@ -1065,7 +1067,9 @@
                                         <td class="invoice_info_bg" id="invoice-balance-due"
                                             style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
                                             <?php 
-                                            $F=number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition-number_format($findInvoice->paid_amount,2),2);
+                                            $paidAmount = ($findInvoice->paid_amount) ? (float) $findInvoice->paid_amount : 0;
+                                            $total = @$timeEntryAmount + @$expenseAmount + @$flatFeeEntryAmount + $addition;
+                                            $F= number_format($total - ($discount + $paidAmount), 2);
                                             if($F<=0){
                                                 $fAmt=0;
                                             }else{
@@ -1076,7 +1080,7 @@
                                     </tr>
 
                                     <?php
-                                    if(!$InvoiceInstallment->isEmpty()){?>
+                                    if(!empty($InvoiceInstallment)){?>
                                     <tr class="invoice_info_row">
                                         <td style="border: none;">
                                           <a name="payment_plan">&nbsp;</a>
@@ -1122,64 +1126,9 @@
                             </table>
                             <br>
                             <br>
-                            <?php
-                            if(isset($InvoiceHistoryTransaction) && !$InvoiceHistoryTransaction->isEmpty()){?>
-                            <h3> Payment History</h3>
-                            <table style="width: 100%; border-collapse: collapse;" class="payment_history">
-                                <tbody><tr class="invoice_info_row invoice_header_row invoice-table-row">
-                                  <td class="invoice_info_bg" style="width: 12%;">
-                                    Activity
-                                  </td>
-                                  <td class="invoice_info_bg" style="width: 10%;">
-                                    Date
-                                  </td>
-                                  <td class="invoice_info_bg" style="width: 33%;">
-                                    Payment Method
-                                  </td>
-                                  <td class="invoice_info_bg" style="width: 12%;">
-                                    Amount
-                                  </td>
-                                  <td class="invoice_info_bg" style="width: 15%;">
-                                    Responsible User
-                                  </td>
-                                  <td class="invoice_info_bg" style="width: 18%;">
-                                    Deposited Into
-                                  </td>
-                                </tr>
-                                <?php  foreach($InvoiceHistoryTransaction as $hKey=>$hVal){
-                                    if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund"])){ ?>
-                                  <tr class="invoice_info_row invoice-table-row">
-                                    <td class="payment-history-column-activity " style="vertical-align: top;">
-                                        {{$hVal->acrtivity_title}}
-                                    </td>
-                                    <td class="payment-history-column-formatted-date" style="vertical-align: top;">
-                                        {{$hVal->added_date}}
-                                    </td>
-                                    <td class="payment-history-column-pay-method" style="vertical-align: top;">
-                                        {{$hVal->pay_method}}
-                                    </td>
-                                    <td class="payment-history-column-amount" style="vertical-align: top;">
-                                        <?php if($hVal->acrtivity_title=="Payment Received"){?>
-                                            ${{number_format($hVal->amount,2)}}
-                                          <?php }else if($hVal->acrtivity_title=="Payment Refund"){?>
-                                              (${{number_format($hVal->amount,2)}})
-                                          <?php } ?>
-                                    </td>
-                                    <td class="payment-history-column-user" style="vertical-align: top;">
-                                        {{substr($hVal->responsible['cname'],0,100)}}
-                                        ({{$hVal->responsible['user_title']}})
-                                    </td>
-                                    <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                                        <?php if($hVal->acrtivity_title=="Payment Received"){
-                                            echo $hVal->deposit_into;
-                                         } ?>
-                                    </td>
-                                  </tr>
-                                  <?php } 
-                                 } ?>
-                              </tbody>
-                            </table>
-                        <?php } ?>
+                            <div id="payment_history_div">
+                            @include('billing.invoices.load_invoice_payment_history')
+                            </div>
                         </div>
                     </div>
                 
@@ -1890,7 +1839,20 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
     <?php } ?>
 
-   
+    // Get invoice payment history
+    function getInvoicePaymentHistory() {
+        $("#preloader").show();
+        var invoiceId = $("#invoice_id").val();
+        $.ajax({
+            type: "GET",
+            url:  baseUrl +"/bills/invoices/paymentHistory",
+            data: {'id':invoiceId},
+            success: function (res) {
+                $("#payment_history_div").html(res);
+                $("#preloader").hide();
+            }
+        });
+    }
 </script>
 @stop
 @endsection

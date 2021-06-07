@@ -909,6 +909,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/saveInvoicePayment', 'BillingController@saveInvoicePayment')->name('bills/invoices/saveInvoicePayment');
     Route::post('bills/invoices/deleteInvoiceForm', 'BillingController@deleteInvoiceForm')->name('bills/invoices/deleteInvoiceForm');
     Route::post('bills/invoices/deleteLeadInvoiceForm', 'BillingController@deleteLeadInvoiceForm')->name('bills/invoices/deleteLeadInvoiceForm');
+    Route::get('bills/invoices/paymentHistory', 'BillingController@invoicePaymentHistory')->name('bills/invoices/paymentHistory');
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');
@@ -964,7 +965,7 @@ Route::group(['middleware'=>'auth'], function () {
 
     Route::get('bills/invoices/invoiceInlineView/{id}', 'BillingController@invoiceInlineView')->name('bills/invoices/invoiceInlineView/{id}');
 
-    Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/{id}/edit');
+    Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/edit');
     Route::post('bills/invoices/resendUpdatedInvoice', 'BillingController@resendUpdatedInvoice')->name('bills/invoices/resendUpdatedInvoice');
     Route::post('bills/invoices/payInvoice', 'BillingController@payInvoice')->name('bills/invoices/payInvoice');
     Route::post('bills/invoices/saveTrustInvoicePaymentWithHistory', 'BillingController@saveTrustInvoicePaymentWithHistory')->name('bills/invoices/saveTrustInvoicePaymentWithHistory');

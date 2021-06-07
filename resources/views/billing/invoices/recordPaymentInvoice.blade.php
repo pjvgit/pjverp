@@ -437,6 +437,7 @@ $finalAmt=$invoice-$paid;
                         return false;
                     } else {
                         swal('Payment Successful!', res.msg, 'success');
+                        getInvoicePaymentHistory();
                         afterLoader();
                         setTimeout(function () {
                             $("#payInvoice").modal("hide")
