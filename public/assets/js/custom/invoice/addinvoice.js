@@ -64,7 +64,6 @@ function actionFlatFeeEntry(action) {
  * Open time entry delete modal
  */
 function openTimeDelete(id) {
-    alert(id);
     $("#delete_existing_dialog").modal("show");
     $("#delete_time_entry_id").val(id);
 }
@@ -126,7 +125,6 @@ function actionTimeEntry(action) {
  * Open expense entry delete modal
  */
 function openExpenseDelete(id) {
-    alert(id);
     $("#delete_expense_existing_dialog").modal("show");
     $("#delete_expense_entry_id").val(id);
 }
