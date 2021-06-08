@@ -2017,9 +2017,11 @@ class BillingController extends BaseController
            
             $id=$request->time_entry_id;
             if($request->action=="delete"){
+                TimeEntryForInvoice::where("time_entry_id", $id)->delete();
                 TaskTimeEntry::where("id", $id)->delete();
             }else{
                 // TaskTimeEntry::where('id',$id)->update(['remove_from_current_invoice'=>'yes']);
+                TimeEntryForInvoice::where("time_entry_id", $id)->delete();
                 TaskTimeEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
@@ -2038,8 +2040,10 @@ class BillingController extends BaseController
            
             $id=$request->flat_fee_id;
             if($request->action=="delete"){
+                FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
                 FlatFeeEntry::where("id", $id)->delete();
             }else{
+                FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
                 FlatFeeEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
@@ -2226,7 +2230,7 @@ class BillingController extends BaseController
     {
         $validator = \Validator::make($request->all(), [
             'staff_user' => 'required|numeric',
-            'case_id' => 'required|numeric',
+            'case_id' => 'nullable|numeric',
         ]);
         if ($validator->fails())
         {
@@ -2234,7 +2238,7 @@ class BillingController extends BaseController
         }else{
 
             $TaskTimeEntry = new TaskTimeEntry;
-            $TaskTimeEntry->case_id =$request->case_id;
+            $TaskTimeEntry->case_id =($request->case_id)??'none';
             $TaskTimeEntry->user_id =$request->staff_user;
             if(isset($request->activity_text)){
                 $TaskAvtivity = new TaskActivity;
@@ -2389,8 +2393,10 @@ class BillingController extends BaseController
            
             $id=$request->expense_entry_id;
             if($request->action=="delete"){
+                ExpenseForInvoice::where("expense_entry_id", $id)->delete();
                 ExpenseEntry::where("id", $id)->delete();
             }else{
+                ExpenseForInvoice::where("expense_entry_id", $id)->delete();
                 ExpenseEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
@@ -2447,7 +2453,8 @@ class BillingController extends BaseController
     public function saveSingleExpenseEntry(Request $request)
     {
       $validator = \Validator::make($request->all(), [
-          'case_id' => 'required',
+        //   'case_id' => 'required',
+          'case_id' => 'nullable',
           'staff_user' => 'required',
       ],['case_or_lead.required'=>'Case can\'t be blank',
       'staff_user.required'=>'User can\'t be blank']);
@@ -2456,7 +2463,7 @@ class BillingController extends BaseController
           return response()->json(['errors'=>$validator->errors()->all()]);
       }else{
         $ExpenseEntry = new ExpenseEntry;
-        $ExpenseEntry->case_id =$request->case_id;
+        $ExpenseEntry->case_id =($request->case_id)??'none';
         $ExpenseEntry->user_id =$request->staff_user;
         if(isset($request->activity_text)){
             $TaskAvtivity = new TaskActivity;
@@ -2542,7 +2549,8 @@ class BillingController extends BaseController
     public function updateSingleExpenseEntry(Request $request)
     {
       $validator = \Validator::make($request->all(), [
-          'case_id' => 'required',
+        //   'case_id' => 'required',
+          'case_id' => 'nullable',
           'staff_user' => 'required',
       ],['case_or_lead.required'=>'Case can\'t be blank',
       'staff_user.required'=>'User can\'t be blank']);
@@ -2606,7 +2614,7 @@ class BillingController extends BaseController
     public function saveAdjustmentEntry(Request $request)
     {
       $validator = \Validator::make($request->all(), [
-          'case_id' => 'required',
+          'case_id' => 'nullable',
           'item' => 'required',
           'applied_to' => 'required',
           'ad_type' => 'required',
@@ -2617,7 +2625,7 @@ class BillingController extends BaseController
       }else{
         //   print_r($request->all());exit;
         $InvoiceAdjustment = new InvoiceAdjustment;
-        $InvoiceAdjustment->case_id =$request->case_id;
+        $InvoiceAdjustment->case_id =($request->case_id)??'none';
         $InvoiceAdjustment->token =$request->adjustment_token;
         $InvoiceAdjustment->item=$request->item;
         $InvoiceAdjustment->applied_to=$request->applied_to;
@@ -2818,7 +2826,7 @@ class BillingController extends BaseController
         // return $request->all();
         $rules = [
             'invoice_number_padded' => 'required|numeric',
-            'court_case_id' => 'required|numeric',
+            'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
             // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
@@ -2826,20 +2834,12 @@ class BillingController extends BaseController
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
-            $rules['expenseEntrySelectedArray'] = 'rnullable|array';
+            $rules['expenseEntrySelectedArray'] = 'nullable|array';
         } else {
             $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
             $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
         }
         $request->validate($rules,
-        /* [
-            'invoice_number_padded' => 'required|numeric',
-            'court_case_id' => 'required|numeric',
-            'contact' => 'required|numeric',
-            'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
-        ], */
         [
             "invoice_number_padded.unique"=>"Invoice number is already taken",
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
@@ -2868,7 +2868,7 @@ class BillingController extends BaseController
             $InvoiceSave=new Invoices;
             $InvoiceSave->id=$request->invoice_number_padded;
             $InvoiceSave->user_id=$request->contact;
-            $InvoiceSave->case_id=$request->court_case_id;
+            $InvoiceSave->case_id= ($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";
@@ -2974,7 +2974,7 @@ class BillingController extends BaseController
                    
                 }
             }
-
+            
             //Invoice Shared With Client
             if(!empty($request->portalAccess)){
                 SharedInvoice::where("invoice_id",$InvoiceSave->id)->delete();
@@ -3681,10 +3681,12 @@ class BillingController extends BaseController
             return view('pages.404');
         }else{
             //Get all client related to firm
-            $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+            // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+            $ClientList = userClientList();
 
             //Get all company related to firm
-            $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+            $CompanyList = userCompanyList();
         
             $case_id=$findInvoice->case_id;
             $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->where('case_client_selection.is_billing_contact','yes')->select("*")->first();
@@ -3761,7 +3763,7 @@ class BillingController extends BaseController
         // return $request->all();
         $rules = [
             'invoice_number_padded' => 'required|numeric',
-            'court_case_id' => 'required|numeric',
+            'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
             // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
@@ -3775,14 +3777,6 @@ class BillingController extends BaseController
             $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
         }
         $request->validate($rules,
-        /* [
-            'invoice_number_padded' => 'required|numeric',
-            'court_case_id' => 'required|numeric',
-            'contact' => 'required|numeric',
-            'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
-        ], */
         [
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
@@ -3804,7 +3798,7 @@ class BillingController extends BaseController
             // print_r($request->all());exit;
             $InvoiceSave=Invoices::find($request->invoice_id);
             $InvoiceSave->user_id=$request->contact;
-            $InvoiceSave->case_id=$request->court_case_id;
+            $InvoiceSave->case_id=($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";

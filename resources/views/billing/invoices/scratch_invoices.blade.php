@@ -601,7 +601,7 @@ if(!isset($adjustment_token)){
                                                         <div class="pl-2 mt-2">
                                                             <div class="row ">
                                                                 <div class="col-md-4">
-                                                                    <img src="{{BASE_URL}}public/images/automated_payment_plan_marketing.png"  height="80" >
+                                                                    <img src="{{ asset('images/automated_payment_plan_marketing.png') }}"  height="80" >
                                                                 </div>
                                                                 <div class="px-1 col-md-8">
                                                                     <div>The easy, hassle-free way to help your firm electronically collect

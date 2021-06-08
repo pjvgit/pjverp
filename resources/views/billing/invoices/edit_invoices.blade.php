@@ -67,13 +67,21 @@
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
-                                                        <?php foreach($ClientList as $key=>$val){ ?>
+                                                        {{-- <?php foreach($ClientList as $key=>$val){ ?>
                                                         <option uType="client" <?php if($val->id==$findInvoice->user_id){ echo "selected=selected";} ?> value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client) </option>
-                                                        <?php } ?>
+                                                        <?php } ?> --}}
+                                                        @forelse ($ClientList as $key => $item)
+                                                        <option uType="client"  value="{{ $key }}" {{ (isset($findInvoice) && $key == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Client)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                     <optgroup label="Company">
-                                                        <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                                        <option uType="company" <?php if($CompanyListVal->id==$findInvoice->user_id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?>
+                                                        {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
+                                                        <option uType="company" <?php if($CompanyListVal->id==$findInvoice->user_id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
+                                                        @forelse ($CompanyList as $key => $item)
+                                                        <option uType="company"  value="{{ $key }}" {{ (isset($findInvoice) && $key == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Company)</option>
+                                                        @empty
+                                                        @endforelse
                                                     </optgroup>
                                                 </select>
                                                 
@@ -104,6 +112,7 @@
                                                     <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
+                                                        <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
                                                         <?php foreach($caseListByClient as $key=>$val){ ?>
                                                         <option value="{{$val->id}}" <?php if($val->id==$findInvoice->case_id){ echo "selected=selected";} ?>  > 
                                                             {{substr($val->case_title,0,200)}}
@@ -230,7 +239,7 @@
                     <div id="entries" style="margin: 5px;">
 
                         <div class="invoice_case_gradient">
-                            <h2><i class="fas fa-briefcase mr-2"></i> {{$caseMaster['case_title']}} </h2>
+                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} </h2>
                         </div>
                         <div class="invoice_entry_header">
                             <table>
@@ -290,7 +299,7 @@
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">
-                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openTimeDelete({{$v->itd}});">
+                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" {{-- onclick="openTimeDelete({{$v->itd}});" --}} onclick="openFlatFeeDelete({{$v->itd}});">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         </div>
@@ -353,7 +362,7 @@
                                     </td>
                                     <td colspan="2" style="text-align: right;">
                                         <div class="locked">
-                                            {{$caseMaster['case_title']}} flat fee totals:
+                                            {{@$caseMaster['case_title']}} flat fee totals:
                                         </div>
                                     </td>
                                    
@@ -539,7 +548,7 @@
                                     </td>
                                     <td colspan="3" style="text-align: right;">
                                         <div class="locked">
-                                            {{$caseMaster['case_title']}} totals:
+                                            {{@$caseMaster['case_title']}} totals:
                                         </div>
                                     </td>
                                     <td>
@@ -736,7 +745,7 @@
                                         </td>
                                         <td colspan="3" style="text-align: right;">
                                             <div class="locked">
-                                                {{$caseMaster['case_title']}} expense total:
+                                                {{@$caseMaster['case_title']}} expense total:
                                             </div>
                                         </td>
                                         <td>
@@ -821,7 +830,7 @@
                                         onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
                                         class="ml-4"><div id="discount-new161114807394472-discount_type" class="mycase_select">
                                                 <?php
-                                                $items=array("discount"=>"Discount","intrest"=>"Intrest","tax"=>"Tax","addition"=>"Addition");
+                                                $items=array("discount"=>"Discount","intrest"=>"Interest","tax"=>"Tax","addition"=>"Addition");
                                                 echo $items[$v->item];
                                                 ?></div></a>
                                         </td>
@@ -912,17 +921,17 @@
                                 <div class="locked">
                                     <?php if($discount!="0"){?>
                                     <span class="billing-discounts-area p-2">
-                                        {{$caseMaster['case_title']}} discounts:
+                                        {{@$caseMaster['case_title']}} discounts:
                                     </span>
                                     <?php } ?>
                                     <?php if($addition!="0"){?>
                                     <div style="border: none; padding-top: 7px;" class="billing-additions-area p-2">
-                                        {{$caseMaster['case_title']}} additions:
+                                        {{@$caseMaster['case_title']}} additions:
                                     </div>
                                     <?php } ?>
                                     <div style="border: none; padding-top: 7px; display: none;"
                                         class="billing-write-offs-area">
-                                        {{$caseMaster['case_title']}} write-offs:
+                                        {{@$caseMaster['case_title']}} write-offs:
                                     </div>
                                 </div>
                             </td>
@@ -1118,7 +1127,7 @@
                             
                         </div>
                         <h3 id="payment-plan" class="invoice_header">
-                        <img src="{{BASE_URL}}public/svg/payment_plan.svg" width="28" height="28">
+                        <img src="{{ asset("svg/payment_plan.svg") }}" width="28" height="28">
                         Payment Plan
                         </h3>
                     </div>
@@ -1307,7 +1316,7 @@
                                                         <div class="pl-2 mt-2">
                                                             <div class="row ">
                                                                 <div class="col-md-4">
-                                                                    <img src="{{BASE_URL}}public/images/automated_payment_plan_marketing.png"  height="80" >
+                                                                    <img src="{{ asset('images/automated_payment_plan_marketing.png') }}"  height="80" >
                                                                 </div>
                                                                 <div class="px-1 col-md-8">
                                                                     <div>The easy, hassle-free way to help your firm electronically collect
@@ -1340,7 +1349,7 @@
                     <div id="bill_sharing_options" style=" padding-top: 15px; border-top: 1px dotted #9f9f9f;">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">
-                                <img src="{{BASE_URL}}public/svg/share.svg" width="28" height="28">
+                                <img src="{{ asset("svg/share.svg") }}" width="28" height="28">
                                 Share Invoice via Client Portal
                             </h3>
                         </div>
@@ -1418,7 +1427,7 @@
                                         <td id="sharing_right_side" style="width: 300px; padding-left: 10px; height: 100%;padding-top:10px;">
                     
                                             <div class="get-paid-now-ads bootstrap">
-                                                <img src="{{BASE_URL}}public/images/get_paid_now_ads.png">
+                                                <img src="{{ asset('images/get_paid_now_ads.png') }}">
                                                 <div class="pt-2 get-paid-now-text">
                                                     <ul>
                                                         <li>
@@ -1513,7 +1522,7 @@
 </div>
 <!-- end cancel -->
 <!-- For Time Entry -->
-<div id="delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="removeExistingEntryForm" id="removeExistingEntryForm" name="removeExistingEntryForm" method="POST">
@@ -1554,13 +1563,13 @@
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 <div id="removeAlllExistingTimeEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="removeAlllExistingTimeEntryForm" id="removeAlllExistingTimeEntryForm" name="removeAlllExistingTimeEntryForm" method="POST">
             <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
-            <input type="hidden" value="{{base64_encode($caseMaster['id'])}}" name="case_id" id="delete_time_entry_id">
+            <input type="hidden" value="{{(isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0 }}" name="case_id">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -1637,7 +1646,7 @@
 
 
 <!-- For Expense Entry -->
-<div id="delete_expense_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="delete_expense_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="removeExistingExpenseEntryForm" id="removeExistingExpenseEntryForm"
@@ -1678,7 +1687,7 @@
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 
 <div id="removeAlllExistingExpenseEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -1686,8 +1695,7 @@
         <form class="removeAlllExistingExpenseEntryForm" id="removeAlllExistingExpenseEntryForm"
             name="removeAlllExistingExpenseEntryForm" method="POST">
             @csrf
-            <input type="hidden" value="{{base64_encode($caseMaster['id'])}}" name="case_id"
-                id="delete_expense_entry_id">
+            <input type="hidden" value="{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}" name="case_id">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">Remove All Expenses</h5>
@@ -1900,7 +1908,7 @@
     </div>
 </div>
 
-
+{{-- For Flat fee entry --}}
 <div id="addNewFlatFeeEntry" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
@@ -1938,6 +1946,7 @@
     </div>
 </div>
 
+@include('billing.invoices.partials.modal')
 
 <style>
         .strike{
@@ -1965,34 +1974,34 @@
     }
 
     i.invoice-banner-draft {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_draft.png');
+        background-image: url('{{ asset("images/invoice_banner_draft.png") }}');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-sent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_sent.png');
+        background-image: url('{{ asset("images/invoice_banner_sent.png") }}');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-unsent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_unsent.png');
+        background-image: url('{{ asset("images/invoice_banner_unsent.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-partial {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_partial.png');
+        background-image: url('{{ asset("images/invoice_banner_partial.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-paid {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_paid.png');
+        background-image: url('{{ asset("images/invoice_banner_paid.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-overdue {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_overdue.png');
+        background-image: url('{{ asset("images/invoice_banner_overdue.png") }}');
         height: 127px;
         width: 127px;
     }
@@ -2164,6 +2173,7 @@
 </style>
 
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }} }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         <?php if($findInvoice->payment_plan_enabled=="yes"){?>
@@ -3037,7 +3047,7 @@
 
     }
 
-    function actionTimeEntry(action) {
+    /* function actionTimeEntry(action) {
         $('#removeExistingEntryForm').submit(function (e) {
 
             beforeLoader();
@@ -3071,7 +3081,7 @@
                         afterLoader();
                         return false;
                     } else {
-                        window.location.reload();
+                        // window.location.reload();
                     }
                 },
                 error: function (xhr, status, error) {
@@ -3084,12 +3094,12 @@
                 }
             });
         });
-    }
+    } */
 
-    function openTimeDelete(id) {
+    /* function openTimeDelete(id) {
         $("#delete_existing_dialog").modal("show");
         $("#delete_time_entry_id").val(id);
-    }
+    } */
 
     function addSingleTimeEntry() {
         $('.showError').html('');
@@ -3101,7 +3111,7 @@
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleTimeEntry",
             data: {
-                "id": "{{base64_encode($caseMaster['id'])}}",
+                "id": "{{ (isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0 }}",
                 "invoice_id":"{{$findInvoice->id}}"
             },
             success: function (res) {
@@ -3200,7 +3210,7 @@
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
             data: {
-                "id": "{{base64_encode($caseMaster['id'])}}",
+                "id": "{{ (isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0 }}",
                 "invoice_id":"{{$findInvoice->id}}"
             },
             success: function (res) {
@@ -3239,12 +3249,12 @@
             }
         })
     }
-    function openExpenseDelete(id) {
+    /* function openExpenseDelete(id) {
         $("#delete_expense_existing_dialog").modal("show");
         $("#delete_expense_entry_id").val(id);
-    }
+    } */
 
-    function actionExpenseEntry(action) {
+    /* function actionExpenseEntry(action) {
         $('#removeExistingExpenseEntryForm').submit(function (e) {
             beforeLoader();
             e.preventDefault();
@@ -3289,7 +3299,7 @@
                 }
             });
         });
-    }
+    } */
 
     $('#removeAlllExistingExpenseEntry').submit(function (e) {
         beforeLoader();
@@ -3346,7 +3356,7 @@
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleExpenseEntry",
             data: {
-                "id": "{{base64_encode($caseMaster['id'])}}",
+                "id": "{{ (isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0 }}",
                 "invoice_id":"{{$findInvoice->id}}"
 
             },
@@ -3443,7 +3453,7 @@
             type: "POST",
             url: baseUrl + "/bills/invoices/addAdjustmentEntry",
             data: {
-                "id": "{{base64_encode($caseMaster['id'])}}",
+                "id": "{{ (isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0}}",
                 "adjustment_token":"{{$adjustment_token}}",
                 "invoice_id":"{{$findInvoice->id}}"
 
@@ -3620,6 +3630,54 @@
 
     setTimeout(function(){  $("#payment_plan_balance").html("{{($findInvoice->total_amount-$sum)}}");
     $('#payment_plan_balance').number(true, 2); }, 1000);
+
+    function editSingleFlatFeeEntry(id) {
+        $('.showError').html('');
+        beforeLoader();
+        $("#editNewFlatFeeEntryArea").html('');
+        $("#editNewFlatFeeEntryArea").html('<img src="{{LOADER}}""> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/editSingleFlatFeeEntry",
+            data: {
+                "id": id
+            },
+            success: function (res) {
+                if (typeof (res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#editNewFlatFeeEntryArea").html('');
+                    $('#editNewTimeEntry').animate({
+                        scrollTop: 0
+                    }, 'slow');
+
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#editNewFlatFeeEntryArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                $('#editNewTimeEntry').animate({
+                    scrollTop: 0
+                }, 'slow');
+
+                afterLoader();
+            }
+        })
+    }
    
 </script>
 @stop

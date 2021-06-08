@@ -81,7 +81,7 @@ $finalAmt=$invoice-$paid;
 <hr>
 
 <h3>
-    <p>{{ucfirst(substr($caseMaster['case_title'],0,100))}}</p>
+    <p>{{ucfirst(substr(@$caseMaster['case_title'],0,100))}}</p>
 </h3>
 <?php   $discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;?>
 
@@ -513,7 +513,7 @@ $flatFeeEntryAmount=0;
         <tr class="invoice_info_row ">
             <td class="time-entry-date" style="vertical-align: top;">
                 <?php
-                            $items=array("discount"=>"Discount","intrest"=>"Intrest","tax"=>"Tax","addition"=>"Addition");
+                            $items=array("discount"=>"Discount","intrest"=>"Interest","tax"=>"Tax","addition"=>"Addition");
                             echo $items[$v->item];
                             ?>
             </td>

@@ -890,8 +890,10 @@ td,th{
 
                     $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
 
-
-                    $('td:eq(4)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.ctitle+'</a></div>');
+                    if(aData.ctitle == null)
+                        $('td:eq(4)', nRow).html('<div class="text-left">None</div>');
+                    else
+                        $('td:eq(4)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.ctitle+'</a></div>');
                     
                     
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.total_amount_new+'</div>');

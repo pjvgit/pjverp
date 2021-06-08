@@ -430,12 +430,16 @@
                                                         <?php echo $items[$findInvoice->payment_term]; ?></td>
                                                 </tr>
                                                 <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Case /
-                                                        Matter</td>
+                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Case / Matter</td>
                                                     <td style="text-align: right; white-space: normal; word-break: break-word"
                                                         class="court-case-name">
+                                                        @if($findInvoice->case_id == 0)
+                                                            None
+                                                        @else
                                                         <a class="bill-court-case-link"
-                                                            href="{{BASE_URL}}court_cases/{{$caseMaster->case_unique_number}}/info">{{$caseMaster->case_title}}</a>
+                                                            {{-- href="{{BASE_URL}}court_cases/{{@$caseMaster->case_unique_number}}/info">{{$caseMaster->case_title}}</a> --}}
+                                                            href="{{ route('case/info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -898,7 +902,7 @@
                                         <tr class="invoice_info_row ">
                                             <td class="time-entry-date" style="vertical-align: top;">
                                                 <?php
-                                                    $items=array("discount"=>"Discount","intrest"=>"Intrest","tax"=>"Tax","addition"=>"Addition");
+                                                    $items=array("discount"=>"Discount","intrest"=>"Interest","tax"=>"Tax","addition"=>"Addition");
                                                     echo $items[$v->item];
                                                     ?>
                                             </td>
@@ -1387,34 +1391,34 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
 
     i.invoice-banner-draft {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_draft.png');
+        background-image: url('{{ asset("images/invoice_banner_draft.png") }}');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-sent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_sent.png');
+        background-image: url('{{ asset("images/invoice_banner_sent.png") }}');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-unsent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_unsent.png');
+        background-image: url('{{ asset("images/invoice_banner_unsent.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-partial {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_partial.png');
+        background-image: url('{{ asset("images/invoice_banner_partial.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-paid {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_paid.png');
+        background-image: url('{{ asset("images/invoice_banner_paid.png") }}');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-overdue {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_overdue.png');
+        background-image: url('{{ asset("images/invoice_banner_overdue.png") }}');
         height: 127px;
         width: 127px;
     }
@@ -1728,7 +1732,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
 
     function printView(path){
-        window.open('{{BASE_URL}}print?path='+path, '_blank');
+        window.open('{{ url("/") }}print?path='+path, '_blank');
     }
     function emailInvoicePopup(id) {
         $('.showError').html('');

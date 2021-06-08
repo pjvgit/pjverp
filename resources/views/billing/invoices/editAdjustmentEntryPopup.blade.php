@@ -9,7 +9,7 @@
                 <select class="form-control staff_user select2" id="item" name="item">
                     <option></option>
                     <option <?php if($InvoiceAdjustment['item']=="discount"){ echo "selected=selected"; }?> value="discount">Discount</option>
-                    <option <?php if($InvoiceAdjustment['item']=="intrest"){ echo "selected=selected"; }?> value="intrest">Intrest</option>
+                    <option <?php if($InvoiceAdjustment['item']=="intrest"){ echo "selected=selected"; }?> value="intrest">Interest</option>
                     <option <?php if($InvoiceAdjustment['item']=="tax"){ echo "selected=selected"; }?> value="tax">Tax</option>
                     <option <?php if($InvoiceAdjustment['item']=="addition"){ echo "selected=selected"; }?> value="addition">Addition</option>
                 </select>

@@ -10,7 +10,7 @@
                 <select class="form-control staff_user select2" id="item1" name="item">
                     <option></option>
                     <option value="discount">Discount</option>
-                    <option value="intrest">Intrest</option>
+                    <option value="intrest">Interest</option>
                     <option value="tax">Tax</option>
                     <option value="addition">Addition</option>
                 </select>

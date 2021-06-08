@@ -7,7 +7,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case</label>
             <div class="col-10 form-group mb-3">
-              {{$CaseMasterData['case_title']}}
+              {{ $CaseMasterData['case_title'] ?? "None" }}
             </div>
         </div>
 
