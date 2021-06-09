@@ -1,6 +1,6 @@
     <td style="text-align: center;padding:10px;">
         <div class="locked">
-            <input type="checkbox" name="portalAccess" checked value="21672788" id="portalAccess_{{$UsersAdditionalInfo['user_id']}}"
+            <input type="checkbox" name="portalAccess[]" checked value="{{$UsersAdditionalInfo['user_id']}}" id="portalAccess_{{$UsersAdditionalInfo['user_id']}}"
                 class="invoiceSharingBox invoice-sharing-box" uid="{{$UsersAdditionalInfo['user_id']}}"
                 onclick="checkPortalAccess({{$UsersAdditionalInfo['user_id']}})" em="{{$UsersAdditionalInfo['email']}}" pe="{{$UsersAdditionalInfo['client_portal_enable']}}">
         </div>

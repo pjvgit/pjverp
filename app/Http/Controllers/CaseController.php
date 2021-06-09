@@ -19,6 +19,7 @@ use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
+use App\FlatFeeEntry;
 use Illuminate\Support\Str;
 use App\Jobs\CommentEmail;
 
@@ -252,6 +253,17 @@ class CaseController extends BaseController
             $CaseMaster->created_by=Auth::User()->id; 
             $CaseMaster->is_entry_done="0"; 
             $CaseMaster->save();
+
+            if($request->billingMethod == "flat") {
+                FlatFeeEntry::create([
+                    'case_id' => $CaseMaster->id,
+                    'user_id' => auth()->id(),
+                    'entry_date' => Carbon::now(),
+                    'cost' =>  $request->default_rate,
+                    'time_entry_billable' => 'yes',
+                    'created_by' => auth()->id(), 
+                ]);
+            }
 
             if(isset($request->case_statute)){
                 for($i=0;$i<count($request->reminder_type)-1;$i++){
@@ -1644,14 +1656,19 @@ class CaseController extends BaseController
     }
     public function saveLinkSelection(Request $request)
     {
-    //    print_r($request->all());exit;
+        // return $request->all();
        if(isset($request->case_id)) {
-        $checkBeforAdd=CaseClientSelection::where("case_id",$request->case_id)->where("selected_user",$request->user_type)->count();
+        $checkBeforAdd=CaseClientSelection::where("case_id",$request->case_id);
+        $checkCaseHasClient = $checkBeforAdd->count();
+        $checkBeforAdd = $checkBeforAdd->where("selected_user",$request->user_type)->count();
         if($checkBeforAdd<=0){
             $CaseClientSelection = new CaseClientSelection;
             $CaseClientSelection->case_id=$request->case_id; 
             $CaseClientSelection->selected_user=$request->user_type; 
             $CaseClientSelection->created_by=Auth::user()->id; 
+            if($checkCaseHasClient == 0) {
+                $CaseClientSelection->is_billing_contact = 'yes';
+            }
             $CaseClientSelection->save();
 
             if(!empty($request->client_links)){

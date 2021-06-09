@@ -2825,7 +2825,7 @@ class BillingController extends BaseController
      
         // return $request->all();
         $rules = [
-            'invoice_number_padded' => 'required|numeric',
+            'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',

@@ -83,7 +83,10 @@ if(!isset($adjustment_token)){
                                             <?php 
                                             $formatted_value = sprintf("%06d", $maxInvoiceNumber);
                                             ?>
-                                            <input class="form-control" name="invoice_number_padded" value="{{$formatted_value}}">
+                                            <input class="form-control" name="invoice_number_padded" value="{{ old('invoice_number_padded', $formatted_value) }}">
+                                            @error('invoice_number_padded')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </td>
                                 </tr>

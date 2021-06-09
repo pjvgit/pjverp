@@ -113,7 +113,7 @@ class CaseMaster extends Authenticatable
     public function getLeadAttorneyAttribute(){
         if(isset($this->case_id)){
             $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select("users.id",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as lead_name'),"users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id")->where("case_client_selection.case_id",$this->case_id)->first();
-            return $caseCllientSelection->lead_name;
+            return $caseCllientSelection->lead_name ?? "";
         }else{
             return "";
         }

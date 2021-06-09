@@ -438,7 +438,7 @@
                                                         @else
                                                         <a class="bill-court-case-link"
                                                             {{-- href="{{BASE_URL}}court_cases/{{@$caseMaster->case_unique_number}}/info">{{$caseMaster->case_title}}</a> --}}
-                                                            href="{{ route('case/info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
+                                                            href="{{ route('info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
                                                         @endif
                                                     </td>
                                                 </tr>

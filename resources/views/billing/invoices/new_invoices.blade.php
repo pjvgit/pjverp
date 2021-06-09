@@ -17,9 +17,12 @@ if(!isset($adjustment_token)){
                 <span aria-hidden="true">&times;</span>
                 </button>
                 <br><br>
+                
                 <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
+                @foreach ($errors->messages() as $key => $error)
+                    @if($key != 'invoice_number_padded'))
+                        <li>{{ @$error[0] }}</li>
+                    @endif
                 @endforeach
                 </ul>
             </div>
@@ -95,6 +98,9 @@ if(!isset($adjustment_token)){
                                             $formatted_value = sprintf("%06d", $maxInvoiceNumber);
                                             ?>
                                             <input class="form-control" name="invoice_number_padded" value="{{$formatted_value}}">
+                                            @error('invoice_number_padded')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </td>
                                 </tr>
@@ -140,9 +146,9 @@ if(!isset($adjustment_token)){
                                     <td rowspan="4"
                                         style="width: 350px; white-space: nowrap; vertical-align: top; padding-top: 16px;">
                                         <textarea id="bill_address_text" name="bill[address_text]" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">{{@$UsersAdditionalInfo['street']}}
-{{$UsersAdditionalInfo['address2']}}
-{{$UsersAdditionalInfo['city']}},{{$UsersAdditionalInfo['state']}} {{$UsersAdditionalInfo['postal_code']}}
-{{$UsersAdditionalInfo['county_name']}}
+{{@$UsersAdditionalInfo['address2']}}
+{{@$UsersAdditionalInfo['city']}},{{@$UsersAdditionalInfo['state']}} {{@$UsersAdditionalInfo['postal_code']}}
+{{@$UsersAdditionalInfo['county_name']}}
 </textarea>
                                     </td>
                                     <td style="width: auto;">&nbsp;</td>
