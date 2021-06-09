@@ -10,7 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" type="checkbox"></td>
+                <td><input name="client-share-all" id="client_share_all" type="checkbox"></td>
                 {{-- <td><input name="client-attend-all" type="checkbox"></td> --}}
             </tr>
             <?php 
@@ -47,7 +47,7 @@
                 </td> */ ?>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" name="attend-checkbox" type="checkbox">
+                        <input name="attend-checkbox" type="checkbox" class="client_share_all_users">
                     </label>
                 </td>
 
@@ -184,6 +184,9 @@
         $(".share_checkbox_nonlinked").click(function () {
             var id = $(this).attr('rowVal');
             $("#attend_checkbox_nonlinked_" + id).prop('disabled', !$(this).prop('checked'));
+        });
+        $("#client_share_all").click(function () {
+            $(".client_share_all_users").prop('checked', $(this).prop('checked'));
         });
         $("#client_attend_all").click(function () {
             $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
