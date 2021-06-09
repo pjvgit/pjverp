@@ -262,6 +262,7 @@ class CaseController extends BaseController
                     'cost' =>  $request->default_rate,
                     'time_entry_billable' => 'yes',
                     'created_by' => auth()->id(), 
+                    'is_primary_flat_fee' => "yes",
                 ]);
             }
 
@@ -1080,6 +1081,22 @@ class CaseController extends BaseController
         $caseMaster->billing_method=$request->billingMethod;
         $caseMaster->billing_amount=($request->default_rate)??0.00;
         $caseMaster->save();
+
+        if($request->billingMethod == "flat") {
+            FlatFeeEntry::updateOrCreate(
+                [
+                    'case_id' => $caseMaster->id,
+                    'is_primary_flat_fee' => 'yes'
+                ], [
+                'case_id' => $caseMaster->id,
+                'user_id' => auth()->id(),
+                'entry_date' => Carbon::now(),
+                'cost' =>  $request->default_rate ?? 0.00,
+                'time_entry_billable' => 'yes',
+                'created_by' => auth()->id(), 
+                'is_primary_flat_fee' => "yes",
+            ]);
+        }
 
            $CaseClientSelection =CaseClientSelection::where("case_id",$request->case_id)->get();
            if(!$CaseClientSelection->isEmpty()){

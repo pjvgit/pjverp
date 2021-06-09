@@ -1,0 +1,2 @@
+------------------------------------ 09-Jun-2021 ------------------------------
+ALTER TABLE `flat_fee_entry` ADD `is_primary_flat_fee` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `token_id`;

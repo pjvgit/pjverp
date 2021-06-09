@@ -20,7 +20,7 @@ if(!isset($adjustment_token)){
                 
                 <ul>
                 @foreach ($errors->messages() as $key => $error)
-                    @if($key != 'invoice_number_padded'))
+                    @if($key != 'invoice_number_padded')
                         <li>{{ @$error[0] }}</li>
                     @endif
                 @endforeach
