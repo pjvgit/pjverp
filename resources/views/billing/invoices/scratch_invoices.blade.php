@@ -1045,16 +1045,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#amount_per_installment_field").blur(function(){
             var currentAmount=$(this).val().replace(',', '');
             var totalAmount= parseFloat($("#final_total_text").val());
+            // var totalInstalment=totalAmount/currentAmount;
+            // $("#number_installment_field").val(Math.round(totalInstalment));
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
+            if(firstInstallment != '' && firstInstallment > 0) {
+                totalAmount = totalAmount - firstInstallment;
+            }
             var totalInstalment=totalAmount/currentAmount;
-            $("#number_installment_field").val(Math.round(totalInstalment));
-
+            if(firstInstallment != '' && firstInstallment > 0) {
+                totalInstalment += 1;
+            }
+            $("#number_installment_field").val(Math.ceil(totalInstalment));
 
         }); 
         $("#number_installment_field").blur(function(){
             var installmentNumber=$(this).val();
             var totalAmount= parseFloat($("#final_total_text").val());
             var totalInstalment=totalAmount/installmentNumber;
-            $("#amount_per_installment_field").val(Math.round(totalInstalment));
+            $("#amount_per_installment_field").val(Math.ceil(totalInstalment));
         }); 
 
         $("#first_payment_amount").blur(function(){
@@ -1063,7 +1071,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
              var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.round(totalInstalment));
+            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
 
         });
         $("#SaveInvoiceButton").on("click",function(){

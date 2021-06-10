@@ -2173,7 +2173,7 @@
 </style>
 
 @section('page-js-inner')
-<script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }} }}"></script>
+<script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         <?php if($findInvoice->payment_plan_enabled=="yes"){?>
@@ -2436,8 +2436,15 @@
         $("#amount_per_installment_field").blur(function(){
             var currentAmount=$(this).val().replace(',', '');
             var totalAmount= parseFloat($("#final_total_text").val());
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
+            if(firstInstallment != '' && firstInstallment > 0) {
+                totalAmount = totalAmount - firstInstallment;
+            }
             var totalInstalment=totalAmount/currentAmount;
-            $("#number_installment_field").val(Math.round(totalInstalment));
+            if(firstInstallment != '' && firstInstallment > 0) {
+                totalInstalment += 1;
+            }
+            $("#number_installment_field").val(Math.ceil(totalInstalment));
 
 
         }); 
@@ -2445,7 +2452,7 @@
             var installmentNumber=$(this).val();
             var totalAmount= parseFloat($("#final_total_text").val());
             var totalInstalment=totalAmount/installmentNumber;
-            $("#amount_per_installment_field").val(Math.round(totalInstalment));
+            $("#amount_per_installment_field").val(Math.ceil(totalInstalment));
         }); 
 
         $("#first_payment_amount").blur(function(){
@@ -2453,8 +2460,8 @@
             var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
-             var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.round(totalInstalment));
+            var totalInstalment=debitedAmount/amount_per_installment_field;
+            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
 
         });
         $("#SaveInvoiceButton").on("click",function(){

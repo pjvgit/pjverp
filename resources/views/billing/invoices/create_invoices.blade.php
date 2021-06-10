@@ -36,10 +36,13 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                     <div class="row pl-2 pb-2">
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Lead Attorney</label>
-                            <select id="lead_lawyer_id" name="lead_lawyer_id"
+                            <select id="lead_attorney_id" name="lead_attorney_id"
                                 class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
-                                <option value="firmowner">Firm Owner</option>
+                                @forelse (firmUserList() as $item)
+                                    <option value="{{ $item->id }}">{{ $item->full_name }}</option>
+                                @empty
+                                @endforelse
                             </select>
                         </div>
                         <div class="col-md-2 form-group mb-3">
@@ -89,7 +92,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                         </div>
                         <div class="col-md-2 form-group mb-3 mt-2 pt-2">
 
-                            <button class="btn btn-info btn-rounded m-1" type="submit">Apply Filters</button>
+                            <button class="btn btn-info btn-rounded m-1 filter-btn" type="button">Apply Filters</button>
                             <button type="button" class="test-clear-filters text-black-50 btn btn-link"><a
                                     href="{{route('bills/invoices/open')}}">Clear Filters</a></button>
                         </div>
@@ -695,7 +698,8 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                 data: {
                     'load': 'true',
                     'type': "all",
-                    'practice_area_id':"{{$practice_area_id}}"
+                    'practice_area_id':"{{$practice_area_id}}",
+                    'lead_attorney_id': $("#lead_attorney_id").val(),
                 },
                 error: function () {
                     $("#invoiceGrid_processing").css("display", "none");
@@ -865,6 +869,12 @@ $practice_area_id=($_GET['practice_area_id'])??'';
 
 
             }
+        });
+
+        // For filter
+        $(document).on('click', ".filter-btn", function() {
+            alert();
+            $('#invoiceGrid').DataTable().ajax.reload(null, false);
         });
 
         $('#checkAllClientCase').on('change', function () {
