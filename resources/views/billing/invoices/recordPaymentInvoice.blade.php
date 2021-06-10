@@ -442,6 +442,7 @@ $finalAmt=$invoice-$paid;
                         setTimeout(function () {
                             $("#payInvoice").modal("hide")
                         }, 1000);
+                        updateInvoiceTotalDetail();
                     }
                 },
                 error: function (jqXHR, exception) {

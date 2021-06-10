@@ -1735,7 +1735,7 @@ class BillingController extends BaseController
         }
     }
 
-    public function loadUpcomingInvoices()
+    public function loadUpcomingInvoices(Request $request)
     {   
         $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
@@ -1770,6 +1770,9 @@ class BillingController extends BaseController
         //Filters
         if($requestData['practice_area_id']!=''){
             $Invoices = $Invoices->where("case_master.practice_area",$requestData['practice_area_id']);
+        }
+        if($request->lead_attorney_id) {
+            
         }
         $totalData=$Invoices->count();
         $totalFiltered = $totalData; 
@@ -3134,6 +3137,11 @@ class BillingController extends BaseController
             {
                 $this->generateInvoicePdfAndSave($request);
             }
+
+            if($request->ajax()) {
+                return view('billing.invoices.partials.load_invoice_total',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'discount', 'addition'))->render();
+            }
+
             return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));     
             exit; 
         }
