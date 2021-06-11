@@ -178,3 +178,23 @@ function openExpenseDelete(id) {
         });
     });
 }
+
+/**
+ * Save non billable check of flat fee/time entry/expense
+ */
+$(document).on("change", ".nonbillable-check", function() {
+    var id = $(this).val();
+    var checkType = $(this).attr("data-check-type");
+    var isCheck = "yes";
+    if($(this).is(":checked")) {
+        isCheck = "no";
+    }
+    $.ajax({
+        url: baseUrl+"/bills/invoices/save/nonbillable/check",
+        type: "GET",
+        data: {id: id, check_type: checkType, is_check: isCheck},
+        success: function(data) {
+            console.log(data);
+        }
+    });
+});

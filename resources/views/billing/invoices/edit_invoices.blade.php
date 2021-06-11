@@ -345,7 +345,7 @@
                                     </td>
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -529,7 +529,7 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_time"
+                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-check-type="time"
                                             id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
@@ -725,7 +725,7 @@
                                             </div>
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
-                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time"
+                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check" data-check-type="expense"
                                                 id="invoice_expense_entry_nonbillable_time{{$v->eid}}"  <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td>
@@ -2957,6 +2957,7 @@
             },
             success: function (res) {
                 $("#court_case_id").html(res);
+                $("#court_case_id").trigger("change");
                 $("#preloader").hide();
                 return true;
             },

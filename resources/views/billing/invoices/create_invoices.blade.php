@@ -50,12 +50,16 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                             <select id="practice_area_id" name="practice_area_id"
                                 class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
-                                <?php foreach($practiceAreaList as $k=>$v){
+                                {{-- <?php foreach($practiceAreaList as $k=>$v){
                                     ?>
                                 <option <?php if($practice_area_id==$v->id){ echo "selected=selected"; } ?> value="{{$v->id}}">{{$v->title}}</option>
                                 <?php 
                                 }
-                                ?>
+                                ?> --}}
+                                @forelse (casePracticeAreaList() as $key => $item)
+                                    <option value="{{ $key }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
                             </select>
                         </div>
                         <div class="col-md-2 form-group mb-3">
@@ -93,8 +97,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                         <div class="col-md-2 form-group mb-3 mt-2 pt-2">
 
                             <button class="btn btn-info btn-rounded m-1 filter-btn" type="button">Apply Filters</button>
-                            <button type="button" class="test-clear-filters text-black-50 btn btn-link"><a
-                                    href="{{route('bills/invoices/open')}}">Clear Filters</a></button>
+                            <button type="reset" class="test-clear-filters text-black-50 btn btn-link clear-filter-btn">Clear Filters</button>
                         </div>
 
                     </div>
@@ -695,11 +698,17 @@ $practice_area_id=($_GET['practice_area_id'])??'';
             "ajax": {
                 url: baseUrl + "/bills/invoices/loadUpcomingInvoices",
                 type: "post",
-                data: {
+                /* data: {
                     'load': 'true',
                     'type': "all",
                     'practice_area_id':"{{$practice_area_id}}",
                     'lead_attorney_id': $("#lead_attorney_id").val(),
+                }, */
+                "data": function(d){
+                    d.load = 'true';
+                    d.type = "all";
+                    d.practice_area_id = $("#practice_area_id").val();
+                    d.lead_attorney_id = $("#lead_attorney_id").val();
                 },
                 error: function () {
                     $("#invoiceGrid_processing").css("display", "none");
@@ -873,7 +882,12 @@ $practice_area_id=($_GET['practice_area_id'])??'';
 
         // For filter
         $(document).on('click', ".filter-btn", function() {
-            alert();
+            $('#invoiceGrid').DataTable().ajax.reload(null, false);
+        });
+
+        // For reset/clear filter
+        $(document).on('click', ".clear-filter-btn", function() {
+            $("#filterBy").trigger("reset");
             $('#invoiceGrid').DataTable().ajax.reload(null, false);
         });
 

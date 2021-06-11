@@ -254,7 +254,7 @@ class CaseController extends BaseController
             $CaseMaster->is_entry_done="0"; 
             $CaseMaster->save();
 
-            if($request->billingMethod == "flat") {
+            /* if($request->billingMethod == "flat") {
                 FlatFeeEntry::create([
                     'case_id' => $CaseMaster->id,
                     'user_id' => auth()->id(),
@@ -264,7 +264,7 @@ class CaseController extends BaseController
                     'created_by' => auth()->id(), 
                     'is_primary_flat_fee' => "yes",
                 ]);
-            }
+            } */
 
             if(isset($request->case_statute)){
                 for($i=0;$i<count($request->reminder_type)-1;$i++){
@@ -1082,7 +1082,7 @@ class CaseController extends BaseController
         $caseMaster->billing_amount=($request->default_rate)??0.00;
         $caseMaster->save();
 
-        if($request->billingMethod == "flat") {
+        /* if($request->billingMethod == "flat") {
             FlatFeeEntry::updateOrCreate(
                 [
                     'case_id' => $caseMaster->id,
@@ -1096,7 +1096,7 @@ class CaseController extends BaseController
                 'created_by' => auth()->id(), 
                 'is_primary_flat_fee' => "yes",
             ]);
-        }
+        } */
 
            $CaseClientSelection =CaseClientSelection::where("case_id",$request->case_id)->get();
            if(!$CaseClientSelection->isEmpty()){

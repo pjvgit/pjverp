@@ -1,6 +1,6 @@
 @extends('layouts.master')
-<?php $s = sprintf('%06d', $findInvoice->id);?>
-@section('title', 'Invoice #'.$s.' - Invoices - Billing')
+{{-- <?php $s = sprintf('%06d', $findInvoice->id);?> --}}
+@section('title', 'Invoice #'.$invoiceNo.' - Invoices - Billing')
 @section('main-content')
 @include('billing.submenu')
 <div class="separator-breadcrumb border-top"></div>
@@ -10,7 +10,7 @@
             <div class="card-body">
                 <span id="responseMain"></span>
                 <div class="d-flex align-items-center pl-4 pb-4">
-                    <h3> Invoice #{{$s}} </h3>
+                    <h3> Invoice #{{$invoiceNo}} </h3>
                     <input type="hidden" value="{{ @$findInvoice->id }}" id="invoice_id">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
@@ -345,132 +345,10 @@
 
                 <div style="padding: 30px 50px;">
                     <div class="invoice invoice_page" style="padding: 0 0 20px 0;">
-                        <table style="width: 100%; margin: 0; padding: 0; table-layout: fixed;" class="invoice">
-                            <tbody style="margin: 0; padding: 0;">
-                                <tr>
-                                    <td style="width: 130px; padding: 0px !important; vertical-align: top;" rowspan="4">
-                                        <?php if($findInvoice->status=="Draft"){?>
-                                        <i class="invoice-banner-draft"></i>
-                                        <?php }else  if($findInvoice->status=="Sent"){?>
-                                        <i class="invoice-banner-sent"></i>
-                                        <?php }else if($findInvoice->status=="Unsent"){?>
-                                        <i class="invoice-banner-unsent"></i>
-                                        <?php }else if($findInvoice->status=="Partial"){?>
-                                            <i class="invoice-banner-partial"></i>
-                                        <?php }else if($findInvoice->status=="Paid"){?>
-                                            <i class="invoice-banner-paid"></i>
-                                        <?php }else if($findInvoice->status=="Overdue"){?>
-                                            <i class="invoice-banner-overdue"></i>
-                                        <?php } ?>
-                                    </td>
-                                    <td style="vertical-align: top; white-space: nowrap; width: 350px;"
-                                        class="bill-address pt-4" rowspan="2">
-                                        {{$firmData->firm_name}}<br>
-                                        {{$firmData->countryname}}<br>
-
-                                        {{$firmData->main_phone}}
-                                    </td>
-                                    <td rowspan="4">
-                                        &nbsp;
-                                    </td>
-                                    <td class="pt-4"
-                                        style="vertical-align: top; white-space: normal; width: 320px; padding-right: 20px; text-align: right;"
-                                        rowspan="1">
-                                        <span class="bill_firm_name"
-                                            style="font-size: 24px;">{{$firmData->firm_name}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top; white-space: nowrap; width: 320px; padding-right: 20px;"
-                                        rowspan="3">
-
-                                        <table style="width: 100%; border-collapse: collapse;">
-                                            <tbody>
-                                                <tr>
-                                                    <td style="padding-top: 0px !important; width: 45%">&nbsp;</td>
-                                                    <td
-                                                        style="text-align: right; font-size: 20px; font-weight: bold; padding: 5px; padding-top: 0px;">
-                                                        Invoice
-                                                    </td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Invoice
-                                                        #</td>
-                                                    <td style="text-align: right;">{{$s}}</td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Invoice
-                                                        Date</td>
-                                                    <td style="text-align: right;">
-                                                        {{date('M j, Y',strtotime($findInvoice->created_at))}}</td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Due
-                                                        Date</td>
-                                                    <td style="text-align: right;">
-                                                        {{($findInvoice->due_date) ? date('M j, Y',strtotime($findInvoice->due_date)) : NULL}}
-                                                    </td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg"
-                                                        style="white-space: nowrap; vertical-align: top;">Balance
-                                                        Due</td>
-                                                    <td style="text-align: right;">
-                                                        ${{number_format($findInvoice->due_amount,2)}}
-                                                    </td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Payment
-                                                        Terms</td>
-                                                    <?php
-                                                            $items=array("0"=>"Due date","1"=>"Due on receipt","2"=>"Net 15","3"=>"Net 30","4"=>"Net 60","5"=>"");
-                                                            ?>
-
-                                                    <td style="text-align: right;">
-                                                        <?php echo $items[$findInvoice->payment_term]; ?></td>
-                                                </tr>
-                                                <tr class="invoice_info_row">
-                                                    <td class="invoice_info_bg" style="white-space: nowrap;">Case / Matter</td>
-                                                    <td style="text-align: right; white-space: normal; word-break: break-word"
-                                                        class="court-case-name">
-                                                        @if($findInvoice->case_id == 0)
-                                                            None
-                                                        @else
-                                                        <a class="bill-court-case-link"
-                                                            {{-- href="{{BASE_URL}}court_cases/{{@$caseMaster->case_unique_number}}/info">{{$caseMaster->case_title}}</a> --}}
-                                                            href="{{ route('info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top; width: 350px; word-wrap: break-word;" rowspan="2">
-                                        <span class="billing_user_name">
-                                            <a href="{{BASE_URL}}contacts/clients/{{$userMaster->id}}">{{$userMaster->first_name}}
-                                                {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
-
-                                                {{($userMaster->street)??''}}   {{($userMaster->apt_unit)??''}}<br>
-                                                {{($userMaster->city)??''}} {{($userMaster->state)??''}} {{($userMaster->postal_code)??''}}
-                                        </span>
-                                        <p></p>
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
-                        <div style="padding: 20px;" class="">
-                            <hr>
+                        <div id="invoice_total_div">
+                            @include('billing.invoices.partials.load_invoice_detail')
                         </div>
-
                         <div style="padding: 20px;">
-                            <br>
-                            <div id="invoice_total_div">
-                                @include('billing.invoices.partials.load_invoice_total')
-                            </div>
-                            <br>
                             <br>
                             <div id="payment_history_div">
                             @include('billing.invoices.load_invoice_payment_history')

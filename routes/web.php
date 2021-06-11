@@ -922,6 +922,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/editSingleTimeEntry', 'BillingController@editSingleTimeEntry')->name('bills/invoices/editSingleTimeEntry');
     Route::post('bills/invoices/updateSingleTimeEntry', 'BillingController@updateSingleTimeEntry')->name('bills/invoices/updateSingleTimeEntry');
     Route::post('bills/invoices/deleteAllFlatFeeEntry', 'BillingController@deleteAllFlatFeeEntry')->name('bills/invoices/deleteAllFlatFeeEntry');
+    Route::get('bills/invoices/save/nonbillable/check', 'BillingController@saveNonbillableCheck')->name('bills/invoices/save/nonbillable/check');
 
     Route::post('bills/invoices/addSingleFlatFeeEntry', 'BillingController@addSingleFlatFeeEntry')->name('bills/invoices/addSingleFlatFeeEntry');
     Route::post('bills/invoices/saveSingleFlatFeeEntry', 'BillingController@saveSingleFlatFeeEntry')->name('bills/invoices/saveSingleFlatFeeEntry');

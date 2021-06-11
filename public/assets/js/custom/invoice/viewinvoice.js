@@ -14,9 +14,9 @@ function getInvoicePaymentHistory() {
 }
 
 /**
- * Update invoice total detail
+ * Update invoice detail
  */
-function updateInvoiceTotalDetail() {
+function updateInvoiceDetail() {
     $("#preloader").show();
     var invoiceId = $("#invoice_id").val();
     $.ajax({

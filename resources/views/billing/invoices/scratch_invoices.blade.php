@@ -1576,6 +1576,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             },
             success: function (res) {
                 $("#court_case_id").html(res);
+                $("#court_case_id").trigger("change");
                 $("#preloader").hide();
                 return true;
             },

@@ -16,6 +16,7 @@ use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePractic
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice;
 use App\CaseStage,App\TempUserSelection;
+use Carbon\Carbon;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
@@ -1727,9 +1728,9 @@ class BillingController extends BaseController
          $user = User::find($id);
         if(!empty($user)){
             $getChildUsers=$this->getParentAndChildUserIds();
-            $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+            // $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
             $upcomingInvoice=1;
-            return view('billing.invoices.create_invoices',compact('practiceAreaList','upcomingInvoice'));
+            return view('billing.invoices.create_invoices',compact(/* 'practiceAreaList', */'upcomingInvoice'));
         }else{
             return view('pages.404');
         }
@@ -1768,12 +1769,12 @@ class BillingController extends BaseController
 
         }
         //Filters
-        if($requestData['practice_area_id']!=''){
-            $Invoices = $Invoices->where("case_master.practice_area",$requestData['practice_area_id']);
+        /* if($request->practice_area_id != 'all'){
+            $Invoices = $Invoices->where("case_master.practice_area", $request->practice_area_id);
         }
-        if($request->lead_attorney_id) {
-            
-        }
+        if($request->lead_attorney_id != "all") {
+            $Invoices = $Invoices->where("case_staff.lead_attorney", $request->lead_attorney_id);
+        } */
         $totalData=$Invoices->count();
         $totalFiltered = $totalData; 
         
@@ -1974,6 +1975,22 @@ class BillingController extends BaseController
 
 
             // //Get Flat fees entry
+            if($caseMaster) {
+                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->sum('cost');
+                if($caseMaster->billing_method == "flat") {
+                    $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
+                    if($remainFlatFee > 0) {
+                        FlatFeeEntry::create([
+                            'case_id' => $caseMaster->id,
+                            'user_id' => auth()->id(),
+                            'entry_date' => Carbon::now(),
+                            'cost' =>  $remainFlatFee,
+                            'time_entry_billable' => 'yes',
+                            'created_by' => auth()->id(), 
+                        ]);
+                    }
+                }
+            }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")->where("flat_fee_entry.case_id",$case_id)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
@@ -3138,11 +3155,12 @@ class BillingController extends BaseController
                 $this->generateInvoicePdfAndSave($request);
             }
 
+            $invoiceNo = sprintf('%06d', $findInvoice->id);
             if($request->ajax()) {
-                return view('billing.invoices.partials.load_invoice_total',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'discount', 'addition'))->render();
+                return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo'))->render();
             }
 
-            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));     
+            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo'));     
             exit; 
         }
     }
@@ -4855,7 +4873,7 @@ class BillingController extends BaseController
                     $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
                     $Applied=TRUE;
                 }
-            
+                
                 $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
@@ -4872,14 +4890,14 @@ class BillingController extends BaseController
                          $subTotalSave=$subTotal+$finalAmount;
                     }
                     $Invoices->total_amount=$subTotalSave;
-                    $Invoices->token=base64_decode($v1);
+                    // $Invoices->token=base64_decode($v1);
                     $Invoices->due_amount=$subTotalSave;
                     $Invoices->save();
                 }else{
-                    $notSavedInvoice[]='<li>'. sprintf('%06d', $Invoices['id']).'('.$CaseMaster['case_title'].')</li>';
+                    $notSavedInvoice[]='<li>'. sprintf('%06d', @$Invoices['id']).'('.@$CaseMaster['case_title'].')</li>';
                 }
             }
-            return response()->json(['errors'=>'','list'=>$notSavedInvoice]);
+            return response()->json(['errors'=>'','list'=> $notSavedInvoice]);
             exit;  
         } 
     }
@@ -7423,6 +7441,29 @@ class BillingController extends BaseController
     {
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
         return view("billing.invoices.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
+    }
+
+    /**
+     * save non billable flat fee/time entry/expense
+     */
+    public function saveNonbillableCheck(Request $request)
+    {
+        // return $request->all();
+        if($request->check_type == "time") {
+            $checkEntry = TaskTimeEntry::whereId($request->id)->first();
+        } else if($request->check_type == "flat") {
+            $checkEntry = FlatFeeEntry::whereId($request->id)->first();
+        } else if($request->check_type == "expense") {
+            $checkEntry = ExpenseEntry::whereId($request->id)->first();
+        } else {
+            $checkEntry = "";
+        }
+        if($checkEntry) {
+            $checkEntry->update(["time_entry_billable" => $request->is_check]);
+        } else {
+            return response()->json(["status" => "error", 'msg' => "No record found"]);
+        }
+        return response()->json(['status' => "success", 'msg' => "Record updated"]);
     }
 }
   

@@ -1,5 +1,7 @@
 <?php
 
+use App\CasePracticeArea;
+use App\FirmAddress;
 use App\LeadAdditionalInfo;
 use App\User;
 use Illuminate\Support\Facades\DB;
@@ -85,4 +87,20 @@ function dbCommit()
 function dbEnd()
 {
     return DB::rollback();
+}
+
+/**
+ * Get practice area list of firm
+ */
+function casePracticeAreaList()
+{
+    return CasePracticeArea::where("status", "1")->where("firm_id", auth()->user()->firm_name)->pluck("title", "id")->toArray();  
+}
+
+/**
+ * Get firm office (addresses) list
+ */
+function firmOfficeList()
+{
+    return FirmAddress::where('firm_id', auth()->user()->firm_name)->pluck("office_name", "id")->toArray();
 }
