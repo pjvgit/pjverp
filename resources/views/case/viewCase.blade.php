@@ -109,7 +109,8 @@ $adjustment_token=round(microtime(true) * 1000);
                                         <div class="d-flex flex-column justify-content-center">
                                             <div class="d-flex flex-wrap align-items-center">
                                                 <a class="font-weight-bolder pendo-left-details-contact"
-                                                    href="{{BASE_URL}}contacts/clients/{{$val->id}}">{{substr($val->first_name,0,15)}}
+                                                    {{-- href="{{BASE_URL}}contacts/clients/{{$val->id}}"> --}}
+                                                    href="{{ route('contacts/clients/view', $val->id) }}">{{substr($val->first_name,0,15)}}
                                                     {{substr($val->last_name,0,15)}}</a>
                                                 <small class="ml-1 text-lowercase">(Client)</small>
                                             </div>

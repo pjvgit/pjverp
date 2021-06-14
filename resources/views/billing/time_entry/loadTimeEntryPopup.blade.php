@@ -557,7 +557,7 @@
                             if(res.from=="timesheet"){
                                 $("#loadTimeEntryPopup").modal("hide");
                             }else{
-                                window.location.reload();
+                                // window.location.reload();
                             }
                         }
                         $("#innerLoader").css('display', 'none');

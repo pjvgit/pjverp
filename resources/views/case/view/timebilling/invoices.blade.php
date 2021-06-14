@@ -8,7 +8,7 @@
                        
                     </div>
                 </div>
-                <a  href="{{BASE_URL}}bills/invoices/load_new?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">
+                <a  href="{{ route('bills/invoices/load_new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">
                 <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                    >Add Invoice</button></a>
             </div>
@@ -80,9 +80,9 @@
                 { data: 'id','sorting':false}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                    
-                    $('td:eq(0)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
+                    $('td:eq(0)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
                    
-                    $('td:eq(1)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
 
                     $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
 

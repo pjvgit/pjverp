@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\User,App\EmailTemplate,App\Countries;
 use Illuminate\Http\Request,DateTime;
-use DB,Validator,Session,Mail,Storage,Image;
+use DB,Validator,Session,Mail,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +17,9 @@ use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoiceP
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice;
 use App\CaseStage,App\TempUserSelection;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
@@ -3150,7 +3153,8 @@ class BillingController extends BaseController
 
 
             $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
-            if(!file_exists(public_path('download/pdf/'."Invoice_".$invoiceID.".pdf")))
+            // if(!file_exists(public_path('download/pdf/'."Invoice_".$invoiceID.".pdf")))
+            if(!file_exists(Storage::path('download/pdf/Invoice_'.$invoiceID.".pdf")))
             {
                 $this->generateInvoicePdfAndSave($request);
             }
@@ -3532,20 +3536,49 @@ class BillingController extends BaseController
         
         $filename="Invoice_".$invoice_id.'.pdf';
         $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
-        $pdf = new Pdf;
+        /* $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
             $pdf->binary = EXE_PATH;
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
         $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
+        $path = public_path("download/pdf/".$filename); */
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
         // return response()->download($path);
         // exit;
 
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        // return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        return response()->json([ 'success' => true, "url" => $pdfUrl,"file_name"=>$filename], 200);
         exit;
     }
+
+    /**
+     * Generate invoice pdf and store it
+     */
+    public function generateInvoicePdf($pdfData, $filename)
+    {
+        $pdf = new Pdf;
+        if($_SERVER['SERVER_NAME']=='localhost'){
+            $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+        }
+        $pdf->addPage($pdfData);
+        $pdf->setOptions(['javascript-delay' => 5000]);
+        // $pdf->saveAs(Storage::path('download/pdf/'.$filename));
+
+		if (!File::isDirectory('download')) {
+			File::makeDirectory('download', 0755, true, true);
+		}		
+		$subDirectory = Storage::path("download/pdf");
+		if (!File::isDirectory($subDirectory)) {
+			File::makeDirectory($subDirectory, 0755, true, true);
+		}
+        if (!$pdf->saveAs($subDirectory.'/'.$filename)) {
+            Log::info("Generate pdf error: ". $pdf->getError());
+        }
+        return asset(Storage::url("download/pdf/".$filename));
+    }
+
     public function generateInvoicePdfAndSave(Request $request)
     {
         
@@ -3574,13 +3607,25 @@ class BillingController extends BaseController
         
         $filename="Invoice_".$invoice_id.'.pdf';
         $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction'));
-        $pdf = new Pdf;
+        /* $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
             $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
+        // $pdf->saveAs(Storage::path('download/pdf/'.$filename));
+
+		if (!File::isDirectory('download')) {
+			File::makeDirectory('download', 0755, true, true);
+		}		
+		$subDirectory = Storage::path("download/pdf");
+		if (!File::isDirectory($subDirectory)) {
+			File::makeDirectory($subDirectory, 0755, true, true);
+		}
+        if (!$pdf->saveAs($subDirectory.'/'.$filename)) {
+            Log::info("Generate pdf error: ". $pdf->getError());
+        } */
+        $this->generateInvoicePdf($PDFData, $filename);
         return true;
     }
     public function invoiceInlineView(Request $request)
@@ -3651,7 +3696,7 @@ class BillingController extends BaseController
 
     public function saveSendReminderWithAttachment(Request $request)
     {
-     
+        // return asset(Storage::url("download/pdf/Invoice_86.pdf"));
         $validator = \Validator::make($request->all(), [
             'client' => 'required|array|min:1'
         ],
@@ -3689,7 +3734,8 @@ class BillingController extends BaseController
                     "full_name" => $fullName,
                     "mail_body" => $mail_body
                 ];
-                $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
+                // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
+                $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $sendEmail = $this->sendMailWithAttachment($user,$files);
             }
             session(['popup_success' => 'Reminders have been sent']);
@@ -4549,6 +4595,21 @@ class BillingController extends BaseController
                     'created_by'=>Auth::user()->id 
                 ]);
             }
+
+            $allPayment = InvoicePayment::where("invoice_id", $findInvoice['id'])->get();
+            $totalPaid = $allPayment->sum("amount_paid");
+            $totalRefund = $allPayment->sum("amount_refund");
+            $remainPaidAmt = ($totalPaid - $totalRefund);
+            if($remainPaidAmt == 0) {
+                $status="Unsent";
+            } else {
+                $status="Partial";
+            }
+            DB::table('invoices')->where("id", $findInvoice['id'])->update([
+                'paid_amount'=>$remainPaidAmt,
+                'due_amount'=>($findInvoice['total_amount'] - $remainPaidAmt),
+                'status'=>$status,
+            ]);
 
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);

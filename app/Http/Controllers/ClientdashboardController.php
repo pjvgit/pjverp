@@ -30,7 +30,7 @@ class ClientdashboardController extends BaseController
         Session::forget('caseLinkToClient');
         Session::forget('clientId');
         $contractUserID=$client_id=$id;
-        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->first();
+        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->with('clientCases')->first();
         if(empty($userProfile)){
             return view('pages.404');
         }else{
@@ -58,14 +58,15 @@ class ClientdashboardController extends BaseController
             }
            
 
-            $case =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
+            /* $case =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
             ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")
             ->where('case_client_selection.selected_user',$client_id)
             ->where("case_master.is_entry_done","1")
             ->where("case_close_date",NULL)
             ->groupBy("case_master.id")  
             ->orderBy("case_master.id","DESC")  
-            ->get();
+            ->get(); */
+            $case = $userProfile->clientCases;
             
             $closed_case =CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
             ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")

@@ -964,7 +964,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/emailInvoice', 'BillingController@emailInvoice')->name('bills/invoices/emailInvoice');
     Route::post('bills/invoices/SendEmailInvoice', 'BillingController@saveSendReminderWithAttachment')->name('bills/invoices/SendEmailInvoice');
 
-    Route::get('bills/invoices/invoiceInlineView/{id}', 'BillingController@invoiceInlineView')->name('bills/invoices/invoiceInlineView/{id}');
+    Route::get('bills/invoices/invoiceInlineView/{id}', 'BillingController@invoiceInlineView')->name('bills/invoices/invoiceInlineView');
 
     Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/edit');
     Route::post('bills/invoices/resendUpdatedInvoice', 'BillingController@resendUpdatedInvoice')->name('bills/invoices/resendUpdatedInvoice');

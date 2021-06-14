@@ -148,7 +148,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link <?php if(Route::currentRouteName()==""){ echo "active show"; } ?>" id="profile-basic-tab"
+                        <a class="nav-link <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profile-basic-tab"
                             href="{{URL::to('contacts/clients/'.$client_id)}}"  aria-controls="profileBasic" aria-selected="true">Info</a>
                     </li>
                     <li class="nav-item">
@@ -174,7 +174,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                 </ul>
                 <div class="tab-content" id="myTabContent">
 
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()==""){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
                         <div id="contact_info_page" style="display: block;">
                             <div class="align-items-md-start w-100">

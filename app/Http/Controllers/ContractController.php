@@ -668,6 +668,7 @@ class ContractController extends BaseController
         if( !empty($requestData['search']['value']) ) { 
             $totalFiltered = $user->count(); 
         }
+        $user = $user->with("clientCases");
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $user = $user->get();

@@ -72,7 +72,7 @@
                             <tr>
                                 <td class="pr-2"> <i class="paylink-pdf-preview"></i> </td>
                                 <td class="pt-3 pdf-name-row">
-                                    <a href="{{BASE_URL}}bills/invoices/invoiceInlineView/{{$Invoices['invoice_token']}}?disposition=inline" target="_blank"
+                                    <a href="{{ route('bills/invoices/invoiceInlineView', $Invoices['invoice_token']) }}?disposition=inline" target="_blank"
                                         rel="noopener noreferrer">
                                         <p>{{"Invoice_".$Invoices['id'].".pdf"}}</p>
                                     </a>

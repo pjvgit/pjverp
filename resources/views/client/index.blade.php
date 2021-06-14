@@ -219,7 +219,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                     $('td:eq(3)', nRow).html(aData.group_name);
                                 
-                    var obj = JSON.parse(aData.clientwise_caselist);
+                    // var obj = JSON.parse(aData.clientwise_caselist);
+                    var obj = aData.client_cases;
                     var i;
                     var urlList='';
                     for (i = 0; i < obj.length; ++i) {

@@ -30,7 +30,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist','clientwise_caselist','contactlist','active_case_counter', 'full_name'];
+    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -104,7 +104,7 @@ class User extends Authenticatable
             return null;
         }
     }
-    public function getClientWiseCaselistAttribute(){
+    /* public function getClientWiseCaselistAttribute(){
         $ContractUserCase =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
         ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")
         ->where('case_client_selection.selected_user',$this->id)
@@ -113,7 +113,7 @@ class User extends Authenticatable
         ->orderBy("case_master.id","DESC")  
         ->get();
         return json_encode($ContractUserCase); 
-    }
+    } */
     public function getCaselistAttribute(){
         // $CommonController= new CommonController();
         // $getCompanyWiseClientList=$CommonController->getCompanyWiseCaseList($this->id);
@@ -204,5 +204,15 @@ class User extends Authenticatable
     public function userLeadTask()
     {
         return $this->hasMany(Task::class, 'lead_id', 'id');
+    }
+
+    /**
+     * The clientCases that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function clientCases()
+    {
+        return $this->belongsToMany(CaseMaster::class, 'case_client_selection', 'selected_user', 'case_id')->whereNull('case_client_selection.deleted_at');
     }
 }

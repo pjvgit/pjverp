@@ -976,7 +976,7 @@ class TaskController extends BaseController
 
   public function savebulkTimeEntry(Request $request)
   {
-    //   print_r($request->all());exit;
+    // return $request->all();
     $validator = \Validator::make($request->all(), [
         'case_or_lead' => 'required',
         'staff_user' => 'required',
