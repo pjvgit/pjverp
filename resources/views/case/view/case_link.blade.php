@@ -320,12 +320,15 @@
                                     <span class="billing-rate-19798316 user-case-rate">
                                                 <?php 
                                                 $rate=$v->staff_rate_amount;
-                                                // if($v->rate_type==0){
-                                                //     $rate=$v->user_default_rate;
-                                                // }else{
+                                                $rateType = "Case";
+                                                if($v->rate_type==0){
+                                                    $rate=$v->user_default_rate;
+                                                    $rateType = "Default";
+                                                }
+                                                // else{
                                                 //     $rate=$v->staff_rate_amount;
                                                 // }
-                                                ?>${{($rate)??0}}/hr (case)
+                                                ?>${{($rate)??0}}/hr ({{ $rateType }})
                                                 </span></button></a></div>
                                 </td>
                                 <td class="text-right user-edit d-print-none align-middle">

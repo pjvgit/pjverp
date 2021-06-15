@@ -213,6 +213,6 @@ class User extends Authenticatable
      */
     public function clientCases()
     {
-        return $this->belongsToMany(CaseMaster::class, 'case_client_selection', 'selected_user', 'case_id')->whereNull('case_client_selection.deleted_at');
+        return $this->belongsToMany(CaseMaster::class, 'case_client_selection', 'selected_user', 'case_id')->where("is_entry_done", "1")->whereNull('case_client_selection.deleted_at');
     }
 }

@@ -320,7 +320,10 @@ class CaseController extends BaseController
                     $CaseStaff->originating_attorney=$request['originating_attorney'];
     
                     $CaseStaff->rate_type=($request['rate_type'][$key]=='Case_Rate')? "1" : "0";
-                    if( $CaseStaff->rate_type == "1"){ 
+                    // if( $CaseStaff->rate_type == "1"){ 
+                    if( $request['rate_type'][$key]=='Case_Rate' ){ 
+                        $CaseStaff->rate_amount=str_replace(",","",$request['new_rate'][$key]);
+                    } else {
                         $CaseStaff->rate_amount=str_replace(",","",$request['new_rate'][$key]);
                     }
                     $CaseStaff->save();
@@ -4639,9 +4642,9 @@ class CaseController extends BaseController
        {
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
-            $rate_type=$request->rate_type;
+            $rate_type= ($request->rate_type == 'case') ? "1" : "0";
             CaseStaff::where('user_id',$request->staff_id)->where('case_id',$request->case_id)
-                ->update(['rate_amount'=>str_replace(",","",$request->default_rate)]);
+                ->update(['rate_amount'=>str_replace(",","",$request->default_rate), 'rate_type' => $rate_type]);
             // if($rate_type=="case"){
             //     CaseStaff::where('user_id',$request->staff_id)->where('case_id',$request->case_id)
             //     ->update(['rate_amount'=>str_replace(",","",$request->default_rate)]);

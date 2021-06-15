@@ -129,14 +129,14 @@
                         <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadAddEventPopup();"
                             class="dashboard-event test-add-event pendo-add-event pendo-exp2-add-event">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/calendar.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/calendar.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline">Event</span>
                         </a>
                     </div>
 
                     <div class="flex-fill p-3 text-center border-right">
                         <a class="pendo-add-document" rel="facebox" href="#">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/document.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/document.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline error">Document[Pending]</span>
                         </a>
                     </div>
@@ -144,7 +144,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#loadAddTaskPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadAddTaskPopup();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/task.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/task.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Task</span>
                         </a>
                     </div>
@@ -153,7 +153,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#addLead" data-placement="bottom" href="javascript:;"
                             onclick="addLead();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/Add_Lead.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/Add_Lead.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Lead</span>
                         </a>
                     </div>
@@ -161,7 +161,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#typeSelectDashboard" data-placement="bottom"
                             href="javascript:;" onclick="typeSelectDashboard();" class="typeSelectDashboard">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/contact.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/contact.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Contact</span>
                         </a>
                     </div>
@@ -169,7 +169,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom"
                             href="javascript:;" onclick="loadAllStep();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/court_case.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/court_case.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Case</span>
                         </a>
 
@@ -179,7 +179,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#addNewMessagePopup" data-placement="bottom"
                             href="javascript:;" onclick="addNewMessagePopup();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/message.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/message.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline">Message</span>
                         </a>
                     </div>
@@ -187,7 +187,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadTimeEntryPopup();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/time_entry.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/time_entry.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Time Entry</span>
                         </a>
                     </div>
@@ -195,14 +195,14 @@
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadExpenseEntryPopup();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/expense.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/expense.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Expense</span>
                         </a>
                     </div>
 
                     <div class="flex-fill p-3 text-center border-right">
-                        <a class="pendo-add-invoice" href="{{BASE_URL}}bills/invoices/open">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/invoice_add.svg" width="24"
+                        <a class="pendo-add-invoice" href="{{ route('bills/invoices/open') }}">
+                            <img alt="" class="mr-1" src="{{ asset('svg/invoice_add.svg') }}" width="24"
                                 height="24">
                             <span class="d-none d-lg-inline"> Invoice</span>
                         </a>
@@ -211,7 +211,7 @@
                     <div class="flex-fill p-3 text-center">
                         <a data-toggle="modal" data-target="#addNoteModal" data-placement="bottom" href="javascript:;"
                             onclick="loadAddNotBox();">
-                            <img alt="" class="mr-1" src="{{BASE_URL}}public/svg/note-.svg" width="24" height="24">
+                            <img alt="" class="mr-1" src="{{ asset('svg/note-.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Note</span>
                         </a>
                     </div>
