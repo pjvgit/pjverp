@@ -55,12 +55,12 @@ $CommonController= new App\Http\Controllers\CommonController();
                         <tr class="event-row false ">
                             <td class="event-date-and-time  c-pointer" style="width: 50px;">
                                 <?php  
-                                if(isset($oDate) && $vv['start_date']==$oDate){
+                                if(isset($oDate) && $vv->start_date==$oDate){
                                     //Dont do anything
                                 }else{
-                                    $dateandMonth= date('d',strtotime($vv['start_date']));
-                                    $dateOfEvent=date('M',strtotime($vv['start_date'])); 
-                                    $oDate=$vv['start_date'];
+                                    $dateandMonth= date('d',strtotime($vv->start_date));
+                                    $dateOfEvent=date('M',strtotime($vv->start_date)); 
+                                    $oDate=$vv->start_date;
                                  ?>
                                 <div class="d-flex">
                                     <div style="width: 45px;">
@@ -79,13 +79,13 @@ $CommonController= new App\Http\Controllers\CommonController();
                             </td>
                             <td class="border-left c-pointer">
                                 <div class="ml-2 mt-3"> <?php
-                                if($vv['start_time']==NULL || $vv['end_time']==NULL){
+                                if($vv->start_date==NULL || $vv->end_time==NULL){
                                     echo "All Day";
                                 }else{
 
-                                    $start_time = date("H:i:s", strtotime($CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv['start_date'].' '.$vv['start_time'])),Auth::User()->user_timezone)));
+                                    $start_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->start_date.' '.$vv->start_time)),Auth::User()->user_timezone)));
 
-                                    $end_time = date("H:i:s", strtotime($CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv['end_date'].' '.$vv['end_time'])),Auth::User()->user_timezone)));
+                                    $end_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->end_date.' '.$vv->end_time)),Auth::User()->user_timezone)));
 
                                     echo date('h:i A',strtotime($start_time));
                                     echo "-";
@@ -100,14 +100,14 @@ $CommonController= new App\Http\Controllers\CommonController();
                             </td>
                             <td class="c-pointer">
                                 <div class="mt-3 event-name d-flex align-items-center">
-                                    <span><span class="">{{($vv['event_title'])??'<No Title>'}}</span></span>
+                                    <span><span class="">{{($vv->event_title)??'<No Title>'}}</span></span>
                                         <?php if($vv->is_event_private=='yes'){?>
                                             <span class="text-danger"> &nbsp;[Private]</span>
                                             <?php } ?>
                                             
                                 </div>
                             </td>
-                            <td class="c-pointer">
+                            {{-- <td class="c-pointer">
                                 <?php 
                                 if($vv->etext!=''){
                                    ?>
@@ -121,10 +121,21 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 }else{?>
                                 <i class="table-cell-placeholder mt-3"></i>
                                 <?php } ?>
+                            </td> --}}
+                            <td class="c-pointer">
+                                @if(!empty($vv->eventType))
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="mr-1"
+                                        style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$vv->eventType->color_code }}">
+                                    </div><span>{{ @$vv->eventType->title }}</span>
+                                </div>
+                                @else
+                                <i class="table-cell-placeholder mt-3"></i>
+                                @endif
                             </td>
                             <td class="event-users">
 
-                                <?php
+                                {{-- <?php
                                 if(!$vv->caseuser->isEmpty()){
                                     if(count($vv->caseuser)>1){
                                         $userListHtml="";
@@ -148,7 +159,27 @@ $CommonController= new App\Http\Controllers\CommonController();
                                     ?> <i class="table-cell-placeholder mt-3"></i>
                                 <?php
                                 }
-                                ?>
+                                ?> --}}
+
+                                @if(!empty($vv->eventLinkedStaff))
+                                    @if(count($vv->eventLinkedStaff) > 1)
+                                        @php
+                                        $userListHtml="";
+                                        foreach($vv->eventLinkedStaff as $linkuserValue){
+                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_user_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                        }
+                                        @endphp
+                                        <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                        href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
+                                        data-content="{{$userListHtml}}" data-html="true" data-original-title="Staff"
+                                        style="float:left;">{{count($vv->eventLinkedStaff)}} People</a>
+                                    @else
+                                        <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                        href="{{BASE_URL}}/contacts/attorneys/{{ @$vv->eventLinkedStaff[0]->decode_user_id }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>
+                                    @endif
+                                @else
+                                    <i class="table-cell-placeholder mt-3"></i>
+                                @endif
                             </td>
                             <td class="event-users">
                                 <?php if($vv->is_event_private=='no'){?>

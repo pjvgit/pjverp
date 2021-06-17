@@ -4,6 +4,7 @@ use App\CasePracticeArea;
 use App\FirmAddress;
 use App\LeadAdditionalInfo;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -103,4 +104,20 @@ function casePracticeAreaList()
 function firmOfficeList()
 {
     return FirmAddress::where('firm_id', auth()->user()->firm_name)->pluck("office_name", "id")->toArray();
+}
+
+//TO UTC
+function convertTimeToUTCzone($str,$timezone){
+    $timestamp = $str;
+    $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $timezone);
+    $date->setTimezone('UTC');
+    return $NewDate= $date->format("Y-m-d H:i:s");
+}
+
+//TO USER
+function convertUTCToUserTime($str, $timezone){
+    $timestamp = $str;
+    $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, "UTC");
+    $date->setTimezone($timezone);
+    return $NewDate= $date->format("Y-m-d H:i:s");
 }

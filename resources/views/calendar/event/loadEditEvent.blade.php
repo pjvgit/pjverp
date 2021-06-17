@@ -829,6 +829,7 @@
             if ($(this).is(":checked")) {
                 $("#repeat_dropdown").show();
                 $("#endondiv").show();
+                $("input:checkbox#no_end_date_checkbox").prop("checked", true);
                 if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
                     $("#end_on").attr("disabled", true);
                 } else {

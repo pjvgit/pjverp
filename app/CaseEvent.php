@@ -42,7 +42,7 @@ class CaseEvent extends Authenticatable
     } 
     public function getCaseuserAttribute(){
      
-        $ContractUserCase =  CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.id as user_id","users.user_type")
+        /* $ContractUserCase =  CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.id as user_id","users.user_type")
         ->where('case_event_linked_staff.event_id',$this->id)  
         ->get();
         if(!$ContractUserCase->isEmpty()){
@@ -50,7 +50,8 @@ class CaseEvent extends Authenticatable
              $val->decode_user_id=base64_encode($val->user_id);
             }
         }
-        return $ContractUserCase; 
+        return $ContractUserCase; */
+        return $this->eventLinkedStaff()->take(1)->get(); 
     }
     public function getStartTimeUserAttribute(){
         $CommonController= new CommonController();
@@ -132,4 +133,34 @@ class CaseEvent extends Authenticatable
        
     }
  
+    /**
+     * Get the eventType associated with the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function eventType()
+    {
+        return $this->belongsTo(EventType::class, 'event_type')->where("status", 1);
+    }
+
+    /**
+     * The eventLinkedStaff that belong to the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function eventLinkedStaff()
+    {
+        return $this->belongsToMany(User::class, 'case_event_linked_staff', 'event_id', 'user_id')->wherePivot("deleted_at", Null);
+    }
+
+    /**
+     * Delete event child tables record
+     */
+    public function deleteChildTableRecords($eventIds)
+    {
+        CaseEventLinkedStaff::whereIn("event_id", $eventIds)->forceDelete();
+        CaseEventLinkedContactLead::whereIn("event_id", $eventIds)->forceDelete();
+        CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
+        CaseEventComment::whereIn("event_id", $eventIds)->forceDelete();
+    }
 }
