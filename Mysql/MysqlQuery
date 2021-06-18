@@ -1,2 +1,5 @@
+------------------------------------ 17-Jun-2021 ------------------------------
+ALTER TABLE `lead_additional_info` CHANGE `potential_case_value` `potential_case_value` FLOAT(8,2) NOT NULL DEFAULT '0';
+
 ------------------------------------ 09-Jun-2021 ------------------------------
 ALTER TABLE `flat_fee_entry` ADD `is_primary_flat_fee` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `token_id`;

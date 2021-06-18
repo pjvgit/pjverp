@@ -4,6 +4,7 @@
 <?php
 $timezoneData = unserialize(TIME_ZONE_DATA); 
 ?>
+@if(!isset($evetData))
 <div class="loadscreen" id="preloaderData" style="display: block;">
     <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
         <div class="loader-bubble loader-bubble-primary d-block"></div>
@@ -30,7 +31,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 <br>
+
 {{-- <div class="separator-breadcrumb border-top"></div> --}}
+<div id="calendar_view_div">
 <div class="row">
     <div class="col-md-2 pt-0">
        
@@ -193,6 +196,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 <input type="hidden" name="loadType" id="loadType" value="all">
+</div>
+@else
+<div id="event_detail_view_div">
+    @include('calendar.event.event_detail')
+</div>
+@endif
+
 <div id="loadAddEventPopup" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
@@ -366,7 +376,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 
+@if(!isset($evetData))
 <span id="dp"><input type="text" class="form-control" style="width: 100px;margin-right: 1px;height: 28px;" name="datefilter" value="{{date('m/d/Y')}}" id="datepicker"></span>
+@endif
 <?php 
 $defaultView="month";
 if(isset($_GET['view']) && $_GET['view']=='day'){
@@ -387,7 +399,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 /* .fc-time{display: none;} */
 </style>
 @section('page-js')
-
+<script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 
 <script type="text/javascript">
     $(document).ready(function () {

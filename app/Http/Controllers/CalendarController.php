@@ -1224,5 +1224,27 @@ class CalendarController extends BaseController
         return view('item_categories.items',compact('allEventType'));          
         exit;    
     }
+
+    /**
+     * Show event detail 
+     */
+    public function eventDetail($event_id)
+    {
+        $evetData=CaseEvent::whereId($event_id)->with("eventLocation", "case", "eventLinkedStaff")->first();
+        $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
+        /* $eventLocation='';
+        if($evetData->event_location_id!="0"){
+            $eventLocation = CaseEventLocation::leftJoin('countries','countries.id','=','case_event_location.country')->where('case_event_location.id',$evetData->event_location_id)->first();
+        } */
+        /* $CaseMasterData='';
+        if($evetData->case_id!=NULL){
+            $case_id=$evetData->case_id;
+            $CaseMasterData = CaseMaster::where('id',$case_id)->first();
+        } */
+        // $caseLinkedStaffList = CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","case_event_linked_staff.attending")->where("case_event_linked_staff.event_id",$event_id)->get();
+
+        $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
+        return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
+    }
 }
   

@@ -257,7 +257,7 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ ($evetData->end_on) ? date('d-m-Y', strtotime($evetData->end_on)) : '' }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->no_end_date_checkbox=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>

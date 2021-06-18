@@ -2596,6 +2596,15 @@ class CaseController extends BaseController
                 }else{ $CaseEvent->all_day="no";} 
                 if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";} 
                 $CaseEvent->recuring_event="no"; 
+                $CaseEvent->event_frequency=$request->event_frequency;
+                $CaseEvent->event_interval_day=$request->event_interval_day;
+                if(isset($request->no_end_date_checkbox)) { 
+                    $CaseEvent->no_end_date_checkbox="yes"; 
+                    $CaseEvent->end_on=NULL;
+                }else{ 
+                    $CaseEvent->no_end_date_checkbox="no";
+                    $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
+                } 
                 if(isset($request->case_location_list)) { $CaseEvent->event_location_id =$request->case_location_list; }
 
                 //If new location is creating.
@@ -3185,9 +3194,11 @@ class CaseController extends BaseController
 
                 // Delete old/current edit event
                 // CaseEvent::whereId($request->event_id)->delete();
-                $oldEvent = CaseEvent::whereId($request->event_id);
-                $oldEvent->deleteChildTableRecords([$request->event_id]);
-                $oldEvent->forceDelete();
+                $oldEvent = CaseEvent::whereId($request->event_id)->first();
+                if($oldEvent) {
+                    $oldEvent->deleteChildTableRecords([$request->event_id]);
+                    $oldEvent->forceDelete();
+                }
             }
 
         }elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS'){
@@ -4739,13 +4750,22 @@ class CaseController extends BaseController
         $CaseEvent = CaseEvent::find($eventId);
 
         if($request->delete_event_type=='SINGLE_EVENT'){
-            CaseEvent::where("id", $eventId)->delete();
+            // CaseEvent::where("id", $eventId)->delete();
+            $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id);
+            $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+            $oldEvents->forceDelete();
 
         }else if($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS'){
-            CaseEvent::where("parent_evnt_id", $CaseEvent->parent_evnt_id)->whereDate('start_date',">=",$CaseEvent->start_date)->delete();
+            // CaseEvent::where("parent_evnt_id", $CaseEvent->parent_evnt_id)->whereDate('start_date',">=",$CaseEvent->start_date)->delete();
+            $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id)->where('id',">=",$CaseEvent->id);
+            $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+            $oldEvents->forceDelete();
         
         }else if($request->delete_event_type=='ALL_EVENTS'){
-            CaseEvent::where("parent_evnt_id", $CaseEvent->parent_evnt_id)->delete();
+            // CaseEvent::where("parent_evnt_id", $CaseEvent->parent_evnt_id)->delete();
+            $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id);
+            $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+            $oldEvents->forceDelete();
         }
 
         //Master Event History
@@ -5015,7 +5035,7 @@ class CaseController extends BaseController
           
  
        
-        return view('case.event.loadLeadRightSection',compact('caseCllientSelection','loadFirmUser','case_id','caseLinkedStaffList','caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingLead','caseLinkeSavedInviteLead'));     
+        return view('case.event.loadLeadRightSection',compact('caseCllientSelection','loadFirmUser','case_id'/* ,'caseLinkedStaffList' */,'caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingLead','caseLinkeSavedInviteLead'));     
         exit;    
    } 
    public function closeCase(Request $request)

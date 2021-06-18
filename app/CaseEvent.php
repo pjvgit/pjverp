@@ -16,7 +16,7 @@ class CaseEvent extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'id', 'case_id', 'event_title', 'event_type', 'start_date', 'start_time', 'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private'
+        'id', 'case_id', 'event_title', 'event_type', 'start_date', 'start_time', 'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private', 'created_by', 'updated_by'
     ];    
     protected $appends  = ['caseuser','etext','decode_id','start_time_user','st','et','sdt','edt']; //colorcode
 
@@ -162,5 +162,55 @@ class CaseEvent extends Authenticatable
         CaseEventLinkedContactLead::whereIn("event_id", $eventIds)->forceDelete();
         CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
         CaseEventComment::whereIn("event_id", $eventIds)->forceDelete();
+    }
+
+    /**
+     * Get the case that owns the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
+
+    /**
+     * Get the leadUser that owns the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadUser()
+    {
+        return $this->belongsTo(User::class, 'lead_id');
+    }
+
+    /**
+     * Get the eventLocation that owns the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function eventLocation()
+    {
+        return $this->belongsTo(CaseEventLocation::class, 'event_location_id');
+    }
+
+    /**
+     * Get the eventCreatedByUser that owns the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function eventCreatedByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the eventUpdatedByUser that owns the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function eventUpdatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

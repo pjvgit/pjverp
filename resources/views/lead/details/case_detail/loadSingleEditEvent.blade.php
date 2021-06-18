@@ -540,6 +540,18 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         // loadCaseClient({{$case_id}});
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
+
+        @if($evetData->recuring_event=='no')
+        if(!$("#recuring_event").is(":checked")) {
+            $("#endondiv").hide();
+            $('#repeat_dropdown').hide();
+            $('#repeat_custom').hide();
+            $('#repeat_monthly').hide();
+            $('#repeat_yearly').hide();
+            $('#repeat_daily').hide();
+        }
+        @endif
+
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',

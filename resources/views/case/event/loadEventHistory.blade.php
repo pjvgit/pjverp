@@ -36,11 +36,11 @@ $userTypes = unserialize(USER_TYPE);
             {{date('h:ia',strtotime($OwnDate))}}</p>
     </div>
     <div class="history-info d-flex col-8">
-        <img class="comment-avatar" src="{{BASE_URL}}assets/images/faces/default_face.svg" width="32" height="32">
+        <img class="comment-avatar" src="{{ asset('assets/images/faces/default_face.svg') }}" width="32" height="32">
         <div class="flex-grow-1">
             <p class="comment-user-link mt-1">
                 <a class=""
-                    href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->id)}}">{{substr($value->first_name,0,15)}}
+                    href="{{ route('contacts/attorneys/info', base64_encode($value->id)) }}">{{substr($value->first_name,0,15)}}
                     {{substr($value->last_name,0,15)}}
                     ({{$userTypes[$value->user_type]}})
                 </a> commented</p>

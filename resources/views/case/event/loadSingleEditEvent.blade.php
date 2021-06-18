@@ -552,7 +552,17 @@
         // loadCaseClient({{$case_id}});
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
-       
+        
+        @if($evetData->recuring_event=='no')
+        if(!$("#recuring_event").is(":checked")) {
+            $("#endondiv").hide();
+            $('#repeat_dropdown').hide();
+            $('#repeat_custom').hide();
+            $('#repeat_monthly').hide();
+            $('#repeat_yearly').hide();
+            $('#repeat_daily').hide();
+        }
+        @endif
          
         $(".case_or_lead").select2({
             placeholder: "Select...",
@@ -776,7 +786,7 @@
             }
         });
 
-        $("input:checkbox.recuring_event").click(function () {
+        $("input:checkbox.recuring_event").change(function () {
             if ($(this).is(":checked")) {
                 $("#repeat_dropdown").show();
                 $("#endondiv").show();
