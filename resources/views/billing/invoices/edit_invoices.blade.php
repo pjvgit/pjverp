@@ -315,7 +315,7 @@
                                         <div id="time-79566738-7-initials" class="mycase_select">
                                             <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom"
                                                 href="javascript:;" class="ml-0">
-                                                {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                                {{ @$v->first_name[0] }}{{ @$v->last_name[0] }}
                                             </a>
                                         </div>
                                     </td>
@@ -460,7 +460,7 @@
                                             <a data-toggle="modal" data-target="#editNewTimeEntry"
                                                 onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                                 href="javascript:;" class="ml-0">
-                                                {{$v->first_name[0]}}{{$v->last_name[0]}}</a>
+                                                {{ @$v->first_name[0] }}{{ @$v->last_name[0] }}</a>
                                         </div>
                                     </td>
                                     <td class="pl-2" style="overflow: visible;">
@@ -674,7 +674,7 @@
                                                 <a data-toggle="modal" data-target="#editNewExpenseEntry"
                                                     onclick="editNewExpenseEntry({{$v->eid}})" data-placement="bottom"
                                                     href="javascript:;"
-                                                    class="ml-0">{{$v->first_name[0]}}{{$v->last_name[0]}}</a>
+                                                    class="ml-0">{{ @$v->first_name[0] }}{{ @$v->last_name[0] }}</a>
                                             </div>
                                         </td>
                                         <td class="pl-2" style="overflow: visible;">
