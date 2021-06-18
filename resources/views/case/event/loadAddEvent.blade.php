@@ -359,11 +359,15 @@
                                 <div class="">
                                     <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]"
                                         class="reminder_user_type form-control custom-select  ">
-                                        <option value="me">Me</option>
+                                        {{-- <option value="me">Me</option>
                                         <option value="attorney">Attorneys</option>
                                         <option value="paralegal">Paralegals</option>
                                         <option value="staff">Staff</option>
-                                        <option value="client_lead">Client/Lead</option>
+                                        <option value="client_lead">Client/Lead</option> --}}
+                                        @forelse (reminderUserType() as $key => $item)
+                                        <option value="{{ $key }}">{{ $item }}</option>
+                                        @empty
+                                        @endforelse
                                     </select>
                                 </div>
                             </div>

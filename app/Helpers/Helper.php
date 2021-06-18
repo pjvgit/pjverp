@@ -121,3 +121,17 @@ function convertUTCToUserTime($str, $timezone){
     $date->setTimezone($timezone);
     return $NewDate= $date->format("Y-m-d H:i:s");
 }
+
+/**
+ * Reminder user type
+ */
+function reminderUserType()
+{
+    return [
+        "me" => "Me",
+        "attorney" => "Attorneys",
+        "paralegal" => "Paralegals",
+        "staff" => "Staff",
+        "client-lead" => "Clients/Leads",
+    ];
+}
