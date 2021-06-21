@@ -911,6 +911,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/deleteInvoiceForm', 'BillingController@deleteInvoiceForm')->name('bills/invoices/deleteInvoiceForm');
     Route::post('bills/invoices/deleteLeadInvoiceForm', 'BillingController@deleteLeadInvoiceForm')->name('bills/invoices/deleteLeadInvoiceForm');
     Route::get('bills/invoices/paymentHistory', 'BillingController@invoicePaymentHistory')->name('bills/invoices/paymentHistory');
+    Route::get('bills/invoices/activityHistory', 'BillingController@invoiceActivityHistory')->name('bills/invoices/activityHistory');
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');

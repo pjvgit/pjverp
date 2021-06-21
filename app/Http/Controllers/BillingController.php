@@ -4533,7 +4533,7 @@ class BillingController extends BaseController
             $invoiceHistory['amount']=$request['amount'];
             $invoiceHistory['responsible_user']=Auth::User()->id;
             $invoiceHistory['deposit_into']=NULL;
-            $invoiceHistory['notes']=NULL;
+            $invoiceHistory['notes']=$request->notes;
             $invoiceHistory['status']="4";
             $invoiceHistory['refund_ref_id']=$request->transaction_id;
             $invoiceHistory['created_by']=Auth::User()->id;
@@ -4619,7 +4619,7 @@ class BillingController extends BaseController
 
     public function deletePaymentEntry(Request $request)
     {
-        
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'payment_id' => 'required|numeric'
             
@@ -4643,6 +4643,28 @@ class BillingController extends BaseController
             }
             $PaymentMaster->status="1";
             $PaymentMaster->save();
+
+            $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
+            if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
+                $invoicePayment->delete();
+                $allPayment = InvoicePayment::where("invoice_id", $PaymentMaster->invoice_id)->get();
+                $totalPaid = $allPayment->sum("amount_paid");
+                $totalRefund = $allPayment->sum("amount_refund");
+                $remainPaidAmt = ($totalPaid - $totalRefund);
+                if($remainPaidAmt == 0) {
+                    $status="Unsent";
+                } else {
+                    $status="Partial";
+                }
+                $invoice = Invoices::whereId($PaymentMaster->invoice_id)->first();
+                $invoice->fill([
+                    'paid_amount'=> $totalPaid,
+                    'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
+                    'status'=>$status,
+                ])->save();
+            } else {
+                $invoicePayment->delete();
+            }
             InvoiceHistory::where('id',$request->payment_id)->delete();
             session(['popup_success' => 'Entry was deleted']);
             return response()->json(['errors'=>'']);
@@ -7501,7 +7523,7 @@ class BillingController extends BaseController
     public function invoicePaymentHistory(Request $request)
     {
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
-        return view("billing.invoices.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
+        return view("billing.invoices.partials.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
     }
 
     /**
@@ -7525,6 +7547,16 @@ class BillingController extends BaseController
             return response()->json(["status" => "error", 'msg' => "No record found"]);
         }
         return response()->json(['status' => "success", 'msg' => "Record updated"]);
+    }
+
+    /**
+     * Get invoice activity history
+     */
+    public function invoiceActivityHistory(Request $request)
+    {
+        $InvoiceHistory=InvoiceHistory::where("invoice_id",$request->id)->orderBy("id","DESC")->get();
+        $lastEntry= $InvoiceHistory->first();
+        return view("billing.invoices.partials.load_invoice_activity_history", ["InvoiceHistory" => $InvoiceHistory, 'lastEntry' => $lastEntry])->render();
     }
 }
   

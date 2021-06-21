@@ -124,7 +124,7 @@ $finalAmt=$invoice-$paid;
                             <span class="input-group-text">$</span>
                         </div>
                         <input class="form-control number amountFirst" style="width:50%; " maxlength="20" name="amount"
-                            id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)">
+                            id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)" data-payable-amount="{{ $finalAmt }}">
 
                         <small>&nbsp;</small>
                         <div class="input-group col-sm-9" id="TypeError"></div>
@@ -290,6 +290,7 @@ $finalAmt=$invoice-$paid;
                 amount: {
                     required: true,
                     // max:{{$finalAmt}}
+                    // validAmount: true,
                 },
                 deposit_into: {
                     required: true,
@@ -395,10 +396,12 @@ $finalAmt=$invoice-$paid;
     }
 
     function didPayment() {
-        var f= $.number($('#amountFirst').val(),2);
-        var currentAmt = f;
+        // var f= $.number($('#amountFirst').val(),2);
+        // var currentAmt = f;
+        var amtVal= $('#amountFirst').val();
+        // var currentAmt = $.number(amtVal,2);
         swal({
-            title: 'Confirm the payment amount of $' + currentAmt + '?',
+            title: 'Confirm the payment amount of $' + amtVal + '?',
             text: "",
             type: 'warning',
             showCancelButton: true,
@@ -437,6 +440,7 @@ $finalAmt=$invoice-$paid;
                         return false;
                     } else {
                         swal('Payment Successful!', res.msg, 'success');
+                        getInvoiceActivityHistory();
                         getInvoicePaymentHistory();
                         afterLoader();
                         setTimeout(function () {
@@ -533,4 +537,8 @@ $finalAmt=$invoice-$paid;
         });
     }
 
+/* jQuery.validator.addMethod("validAmount", function(value, element) {
+    console.log($("#amountFirst").cleanVal());
+    return (parseFloat(value) <= parseFloat($('#amountFirst').attr("data-payable-amount")));
+}, "Amount exceeds requested balance of ${{number_format($finalAmt,2)}}"); */
 </script>

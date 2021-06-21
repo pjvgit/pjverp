@@ -29,3 +29,18 @@ function updateInvoiceDetail() {
         }
     });
 }
+
+// Get invoice payment history
+function getInvoiceActivityHistory() {
+    $("#preloader").show();
+    var invoiceId = $("#invoice_id").val();
+    $.ajax({
+        type: "GET",
+        url:  baseUrl +"/bills/invoices/activityHistory",
+        data: {'id':invoiceId},
+        success: function (res) {
+            $("#invoice_activity_history_div").html(res);
+            $("#preloader").hide();
+        }
+    });
+}
