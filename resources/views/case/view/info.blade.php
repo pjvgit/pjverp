@@ -63,38 +63,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="progress mb-3">
-                        <?php
-                        $defaultColorCode=['#BFD8E1'];
-                        $days=$color=$startDate=$endDate=[];
-                         foreach($caseStatusHistory as $key=>$val){
-                            $days[$val['stage_id']][]=$val['days'];
-                            $color[$val['stage_id']]=$val['color'];
-                            $startDate[$val['stage_id']]=$val['startDate'];
-                            $endDate[$val['stage_id']]=$val['endDate'];
-                         }
-                         dd($days);
-                        foreach($days as $k=>$v){
-                            $p=100;
-                            if($val['days']!=0){
-                               $p=(array_sum($v)/$openDays)*100;
-                            }
-                            ?>
-                            <?php 
-                            if($k==0){?>
-
-                            
-                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
-                            style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                            <?php }else{ 
-                                ?>
-                                <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ (in_array($k, (array)$caseStageListArray)) ? @$caseStageListArray[$k] : "" }} </span><br> {{array_sum($v)}}<br>Started :{{ (in_array($k, $startDate)) ? date('m/d/Y',strtotime(@$startDate[$k])) : ""}}<br>Ended :{{ (in_array($k, $endDate)) ? date('m/d/Y',strtotime(@$endDate[$k])) : ""}}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
-                                style="width:{{$p}}%;background-color:{{ (in_array($k, (array)$color)) ? @$color[$k] : ""}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                <?php 
-                             }
-                             ?>
-                    <?php } ?>
-                    </div>
+                    
                     <div style="opacity: 1;" class="insights-legend d-flex flex-row undefined flex-wrap">
                         <div class="d-flex flex-wrap justify-content-start w-100">
                             <?php foreach($days as $k=>$v){ ?>
