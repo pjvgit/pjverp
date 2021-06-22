@@ -1808,7 +1808,7 @@
     </div>
 </div>
 
-<div id="delete_flatfee_existing_dialog_bbox" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="delete_flatfee_existing_dialog_bbox" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="removeExistingFlateFeesForm" id="removeExistingFlateFeesForm"
@@ -1849,7 +1849,7 @@
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 <!-- For Adjustment Entry -->
 
 <div id="confirmAccessModal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -3584,12 +3584,12 @@
     // $('input[name=client_portal_enable]').attr("checked",false);
 
 
-    function openAdjustmentDelete(id) {
+    /* function openAdjustmentDelete(id) {
         $("#delete_flatfee_existing_dialog_bbox").modal("show");
         $("#delete_flatefees_existing_dialog").val(id);
-    }
+    } */
 
-    function actionAdjustmentEntry(action) {
+    /* function actionAdjustmentEntry(action) {
         $('#removeExistingFlateFeesForm').submit(function (e) {
             beforeLoader();
             e.preventDefault();
@@ -3634,7 +3634,7 @@
                 }
             });
         });
-    }
+    } */
 
     setTimeout(function(){  $("#payment_plan_balance").html("{{($findInvoice->total_amount-$sum)}}");
     $('#payment_plan_balance').number(true, 2); }, 1000);

@@ -133,3 +133,47 @@
         </form>
     </div>
 </div>
+
+{{-- Delete/remove adjustment from add/edit invoice --}}
+<div id="delete_flatfee_existing_dialog_bbox" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="removeExistingFlateFeesForm" id="removeExistingFlateFeesForm"
+            name="removeExistingFlateFeesForm" method="POST">
+            @csrf
+            <input type="hidden" value="" name="adjustment_entry_id" id="delete_flatefees_existing_dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Would you like to <strong>remove</strong> the selected entry from this invoice or
+                            permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-10  text-center">
+                        <div class="form-group row float-left">
+                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                                style="display: none;"></div>
+                        </div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <input class="btn btn-primary ladda-button example-button m-1 submit"
+                                onclick="actionAdjustmentEntry('delete')" name="action" value="Delete" id="submit"
+                                type="submit">
+                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                                value="Remove" id="submit" onclick="actionAdjustmentEntry('remove')" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

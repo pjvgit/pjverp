@@ -124,7 +124,7 @@ $finalAmt=$invoice-$paid;
                             <span class="input-group-text">$</span>
                         </div>
                         <input class="form-control amountFirst" style="width:50%; " maxlength="20" name="amount"
-                            id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)">
+                            id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)" data-payable-amount="{{ $finalAmt }}">
 
                         <small>&nbsp;</small>
                         <div class="input-group col-sm-9" id="TypeError"></div>
@@ -287,6 +287,7 @@ $finalAmt=$invoice-$paid;
                 amount: {
                     required: true,
                     // max:{{$finalAmt}}
+                    validAmount: true,
                 },
                 deposit_into: {
                     required: true,
@@ -525,4 +526,10 @@ $finalAmt=$invoice-$paid;
 
         });
     }
+
+// For payable amount validation
+jQuery.validator.addMethod("validAmount", function(value, element) {
+    value = value.replace(/,/g, '');
+    return (parseFloat(value) <= parseFloat($('#amountFirst').attr("data-payable-amount")));
+}, "Amount exceeds requested balance of ${{number_format($finalAmt,2)}}");
 </script>

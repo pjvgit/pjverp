@@ -198,3 +198,57 @@ $(document).on("change", ".nonbillable-check", function() {
         }
     });
 });
+
+// For delete/remove adjustment entry
+function openAdjustmentDelete(id) {
+    $("#delete_flatfee_existing_dialog_bbox").modal("show");
+    $("#delete_flatefees_existing_dialog").val(id);
+}
+
+// For delete/remove adjustment entry
+function actionAdjustmentEntry(action) {
+    $('#removeExistingFlateFeesForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+        if (!$('#removeExistingFlateFeesForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#removeExistingFlateFeesForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/deleteAdustmentEntry", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&delete=yes&action=' + action;
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
+    });
+}

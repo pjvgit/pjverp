@@ -817,12 +817,17 @@ if(!isset($adjustment_token)){
                                     ?>
 
                                     <tr id="discount-new161114807394472" class="invoice_entry discount">
-                                        <td style="vertical-align: center; text-align: center; border-right: none;"
+                                        {{-- <td style="vertical-align: center; text-align: center; border-right: none;"
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
                                                 <a class="image_link_sprite image_link_sprite_cancel"
                                                     href="javascript:void(0);" onclick="openExpenseDelete({{$v->id}});"><i
                                                         class="fas fa-times"></i></a>
+                                            </div>
+                                        </td> --}}
+                                        <td style="vertical-align: center; text-align: center; border-right: none;" class="tdTimeExpense">
+                                            <div class="invoice_entry_actions">
+                                                <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}});"><i class="fas fa-times"></i></a>
                                             </div>
                                         </td>
 
@@ -1515,6 +1520,10 @@ if(!isset($adjustment_token)){
                         <div class="loader-bubble loader-bubble-primary innerLoader float-left mr-5" id="innerLoader" style="display: none;">
                         </div>
                         &nbsp;
+                            {{-- <input type="text" name="new_added_flat_fee[]" id="new_added_flat_fee"> --}}
+                            {{-- <input type="text" name="new_added_time_entry[]" id="new_added_time_entry"> --}}
+                            {{-- <input type="text" name="new_added_expense[]" id="new_added_expense"> --}}
+                            {{-- <input type="text" name="new_added_adjustment[]" id="new_added_adjustment"> --}}
                             <button class="btn btn-secondary btn-rounded  m-1" type="button" data-dismiss="modal">Cancel</button>
                         </a>
                         <button type="submit" id="SaveInvoiceButton" name="saveinvoice" class="btn btn-primary btn-rounded submit submitbutton">Save Invoice</button></div>

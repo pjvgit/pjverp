@@ -2156,6 +2156,7 @@ class BillingController extends BaseController
             $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
             $FlatFeeEntry->created_by=Auth::User()->id; 
+            // $FlatFeeEntry->token_id=$request->token_id; 
             $FlatFeeEntry->save();
 
             if(isset($request->invoice_id)){
@@ -4538,7 +4539,7 @@ class BillingController extends BaseController
             $invoiceHistory['refund_ref_id']=$request->transaction_id;
             $invoiceHistory['created_by']=Auth::User()->id;
             $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-            $this->invoiceHistory($invoiceHistory);
+            // $this->invoiceHistory($invoiceHistory);
 
             if($GetAmount->deposit_into=="Operating Account"){
                 //Insert invoice payment record.
@@ -4548,7 +4549,8 @@ class BillingController extends BaseController
                 }else{
                     $finalAmt=$currentBalance['total']-$request->amount;
                 }
-                $entryDone= DB::table('invoice_payment')->insert([
+                // $entryDone= DB::table('invoice_payment')->insert([
+                $entryDone= DB::table('invoice_payment')->insertGetId([
                     'invoice_id'=>$findInvoice['id'],
                     'payment_from'=>'client',
                     'amount_refund'=>$request->amount,
@@ -4575,7 +4577,8 @@ class BillingController extends BaseController
                 }else{
                     $finalAmt=$currentBalance['total']-$request->amount;
                 }
-                $entryDone= DB::table('invoice_payment')->insert([
+                // $entryDone= DB::table('invoice_payment')->insert([
+                $entryDone= DB::table('invoice_payment')->insertGetId([
                     'invoice_id'=>$findInvoice['id'],
                     'payment_from'=>'trust',
                     'amount_refund'=>$request->amount,
@@ -4595,7 +4598,8 @@ class BillingController extends BaseController
                     'created_by'=>Auth::user()->id 
                 ]);
             }
-
+            $invoiceHistory['invoice_payment_id']=$entryDone;
+            $this->invoiceHistory($invoiceHistory);
             $allPayment = InvoicePayment::where("invoice_id", $findInvoice['id'])->get();
             $totalPaid = $allPayment->sum("amount_paid");
             $totalRefund = $allPayment->sum("amount_refund");

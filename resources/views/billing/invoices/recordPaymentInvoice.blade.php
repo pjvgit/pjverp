@@ -290,7 +290,7 @@ $finalAmt=$invoice-$paid;
                 amount: {
                     required: true,
                     // max:{{$finalAmt}}
-                    // validAmount: true,
+                    validAmount: true,
                 },
                 deposit_into: {
                     required: true,
@@ -537,8 +537,9 @@ $finalAmt=$invoice-$paid;
         });
     }
 
-/* jQuery.validator.addMethod("validAmount", function(value, element) {
-    console.log($("#amountFirst").cleanVal());
+// For payable amount validation
+jQuery.validator.addMethod("validAmount", function(value, element) {
+    value = value.replace(/,/g, '');
     return (parseFloat(value) <= parseFloat($('#amountFirst').attr("data-payable-amount")));
-}, "Amount exceeds requested balance of ${{number_format($finalAmt,2)}}"); */
+}, "Amount exceeds requested balance of ${{number_format($finalAmt,2)}}");
 </script>
