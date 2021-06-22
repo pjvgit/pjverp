@@ -88,8 +88,8 @@
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php }else{ 
                                 ?>
-                                <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{@$caseStageListArray[$k]}} </span><br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
-                                style="width:{{$p}}%;background-color:{{@$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ (in_array($k, (array)$caseStageListArray)) ? @$caseStageListArray[$k] : "" }} </span><br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
+                                style="width:{{$p}}%;background-color:{{ (in_array($k, (array)$color)) ? @$color[$k] : ""}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                                 <?php 
                              }
                              ?>
