@@ -84,7 +84,7 @@
                             if($k==0){?>
 
                             
-                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime($startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime($endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
+                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php }else{ 
                                 ?>
