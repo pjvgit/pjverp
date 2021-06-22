@@ -73,7 +73,7 @@
                             $startDate[$val['stage_id']]=$val['startDate'];
                             $endDate[$val['stage_id']]=$val['endDate'];
                          }
-                       
+                         
                         foreach($days as $k=>$v){
                             $p=100;
                             if($val['days']!=0){
