@@ -29,6 +29,7 @@ if(!isset($adjustment_token)){
         @endif
         <form class="saveInvoiceForm" id="saveInvoiceForm" name="saveInvoiceForm" method="POST" action="{{route('bills/invoices/addInvoiceEntry')}}">
             @csrf
+            {{-- <input type="text" name="temp_invoice_token" id="temp_invoice_token" value="{{ $tempInvoiceToken }}"> --}}
             <div class="card text-left">
                 <div class="card-body" id="main_content">
                     <span id="responseMain"></span>
@@ -3373,7 +3374,8 @@ if(!isset($adjustment_token)){
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
             data: {
-                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}"
+                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}",
+                // "invoice_token": "{{ @$adjustment_token }}"
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {

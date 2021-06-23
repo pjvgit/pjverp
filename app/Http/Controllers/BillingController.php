@@ -1743,7 +1743,7 @@ class BillingController extends BaseController
     {   
         $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
-
+        
         $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
@@ -1905,6 +1905,10 @@ class BillingController extends BaseController
          $from_date='';
          $bill_to_date='';
          $filterByDate='';
+        $tempInvoiceToken = $request->temp_invoice_token;
+        /* if(!$request->temp_invoice_token) {
+            $tempInvoiceToken = round(microtime(true) * 1000);
+        } */
         if(!empty($user)){
             //Get all client related to firm
             // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
@@ -2016,7 +2020,7 @@ class BillingController extends BaseController
             $maxInvoiceNumber=Invoices::max("id")+1;
 
             $adjustment_token=$request->token;
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry'));
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken'));
         }else{
             return view('pages.404');
         }
@@ -2127,7 +2131,8 @@ class BillingController extends BaseController
                 }
                 $CaseMasterData = CaseMaster::find($case_id);
                 $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
-                return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id'));     
+                // $invoice_token = $request->invoice_token;
+                return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id'/* , 'invoice_token' */));     
                 exit; 
             }else{
                 return view('pages.404');
@@ -3712,6 +3717,9 @@ class BillingController extends BaseController
                 $FindInvoice->status="Sent";
                 $FindInvoice->save();
             }
+            if($FindInvoice) {
+                $FindInvoice->fill(['is_sent' => 'yes'])->save();
+            }
             $invoice_id=$request->invoice_id;
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
@@ -3890,12 +3898,18 @@ class BillingController extends BaseController
             }else{
                 $InvoiceSave->payment_plan_enabled="no";
             }
-            $InvoiceSave->status=$request->bill_sent_status;
+            // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount=$request->final_total_text;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
             $InvoiceSave->notes=$request->bill['bill_notes'];
-            $InvoiceSave->status=$request->bill_sent_status;
+            if(!in_array($InvoiceSave->status, ['Partial','Paid','Forwarded','Overdue'])) {
+                $InvoiceSave->status = $request->bill_sent_status;
+            }
+            if($request->bill_sent_status == "Draft") {
+                $InvoiceSave->status = $request->bill_sent_status;
+            }
+            $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
             $InvoiceSave->updated_by=Auth::User()->id; 
             $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->save();
@@ -4367,15 +4381,26 @@ class BillingController extends BaseController
                 $InvoicePayment->save();
 
                 //Deduct invoice amount when payment done
-                $totalPaid=InvoicePayment::where("invoice_id",$invoiceId['id'])->get()->sum("amount_paid");
-                if(($totalPaid-$InvoiceData['total_amount'])==0){
+                // $totalPaid=InvoicePayment::where("invoice_id",$invoiceId['id'])->get()->sum("amount_paid");
+                $allPayment = InvoicePayment::where("invoice_id", $invoiceId['id'])->get();
+                $totalPaid = $allPayment->sum("amount_paid");
+                $totalRefund = $allPayment->sum("amount_refund");
+                $remainPaidAmt = ($totalPaid - $totalRefund);
+                /* if(($totalPaid-$InvoiceData['total_amount'])==0){
                     $status="Paid";
                 }else{
                     $status="Partial";
+                } */
+                if($remainPaidAmt == 0) {
+                    $status="Unsent";
+                } else {
+                    $status="Partial";
                 }
                 DB::table('invoices')->where("id",$invoiceId['id'])->update([
-                    'paid_amount'=>$totalPaid,
-                    'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
+                    // 'paid_amount'=>$totalPaid,
+                    'paid_amount'=>$remainPaidAmt,
+                    // 'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
+                    'due_amount'=>($InvoiceData['total_amount'] - $remainPaidAmt),
                     'status'=>$status,
                 ]);
 
@@ -4481,6 +4506,7 @@ class BillingController extends BaseController
     } 
     public function saveRefundPopup(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $GetAmount=InvoiceHistory::find($request->transaction_id);
         $findInvoice=Invoices::find($GetAmount['invoice_id']);
@@ -4558,7 +4584,8 @@ class BillingController extends BaseController
                     'payment_method'=>"Refund",
                     'deposit_into'=>NULL,
                     'notes'=>$request->notes,
-                    'refund_ref_id'=>$request->transaction_id,
+                    // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
+                    'refund_ref_id'=>$GetAmount->invoice_payment_id,
                     'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
                     'notes'=>$request->notes,
                     'status'=>"1",
@@ -4586,7 +4613,8 @@ class BillingController extends BaseController
                     'payment_method'=>"Trust Refund",
                     'deposit_into'=>NULL,
                     'notes'=>$request->notes,
-                    'refund_ref_id'=>$request->transaction_id,
+                    // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
+                    'refund_ref_id'=>$GetAmount->invoice_payment_id,
                     'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
                     'notes'=>$request->notes,
                     'status'=>"1",
@@ -4651,29 +4679,41 @@ class BillingController extends BaseController
             $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
             if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
                 $invoicePayment->delete();
-                $allPayment = InvoicePayment::where("invoice_id", $PaymentMaster->invoice_id)->get();
-                $totalPaid = $allPayment->sum("amount_paid");
-                $totalRefund = $allPayment->sum("amount_refund");
-                $remainPaidAmt = ($totalPaid - $totalRefund);
-                if($remainPaidAmt == 0) {
-                    $status="Unsent";
-                } else {
-                    $status="Partial";
-                }
-                $invoice = Invoices::whereId($PaymentMaster->invoice_id)->first();
-                $invoice->fill([
-                    'paid_amount'=> $totalPaid,
-                    'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
-                    'status'=>$status,
-                ])->save();
+                $this->updateInvoiceAmount($PaymentMaster->invoice_id);
             } else {
+                $refundPaymentReference = InvoiceHistory::whereId($PaymentMaster->refund_ref_id)->first();
+                $refundPaymentReference->fill(["status" => "1"])->save();
+                // return $refundPaymentReference;
                 $invoicePayment->delete();
+                $this->updateInvoiceAmount($PaymentMaster->invoice_id);
             }
             InvoiceHistory::where('id',$request->payment_id)->delete();
             session(['popup_success' => 'Entry was deleted']);
             return response()->json(['errors'=>'']);
             exit;   
         }
+    }
+
+    /**
+     * Update invoice paid/due amount and status
+     */
+    public function updateInvoiceAmount($invoiceId)
+    {
+        $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
+        $totalPaid = $allPayment->sum("amount_paid");
+        $totalRefund = $allPayment->sum("amount_refund");
+        $remainPaidAmt = ($totalPaid - $totalRefund);
+        if($remainPaidAmt == 0) {
+            $status="Unsent";
+        } else {
+            $status="Partial";
+        }
+        $invoice = Invoices::whereId($invoiceId)->first();
+        $invoice->fill([
+            'paid_amount'=> $remainPaidAmt,
+            'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
+            'status'=>$status,
+        ])->save();
     }
 
     public function InvoiceHistoryInlineView(Request $request)

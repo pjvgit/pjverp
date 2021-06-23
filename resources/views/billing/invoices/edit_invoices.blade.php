@@ -199,8 +199,8 @@
                                     <td style=" vertical-align: bottom;">
                                         <select id="bill_sent_status" name="bill_sent_status" class="custom-select">
                                             <option <?php if($findInvoice->status=="Draft"){ echo "selected=selected";} ?>  value="Draft">Draft</option>
-                                            <option value="Unsent" <?php if($findInvoice->status=="Unsent"){ echo "selected=selected";} ?>>Unsent</option>
-                                            <option value="Sent" <?php if($findInvoice->status=="Sent"){ echo "selected=selected";} ?>>Sent</option>
+                                            <option value="Unsent" <?php if($findInvoice->is_sent == "no" && $findInvoice->status != "Draft"){ echo "selected=selected";} ?>>Unsent</option>
+                                            <option value="Sent" <?php if($findInvoice->is_sent == "yes" && $findInvoice->status != "Draft"){ echo "selected=selected";} ?>>Sent</option>
                                         </select>
                                     </td>
                                 </tr>
