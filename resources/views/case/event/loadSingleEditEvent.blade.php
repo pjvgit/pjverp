@@ -636,7 +636,7 @@
         });
        
         $(".hide").hide();
-        $(".add-more").click(function () {
+        $(document).on("click", ".add-more", function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);

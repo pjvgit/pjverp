@@ -453,6 +453,7 @@ class CalendarController extends BaseController
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled)) { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
             $TaskMaster->created_by=Auth::User()->id; 
+            $TaskMaster->firm_id = auth()->user()->firm_name; 
             $TaskMaster->save();
 
             $this->saveTaskReminder($request->all(),$TaskMaster->id); 
@@ -763,7 +764,8 @@ class CalendarController extends BaseController
             if(isset($request->event_frequency)) { $TaskMaster->task_priority=$request->event_frequency; }else{$TaskMaster->task_priority=NULL;}
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled) && $request->time_tracking_enabled=="on") { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
-            $TaskMaster->updated_by=Auth::User()->id; 
+            $TaskMaster->updated_by=Auth::User()->id;
+            $TaskMaster->firm_id = auth()->user()->firm_name;  
             $TaskMaster->save();
 
             $taskHistory=[];

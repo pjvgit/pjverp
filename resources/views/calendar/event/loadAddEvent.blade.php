@@ -191,7 +191,7 @@
                                 </div>
                                 <div class="mr-3">
                                     <label class="d-inline-flex align-items-center">
-                                        <input id="Thurs-option" name="Thurs" value="Thursday" type="checkbox" ><span class="ml-2 ">Thurs</span>
+                                        <input id="Thurs-option" name="custom[]" value="Thursday" type="checkbox" ><span class="ml-2 ">Thurs</span>
                                     </label>
                                 </div>
                                 <div class="mr-3"><label class="d-inline-flex align-items-center">
@@ -201,6 +201,7 @@
                                     <input id="Sat-option"  name="custom[]" value="Saturday" type="checkbox"><span class="ml-2 ">Sat</span></label>
                                 </div>
                             </div>
+                            <span class="error days-error"></span>
                         </div>
                     </div>
                 </div>
@@ -557,6 +558,17 @@
                         }
                     }
                 },
+                /* "custom[]": {
+                    required: {
+                        depends: function (element) {
+                            var status = true;
+                            if ($("#event-frequency").val() != "CUSTOM") {
+                                var status = false;
+                            }
+                            return status;
+                        }
+                    }
+                }, */
                 postal_code:{
                     required:true
                 },
@@ -609,6 +621,8 @@
                     error.appendTo('#CaseListError');
                 }else if (element.is('#end_on')) {
                     error.appendTo('#EndOnListError');
+                // }else if (element.attr("name") == "custom[]") {
+                //     error.insertAfter('.days-error');
                 } else {
                     element.after(error);
                 }

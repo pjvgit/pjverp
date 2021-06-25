@@ -1004,6 +1004,7 @@ class LeadController extends BaseController
             
                 $CaseMaster->created_by=Auth::User()->id; 
                 $CaseMaster->is_entry_done="0"; 
+                $CaseMaster->firm_id = auth()->user()->firm_name; 
                 $CaseMaster->save();
 
                 // Assign lead task to case
@@ -1926,6 +1927,7 @@ class LeadController extends BaseController
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled)) { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
             $TaskMaster->created_by=Auth::User()->id; 
+            $TaskMaster->firm_id = auth()->user()->firm_name; 
             $TaskMaster->save();
 
             $this->saveTaskReminder($request->all(),$TaskMaster->id); 
@@ -2128,6 +2130,7 @@ class LeadController extends BaseController
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled) && $request->time_tracking_enabled=="on") { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
             $TaskMaster->updated_by=Auth::User()->id; 
+            $TaskMaster->firm_id = auth()->user()->firm_name; 
             $TaskMaster->save();
 
             $taskHistory=[];
@@ -3105,6 +3108,7 @@ class LeadController extends BaseController
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id ='0';
                 $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->firm_id = auth()->user()->firm_name;
                 $CaseEvent->save();
                 $this->saveEventReminder($request->all(),$CaseEvent->id); 
                 $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -3164,6 +3168,7 @@ class LeadController extends BaseController
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id = $CaseEvent->parent_evnt_id;
                 $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->firm_id = auth()->user()->firm_name;
                 $CaseEvent->save();
                 $this->saveEventReminder($request->all(),$CaseEvent->id); 
                 $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -3231,6 +3236,7 @@ class LeadController extends BaseController
                         } 
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -3303,6 +3309,7 @@ class LeadController extends BaseController
                             } 
                             if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                             $CaseEvent->created_by=Auth::user()->id; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -3376,6 +3383,7 @@ class LeadController extends BaseController
                             }   
                             if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                             $CaseEvent->created_by=Auth::user()->id; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -3475,6 +3483,7 @@ class LeadController extends BaseController
                             
                             if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                             $CaseEvent->created_by=Auth::user()->id; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -3558,6 +3567,7 @@ class LeadController extends BaseController
                         
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -3643,6 +3653,7 @@ class LeadController extends BaseController
                         
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -3729,6 +3740,7 @@ class LeadController extends BaseController
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id ='0';
                 $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->firm_id = auth()->user()->firm_name;
                 $CaseEvent->save();
             }else{
                 $startTime = strtotime($request->start_date);
@@ -3799,6 +3811,7 @@ class LeadController extends BaseController
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
                         $CaseEvent->created_at=$OldCaseEvent->created_at; 
                         $CaseEvent->parent_evnt_id =  $OldCaseEvent->parent_evnt_id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                     
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
@@ -3877,7 +3890,8 @@ class LeadController extends BaseController
                             $CaseEvent->updated_by=Auth::user()->id; 
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
                             $CaseEvent->created_at=$OldCaseEvent->created_at; 
-                            $CaseEvent->parent_evnt_id =  $OldCaseEvent->id;                             
+                            $CaseEvent->parent_evnt_id =  $OldCaseEvent->id;    
+                            $CaseEvent->firm_id = auth()->user()->firm_name;                         
                             $CaseEvent->save();
                         
                             $this->saveEventReminder($request->all(),$CaseEvent->id); 
@@ -3958,7 +3972,7 @@ class LeadController extends BaseController
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
                             $CaseEvent->created_at=$OldCaseEvent->created_at; 
                             $CaseEvent->parent_evnt_id = $OldCaseEvent->parent_evnt_id;
-
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                         
                             $this->saveEventReminder($request->all(),$CaseEvent->id); 
@@ -4064,6 +4078,7 @@ class LeadController extends BaseController
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
                             $CaseEvent->created_at=$OldCaseEvent->created_at; 
                             $CaseEvent->parent_evnt_id=$OldCaseEvent->parent_evnt_id; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                         
                             $i++;
@@ -4153,6 +4168,7 @@ class LeadController extends BaseController
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
                         $CaseEvent->created_at=$OldCaseEvent->created_at; 
                         $CaseEvent->parent_evnt_id=$OldCaseEvent->parent_evnt_id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
@@ -4242,7 +4258,8 @@ class LeadController extends BaseController
                         $CaseEvent->updated_by=Auth::user()->id; 
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
                         $CaseEvent->created_at=$OldCaseEvent->created_at; 
-                        $CaseEvent->parent_evnt_id=$OldCaseEvent->parent_evnt_id; 
+                        $CaseEvent->parent_evnt_id=$OldCaseEvent->parent_evnt_id;
+                        $CaseEvent->firm_id = auth()->user()->firm_name; 
                         $CaseEvent->save();
                     
                         $this->saveEventReminder($request->all(),$CaseEvent->id); 
@@ -4301,6 +4318,7 @@ class LeadController extends BaseController
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id ='0';
                 $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->firm_id = auth()->user()->firm_name;
                 $CaseEvent->save();
             }else{
                 $startTime = strtotime(date('Y-m-d'));
@@ -4372,6 +4390,7 @@ class LeadController extends BaseController
                         $CaseEvent->updated_by=Auth::user()->id; 
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
                         $CaseEvent->created_at=$OldCaseEvent->created_at; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -4452,7 +4471,8 @@ class LeadController extends BaseController
                             if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                             $CaseEvent->updated_by=Auth::user()->id; 
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
-                            $CaseEvent->created_at=$OldCaseEvent->created_at;                             
+                            $CaseEvent->created_at=$OldCaseEvent->created_at; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;                            
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -4540,6 +4560,7 @@ class LeadController extends BaseController
                             $CaseEvent->updated_by=Auth::user()->id; 
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
                             $CaseEvent->created_at=$OldCaseEvent->created_at;    
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -4648,6 +4669,7 @@ class LeadController extends BaseController
                             $CaseEvent->updated_by=Auth::user()->id; 
                             $CaseEvent->created_by=$OldCaseEvent->created_by;
                             $CaseEvent->created_at=$OldCaseEvent->created_at; 
+                            $CaseEvent->firm_id = auth()->user()->firm_name;
                             $CaseEvent->save();
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
@@ -4741,6 +4763,7 @@ class LeadController extends BaseController
                         $CaseEvent->updated_by=Auth::user()->id; 
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
                         $CaseEvent->created_at=$OldCaseEvent->created_at; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -4837,7 +4860,8 @@ class LeadController extends BaseController
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->updated_by=Auth::user()->id; 
                         $CaseEvent->created_by=$OldCaseEvent->created_by;
-                        $CaseEvent->created_at=$OldCaseEvent->created_at; 
+                        $CaseEvent->created_at=$OldCaseEvent->created_at;
+                        $CaseEvent->firm_id = auth()->user()->firm_name; 
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -4933,6 +4957,7 @@ class LeadController extends BaseController
             $CaseEvent->parent_evnt_id ='0';
 
             $CaseEvent->created_by=Auth::user()->id; 
+            $CaseEvent->firm_id = auth()->user()->firm_name;
             $CaseEvent->save();
             $this->saveEventReminder($request->all(),$CaseEvent->id); 
             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -4997,6 +5022,7 @@ class LeadController extends BaseController
                     } 
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -5069,6 +5095,7 @@ class LeadController extends BaseController
                         } 
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -5142,6 +5169,7 @@ class LeadController extends BaseController
                         }   
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -5241,6 +5269,7 @@ class LeadController extends BaseController
                         
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -5324,6 +5353,7 @@ class LeadController extends BaseController
                     
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -5409,6 +5439,7 @@ class LeadController extends BaseController
                     
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -5481,6 +5512,7 @@ class LeadController extends BaseController
         $CaseEvent->parent_evnt_id ='0';
 
         $CaseEvent->created_by=Auth::user()->id; 
+        $CaseEvent->firm_id = auth()->user()->firm_name;
         $CaseEvent->save();
         $this->saveEventReminder($request->all(),$CaseEvent->id); 
         $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 

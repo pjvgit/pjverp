@@ -1,3 +1,7 @@
+------------------------------------ 25-Jun-2021 ------------------------------
+ALTER TABLE `task` ADD `firm_id` INT(11) NULL AFTER `task_read`;
+ALTER TABLE `case_events` ADD `firm_id` INT(11) NULL AFTER `event_read`;
+
 ------------------------------------ 24-Jun-2021 ------------------------------
 ALTER TABLE `case_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client-lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 

@@ -33,52 +33,6 @@ class CaseController extends BaseController
     }
     public function index()
     {
-        /* $result = CaseEventReminder::where("reminder_type", "email")->where("reminder_frequncy", "hour")->whereId("8725")->where("event_id", "38439")
-                    ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
-                    ->get();
-        if($result) {
-            foreach($result as $key => $item) {
-                // return $firmDetail = firmDetail($item->event->case->firm_id);
-                // $remindTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->subHours($item->reminer_number)->format('Y-m-d H:i');
-                if($item->reminder_user_type == "attorney") {
-                    $eventLinkedUser = $item->event->eventLinkedStaff->pluck('id');
-                    $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
-                    $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser)->where("user_type", "1")->get();
-                    $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
-                } else if($item->reminder_user_type == "staff") {
-                    $eventLinkedUser = $item->event->eventLinkedStaff->pluck('id');
-                    $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
-                    $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser)->where("user_type", "3")->get();
-                    $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
-                } else if($item->reminder_user_type == "paralegal") {
-                    $eventLinkedUser = $item->event->eventLinkedStaff->pluck('id');
-                    $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
-                    $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser)->where("user_type", "2")->get();
-                    $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
-                } else if($item->reminder_user_type == "client-lead") {
-                    $eventLinkContactIds = $item->event->eventLinkedContact->pluck('id');
-                    $eventLinkedLeadIds = $item->event->eventLinkedLead->pluck('user_id');
-                    $users = User::whereIn("id", $eventLinkContactIds)->orWhereIn("id", $eventLinkedLeadIds)->get();
-                    if(count($eventLinkContactIds)) {
-                        $attendEvent = $item->event->eventLinkedContact->pluck("pivot.attending", 'id')->toArray();
-                    } else {
-                        $attendEvent = $item->event->eventLinkedLead->pluck("pivot.attending", 'id')->toArray();
-                    }
-                } else {
-                    $users = User::whereId($item->created_by)->get();
-                    $attendEvent = [$item->created_by => "yes"];
-                }
-                // return $attendEvent;
-                $remindTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->subMinutes(25)->format('Y-m-d H:i');
-                $now = Carbon::now()->format('Y-m-d H:i');
-                if(Carbon::parse($now)->gte(Carbon::parse($remindTime))) {
-                    \Log::info("time true");
-                    dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent));
-                }
-            }
-        }
-        return "success"; */
-
         // TempUserSelection::where("user_id",Auth::user()->id)->delete();
         DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
 
@@ -300,19 +254,8 @@ class CaseController extends BaseController
 
             $CaseMaster->created_by=Auth::User()->id; 
             $CaseMaster->is_entry_done="0"; 
+            $CaseMaster->firm_id = auth()->user()->firm_name; 
             $CaseMaster->save();
-
-            /* if($request->billingMethod == "flat") {
-                FlatFeeEntry::create([
-                    'case_id' => $CaseMaster->id,
-                    'user_id' => auth()->id(),
-                    'entry_date' => Carbon::now(),
-                    'cost' =>  $request->default_rate,
-                    'time_entry_billable' => 'yes',
-                    'created_by' => auth()->id(), 
-                    'is_primary_flat_fee' => "yes",
-                ]);
-            } */
 
             if(isset($request->case_statute)){
                 for($i=0;$i<count($request->reminder_type)-1;$i++){
@@ -572,6 +515,7 @@ class CaseController extends BaseController
            
             $CaseMaster->created_by=Auth::User()->id; 
             $CaseMaster->is_entry_done="0"; 
+            $CaseMaster->firm_id = auth()->user()->firm_name; 
             $CaseMaster->save();
             
             session(['case_no' => $CaseMaster->id]);
@@ -877,6 +821,7 @@ class CaseController extends BaseController
                 if(isset($request->practice_area)) { $CaseMaster->practice_area=$request->practice_area; }
             }
             $CaseMaster->updated_by=Auth::User()->id; 
+            $CaseMaster->firm_id = auth()->user()->firm_name; 
             $CaseMaster->save();
 
             CaseSolReminder::where('case_id',$request->case_id)->delete();
@@ -2071,6 +2016,7 @@ class CaseController extends BaseController
             $CaseEvent->parent_evnt_id ='0';
 
             $CaseEvent->created_by=Auth::user()->id; 
+            $CaseEvent->firm_id = auth()->user()->firm_name;
             $CaseEvent->save();
             $this->saveEventReminder($request->all(),$CaseEvent->id); 
             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -2134,6 +2080,7 @@ class CaseController extends BaseController
                     } 
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -2207,6 +2154,7 @@ class CaseController extends BaseController
                         } 
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -2234,7 +2182,6 @@ class CaseController extends BaseController
                 if($request->location_name!=''){
                     $locationID= $this->saveLocationOnce($request);
                 }
-                $parentCaseID = 0;
                  do {
                 
                     $timestamp = $startTime;
@@ -2282,6 +2229,7 @@ class CaseController extends BaseController
                         }   
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -2382,6 +2330,7 @@ class CaseController extends BaseController
                         
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
@@ -2466,6 +2415,7 @@ class CaseController extends BaseController
                     
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -2552,6 +2502,7 @@ class CaseController extends BaseController
                     
                     if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                     $CaseEvent->created_by=Auth::user()->id; 
+                    $CaseEvent->firm_id = auth()->user()->firm_name;
                     $CaseEvent->save();
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
@@ -2673,6 +2624,7 @@ class CaseController extends BaseController
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id ='0';
                 $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->firm_id = auth()->user()->firm_name;
                 $CaseEvent->save();
                 $this->saveEventReminder($request->all(),$CaseEvent->id); 
                 $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -2733,7 +2685,8 @@ class CaseController extends BaseController
                 }
                 if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                 $CaseEvent->parent_evnt_id = $CaseEvent->parent_evnt_id;
-                $CaseEvent->updated_by=Auth::user()->id; 
+                $CaseEvent->updated_by=Auth::user()->id;
+                $CaseEvent->firm_id = auth()->user()->firm_name; 
                 $CaseEvent->save();
                 $this->saveEventReminder($request->all(),$CaseEvent->id); 
                 $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
@@ -2801,6 +2754,7 @@ class CaseController extends BaseController
                         } 
                         if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
                         $CaseEvent->created_by=Auth::user()->id; 
+                        $CaseEvent->firm_id = auth()->user()->firm_name;
                         $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;

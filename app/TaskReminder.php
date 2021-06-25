@@ -14,11 +14,23 @@ class TaskReminder extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'event_id', 'reminder_type', 'reminer_number', 'reminder_frequncy'   
+        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy'   
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){
          
         return base64_encode($this->id);
     }  
+
+    /**
+     * Get the task that owns the TaskReminder
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'task_id');
+    }
+
+    
 }

@@ -23,7 +23,7 @@ class EventDayReminderEmailCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Send evant reminder email before minutes/hours/days etc to firmuser/client/company';
+    protected $description = 'Send evant reminder email before days/weeks to firmuser/client/company';
 
     /**
      * Create a new command instance.
@@ -84,7 +84,7 @@ class EventDayReminderEmailCommand extends Command
                     $remindTime = Carbon::now()->addDays($item->reminer_number)->format('Y-m-d');
                 }
                 if(Carbon::parse($eventStartTime)->eq(Carbon::parse($remindTime))) {
-                    \Log::info("day time true");
+                    Log::info("day time true");
                     dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent));
                 }
             }

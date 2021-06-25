@@ -348,6 +348,7 @@ class TaskController extends BaseController
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled)) { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
             $TaskMaster->created_by=Auth::User()->id; 
+            $TaskMaster->firm_id = auth()->user()->firm_name; 
             $TaskMaster->save();
 
             $this->saveTaskReminder($request->all(),$TaskMaster->id); 
@@ -632,7 +633,8 @@ class TaskController extends BaseController
     {
         $task_id=$request->task_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = userCaseList();
         $Task = Task::find($request->task_id);
         $TaskChecklist = TaskChecklist::select("*")->where("task_id",$task_id)->orderBy('checklist_order','ASC')->get();
         $taskReminderData = CaseTaskReminder::select("*")->where("task_id",$task_id)->get();
@@ -696,6 +698,7 @@ class TaskController extends BaseController
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
             if(isset($request->time_tracking_enabled) && $request->time_tracking_enabled=="on") { $TaskMaster->time_tracking_enabled='yes'; }else{ $TaskMaster->time_tracking_enabled='no'; }
             $TaskMaster->updated_by=Auth::User()->id; 
+            $TaskMaster->firm_id = auth()->user()->firm_name; 
             $TaskMaster->save();
 
             $taskHistory=[];
@@ -771,7 +774,7 @@ class TaskController extends BaseController
     public function saveEditTaskReminder($request,$task_id)
     {
       
-        CaseTaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+        CaseTaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->forceDelete();
         for($i=0;$i<count($request['reminder_user_type'])-1;$i++){
            $CaseTaskReminder = new CaseTaskReminder;
            $CaseTaskReminder->task_id=$task_id; 

@@ -1,5 +1,6 @@
 <?php
 
+use App\CaseMaster;
 use App\CasePracticeArea;
 use App\Firm;
 use App\FirmAddress;
@@ -157,4 +158,27 @@ function feeStructureList()
 function firmDetail($firmId)
 {
     return $firm = Firm::where("id", $firmId)->first();
+}
+
+/**
+ * Get user case list
+ */
+function userCaseList()
+{
+    $authUser = auth()->user();
+    $cases = CaseMaster::where("firm_id", $authUser->firm_name)->where('is_entry_done',"1");
+    if($authUser->parent_user != 0) {
+        $cases = $cases->where('created_by', $authUser->id);
+    }
+    return $cases->select('id', 'case_title', 'case_number', 'case_close_date')->get();
+}
+
+/**
+ * Convert date UTC to user timezone
+ */
+function convertUTCToUserDate($str, $timezone){
+    $timestamp = $str;
+    $date = Carbon::createFromFormat('Y-m-d', $timestamp, "UTC");
+    $date->setTimezone($timezone);
+    return $NewDate= $date->format("Y-m-d");
 }

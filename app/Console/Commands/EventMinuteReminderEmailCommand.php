@@ -9,21 +9,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class EventHourReminderEmailCommand extends Command
+class EventMinuteReminderEmailCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'eventhour:reminderemail';
+    protected $signature = 'eventminute:reminderemail';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send evant reminder email before hours etc to firmuser/client/company';
+    protected $description = 'Send evant reminder email before minutes to firmuser/client/company';
 
     /**
      * Create a new command instance.
@@ -44,7 +44,7 @@ class EventHourReminderEmailCommand extends Command
     {
         $result = CaseEventReminder::where("reminder_type", "email")->whereHas("event", function($query) {
                         $query->whereDate("start_date", Carbon::now());
-                    })->where("reminder_frequncy", "hour")/* ->where("event_id", "38439") */
+                    })->where("reminder_frequncy", "minute")/* ->where("event_id", "38439") */
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
@@ -80,10 +80,9 @@ class EventHourReminderEmailCommand extends Command
                 }
                 // return $attendEvent;
                 $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->format('Y-m-d H:i');
-                $remindTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->subHours($item->reminer_number)->format('Y-m-d H:i');
-                $now = Carbon::now()->format('Y-m-d H:i');
-                if(Carbon::parse($now)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventStartTime)->gt(Carbon::parse($now))) {
-                    Log::info("hour time true");
+                $now = Carbon::now()->addMinutes($item->reminer_number)->format('Y-m-d H:i');
+                if(Carbon::parse($now)->eq(Carbon::parse($eventStartTime))) {
+                    Log::info("minute time true");
                     dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent));
                 }
             }

@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('eventhour:reminderemail')->hourly();
+        $schedule->command('eventminute:reminderemail')->everyThirtyMinutes();
+        $schedule->command('eventday:reminderemail')->dailyAt("13:00");
     }
 
     /**

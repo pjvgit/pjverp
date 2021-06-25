@@ -125,7 +125,7 @@
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
                
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#reminderDataIndex .fieldGroup:last').before(fieldHTML);
         });
         $('#editReminderIndex').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

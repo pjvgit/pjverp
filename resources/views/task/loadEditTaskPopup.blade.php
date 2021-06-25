@@ -21,10 +21,14 @@
                         data-placeholder="Search for an existing contact or company">
                         <option value="">Search for an existing Case or Lead</option>
                         <optgroup label="Court Cases">
-                            <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
+                            {{-- <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                             <option  uType="case" <?php if($Task->case_id==$Caseval->id){ echo "selected=selected"; }?>
                                 value="{{$Caseval->id}}">{{$Caseval->case_title}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
-                            <?php } ?>
+                            <?php } ?> --}}
+                            @forelse ($CaseMasterData as $key => $item)
+                                <option uType="case" value="{{ $item->id }}" {{ ($Task->case_id == $item->id) ? "selected" : "" }}>{{ $item->case_title }} @if($item->case_number) {{ "(".$item->case_number.")" }} @endif @if($item->case_close_date) {{ "[Closed]" }} @endif </option>
+                            @empty
+                            @endforelse
                         </optgroup>
                         <optgroup label="Leads">
                             {{-- <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
@@ -313,10 +317,10 @@
             $(".staff-table-nonlinked").toggle();
         });
         // $(".hide").hide();
-        $(".add-more").click(function () {
+        $(document).on("click", ".add-more", function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#editTaskArea .fieldGroup:last').before(fieldHTML);
         });
         $('#CreateTask').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

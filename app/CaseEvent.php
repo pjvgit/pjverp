@@ -16,7 +16,7 @@ class CaseEvent extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'id', 'case_id', 'event_title', 'event_type', 'start_date', 'start_time', 'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private', 'created_by', 'updated_by'
+        'id', 'case_id', 'event_title', 'event_type', 'start_date', 'start_time', 'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private', 'created_by', 'updated_by', 'firm_id'
     ];    
     protected $appends  = ['caseuser','etext','decode_id','start_time_user','st','et','sdt','edt']; //colorcode
 

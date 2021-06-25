@@ -270,7 +270,7 @@
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#addTaskArea .fieldGroup:last').before(fieldHTML);
         });
         $('#CreateTask').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

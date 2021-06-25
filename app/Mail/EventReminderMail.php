@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class EventReminderEmail extends Mailable
+class EventReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
     protected $event, $firm, $user, $attendEvent;

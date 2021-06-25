@@ -4,6 +4,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Http\Controllers\CommonController;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Authenticatable
@@ -15,7 +16,7 @@ class Task extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'case_id', 'no_case_link', 'task_title', 'task_due_on', 'description', 'task_priority', 'task_assign_to', 'time_tracking_enabled'];    
+        'case_id', 'no_case_link', 'task_title', 'task_due_on', 'description', 'task_priority', 'task_assign_to', 'time_tracking_enabled', 'firm_id'];    
     protected $appends  = ['task_user','task_completed','checklist_counter','decode_id','case_name','lead_name','task_due_date','assign_to'];
 
 
@@ -79,4 +80,43 @@ class Task extends Authenticatable
         return json_encode($assignToUser); 
     }
 
+    /**
+     * The taskLinkedStaff that belong to the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function taskLinkedStaff()
+    {
+        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id');
+    }
+
+    /**
+     * Get the case that owns the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
+
+    /**
+     * Get the lead that owns the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lead()
+    {
+        return $this->belongsTo(User::class, 'lead_id');
+    }
+
+    /**
+     * Get the firmDetail that owns the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function firm()
+    {
+        return $this->belongsTo(Firm::class, 'firm_id');
+    }
 }

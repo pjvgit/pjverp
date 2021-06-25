@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Mail\EventReminderMail;
+use App\Mail\TaskReminderMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -10,20 +10,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EventReminderEmailJob implements ShouldQueue
+class TaskReminderEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $event, $user, $attendEventUser;
+    protected $task, $user;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($event, $user, $attendEventUser)
+    public function __construct($task, $user)
     {
-        $this->event = $event;
+        $this->task = $task;
         $this->user = $user;
-        $this->attendEventUser = $attendEventUser;
     }
 
     /**
@@ -33,12 +32,9 @@ class EventReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        $firmDetail = firmDetail($this->event->case->firm_id);
         if(!empty($this->user)) {
             foreach($this->user as $key => $item) {
-                $attendEvent = (isset($this->attendEventUser) && array_key_exists($item->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$item->id]) : "";
-                // \Log::info("Attend event:". $attendEvent);
-                Mail::to($item->email)->send((new EventReminderMail($this->event, $firmDetail, $item, $attendEvent)));
+                Mail::to($item->email)->send((new TaskReminderMail($this->task, $this->task->firm, $item)));
                 /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){
                     $m->to($item->email, $item->full_name)->subject("Reminder: Upcoming Event");
                 }); */
