@@ -1,6 +1,7 @@
 <?php
 
 use App\CasePracticeArea;
+use App\Firm;
 use App\FirmAddress;
 use App\LeadAdditionalInfo;
 use App\User;
@@ -134,4 +135,26 @@ function reminderUserType()
         "staff" => "Staff",
         "client-lead" => "Clients/Leads",
     ];
+}
+
+/**
+ * Fee structure list
+ */
+function feeStructureList()
+{
+    return [
+        "hourly" => "Hourly",
+        "contingency" => "Contingency",
+        "flat" => "Flat",
+        "mixed" => "Mixed",
+        "pro_bono" => "Pro Bono",
+    ];
+}
+
+/**
+ * Get firm detail
+ */
+function firmDetail($firmId)
+{
+    return $firm = Firm::where("id", $firmId)->first();
 }

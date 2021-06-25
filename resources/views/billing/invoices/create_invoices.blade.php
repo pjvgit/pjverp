@@ -64,16 +64,17 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                         </div>
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Office</label>
-                            <select id="office_id" name="office_id"
-                                class="form-control custom-select col select2Dropdown">
+                            <select id="office_id" name="office_id" class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
-                                <option value="primary">Primary</option>
+                                @forelse (firmOfficeList() as $key => $item)
+                                    <option value="{{ $key }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
                             </select>
                         </div>
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Balance Type</label>
-                            <select id="balance_filter" name="balance_filter"
-                                class="form-control custom-select col select2Dropdown">
+                            <select id="balance_filter" name="balance_filter" class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
                                 <option value="unpaid">Unpaid Balances Only</option>
                                 <option value="uninvoiced">Un-Invoiced Balances Only</option>
@@ -83,8 +84,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                         </div>
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Fee Structure</label>
-                            <select id="fee_structure_filter" name="fee_structure_filter"
-                                class="form-control custom-select col select2Dropdown">
+                            <select id="fee_structure_filter" name="fee_structure_filter" class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
                                 <option value="hourly">Hourly</option>
                                 <option value="contingency">Contingency</option>
@@ -709,6 +709,9 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                     d.type = "all";
                     d.practice_area_id = $("#practice_area_id").val();
                     d.lead_attorney_id = $("#lead_attorney_id").val();
+                    d.firm_office_id = $("#office_id").val();
+                    d.billing_method = $("#fee_structure_filter").val();
+                    d.balance_filter = $("#balance_filter").val();
                 },
                 error: function () {
                     $("#invoiceGrid_processing").css("display", "none");
@@ -888,6 +891,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
         // For reset/clear filter
         $(document).on('click', ".clear-filter-btn", function() {
             $("#filterBy").trigger("reset");
+            $(".custom-select").trigger("change");
             $('#invoiceGrid').DataTable().ajax.reload(null, false);
         });
 

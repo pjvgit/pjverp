@@ -21,4 +21,14 @@ class CaseEventReminder extends Authenticatable
          
         return base64_encode($this->id);
     }  
+
+    /**
+     * Get the event that owns the CaseEventReminder
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function event()
+    {
+        return $this->belongsTo(CaseEvent::class, 'event_id');
+    }
 }

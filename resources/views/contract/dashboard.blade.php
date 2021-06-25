@@ -84,13 +84,11 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                         ?>
                         <tr>
                             <td class="align-middle">
-                                <img class="rounded-circle" alt=""
-                                    src="https://assets.mycase.com/api_images/default_avatars/v1/default_avatar_64.svg"
-                                    width="32" height="32">
+                                <img class="rounded-circle" alt="" src="{{ asset('assets/images/faces/default_avatar_64.svg') }}" width="32" height="32">
                             </td>
                             <td class="align-middle">
 
-                                <a href="https://mylegal1.mycase.com/contacts/attorneys/19570320"><?php echo $v->first_name;?>
+                                <a href="{{ route('contacts/attorneys/info', base64_encode($v->id)) }}"><?php echo $v->first_name;?>
                                     <?php echo $v->last_name;?></a>
                                 <br>
                                 <?php echo $v->user_title;?>
@@ -109,7 +107,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 </table>
             </div>
             <div class="card-footer text-center">
-                <a href="https://mylegal1.mycase.com/contacts/attorneys">View all</a>
+                <a href="{{ route('contacts/attorneys') }}">View all</a>
             </div>
         </div>
 
@@ -122,7 +120,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 <div class="row no-gutters d-flex align-items-center">
                     <div class="col-3 col-md-auto">
                         <img class="rounded-circle" alt=""
-                            src="https://assets.mycase.com/api_images/default_avatars/v1/default_avatar_64.svg"
+                            src="{{ asset('assets/images/faces/default_avatar_64.svg') }}"
                             width="50" height="50">
                     </div>
                     <div class="col pl-3">

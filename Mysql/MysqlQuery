@@ -1,5 +1,5 @@
------------------------------------- 22-Jun-2021 ------------------------------
-ALTER TABLE `flat_fee_entry` CHANGE `is_primary_flat_fee` `temp_invoice_token` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+------------------------------------ 24-Jun-2021 ------------------------------
+ALTER TABLE `case_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client-lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 
 ------------------------------------ 17-Jun-2021 ------------------------------
 ALTER TABLE `lead_additional_info` CHANGE `potential_case_value` `potential_case_value` FLOAT(8,2) NOT NULL DEFAULT '0';

@@ -14,8 +14,16 @@ class Firm extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'firm_name'
+        'firm_name', 'firm_logo'
     ];
-    
 
+    protected $appends = ['firm_logo_url'];
+    
+    /**
+     * Get firm logo url
+     */
+    public function getFirmLogoUrlAttribute()
+    {
+        return !empty($this->firm_logo) ? asset('uploads/firm/'.$this->firm_logo) : asset('images/default.png');
+    }
 }

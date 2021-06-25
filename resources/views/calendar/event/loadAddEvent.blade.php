@@ -653,7 +653,7 @@
 
                         return false;
                     } else {
-                       window.location.reload();
+                    //    window.location.reload();
                         $(".innerLoader").css('display', 'none');
 
                     }

@@ -28,4 +28,14 @@ class CaseStaff extends Model
     {
         return $this->belongsTo(User::class, 'lead_attorney');
     }
+
+    /**
+     * Get the staffUser that owns the CaseStaff
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function staffUser()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

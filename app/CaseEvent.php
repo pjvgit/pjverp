@@ -54,33 +54,35 @@ class CaseEvent extends Authenticatable
         return $this->eventLinkedStaff()->take(1)->get(); 
     }
     public function getStartTimeUserAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('h:ia',strtotime($currentConvertedDate));
         }else{
             return "";
         }
     }
     public function getStAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('H:i:s',strtotime($currentConvertedDate));
         }else{
             return "";
         }
     }
     public function getEtAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->end_time!=''){
             $tm=$this->end_date . $this->end_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('H:i:s',strtotime($currentConvertedDate));
         }else{
             return "";
@@ -89,22 +91,22 @@ class CaseEvent extends Authenticatable
 
     public function getSdtAttribute(){
         return "";
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('Y-m-d H:i:s',strtotime($currentConvertedDate));
         }else{
             return "";
         }
     }
     public function getEdtAttribute(){
-        $CommonController= new CommonController();
+        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
         if($this->end_time!=''){
             $tm=$this->end_date . $this->end_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('Y-M-d H:i:s',strtotime($currentConvertedDate));
         }else{
             return "";
@@ -150,7 +152,7 @@ class CaseEvent extends Authenticatable
      */
     public function eventLinkedStaff()
     {
-        return $this->belongsToMany(User::class, 'case_event_linked_staff', 'event_id', 'user_id')->wherePivot("deleted_at", Null);
+        return $this->belongsToMany(User::class, 'case_event_linked_staff', 'event_id', 'user_id')->withPivot("attending")->wherePivot("deleted_at", Null);
     }
 
     /**
@@ -212,5 +214,25 @@ class CaseEvent extends Authenticatable
     public function eventUpdatedByUser()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * The eventContact linked that belong to the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function eventLinkedContact()
+    {
+        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'contact_id');
+    }
+
+    /**
+     * The eventLinkedLead that belong to the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function eventLinkedLead()
+    {
+        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'lead_id');
     }
 }

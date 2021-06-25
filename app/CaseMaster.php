@@ -297,4 +297,24 @@ class CaseMaster extends Authenticatable
     {
         return $this->hasOne("App\CaseStaff", 'case_id', 'id');
     }
+
+    /**
+     * Get all of the invoices for the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class, 'case_id');
+    }
+
+    /**
+     * Get the all Staff associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseStaffAll()
+    {
+        return $this->hasMany("App\CaseStaff", 'case_id', 'id');
+    }
 }

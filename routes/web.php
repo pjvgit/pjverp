@@ -10,6 +10,17 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+// For check email markdown
+
+use Illuminate\Mail\Markdown;
+
+Route::get('mail', function () {
+    $markdown = new Markdown(view(), config('mail.markdown'));
+
+    // return $markdown->render('emails.invitation_mail');
+    return $markdown->render('emails.event_reminder_email');
+    return view('emails.invitation-email');
+});
 
 Route::view('dashboard/dashboard1', 'dashboard.dashboardv1')->name('dashboard_version_1');
 Route::view('dashboard/dashboard2', 'dashboard.dashboardv2')->name('dashboard_version_2');

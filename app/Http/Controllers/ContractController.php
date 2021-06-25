@@ -457,7 +457,7 @@ class ContractController extends BaseController
 
      public function dashboard()
      {
-        $lastLoginUsers = User::where("parent_user",Auth::User()->id)->orderBy('last_login','desc')->limit(5)->get();
+        $lastLoginUsers = User::/* where("parent_user",Auth::User()->id) */where('firm_name', auth()->user()->firm_name)->where('user_level', 3)->orderBy('last_login','desc')->limit(5)->get();
         return view('contract.dashboard',['lastLoginUsers'=>$lastLoginUsers]);
 
      }

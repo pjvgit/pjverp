@@ -1772,12 +1772,27 @@ class BillingController extends BaseController
 
         }
         //Filters
-        /* if($request->practice_area_id != 'all'){
+        if($request->practice_area_id != 'all') {
             $Invoices = $Invoices->where("case_master.practice_area", $request->practice_area_id);
         }
         if($request->lead_attorney_id != "all") {
             $Invoices = $Invoices->where("case_staff.lead_attorney", $request->lead_attorney_id);
-        } */
+        }
+        if($request->firm_office_id != 'all') {
+            $Invoices = $Invoices->where("case_master.case_office", $request->firm_office_id);
+        }
+        if($request->billing_method != 'all') {
+            $Invoices = $Invoices->where("case_master.billing_method", $request->billing_method);
+        }
+        if($request->balance_filter != 'all') {
+            if($request->balance_filter == "uninvoiced") {
+                $Invoices = $Invoices->whereDoesntHave("invoices");
+            } else {
+                $Invoices = $Invoices->whereHas("invoices", function($query) {
+                    $query->havingRaw('SUM(due_amount) > ?', array(0));
+                });
+            }
+        }
         $totalData=$Invoices->count();
         $totalFiltered = $totalData; 
         
