@@ -17,7 +17,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                     <?php } ?>
                     </td>
                 </tr>
-               
+                <?php if (!$TaskChecklist->isEmpty()) { ?>
                 <tr class="border-top-0 task-checklist-background-incomplete <?php if($TaskData->status=="0"){?>  table-info <?php } else{  ?>table-success<?php } ?>">
                     <td class="text-center border-top-0 border-right-0 task-checkbox-column float-left">
                     <?php $findComletedPErcent = ($TaskChecklistCompleted / count($TaskChecklist) * 100);?>
@@ -29,6 +29,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                         <div class="checklist-details-progress-bar-19667270 ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width:{{$findComletedPErcent}}%;background-color:#5c9ccc;"></div></div>
                     </td>
                 </tr>
+                <?php } ?>
     <?php if (!$TaskChecklist->isEmpty()) {?>
         <div class="mb-3">
             <ul class="list-group" id="checklistReloadArea">
