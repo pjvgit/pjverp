@@ -558,6 +558,7 @@
         var selectdValue = $("#case_or_lead option:selected").val() 
        
         if(selectdValue!=''){
+            $("#time_tracking_enabled").prop('checked',false);
             if(uType=="case"){
                 $("#text_case_id").val(selectdValue);
                 $("#text_lead_id").val('');
@@ -565,7 +566,6 @@
                 $("#HideShowNonlink").show();
                 loadRightSection(selectdValue);
             }else{
-                $("#time_tracking_enabled").prop('checked',false)
                 $("#text_lead_id").val(selectdValue);
                 $("#text_case_id").val('');
 
