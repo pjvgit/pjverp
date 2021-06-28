@@ -3,7 +3,8 @@
     @csrf
     <input class="form-control" id="id" value="{{ $Task->id}}" name="task_id" type="hidden">
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
-
+    <input class="form-control" id="timeTrackingEnabled" value="{{$Task->time_tracking_enabled}}" name="timeTrackingEnabled" type="hidden">
+    
     <div class="row">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
@@ -638,11 +639,8 @@
 
                 firmStaff();
             }
-            <?php  if($Task->time_tracking_enabled=="yes"){  ?>
+            if($("#timeTrackingEnabled").val() == "yes"){
                 $('input:checkbox#time_tracking_enabled').trigger('click');
-           <?php } ?>
-            if($("input:checkbox#time_tracking_enabled").is(":checked")){
-                loadTimeEstimationUsersLinkedStaffList1();
             }
         }else{
             $("#loadTaskSection").html('');
@@ -760,16 +758,15 @@
         $(".innerLoader").css('display', 'block');
         $('.submit').prop("disabled", true);
     }
-    <?php  if($Task->time_tracking_enabled=="yes"){  ?>
+    if($("#timeTrackingEnabled").val() == "yes"){
         setTimeout(function(){  
             if($("input:checkbox#time_tracking_enabled").is(":checked")){
-                
+                loadTimeEstimationUsersLinkedStaffList1();
             }else{
                 $('input:checkbox#time_tracking_enabled').trigger('click');
             }
-          }, 500);
-        
-        <?php } ?>
+          }, 500);        
+    }
     function afterLoader(){
         $(".innerLoader").css('display', 'none');
         $('.submit').removeAttr("disabled");        
