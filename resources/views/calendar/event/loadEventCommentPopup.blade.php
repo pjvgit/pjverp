@@ -25,7 +25,7 @@
                             <div class="col-3"><b>Location</b></div>
                             <div class="detail-info event-location-section col-9">
 
-                                <?php 
+                                {{-- <?php 
                                 if(empty($eventLocation)){?>
                                 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
                                 <?php }else{ ?>
@@ -36,7 +36,12 @@
                                 <?=$eventLocation->state?>&nbsp;
                                 <?=$eventLocation->postal_code?><br>
                                 <?=$eventLocation->name?>
-                                <?php } ?>
+                                <?php } ?> --}}
+                                @if($evetData->event_location_id)
+                                    {{ $evetData->eventLocation->full_address }}
+                                @else
+                                    <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                @endif
                             </div>
                         </div>
 
@@ -62,21 +67,29 @@
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Case</b></div>
                             <div class="detail-info  col-9">
-                                <?php 
+                                {{-- <?php 
                                 if(!empty($CaseMasterData)){?>
                                 <a
                                     href="{{BASE_URL}}court_cases/{{$CaseMasterData->case_unique_number}}">{{$CaseMasterData->case_title}}</a>
                                 <?php } else  { ?>
                                 Not specified
-                                <?php } ?>
-
+                                <?php } ?> --}}
+                                @if($evetData->case_id)
+                                <a href="{{ route('caseview', $evetData->case->case_unique_number) }}">{{$evetData->case->case_title}}</a>
+                                @else
+                                <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                @endif
                             </div>
-
+                            
                         </div>
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Lead</b></div>
                             <div class="detail-info  col-9">
+                                @if($evetData->lead_id)
+                                <a href="{{ route('case_details/info', $evetData->lead_id) }}">{{$evetData->leadUser->full_name}}</a>
+                                @else
                                 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                @endif
                             </div>
                         </div>
                         <div class="mb-2 row ">
@@ -114,7 +127,7 @@
                                 <div>
                                     <div class="mb-2 sharing-user">
                                         <div class="row ">
-                                            <?php                                              
+                                            {{-- <?php                                              
                                                 $userTypes = unserialize(USER_TYPE);
                                                 if(!$caseLinkedStaffList->isEmpty()){
                                                     foreach($caseLinkedStaffList as $kstaff=>$vstaff){
@@ -133,10 +146,22 @@
                                                         </div>
                                                             <?php 
                                                         } 
-                                                    }?>
+                                                    }?> --}}
+                                            @if(count($evetData->eventLinkedStaff))
+                                                @forelse ($evetData->eventLinkedStaff as $key => $item)
+                                                <div class="col-8">
+                                                    <div class="d-flex flex-row">
+                                                        <a href="{{ route('contacts/attorneys/info', base64_encode($item->id)) }}" class="d-flex align-items-center user-link" title="{{ userTypeList()[$item->user_type] }}">
+                                                            {{substr($item->full_name,0,15)}} ({{userTypeList()[$item->user_type]}})</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4"><b style="color: rgb(99, 108, 114);"><?php if($item->pivot->attending=='yes'){ echo "Attending"; } ?></b></div>
+                                                @empty
+                                                @endforelse
+                                            @endif
                                         </div>
                                         <div class="row ">
-                                            <?php                                              
+                                            {{-- <?php                                              
                                                 if(!$CaseEventLinkedContactLead->isEmpty()){
                                                     foreach($CaseEventLinkedContactLead as $kstaff=>$vstaff){?>
                                                         <div class="col-8">
@@ -152,7 +177,31 @@
                                                                 style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
                                                         </div>
                                                 <?php } 
-                                                }?>
+                                                }?> --}}
+                                            @if(count($evetData->eventLinkedContact))
+                                                @forelse ($evetData->eventLinkedContact as $key => $item)
+                                                <div class="col-8">
+                                                    <div class="d-flex flex-row">
+                                                        <a href="{{ route('contacts/clients/view', base64_encode($item->id)) }}" class="d-flex align-items-center user-link">
+                                                            {{substr($item->full_name,0,15)}} ({{ userLevelList()[$item->user_level] }})</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4"><b style="color: rgb(99, 108, 114);"><?php if($item->pivot->attending=='yes'){ echo "Attending"; } ?></b></div>
+                                                @empty
+                                                @endforelse
+                                            @endif
+                                            @if(count($evetData->eventLinkedLead))
+                                                @forelse ($evetData->eventLinkedLead as $key => $item)
+                                                <div class="col-8">
+                                                    <div class="d-flex flex-row">
+                                                        <a href="{{ route('lead_details/info', $item->id) }}" class="d-flex align-items-center user-link">
+                                                            {{substr($item->full_name,0,15)}} ({{ userLevelList()[$item->user_level] }})</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4"><b style="color: rgb(99, 108, 114);"><?php if($item->pivot->attending=='yes'){ echo "Attending"; } ?></b></div>
+                                                @empty
+                                                @endforelse
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

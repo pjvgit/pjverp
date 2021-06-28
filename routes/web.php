@@ -495,7 +495,8 @@ Route::group(['middleware'=>'auth'], function () {
      Route::post('court_cases/saveGrantAccessPage', 'CalendarController@saveGrantAccessPage')->name('court_cases/saveGrantAccessPage');
      Route::post('court_cases/saveConfirmGrantAccessPage', 'CalendarController@saveConfirmGrantAccessPage')->name('court_cases/saveConfirmGrantAccessPage');
 
-     Route::post('loadEventCalendar/loadAgenda', 'CalendarController@loadAgenda')->name('loadEventCalendar/loadAgenda');
+     Route::post('loadEventCalendar/loadAgendaView', 'CalendarController@loadAgendaView')->name('loadEventCalendar/loadAgendaView');
+     Route::post('loadEventCalendar/loadStaffView', 'CalendarController@loadStaffView')->name('loadEventCalendar/loadStaffView');
      Route::get('item_categories', 'CalendarController@itemCategories')->name('item_categories');
      
 
