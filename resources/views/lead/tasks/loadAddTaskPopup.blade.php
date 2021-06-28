@@ -28,7 +28,7 @@
                             <option uType="lead"  <?php if($lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                             <?php } ?> --}}
                             @forelse ($caseLeadList as $key => $item)
-                                <option uType="lead" value="{{ $key }}">{{ $item }}</option>
+                                <option uType="lead" value="{{ $key }}" {{ ($key == $lead_id) ? "selected" : "" }}>{{ $item }}</option>
                             @empty
                             @endforelse
                         </optgroup>
@@ -351,6 +351,10 @@
                     element.after(error);
                 }
             }
+        });
+        $('#case_or_lead').on('select2:select', function (e) { 
+            $($('.select2-container--classic .select2-selection--single')[2]).removeClass("input-border-error");
+            $('#CaseListError').text('');
         });
 
         $('#CreateTask').submit(function (e) {
