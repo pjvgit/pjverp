@@ -634,7 +634,14 @@ class TaskController extends BaseController
         $task_id=$request->task_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $CaseMasterData = userCaseList();
+        if(Auth::user()->parent_user==0){
+            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            $getChildUsers[]=Auth::user()->id;
+            $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
+        }else{
+            $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
+            $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
+        }
         $Task = Task::find($request->task_id);
         $TaskChecklist = TaskChecklist::select("*")->where("task_id",$task_id)->orderBy('checklist_order','ASC')->get();
         $taskReminderData = CaseTaskReminder::select("*")->where("task_id",$task_id)->get();
