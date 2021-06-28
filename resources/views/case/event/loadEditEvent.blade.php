@@ -446,11 +446,6 @@
                                             <div class="">
                                                 <select id="reminder_user_type" name="reminder_user_type[]"
                                                     class="form-control custom-select  ">
-                                                    {{-- <option value="me">Me</option>
-                                                    <option value="attorney">Attorneys</option>
-                                                    <option value="paralegal">Paralegals</option>
-                                                    <option value="staff">Staff</option>
-                                                    <option value="client_lead">Client/Lead</option> --}}
                                                     @forelse (reminderUserType() as $key => $item)
                                                     <option value="{{ $key }}">{{ $item }}</option>
                                                     @empty

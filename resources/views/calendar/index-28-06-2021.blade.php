@@ -532,16 +532,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         type: 'custom',
                         buttonText: 'my Custom View',
                         duration: { days: 30 },
-                        visibleRange: function(currentDate) {
-                            return {
-                            start: currentDate.clone().subtract(1, 'days'),
-                            end: currentDate.clone().add(30, 'days') // exclusive end, so 3
-                            };
-                        },
-                        click:  $('#calendar').fullCalendar('changeView', 'CustomView', {
-                            start: moment().clone().subtract(1, 'days'),
-                            end: moment().clone().add(30, 'days') // exclusive end, so 3
-                        })
+                        click:  $('#calendar').fullCalendar('changeView', 'CustomView')
                     },
                     CustomViewStaff: {
                         type: 'custom1',
@@ -554,7 +545,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     // }
                 },
                 events: function (start, end, timezone, callback) {
+                    console.log("event type before:" + eventTypes);
                     var eventTypes = getCheckedUser();
+                    console.log("event type after:" + eventTypes);
                     var byuser = getByUser();
                     var bysol=getSOL();
                     var mytask=getMytask();
@@ -669,7 +662,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
                     }else{
                         var currentdate = view.intervalStart;
-                        var endDate = view.intervalEnd;
                         $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
                         var dateText= $("#datepicker").val();
                         date = moment(dateText).format('YYYY-MM-DD');
@@ -716,15 +708,14 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 initialize: function() {
                 },
                 render: function() {
-                    var view = $('#calendarq').fullCalendar('getView');
-                    var start = view.start._d;
-                    var end = view.end._d;
                     $.ajax({
-                            url: 'loadEventCalendar/loadAgendaView',
+                            url: 'loadEventCalendar/loadAgenda',
                             type: 'POST',
-                            data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD') },
+                            dataType: 'json',
+                            data: {
+                            },
                             success: function (doc) {
-                                $('.fc-view').html(doc);
+                                $('.fc-view').append('DAA');
                             }
                         });
                     
@@ -752,7 +743,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     var moment = $('#calendarq').fullCalendar('getDate');
                     var calDate = moment.format('DD.MM.YYYY HH:mm'); //Here you can format your Date
                     $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
+                            url: 'loadEventCalendar/loadAgenda',
                             type: 'POST',
                             
                             data: {calDate:calDate
@@ -785,6 +776,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 
 
         $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
+            alert();
               $('#calendarq').fullCalendar('refetchEvents');
         });
 
@@ -843,10 +835,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
         $('#calendarq').fullCalendar('refetchEvents');
     }
     function getCheckedUser() {
+        alert(2);
         var array = [];
         $("input[class=event_type]:checked").each(function (i) {
             array.push($(this).val());
         });
+        console.log(array);
         return array;
     }
     function getByUser() {

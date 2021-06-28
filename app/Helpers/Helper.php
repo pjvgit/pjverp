@@ -182,3 +182,23 @@ function convertUTCToUserDate($str, $timezone){
     $date->setTimezone($timezone);
     return $NewDate= $date->format("Y-m-d");
 }
+
+/**
+ * Get user type list
+ */
+function userTypeList()
+{
+    return [
+        "1"=>"Attorney","2"=>"Paralegal","3"=>"Staff"
+    ];
+}
+
+/**
+ * Get user Level list
+ */
+function userLevelList()
+{
+    return [
+        "1"=>"Admin","2"=>"Client","3"=>"User", "4" => "Company", "5" => "Lead"
+    ];
+}

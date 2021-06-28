@@ -13,7 +13,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
     <div class="row">
         <div class="col-md-12" >
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
-            <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
+            <input class="form-control" id="event_id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
             <input type="radio" style="display:none;" name="delete_event_type" class="pick-option mr-2" checked="checked" value="SINGLE_EVENT">
             <div id="firstStep">
@@ -35,15 +35,24 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                     data-placeholder="Search for an existing contact or company">
                                     <option value="">Search for an existing Case or Lead</option>
                                     <optgroup label="Court Cases">
-                                        <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
+                                        {{-- <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                                         <option uType="case" <?php if($case_id==$Caseval->id){ echo "selected=selected"; }?>
                                             value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
-                                        <?php } ?>
+                                        <?php } ?> --}}
+                                        @forelse (userCaseList() as $key => $item)
+                                        <option uType="case" {{ ($evetData->case_id == $item->id) ? "selected" : "" }} value="{{ $item->id }}">
+                                            {{substr($item->case_title,0,100)}} @if($item->case_number!='') {{ "(".$item->case_number.")" }} @endif @if($item->case_close_date!=NULL) {{ "[Closed]" }} @endif </option>
+                                        @empty
+                                        @endforelse
                                     </optgroup>
                                     <optgroup label="Leads">
-                                        <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
+                                        {{-- <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
                                         <option uType="lead" value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
-                                        <?php } ?>
+                                        <?php } ?> --}}
+                                        @forelse (userLeadList() as $key => $item)
+                                        <option uType="lead" value="{{ $key }}" {{ ($evetData->lead_id == $key) ? "selected" : "" }} >{{ $item }}</option>
+                                        @empty
+                                        @endforelse
                                     </optgroup>
 
                                 </select>
@@ -517,10 +526,10 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                 <div class="justify-content-between modal-footer">
                     <div>
                         <div>
-                        <div><b>Originally Created: </b>{{date('l, F jS Y',strtotime($evetData->created_at))}} by {{substr($userData->first_name,0,15)}} {{substr($userData->last_name,0,15)}}</div>
-                        <?php if($updatedEvenByUserData!=''){?>
-                            <div><b>Last Modified: </b>{{date('l, F jS Y',strtotime($evetData->updated_at))}} by {{substr($updatedEvenByUserData->first_name,0,15)}} {{substr($updatedEvenByUserData->last_name,0,15)}}</div>  
-                        <?php } ?>
+                        <div><b>Originally Created: </b>{{date('l, F jS Y',strtotime($evetData->created_at))}} by {{ $evetData->eventCreatedByUser->full_name }}</div>
+                        @if($evetData->updated_by)
+                            <div><b>Last Modified: </b>{{date('l, F jS Y',strtotime($evetData->updated_at))}} by {{ $evetData->eventUpdatedByUser->full_name }}</div>  
+                        @endif
                         </div>
                     </div> <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
                     <div>
@@ -541,9 +550,9 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
 
 <script type="text/javascript">
     $(document).ready(function () {
-        // loadCaseClient({{$case_id}});
-        // loadCaseNoneLinkedStaff({{$case_id}});
-        // loadCaseLinkedStaff({{$case_id}});
+        // loadCaseClient({{@$case_id}});
+        // loadCaseNoneLinkedStaff({{@$case_id}});
+        // loadCaseLinkedStaff({{@$case_id}});
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
@@ -1022,6 +1031,19 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         })
         }
 
+        function loadLeadUsers(lead_id) {
+            var eventId = $("#event_id").val();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/loadLeadRightSection",
+                data: {"lead_id": lead_id,"from":"edit", "event_id": eventId},
+                success: function (res) {
+                    $("#loadTaskSection").html(res);
+                    
+                }
+            })
+        }
+
     // function changeCaseUserEdits() {
     //     var selectdValue = $(".caseleadSingleEvent option:selected").val() // or
     //     if(selectdValue!=""){
@@ -1092,10 +1114,11 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
     <?php if($evetData->event_type!=NULL){?>
      selectColor('{{$getEventColorCode}}', '{{$evetData->event_type}}');
     <?php } ?>
-    <?php if($evetData->case_id!=NULL){?>
+    @if($evetData->case_id!=NULL || $evetData->lead_id)
         setTimeout(function(){  changeCaseUserEdits() }, 1000);
+    @else
         $('.no_case_link').prop('checked', true);
-    <?php } ?>
+    @endif
     
     // loadAllFirmStaff({{$evetData->id}});
 
