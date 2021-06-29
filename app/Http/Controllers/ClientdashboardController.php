@@ -2382,18 +2382,18 @@ class ClientdashboardController extends BaseController
             $ClientCompanyImport->save();
 
             if($request->import_format=="csv"){
-         
                 $path = $request->file('upload_file')->getRealPath();
                 $csv_data = array_map('str_getcsv', file($path));
                 $ClientCompanyImport->file_type="2";
                 $ClientCompanyImport->save(); 
                 $UserArray=[];
-               if(!empty($csv_data)){
+                if(!empty($csv_data)){
                     if($csv_data[0][0]=="first_name"){
                         $user_level="2";
-                        unset($csv_data[0]);
+                        // unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
+                        try {
                         foreach($csv_data as $key=>$val){
                             $UserArray[$key]['first_name']=$val[0];
                             $UserArray[$key]['middle_name']=$val[1];
@@ -2513,13 +2513,19 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->status="1";
                         $ClientCompanyImport->total_imported=$ic;
                         $ClientCompanyImport->save();
-                       
+                        } catch (\Exception $e) {
+                            $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                            $ClientCompanyImport->error_code=$errorString;
+                            $ClientCompanyImport->status=2;
+                            $ClientCompanyImport->save();
+                        }
                         
                     }else{
                         $user_level="4";
-                        unset($csv_data[0]);
+                        // unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
+                        try {
                         foreach($csv_data as $key=>$val){
                             $UserArray[$key]['first_name']=$val[0];
                             $UserArray[$key]['street']=$val[1];
@@ -2593,15 +2599,27 @@ class ClientdashboardController extends BaseController
 
                         $ClientCompanyImport->status="1";
                         $ClientCompanyImport->total_imported=$ic;
-                        $ClientCompanyImport->save();
+                        $ClientCompanyImport->save();                            
+                        } catch (\Exception $e) {
+                            $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                            $ClientCompanyImport->error_code=$errorString;
+                            $ClientCompanyImport->status=2;
+                            $ClientCompanyImport->save();
+                        }
                     }
                   
+                }else{
+                    $errorString='<ul><li>No records founds in file</li></ui>';
+                    $ClientCompanyImport->error_code=$errorString;
+                    $ClientCompanyImport->status=2;
+                    $ClientCompanyImport->save();
                 }
             }
             if($request->import_format=="vcf"){
                 $ClientCompanyImport->file_type="1";
                 $ClientCompanyImport->save();
-
+                try {
+                    
                 $path = $request->file('upload_file')->getRealPath();
                 $csv_data = array_map('str_getcsv', file($path));
                 // echo implode("",$csv_data[0]);
@@ -2683,6 +2701,13 @@ class ClientdashboardController extends BaseController
                     $ClientCompanyImport->status=2;
                     $ClientCompanyImport->save();
                 }
+            }  catch (\Exception $e) {
+                $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                $ClientCompanyImport->error_code=$errorString;
+                $ClientCompanyImport->status=2;
+                $ClientCompanyImport->save();
+            }
+                
             }
             return response()->json(['errors'=>'','contact_id'=>'']);
             exit;
@@ -2715,8 +2740,12 @@ class ClientdashboardController extends BaseController
     }
     public function getCountryId($cid){
         if($cid!=NULL){
-            $country = Countries::where("name",$cid)->first();
-            return $country['id'];
+            $country = Countries::where("name",'like','%'.$cid.'%')->first();
+            if(!empty($country)){
+                return $country->id;
+            }else{
+                return "";
+            }
         }else{
             return "";
         }

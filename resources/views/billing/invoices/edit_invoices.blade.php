@@ -1500,7 +1500,7 @@
                                         <button class="btn btn-secondary  m-1" type="button"
                                             data-dismiss="modal">No</button>
                                     </a>
-                                    <a href="{{BASE_URL}}bills/invoices/view/{{base64_encode($findInvoice->id)}}" class="btn btn-primary ladda-button example-button m-1">Yes</a>
+                                    <a href="/bills/invoices/view/{{base64_encode($findInvoice->id)}}" class="btn btn-primary ladda-button example-button m-1">Yes</a>
                                 </div>
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-8 col-form-label"></label>

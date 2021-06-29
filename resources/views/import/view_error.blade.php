@@ -1,1 +1,1 @@
-{{$ClientCompanyImport['error_code']}}
+{!! $ClientCompanyImport['error_code'] !!}
