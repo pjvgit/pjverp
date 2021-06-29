@@ -652,7 +652,8 @@ if(!isset($adjustment_token)){
                         <div class="loader-bubble loader-bubble-primary innerLoader float-left mr-5" id="innerLoader" style="display: none;">
                         </div>
                         &nbsp;
-                            <button class="btn btn-secondary btn-rounded  m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <!-- <button class="btn btn-secondary btn-rounded  m-1" type="button" data-dismiss="modal">Cancel</button> -->
+                            <a data-toggle="modal"  data-target="#cancelEdit" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-secondary btn-rounded  m-1" >Cancel</a>
                         </a>
                         <button type="submit" id="SaveInvoiceButton" name="saveinvoice" class="btn btn-primary btn-rounded submit submitbutton">Save Invoice</button></div>
                   
@@ -682,6 +683,57 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+<!-- start cancel -->
+<div id="cancelEdit" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSingle">Confirm</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="eventID">
+                        <form class="cancelEdit" id="cancelEdit" name="cancelEdit" method="POST">
+                            <div id="showError2" style="display:none"></div>
+                            @csrf
+                            <input class="form-control" id="task_id" value="" name="task_id" type="hidden">
+                            <div class=" col-md-12">
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label">
+                                        Are you sure you want to cancel and discard all of your changes?
+                                        <input type="radio" style="display:none;" name="delete_event_type"
+                                            checked="checked" class="pick-option mr-2" value="SINGLE_EVENT">
+                                    </label>
+                                </div>
+                                <div class="form-group row float-right">
+                                    <a href="#">
+                                        <button class="btn btn-secondary  m-1" type="button"
+                                            data-dismiss="modal">No</button>
+                                    </a>
+                                    <a href="open" class="btn btn-primary ladda-button example-button m-1">Yes</a>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
+                                    <div class="col-md-2 form-group mb-3">
+                                        <div class="loader-bubble loader-bubble-primary" id="innerLoader1"
+                                            style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end cancel -->
 
 <style>
     .tooltip {
