@@ -668,6 +668,7 @@
                         return false;
                     } else {
                     //    window.location.reload();
+                        $('#loadAddEventPopup').modal("hide");
                         $(".innerLoader").css('display', 'none');
 
                     }

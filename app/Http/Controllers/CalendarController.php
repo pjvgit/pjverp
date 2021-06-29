@@ -29,6 +29,7 @@ class CalendarController extends BaseController
         $EventType = EventType::where('status','1')->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
         $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
 
+        // return view('calendar.index-new',compact('CaseMasterData','EventType','staffData'));
         return view('calendar.index',compact('CaseMasterData','EventType','staffData'));
     }
     public function loadEventCalendar (Request $request)
@@ -59,7 +60,7 @@ class CalendarController extends BaseController
         }
 
         $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
-        $CaseEvent=$CaseEvent->get();
+        $CaseEvent=$CaseEvent->whereNull('deleted_at')->get();
         $newarray = array();
 
         $timezone=Auth::User()->user_timezone;
@@ -104,7 +105,7 @@ class CalendarController extends BaseController
             ->where('case_events.created_by',Auth::User()->id);
             $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [$request->start, $request->end]);
             $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
-            $CaseEventSOL=$CaseEventSOL->get();
+            $CaseEventSOL=$CaseEventSOL->whereNull('deleted_at')->get();
         }else{
             $CaseEventSOL='';
         }
@@ -113,7 +114,7 @@ class CalendarController extends BaseController
             $Task=$Task->whereBetween('task_due_on', [$request->start, $request->end]);
             $Task=$Task->where('task_due_on',"!=",'9999-12-30');
             
-            $Task=$Task->get();
+            $Task=$Task->whereNull('deleted_at')->get();
         }else{
             $Task='';
         }
@@ -125,11 +126,30 @@ class CalendarController extends BaseController
      */
     public function loadStaffView (Request $request)
     {        
-        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
-        // $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
-        $CaseEvent=$CaseEvent->get();
-        return view('calendar.loadStaffView',compact('CaseEvent'));          
-
+        $startDate = date("Y-m-d", strtotime($request->start));
+        $endDate = date("Y-m-d", strtotime($request->end));
+        $events = CaseEvent::/* where('created_by', auth()->id())-> */whereBetween('start_date',  [$startDate, $endDate]);
+        if($request->byuser) {
+            $events = $events->whereIn("created_by", $request->byuser);
+        }
+        if($request->event_type) {
+            $events = $events->whereIn("event_type", $request->event_type);
+        }
+        $events = $events->with("case", "leadUser", "eventCreatedByUser", "eventType")->get();
+        foreach($events as $key => $item) {
+            $timeArr[] = [
+                'id' => $item->id,
+                'resourceId' => $item->created_by,
+                // 'title' =>  @$item->instructor->full_name.'-'.$item->ia_day,
+                'title' =>  @$item->event_title,
+                'start' =>  Carbon::parse($item->sdt)->format('Y-m-d H:i:s'),
+                'end' =>  Carbon::parse($item->edt)->format('Y-m-d H:i:s'),
+                'color' => @$item->eventType->color_code,
+                'eventOverlap' => false,
+                'slotEventOverlap' => false,
+            ];
+        }
+        return view('calendar.partials.load_staff_view',compact('events', 'timeArr'));          
         exit;    
     }
 
@@ -140,7 +160,13 @@ class CalendarController extends BaseController
     {        
         $startDate = date("Y-m-d", strtotime($request->start));
         $endDate = date("Y-m-d", strtotime($request->end));
-        $events = CaseEvent::where('created_by', auth()->id())->whereBetween('start_date',  [$startDate, $endDate]);
+        $events = CaseEvent::/* where('created_by', auth()->id())-> */whereBetween('start_date',  [$startDate, $endDate]);
+        if($request->byuser) {
+            $events = $events->whereIn("created_by", $request->byuser);
+        }
+        if($request->event_type) {
+            $events = $events->whereIn("event_type", $request->event_type);
+        }
         $events = $events->with("case", "leadUser", "eventCreatedByUser")->get();
         return view('calendar.partials.load_agenda_view', ["events" => $events])->render();          
         exit;    

@@ -1,5 +1,17 @@
 @extends('layouts.master')
 @section('title', 'Legalcase - Simplify Your Law Practice | Cloud Based Practice Management')
+
+@section('page-css')
+<style>
+    .agenda-table th, .agenda-table td {
+        padding: 5px 10px !important;
+    }
+    .fc-view.fc-CustomView-view{
+    max-height: 500px !important;
+        overflow-y: auto !important;
+    }
+</style>    
+@endsection
 @section('main-content')
 <?php
 $timezoneData = unserialize(TIME_ZONE_DATA); 
@@ -68,13 +80,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 if($v1->id==Auth::User()->id){?>
                                        
                                        <label class="checkbox checkbox-outline-staff-{{$k1}}">
-                                        <input type="checkbox" checked="checked" class="byuser"
+                                        <input type="checkbox" checked="checked" class="byuser" name="byuser[]"
                                             value="{{$v1->id}}"><span>My Calendar</span><span class="checkmark"></span>
                                     </label>
                                 <?php }else{ ?>
                                         
                                     <label class="checkbox checkbox-outline-staff-{{$k1}}">
-                                        <input type="checkbox"  class="byuser"
+                                        <input type="checkbox"  class="byuser" name="byuser[]"
                                             value="{{$v1->id}}"><span>{{$v1->first_name}} {{$v1->last_name}}</span><span class="checkmark"></span>
                                     </label>
                                 <?php } ?>
@@ -118,7 +130,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         }
                                     </style>
                                 <label class="checkbox checkbox-outline-{{$k}}">
-                                    <input type="checkbox" class="event_type"
+                                    <input type="checkbox" class="event_type" name="event_type[]"
                                         value="{{$v->id}}"><span>{{$v->title}}</span><span class="checkmark"></span>
                                 </label>
                                 <?php } ?>
@@ -126,7 +138,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                         <button type="button" class="edit-event-types-calendar-picker btn btn-link"><i
                                 aria-hidden="true" class="fa fa-plus icon-plus icon"></i><span
-                                class="ml-2"><a href="{{BASE_URL}}item_categories">Customize</a></span></button>
+                                class="ml-2"><a href="{{ route('item_categories') }}">Customize</a></span></button>
                         </div>
                     </div>
                 </div>
@@ -191,7 +203,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
     <div class="col-md-10">
         <div class="row">
-            <div id="calendarq"></div>
+            <div id="calendarq" class="col-md-12"></div>
         </div>
     </div>
 </div>
@@ -530,7 +542,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 views: {
                     CustomView: {
                         type: 'custom',
-                        buttonText: 'my Custom View',
+                        buttonText: 'Agenda',
                         duration: { days: 30 },
                         visibleRange: function(currentDate) {
                             return {
@@ -538,14 +550,14 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             end: currentDate.clone().add(30, 'days') // exclusive end, so 3
                             };
                         },
-                        click:  $('#calendar').fullCalendar('changeView', 'CustomView', {
+                        click:  $('#calendarq').fullCalendar('changeView', 'CustomView', {
                             start: moment().clone().subtract(1, 'days'),
                             end: moment().clone().add(30, 'days') // exclusive end, so 3
                         })
                     },
                     CustomViewStaff: {
                         type: 'custom1',
-                        click:  $('#calendar').fullCalendar('changeView', 'CustomViewStaff')
+                        click:  $('#calendarq').fullCalendar('changeView', 'CustomViewStaff')
                     }
                     // StaffButton: {
                     //     type: 'agenda',
@@ -554,105 +566,120 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     // }
                 },
                 events: function (start, end, timezone, callback) {
-                    var eventTypes = getCheckedUser();
-                    var byuser = getByUser();
-                    var bysol=getSOL();
-                    var mytask=getMytask();
-                    $.ajax({
-                        url: 'loadEventCalendar/load',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            start: start.format(),
-                            end: end.format(),
-                            event_type: JSON.stringify(eventTypes),
-                            byuser: JSON.stringify(byuser),
-                            selectdValue: $(".case_or_lead option:selected").val(),
-                            searchbysol:bysol,
-                            searchbymytask:mytask,
-                            dateFilter:getDate(),
-                            taskLoad:$("#loadType").val()
-                        },
-                        success: function (doc) {
-                            var events = [];
-                            if (!!doc.result) {
-                                $.map(doc.result, function (r) {
-                                    
-                                    if (r.event_title == null) {
-                                        var tTitle = "<No Title>";
-                                    } else {
-                                        var tTitle = r.event_title
-                                    }
-                                    // if(r.etext!=''){
-                                    //     var color= r.etext.color_code
-                                    // }else{
-                                    //     var color= r.colorcode
-                                    // }
-                                    var color="#00cfd2"
-                                    if (r.event_title == null) {
-                                        var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
-                                            ' -' + "<No Title>";
-                                    } else {
-                                        var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
-                                            ' -' + r.event_title
-                                    }
-                                    events.push({
-                                        id: r.id,
-                                        title: t,
-                                        tTitle: tTitle,
-                                        start: r.start_date+'T'+r.st,
-                                        end: r.end_date+'T'+r.et,
-                                        backgroundColor: '#d5e9ce',  
-                                        textColor:'#000000'
-                                    });
-                                });
-                            }
-                            if (!!doc.sol_result) {
-                                $.map(doc.sol_result, function (r) {
-                                    var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title
-                                    var tplain = 'SOL'+' -' + r.event_title
-                                    events.push({
-                                        mysol:'yes',
-                                        case_id:r.case_unique_number,
-                                        id: r.id,
-                                        title: t,
-                                        tTitle: tplain,
-                                        start: r.start_date+'T'+r.st,
-                                        end: r.end_date+'T'+r.et,
-                                        textColor:'#000000',
-                                        backgroundColor: 'rgb(236, 238, 239)',
-                                    });
-                                });
-                            }
-                            if (!!doc.mytask) {
-                                $.map(doc.mytask, function (r) {
-                                    if(r.task_priority==1){
-                                        var cds="background-color: rgb(202, 66, 69); width: 30px;";
-                                    }else if(r.task_priority==2){
-                                        var cds="background-color: rgb(254, 193, 8); width: 30px;";
-                                    }else if(r.task_priority==3){
-                                        var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                    }else{
-                                        var cds="background-color: rgb(40, 167, 68); width: 30px;";
-                                    }    
-                                    var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
-                                    var tplain = 'DUE'+' -' + r.task_title
-                                    events.push({
-                                        mytask:'yes',
-                                        id: r.id,
-                                        title: t,
-                                        tTitle: tplain,
-                                        start: r.task_due_on,
-                                        end: r.task_due_on,
-                                        textColor:'#000000',
-                                        backgroundColor: 'rgb(236, 238, 239)',
+                    var view = $('#calendarq').fullCalendar('getView');
+                    if(view.name == 'CustomView' || view.name == 'CustomViewStaff') {
+                        var eventTypes = getCheckedUser();
+                        var byuser = getByUser();
+                        $.ajax({
+                                url: 'loadEventCalendar/loadAgendaView',
+                                type: 'POST',
+                                data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD'), event_type: eventTypes, byuser: byuser },
+                                success: function (doc) {
+                                    $('.fc-view').html(doc);
+                                    $("#preloaderData").hide();
+                                }
+                            });
+                    } else {
+                        var eventTypes = getCheckedUser();
+                        var byuser = getByUser();
+                        var bysol=getSOL();
+                        var mytask=getMytask();
+                        $.ajax({
+                            url: 'loadEventCalendar/load',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                start: start.format(),
+                                end: end.format(),
+                                event_type: JSON.stringify(eventTypes),
+                                byuser: JSON.stringify(byuser),
+                                selectdValue: $(".case_or_lead option:selected").val(),
+                                searchbysol:bysol,
+                                searchbymytask:mytask,
+                                dateFilter:getDate(),
+                                taskLoad:$("#loadType").val()
+                            },
+                            success: function (doc) {
+                                var events = [];
+                                if (!!doc.result) {
+                                    $.map(doc.result, function (r) {
                                         
+                                        if (r.event_title == null) {
+                                            var tTitle = "<No Title>";
+                                        } else {
+                                            var tTitle = r.event_title
+                                        }
+                                        // if(r.etext!=''){
+                                        //     var color= r.etext.color_code
+                                        // }else{
+                                        //     var color= r.colorcode
+                                        // }
+                                        var color="#00cfd2"
+                                        if (r.event_title == null) {
+                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                                ' -' + "<No Title>";
+                                        } else {
+                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                                ' -' + r.event_title
+                                        }
+                                        events.push({
+                                            id: r.id,
+                                            title: t,
+                                            tTitle: tTitle,
+                                            start: r.start_date+'T'+r.st,
+                                            end: r.end_date+'T'+r.et,
+                                            backgroundColor: '#d5e9ce',  
+                                            textColor:'#000000'
+                                        });
                                     });
-                                });
-                            }
-                            callback(events);
-                        },
-                    });
+                                }
+                                if (!!doc.sol_result) {
+                                    $.map(doc.sol_result, function (r) {
+                                        var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(92, 92, 92); width: 30px;">SOL</span>'+' ' + r.event_title
+                                        var tplain = 'SOL'+' -' + r.event_title
+                                        events.push({
+                                            mysol:'yes',
+                                            case_id:r.case_unique_number,
+                                            id: r.id,
+                                            title: t,
+                                            tTitle: tplain,
+                                            start: r.start_date+'T'+r.st,
+                                            end: r.end_date+'T'+r.et,
+                                            textColor:'#000000',
+                                            backgroundColor: 'rgb(236, 238, 239)',
+                                        });
+                                    });
+                                }
+                                if (!!doc.mytask) {
+                                    $.map(doc.mytask, function (r) {
+                                        if(r.task_priority==1){
+                                            var cds="background-color: rgb(202, 66, 69); width: 30px;";
+                                        }else if(r.task_priority==2){
+                                            var cds="background-color: rgb(254, 193, 8); width: 30px;";
+                                        }else if(r.task_priority==3){
+                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
+                                        }else{
+                                            var cds="background-color: rgb(40, 167, 68); width: 30px;";
+                                        }    
+                                        var t = '<span class="calendar-badge d-inline-block undefined badge badge-secondary" style="'+cds+'">DUE</span>'+' ' + r.task_title
+                                        var tplain = 'DUE'+' -' + r.task_title
+                                        events.push({
+                                            mytask:'yes',
+                                            id: r.id,
+                                            title: t,
+                                            tTitle: tplain,
+                                            start: r.task_due_on,
+                                            end: r.task_due_on,
+                                            textColor:'#000000',
+                                            backgroundColor: 'rgb(236, 238, 239)',
+                                            
+                                        });
+                                    });
+                                }
+                                callback(events);
+                            },
+                        });
+                    }
                 },
                 eventRender: function (event, element,view) {
                     if(view.name == 'week' || view.name == 'day') {
@@ -672,7 +699,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         var endDate = view.intervalEnd;
                         $('#datepicker').datepicker().datepicker('setDate', new Date(currentdate));
                         var dateText= $("#datepicker").val();
-                        date = moment(dateText).format('YYYY-MM-DD');
+                        date = moment(currentdate).format('YYYY-MM-DD');
                         // $("#calendarq").fullCalendar('gotoDate', date);
                     }
                 },
@@ -719,15 +746,17 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     var view = $('#calendarq').fullCalendar('getView');
                     var start = view.start._d;
                     var end = view.end._d;
+                    var eventTypes = getCheckedUser();
+                        var byuser = getByUser();
                     $.ajax({
                             url: 'loadEventCalendar/loadAgendaView',
                             type: 'POST',
-                            data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD') },
+                            data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD'), event_type: eventTypes, byuser: byuser },
                             success: function (doc) {
                                 $('.fc-view').html(doc);
+                                $("#preloaderData").hide();
                             }
                         });
-                    
                 },
                 setHeight: function(height, isAuto) {
                 },
@@ -784,7 +813,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
+        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup').on('hidden.bs.modal', function () {
               $('#calendarq').fullCalendar('refetchEvents');
         });
 
