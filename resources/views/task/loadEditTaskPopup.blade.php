@@ -18,7 +18,7 @@
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead</label>
                 <div class="col-8 form-group mb-3">
-                    <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead" name="case_or_lead"
+                    <select onChange="changeCaseUser()" class="form-control case_or_lead select2" id="case_or_lead" name="case_or_lead"
                         data-placeholder="Search for an existing contact or company">
                         <option value="">Search for an existing Case or Lead</option>
                         <optgroup label="Court Cases">
@@ -298,12 +298,14 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function () {
-        $(".innerLoader").css('display', 'none');
+        $(".innerLoader").css('display', 'none'); 
+        var parentId = $(".modal-dialog  .CreateTask").parent().attr("id");
+        parentId = parentId.replace('Area','');       
         $(".case_or_lead").select2({
             placeholder: "Select...",
             theme: "classic",
             allowClear: true,
-            dropdownParent: $("#editTask")
+            dropdownParent: $("#"+parentId),
         });
         $( "#sortable" ).sortable();;
         $('.datepicker').datepicker({
@@ -615,7 +617,7 @@
             }
         })
     }
-    function changeCaseUser() {
+    function changeCaseUser() {     
         // beforeLoader();
         $(".innerLoader").css('display', 'block');
         $("#dynamicUSerTimes").html('');
