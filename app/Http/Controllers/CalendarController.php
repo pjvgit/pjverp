@@ -60,7 +60,7 @@ class CalendarController extends BaseController
         }
 
         $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
-        $CaseEvent=$CaseEvent->whereNull('deleted_at')->get();
+        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->get();
         $newarray = array();
 
         $timezone=Auth::User()->user_timezone;
@@ -105,7 +105,7 @@ class CalendarController extends BaseController
             ->where('case_events.created_by',Auth::User()->id);
             $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [$request->start, $request->end]);
             $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
-            $CaseEventSOL=$CaseEventSOL->whereNull('deleted_at')->get();
+            $CaseEventSOL=$CaseEventSOL->whereNull('case_events.deleted_at')->get();
         }else{
             $CaseEventSOL='';
         }
