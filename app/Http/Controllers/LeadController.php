@@ -1448,7 +1448,7 @@ class LeadController extends BaseController
         $allLeadsDropdown = LeadAdditionalInfo::leftJoin('users','lead_additional_info.user_id','=','users.id')
         ->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as created_by_name'))
         ->where("users.user_type","5")
-        ->where("users.user_level","5")
+        // ->where("users.user_level","5")
         ->where("users.firm_name",Auth::User()->firm_name)
         ->where("lead_additional_info.user_status","1") //1 :Active
         ->where("lead_additional_info.is_converted","yes")
