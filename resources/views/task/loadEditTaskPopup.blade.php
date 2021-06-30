@@ -699,8 +699,10 @@
                     beforeload=true;
                 }
                 else{
+                    loadTimeEstimationUsersLinkedStaffList1();
                 }
             }
+            afterLoader();
         } else {
             // $("#dynamicUSerTimes").html('');
             $("#dynamicUSerTimes").hide();
@@ -713,7 +715,7 @@
             data: "",
             success: function (res) {
                 $("#dynamicUSerTimes").html(res);
-
+                afterLoader();
             }
         })
     }
