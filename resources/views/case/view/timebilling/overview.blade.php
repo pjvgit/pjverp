@@ -131,7 +131,6 @@
                                     }else{
                                         $displayName="";
                                         $displayLevel="";
-                                        $m="";
                                     }
                                       
                                     ?>
@@ -144,6 +143,12 @@
                                     if(!empty($CaseMaster) && in_array($CaseMaster['billing_method'],['flat','mixed'])){?>
                                     <tr>
                                         <td class="pl-1" style="width: 33%;">Flat Fee</td>
+                                        <td class="pl-1" style="width: 33%;">${{number_format($CaseMaster['billing_amount'],2)}}</td>
+                                        <td class="pl-1" style="width: 33%;"></td>
+                                    </tr>
+                                    <?php }else{ ?>
+                                        <tr>
+                                        <td class="pl-1" style="width: 33%;">{{$m}}</td>
                                         <td class="pl-1" style="width: 33%;">${{number_format($CaseMaster['billing_amount'],2)}}</td>
                                         <td class="pl-1" style="width: 33%;"></td>
                                     </tr>
