@@ -4,13 +4,17 @@
 @section('page-css')
 <link rel="stylesheet" href="{{asset('assets/plugins/fullcalendar-5.8.0/lib/main.min.css')}}">
 <style>
-    .agenda-table th, .agenda-table td {
-        padding: 5px 10px !important;
-    }
-    .fc-view.fc-CustomView-view{
-    max-height: 500px !important;
-        overflow-y: auto !important;
-    }
+.agenda-table th, .agenda-table td {
+    padding: 5px 10px !important;
+}
+.fc-view.fc-CustomView-view{
+max-height: 500px !important;
+    overflow-y: auto !important;
+}
+.fc-day-grid-event > .fc-content {
+    white-space: nowrap;
+    overflow: hidden;
+}
 </style>    
 @endsection
 @section('main-content')
@@ -417,6 +421,36 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 <script type="text/javascript">
 
 $(document).ready(function() {
+    // Custom agenda view
+    const { sliceEvents, createPlugin, Calendar } = FullCalendar
+    const CustomViewConfig = {
+        classNames: [ 'custom-view' ],
+        content: function(props) {
+        let segs = sliceEvents(props, true); // allDay=true
+        let html =
+            '<div class="view-title">' +
+            props.dateProfile.currentRange.start.toUTCString() +
+            '</div>' +
+            '<div class="view-events">' +
+            segs.length + ' events:' +
+            '<ul>' +
+                segs.map(function(seg) {
+                return seg.def.title + ' (' + seg.range.start.toUTCString() + ')'
+                }).join('') +
+            '</ul>' +
+            '</div>'
+
+        return { html: html }
+        }
+    }
+    const CustomViewPlugin = createPlugin({
+        views: {
+        custom: CustomViewConfig
+        }
+    });
+    // calendar.render();
+
+
     var calendarEl = document.getElementById('calendarq');
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -424,7 +458,7 @@ $(document).ready(function() {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' // buttons for switching between views
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth,custom' // buttons for switching between views
         },
         views: {
             dayGridMonth: { // name of view
@@ -433,6 +467,15 @@ $(document).ready(function() {
             timeGridDay: {
                 dayHeaders: false,
                 titleFormat: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }
+            },
+            agendaView: {
+                type: 'custom',
+                buttonText: 'Agenda',
+                duration: { days: 30 },
+                click:  $('#calendarq').fullCalendar('changeView', 'AgendaView', {
+                    start: moment().clone().subtract(1, 'days'),
+                    end: moment().clone().add(30, 'days') // exclusive end, so 3
+                })
             },
         },
         dayMaxEvents: true, // allow "more" link when too many events
@@ -480,6 +523,7 @@ $(document).ready(function() {
                                 var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
                                     ' -' + r.event_title
                             }
+                            var t = r.event_title;
                             events.push({
                                 id: r.id,
                                 title: t,
@@ -487,7 +531,10 @@ $(document).ready(function() {
                                 start: r.start_date+'T'+r.st,
                                 end: r.end_date+'T'+r.et,
                                 backgroundColor: '#d5e9ce',  
-                                textColor:'#000000'
+                                textColor:'#000000',
+                                color: color,
+                                eventOverlap: false,
+                                slotEventOverlap: false,
                             });
                         });
                     }
@@ -566,6 +613,8 @@ $(document).ready(function() {
         
     });
     calendar.render();
+
+    
 });
 
 $(document).ready(function () {

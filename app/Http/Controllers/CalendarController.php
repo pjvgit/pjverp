@@ -125,31 +125,56 @@ class CalendarController extends BaseController
      * Load calendar staff view
      */
     public function loadStaffView (Request $request)
-    {        
-        $startDate = date("Y-m-d", strtotime($request->start));
-        $endDate = date("Y-m-d", strtotime($request->end));
-        $events = CaseEvent::/* where('created_by', auth()->id())-> */whereBetween('start_date',  [$startDate, $endDate]);
-        if($request->byuser) {
-            $events = $events->whereIn("created_by", $request->byuser);
+    {      
+        // return $request->all()  ;
+        if($request->resType == "resources") {
+            $resources = [];
+            if($request->view_name == "agendaDay") {
+                return response()->json($resources);
+            } else {
+                $users = User::where("firm_name", auth()->user()->firm_name);
+                if($request->byuser) {
+                    $users = $users->whereIn("id", $request->byuser);
+                }
+                $users = $users->get();
+                foreach($users as $key => $item) {
+                    $resources[] = [
+                        'id' => $item->id,
+                        'title' => @$item->full_name
+                    ];
+                }
+                return response()->json($resources);
+            }
+        } else {
+            $startDate = date("Y-m-d", strtotime($request->start));
+            $endDate = date("Y-m-d", strtotime($request->end));
+            $events = CaseEvent::/* where('created_by', auth()->id())-> */whereDate('start_date', $startDate);
+            if($request->byuser) {
+                $events = $events->whereIn("created_by", $request->byuser);
+            }
+            if($request->event_type) {
+                $events = $events->whereIn("event_type", $request->event_type);
+            }
+            $events = $events->with("case", "leadUser", "eventCreatedByUser", "eventType")->get();
+            /* $timeArr = [];
+            foreach($events as $key => $item) {
+                $timeArr[] = [
+                    'id' => $item->id,
+                    'resourceId' => $item->created_by,
+                    // 'title' =>  @$item->instructor->full_name.'-'.$item->ia_day,
+                    'title' =>  @$item->event_title,
+                    // 'start' => $item->start_date.'T'.$item->st,
+                    // 'end' =>  $item->end_date.'T'.$item->et,
+                    'start' =>  Carbon::parse($item->sdt)->format('Y-m-d H:i:s'),
+                    'end' =>  Carbon::parse($item->edt)->format('Y-m-d H:i:s'),
+                    'color' => @$item->eventType->color_code,
+                    'eventOverlap' => false,
+                    'slotEventOverlap' => false,
+                ];
+            } */
+            return response()->json($events);
         }
-        if($request->event_type) {
-            $events = $events->whereIn("event_type", $request->event_type);
-        }
-        $events = $events->with("case", "leadUser", "eventCreatedByUser", "eventType")->get();
-        foreach($events as $key => $item) {
-            $timeArr[] = [
-                'id' => $item->id,
-                'resourceId' => $item->created_by,
-                // 'title' =>  @$item->instructor->full_name.'-'.$item->ia_day,
-                'title' =>  @$item->event_title,
-                'start' =>  Carbon::parse($item->sdt)->format('Y-m-d H:i:s'),
-                'end' =>  Carbon::parse($item->edt)->format('Y-m-d H:i:s'),
-                'color' => @$item->eventType->color_code,
-                'eventOverlap' => false,
-                'slotEventOverlap' => false,
-            ];
-        }
-        return view('calendar.partials.load_staff_view',compact('events', 'timeArr'));          
+        // return view('calendar.partials.load_staff_view',compact('events'));          
         exit;    
     }
 
