@@ -763,7 +763,6 @@
                 url: baseUrl + "/leads/saveEditEventPage", // json datasource
                 data: dataString,
                 success: function (res) {
-                  
                     $(".innerLoader").css('display', 'block');
                     $(".innerLoaderOk").css('display', 'block');
 

@@ -214,7 +214,6 @@
             }
         });
         $(".client_share_all_users").click(function () {
-            alert();
             var id = $(this).attr('rowVal');
             $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {

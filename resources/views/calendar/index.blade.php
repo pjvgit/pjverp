@@ -6,7 +6,7 @@
     .agenda-table th, .agenda-table td {
         padding: 5px 10px !important;
     }
-    .fc-view.fc-CustomView-view{
+    .fc-view.fc-AgendaView-view{
     max-height: 500px !important;
         overflow-y: auto !important;
     }
@@ -411,6 +411,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 /* .fc-time{display: none;} */
 </style>
 @section('page-js')
+{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script> --}}
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 
 <script type="text/javascript">
@@ -482,42 +483,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
                 var today = moment().day();
             $('#calendarq').fullCalendar({
-                
-                customButtons: {
-                    // agendaButton: {
-                    //     text: 'Agenda',
-                    //     click: function () {
-                    //         loadAddTaskPopup();
-                    //     }
-                    // },
-                    staffView: {
-                        text: 'Staff',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'CustomViewStaff');
-                        }
-                    },
-                    agendaFourDay: {
-                        text: 'Agenda',
-                        click: function () {
-                            $('#calendarq').fullCalendar('changeView', 'CustomView');
-                        }
-                    },
-                    
-                },
-                header: {
-                    left: 'prev next today', //myCustomButton
-                    center: 'title',
-                    right: 'staffView,agendaDay,agendaWeek,month,agendaFourDay'
-                },
-                buttonText:{
-                    month:    'Month',
-                    week:     'Week',
-                    day:      'Day',
-                    today : 'Today'
-                },
-
-                lazyFetching:true,
+                lazyFetching:false,
                 firstDay: 0,
+                timezone: "@if(auth()->user()->user_timezone) {{auth()->user()->user_timezone}} @else 'UTC' @endif",
                 // defaultDate: moment('2020-09-01'),
                 displayEventTime: false,
                 // timeFormat: 'h:mma',
@@ -539,8 +507,36 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 loading: function (bool) {
                     $("#preloaderData").show();
                 },
+                buttonText:{
+                    month:    'Month',
+                    week:     'Week',
+                    day:      'Day',
+                    today : 'Today'
+                },
+                customButtons: {
+                    staffView: {
+                        text: 'Staff',
+                        click: function () {
+                            $('#calendarq').fullCalendar('changeView', 'StaffView');
+                            $('#calendarq').fullCalendar( 'refetchEvents');
+                            return true; 
+                        }
+                    },
+                    agendaView: {
+                        text: 'Agenda',
+                        click: function () {
+                            $('#calendarq').fullCalendar('changeView', 'AgendaView');
+                        }
+                    },
+                    
+                },
+                header: {
+                    left: 'prev next today', //myCustomButton
+                    center: 'title',
+                    right: 'staffView,agendaDay,agendaWeek,month,agendaView'
+                },
                 views: {
-                    CustomView: {
+                    AgendaView: {
                         type: 'custom',
                         buttonText: 'Agenda',
                         duration: { days: 30 },
@@ -550,38 +546,97 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             end: currentDate.clone().add(30, 'days') // exclusive end, so 3
                             };
                         },
-                        click:  $('#calendarq').fullCalendar('changeView', 'CustomView', {
+                        click:  $('#calendarq').fullCalendar('changeView', 'AgendaView', {
                             start: moment().clone().subtract(1, 'days'),
                             end: moment().clone().add(30, 'days') // exclusive end, so 3
                         })
                     },
-                    CustomViewStaff: {
-                        type: 'custom1',
-                        click:  $('#calendarq').fullCalendar('changeView', 'CustomViewStaff')
+                    StaffView: {
+                        type: 'agenda',
+                        duration: { days: 1 },
+                        click:  $('#calendarq').fullCalendar('changeView', 'StaffView')
                     }
-                    // StaffButton: {
-                    //     type: 'agenda',
-                    //     duration: { days: 1 },
-                    //     buttonText: 'Staff'
-                    // }
+                },
+                // groupByResource: true,
+                resources: function(callback, start, end, timezone) {
+                    var byuser = getByUser();
+                    var view = $('#calendarq').fullCalendar('getView');
+                    $.ajax({
+                        url: 'loadEventCalendar/loadStaffView',
+                        type: 'POST',
+                        data: {resType: "resources", byuser: byuser, view_name: view.name},
+                        success: function (doc) {
+                            callback(doc);
+                        }
+                    });
                 },
                 events: function (start, end, timezone, callback) {
                     var view = $('#calendarq').fullCalendar('getView');
-                    if(view.name == 'CustomView' || view.name == 'CustomViewStaff') {
-                        var eventTypes = getCheckedUser();
-                        var byuser = getByUser();
+                    var eventTypes = [];
+                    $.each($("input[name='event_type[]']:checked"), function(){
+                        eventTypes.push($(this).val());
+                    });
+                    var byuser = getByUser();
+                    if(view.name == 'AgendaView') {
+                        // var eventTypes = getCheckedUser();
+                        // var byuser = getByUser();
                         $.ajax({
                                 url: 'loadEventCalendar/loadAgendaView',
                                 type: 'POST',
-                                data: { start: moment(start).format('YYYY-MM-DD'), end: moment(end).format('YYYY-MM-DD'), event_type: eventTypes, byuser: byuser },
+                                data: { start: start.format(), end: end.format(), event_type: eventTypes, byuser: byuser },
                                 success: function (doc) {
                                     $('.fc-view').html(doc);
                                     $("#preloaderData").hide();
                                 }
                             });
+                    } else if(view.name == 'StaffView') {
+                        console.log("dhbh");
+                        // var eventTypes = getCheckedUser();
+                        // var byuser = getByUser();
+                        var currentDay = $('#calendarq').fullCalendar('getDate');
+                        $.ajax({
+                            url: 'loadEventCalendar/loadStaffView',
+                            type: 'POST',
+                            data: {start: currentDay.format(), resType: "events", event_type: eventTypes, byuser: byuser },
+                            success: function (doc) {
+                                console.log(doc);
+                                var events = [];
+                                $.map(doc, function (r) {
+                                        if (r.event_title == null) {
+                                            var tTitle = "<No Title>";
+                                        } else {
+                                            var tTitle = r.event_title
+                                        }
+                                        var color="#00cfd2"
+                                        if (r.event_title == null) {
+                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                                ' -' + "<No Title>";
+                                        } else {
+                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
+                                                ' -' + r.event_title
+                                        }
+                                        events.push({
+                                            id: r.id,
+                                            resourceId: r.created_by,
+                                            title: t,
+                                            tTitle: tTitle,
+                                            start: r.start_date+'T'+r.st,
+                                            end: r.end_date+'T'+r.et,
+                                            backgroundColor: '#d5e9ce',  
+                                            textColor:'#000000'
+                                        });
+                                    });
+                                callback(events);
+                            }
+                        });
                     } else {
-                        var eventTypes = getCheckedUser();
-                        var byuser = getByUser();
+                        // $('#calendarq').fullCalendar('refetchResources');
+                        // var eventTypes = getCheckedUser();
+                        // var eventTypes = [];
+                        // $.each($("input[name='event_type[]']:checked"), function(){
+                        //     eventTypes.push($(this).val());
+                        // });
+                        // var byuser = getByUser();
                         var bysol=getSOL();
                         var mytask=getMytask();
                         $.ajax({
@@ -682,9 +737,11 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     }
                 },
                 eventRender: function (event, element,view) {
-                    if(view.name == 'week' || view.name == 'day') {
+                    console.log(view.name);
+                    if(view.name == 'agendaWeek' || view.name == 'agendaDay') {
+                        element.find('.fc-title').html(event.title);
                         element.find('.fc-title').append('<span class="yourCSS"></span> '); 
-                    }else{
+                    } else{
                         $(element).tooltip({
                             title: event.tTitle
                         });
@@ -693,6 +750,11 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 },
                 viewRender: function(view, element){
                     var view = $('#calendarq').fullCalendar('getView');
+                    // if(view.name == "agendaDay") {
+                    //     $('#calendarq').fullCalendar('refetchResources');
+                    //     // var resources = $('#calendarq').fullCalendar('getResources');
+                    //     // $('#calendarq').fullCalendar( 'removeResource', resources );
+                    // }
                     if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
                     }else{
                         var currentdate = view.intervalStart;
@@ -738,8 +800,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
             var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
             var View = FC.View;      // the class that all views must inherit from
-            var CustomView;          // our subclass
-            CustomView = View.extend({ // make a subclass of View
+            var AgendaView;          // our subclass
+            AgendaView = View.extend({ // make a subclass of View
                 initialize: function() {
                 },
                 render: function() {
@@ -769,12 +831,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 destroySelection: function() {
                 }
             });
-            FC.views.custom = CustomView; // register our class with the view system
+            FC.views.custom = AgendaView; // register our class with the view system
 
-            var FC1 = $.fullCalendar; // a reference to FullCalendar's root namespace
+            /* var FC1 = $.fullCalendar; // a reference to FullCalendar's root namespace
             var View1 = FC1.View;      // the class that all views must inherit from
-            var CustomViewStaff;          // our subclass
-            CustomViewStaff = View1.extend({ // make a subclass of View
+            var StaffView;          // our subclass
+            StaffView = View1.extend({ // make a subclass of View
                 initialize: function() {
                 },
                 render: function() {
@@ -802,8 +864,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 destroySelection: function() {
                 }
             });
-            FC1.views.custom1 = CustomViewStaff; // register our class with the view system
-            
+            FC1.views.agenda = StaffView; // register our class with the view system
+             */
             jQuery(".js-form-add-event").on("submit", function (e) {
                 e.preventDefault();
                 var data = $('#newEvent').val();
@@ -813,28 +875,16 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup').on('hidden.bs.modal', function () {
-              $('#calendarq').fullCalendar('refetchEvents');
+        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
+            $('#calendarq').fullCalendar('refetchEvents');
         });
-
-        // $('#loadCommentPopup,#deleteFromCommentBox').on('hidden.bs.modal', function () {
-        //       $('#calendarq').fullCalendar('refetchEvents');
-        // });
-        // $('#loadCommentPopup').on('hidden.bs.modal', function () {
-        //       $('#calendarq').fullCalendar('refetchEvents');
-        // });
-
-        // $('#loadAddEventPopupFromCalendar').on('hidden.bs.modal', function () {
-        //       $('#calendarq').fullCalendar('refetchEvents');
-        // });
-
-
 
         $("input:checkbox.event_type").click(function () {
             $('#calendarq').fullCalendar('refetchEvents');
             resetButton();
         });
         $("input:checkbox.byuser").click(function () {
+            $('#calendarq').fullCalendar( 'refetchResources' );
             $('#calendarq').fullCalendar('refetchEvents');
         });
         $("input:checkbox.sol").click(function () {
