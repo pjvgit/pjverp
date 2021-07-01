@@ -20,8 +20,11 @@
             <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
         </div>
         <div class="alert alert-info my-2 pb-0">
-            <p class="court-case-wizard-billing-user-help">Tip: To include this case when batch creating invoices, you
-                must select a billing contact. You can change this selection later.</p>
+            @if(!$caseMasterDefaultBiller)
+            <p class="court-case-wizard-billing-user-help">This case must have one linked contact to create invoices. Link a contact from the <a href="{{ route("info", $caseDefaultBiller->case_unique_number) }}" >case details page.</a></p>
+            @else
+            <p class="court-case-wizard-billing-user-help">Tip: To include this case when batch creating invoices, you must select a billing contact. You can change this selection later.</p>
+            @endif
         </div>
         <div class="form-group row">
 

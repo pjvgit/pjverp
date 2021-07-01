@@ -123,7 +123,8 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text"
+                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" --}}
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->start_date_time))}}" name="start_date" type="text"
                                         placeholder="mm/dd/yyyy">
     
                                 </div>
@@ -132,7 +133,8 @@
                                     $time=date('H:i',strtotime($currentDateTime));
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
                                     <input class="form-control  input-time input-start" id="start_time"
-                                        value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder="">
+                                        {{-- value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder=""> --}}
+                                        value="{{date('h:i A',strtotime($evetData->start_date_time))}}" name="start_time" type="text" placeholder="">
     
                                 </div>
                                 <div class="col-md-2 form-group mb-3 pt-2">
@@ -151,13 +153,15 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text"
+                                    {{-- <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" --}}
+                                    <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($evetData->end_date_time))}}" name="end_date" type="text"
                                         placeholder="mm/dd/yyyy">
     
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}"
+                                    {{-- <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}" --}}
+                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->end_date_time))}}"
                                         name="end_time" type="text" placeholder="">
     
                                 </div>
@@ -760,7 +764,8 @@
              dataString = $("#EditEventForm").serialize();
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/leads/saveEditEventPage", // json datasource
+                // url: baseUrl + "/leads/saveEditEventPage", // json datasource
+                url: baseUrl + "/court_cases/saveEditEventPage",
                 data: dataString,
                 success: function (res) {
                     $(".innerLoader").css('display', 'block');
@@ -1065,7 +1070,8 @@
     function loadRightSection(case_id) {
         $.ajax({
             type: "POST",
-            url: baseUrl + "/leads/loadRightSection",
+            // url: baseUrl + "/leads/loadRightSection",
+            url: baseUrl + "/court_cases/loadEventRightSection",
             data: {"case_id": case_id, "event_id":{{ $evetData->id}}},
             success: function (res) {
                 $("#loadTaskSection").html(res);

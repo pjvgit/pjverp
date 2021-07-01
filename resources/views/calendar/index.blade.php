@@ -257,7 +257,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 </div>
 <div id="deleteEvent" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteSingle">Delete Recurring Event</h5>

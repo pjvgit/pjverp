@@ -133,7 +133,7 @@ define('REASON_TITLE', serialize($deactivateReasons));
 $userType=array("1"=>"Attorney","2"=>"Paralegal","3"=>"Staff");
 define('USER_TYPE', serialize($userType));
 
-define('LOADER', BASE_URL.'public/images/ajax_arrows.gif');
+define('LOADER', asset('images/ajax_arrows.gif'));
 
 define('ADDRESS','9201 Spectrum Center Blvd STE 100, San Diego, CA 92123');
 define('CELL','00000000');

@@ -4,9 +4,8 @@
         <h5 class="mb-0">
             <span class="modal-title">{{ ($evetData->event_title) ? $evetData->event_title : "&lt;no-title&gt" }}</span>
         </h5>
-        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y',strtotime($evetData->sdt))}}
-            ,{{date('h:ia',strtotime($evetData->sdt))}} —
-            {{date('D, M jS Y',strtotime($evetData->edt))}}, {{date('h:ia',strtotime($evetData->edt))}}</h6>
+        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($evetData->start_date_time))}} —
+            {{date('D, M jS Y, h:ia',strtotime($evetData->end_date_time))}}</h6>
     </div>
     <div class="action-buttons">
         <div>

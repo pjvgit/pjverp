@@ -120,7 +120,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                             </td>
                             <td class="event-users">
 
-                                <?php
+                                {{-- <?php
                                 if(!$vv->caseuser->isEmpty()){
                                     if(count($vv->caseuser)>1){
                                         $userListHtml="";
@@ -144,7 +144,26 @@ $CommonController= new App\Http\Controllers\CommonController();
                                     ?> <i class="table-cell-placeholder mt-3"></i>
                                 <?php
                                 }
-                                ?>
+                                ?> --}}
+                                @if(!empty($vv->eventLinkedStaff))
+                                    @if(count($vv->eventLinkedStaff) > 1)
+                                        @php
+                                        $userListHtml="";
+                                        foreach($vv->eventLinkedStaff as $linkuserValue){
+                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_user_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                        }
+                                        @endphp
+                                        <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                        href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
+                                        data-content="{{$userListHtml}}" data-html="true" data-original-title="Staff"
+                                        style="float:left;">{{count($vv->eventLinkedStaff)}} People</a>
+                                    @else
+                                        <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                        href="{{BASE_URL}}/contacts/attorneys/{{ @$vv->eventLinkedStaff[0]->decode_user_id }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>
+                                    @endif
+                                @else
+                                    <i class="table-cell-placeholder mt-3"></i>
+                                @endif
                             </td>
                             <td class="event-users">
                                 <div class="mt-3 float-right">

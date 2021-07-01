@@ -176,7 +176,8 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('/account/preferences', 'UserController@preferences')->name('account/preferences');
     Route::post('/account/savePreferences', 'UserController@savePreferences')->name('account/savePreferences');
     
-    
+    // For Popup Notification
+    Route::get('get/popup/notification', 'HomeController@popupNotification')->name('get/popup/notification');
 
     //Dashboard
     Route::get('/dashboard', 'HomeController@index')->name('dashboard');

@@ -1069,7 +1069,9 @@ class CaseController extends BaseController
         $caseDefaultBiller = CaseMaster::where("id",$case_id)->first();
         $caseMasterDefaultBiller = CaseClientSelection::where("case_id",$case_id)->where("is_billing_contact","yes")->first();
 
-        return view('case.view.timebilling.editBillingContactPopup',compact('case_id','caseCllientSelection','caseCllientUpdateCreated','caseCllientUpdateUpdated','caseDefaultBiller','caseMasterDefaultBiller'));
+        // return view('case.view.timebilling.editBillingContactPopup',compact('case_id','caseCllientSelection','caseCllientUpdateCreated','caseCllientUpdateUpdated','caseDefaultBiller','caseMasterDefaultBiller'));
+        $view = view('case.view.timebilling.editBillingContactPopup',compact('case_id','caseCllientSelection','caseCllientUpdateCreated','caseCllientUpdateUpdated','caseDefaultBiller','caseMasterDefaultBiller'))->render();
+        return response()->json(['case' => $caseDefaultBiller, 'view' => $view]);
     }
 
     public function saveBillingContactPopup(Request $request)

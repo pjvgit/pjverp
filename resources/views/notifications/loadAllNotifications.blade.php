@@ -108,7 +108,7 @@ if(!$commentData->isEmpty()){
                                 $imageLink["complete"]="activity_task_completed.png";
                                 $image=$imageLink[$v->action];
                             ?>
-                            <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                             <a class="name"
                                 href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                                 {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
@@ -139,7 +139,7 @@ if(!$commentData->isEmpty()){
                         $imageLink["delete"]="activity_event_deleted.png";
                         $image=$imageLink[$v->action];
                     ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name"
                         href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"

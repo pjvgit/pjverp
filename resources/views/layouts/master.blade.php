@@ -207,6 +207,7 @@
     <script src="{{asset('public/assets/js/plugins/apexcharts.min.js')}}"></script>
     <script src="{{asset('public/assets/js/action.js')}}"></script>
     <script src="{{asset('public/assets/js/rcrop.min.js')}}"></script>
+    <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
     {{-- <script src="{{asset('public/assets/js/scripts/apexPieDonutChart.script.min.js')}}"></script> --}}
     @if ($message = session('popup_success'))
    
@@ -343,6 +344,18 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" tabindex="-1" data-
                     </div>
                 </div><!-- end of main-content -->
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="notification_popup" class="modal fade bd-example-modal-lg" role="dialog" >
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Upcoming Reminders</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div id="notify_modal_body"> </div>
         </div>
     </div>
 </div>
