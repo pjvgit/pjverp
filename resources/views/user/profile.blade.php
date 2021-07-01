@@ -344,6 +344,11 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                         </button>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12 form-group mb-3">
+                                                    <div class="custom-file">
+                                                        Note: Only .jpg, .jpeg, .png, .gif, .svg image formats are allowed. Maximum file size: 4MB 
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="col-md-4 form-group mb-3">
                                                 <div class="col-md-12 form-group mb-3 float-right">
@@ -429,6 +434,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 $('#imageCode').val(srcResized);
             });
             $('#inputGroupFile02').on('change', function(e) {
+                if(e.target.files[0].size >= 4096000){
+                    $('#inputGroupFile02').val('');
+                    $(this).next('.custom-file-label').html('');
+                    swal("Error","File size has exceeded it max limit of 4MB. Please upload a file again.");
+                    return false;
+                }
                 //get the file name
                 var fileName = e.target.files[0].name;
                 //replace the "Choose a file" label
