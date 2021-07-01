@@ -475,6 +475,9 @@ $practice_area_id=($_GET['practice_area_id'])??'';
         </div>
     </div>
 </div>
+
+@include('case.view.timebilling.billingContactPopup')
+
 <style>
     #batch_billing_tab {
         background: url('{{BASE_URL}}public/images/batch_billing_tab.png') 0 0 no-repeat;
@@ -698,12 +701,6 @@ $practice_area_id=($_GET['practice_area_id'])??'';
             "ajax": {
                 url: baseUrl + "/bills/invoices/loadUpcomingInvoices",
                 type: "post",
-                /* data: {
-                    'load': 'true',
-                    'type': "all",
-                    'practice_area_id':"{{$practice_area_id}}",
-                    'lead_attorney_id': $("#lead_attorney_id").val(),
-                }, */
                 "data": function(d){
                     d.load = 'true';
                     d.type = "all";
@@ -776,7 +773,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
 
                 $('td:eq(3)', nRow).html('<div class="text-left">' + aData.practice_area_filter +
                     '</div>');
-                $('td:eq(4)', nRow).html('<div class="text-left">' + aData.unpaid_amount +
+                $('td:eq(4)', nRow).html('<div class="text-left">' + aData.uninvoiced_balance +
                     '</div>');
                 $('td:eq(5)', nRow).html('<div class="text-left">' + aData.unpaid_balance +'</div>');
                 if(aData.payment_plan_active_for_case=="yes"){
@@ -786,10 +783,15 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                 }
                 $('td:eq(7)', nRow).html('<div class="text-left">' + aData.last_invoice +
                     '</div>');
-
-                $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-                    '/bills/invoices/load_new?court_case_id=' + aData.ccid + '&token=' + aData
-                    .token + '">Invoice This Case</a></div>');
+                console.log("client: "+aData.selected_user);
+                if(aData.selected_user && aData.deleted_at == null) {
+                    $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
+                        '/bills/invoices/load_new?court_case_id=' + aData.ccid + '&token=' + aData
+                        .token + '">Invoice This Case</a></div>');
+                } else {
+                    $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" data-toggle="modal" data-target="#editBillingContactPopup"\
+                        data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div>');
+                }
 
             },
             "initComplete": function (settings, json) {
@@ -868,13 +870,18 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                     $maker = api.row(rows[i]).data().maker;
                     $id = api.row(rows[i]).data().selected_user;
                     $cid = api.row(rows[i]).data().uid;
-
+                    group = (group != "") ? group : "No Billing Contact";
                     if (last !== group) {
-                        $(rows).eq(i).before(
-                            '<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
-                            $id + ')" id="checkAllClientCase" class="allSelect ' + $id +
-                            ' mainBox_' + $id + '"> <a class="name" href="' + baseUrl +
-                            '/contacts/clients/'+$cid+'">' + group + '</a></td></tr>');
+                        if(group != "No Billing Contact") {
+                            $(rows).eq(i).before(
+                                '<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
+                                $id + ')" id="checkAllClientCase" class="allSelect ' + $id +
+                                ' mainBox_' + $id + '"> <a class="name" href="' + baseUrl +
+                                '/contacts/clients/'+$cid+'">' + group + '</a></td></tr>');
+                        } else {
+                            $(rows).eq(i).before(
+                                '<tr class="group"><td colspan="15">' + group + '</td></tr>');
+                        }
                         last = group;
                     }
                 });

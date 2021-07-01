@@ -8,9 +8,8 @@
                 ?> <span class="modal-title">&lt;no-title&gt;</span><?php
             }?>
         </h5>
-        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y',strtotime($evetData->sdt))}}
-            ,{{date('h:ia',strtotime($evetData->sdt))}} —
-            {{date('D, M jS Y',strtotime($evetData->edt))}}, {{date('h:ia',strtotime($evetData->edt))}}</h6>
+        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($evetData->start_date_time))}} —
+            {{date('D, M jS Y, h:ia',strtotime($evetData->end_date_time))}}</h6>
     </div>
     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">×</span></button>

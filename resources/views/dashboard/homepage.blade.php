@@ -1205,24 +1205,24 @@
     }
 
     i.brittany-icon {
-        background-image: url({{BASE_URL}}/public/images/brittany.jpg);
+        background-image: url({{ asset('images/brittany.jpg') }});
         background-size: cover;
     }
 
     i.welcome-panel-add-firm-user {
-        background-image: url({{BASE_URL}}/public/svg/lawyer_add.svg);
+        background-image: url({{ asset('svg/lawyer_add.svg') }});
         height: 42px;
         width: 42px;
     }
 
     i.welcome-panel-add-case {
-        background-image: url({{BASE_URL}}/public/svg/court_case.svg);
+        background-image: url({{ asset('svg/court_case.svg') }});
         height: 42px;
         width: 42px;
     }
 
     i.import-icon {
-        background-image: url({{BASE_URL}}/public/svg/import-icon.svg);
+        background-image: url({{ asset('svg/import-icon.svg') }});
         height: 42px;
         width: 42px;
     }

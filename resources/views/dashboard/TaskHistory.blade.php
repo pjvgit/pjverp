@@ -18,7 +18,7 @@ if(!$commentData->isEmpty()){ ?>
                     $imageLink["complete"]="activity_task_completed.png";
                     $image=$imageLink[$v->action];
                 ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name" href="{{BASE_URL}}/contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name" href="{{BASE_URL}}task/view/{{base64_encode($v->task_id)}}"> {{$v->task_name}} </a> </a> <abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |

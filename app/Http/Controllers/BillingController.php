@@ -1744,7 +1744,8 @@ class BillingController extends BaseController
         $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
         
-        $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
+        $Invoices = CaseMaster::
+        leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
@@ -1786,7 +1787,8 @@ class BillingController extends BaseController
         }
         if($request->balance_filter != 'all') {
             if($request->balance_filter == "uninvoiced") {
-                $Invoices = $Invoices->whereDoesntHave("invoices");
+                // $Invoices = $Invoices->whereDoesntHave("invoices");
+                $Invoices = $Invoices->where("task_time_entry.status","unpaid")->orWhere("expense_entry.status","unpaid");
             } else {
                 $Invoices = $Invoices->whereHas("invoices", function($query) {
                     $query->havingRaw('SUM(due_amount) > ?', array(0));

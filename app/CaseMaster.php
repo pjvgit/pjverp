@@ -20,7 +20,7 @@ class CaseMaster extends Authenticatable
     protected $fillable = [
         'case_title','case_status','created_at'
     ];
-    protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"unpaid_amount","unpaid_balance","role_name"];
+    protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name"];
     public function getCaseuserAttribute(){
         $ContractUserCase =  CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","case_staff.lead_attorney")
         ->where('case_id',$this->id)  
@@ -161,7 +161,7 @@ class CaseMaster extends Authenticatable
             return "";
         }
      }
-     public function getUnpaidAmountAttribute(){
+     public function getUninvoicedBalanceAttribute(){
         if(isset($this->case_id)){
              $ExpenseEntry=ExpenseEntry::select(DB::raw('sum(cost*duration) AS totalExpenseEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
             
