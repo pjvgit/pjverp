@@ -17,8 +17,12 @@
                             </div>
                            
                             <div class="pl-1 col-8">
+                                @if(!empty($caseBiller))
                                 <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">Add Invoice</a>
-                                </div>
+                                @else
+                                <a class="btn btn-primary btn-rounded m-1" data-toggle="modal" data-target="#editBillingContactPopup" data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">Setup Case Billing Information</a>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="table-responsive">
@@ -269,24 +273,7 @@
     </div>
 </div>
 
-<div id="editBillingContactPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog  modal-lg ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depostifundtitle">Edit Billing Information for {{$CaseMaster['case_title']}}</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="showError" style="display:none"></div>
-                <div id="editBillingContactPopupArea">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@include('case.view.timebilling.billingContactPopup')
 
 
 @section('page-js-inner')
@@ -337,7 +324,7 @@
             }
         })
     }
-    function editBillingContactPopup() {
+    /* function editBillingContactPopup() {
         $('.showError').html('');
         $("#editBillingContactPopupArea").html('');
         $("#editBillingContactPopupArea").html('<img src="{{LOADER}}"> Loading...');
@@ -375,6 +362,6 @@
 
             }
         })
-    }
+    } */
 </script>
 @stop
