@@ -2388,12 +2388,12 @@ class ClientdashboardController extends BaseController
                 $ClientCompanyImport->save(); 
                 $UserArray=[];
                 if(!empty($csv_data)){
-                    if($csv_data[0][0]=="first_name"){
+                    if($csv_data[0][0]=="first_name" || $csv_data[0][0]=="First Name"){
                         $user_level="2";
-                        // unset($csv_data[0]);
+                        unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
-                        try {
+                        try {                        
                         foreach($csv_data as $key=>$val){
                             $UserArray[$key]['first_name']=$val[0];
                             $UserArray[$key]['middle_name']=$val[1];
@@ -2415,6 +2415,7 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['contact_group_name']=$val[15];
                             $UserArray[$key]['email']=$val[16];
                             $UserArray[$key]['website']=$val[17];
+                            $UserArray[$key]['outstanding_amount']=$val[18];
                             if(strtolower($val[19])=="true"){
                                 $UserArray[$key]['client_portal_enable']=1;
                             }else{
@@ -2522,7 +2523,7 @@ class ClientdashboardController extends BaseController
                         
                     }else{
                         $user_level="4";
-                        // unset($csv_data[0]);
+                        unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
                         try {
