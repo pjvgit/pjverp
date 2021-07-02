@@ -46,8 +46,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php  if(!$caseCllientSelection->isEmpty()){
-                        // print_r($linkedCompany);
+                        <?php if(!$caseCllientSelection->isEmpty()){
+                        // print_r($CompanyList);
                         foreach($caseCllientSelection as $clistKey=>$clistVal){?>
                         <tr class="case-contact-row">
                             <td class="user-avatar align-middle c-pointer">
@@ -77,9 +77,10 @@
                                             <div><strong>Billing Contact</strong></div>
                                         @endif
                                     </div>
+                                    <input type="hidden" name_id="multiple_compnay_id" value="{{$clistVal->multiple_compnay_id}}"/>
                                     <?php $allCompany=explode(",",$clistVal->multiple_compnay_id);
                                     foreach($allCompany as $kk=>$vv){
-                                        ?><div class="font-italic text-secondary2">{{@$linkedCompany[$vv]}}</div><?php
+                                        ?><div class="font-italic text-secondary2">{{@$CompanyList[$vv]}}</div><?php
                                     }
                                     ?>
                                 </a>

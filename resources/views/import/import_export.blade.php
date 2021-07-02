@@ -227,7 +227,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         <input id="outlook_csv" type="radio" value="csv"
                                             name="import_format">
                                         CSV (including Outlook)
-                                    </div>
+                                        <br>
+                                        <label for="import_format" class="error" style="display:none;">Please choose one.</label>                                                     
+                                    </div>                   
                                 </div>
                                 <br>
                                 <div class="form-group row">
@@ -409,11 +411,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             rules: {
                 upload_file: {
                     required: true
+                },
+                import_format: {
+                    required: true
                 }
             },
             messages: {
                 upload_file: {
                     required: "Please select a file"
+                },
+                import_format: {
+                    required: "Please select atleast one option."
                 }
             },
             errorPlacement: function (error, element) {

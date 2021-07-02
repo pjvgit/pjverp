@@ -962,7 +962,7 @@ class ContractController extends BaseController
                 $UsersAdditionalInfo->contact_group_id=$ClientGroup->id;
             }
             // if(isset($request->company_name)) { $UsersAdditionalInfo->company_id=$request->company_name; }
-            if(isset($request->company_name)) { $UsersAdditionalInfo->multiple_compnay_id=implode(",",$request->company_name); }
+            if(isset($request->company_name)) { $UsersAdditionalInfo->multiple_compnay_id=implode(",",$request->company_name); } else { $UsersAdditionalInfo->multiple_compnay_id= NULL;}
 
             if(isset($request->company_name_text)) { 
                 // $companyUser=User::updateOrCreate(array("id"=>$request->company_name));
@@ -1395,6 +1395,7 @@ class ContractController extends BaseController
     }
     public function removeCompany(Request $request)
     {
+        dd($request);
         DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->whereNotIn("selected_user",$request->unselected_value)->delete();
 
     }
