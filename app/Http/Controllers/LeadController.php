@@ -1752,6 +1752,7 @@ class LeadController extends BaseController
         // $task = $task->where("task.lead_id","!=",NULL);
         $task = $task->where("users.firm_name",Auth::user()->firm_name);
         $task = $task->where("users.user_type","5");
+        $task = $task->where("users.user_level","5");
         $totalData=$task->count();
         $totalFiltered = $totalData; 
         $task = $task->offset($requestData['start'])->limit($requestData['length']);
