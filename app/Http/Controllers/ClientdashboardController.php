@@ -2697,8 +2697,7 @@ class ClientdashboardController extends BaseController
                         
                     }
                 }else{
-
-                    $ClientCompanyImport->error_code=implode("",$csv_data[0]);
+                    $ClientCompanyImport->error_code="<ul><li>Worng file selected, Column of selected files are list below </li></ui></br>".implode(", ",$csv_data[0]);
                     $ClientCompanyImport->status=2;
                     $ClientCompanyImport->save();
                 }
