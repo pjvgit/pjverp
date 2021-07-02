@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-class ContractUser extends Authenticatable
+class CaseUser extends Authenticatable
 {
     use Notifiable;
     use SoftDeletes;

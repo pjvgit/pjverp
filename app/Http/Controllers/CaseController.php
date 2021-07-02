@@ -2551,6 +2551,123 @@ class CaseController extends BaseController
         return response()->json(['errors'=>''   ]);
         exit;
       }
+
+    public function saveAddEventPageNew(Request $request)
+    {
+        // return $request->all();
+        $validator = \Validator::make($request->all(), [
+            'linked_staff_checked_share' => 'required'
+        ]);
+        if($validator->fails())
+        {
+            return response()->json(['errors'=>['You must share with at least one firm user<br>You must share with at least one user'],]);
+        }
+
+        $authUser = auth()->user();
+
+        //If new location is creating.
+        if($request->location_name!=''){
+            $locationID= $this->saveLocationOnce($request);
+        }
+
+        //Single event
+        if(!isset($request->recuring_event)){
+            $startDate = strtotime(date("Y-m-d", strtotime($request->start_date)));
+            $endDate = strtotime(date("Y-m-d",strtotime($request->end_date)));
+        }else{
+            //recurring event
+            $startDate = strtotime(date("Y-m-d",  strtotime($request->start_date)));
+            $endDate =  strtotime(date('Y-m-d',strtotime('+365 days')));
+            if($request->end_on!=''){
+                $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
+            }
+        }
+
+        // Start-End time for all events convert into UTC
+        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser ->user_timezone)));
+        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser ->user_timezone)));
+
+        if(!isset($request->recuring_event)){        
+            $start_date = date("Y-m-d", $startDate);
+            $end_date = date("Y-m-d", $endDate);
+
+            $caseEvent = CaseEvent::create([
+                "event_title" => $request->event_name,
+                "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                "event_type" => $request->event_type ?? NULL,
+                "start_date" => $start_date,
+                "end_date" => $end_date,
+                "start_time" => $start_time,
+                "end_time" => $end_time,
+                "all_day" => (isset($request->all_day)) ? "yes" : "no",
+                "event_description" => $request->description,
+                "recuring_event" => "no",
+                "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                "parent_evnt_id" => '0',
+                "firm_id" => $authUser->firm_name,
+                "created_by" => $authUser->id,
+            ]);
+
+            $this->saveEventReminder($request->all(),$caseEvent->id); 
+            $this->saveLinkedStaffToEvent($request->all(),$caseEvent->id); 
+            $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id); 
+            $this->saveContactLeadData($request->all(),$caseEvent->id);                 
+        } else {
+            if($request->event_frequency=='DAILY')
+            {
+                $i=0;
+                $event_interval_day=$request->event_interval_day;
+                do {
+                    $start_date = date("Y-m-d", $startDate);
+                    $end_date = date("Y-m-d", $startDate);
+
+                    $caseEvent = CaseEvent::create([
+                        "event_title" => $request->event_name,
+                        "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                        "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                        "event_type" => $request->event_type ?? NULL,
+                        "start_date" => $start_date,
+                        "end_date" => $end_date,
+                        "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
+                        "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
+                        "all_day" => (isset($request->all_day)) ? "yes" : "no",
+                        "event_description" => $request->description,
+                        "recuring_event" => "yes",
+                        "event_frequency" => $request->event_frequency,
+                        "event_interval_day" => $request->event_interval_day,
+                        "no_end_date_checkbox" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
+                        "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+                        "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                        "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                        "firm_id" => $authUser->firm_name,
+                        "created_by" => $authUser->id,
+                    ]);
+                    if($i==0) { 
+                        $parentCaseID=$caseEvent->id;
+                        $caseEvent->parent_evnt_id =  $caseEvent->id; 
+                        $caseEvent->save();
+                    }else{
+                        $caseEvent->parent_evnt_id =  $parentCaseID;
+                        $caseEvent->save();
+                    }
+                    $this->saveEventReminder($request->all(),$caseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$caseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id);
+                    $this->saveContactLeadData($request->all(),$caseEvent->id); 
+        
+                    // $this->saveEventHistory($CaseEvent->id);
+                    
+                    $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
+                    $i++;
+                } while ($startDate < $endDate);
+            }
+        }
+        session(['popup_success' => 'Event was added.']);
+        return response()->json(['errors'=>''   ]);
+    }
+    
       public function saveEditEventPage(Request $request)
       {
         //   return $request->all();

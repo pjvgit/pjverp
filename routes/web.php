@@ -178,6 +178,7 @@ Route::group(['middleware'=>'auth'], function () {
     
     // For Popup Notification
     Route::get('get/popup/notification', 'HomeController@popupNotification')->name('get/popup/notification');
+    Route::get('update/popup/notification', 'HomeController@updatePopupNotification')->name('update/popup/notification');
 
     //Dashboard
     Route::get('/dashboard', 'HomeController@index')->name('dashboard');
