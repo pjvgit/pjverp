@@ -680,7 +680,7 @@ class HomeController extends BaseController
             } else {
                 $reminder = CaseEventReminder::whereId($request->reminder_id)->first();
                 if($reminder) {
-                    array_set($request, 'snoozed_at', Carbon::now());
+                    // array_set($request, 'snoozed_at', Carbon::now());
                     $reminder->fill($request->all())->save();
                 }
             }
