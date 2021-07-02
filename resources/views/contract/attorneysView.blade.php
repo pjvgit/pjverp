@@ -541,6 +541,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                         </div>
                                     </div>
                                     <div id="step-2">
+                                        <div id="showError2" style="display:none"></div>                                                                
                                         <div class=" col-md-12">
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
@@ -1308,20 +1309,58 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function backStep1() {
         $('#smartwizard').smartWizard('prev');
     }
-    function backStep2() {
-        $('#smartwizard').smartWizard('prev');
-    }
-    function StatusLoadStep3() {
+    
+    $("#case_name").on('blur', function(){
+        var case_name = $(this).val();
+        checkCaseNameExists(case_name);
+    });
+
+    function checkCaseNameExists(case_name) {
         $.ajax({
             type: "POST",
-            url: baseUrl + "/case/loadBillingContact",
-            data: {"selectdValue": ''},
+            url: baseUrl + "/case/checkCaseNameExists", // json datasource
+            data: {case_name : case_name},
             success: function (res) {
-                $("#loadBillingAjax").html(res);
-                $("#innerLoader").css('display', 'none');
-                $('#smartwizard').data('smartWizard')._showStep(2); // go to step 3....
+                if (res.errors != '') {
+                    $('#showError2').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><ul>';
+                            $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                    errotHtml += '</ul></div>';
+                    $('#showError2').append(errotHtml);
+                    $('#showError2').show();
+                    $('#AddCaseModelUpdate').animate({
+                        scrollTop: 0
+                    }, 'slow');
+                    return false;
+                } else {
+                    return true;
+                }
             }
-        })
+        });
+    }
+
+    function StatusLoadStep3() {
+        var case_name = $("#case_name").val();
+        result = checkCaseNameExists(case_name)
+        if(result){
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/case/loadBillingContact",
+                data: {"selectdValue": ''},
+                success: function (res) {
+                    $("#loadBillingAjax").html(res);
+                    $("#innerLoader").css('display', 'none');
+                    $('#smartwizard').data('smartWizard')._showStep(2); // go to step 3....
+                }
+            })
+        }
+    }
+    
+    function backStep2() {
+        $('#smartwizard').smartWizard('prev');
     }
    
     function StatusLoadStep4() {
@@ -1448,6 +1487,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function selectAttorney() {
         var selectdValue = $("#originating_attorney option:selected").val();
         $("#" + selectdValue).prop('checked', true);
+    }
+
+    function selectMethod() {
+        $("#innerLoader").css('display', 'block');
+        var selectdValue = $("#billingMethod option:selected").val();
+        if (selectdValue == 'mixed' || selectdValue == 'flat') {
+            $("#billing_rate_text").show();
+        } else {
+            $("#billing_rate_text").hide();
+        }
     }
 </script>
 

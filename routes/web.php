@@ -247,7 +247,8 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('case/loadAllStep', 'CaseController@loadAllStep')->name('case/loadAllStep');
     Route::post('case/saveAllStep', 'CaseController@saveAllStep')->name('case/saveAllStep');
     Route::post('case/loadBillingContact', 'CaseController@loadBillingContact')->name('case/loadBillingContact');
-
+    Route::post('case/checkCaseNameExists', 'CaseController@checkCaseNameExists')->name('case/checkCaseNameExists');
+    
 
     Route::post('case/loadStep1', 'CaseController@loadStep1')->name('case/loadStep1');
     Route::post('case/loadStep1FromCompany', 'CaseController@loadStep1FromCompany')->name('case/loadStep1FromCompany');

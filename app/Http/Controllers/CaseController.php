@@ -5672,6 +5672,19 @@ class CaseController extends BaseController
         $user->save();
         return response()->json(['errors'=>'','message'=>"Preference set."]);
         exit;
-      }
+    }
+
+    public function checkCaseNameExists(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'case_name' => 'required|unique:case_master,case_title',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            return response()->json(['errors'=>'']);
+        }
+    }
 }
   
