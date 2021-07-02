@@ -556,11 +556,12 @@ class HomeController extends BaseController
                     $query->where("id", auth()->id());
                 }) */;
         })
-        // ->where("reminder_frequncy", "minute")
+        ->where("is_dismiss", "no")
         ->where("event_id", "39092")
         ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
         ->get();
         $userId = auth()->id();
+        $events = [];
         if($result) {
             foreach($result as $key => $item) {
                 // return $firmDetail = firmDetail($item->event->case->firm_id);
@@ -584,54 +585,70 @@ class HomeController extends BaseController
                     $users = User::whereId($item->created_by)->first();
                 }
                 // return $users;
-                $events = [];
                 $eventStartTime = convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone);
                 $currentTime = Carbon::now();
                 $now = convertUTCToUserTime($currentTime, auth()->user()->user_timezone);
                 $addEvent = false;
-                if($item->reminder_frequncy == "week" || $item->reminder_frequncy == "day") {
-                    $eventStartTime = Carbon::parse($item->event->start_date)->format('Y-m-d');
-                    if($item->reminder_frequncy == "week") {
-                        $remindTime = Carbon::now()->addWeeks($item->reminer_number)->format('Y-m-d');
-                    } else {
-                        $remindTime = Carbon::now()->addDays($item->reminer_number)->format('Y-m-d');
-                    }
-                    if(Carbon::parse($eventStartTime)->eq(Carbon::parse($remindTime))) {
-                        $addEvent = true;
-                        /* $events[] = [
-                            "id" => $item->event_id,
-                            "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))),
-                            "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
-                            "type" => "event",
-                            "name" => $item->event->event_title ?? "-",
-                            "case_lead" => (($item->event->case_id) ? $item->event->case->case_title : (($item->event->lead_id) ? $item->event->leadUser->full_name : "<No Case/Lead>") ),
-                            "location" => $item->event->eventLocation->full_address,
-                        ]; */
-                    }
-                } else if($item->reminder_frequncy == "hour") {
-                    $remindTime = Carbon::parse($eventStartTime)->subHours($item->reminer_number)->format('Y-m-d H:i');
-                    if(Carbon::parse($now)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventStartTime)->gt(Carbon::parse($now))) {
-                        $addEvent = true;
-                        /* $events[] = [
-                            "id" => $item->event_id,
-                            "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))),
-                            "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
-                            "type" => "event",
-                            "name" => $item->event->event_title ?? "-",
-                            "case_lead" => (($item->event->case_id) ? $item->event->case->case_title : (($item->event->lead_id) ? $item->event->leadUser->full_name : "<No Case/Lead>") ),
-                            "location" => $item->event->eventLocation->full_address,
-                        ]; */
-                    }
-                } else if($item->reminder_frequncy == "minute") {
-                    $remindTime = Carbon::parse($eventStartTime)->subMinutes($item->reminer_number)->format('Y-m-d H:i');
-                    if(Carbon::parse($now)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventStartTime)->gt(Carbon::parse($now))) {
-                        $addEvent = true;
-                    }
-                } else { }
 
+                if($item->snoozed_at) {
+                    $snoozedTime = convertUTCToUserTime($item->snoozed_at, auth()->user()->user_timezone);
+                    if($item->snooze_type == "hour")
+                        $remindTime = Carbon::parse($snoozedTime)->addHours($item->snooze_time)->format('Y-m-d H:i');
+                    else if($item->snooze_type == "day")
+                        $remindTime = Carbon::parse($snoozedTime)->addDays($item->snooze_time)->format('Y-m-d H:i');
+                    else if($item->snooze_type == "week")
+                        $remindTime = Carbon::parse($snoozedTime)->addDays($item->snooze_time)->format('Y-m-d H:i');
+                    else
+                        $remindTime = Carbon::parse($snoozedTime)->addMinutes($item->snooze_time)->format('Y-m-d H:i');
+                    $remindTime;
+                    if(Carbon::parse($now)->gte(Carbon::parse($remindTime))) {
+                        $addEvent = true;
+                    }
+                } else {
+                    if($item->reminder_frequncy == "week" || $item->reminder_frequncy == "day") {
+                        $eventStartTime = Carbon::parse($item->event->start_date)->format('Y-m-d');
+                        if($item->reminder_frequncy == "week") {
+                            $remindTime = Carbon::now()->addWeeks($item->reminer_number)->format('Y-m-d');
+                        } else {
+                            $remindTime = Carbon::now()->addDays($item->reminer_number)->format('Y-m-d');
+                        }
+                        if(Carbon::parse($eventStartTime)->eq(Carbon::parse($remindTime))) {
+                            $addEvent = true;
+                            /* $events[] = [
+                                "id" => $item->event_id,
+                                "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))),
+                                "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
+                                "type" => "event",
+                                "name" => $item->event->event_title ?? "-",
+                                "case_lead" => (($item->event->case_id) ? $item->event->case->case_title : (($item->event->lead_id) ? $item->event->leadUser->full_name : "<No Case/Lead>") ),
+                                "location" => $item->event->eventLocation->full_address,
+                            ]; */
+                        }
+                    } else if($item->reminder_frequncy == "hour") {
+                        $remindTime = Carbon::parse($eventStartTime)->subHours($item->reminer_number)->format('Y-m-d H:i');
+                        if(Carbon::parse($now)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventStartTime)->gt(Carbon::parse($now))) {
+                            $addEvent = true;
+                            /* $events[] = [
+                                "id" => $item->event_id,
+                                "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))),
+                                "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
+                                "type" => "event",
+                                "name" => $item->event->event_title ?? "-",
+                                "case_lead" => (($item->event->case_id) ? $item->event->case->case_title : (($item->event->lead_id) ? $item->event->leadUser->full_name : "<No Case/Lead>") ),
+                                "location" => $item->event->eventLocation->full_address,
+                            ]; */
+                        }
+                    } else if($item->reminder_frequncy == "minute") {
+                        $remindTime = Carbon::parse($eventStartTime)->subMinutes($item->reminer_number)->format('Y-m-d H:i');
+                        if(Carbon::parse($now)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventStartTime)->gt(Carbon::parse($now))) {
+                            $addEvent = true;
+                        }
+                    } else { }
+                }
                 if($addEvent) {
                     $events[] = [
-                        "id" => $item->event_id,
+                        "event_id" => $item->event_id,
+                        "reminder_id" => $item->id,
                         "date_time" => date('M d - h:ia', strtotime(convertUTCToUserTime(@$item->event->start_date." ".@$item->event->start_time, auth()->user()->user_timezone))) ?? "",
                         "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                         "type" => "event",
@@ -649,5 +666,25 @@ class HomeController extends BaseController
             $view = view("dashboard.popup_notification", ["result" => $events])->render();
         }
         return $view;
+    }
+
+    /**
+     * Update popup notification snooze time or is dismiss
+     */
+    public function updatePopupNotification(Request $request)
+    {
+        // return $request->all();
+        if($request->type == "event") {
+            if($request->is_dismiss) {
+                $reminder = CaseEventReminder::whereIn('id', $request->reminder_id)->update(["is_dismiss" => $request->is_dismiss]);
+            } else {
+                $reminder = CaseEventReminder::whereId($request->reminder_id)->first();
+                if($reminder) {
+                    array_set($request, 'snoozed_at', Carbon::now());
+                    $reminder->fill($request->all())->save();
+                }
+            }
+        }
+        return response()->json(["status" => "success"]);
     }
 }

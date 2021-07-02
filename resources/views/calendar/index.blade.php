@@ -3,13 +3,23 @@
 
 @section('page-css')
 <style>
-    .agenda-table th, .agenda-table td {
-        padding: 5px 10px !important;
-    }
-    .fc-view.fc-AgendaView-view{
+.agenda-table th, .agenda-table td {
+    padding: 5px 10px !important;
+}
+.fc-view.fc-AgendaView-view{
     max-height: 500px !important;
-        overflow-y: auto !important;
-    }
+    overflow-y: auto !important;
+}
+.accordion{
+    height: 700px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.card.ul-card__v-space{
+    max-height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 </style>    
 @endsection
 @section('main-content')
@@ -17,7 +27,7 @@
 $timezoneData = unserialize(TIME_ZONE_DATA); 
 ?>
 @if(!isset($evetData))
-<div class="loadscreen" id="preloaderData" style="display: block;">
+<div class="loadscreen" id="preloaderData" style="display: none;">
     <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
         <div class="loader-bubble loader-bubble-primary d-block"></div>
     </div>
@@ -416,25 +426,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 
 <script type="text/javascript">
     $(document).ready(function () {
-        // $("#preloaderData").hide();
-        //$(".datepicker" ).datepicker();
-        // $('#datepicker').datepicker({
-        //     onSelect: function(dateText, inst) { 
-        //         date = moment(dateText).format('YYYY-MM-DD');
-        //         $("#calendarq").fullCalendar('gotoDate', date);
-        //     },  
-        //     showOn: 'focus',
-        //     showButtonPanel: true,
-        //     closeText: 'Clear', // Text to show for "close" button
-        //     onClose: function () {
-        //         var event = arguments.callee.caller.caller.arguments[0];
-        //         // If "Clear" gets clicked, then really clear it
-        //         if ($(event.delegateTarget).hasClass('ui-datepicker-close')) {
-        //             $(this).val('');
-        //         }
-        //     }
-        // });
-
         $("#datepicker").datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -447,27 +438,27 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             $("#calendarq").fullCalendar( 'gotoDate', date );
 
         });
-            function initEvent() {
-                $('#external-events .fc-event').each(function () {
+        function initEvent() {
+            $('#external-events .fc-event').each(function () {
 
-                    // store data so the calendar knows to render an event upon drop
-                    $(this).data('event', {
-                        title: $.trim($(this)
-                            .text()), // use the element's text as the event title
-                        color: $(this).css('background-color'),
-                        stick: true // maintain when user navigates (see docs on the renderEvent method)
-                    });
-
-                    // make the event draggable using jQuery UI
-                    $(this).draggable({
-                        zIndex: 999,
-                        revert: true, // will cause the event to go back to its
-                        revertDuration: 0 // original position after the drag
-                    });
-
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this)
+                        .text()), // use the element's text as the event title
+                    color: $(this).css('background-color'),
+                    stick: true // maintain when user navigates (see docs on the renderEvent method)
                 });
-            }
-            initEvent();
+
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true, // will cause the event to go back to its
+                    revertDuration: 0 // original position after the drag
+                });
+
+            });
+        }
+        initEvent();
 
 
             /* initialize the calendar
@@ -492,7 +483,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 defaultView: '{{$defaultView}}',
                 themeSystem: "bootstrap4",
                 droppable: false,
-                height: 950,
+                height: 700,
                 title: true,  
                 hiddenDays: hd,
                 disableDragging : false,
@@ -518,6 +509,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                         text: 'Staff',
                         click: function () {
                             $('#calendarq').fullCalendar('changeView', 'StaffView');
+                            $('#calendarq').fullCalendar('rerenderResources');
                             $('#calendarq').fullCalendar( 'refetchEvents');
                             return true; 
                         }
@@ -546,29 +538,26 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             end: currentDate.clone().add(30, 'days') // exclusive end, so 3
                             };
                         },
-                        click:  $('#calendarq').fullCalendar('changeView', 'AgendaView', {
-                            start: moment().clone().subtract(1, 'days'),
-                            end: moment().clone().add(30, 'days') // exclusive end, so 3
-                        })
+                        // click:  $('#calendarq').fullCalendar('changeView', 'AgendaView')
                     },
                     StaffView: {
                         type: 'agenda',
-                        duration: { days: 1 },
-                        click:  $('#calendarq').fullCalendar('changeView', 'StaffView')
+                        duration: { days: 2 },
+                        // click:  $('#calendarq').fullCalendar('changeView', 'StaffView')
                     }
                 },
                 // groupByResource: true,
                 resources: function(callback, start, end, timezone) {
                     var byuser = getByUser();
                     var view = $('#calendarq').fullCalendar('getView');
-                    $.ajax({
-                        url: 'loadEventCalendar/loadStaffView',
-                        type: 'POST',
-                        data: {resType: "resources", byuser: byuser, view_name: view.name},
-                        success: function (doc) {
-                            callback(doc);
-                        }
-                    });
+                        $.ajax({
+                            url: 'loadEventCalendar/loadStaffView',
+                            type: 'POST',
+                            data: {resType: "resources", byuser: byuser, view_name: view.name},
+                            success: function (doc) {
+                                callback(doc);
+                            }
+                        });
                 },
                 events: function (start, end, timezone, callback) {
                     var view = $('#calendarq').fullCalendar('getView');
@@ -750,11 +739,11 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 },
                 viewRender: function(view, element){
                     var view = $('#calendarq').fullCalendar('getView');
-                    // if(view.name == "agendaDay") {
-                    //     $('#calendarq').fullCalendar('refetchResources');
-                    //     // var resources = $('#calendarq').fullCalendar('getResources');
-                    //     // $('#calendarq').fullCalendar( 'removeResource', resources );
-                    // }
+                    if(view.name == "staffView") {
+                        $('#calendarq').fullCalendar('rerenderResources');
+                        // var resources = $('#calendarq').fullCalendar('getResources');
+                        // $('#calendarq').fullCalendar( 'removeResource', resources );
+                    }
                     if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
                     }else{
                         var currentdate = view.intervalStart;
@@ -798,6 +787,31 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     loadAddEventPopupFromCalendar(date.format());
                 }
             });
+            // calendar.render();
+
+            /* $('#calendarq').batchRendering(function () {
+                $('#calendarq').setOptions({
+                    views: {
+                        StaffView: { buttonText: 'resources on day' },
+                    },
+                    resources: function(callback, start, end, timezone) {
+                        var byuser = getByUser();
+                        var view = $('#calendarq').fullCalendar('getView');
+                        $.ajax({
+                            url: 'loadEventCalendar/loadStaffView',
+                            type: 'POST',
+                            data: {resType: "resources", byuser: byuser, view_name: view.name},
+                            success: function (doc) {
+                                callback(doc);
+                            }
+                        });
+                    },
+                });
+                $('#calendarq').changeView('StaffView');
+                console.log('changed view successfully.');
+            }); */
+            
+
             var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
             var View = FC.View;      // the class that all views must inherit from
             var AgendaView;          // our subclass
