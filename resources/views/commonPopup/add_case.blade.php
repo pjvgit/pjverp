@@ -533,13 +533,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function backStep1() {
         $('#smartwizard').smartWizard('prev');
     }
-    
-    $("#case_name").on('blur', function(){
-        var case_name = $(this).val();
-        checkCaseNameExists(case_name);
-    });
 
-    function checkCaseNameExists(case_name) {
+    function StatusLoadStep3() {
+        var case_name = $("#case_name").val();
         $.ajax({
             type: "POST",
             url: baseUrl + "/case/checkCaseNameExists", // json datasource
@@ -558,29 +554,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('#AddCaseModelUpdate').animate({
                         scrollTop: 0
                     }, 'slow');
-                    return false;
-                } else {
-                    return true;
+                    result = false;                    
+                }else{
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "/case/loadBillingContact",
+                        data: {"selectdValue": ''},
+                        success: function (res) {
+                            $("#loadBillingAjax").html(res);
+                            $("#innerLoader").css('display', 'none');
+                            $('#smartwizard').data('smartWizard')._showStep(2); // go to step 3....
+                        }
+                    })
                 }
             }
         });
-    }
-
-    function StatusLoadStep3() {
-        var case_name = $("#case_name").val();
-        result = checkCaseNameExists(case_name)
-        if(result){
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/case/loadBillingContact",
-                data: {"selectdValue": ''},
-                success: function (res) {
-                    $("#loadBillingAjax").html(res);
-                    $("#innerLoader").css('display', 'none');
-                    $('#smartwizard').data('smartWizard')._showStep(2); // go to step 3....
-                }
-            })
-        }
     }
    
     function backStep2() {
