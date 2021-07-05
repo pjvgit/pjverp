@@ -18,6 +18,7 @@
                     <td>{{ $item['name'] }}</td>
                     <td>{{ $item['case_lead'] }}</td>
                     <td>{{ $item['location'] }}</td>
+                    <td>{{ $item['priority'] }}</td>
                 </tr>
             @empty
             @endforelse

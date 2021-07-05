@@ -14,7 +14,7 @@ class TaskReminder extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy'   
+        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'snoozed_at', 'is_dismiss' 
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){
