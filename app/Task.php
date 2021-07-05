@@ -17,7 +17,7 @@ class Task extends Authenticatable
 
     protected $fillable = [
         'case_id', 'no_case_link', 'task_title', 'task_due_on', 'description', 'task_priority', 'task_assign_to', 'time_tracking_enabled', 'firm_id'];    
-    protected $appends  = ['task_user','task_completed','checklist_counter','decode_id','case_name','lead_name','task_due_date','assign_to'];
+    protected $appends  = ['task_user','task_completed','checklist_counter','decode_id','case_name','lead_name','task_due_date','assign_to', 'priority_text'];
 
 
     public function getEventTyspeTexttAttribute(){
@@ -87,7 +87,7 @@ class Task extends Authenticatable
      */
     public function taskLinkedStaff()
     {
-        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id');
+        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id')->whereNull("task_linked_staff.deleted_at");
     }
 
     /**
@@ -118,5 +118,26 @@ class Task extends Authenticatable
     public function firm()
     {
         return $this->belongsTo(Firm::class, 'firm_id');
+    }
+
+    /**
+     * Get the taskCreatedByUser that owns the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function taskCreatedByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function getPriorityTextAttribute()
+    {
+        if($this->task_priority == 3)
+            $text = "High";
+        else if($this->task_priority == 2)
+            $text = "Medium";
+        else
+            $text = "Low";
+        return $text;
     }
 }

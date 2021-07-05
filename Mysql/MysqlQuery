@@ -1,3 +1,6 @@
+------------------------------------ 05-Jul-2021 ------------------------------
+ALTER TABLE `task_reminder` ADD `snooze_time` INT(11) NULL AFTER `reminder_frequncy`, ADD `snooze_type` VARCHAR(255) NULL AFTER `snooze_time`, ADD `snoozed_at` TIMESTAMP NULL AFTER `snooze_type`, ADD `is_dismiss` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `snoozed_at`;
+
 ------------------------------------ 02-Jul-2021 ------------------------------
 ALTER TABLE `case_event_reminder` ADD `snooze_time` INT(11) NULL AFTER `reminder_frequncy`, ADD `snooze_type` VARCHAR(255) NULL AFTER `snooze_time`, ADD `is_dismiss` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `snooze_type`;
 ALTER TABLE `case_event_reminder` ADD `snoozed_at` TIMESTAMP NULL AFTER `snooze_type`;
