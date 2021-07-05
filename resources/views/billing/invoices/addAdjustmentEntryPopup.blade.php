@@ -117,6 +117,9 @@
                 ad_type: {
                     required: "Type can't be blank"
                 },
+                percentage: {
+                    required: "Type can't be blank"
+                },
             },
             errorPlacement: function (error, element) {
                 if (element.is('#item')) {
@@ -133,8 +136,8 @@
 
       
         $('#item1').on("select2:unselect", function (e) {
-            $("#applied_to1").html('');
-            $("#ad_type").html('');
+            $("#applied_to1").val('').trigger('change');
+            $("#ad_type1").val('').trigger('change');
             $('#saveAdjustmentForm')[0].reset();
             $("#basic").removeAttr('readonly');
             $("#percentage").val('').removeAttr('readonly');
@@ -155,7 +158,17 @@
             } else {
                 $("#basic").val("");
             }
+            $('#ad_type1').val("percentage").trigger('change');
             // $('#basic').number(true, 2);
+        });
+
+        $('#item1').on("select2:unselect", function (e) {
+            $("#applied_to1").val('').trigger('change');
+            $("#ad_type1").val('').trigger('change');
+            $('#saveAdjustmentForm')[0].reset();
+            $("#basic").removeAttr('readonly');
+            $("#percentage").val('').removeAttr('readonly');
+            $("#amount").attr('readonly', true);
         });
 
         $('#ad_type1').on("select2:select", function (e) {
@@ -166,9 +179,19 @@
                 $("#amount").removeAttr('readonly');
                 $("#amount").val("");
             } else {
-                $("#basic").removeAttr('readonly');
-                $("#percentage").val('').removeAttr('readonly');
-                // $("#basic").val($("#time_entry_sub_total_text").val());
+                var applied_to1Val = $('#applied_to1').val();
+                if (applied_to1Val == "expenses") {
+                    $("#basic").val($("#expense_sub_total_text").val());
+                } else if (applied_to1Val == "sub_total") {
+                    $("#basic").val($("#sub_total_text").val());
+                } else if (applied_to1Val == "flat_fees") {
+                    $("#basic").val($("#flat_fee_sub_total_text").val());
+                } else if (applied_to1Val == "time_entries") {
+                    $("#basic").val($("#time_entry_sub_total_text").val());
+                } else {
+                    $("#basic").val("");
+                }
+                $("#percentage").val("").attr('readonly', false);
                 $("#amount").attr('readonly', true);
             }
 

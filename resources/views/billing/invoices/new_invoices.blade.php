@@ -817,7 +817,7 @@ if(!isset($adjustment_token)){
                                     foreach($InvoiceAdjustment as $k=>$v){
                                     ?>
 
-                                    <tr id="discount-new161114807394472" class="invoice_entry discount">
+                                    <tr id="entry_{{$v->id}}" class="invoice_entry discount">
                                         {{-- <td style="vertical-align: center; text-align: center; border-right: none;"
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
@@ -910,7 +910,11 @@ if(!isset($adjustment_token)){
                                                 }
                                                 ?>
                         </td>
-                        <td>&nbsp;</td>
+                        <td> 
+                            <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
+                            <a onclick="removeAdjustmentEntry({{$v->id}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
+                            </span>
+                        </td>
                         </tr>
                         <?php } ?>
 
@@ -3825,6 +3829,59 @@ if(!isset($adjustment_token)){
             $(this).parent().prev().prev().prev().css('text-decoration','line-through');
         }
     });
+
+    function removeAdjustmentEntry(id) {
+        $("#entry_"+id).remove();
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this imaginary file!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0CC27E',
+            cancelButtonColor: '#FF586B',
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Close',
+            confirmButtonClass: 'btn btn-success ml-3',
+            cancelButtonClass: 'btn btn-danger',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then(function () {
+            beforeLoader();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/removeAdjustmentEntry", // json datasource
+                data: {id : id},
+                success: function (res) {
+                    if (res.errors != '') {
+                        $('.showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('.showError').append(errotHtml);
+                        $('.showError').show();
+                        $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
+                        afterLoader();
+                        return false;
+                    } else {
+                        afterLoader();
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    afterLoader();
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                },
+            });
+
+        });
+    }
+
 </script>
 @stop
 @endsection

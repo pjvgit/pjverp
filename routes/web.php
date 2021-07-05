@@ -967,6 +967,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/changeAccess', 'BillingController@changeAccess')->name('bills/invoices/changeAccess');
     Route::post('bills/invoices/reloadRow', 'BillingController@reloadRow')->name('bills/invoices/reloadRow');
     Route::post('bills/invoices/getCaseList', 'BillingController@getCaseList')->name('bills/invoices/getCaseList');
+    Route::post('bills/invoices/removeAdjustmentEntry', 'BillingController@removeAdjustmentEntry')->name('bills/invoices/removeAdjustmentEntry');
 
     Route::get('bills/invoices/view/{id}', 'BillingController@viewInvoice')->name('bills/invoices/view');
     Route::post('bills/invoices/deleteInvoice', 'BillingController@deleteInvoice')->name('bills/invoices/deleteInvoice');

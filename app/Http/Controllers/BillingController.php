@@ -2732,6 +2732,26 @@ class BillingController extends BaseController
         exit;
       }
     }
+    public function removeAdjustmentEntry(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $InvoiceAdjustment=InvoiceAdjustment::find($request->id);
+            if(!empty($InvoiceAdjustment)){
+                $InvoiceAdjustment->forceDelete();
+                return response()->json(['errors'=>'']);
+                exit;
+            }else{
+                return response()->json(['errors'=>'1','msg'=>"No record found"]);
+                exit;
+            }
+        }
+    }
 
     public function graantAccess(Request $request)
     {
