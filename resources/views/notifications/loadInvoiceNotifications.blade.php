@@ -20,8 +20,12 @@ if(!$commentData->isEmpty()){
                     
                     if(in_array($v->action,["add","update","delete"])){ ?>
                         <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
-                            <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}}  <a href="{{BASE_URL}}bills/invoices/view/{{base64_encode($v->activity_for)}}">
-                            #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                            @if ($v->deleteInvoice == NULL)
+                            <a href="{{BASE_URL}}bills/invoices/view/{{base64_encode($v->activity_for)}}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            @else
+                             #{{sprintf('%06d', $v->activity_for)}}
+                            @endif
                             <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web | <a class="name" href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
                     <?php } else{ ?>
                         <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">

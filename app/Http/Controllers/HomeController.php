@@ -413,7 +413,8 @@ class HomeController extends BaseController
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
+            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice")
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","invoices")
             ->orderBy('all_history.id','DESC');
