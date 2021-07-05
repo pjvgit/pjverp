@@ -35,7 +35,7 @@ class ProcessPodcast implements ShouldQueue
      */
     public function handle()
     {
-        $subscribers = DB::table('users')->get();
+        /* $subscribers = DB::table('users')->get();
 
         foreach ($subscribers as $subscriber)
         {
@@ -43,6 +43,6 @@ class ProcessPodcast implements ShouldQueue
                 $m->to('testing.testuser6@gmail.com', $subscriber->first_name);
                 $m->subject('A new article has been published.');
             });
-        }
+        } */
     }
 }
