@@ -984,8 +984,8 @@ class ClientdashboardController extends BaseController
             $data['user_id']=$request->client_id;
             $data['client_id']=$request->client_id;
             $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
-            $data['type']='contact';
-            $data['action']='pay';
+            $data['type']='deposit';
+            $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
             

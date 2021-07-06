@@ -14,7 +14,7 @@ use App\TaskTimeEntry,App\CaseMaster,App\TaskActivity,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\RequestedFund,App\InvoiceAdjustment;
 use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePracticeArea,App\InvoicePayment;
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
-use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice;
+use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice,App\TrustHistory;
 use App\CaseStage,App\TempUserSelection;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -6524,32 +6524,48 @@ class BillingController extends BaseController
                 $refundRequest->amount_paid=($refundRequest->amount_paid+$request->amount);
                 $refundRequest->save();
             }
-            $deposit_into_trust=new DepositIntoTrust;
-            $deposit_into_trust->user_id=$request->trust_account;
-            $deposit_into_trust->invoice_id=NULL;
-            if(isset($request->applied_to) && $request->applied_to!=0){
-                $deposit_into_trust->requested_id=$request->applied_to;
-            }else{
-                $deposit_into_trust->requested_id=NULL;
-            }
-            $deposit_into_trust->credit_amount=$request->amount;
-            $deposit_into_trust->debit_amount=0.00;
-            $deposit_into_trust->payment_date=date('Y-m-d',strtotime($request->payment_date));
-            $deposit_into_trust->status='unsent';                    
-            $deposit_into_trust->notes=$request->notes;
-            $deposit_into_trust->pay_type='trust';
-            $deposit_into_trust->created_by=Auth::User()->id;                
-            $deposit_into_trust->created_at=date('Y-m-d H:i:s');                
-            $deposit_into_trust->save();
+            // $deposit_into_trust=new DepositIntoTrust;
+            // $deposit_into_trust->user_id=$request->trust_account;
+            // $deposit_into_trust->invoice_id=NULL;
+            // if(isset($request->applied_to) && $request->applied_to!=0){
+            //     $deposit_into_trust->requested_id=$request->applied_to;
+            // }else{
+            //     $deposit_into_trust->requested_id=NULL;
+            // }
+            // $deposit_into_trust->credit_amount=$request->amount;
+            // $deposit_into_trust->debit_amount=0.00;
+            // $deposit_into_trust->payment_date=date('Y-m-d',strtotime($request->payment_date));
+            // $deposit_into_trust->status='unsent';                    
+            // $deposit_into_trust->notes=$request->notes;
+            // $deposit_into_trust->pay_type='trust';
+            // $deposit_into_trust->created_by=Auth::User()->id;                
+            // $deposit_into_trust->created_at=date('Y-m-d H:i:s');                
+            // $deposit_into_trust->save();
 
             //Deposit into trust account
-            $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
-            DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-                'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
-            ]);
+            DB::table('users_additional_info')->where('user_id',$request->trust_account)->increment('trust_account_balance', $request['amount']);
 
-            $deposit_into_trust->total_amount=$userDataForDeposit['trust_account_balance'] + $request->amount;
-            $deposit_into_trust->save();
+            $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+            
+            $TrustInvoice=new TrustHistory;
+            $TrustInvoice->client_id=$request->trust_account;
+            $TrustInvoice->payment_method=$request->payment_method;
+            $TrustInvoice->amount_paid=$request->amount;
+            $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+            $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+            $TrustInvoice->notes=$request->notes;
+            $TrustInvoice->fund_type='diposit';
+            $TrustInvoice->created_by=Auth::user()->id; 
+            $TrustInvoice->save();
+
+            
+            // $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
+            // DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
+            //     'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
+            // ]);
+
+            // $deposit_into_trust->total_amount=$userDataForDeposit['trust_account_balance'] + $request->amount;
+            // $deposit_into_trust->save();
 
 
              //Get previous amount
@@ -6575,8 +6591,20 @@ class BillingController extends BaseController
              $activityHistory['created_by']=Auth::User()->id;
              $activityHistory['created_at']=date('Y-m-d H:i:s');
              $this->saveAccountActivity($activityHistory);
+
+             $data=[];
+            $data['user_id']=$request->trust_account;
+            $data['client_id']=$request->trust_account;
+            $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
+            $data['type']='deposit';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             
-            return response()->json(['errors'=>'','msg'=>'']);
+            $firmData=Firm::find(Auth::User()->firm_name);
+            $msg="Thank you. Your deposit of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
+            
+            return response()->json(['errors'=>'','msg'=>$msg]);
             exit;   
         }
     }
