@@ -81,7 +81,7 @@ class TaskController extends BaseController
 
         //Filter applied on case/lead column
         if(isset($_GET['cl']) && $_GET['cl']!=''){
-            $task = $task->where("task.case_id",$_GET['cl']);
+            $task = $task->where("task.case_id",$_GET['cl'])->orWhere("task.lead_id",$_GET['cl']);
         }
         
         
@@ -133,8 +133,8 @@ class TaskController extends BaseController
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
-
-        return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
+        $caseLeadList = userLeadList();
+        return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress','caseLeadList'));
     }
 
     public function loadTask()
