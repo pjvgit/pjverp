@@ -46,40 +46,20 @@ class TaskReminderEmailCommand extends Command
     {
         $result = TaskReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])
                     // ->where("task_id", 90)
+                    ->whereDate("remind_at", Carbon::now()) 
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.firm', 'task.lead.userLeadAdditionalInfo')
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
-                /* $taskLinkedUser = $item->task->taskLinkedStaff->pluck('id');
-                if($item->task->case_id != "") {
-                    $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id');
-                } else if($item->task->lead_id != "") {
-                    $caseLinkedUser = [@$item->task->lead->userLeadAdditionalInfo->assigned_to];
-                } else {
-                    $caseLinkedUser = [];
-                }
-                $users = User::whereIn("id", $taskLinkedUser)->orWhereIn("id", $caseLinkedUser);
-                if($item->reminder_user_type == "attorney") {
-                    $users = $users->where("user_type", "1");
-                } else if($item->reminder_user_type == "staff") {
-                    $users = $users->where("user_type", "3");
-                } else if($item->reminder_user_type == "paralegal") {
-                    $users = $users->where("user_type", "2");
-                } else {
-                    $users = User::whereId($item->created_by);
-                }
-                $users = $users->get(); */
                 $users = $this->getTaskLinkedUser($item, "email");
                 if(count($users)) {
-                    $taskDueOn = Carbon::parse($item->task->task_due_on)->format('Y-m-d');
-                    if($item->reminder_frequncy == "week") {
-                        $remindDate = Carbon::now()->addWeeks($item->reminer_number)->format('Y-m-d');
-                    } else {
-                        $remindDate = Carbon::now()->addDays($item->reminer_number)->format('Y-m-d');
-                    }
-                    if(Carbon::parse($taskDueOn)->eq(Carbon::parse($remindDate))) {
-                        Log::info("task day time true");
-                        dispatch(new TaskReminderEmailJob($item->task, $users));
+                    foreach($users as $userkey => $useritem) {
+                        $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
+                        Log::info($useritem->user_timezone."=".$date);
+                        if ($date->hour === 00) { 
+                            Log::info("task day time true");
+                            dispatch(new TaskReminderEmailJob($item->task, $useritem));
+                        }
                     }
                 }
             }

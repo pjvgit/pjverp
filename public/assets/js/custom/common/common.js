@@ -1,5 +1,11 @@
 
 popupNotification();
+
+// Schedule the next request when the current one's complete
+setInterval(function() {
+    popupNotification();
+}, (1000 * 60 * 1));
+
 function popupNotification() {
     $.ajax({
         url: baseUrl+"/get/popup/notification",
@@ -12,12 +18,14 @@ function popupNotification() {
                 } else {
                     console.log("cookie set");
                 }
+            } else {
+                $("#notification_popup").modal('hide');
             }
         },
-        complete: function() {
-            // Schedule the next request when the current one's complete
-            setTimeout(popupNotification(), 1000 * 60 * 1);
-        }
+        // complete: function() {
+        //     // Schedule the next request when the current one's complete
+        //     setTimeout(popupNotification(), 1000 * 60 * 5);
+        // }
     });
 }
 

@@ -2217,14 +2217,14 @@ if(!isset($adjustment_token)){
             allowClear: true,
             placeholder: "Select...",
         });
-        $('.datepicker').datepicker({
+        /* $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             startDate: "dateToday",
             'todayHighlight': true
-        });
+        }); */
         $('[data-toggle="tooltip"]').tooltip();
 
         $('.tdTime').hover(
@@ -2945,7 +2945,7 @@ if(!isset($adjustment_token)){
     });
 
    
-    function paymentTerm(){
+    /* function paymentTerm(){
         
         var setDate='';
         var selectdValue = $("#bill_payment_terms option:selected").val();
@@ -2976,7 +2976,7 @@ if(!isset($adjustment_token)){
             $("#automated_reminders").prop("checked",true);
         }
      
-    }
+    } */
     function checkPortalAccess(id){
         // alert(id)
         var em=pa="";

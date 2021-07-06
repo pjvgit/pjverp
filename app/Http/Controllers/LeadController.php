@@ -16,7 +16,7 @@ use App\CaseEvent,App\CaseEventLocation,App\EventType;
 use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
-use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
+use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\IntakeForm,App\Firm,App\IntakeFormFields;
 use App\LeadNotesActivity,App\LeadNotes,App\LeadNotesActivityHistory;
@@ -1962,16 +1962,17 @@ class LeadController extends BaseController
 
             public function saveTaskReminder($request,$task_id)
             {
-                CaseTaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+                TaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
 
             for($i=0;$i<count($request['reminder_user_type'])-1;$i++){
-                $CaseTaskReminder = new CaseTaskReminder;
+                $CaseTaskReminder = new TaskReminder;
                 $CaseTaskReminder->task_id=$task_id; 
                 $CaseTaskReminder->reminder_type=$request['reminder_type'][$i];
                 $CaseTaskReminder->reminer_number=$request['reminder_number'][$i];
                 $CaseTaskReminder->reminder_frequncy=$request['reminder_time_unit'][$i];
                 $CaseTaskReminder->reminder_user_type=$request['reminder_user_type'][$i];
                 $CaseTaskReminder->created_by=Auth::user()->id; 
+                $CaseTaskReminder->remind_at=Carbon::now(); 
                 $CaseTaskReminder->save();
             }
         }
@@ -2073,7 +2074,7 @@ class LeadController extends BaseController
         $task_id=$request->task_id;
         $Task = Task::find($request->task_id);
         $TaskChecklist = TaskChecklist::select("*")->where("task_id",$task_id)->orderBy('checklist_order','ASC')->get();
-        $taskReminderData = CaseTaskReminder::select("*")->where("task_id",$task_id)->get();
+        $taskReminderData = TaskReminder::select("*")->where("task_id",$task_id)->get();
         // $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
         $caseLeadList = userLeadList();
         if(Auth::user()->parent_user==0){
@@ -2190,15 +2191,16 @@ class LeadController extends BaseController
     public function saveEditTaskReminder($request,$task_id)
     {
       
-        CaseTaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+        TaskReminder::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
         for($i=0;$i<count($request['reminder_user_type'])-1;$i++){
-           $CaseTaskReminder = new CaseTaskReminder;
+           $CaseTaskReminder = new TaskReminder;
            $CaseTaskReminder->task_id=$task_id; 
            $CaseTaskReminder->reminder_type=$request['reminder_type'][$i];
            $CaseTaskReminder->reminer_number=$request['reminder_number'][$i];
            $CaseTaskReminder->reminder_frequncy=$request['reminder_time_unit'][$i];
            $CaseTaskReminder->reminder_user_type=$request['reminder_user_type'][$i];
            $CaseTaskReminder->created_by=Auth::user()->id; 
+           $CaseTaskReminder->remind_at=Carbon::now(); 
            $CaseTaskReminder->save();
        }
    }
@@ -2268,7 +2270,7 @@ class LeadController extends BaseController
          $CaseMasterData = CaseMaster::find($TaskData->case_id);
      }
  
-     $TaskReminders=CaseTaskReminder::leftJoin("users","task_reminder.created_by","=","users.id")
+     $TaskReminders=TaskReminder::leftJoin("users","task_reminder.created_by","=","users.id")
      ->select("task_reminder.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))
      ->where("task_id", $request->task_id)->get();
  
@@ -5557,7 +5559,8 @@ class LeadController extends BaseController
             $CaseEventReminder->reminer_number=$request['reminder_number'][$i];
             $CaseEventReminder->reminder_frequncy=$request['reminder_time_unit'][$i];
             $CaseEventReminder->reminder_user_type=$request['reminder_user_type'][$i];
-            $CaseEventReminder->created_by=Auth::user()->id; 
+            $CaseEventReminder->created_by=Auth::user()->id;
+            $CaseEventReminder->remind_at=Carbon::now();  
             $CaseEventReminder->save();
         }
     }

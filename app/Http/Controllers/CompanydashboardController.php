@@ -11,7 +11,7 @@ use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractA
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection;
 use App\Firm,App\ClientActivity,App\ClientNotes;
 use Illuminate\Support\Facades\Crypt;
-use App\Task,App\CaseTaskReminder,App\CaseTaskLinkedStaff,App\TaskChecklist;
+use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
 use App\TrustHistory,App\RequestedFund,App\Messages;

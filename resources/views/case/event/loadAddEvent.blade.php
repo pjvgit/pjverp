@@ -185,7 +185,7 @@
                                         <input id="Mon-option" name="custom[]" value="Monday" type="checkbox"><span class="ml-2 ">Mon</span></label>
                                 </div>
                                 <div class="mr-3"><label class="d-inline-flex align-items-center">
-                                    <input id="Tues-option" name="custom[]" value="Tuesday" type="checkbox"><span class="ml-2 ">Tues</span></label>
+                                    <input id="Tues-option" name="custom[]" value="Tuesday" type="checkbox"><span class="ml-2 ">Tue</span></label>
                                 </div>
                                 <div class="mr-3">
                                     <label class="d-inline-flex align-items-center">
@@ -194,7 +194,7 @@
                                 </div>
                                 <div class="mr-3">
                                     <label class="d-inline-flex align-items-center">
-                                        <input id="Thurs-option" name="Thurs" value="Thursday" type="checkbox" ><span class="ml-2 ">Thurs</span>
+                                        <input id="Thurs-option" name="Thurs" value="Thursday" type="checkbox" ><span class="ml-2 ">Thu</span>
                                     </label>
                                 </div>
                                 <div class="mr-3"><label class="d-inline-flex align-items-center">
@@ -782,6 +782,12 @@
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
+        } else if (selectdValue == 'WEEKLY') {
+            var selectedDate = $("#start_date").val();
+            var date = new Date(selectedDate);
+            var weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            // alert(weekday[date.getDay()]);
+            $("#event-frequency option:selected").text("Weekly on "+weekday[date.getDay()]);
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();

@@ -13,17 +13,18 @@ use Illuminate\Support\Facades\Mail;
 class EventReminderEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $event, $user, $attendEventUser;
+    protected $event, $user, $attendEventUser, $reminderFrequency;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($event, $user, $attendEventUser)
+    public function __construct($event, $user, $attendEventUser, $reminderFrequency = null)
     {
         $this->event = $event;
         $this->user = $user;
         $this->attendEventUser = $attendEventUser;
+        $this->reminderFrequency = $reminderFrequency;
     }
 
     /**
@@ -35,13 +36,17 @@ class EventReminderEmailJob implements ShouldQueue
     {
         $firmDetail = firmDetail($this->event->case->firm_id);
         if(!empty($this->user)) {
-            foreach($this->user as $key => $item) {
-                $attendEvent = (isset($this->attendEventUser) && array_key_exists($item->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$item->id]) : "";
-                // \Log::info("Attend event:". $attendEvent);
-                Mail::to($item->email)->send((new EventReminderMail($this->event, $firmDetail, $item, $attendEvent)));
-                /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){
-                    $m->to($item->email, $item->full_name)->subject("Reminder: Upcoming Event");
-                }); */
+            if($this->reminderFrequency == "day") {
+                $attendEvent = (isset($this->attendEventUser) && array_key_exists($this->user->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$this->user->id]) : "";
+                Mail::to($this->user->email)->send((new EventReminderMail($this->event, $firmDetail, $this->user, $attendEvent)));
+            } else {
+                foreach($this->user as $key => $item) {
+                    $attendEvent = (isset($this->attendEventUser) && array_key_exists($item->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$item->id]) : "";
+                    Mail::to($item->email)->send((new EventReminderMail($this->event, $firmDetail, $item, $attendEvent)));
+                    /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){
+                        $m->to($item->email, $item->full_name)->subject("Reminder: Upcoming Event");
+                    }); */
+                }
             }
         }
     }

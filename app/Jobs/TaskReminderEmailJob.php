@@ -33,12 +33,12 @@ class TaskReminderEmailJob implements ShouldQueue
     public function handle()
     {
         if(!empty($this->user)) {
-            foreach($this->user as $key => $item) {
-                Mail::to($item->email)->send((new TaskReminderMail($this->task, $this->task->firm, $item)));
+            // foreach($this->user as $key => $item) {
+                Mail::to($this->user->email)->send((new TaskReminderMail($this->task, $this->task->firm, $this->user)));
                 /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){
                     $m->to($item->email, $item->full_name)->subject("Reminder: Upcoming Event");
                 }); */
-            }
+            // }
         }
     }
 }

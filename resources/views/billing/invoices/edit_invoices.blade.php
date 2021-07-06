@@ -2194,14 +2194,16 @@
             allowClear: true,
             placeholder: "Select...",
         });
-        $('.datepicker').datepicker({
+        /* $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             startDate: "dateToday",
             'todayHighlight': true
-        });
+        }).on("changeDate", function() {
+            $("#bill_payment_terms").val("0");
+        }); */
         $('[data-toggle="tooltip"]').tooltip();
 
         $('.tdTime').hover(
@@ -2848,9 +2850,8 @@
             $('#SaveInvoiceButton').text('Save & Share with '+c+' Contacts');
         }
     });
-
    
-    function paymentTerm(){
+    /* function paymentTerm(){
         
         var setDate='';
         var selectdValue = $("#bill_payment_terms option:selected").val();
@@ -2859,18 +2860,18 @@
             var minDate =  $('#bill_invoice_date').datepicker('getDate');
             $('#bill_due_date').datepicker("setDate", minDate);
         }else if(selectdValue==2){
-            CheckIn = $("#bill_invoice_date").datepicker('getDate');
-            CheckOut = moment(CheckIn).add(15, 'day').toDate();
+            // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+            CheckOut = moment().add(15, 'day').toDate();
             $('#bill_due_date').datepicker('update', CheckOut).focus();
            
         }else if(selectdValue==3){
-            CheckIn = $("#bill_invoice_date").datepicker('getDate');
-            CheckOut = moment(CheckIn).add(30, 'day').toDate();
+            // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+            CheckOut = moment().add(30, 'day').toDate();
             $('#bill_due_date').datepicker('update', CheckOut).focus();
            
         }else{
-            CheckIn = $("#bill_invoice_date").datepicker('getDate');
-            CheckOut = moment(CheckIn).add(60, 'day').toDate();
+            // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+            CheckOut = moment().add(60, 'day').toDate();
             $('#bill_due_date').datepicker('update', CheckOut).focus();
         }
 
@@ -2881,7 +2882,7 @@
             $("#automated_reminders").prop("checked",true);
         }
      
-    }
+    } */
     function checkPortalAccess(id){
         var em=pa="";
         em=$("#portalAccess_"+id).attr("em");

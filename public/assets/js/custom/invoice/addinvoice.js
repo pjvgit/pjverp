@@ -252,3 +252,56 @@ function actionAdjustmentEntry(action) {
         });
     });
 }
+
+$(document).ready(function () {
+    /**
+     * For due date
+     */
+    $('.datepicker').datepicker({
+        'format': 'm/d/yyyy',
+        'autoclose': true,
+        'todayBtn': "linked",
+        'clearBtn': true,
+        startDate: "dateToday",
+        'todayHighlight': true
+    });
+    $('#bill_due_date').on("changeDate", function() {
+        $("#bill_payment_terms").val("0");
+    });
+});
+
+/**
+ * Check payment terms and due date
+ */
+ function paymentTerm(){
+        
+    var setDate='';
+    var selectdValue = $("#bill_payment_terms option:selected").val();
+    var bill_invoice_date=$("#bill_invoice_date").val();
+    if(selectdValue==0 || selectdValue==1){
+        var minDate =  $('#bill_invoice_date').datepicker('getDate');
+        $('#bill_due_date').datepicker("setDate", minDate);
+    }else if(selectdValue==2){
+        // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+        CheckOut = moment().add(15, 'day').toDate();
+        $('#bill_due_date').datepicker('update', CheckOut).focus();
+       
+    }else if(selectdValue==3){
+        // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+        CheckOut = moment().add(30, 'day').toDate();
+        $('#bill_due_date').datepicker('update', CheckOut).focus();
+       
+    }else{
+        // CheckIn = $("#bill_invoice_date").datepicker('getDate');
+        CheckOut = moment().add(60, 'day').toDate();
+        $('#bill_due_date').datepicker('update', CheckOut).focus();
+    }
+
+    if(selectdValue==""){
+        $("#automated_reminders").prop("checked",false);
+        $('#bill_due_date').val('');
+    }else{
+        $("#automated_reminders").prop("checked",true);
+    }
+ 
+}
