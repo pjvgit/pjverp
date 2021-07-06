@@ -693,12 +693,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#printArea").append('<h4>Conveted Leads</h4>');
         $("#printArea").append(f);
         $(".dataTables_length,.dataTables_paginate, .dataTables_info").remove();
-        var divToPrint=document.getElementById("printArea");
-        newWin= window.open("");
-        newWin.document.write(divToPrint.outerHTML);
-        newWin.print();
-        newWin.close();
-        newWin.onafterprint = closePrintView(); //this is the thing that makes it work i
+        var divContents = document.getElementById("printArea").outerHTML;
+        var a = window.open('');
+        a.document.write('<html><body>');
+        a.document.write(divContents);
+        a.document.write('</body></html>');
+        a.document.close();
+        a.print();
 
     }
 
