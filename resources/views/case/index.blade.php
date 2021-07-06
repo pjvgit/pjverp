@@ -217,7 +217,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                     </div>
                                     <div id="step-2">
                                         <div id="showError2" style="display:none"></div>
-                                        add_case
                                         <div class=" col-md-12">
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-12 col-form-label"></label>

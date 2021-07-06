@@ -158,6 +158,12 @@ if(isset($_GET['task_read'])){
                                         value="{{$Caseval->id}}">{{$Caseval->case_title}}</option>
                                     <?php } ?>
                                 </optgroup>
+                                <optgroup label="Leads">
+                                    <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
+                                    <option <?php if($cl==$caseLeadListKey) { echo "selected=selected"; } ?> 
+                                    value="{{$caseLeadListKey}}">{{substr($caseLeadListVal,0,100)}}</option>
+                                    <?php } ?>
+                                </optgroup>
                             </select>
                         </div>
                         <div class="col-md-2 form-group mb-3">

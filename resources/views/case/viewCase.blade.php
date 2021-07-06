@@ -294,13 +294,13 @@ $adjustment_token=round(microtime(true) * 1000);
             <div class="card-body" style="min-height:1000px;">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks","intake_forms"])){ echo "active show"; } ?> " id="profile-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/info')}}" >Items & Info</a>
+                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","documents","notes","tasks","intake_forms","workflows"])){ echo "active show"; } ?> " id="profile-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/info')}}" >Items & Info</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link   <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","payment_activity"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}" >Time & Billing</a>
+                        <a class="nav-link   <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","invoices","payment_activity"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}" >Time & Billing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/mailbox","communications/chat_conversations"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  <?php if(Route::currentRouteName()=="case_link"){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/case_link')}}" >Contacts & Staff</a>
