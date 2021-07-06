@@ -553,6 +553,11 @@ class HomeController extends BaseController
     public function popupNotification()
     {
         return $result = CaseEventReminder::where("reminder_type", "popup")->where("is_dismiss", "no")
+        ->whereHas("event", function($query) {
+            $query->whereDate("start_date", ">=", Carbon::now());
+        })
+        ->whereIn("reminder_frequncy", ["day", "week"])
+        // ->where("reminder_frequncy", "minute")
         // ->where("event_id", "39094")
         ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
         ->get();
