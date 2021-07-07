@@ -146,8 +146,12 @@ class CaseMaster extends Authenticatable
     }
     public function getPracticeAreaFilterAttribute(){
         if(isset($this->case_id) && isset($this->pa) && $this->pa!='-1'){
-            $CasePracticeArea = CasePracticeArea::where("id",$this->pa)->first();
-            return $CasePracticeArea['title'];
+            $CasePracticeArea = CasePracticeArea::where("id",$this->pa)->where("firm_id",Auth::User()->firm_name)->first();
+            if(!empty($CasePracticeArea)){
+                return $CasePracticeArea['title'];
+            }else{
+                return "Not Specified";
+            }
         }else{
             return "Not Specified";
         }
