@@ -107,5 +107,13 @@ class Invoices extends Model
         return sprintf("%05d", $this->id);
     }
     
-    
+    /**
+     * Get the case that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
 }
