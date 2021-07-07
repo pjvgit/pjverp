@@ -15,7 +15,7 @@ class TaskReminder extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'snoozed_at', 'is_dismiss' , 'remind_at', 'snooze_remind_at'
+        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'snoozed_at', 'is_dismiss' , 'remind_at', 'snooze_remind_at', 'reminded_at'
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){
@@ -49,7 +49,7 @@ class TaskReminder extends Authenticatable
         } else {
             $remindTime = $value;
         }
-        $this->attributes['remind_at'] = $remindTime;
+        $this->attributes['remind_at'] = convertTimeToUTCzone($remindTime, auth()->user()->user_timezone);
     }
 
     /**

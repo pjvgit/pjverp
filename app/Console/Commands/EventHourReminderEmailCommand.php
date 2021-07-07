@@ -77,9 +77,8 @@ class EventHourReminderEmailCommand extends Command
                     $users = User::whereId($item->created_by)->get();
                     $attendEvent = [$item->created_by => "yes"];
                 }
-                Log::info("hour before user count");
+                // Log::info("hour before user count");
                 if(count($users)) {
-                    Log::info("hour user count");
                     $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
                     $now = Carbon::now();
                     if($now->gte(Carbon::parse($item->remind_at)) && $eventStartTime->gt($now)) {

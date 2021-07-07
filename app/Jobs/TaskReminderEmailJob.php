@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Mail\TaskReminderMail;
+use App\TaskReminder;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,15 +15,15 @@ use Illuminate\Support\Facades\Mail;
 class TaskReminderEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $task, $user;
+    protected $taskReminder, $user;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($task, $user)
+    public function __construct($taskReminder, $user)
     {
-        $this->task = $task;
+        $this->taskReminder = $taskReminder;
         $this->user = $user;
     }
 
@@ -33,12 +35,8 @@ class TaskReminderEmailJob implements ShouldQueue
     public function handle()
     {
         if(!empty($this->user)) {
-            // foreach($this->user as $key => $item) {
-                Mail::to($this->user->email)->send((new TaskReminderMail($this->task, $this->task->firm, $this->user)));
-                /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){
-                    $m->to($item->email, $item->full_name)->subject("Reminder: Upcoming Event");
-                }); */
-            // }
+            Mail::to($this->user->email)->send((new TaskReminderMail($this->taskReminder->task, $this->taskReminder->task->firm, $this->user)));
+            TaskReminder::where("id", $this->taskReminder->id)->update(["reminded_at" => Carbon::now()]);
         }
     }
 }

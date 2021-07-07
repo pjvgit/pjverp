@@ -47,6 +47,7 @@ class TaskReminderEmailCommand extends Command
         $result = TaskReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])
                     // ->where("task_id", 90)
                     ->whereDate("remind_at", Carbon::now()) 
+                    ->whereNull("reminded_at")
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.firm', 'task.lead.userLeadAdditionalInfo')
                     ->get();
         if($result) {
@@ -58,7 +59,7 @@ class TaskReminderEmailCommand extends Command
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 00) { 
                             Log::info("task day time true");
-                            dispatch(new TaskReminderEmailJob($item->task, $useritem))->onConnection('database');
+                            dispatch(new TaskReminderEmailJob($item, $useritem))->onConnection('database');
                         }
                     }
                 }
