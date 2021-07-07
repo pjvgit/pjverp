@@ -50,20 +50,40 @@ class EventHourReminderEmailCommand extends Command
                     }) */
                     ->where("reminder_frequncy", "hour")/* ->where("event_id", "38439") */
                     ->whereDate("remind_at", Carbon::now())
+                    ->whereNull("reminded_at")
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
-                $response = $this->getEventLinkedUser($item, "email");
-                $users = $response["users"] ?? [];
-                $attendEvent = $response["attendEvent"] ?? [];
+                // $response = $this->getEventLinkedUser($item, "email");
+                // $users = $response["users"] ?? [];
+                // $attendEvent = $response["attendEvent"] ?? [];
+                if($item->reminder_user_type == "attorney" || $item->reminder_user_type == "staff" || $item->reminder_user_type == "paralegal") {
+                    $eventLinkedUser = $item->event->eventLinkedStaff->pluck('id');
+                    $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
+                    $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
+                    $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser)->where("user_type", $userType)->get();
+                    $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
+                } else if($item->reminder_user_type == "client-lead") {
+                    $eventLinkContactIds = $item->event->eventLinkedContact->pluck('id');
+                    $eventLinkedLeadIds = $item->event->eventLinkedLead->pluck('user_id');
+                    $users = User::whereIn("id", $eventLinkContactIds)->orWhereIn("id", $eventLinkedLeadIds)->get();
+                    if(count($eventLinkContactIds)) {
+                        $attendEvent = $item->event->eventLinkedContact->pluck("pivot.attending", 'id')->toArray();
+                    } else {
+                        $attendEvent = $item->event->eventLinkedLead->pluck("pivot.attending", 'id')->toArray();
+                    }
+                } else {
+                    $users = User::whereId($item->created_by)->get();
+                    $attendEvent = [$item->created_by => "yes"];
+                }
                 if(count($users)) {
                     $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
                     // $remindTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->subHours($item->reminer_number)->format('Y-m-d H:i');
                     $now = Carbon::now()->format('Y-m-d H:i');
                     if(Carbon::parse($now)->gte(Carbon::parse($item->remind_at)) && $eventStartTime->gt(Carbon::parse($now))) {
                         Log::info("hour time true");
-                        dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent))->onConnection('database');
+                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
                     }
                 }
             }

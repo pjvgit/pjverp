@@ -1,3 +1,6 @@
+------------------------------------ 07-Jul-2021 ------------------------------
+ALTER TABLE `case_event_reminder` ADD `reminded_at` TIMESTAMP NULL AFTER `remind_at`;
+
 ------------------------------------ 06-Jul-2021 ------------------------------
 ALTER TABLE `case_event_reminder` ADD `remind_at` TIMESTAMP NULL AFTER `reminder_frequncy`;
 ALTER TABLE `task_reminder` ADD `remind_at` TIMESTAMP NULL AFTER `reminder_frequncy`;
