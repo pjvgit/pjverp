@@ -14,7 +14,6 @@ class ProcessPodcast implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $user;
 
     /**
      * Create a new job instance.
@@ -22,9 +21,8 @@ class ProcessPodcast implements ShouldQueue
      * @param  Podcast  $podcast
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct()
     {
-        $this->user = $user;
     }
 
     /**
@@ -35,6 +33,7 @@ class ProcessPodcast implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info("job dispatched");
         /* $subscribers = DB::table('users')->get();
 
         foreach ($subscribers as $subscriber)
