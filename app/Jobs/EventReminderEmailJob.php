@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class EventReminderEmailJob implements ShouldQueue
@@ -40,7 +41,9 @@ class EventReminderEmailJob implements ShouldQueue
                 $attendEvent = (isset($this->attendEventUser) && array_key_exists($this->user->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$this->user->id]) : "";
                 Mail::to($this->user->email)->send((new EventReminderMail($this->event, $firmDetail, $this->user, $attendEvent)));
             } else {
+                Log::info("job else".count($this->user));
                 foreach($this->user as $key => $item) {
+                    Log::info("loop user: ".$item->email);
                     $attendEvent = (isset($this->attendEventUser) && array_key_exists($item->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$item->id]) : "";
                     Mail::to($item->email)->send((new EventReminderMail($this->event, $firmDetail, $item, $attendEvent)));
                     /* Mail::send('emails.event_reminder_email', ['event' => $this->event, 'firm' => $firmDetail, 'user' => $item], function ($m) use($item){

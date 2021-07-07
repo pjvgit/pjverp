@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class EventReminderMail extends Mailable
 {
@@ -31,6 +32,7 @@ class EventReminderMail extends Mailable
      */
     public function build()
     {
+        Log::info("email markdown");
         // return $this->view('view.name');
         return $this
             // ->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))
