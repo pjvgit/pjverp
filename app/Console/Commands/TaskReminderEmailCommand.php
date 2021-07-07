@@ -58,7 +58,7 @@ class TaskReminderEmailCommand extends Command
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 00) { 
                             Log::info("task day time true");
-                            dispatch(new TaskReminderEmailJob($item->task, $useritem));
+                            dispatch(new TaskReminderEmailJob($item->task, $useritem))->onConnection('database');
                         }
                     }
                 }

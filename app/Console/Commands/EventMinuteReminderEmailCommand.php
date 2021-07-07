@@ -64,7 +64,7 @@ class EventMinuteReminderEmailCommand extends Command
                     // $now = Carbon::now()->addMinutes($item->reminer_number)->format('Y-m-d H:i');
                     if(Carbon::now()->eq(Carbon::parse($item->remind_at))) {
                         Log::info("minute time true");
-                        dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent));
+                        dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent))->onConnection('database');
                     }
                 }
             }

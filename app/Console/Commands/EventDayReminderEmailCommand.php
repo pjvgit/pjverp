@@ -60,7 +60,7 @@ class EventDayReminderEmailCommand extends Command
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 00) { 
                             Log::info("day time true");
-                            dispatch(new EventReminderEmailJob($item->event, $useritem, $attendEvent, "day"));
+                            dispatch(new EventReminderEmailJob($item->event, $useritem, $attendEvent, "day"))->onConnection('database');
                         }
                     }
                 }

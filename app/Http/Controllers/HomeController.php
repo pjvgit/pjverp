@@ -24,6 +24,7 @@ use App\Http\Requests\MultiuserRequest;
 use App\TaskReminder;
 use App\Traits\EventReminderTrait;
 use App\Traits\TaskReminderTrait;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class HomeController extends BaseController
 {
@@ -558,9 +559,6 @@ class HomeController extends BaseController
                         ->orWhereDate("snooze_remind_at", Carbon::now());
                     })
                     ->where("is_dismiss", "no") 
-                    // ->whereIn("reminder_frequncy", ["day", "week"])
-                    // ->where("reminder_frequncy", "minute")
-                    // ->where("event_id", "39094")
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         $userId = auth()->id();
@@ -584,15 +582,18 @@ class HomeController extends BaseController
                         $addEvent = true;
                     } else if($item->reminder_frequncy == "hour") {
                         if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventTime)->gt(Carbon::parse($currentTime))) {
+                            Log::info("event hour true");
                             $addEvent = true;
                         }
                     } else if($item->reminder_frequncy == "minute") {
                         if(Carbon::parse($currentTime)->gte(Carbon::parse($remindTime)) && Carbon::parse($eventTime)->gt(Carbon::parse($currentTime))) {
+                            Log::info("event minute true");
                             $addEvent = true;
                         }
                     } else { }
                 }
                 if($addEvent) {
+                    Log::info("event true");
                     $events[] = [
                         "event_id" => $item->event_id,
                         "task_id" => "",

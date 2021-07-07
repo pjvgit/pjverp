@@ -64,7 +64,7 @@ class EventHourReminderEmailCommand extends Command
                     $now = Carbon::now()->format('Y-m-d H:i');
                     if(Carbon::parse($now)->gte(Carbon::parse($item->remind_at)) && $eventStartTime->gt(Carbon::parse($now))) {
                         Log::info("hour time true");
-                        dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent));
+                        dispatch(new EventReminderEmailJob($item->event, $users, $attendEvent))->onConnection('database');
                     }
                 }
             }
