@@ -9,6 +9,6 @@ class JobController extends Controller
     public function store(Request $request)
     {
         // Create post here ..
-        SendEmails​::dispatch($request);
+        // SendEmails​::dispatch($request); // Commented coz not in use
     }
 }

@@ -54,7 +54,7 @@ class CaseEventReminder extends Authenticatable
         } else {
             $remindTime = $value;
         }
-        $this->attributes['remind_at'] = $remindTime;
+        $this->attributes['remind_at'] = convertTimeToUTCzone($remindTime, auth()->user()->user_timezone);
     }
 
     /**

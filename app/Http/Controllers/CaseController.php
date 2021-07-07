@@ -24,6 +24,7 @@ use Illuminate\Support\Str;
 use App\Jobs\CommentEmail;
 use App\Jobs\EventReminderEmailJob;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class CaseController extends BaseController
 {

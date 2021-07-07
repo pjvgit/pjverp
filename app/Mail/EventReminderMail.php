@@ -32,7 +32,6 @@ class EventReminderMail extends Mailable
      */
     public function build()
     {
-        Log::info("email markdown");
         // return $this->view('view.name');
         return $this
             // ->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))

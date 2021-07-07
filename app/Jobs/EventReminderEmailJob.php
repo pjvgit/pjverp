@@ -37,7 +37,6 @@ class EventReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("job enter");
         $firmDetail = firmDetail($this->eventReminder->event->case->firm_id);
         if(!empty($this->user)) {
             Log::info("user not empty".count($this->user));
@@ -47,12 +46,11 @@ class EventReminderEmailJob implements ShouldQueue
             } else {
                 Log::info("job else".count($this->user));
                 foreach($this->user as $key => $item) {
-                    Log::info("loop user: ".$item->email);
                     $attendEvent = (isset($this->attendEventUser) && array_key_exists($item->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$item->id]) : "";
                     Mail::to($item->email)->send((new EventReminderMail($this->eventReminder->event, $firmDetail, $item, $attendEvent)));
                 }
-                CaseEventReminder::where("id", $this->eventReminder->id)->update(["reminded_at" => Carbon::now()]);
             }
+            CaseEventReminder::where("id", $this->eventReminder->id)->update(["reminded_at" => Carbon::now()]);
         }
     }
 }

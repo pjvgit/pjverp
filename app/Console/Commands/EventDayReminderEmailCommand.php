@@ -46,6 +46,7 @@ class EventDayReminderEmailCommand extends Command
     {
         $result = CaseEventReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])/* ->where("event_id", "38439") */
                     ->whereDate("remind_at", Carbon::now())
+                    ->whereNull("reminded_at")
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
@@ -60,7 +61,7 @@ class EventDayReminderEmailCommand extends Command
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 00) { 
                             Log::info("day time true");
-                            dispatch(new EventReminderEmailJob($item->event, $useritem, $attendEvent, "day"))->onConnection('database');
+                            dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"))->onConnection('database');
                         }
                     }
                 }
