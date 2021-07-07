@@ -57,7 +57,7 @@ class EventHourReminderEmailCommand extends Command
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
-                $users = $this->getEventLinkedUser($item, "email");
+                // $users = $this->getEventLinkedUser($item, "email");
                 if(count($users)) {
                     $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
                     // $remindTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->subHours($item->reminer_number)->format('Y-m-d H:i');
