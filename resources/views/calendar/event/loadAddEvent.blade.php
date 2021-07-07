@@ -450,7 +450,12 @@
         // loadCaseClient({{$case_id}});
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
-
+        $("#case_or_lead_popup").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#loadAddEventPopup"),
+        });
         
         
         $(".case_or_lead").select2({

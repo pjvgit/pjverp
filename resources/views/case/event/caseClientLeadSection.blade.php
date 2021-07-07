@@ -15,22 +15,13 @@
             <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
             <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
         </a>
+        <?php if($val->client_portal_enable=='0'){?> 
+        <i class="tooltip-alert" data-toggle="popover"  data-placement= "bottom"  title="" data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' data-html="true" data-original-title="" ></i>
+        <?php } ?>
     </td>
     <td>
-        <label class="mb-0">
-            <?php 
-            if($val->client_portal_enable=="0"){
-            ?>
-            <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}" onclick="loadGrantAccessModal({{$val->id}});"
-               type="checkbox" class="lead_client_attend_all_users client-login-not-enabled handler-attached">
-            <?php
-            }else{
-                ?>
-            <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}" onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                class="lead_client_attend_all_users client-login-not-enabled handler-attached">
-            <?php
-            }?>
-
+        <label class="mb-0 caseClientLeadSection">
+            <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}" onclick="loadGrantAccessModal({{$val->id}});" data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox" class="lead_client_attend_all_users client-login-not-enabled handler-attached">
         </label>
     </td>
     <td>

@@ -24,18 +24,15 @@
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
                     </a>
+                    <?php if($val->client_portal_enable=='0'){?> 
+                    <i class="tooltip-alert" data-toggle="popover"  data-placement= "bottom"  title="" data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' data-html="true" data-original-title="" ></i>
+                    <?php } ?>
                 </td>
                 <td>
-                    <label class="mb-0">
-                        <?php if($val->client_portal_enable=="0"){ ?>
-                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
-                            onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
-                        <?php }else{ ?>
-                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
-                            onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_share_all_users client-login-not-enabled handler-attached">
-                        <?php } ?>
+                    <label class="mb-0 loadEventRightSection">
+                        <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
+                        onclick="loadGrantAccessModal({{$val->id}});" data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
+                        class="lead_client_share_all_users client-login-not-enabled handler-attached">
                     </label>
                 </td>
                 <td>
@@ -245,12 +242,27 @@
         });
 
         $("#SelectAllLeadShare").click(function () {
+            var multi = $('.lead_client_share_all_users');
+            var winners_array = [];
+            $.each(multi, function (index, item) {
+                if($(item).attr('data-client_portal_enable') == 0){
+                    winners_array.push( {name: $(item).val(), value: $(item).attr('data-client_portal_enable')} );  
+                }
+            });
+
             $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+            if(winners_array.length > 0){
+                $.each(winners_array, function (index, item) {
+                    // $(".tooltip-alert").show();
+                    $("#cleintUSER_"+item.name).prop('checked',false);
+                });
+                $("#SelectAllLeadAttend").prop('checked', false);
+            }
             // $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             if(!$(this).is(":checked")) {
                 $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
                 $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
-            }
+            }            
         });
         $(".lead_client_share_all_users ").click(function () {
             if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {

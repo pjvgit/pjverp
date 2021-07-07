@@ -104,6 +104,12 @@ i.texting-off-icon {
 	height: 18px;
 	width: 18px;
 }
+i.tooltip-alert {
+	background: url('./images/alert_icon_round-cf867b9936.png') no-repeat;
+	background-size: contain;
+	height: 18px;
+	width: 18px;
+}
 
 .event-detail-history {
 	background-color: #f7f7f9 !important;

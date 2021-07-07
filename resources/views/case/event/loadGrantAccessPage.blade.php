@@ -25,7 +25,7 @@
         <div></div>
         <div class="mr-0">
             <button class="btn btn-primary example-button ml-1" id="submit" type="submit" data-style="expand-left">
-                Grant access
+                Grant access 28
             </button>
         </div>
     </div>
@@ -56,7 +56,7 @@
             $("#innerLoader").css('display', 'block');
             if (!$('#grantAccessPage').valid()) {
                 $("#innerLoader").css('display', 'none');
-                $('#submit').removeAttr("disabled");
+                $(this).find(":submit").prop("disabled", false);
                 return false;
             }
             var dataString = $("form").serialize();
@@ -83,6 +83,8 @@
                     } else {
                         $("#innerLoader").css('display', 'none');
                         $("#cleintUSER_"+{{$UserMasterData->id}}).prop('checked',"checked");
+                        $("#cleintUSER_"+{{$UserMasterData->id}}).attr("data-client_portal_enable",1);
+                        $(".tooltip-alert").hide();
                         $("#loadGrantAccessModal").modal("hide");
                     }
                 }
