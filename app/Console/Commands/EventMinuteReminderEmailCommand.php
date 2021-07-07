@@ -57,8 +57,6 @@ class EventMinuteReminderEmailCommand extends Command
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
-                $users = $this->getEventLinkedUser($item, "email");
-                $users = $this->getEventLinkedUser($item, "email");
                 if(count($users)) {
                     // $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time)->format('Y-m-d H:i');
                     // $now = Carbon::now()->addMinutes($item->reminer_number)->format('Y-m-d H:i');
