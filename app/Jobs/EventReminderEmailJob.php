@@ -37,8 +37,10 @@ class EventReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("job enter");
         $firmDetail = firmDetail($this->eventReminder->event->case->firm_id);
         if(!empty($this->user)) {
+            Log::info("user not empty".count($this->user));
             if($this->reminderFrequency == "day") {
                 $attendEvent = (isset($this->attendEventUser) && array_key_exists($this->user->id, $this->attendEventUser)) ? ucfirst($this->attendEventUser[$this->user->id]) : "";
                 Mail::to($this->user->email)->send((new EventReminderMail($this->eventReminder->event, $firmDetail, $this->user, $attendEvent)));
