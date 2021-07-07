@@ -1266,6 +1266,7 @@ class CalendarController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1",'grant_access'=>'yes']);
+            LeadAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
             return response()->json(['errors'=>'','id'=>$request->client_id]);
             exit;
         }

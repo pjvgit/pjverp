@@ -513,7 +513,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
     function loadGrantAccessModal(id) {
-        if($("#cleintUSER_"+id).prop('checked')==true){
+        if($("#cleintUSER_"+id).prop('checked')==true && $("#cleintUSER_"+id).attr("data-client_portal_enable") == 0){
             $("#cleintUSER_"+id).prop('checked',false);
             $("#loadGrantAccessModal").modal();
             $("#innerLoader").css('display', 'none');

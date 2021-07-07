@@ -19,7 +19,7 @@
             <input type="hidden" id="text_case_id" value="" name="text_case_id">
             <input type="hidden" id="text_lead_id" value="" name="text_lead_id">
             <div class="form-group row">
-                <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead</label>
+                <label for="inputEmail3" class="col-sm-2 col-form-label">Case or Lead 22</label>
                 <div class="col-8 form-group mb-3">
                     <select onChange="changeCaseUser()" class="form-control case_or_lead" id="case_or_lead_popup" name="case_or_lead"
                         data-placeholder="Search for an existing contact or company">
@@ -450,7 +450,12 @@
         // loadCaseClient({{$case_id}});
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
-
+        $("#case_or_lead_popup").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#AddEventPageFromCalendar"),
+        });
         
        
         $('#dateInputPanel .input-time').timepicker({

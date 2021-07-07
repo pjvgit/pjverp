@@ -5314,7 +5314,7 @@ class CaseController extends BaseController
         $caseLinkeSavedAttendingContact=$caseLinkeSavedInviteContact=[];
         $from='';
         //Client List
-        $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id")->where("case_client_selection.case_id",$case_id)->get();
+        $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
 
 
         //Non linked staff List
@@ -5359,7 +5359,8 @@ class CaseController extends BaseController
 
 
         //Client List
-        $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level")->where("id",$request->lead_id)->get();
+        // $caseCllientSelection = User::select("first_name","last_name","id","parent_user","user_level")->where("id",$request->lead_id)->get();
+        $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
 
         //Load all staff
         $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->get();
