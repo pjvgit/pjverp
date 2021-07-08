@@ -79,17 +79,18 @@ if(isset($_GET['st'])){
                             <input type="text" class="form-control" id="st" name="st" value="{{$st}}"
                                 placeholder="Description or Activity" />
                         </div>
-                        <div class="col-md-2 form-group mb-3">
-                            <label for="picker1">Date Range From</label>
-                            <input type="text" class="form-control datepicker" autocomplete="off" id="daterange" name="from" value="{{$from}}"
-                                placeholder="Start Date" />
+
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="picker1">Date Range </label>
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" class="form-control" name="from" value="{{$from}}"
+                                    placeholder="Start Date"/>
+                                <span class="input-group-addon">&nbsp;&nbsp; to &nbsp;&nbsp;</span>
+                                <input type="text" class="form-control" name="to" value="{{$to}}"
+                                    placeholder="End Date"/>
+                            </div>
                         </div>
 
-                        <div class="col-md-2 form-group mb-3">
-                            <label for="picker1">Date Range To</label>
-                            <input type="text" class="form-control datepicker" autocomplete="off" id="daterange" name="to" value="{{$to}}"
-                                placeholder="End Date" />
-                        </div>
                         <div class="col-md- form-group mb-3 mt-3 pt-2">
                             <button class="btn btn-info btn-rounded m-1" type="submit">Filter</button>
                         </div>
@@ -242,14 +243,19 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             theme: "classic",
             allowClear: true
         });
-        $('.datepicker').datepicker({
-            'format': 'm/d/yyyy',
-            'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true,
-            'startDate': "dateToday",
-            'todayHighlight': true,
-            'orientation': "bottom",
+        // $('.datepicker').datepicker({
+        //     'format': 'm/d/yyyy',
+        //     'autoclose': true,
+        //     'todayBtn': "linked",
+        //     'clearBtn': true,
+        //     'startDate': "dateToday",
+        //     'todayHighlight': true,
+        //     'orientation': "bottom",
+        // });
+        $('.input-daterange').datepicker({
+            clearBtn: true,
+            keyboardNavigation: false,
+            forceParse: false
         });
 
 
