@@ -496,6 +496,9 @@
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#end_date-error").text('');
+            var date = new Date($(this).val());
+            $("#monthly_frequency option:selected").text(getNthDayOfMonth(date));
+            $("#event-frequency option:selected").text("Weekly on "+getWeekdays(date));
         });
         $("#end_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
@@ -785,9 +788,7 @@
         } else if (selectdValue == 'WEEKLY') {
             var selectedDate = $("#start_date").val();
             var date = new Date(selectedDate);
-            var weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-            // alert(weekday[date.getDay()]);
-            $("#event-frequency option:selected").text("Weekly on "+weekday[date.getDay()]);
+            $("#event-frequency option:selected").text("Weekly on "+getWeekdays(date));
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
@@ -1006,4 +1007,14 @@
             $("#loadTaskSection").html('');
         }
     });
+
+    function getWeekdays(date) {
+        var weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        return weekday[date.getDay()];
+    }
+
+    function getNthDayOfMonth(date, weekday) {
+        var nth= ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+        return "On the "+nth[Math.floor(date.getDate()/7)]+' '+getWeekdays(date);
+    }
 </script>

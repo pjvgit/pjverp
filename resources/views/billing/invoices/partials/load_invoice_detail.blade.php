@@ -18,10 +18,10 @@
             </td>
             <td style="vertical-align: top; white-space: nowrap; width: 350px;"
                 class="bill-address pt-4" rowspan="2">
-                {{$firmData->firm_name}}<br>
-                {{$firmData->countryname}}<br>
+                {{@$firmData->firm_name}}<br>
+                {{@$firmData->countryname}}<br>
 
-                {{$firmData->main_phone}}
+                {{@$firmData->main_phone}}
             </td>
             <td rowspan="4">
                 &nbsp;
@@ -30,7 +30,7 @@
                 style="vertical-align: top; white-space: normal; width: 320px; padding-right: 20px; text-align: right;"
                 rowspan="1">
                 <span class="bill_firm_name"
-                    style="font-size: 24px;">{{$firmData->firm_name}}</span>
+                    style="font-size: 24px;">{{@$firmData->firm_name}}</span>
             </td>
         </tr>
         <tr>
