@@ -625,20 +625,20 @@
                 }
             });
 
-            $('#UpdateAndSaveIntakeForm').submit(function (e) {
-                $('.category_list').each(function() {
-                    $(this).rules("add",{ required: true, messages: { required: "Please select a category."} });
-                });
-                $('.fields_list').each(function() {
-                    $(this).rules("add",{required: true,messages: { required: "Please select a field."} });
-                });   
+            // $('#UpdateAndSaveIntakeForm').submit(function (e) {
+            //     $('.category_list').each(function() {
+            //         $(this).rules("add",{ required: true, messages: { required: "Please select a category."} });
+            //     });
+            //     $('.fields_list').each(function() {
+            //         $(this).rules("add",{required: true,messages: { required: "Please select a field."} });
+            //     });   
 
-                $('.domain_name').each(function() {
-                    $(this).rules("add",{required: true,messages: { required: "Please enter a valid HTTPS domain."} });
-                    $(this).rules("add",{url: true,messages: { required: "Please enter a valid HTTPS domain."} });
-                });   
-            });
-            $("#UpdateAndSaveIntakeForm").validate();
+            //     $('.domain_name').each(function() {
+            //         $(this).rules("add",{required: true,messages: { required: "Please enter a valid HTTPS domain."} });
+            //         $(this).rules("add",{url: true,messages: { required: "Please enter a valid HTTPS domain."} });
+            //     });   
+            // });
+            // $("#UpdateAndSaveIntakeForm").validate();
             $("input:checkbox#csp-opt-out").click(function () {
                 if ($(this).is(":checked")) {
                    $(".disableornot").removeAttr('disabled');
@@ -754,11 +754,23 @@
         }
 
         $('#UpdateAndSaveIntakeForm').submit(function (e) {
-           
+            e.preventDefault();           
             $("#submit").attr("disabled", true);
             $("#innerLoader").css('display', 'block');
-            e.preventDefault();
-           
+
+            $('.category_list').each(function() {
+                $(this).rules("add",{ required: true, messages: { required: "Please select a category."} });
+            });
+            $('.fields_list').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Please select a field."} });
+            });   
+
+            $('.domain_name').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Please enter a valid HTTPS domain."} });
+                $(this).rules("add",{url: true,messages: { required: "Please enter a valid HTTPS domain."} });
+            }); 
+            $('#UpdateAndSaveIntakeForm').valid();
+
             if (!$('#UpdateAndSaveIntakeForm').valid()) {
                 $("#innerLoader").css('display', 'none');
                 $('#submit').removeAttr("disabled");

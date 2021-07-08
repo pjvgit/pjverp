@@ -97,11 +97,15 @@ class BillingController extends BaseController
         if(isset($requestData['c']) && $requestData['c']!=''){
             $case = $case->where("case_master.id",$requestData['c']);
         }
-        if(isset($requestData['from']) && $requestData['from']!='' && isset($requestData['to']) && $requestData['to']!=''){
-            // $case = $case->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($requestData['from'])),date('Y-m-d',strtotime($requestData['to']))]);
-
+        if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to']!=''){
             $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime($requestData['from'])))
                            ->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime($requestData['to'])));
+        }
+        if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to'] ==''){
+            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime($requestData['from'])));
+        }
+        if(isset($requestData['from']) && $requestData['from'] =='' && isset($requestData['to']) && $requestData['to'] !=''){
+            $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime($requestData['to'])));
         }
         
         if(isset($requestData['type']) && $requestData['type']=='own'){
