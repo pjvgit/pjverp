@@ -506,7 +506,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 },
                 customButtons: {
                     staffView: {
-                        text: 'Staff',
+                        text: 'Day',
                         click: function () {
                             $('#calendarq').fullCalendar('changeView', 'StaffView');
                             $('#calendarq').fullCalendar('rerenderResources');
@@ -520,12 +520,17 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             $('#calendarq').fullCalendar('changeView', 'AgendaView');
                         }
                     },
-                    
+                    agendaDay: {
+                        text: 'Staff',
+                        click: function () {
+                            $('#calendarq').fullCalendar('changeView', 'agendaDay');
+                        }
+                    },                    
                 },
                 header: {
                     left: 'prev next today', //myCustomButton
                     center: 'title',
-                    right: 'staffView,agendaDay,agendaWeek,month,agendaView'
+                    right: 'agendaDay,staffView,agendaWeek,month,agendaView'
                 },
                 views: {
                     AgendaView: {
@@ -538,13 +543,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                             end: currentDate.clone().add(30, 'days') // exclusive end, so 3
                             };
                         },
-                        // click:  $('#calendarq').fullCalendar('changeView', 'AgendaView')
                     },
                     StaffView: {
                         type: 'agenda',
-                        duration: { days: 2 },
-                        // click:  $('#calendarq').fullCalendar('changeView', 'StaffView')
-                    }
+                        // duration: { days: 2 },
+                        buttonText: 'Day',
+                    },
                 },
                 // groupByResource: true,
                 resources: function(callback, start, end, timezone) {
@@ -567,65 +571,16 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     });
                     var byuser = getByUser();
                     if(view.name == 'AgendaView') {
-                        // var eventTypes = getCheckedUser();
-                        // var byuser = getByUser();
                         $.ajax({
-                                url: 'loadEventCalendar/loadAgendaView',
-                                type: 'POST',
-                                data: { start: start.format(), end: end.format(), event_type: eventTypes, byuser: byuser },
-                                success: function (doc) {
-                                    $('.fc-view').html(doc);
-                                    $("#preloaderData").hide();
-                                }
-                            });
-                    } else if(view.name == 'StaffView') {
-                        console.log("dhbh");
-                        // var eventTypes = getCheckedUser();
-                        // var byuser = getByUser();
-                        var currentDay = $('#calendarq').fullCalendar('getDate');
-                        $.ajax({
-                            url: 'loadEventCalendar/loadStaffView',
+                            url: 'loadEventCalendar/loadAgendaView',
                             type: 'POST',
-                            data: {start: currentDay.format(), resType: "events", event_type: eventTypes, byuser: byuser },
+                            data: { start: start.format(), end: end.format(), event_type: eventTypes, byuser: byuser },
                             success: function (doc) {
-                                console.log(doc);
-                                var events = [];
-                                $.map(doc, function (r) {
-                                        if (r.event_title == null) {
-                                            var tTitle = "<No Title>";
-                                        } else {
-                                            var tTitle = r.event_title
-                                        }
-                                        var color="#00cfd2"
-                                        if (r.event_title == null) {
-                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
-                                                ' -' + "<No Title>";
-                                        } else {
-                                            var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
-                                                ' -' + r.event_title
-                                        }
-                                        events.push({
-                                            id: r.id,
-                                            resourceId: r.created_by,
-                                            title: t,
-                                            tTitle: tTitle,
-                                            start: r.start_date+'T'+r.st,
-                                            end: r.end_date+'T'+r.et,
-                                            backgroundColor: '#d5e9ce',  
-                                            textColor:'#000000'
-                                        });
-                                    });
-                                callback(events);
+                                $('.fc-view').html(doc);
+                                $("#preloaderData").hide();
                             }
                         });
                     } else {
-                        // $('#calendarq').fullCalendar('refetchResources');
-                        // var eventTypes = getCheckedUser();
-                        // var eventTypes = [];
-                        // $.each($("input[name='event_type[]']:checked"), function(){
-                        //     eventTypes.push($(this).val());
-                        // });
-                        // var byuser = getByUser();
                         var bysol=getSOL();
                         var mytask=getMytask();
                         $.ajax({
@@ -666,6 +621,12 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             var t = '<div class="user-circle mr-1 d-inline-block" style="width: 10px; height: 10px; background-color: '+color+';"></div>'+r.start_time_user +
                                                 ' -' + r.event_title
                                         }
+                                        var resource_id = [];
+                                        if(r.event_linked_staff) {
+                                            $.each(r.event_linked_staff, function(ind, item) {
+                                                resource_id.push(item.id);
+                                            });
+                                        }
                                         events.push({
                                             id: r.id,
                                             title: t,
@@ -673,7 +634,8 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             start: r.start_date+'T'+r.st,
                                             end: r.end_date+'T'+r.et,
                                             backgroundColor: '#d5e9ce',  
-                                            textColor:'#000000'
+                                            textColor:'#000000',
+                                            resourceIds: resource_id,
                                         });
                                     });
                                 }
@@ -691,6 +653,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             end: r.end_date+'T'+r.et,
                                             textColor:'#000000',
                                             backgroundColor: 'rgb(236, 238, 239)',
+                                            resourceId: r.created_by,
                                         });
                                     });
                                 }
@@ -716,7 +679,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                                             end: r.task_due_on,
                                             textColor:'#000000',
                                             backgroundColor: 'rgb(236, 238, 239)',
-                                            
+                                            resourceId: r.created_by,
                                         });
                                     });
                                 }
@@ -726,7 +689,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                     }
                 },
                 eventRender: function (event, element,view) {
-                    console.log(view.name);
                     if(view.name == 'agendaWeek' || view.name == 'agendaDay') {
                         element.find('.fc-title').html(event.title);
                         element.find('.fc-title').append('<span class="yourCSS"></span> '); 
@@ -739,11 +701,6 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 },
                 viewRender: function(view, element){
                     var view = $('#calendarq').fullCalendar('getView');
-                    if(view.name == "staffView") {
-                        $('#calendarq').fullCalendar('rerenderResources');
-                        // var resources = $('#calendarq').fullCalendar('getResources');
-                        // $('#calendarq').fullCalendar( 'removeResource', resources );
-                    }
                     if (view.name == 'month' || view.name == 'week' || view.name == 'day') {
                     }else{
                         var currentdate = view.intervalStart;

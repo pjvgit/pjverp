@@ -27,7 +27,8 @@ class CalendarController extends BaseController
     {
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
         $EventType = EventType::where('status','1')->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
-        $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
+        // $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
+        $staffData = firmUserList();
 
         // return view('calendar.index-new',compact('CaseMasterData','EventType','staffData'));
         return view('calendar.index',compact('CaseMasterData','EventType','staffData'));
@@ -36,7 +37,8 @@ class CalendarController extends BaseController
     {        
         $CommonController= new CommonController();
 
-        $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
+        // $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
+        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
         if($request->event_type!="[]"){
             $event_type=json_decode($request->event_type, TRUE);
             $CaseEvent=$CaseEvent->whereIn('event_type',$event_type);
@@ -49,18 +51,12 @@ class CalendarController extends BaseController
         $getassignedEvents = CaseEventLinkedStaff::select("event_id")->whereIn('user_id',$byuser)->get()->pluck("event_id");
         $CaseEvent=$CaseEvent->whereIn('id',$getassignedEvents);
 
-        // $date = $request->dateFilter;
-        // $first_date_find = strtotime(date("Y-m-d", strtotime($date)) . ", first day of this month");
-        // $start = date("Y-m-d",$first_date_find);
-
-        // $last_date_find = strtotime(date("Y-m-d", strtotime($date)) . ", last day of this month");
-        // $end = date("Y-m-d",$last_date_find);
         if($request->taskLoad=='unread'){
             $CaseEvent=$CaseEvent->where('event_read','no');
         }
 
         $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
-        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->get();
+        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->with('eventLinkedStaff')->get();
         $newarray = array();
 
         $timezone=Auth::User()->user_timezone;
@@ -129,50 +125,18 @@ class CalendarController extends BaseController
         // return $request->all()  ;
         if($request->resType == "resources") {
             $resources = [];
-            if($request->view_name == "agendaDay") {
-                return response()->json($resources);
-            } else {
-                $users = User::where("firm_name", auth()->user()->firm_name);
-                if($request->byuser) {
-                    $users = $users->whereIn("id", $request->byuser);
-                }
-                $users = $users->get();
-                foreach($users as $key => $item) {
-                    $resources[] = [
-                        'id' => $item->id,
-                        'title' => @$item->full_name
-                    ];
-                }
-                return response()->json($resources);
-            }
-        } else {
-            $startDate = date("Y-m-d", strtotime($request->start));
-            $endDate = date("Y-m-d", strtotime($request->end));
-            $events = CaseEvent::/* where('created_by', auth()->id())-> */whereDate('start_date', $startDate);
+            $users = User::where("firm_name", auth()->user()->firm_name);
             if($request->byuser) {
-                $events = $events->whereIn("created_by", $request->byuser);
+                $users = $users->whereIn("id", $request->byuser);
             }
-            if($request->event_type) {
-                $events = $events->whereIn("event_type", $request->event_type);
-            }
-            $events = $events->with("case", "leadUser", "eventCreatedByUser", "eventType")->get();
-            /* $timeArr = [];
-            foreach($events as $key => $item) {
-                $timeArr[] = [
+            $users = $users->get();
+            foreach($users as $key => $item) {
+                $resources[] = [
                     'id' => $item->id,
-                    'resourceId' => $item->created_by,
-                    // 'title' =>  @$item->instructor->full_name.'-'.$item->ia_day,
-                    'title' =>  @$item->event_title,
-                    // 'start' => $item->start_date.'T'.$item->st,
-                    // 'end' =>  $item->end_date.'T'.$item->et,
-                    'start' =>  Carbon::parse($item->start_date_time)->format('Y-m-d H:i:s'),
-                    'end' =>  Carbon::parse($item->end_date_time)->format('Y-m-d H:i:s'),
-                    'color' => @$item->eventType->color_code,
-                    'eventOverlap' => false,
-                    'slotEventOverlap' => false,
+                    'title' => (auth()->id() == $item->id) ? "My Calendar" : @$item->full_name
                 ];
-            } */
-            return response()->json($events);
+            }
+            return response()->json($resources);
         }
         // return view('calendar.partials.load_staff_view',compact('events'));          
         exit;    
