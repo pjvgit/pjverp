@@ -59,8 +59,8 @@ function userCompanyList()
  */
 function firmUserList()
 {
-    return User::select("first_name","last_name","id","user_level","user_title","default_rate")->where("firm_name", auth()->user()->firm_name)
-                ->where("user_level","3")->get();
+    return User::select("first_name","last_name","id","user_level","user_title","default_rate","default_color")->where("firm_name", auth()->user()->firm_name)
+                ->where("user_level","3")->doesntHave('deactivateUserDetail')->get();
     /* $loadFirmUser = User::select("first_name","last_name","id","user_level","user_title","default_rate");
     $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
     $getChildUsers[]=Auth::user()->id;

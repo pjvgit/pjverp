@@ -41,20 +41,21 @@ class CaseEventReminder extends Authenticatable
         if($this->reminder_frequncy == "week" || $this->reminder_frequncy == "day") {
             $eventStartDate = Carbon::parse($this->event->start_date);
             if($this->reminder_frequncy == "week") {
-                $remindTime = $eventStartDate->subWeeks($this->reminer_number)->format('Y-m-d');
+                $remindTime = $eventStartDate->subWeeks($this->reminer_number)->format('Y-m-d H:i:s');
             } else {
-                $remindTime = $eventStartDate->subDays($this->reminer_number)->format('Y-m-d');
+                $remindTime = $eventStartDate->subDays($this->reminer_number)->format('Y-m-d H:i:s');
             }
         } else if($this->reminder_frequncy == "hour") {
             $eventStartTime = @$this->event->start_date." ".@$this->event->start_time;
-            $remindTime = Carbon::parse($eventStartTime)->subHours($this->reminer_number)->format('Y-m-d H:i');
+            $remindTime = Carbon::parse($eventStartTime)->subHours($this->reminer_number)->format('Y-m-d H:i:s');
         } else if($this->reminder_frequncy == "minute") {
             $eventStartTime = @$this->event->start_date." ".@$this->event->start_time;
-            $remindTime = Carbon::parse($eventStartTime)->subMinutes($this->reminer_number)->format('Y-m-d H:i');
+            $remindTime = Carbon::parse($eventStartTime)->subMinutes($this->reminer_number)->format('Y-m-d H:i:s');
         } else {
-            $remindTime = $value;
+            $remindTime = Carbon::parse($value)->format('Y-m-d H:i:s');
         }
-        $this->attributes['remind_at'] = convertTimeToUTCzone($remindTime, auth()->user()->user_timezone);
+        if($remindTime != '') 
+            $this->attributes['remind_at'] = convertTimeToUTCzone($remindTime, auth()->user()->user_timezone);
     }
 
     /**

@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use App\Invoices;
 use App\Jobs\InvoiceReminderEmailJob;
-use App\Jobs\TaskReminderEmailJob;
-use App\TaskReminder;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -53,7 +51,7 @@ class InvoiceReminderEmailCommand extends Command
                     foreach($item->case->caseBillingClient as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
-                        if ($date->hour === 18) { 
+                        if ($date->hour === 14) { 
                             Log::info("invoice day time true");
                             dispatch(new InvoiceReminderEmailJob($item, $useritem))->onConnection('database');
                         }
