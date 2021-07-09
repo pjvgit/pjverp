@@ -183,6 +183,14 @@ function convertUTCToUserDate($str, $timezone){
     return $NewDate= $date->format("Y-m-d");
 }
 
+//TO UTC
+function convertDateToUTCzone($str,$timezone){
+    $timestamp = $str;
+    $date = Carbon::createFromFormat('Y-m-d', $timestamp, $timezone);
+    $date->setTimezone('UTC');
+    return $NewDate= $date->format("Y-m-d");
+}
+
 /**
  * Get user type list
  */
