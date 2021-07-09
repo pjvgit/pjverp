@@ -243,19 +243,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             theme: "classic",
             allowClear: true
         });
-        // $('.datepicker').datepicker({
-        //     'format': 'm/d/yyyy',
-        //     'autoclose': true,
-        //     'todayBtn': "linked",
-        //     'clearBtn': true,
-        //     'startDate': "dateToday",
-        //     'todayHighlight': true,
-        //     'orientation': "bottom",
-        // });
         $('.input-daterange').datepicker({
+            format : 'm/d/yyyy',
             clearBtn: true,
             keyboardNavigation: false,
-            forceParse: false
+            forceParse: false,
+            todayBtn: "linked",
+            todayHighlight : true
         });
 
 

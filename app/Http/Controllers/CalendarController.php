@@ -1265,6 +1265,7 @@ class CalendarController extends BaseController
      */
     public function eventDetail($event_id)
     {
+        $event_id=base64_decode($event_id);
         $evetData=CaseEvent::whereId($event_id)->with("eventLocation", "case", "eventLinkedStaff")->first();
         $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
         /* $eventLocation='';
