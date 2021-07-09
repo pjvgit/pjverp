@@ -14,7 +14,7 @@ class Invoices extends Model
 
     protected $fillable = ['id', 'user_id', 'case_id', 'invoice_date', 'total_amount', 'paid_amount', 'due_amount', 'due_date', 'is_viewed', 'is_sent', 
             'reminder_sent_counter', 'reminder_viewed_on', 'last_reminder_sent_on', 'status', 'payment_term', 'automated_reminder', 'terms_condition', 
-            'notes', 'payment_plan_enabled', 'created_by', 'updated_by', 'invoice_unique_token', 'invoice_token'];
+            'notes', 'payment_plan_enabled', 'created_by', 'updated_by', 'invoice_unique_token', 'invoice_token', 'firm_id'];
     
     protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status","check_portal_access","invoice_id"];
     public function getDecodeIdAttribute(){
@@ -115,5 +115,35 @@ class Invoices extends Model
     public function case()
     {
         return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
+
+    /**
+     * Get all of the invoiceInstallment for the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoiceInstallment()
+    {
+        return $this->hasMany(InvoiceInstallment::class, 'invoice_id');
+    }
+
+    /**
+     * Get the invoiceFirstInstallment associated with the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function invoiceFirstInstallment()
+    {
+        return $this->hasOne(InvoiceInstallment::class, 'invoice_id')->orderBy("created_by", "asc")->whereStatus("unpaid");
+    }
+
+    /**
+     * Get the firmDetail that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function firmDetail()
+    {
+        return $this->belongsTo(Firm::class, 'firm_id');
     }
 }

@@ -23,6 +23,6 @@ class EmailTemplate extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'subject', 'content'
+        'title', 'subject', 'content', 'slug'
     ];
 }

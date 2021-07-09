@@ -52,16 +52,18 @@
                             <td style="text-align: right;">{{$invoiceNo}}</td>
                         </tr>
                         <tr class="invoice_info_row">
-                            <td class="invoice_info_bg" style="white-space: nowrap;">Invoice
-                                Date</td>
+                            <td class="invoice_info_bg" style="white-space: nowrap;">Invoice Date</td>
                             <td style="text-align: right;">
                                 {{date('M j, Y',strtotime($findInvoice->created_at))}}</td>
                         </tr>
                         <tr class="invoice_info_row">
-                            <td class="invoice_info_bg" style="white-space: nowrap;">Due
-                                Date</td>
+                            <td class="invoice_info_bg" style="white-space: nowrap;">Due Date</td>
                             <td style="text-align: right;">
+                                @if(count($InvoiceInstallment))
+                                <a href="#payment_plan" class="scrollTo">See Payment Plan</a> 
+                                @else
                                 {{($findInvoice->due_date) ? date('M j, Y',strtotime($findInvoice->due_date)) : NULL}}
+                                @endif
                             </td>
                         </tr>
                         <tr class="invoice_info_row">
@@ -744,7 +746,7 @@
                 <td style="border: none;">&nbsp;</td>
                 <td class="" style="vertical-align: top; border: none; padding: 0; padding-top: 15px;" colspan="2">
                 <div style="margin: 0px; border: 1px solid black;">
-                    <table class="payment_plan" style="width: 100%; border-collapse: collapse;">
+                    <table class="payment_plan" style="width: 100%; border-collapse: collapse;" id="payment_plan">
                     <tbody><tr class="header">
                         <th class="invoice_info_bg installment_due" style="padding: 5px;">Installment Due</th>
                         <th class="invoice_info_bg status" style="padding: 5px;"></th>
@@ -769,7 +771,11 @@
                             <?php } ?>
                         </td>
                         <td style="text-align: right; border: none; border-bottom: 1px solid #cccccc;" class="nonbillable js-payment_plan_amount">
-                            ${{number_format($lv->installment_amount,2)}}
+                            @if($lv->status=="unpaid" && $lv->adjustment!=0.00 )
+                                ${{ number_format(($lv->installment_amount - $lv->adjustment), 2) }}
+                            @else
+                            ${{ number_format($lv->installment_amount,2) }}
+                            @endif
                         </td>
                         </tr>
                         <?php } ?>

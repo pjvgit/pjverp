@@ -53,7 +53,7 @@ class InvoiceReminderEmailCommand extends Command
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 14) { 
                             Log::info("invoice day time true");
-                            dispatch(new InvoiceReminderEmailJob($item, $useritem))->onConnection('database');
+                            // dispatch(new InvoiceReminderEmailJob($item, $useritem))->onConnection('database');
                         }
                     }
                 }

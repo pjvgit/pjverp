@@ -49,7 +49,7 @@ class TaskReminder extends Authenticatable
         } else {
             $remindTime = $value;
         }
-        $this->attributes['remind_at'] = convertDateToUTCzone($remindTime, auth()->user()->user_timezone);
+        $this->attributes['remind_at'] = $remindTime;
     }
 
     /**

@@ -819,7 +819,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
     <?php } ?>
 
-    
+// Scroll to payment plan
+$(".scrollTo").on('click', function(e) {
+    e.preventDefault();
+    var target = $(this).attr('href');
+    $('html, body').animate({
+    scrollTop: ($(target).offset().top - 150)
+    }, 2000);
+});
 </script>
 <script src="{{ asset('assets\js\custom\invoice\viewinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

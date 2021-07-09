@@ -272,5 +272,5 @@ button:disabled {
     cursor: pointer;
 } 
 .nowrap{
-    white-space: nowrap !important;
+    white-space: normal !important;
 }
