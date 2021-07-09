@@ -17,21 +17,21 @@ if(!$commentData->isEmpty()){
                         $ImageArray['delete']="activity_bill_deleted.png";
                         $image=$ImageArray[$v->action];
                         ?>
-                        <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name"
-                            href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                            href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                             {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                         #R-{{sprintf('%06d', $v->deposit_id)}}</a>  
                         <?php if($v->ulevel=="2"){?>
-                            to <a class="name" href="{{BASE_URL}}contacts/clients/{{$v->deposit_for}}">{{$v->fullname}} (Client)</a>
+                            to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>
 
                         <?php if($v->ulevel=="4"){?>
                             to <a class="name"
-                            href="{{BASE_URL}}contacts/companies/{{$v->deposit_for}}">{{$v->fullname}} (Company)</a>
+                            href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
                             <?php } ?>
 
-                        {{$v->ulevel}} <abbr class="timeago"
+                        <abbr class="timeago"
                             title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                     </div>
                 </td>

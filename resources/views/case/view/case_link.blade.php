@@ -87,7 +87,7 @@
                             </td>
                             <td class="user-name align-middle c-pointer">
                                 <div>
-                                    <div>{{$clistVal->group_name_is}}</div>
+                                    <div>{{$clistVal->group_name}}</div>
                                 </div>
                             </td>
                             <td class="user-name align-middle c-pointer">
@@ -99,8 +99,6 @@
                                             <i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1"></i>
                                         </a>
                                     </div>
-                                    
-                                    
                                     @else
                                     <div>{{$clistVal->role_name}} 
                                         <a data-toggle="modal" data-target="#changeRole" data-placement="bottom" href="javascript:;" onclick="changeRole('{{$clistVal->uid}}','{{$clistVal->case_id}}');"> 

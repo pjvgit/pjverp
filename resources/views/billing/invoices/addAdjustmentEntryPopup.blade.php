@@ -59,7 +59,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Percentage(%)</label>
             <div class="col-9 form-group mb-3">
-                <input id="percentage" name="percentage" maxlength="3" class="form-control" min="1" max="100" value=""
+                <input id="percentage" name="percentage" class="form-control" min="1" max="100" value=""
                     type="number">
             </div>
         </div>
@@ -198,7 +198,13 @@
         });
 
         $("#percentage").on("keyup change", function (e) {
-            var basic = $("#basic").val();
+            var basic = $("#basic").val().replace(/,/g, "");
+            var percentage = $("#percentage").val();
+            var calculation = (percentage / 100) * basic;
+            $("#amount").val(calculation);
+        });
+        $("#basic").on("keyup change", function (e) {
+            var basic = $("#basic").val().replace(/,/g, "");
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
             $("#amount").val(calculation);

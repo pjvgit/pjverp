@@ -18,15 +18,15 @@ if(!$commentData->isEmpty()){
                         $ImageArray["pay"]="activity_ledger_deposited.png";
                         $image=$ImageArray[$v->action];
                         ?>
-                        <img src="{{BASE_URL}}public/images/{{$image}}" width="27" height="21">
-                            <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">
+                        <img src="{{ asset('images/'.$image) }}" width="27" height="21">
+                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
                             {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                             </a> {{$v->activity}} 
                             
-                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{BASE_URL}}contacts/clients/{{$v->client_id}}">{{$v->fullname}} (Client)</a>
+                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
                             <?php } ?>
                             
-                            <?php if($v->ulevel=="4"){?> <a class="name" href="{{BASE_URL}}contacts/companies/{{$v->client_id}}">{{$v->fullname}} (Company)</a>
+                            <?php if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id}})">{{$v->fullname}} (Company)</a>
                             <?php } ?>
 
                             <?php if($v->action=="link"){ ?> to case <?php } ?>
@@ -34,7 +34,7 @@ if(!$commentData->isEmpty()){
                             <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
                             <?php
                             if($v->case_title!=""){?>
-                    |       <a class="name" href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>                    
+                    |       <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
                     <?php } ?>
                         </div>
                 </td>
@@ -54,12 +54,12 @@ if(!$commentData->isEmpty()){
                         $ImageArray['comment']="activity_document_commented.png";
                         $image=$ImageArray[$v->action];
                         ?>
-                        <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
-                        <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->creator_name}} ({{$v->user_title}})</a> {{$v->activity}} </a>  <a href="#">{{$v->document_name}}</a>
+                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->creator_name}} ({{$v->user_title}})</a> {{$v->activity}} </a>  <a href="#">{{$v->document_name}}</a>
                         <abbr class="timeago"
                             title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web  |
                             <a class="name"
-                                href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
+                                href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
                     </div>
                 </td>
             </tr>
@@ -76,18 +76,18 @@ if(!$commentData->isEmpty()){
                         $ImageArray['delete']="activity_bill_deleted.png";
                         $image=$ImageArray[$v->action];
                         ?>
-                        <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name"
-                            href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                            href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                             {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                         #R-{{sprintf('%06d', $v->deposit_id)}}</a>  
                         <?php if($v->ulevel=="2"){?>
-                            to <a class="name" href="{{BASE_URL}}contacts/clients/{{$v->deposit_for}}">{{$v->fullname}} (Client)</a>
+                            to <a class="name" href="{{ route('contacts/clients/view',$v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>
 
                         <?php if($v->ulevel=="4"){?>
                             to <a class="name"
-                            href="{{BASE_URL}}contacts/companies/{{$v->deposit_for}}">{{$v->fullname}} (Company)</a>
+                            href="{{route('contacts/companies/view',$v->deposit_for)}}">{{$v->fullname}} (Company)</a>
                             <?php } ?>
 
                         {{$v->ulevel}} <abbr class="timeago"
@@ -110,17 +110,17 @@ if(!$commentData->isEmpty()){
                             ?>
                             <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                             <a class="name"
-                                href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                                href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                                 {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
-                                href="{{BASE_URL}}tasks?id={{$v->task_id}}"> {{$v->task_name}} </a> </a> <abbr class="timeago"
+                                href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->task_name}} </a> </a> <abbr class="timeago"
                                 title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                             <?php  if($v->task_for_case!=NULL){  ?>
     
                             <a class="name"
-                                href="{{BASE_URL}}court_cases/{{$v->task_for['case_unique_number']}}/info">{{$v->task_for['case_title']}}</a><?php
+                                href="{{ route('info',$v->task_for['case_unique_number']) }}">{{$v->task_for['case_title']}}</a><?php
                                     }else if($v->task_for_lead!=NULL){
                                         ?> <a class="name"
-                                href="{{BASE_URL}}leads/{{$v->task_for['id']}}/case_details/info">{{$v->task_for['first_name']}}
+                                href="{{ route('case_details/info', $v->task_for['id']) }}">{{$v->task_for['first_name']}}
                                 {{$v->task_for['last_name']}}</a><?php
                                         }
                                         ?>
@@ -129,37 +129,7 @@ if(!$commentData->isEmpty()){
                     </td>
                 </tr>
         <?php }else if($v->type=="event"){?>
-        <tr role="row" class="odd">
-            <td class="sorting_1" style="font-size: 13px;">
-                <div class="text-left">
-                    <?php 
-                        $imageLink=[];
-                        $imageLink["add"]="activity_event_added.png";
-                        $imageLink["update"]="activity_event_updated.png";
-                        $imageLink["delete"]="activity_event_deleted.png";
-                        $image=$imageLink[$v->action];
-                    ?>
-                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                    <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
-                        href="{{BASE_URL}}event/view/{{base64_encode($v->event_id)}}"> {{$v->event_name}} </a> </a>
-                    <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <?php  if($v->event_for_case!=NULL){  ?>
-
-                    <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->events_for['case_unique_number']}}/info">{{$v->events_for['case_title']}}</a><?php
-                              }else if($v->event_for_lead!=NULL){
-                                ?> <a class="name"
-                        href="{{BASE_URL}}leads/{{$v->events_for['id']}}/case_details/info">{{$v->events_for['first_name']}}
-                        {{$v->events_for['last_name']}}</a><?php
-                                }
-                                ?>
-
-                </div>
-            </td>
-        </tr>
-
+            @include('dashboard.include.event_activity_data')
         <?php }else if($v->type=="notes"){?>
         <tr role="row" class="odd">
             <td class="sorting_1" style="font-size: 13px;">
@@ -173,32 +143,32 @@ if(!$commentData->isEmpty()){
                         ?>
 
 
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <?php if($v->notes_for_case!=NULL){?>
                     <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for case <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->notes_for['case_unique_number']}}/info"><?php echo $v->notes_for['case_title'];?>
+                        href="{{ route('info',$v->notes_for['case_unique_number']) }}"><?php echo $v->notes_for['case_title'];?>
                     </a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via
                     web |
                     <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->notes_for['case_unique_number']}}/info"><?php echo $v->notes_for['case_title'];?>
+                        href="{{ route('info',$v->notes_for['case_unique_number']) }}"><?php echo $v->notes_for['case_title'];?>
                     </a>
                     <?php } ?>
 
                     <?php if($v->notes_for_client!=NULL){?>
                     <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->notes_for['id'])}}">{{$v->first_name}}
+                        href="{{route('contacts/attorneys/info', base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for client <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->notes_for['case_unique_number']}}/info"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                        href="{{ route('info',$v->notes_for['case_unique_number']) }}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
                         (Client)</a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about
                         {{$v->time_ago}}</abbr> via web
                     <?php } ?>
                     <?php if($v->notes_for_company!=NULL){?>
                     <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->notes_for['id'])}}">{{$v->first_name}}
+                        href="{{route('contacts/attorneys/info', base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for company <a class="name"
-                        href="{{BASE_URL}}contacts/companies/{{$v->notes_for_company}}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                        href="{{route('contacts/companies/view',$v->notes_for_c)ompany}}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
                         (Company)</a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about
                         {{$v->time_ago}}</abbr> via web
                     <?php } ?>
@@ -217,13 +187,13 @@ if(!$commentData->isEmpty()){
                     $image=$imageLink[$v->action];
 
                 ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for  <?php if($v->action!="delete"){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  <abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
+                        href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
                 </div>
             </td>
         </tr><?php
@@ -239,50 +209,20 @@ if(!$commentData->isEmpty()){
                     $imageLink["delete"]="activity_time-entry_deleted.png";
                     $image=$imageLink[$v->action];
                 ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
+                        href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for <?php if($v->action!="delete"){ ?> <a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup({{$v->time_entry_id}});"> {{$v->title}}</a>  <?php }else{ ?> {{$v->title}}<?php } ?><abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
+                        href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
                 </div>
             </td>
         </tr>
         <?php
             }else if($v->type=="invoices"){
             ?>
-        <tr role="row" class="odd">
-            <td class="sorting_1" style="font-size: 13px;">
-                <div class="text-left">
-                    <?php 
-                    $imageLink=[];
-                    $imageLink["add"]="activity_bill_added.png";
-                    $imageLink["update"]="activity_bill_updated.png";
-                    $imageLink["delete"]="activity_bill_deleted.png";
-                    $imageLink["pay"]="activity_bill_paid.png";
-                    $image=$imageLink[$v->action];
-                                        if(in_array($v->action,["add","update","delete"])){ ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
-                    <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a href="{{BASE_URL}}bills/invoices/view/{{base64_encode($v->activity_for)}}">
-                    #{{sprintf('%06d', $v->activity_for)}}</a> <abbr class="timeago"
-                        title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
-                    <?php } else{ ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
-                    <a class="name"
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for {{$v->title}}</a> <abbr
-                        class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <a class="name"
-                        href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
-                    <?php } ?>
-                </div>
-            </td>
-        </tr>
+        @include('dashboard.include.invoice_activity_data')
         <?php }
         } ?>
     </tbody>
