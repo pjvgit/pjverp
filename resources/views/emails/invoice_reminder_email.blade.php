@@ -7,7 +7,7 @@
 @endcomponent
 @endslot
 
-<table style="padding:30px;margin:0 auto;max-width:600px;background-color:#ffff;box-sizing:border-box;border-collapse:collapse">  
+{{-- <table style="padding:30px;margin:0 auto;max-width:600px;background-color:#ffff;box-sizing:border-box;border-collapse:collapse">  
 <tr>
 <td style="padding:30px;">
 <div style=" max-width:540px;margin:0px auto;padding:20px">
@@ -19,7 +19,21 @@
 </div> 
 </td>
 </tr>
-</table>
+</table> --}}
+
+@php
+    $content = str_replace('[INVOICE_LINK]', '#', $template->content);
+    if($template->id == 22) {
+        $date = ($invoice->invoiceFirstInstallment) ? \Carbon\Carbon::parse($invoice->invoiceFirstInstallment->due_date) : \Carbon\Carbon::parse($invoice->due_date);
+        $content = str_replace('[INVOICE_DUE_DATE]', date("M d, Y", strtotime(convertUTCToUserDate($date->format("Y-m-d"), $user->user_timezone))), $content);
+    } else if($template->id == 24) {
+        $date = ($invoice->invoiceFirstInstallment) ? \Carbon\Carbon::parse($invoice->invoiceFirstInstallment->due_date) : \Carbon\Carbon::parse($invoice->due_date);
+        $txt = $date->isTomorrow() ? "tomorrow" : date("M d, Y", strtotime(convertUTCToUserDate($date->format("Y-m-d"), $user->user_timezone)));
+        $content = str_replace('[INVOICE_DUE_DATE]', $txt, $content);
+    } else {}
+    $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
+@endphp
+{!! $content !!}
 
 
 {{-- Footer --}}

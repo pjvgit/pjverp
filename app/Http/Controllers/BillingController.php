@@ -16,6 +16,7 @@ use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePractic
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice,App\TrustHistory;
 use App\CaseStage,App\TempUserSelection;
+use App\Jobs\InvoiceReminderEmailJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -2961,6 +2962,7 @@ class BillingController extends BaseController
             $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->created_by=Auth::User()->id; 
             $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
+            $InvoiceSave->firm_id = auth()->user()->firm_name;
             $InvoiceSave->save();
 
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
@@ -3308,7 +3310,7 @@ class BillingController extends BaseController
                     }else{
                         $v['shared']="no";
                         $v['sharedDate']=NULL;
-                        $v['isViewd']=$checkedUser['is_viewed'];
+                        $v['isViewd']=$checkedUser['is_viewed'] ?? "no";
                     }
                 }
                 $SharedInvoice=SharedInvoice::where("invoice_id",$Invoices['id'])->pluck("user_id");
@@ -3433,11 +3435,11 @@ class BillingController extends BaseController
     public function sendReminder(Request $request)
     {
         $invoice_id=$request->id;
-      
+        $invoice = Invoices::whereId($request->id)->with("invoiceFirstInstallment")->first();
         // echo Hash::make($invoice_id);
         $getAllClientForSharing=  SharedInvoice::join('users','users.id','=','shared_invoice.user_id')->leftJoin('users_additional_info','users_additional_info.user_id','=','shared_invoice.user_id')
         ->select("shared_invoice.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("shared_invoice.invoice_id",$invoice_id)->get();
-        return view('billing.invoices.sendInvoiceReminderPopup',compact('invoice_id','getAllClientForSharing'));     
+        return view('billing.invoices.sendInvoiceReminderPopup',compact('invoice_id','getAllClientForSharing', 'invoice'));     
         exit;    
     } 
 
@@ -3453,23 +3455,27 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $FindInvoice=Invoices::find($request->invoice_id);
+            $FindInvoice=Invoices::whereId($request->invoice_id)->with("invoiceFirstInstallment", "firmDetail")->first();
             $invoice_id=$request->invoice_id;
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
-                $email=$findUSer['email'];
-                $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
+                // $email=$findUSer['email'];
+                // $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
                         
-                $c=DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->first();
+                // $c=DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->first();
              
-                DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->update([
-                    'last_reminder_sent_on'=>date('Y-m-d h:i:s'),
-                    'reminder_sent_counter'=>$c->reminder_sent_counter+1,
-                ]);
-                
+                // DB::table('shared_invoice')->where("user_id",$v)->where("invoice_id",$invoice_id)->update([
+                //     'last_reminder_sent_on'=>date('Y-m-d h:i:s'),
+                //     'reminder_sent_counter'=>$c->reminder_sent_counter+1,
+                // ]);
+                $sharedInv = SharedInvoice::where("user_id", $v)->where("invoice_id", $invoice_id)->first();
+                $sharedInv->fill([
+                    'last_reminder_sent_on' => date('Y-m-d h:i:s'),
+                    'reminder_sent_counter' => $sharedInv->reminder_sent_counter + 1,
+                ])->save();
 
-                $firmData=Firm::find(Auth::User()->firm_name);
-                $getTemplateData = EmailTemplate::find(12);
+                // $firmData=Firm::find(Auth::User()->firm_name);
+                /* $getTemplateData = EmailTemplate::find(12);
                 // $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
                 $token=url('bills/invoices/view/'.base64_encode($FindInvoice['id']));
                 $mail_body = $getTemplateData->content;
@@ -3487,7 +3493,19 @@ class BillingController extends BaseController
                     "full_name" => $fullName,
                     "mail_body" => $mail_body
                 ];
-                $sendEmail = $this->sendMail($user);
+                $sendEmail = $this->sendMail($user); */
+
+                if($request->email_type == "past") {
+                    $emailTemplateId = 22;
+                } else if($request->email_type == "future") {
+                    $emailTemplateId = 24;
+                } else if($request->email_type == "present") {
+                    $emailTemplateId = 23;
+                }
+                $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
+                if($emailTemplate) {
+                    dispatch(new InvoiceReminderEmailJob($FindInvoice, $findUSer, $emailTemplate));
+                }
             }
             
             session(['popup_success' => 'Reminders have been sent']);
@@ -4423,6 +4441,7 @@ class BillingController extends BaseController
                 $totalPaid = $allPayment->sum("amount_paid");
                 $totalRefund = $allPayment->sum("amount_refund");
                 $remainPaidAmt = ($totalPaid - $totalRefund);
+                $dueAmount = ($InvoiceData['total_amount'] - $remainPaidAmt);
                 /* if(($totalPaid-$InvoiceData['total_amount'])==0){
                     $status="Paid";
                 }else{
@@ -4430,14 +4449,15 @@ class BillingController extends BaseController
                 } */
                 if($remainPaidAmt == 0) {
                     $status="Unsent";
+                } else if($dueAmount == 0) {
+                    $status = "Paid";
                 } else {
                     $status="Partial";
                 }
                 DB::table('invoices')->where("id",$invoiceId['id'])->update([
-                    // 'paid_amount'=>$totalPaid,
                     'paid_amount'=>$remainPaidAmt,
                     // 'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
-                    'due_amount'=>($InvoiceData['total_amount'] - $remainPaidAmt),
+                    'due_amount'=> $dueAmount,
                     'status'=>$status,
                 ]);
 
@@ -6053,6 +6073,7 @@ class BillingController extends BaseController
 
                 $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
                 $InvoiceSave->invoice_token=Str::random(250);
+                $InvoiceSave->firm_id = auth()->user()->firm_name;
                 $InvoiceSave->save();
 
 

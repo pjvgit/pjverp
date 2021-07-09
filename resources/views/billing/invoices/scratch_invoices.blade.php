@@ -182,7 +182,7 @@ if(!isset($adjustment_token)){
                                     <td style=" vertical-align: bottom;">
                                         <select id="bill_sent_status" name="bill_sent_status" class="custom-select">
                                             <option value="Draft">Draft</option>
-                                            <option value="Unsent">Unsent</option>
+                                            <option value="Unsent" selected>Unsent</option>
                                             <option value="Sent">Sent</option>
                                         </select>
                                     </td>
