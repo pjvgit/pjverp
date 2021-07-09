@@ -54,8 +54,7 @@ class CaseEventReminder extends Authenticatable
         } else {
             $remindTime = Carbon::parse($value)->format('Y-m-d H:i:s');
         }
-        if($remindTime != '') 
-            $this->attributes['remind_at'] = convertTimeToUTCzone($remindTime, auth()->user()->user_timezone);
+        $this->attributes['remind_at'] = $remindTime;
     }
 
     /**
