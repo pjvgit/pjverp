@@ -1528,8 +1528,7 @@ class ClientdashboardController extends BaseController
             $CaseMasterCompany = $CaseMasterCompany->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
         }
         $CaseMasterCompany=$CaseMasterCompany->where('user_level',"4")->whereIn('user_status',["1","2"])->get();
-
-
+        
         //Get client list with client enable portal is active
          $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id");
         $user = $user->where("user_level","2"); //Load all client 
@@ -1544,34 +1543,26 @@ class ClientdashboardController extends BaseController
         $user = $user->whereIn("users.user_status",[1,2]);
         $clientLists=$user->get();
 
-
-
         //Get firm user list 
         $loadFirmUser = User::select("first_name","last_name","id")
-        ->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->orderBy("id","DESC")->get();
-
-
+        ->where("firm_name",Auth::user()->firm_name)
+        ->whereIn("user_level",['1','3'])
+        ->doesntHave("deactivateUserDetail")
+        ->orderBy("id","DESC")->get();
+        
         //Get all active case list with client portal enabled.
-        $getChildUsers =$this->getParentAndChildUserIds();
-        $CaseMasterDataIds = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
-        $caseIds=[];
-        foreach($CaseMasterDataIds as $k=>$v){
-            $caseCllientSelection = CaseClientSelection::select("case_client_selection.selected_user")
-            ->where("case_client_selection.case_id",$v['id'])
-            ->get()
-            ->pluck("selected_user");
-
-            $compnayIdWithEnablePortal = DB::table("users_additional_info")
-            ->select("id")
-            ->whereIn("user_id",$caseCllientSelection)
-            ->where("client_portal_enable",1)
-            ->get();
-          
-            if(!$compnayIdWithEnablePortal->isEmpty()){
-                $caseIds[]=$v['id'];
-            }
+        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        if(Auth::user()->parent_user==0){
+            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+            $getChildUsers[]=Auth::user()->id;
+            $case = $case->whereIn("case_master.created_by",$getChildUsers);
+        }else{
+            $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
+            $case = $case->whereIn("case_master.id",$childUSersCase);
         }
-        $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->whereIn('id',$caseIds)->get();
+        $case = $case->where("case_close_date", NULL);
+        $case = $case->where("case_master.is_entry_done","1");
+        $CaseMasterData = $case->get();
         return view('client_dashboard.sendMessage',compact('CaseMasterData','CaseMasterCompany','loadFirmUser','clientLists'));     
         exit;
     }
