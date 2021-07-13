@@ -26,6 +26,7 @@ var caseStep1ValidateOptions = {
             minlength: 2
         },
         email: {
+            required: true,
             email: true
         },
         website: {
@@ -54,6 +55,7 @@ var caseStep1ValidateOptions = {
             minlength: "Last name must consist of at least 2 characters"
         },
         email: {
+            required: "Please enter e-mail",
             minlength: "Email is not formatted correctly"
         },
         website: {
