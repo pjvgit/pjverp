@@ -184,7 +184,7 @@
                                                 title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i
                                                     class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
-                                            <input type="checkbox" name="automated_reminders" id="automated_reminders" <?php if($findInvoice->automated_reminder=="yes"){ echo "checked=checked";} ?>><span
+                                            <input type="checkbox" name="automated_reminders" id="automated_reminders" <?php if($findInvoice->automated_reminder=="yes"){ echo "checked=checked";} ?> @if($findInvoice->payment_term == 5) disabled @endif><span
                                                 class="slider"  >
                                             </span>
                                         </label>

@@ -1197,7 +1197,7 @@ class BillingController extends BaseController
          $totalFiltered = $totalData; 
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
         $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $Invoices = $Invoices->get();
+        $Invoices = $Invoices->with("invoiceForwardedToInvoice")->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
              "recordsTotal"    => intval( $totalData ),  
@@ -2042,7 +2042,14 @@ class BillingController extends BaseController
             $maxInvoiceNumber=Invoices::max("id")+1;
 
             $adjustment_token=$request->token;
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken'));
+
+            // Get unpaid balances invoices list
+            $unpaidInvoices = [];
+            if($caseMaster) {
+                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->get();
+            }
+
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices'));
         }else{
             return view('pages.404');
         }
@@ -2918,21 +2925,7 @@ class BillingController extends BaseController
             "contact.required"=>"Billing user can't be blank",
             "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"
-        ]);
-        /* $request->validate([
-            'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
-            'court_case_id' => 'required|numeric',
-            'contact' => 'required|numeric',
-            'total_text' => 'required',
-            'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array'
-        ],["invoice_number_padded.unique"=>"Invoice number is already taken",
-        "invoice_number_padded.required"=>"Invoice number must be greater than 0",
-        "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
-        "contact.required"=>"Billing user can't be blank",
-        "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
-        "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"]); */
-          
+        ]);          
        
             // print_r($request->all());exit;
             DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number_padded)->delete();
@@ -3130,6 +3123,24 @@ class BillingController extends BaseController
                     $InvoiceInstallment->firm_id=Auth::User()->firm_name; 
                     $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
                     $InvoiceInstallment->save();
+                }
+            }
+
+            if(count($request->forwarded_invoices)) {
+                $InvoiceSave->forwardedInvoices()->sync($request->forwarded_invoices);
+                $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
+                if($forwardedInvoices) {
+                    foreach($forwardedInvoices as $key => $item) {
+                        $item->fill(["status" => "Forwarded"])->save();
+                        InvoiceHistory::create([
+                            "invoice_id" => $item->id,
+                            "acrtivity_title" => "balance forwarded",
+                            "amount" => $item->due_amount,
+                            "responsible_user" => auth()->id(),
+                            "notes" => "Forwarded to ".$InvoiceSave->invoice_id,
+                            "created_by" => auth()->id()
+                        ]);
+                    }
                 }
             }
 

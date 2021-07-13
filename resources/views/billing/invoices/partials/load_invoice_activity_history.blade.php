@@ -21,6 +21,8 @@
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="'.$noteText.'" data-original-title="Dismissible popover">View Refund Notes</a>';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
+                        }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
+                            $notes=$value->notes;
                         }else{
                             $notes="<i class='table-cell-placeholder'></i>";
                         }  
@@ -54,7 +56,7 @@
                             <?php }else{
                                 ?> <span class="bill-history-indicator"></span>
                             <?php } ?>
-                            {{$value->acrtivity_title}}
+                            {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">
                             {{$value->added_date}}
@@ -71,18 +73,19 @@
                             ?>
                         </td>
                         <td class="invoice-history-row-amount">
-                            <?php if($value->acrtivity_title=="Payment Received"){?>
-                                <?php if($value->refund_amount!=NULL){
-                                    ?>${{$value->refund_amount}}<?php 
-                                }else{
-                                    ?> ${{number_format($value->amount,2)}}<?php
-                                }?>
-                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                            @if($value->acrtivity_title=="Payment Received")
+                                @if($value->refund_amount!=NULL)
+                                    ${{$value->refund_amount}}
+                                @else
+                                    ${{number_format($value->amount,2)}}
+                                @endif
+                            @elseif($value->acrtivity_title=="Payment Refund")
                                 (${{number_format($value->amount,2)}})
-                                
-                            <?php } else {  ?>
+                            @elseif($value->amount)
+                                ${{number_format($value->amount,2)}}
+                            @else
                             <i class="table-cell-placeholder"></i> 
-                            <?php  } ?>
+                            @endif
                         </td>
                         <td class="invoice-history-row-user">
                             <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">
@@ -147,6 +150,8 @@
                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Refund Notes</a>';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
+                        }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
+                            $notes=$value->notes;
                         }else{
                             $notes="<i class='table-cell-placeholder'></i>";
                         }  
@@ -180,7 +185,7 @@
                             <?php }else{
                                 ?> <span class="bill-history-indicator"></span>
                             <?php } ?>
-                            {{$value->acrtivity_title}}
+                            {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">
                             {{$value->added_date}}
@@ -200,19 +205,19 @@
                         </td>
                         <td class="invoice-history-row-amount">
                             
-                            <?php if($value->acrtivity_title=="Payment Received"){?>
-                                <?php if($value->refund_amount!=NULL){
-                                    ?>${{$value->refund_amount}}<?php 
-                                }else{
-                                    ?> ${{number_format($value->amount,2)}}<?php
-                                }?>
-                            
-                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                            @if($value->acrtivity_title=="Payment Received")
+                                @if($value->refund_amount!=NULL)
+                                    ${{$value->refund_amount}}
+                                @else
+                                    ${{number_format($value->amount,2)}}
+                                @endif
+                            @elseif($value->acrtivity_title=="Payment Refund")
                                 (${{number_format($value->amount,2)}})
-                                
-                            <?php } else {  ?>
+                            @elseif($value->amount)
+                                ${{number_format($value->amount,2)}}
+                            @else
                             <i class="table-cell-placeholder"></i> 
-                            <?php  } ?>
+                            @endif
                         </td>
                         <td class="invoice-history-row-user">
                             <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">

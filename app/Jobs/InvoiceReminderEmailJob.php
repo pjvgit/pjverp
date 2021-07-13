@@ -35,7 +35,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        // Log::info("invoice job handle");
+        Log::info("invoice job handle");
         Mail::to($this->user->email)->send((new InvoiceReminderMail($this->invoice, @$this->invoice->firmDetail, $this->user, $this->emailTemplate)));
     }
 }

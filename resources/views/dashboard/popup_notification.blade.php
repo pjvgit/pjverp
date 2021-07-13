@@ -26,7 +26,7 @@
     </table>
 </div>
 <div class="modal-footer">
-    <select class="snooze-time btn btn-secondary">
+    {{-- <select class="snooze-time btn btn-secondary">
         <option value="5" data-snooze-type="min">Snooze 5 mins</option>
         <option value="10" data-snooze-type="min">Snooze 10 mins</option>
         <option value="15" data-snooze-type="min">Snooze 15 mins</option>
@@ -35,24 +35,42 @@
         <option value="2" data-snooze-type="hour">Snooze 2 hours</option>
         <option value="1" data-snooze-type="day">Snooze 1 day</option>
         <option value="1" data-snooze-type="week">Snooze 1 week</option>
-    </select>
-    <select class="dismiss-notification btn btn-primary">
+    </select> --}}
+    <div role="group" class="btn-group">
+        <button type="button" value="5" data-snooze-type="min" class="btn btn-secondary ladda-button example-button snooze-time">
+            Snooze 5 mins
+        </button>
+        <div class="btn-group">
+            <button type="button" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-secondary" data-toggle="dropdown">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
+                <button type="button" tabindex="0" value="10" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 10 mins</button>
+                <button type="button" tabindex="0" value="15" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 15 mins</button>
+                <button type="button" tabindex="0" value="30" data-snooze-type="min" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 30 mins</button>
+                <button type="button" tabindex="0" value="1" data-snooze-type="hour" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 1 hour</button>
+                <button type="button" tabindex="0" value="2" data-snooze-type="hour" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 2 hour</button>
+                <button type="button" tabindex="0" value="1" data-snooze-type="day" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 1 day</button>
+                <button type="button" tabindex="0" value="1" data-snooze-type="week" role="menuitem" class="dropdown-item cursor-pointer snooze-time">Snooze 1 week</button>
+            </div>
+        </div>
+    </div>
+    {{-- <select class="dismiss-notification btn btn-primary">
         <option value="dismiss">Dismiss</option>
         <option value="dismiss-all">Dismiss All</option>
-    </select>
-    {{-- <div class = "btn-group">
-        <button type = "button" class = "btn btn-primary dropdown-toggle btn-sm" data-toggle = "dropdown">
-           Primary
-           <span class = "caret"></span>
+    </select> --}}
+    <div role="group" class="btn-group">
+        <button type="button" value="dismiss" class="btn btn-primary ladda-button example-button dismiss-notification">
+            Dismiss
         </button>
-        <ul class = "dropdown-menu" role = "menu">
-           <li><a href = "#">Action</a></li>
-           <li><a href = "#">Another action</a></li>
-           <li><a href = "#">Something else here</a></li>
-           
-           <li class = "divider"></li>
-           <li><a href = "#">Separated link</a></li>
-        </ul>
-     </div> --}}
+        <div class="btn-group">
+            <button type="button" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
+                <button type="button" tabindex="0" value="dismiss-all" role="menuitem" class="dropdown-item cursor-pointer dismiss-notification">Dismiss All</button>
+            </div>
+        </div>
+    </div>
 </div>
             

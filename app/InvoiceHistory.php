@@ -15,8 +15,8 @@ class InvoiceHistory extends Authenticatable
     protected $table = "invoice_history";
     public $primaryKey = 'id';
 
-    protected $fillable = ["invoice_id", "lead_invoice_id", "lead_id", "activity_title", "pay_method", "amount", "responsible_user", "deposit_into", 
-        "deposit_into_id", "invoice_payment_id", "status", "notes", "refund_ref_id"];
+    protected $fillable = ["invoice_id", "lead_invoice_id", "lead_id", "acrtivity_title", "pay_method", "amount", "responsible_user", "deposit_into", 
+        "deposit_into_id", "invoice_payment_id", "status", "notes", "refund_ref_id", "created_by", "updated_by"];
 
     protected $appends  = ['added_date','responsible','refund_amount'];
     public function getCreatedatnewformateAttribute(){

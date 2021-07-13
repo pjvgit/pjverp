@@ -187,7 +187,7 @@ if(!isset($adjustment_token)){
                                                 title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i
                                                     class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
-                                            <input type="checkbox" name="automated_reminders" id="automated_reminders"><span
+                                            <input type="checkbox" name="automated_reminders" id="automated_reminders" disabled><span
                                                 class="slider">
                                             </span>
                                         </label>
@@ -763,7 +763,54 @@ if(!isset($adjustment_token)){
                                 </tbody>
                             </table>
                         </div>
-
+                        
+                        @if(count($unpaidInvoices))
+                        <div style="margin-top: 15px;">
+                            <div class="invoice_entry_header">
+                                <table>
+                                    <tr>
+                                        <td width="100%">
+                                            <h3 class="entry-header">Unpaid Balances Invoices</h3>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="clear-header"></div>
+                            </div>
+                            <table class="data invoice_entries" id="unpaid_balance_invoices">
+                                <thead>
+                                    <th style="text-align: center">Forward Invoice</th>
+                                    <th>Invoice #</th>
+                                    <th>Invoice Total</th>
+                                    <th>Amount Paid</th>
+                                    <th>Balance Due</th>
+                                    <th>Due Date</th>
+                                    <th>Line Total</th>
+                                </thead>
+                                <tbody>
+                                    @forelse ($unpaidInvoices as $invkey => $invitem)
+                                        <tr>
+                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}"></td>
+                                            <td>{{ $invitem->invoice_id }}</td>
+                                            <td>{{ $invitem->total_amount }}</td>
+                                            <td>{{ $invitem->paid_amount }}</td>
+                                            <td>{{ $invitem->due_amount }}</td>
+                                            <td>{{ date("m/d/Y", strtotime($invitem->due_date)) }}</td>
+                                            <td style="text-align: right"><span id="unpaid_amt_{{$invitem->id}}"><span></td>
+                                        </tr>
+                                    @empty
+                                    @endforelse
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6" style="text-align: right;">{{ @$caseMaster->case_title }} balance forward:</td>
+                                        <td><div class="locked" style="text-align: right;">
+                                            $<span id="unpaid_invoice_total">0.00</span>
+                                        </div></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        @endif
 
                         <div style="margin-top: 15px;">
 
@@ -2722,14 +2769,14 @@ if(!isset($adjustment_token)){
 
                     if ($("#with_first_payment").is(":checked") && loopVar==1) {
                         firstInstallment=$("#first_payment_amount").val().replace(',', '');
-                        countSum+=parseFloat(firstInstallment);
+                        countSum = parseFloat(countSum) + parseFloat(firstInstallment.replace(',', ''));
                     }else{
                         firstInstallment=amount_per_installment_field;
                         if(loopVar==number_installment_field){
                             totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                             firstInstallment=totalAMT-countSum;
                         }else{
-                            countSum+=parseFloat(firstInstallment);
+                            countSum = parseFloat(countSum) + parseFloat(firstInstallment.replace(',', ''));
                         }
                     
                     }

@@ -33,14 +33,13 @@ class InvoiceReminderMail extends Mailable
      */
     public function build()
     {
-        $subject = str_replace('[INVOICE_NUMBER]', "#".sprintf('%06d', $this->invoice->id), $this->template->subject);
+        $subject = str_replace('[INVOICE_NUMBER]', "#".$this->invoice->invoice_id, $this->template->subject);
         $subject = str_replace('[FIRM_NAME]', @$this->firm->firm_name, $subject);
         if($this->template->id == 24) {
             $date = ($this->invoice->invoiceFirstInstallment) ? Carbon::parse($this->invoice->invoiceFirstInstallment->due_date) : Carbon::parse($this->invoice->due_date);
             $txt = $date->isTomorrow() ? "tomorrow" : "soon";
             $subject = str_replace('[TOMO_SOON]', $txt, $subject);
         }
-        // Log::info("Invoice subject". $subject);
         return $this
             ->subject($subject)
             ->markdown('emails.invoice_reminder_email', ['invoice' => $this->invoice, 'firm' => $this->firm, 'user' => $this->user, 'template' => $this->template]);

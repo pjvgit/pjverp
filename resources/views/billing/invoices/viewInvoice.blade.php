@@ -13,6 +13,7 @@
                     <h3> Invoice #{{$invoiceNo}} </h3>
                     <input type="hidden" value="{{ @$findInvoice->id }}" id="invoice_id">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
+                        @if($findInvoice->status != "Forwarded")
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->invoice_unique_token}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
@@ -21,7 +22,7 @@
                             {{-- <a class="btn btn-outline-secondary  m-1" href="{{BASE_URL}}bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}">Edit</a> --}}
                             <a class="btn btn-outline-secondary  m-1" href="{{ route('bills/invoices/edit', base64_encode($findInvoice->id)) }}?token={{base64_encode($findInvoice->id)}}">Edit</a>
                         </div>
-
+                        @endif
                         <div id="send-pay-link" class="pl-1">
                             <a id="delete-bill" class="btn btn-outline-secondary m-1" data-toggle="modal"
                                 data-target="#emailInvoicePopup" data-placement="bottom" href="javascript:;"
@@ -37,6 +38,7 @@
 
 
                         </div>
+                        @if($findInvoice->status != "Forwarded")
                         <?php
                         if($SharedInvoiceCount>0){?>
                         <div id="share-via-portal" class="pl-1">
@@ -52,6 +54,7 @@
                                 title=""
                                 data-original-title="A client credit card entry link is not available because your firm has not signed up for  {{config('app.name')}} Payments. Please enable  {{config('app.name')}} Payments to use this feature"></i>
                         </a>
+                        @endif
                         <?php $id=base64_encode($findInvoice->id);?>
                         <a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice"
                             onclick="downloadPDF('{{$id}}');">
@@ -63,12 +66,14 @@
                             <i class="fas fa-print test-print-bill" id="print-bill-button" data-toggle="tooltip"
                                 data-original-title="Print"></i>
                         </a>
+                        @if($findInvoice->status != "Forwarded")
                         <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"
                             data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;">
                             <i class="fas fa-trash test-delete-bill" data-bill-id="12211253" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Delete"
                                 onclick="deleteInvoice({{$findInvoice->id}})"></i>
                         </a>
+                        @endif
                     </div>
 
                 </div>
@@ -395,6 +400,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
     i.invoice-banner-overdue {
         background-image: url('{{ asset("images/invoice_banner_overdue.png") }}');
+        height: 127px;
+        width: 127px;
+    }
+    i.invoice-banner-forwarded {
+        background-image: url('{{ asset("images/invoice_banner_forwarded.png") }}');
         height: 127px;
         width: 127px;
     }

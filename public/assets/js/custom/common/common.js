@@ -32,9 +32,9 @@ function popupNotification() {
 /**
  * Snooze popup notification
  */
-$(document).on("change", ".snooze-time", function() {
+$(document).on("click", ".snooze-time", function() {
     var snoozeTime = $(this).val();
-    var snoozeType = $(this).find(':selected').attr("data-snooze-type");
+    var snoozeType = $(this).attr("data-snooze-type");
     var reminderId = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id');
     var reminderType = $(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type');
     $.ajax({
@@ -52,7 +52,7 @@ $(document).on("change", ".snooze-time", function() {
 /**
  * Dismiss popup notification
  */
-$(document).on("change", ".dismiss-notification", function() {
+$(document).on("click", ".dismiss-notification", function() {
     var disVal = $(this).val();
     var reminderEventId = [], reminderTaskId = [];
     if(disVal == "dismiss-all") {
