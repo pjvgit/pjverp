@@ -2044,11 +2044,11 @@ class ClientdashboardController extends BaseController
     public function downloadFormat(Request $request)
     {
         if($request->section=="contact"){
-            $filename = BASE_URL.'/import/Case_Contact_Import_Template.csv';
+            $filename = public_path('import/Case_Contact_Import_Template.csv');
         }elseif($request->section=="cases"){
-            $filename = BASE_URL.'/import/Legalcase_Case_Import_Template.csv';
+            $filename = public_path('import/Legalcase_Case_Import_Template.csv');
         }else{
-             $filename =BASE_URL.'/import/Case_Company_Import_Template.csv';
+             $filename =public_path('import/Case_Company_Import_Template.csv');
         }
         return response()->json(['errors'=>'','url'=>$filename]);
     }
@@ -2056,25 +2056,25 @@ class ClientdashboardController extends BaseController
     public function createAndImports(Request $request)
     {
         File::deleteDirectory(public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name));
-        if(!is_dir('/import/'.date('Y-m-d').'/'.Auth::User()->firm_name)) {
-            File::makeDirectory('/import/'.date('Y-m-d').'/'.Auth::User()->firm_name, $mode = 0777, true, true);
+        if(!is_dir(public_path("import/".date('Y-m-d').'/'.Auth::User()->firm_name))) {
+            File::makeDirectory(public_path("import/".date('Y-m-d').'/'.Auth::User()->firm_name), $mode = 0777, true, true);
         }
         if($request->format=="vcard"){
             $this->generateContactvCard($request->all());
-            $CSV[] = "/import/".date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf" ;
+            $CSV[] = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf");
 
             if($request->include_companies=="1"){
                 $this->generateCompanyvCard($request->all());
-                $CSV[] = "/import/".date('Y-m-d').'/'.Auth::User()->firm_name."/companies.vcf" ;
+                $CSV[] = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.vcf");
             }
         }  
         if($request->format=="outlook_csv" || $request->format=="mycase_csv"){
             $this->generateClientCSV($request->all());
-            $CSV[] = "/import/".date('Y-m-d').'/'.Auth::User()->firm_name."/contact.csv" ;
+            $CSV[] = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contact.csv");
     
             if($request->include_companies=="1"){
-                $CSV[] = "/import/".date('Y-m-d').'/'.Auth::User()->firm_name."/companies.csv" ;
                 $this->generateCompanyCSV($request->all());
+                $CSV[] = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.csv");
             }
         }  
         $zip = new ZipArchive;
@@ -2083,14 +2083,13 @@ class ClientdashboardController extends BaseController
         $timeName = str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-contacts-".date("m-d-Y");
         $zipFileName = $storage_path . '/' . $timeName . '.zip';
         
-     
         $zipPath = asset($zipFileName);
-        if ($zip->open(($zipFileName), ZipArchive::CREATE) === true) {
+        if ($zip->open((public_path($zipFileName)), ZipArchive::CREATE) === true) {
             foreach ($CSV as $relativName) {
                 $zip->addFile($relativName,basename($relativName));
             }
             $zip->close();
-            if ($zip->open($zipFileName) === true) {
+            if ($zip->open(public_path($zipFileName)) === true) {
                 $Path= $zipPath;
             } else {
                 $Path="";
@@ -2216,13 +2215,16 @@ class ClientdashboardController extends BaseController
         // print_r($clientCsvData);
         // exit;
         
-        $filename="contact.csv";
-        $file_path=public_path().'/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/".$filename;   
+        $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        $file_path =  $folderPath.'/contact.csv';  
         $file = fopen($file_path,"w+");
         foreach ($clientCsvData as $exp_data){
           fputcsv($file,explode('|',$exp_data));
         }   
-        fclose($file);   
+        fclose($file); 
         return true; 
     }
 
@@ -2281,14 +2283,18 @@ class ClientdashboardController extends BaseController
                 $contacts='';
             }
             $createdAt=date('m/d/Y',strtotime($clientVal->uct));
-            $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|0"."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|"."|".$createdAt;
+            $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|0"."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|".$createdAt;
         }
        
-        $filename="companies.csv";
-        $file_path=public_path().'/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/".$filename;   
+        // $file_path=public_path().'/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/".$filename;   
+        $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        $file_path =  $folderPath.'/companies.csv'; 
         $file = fopen($file_path,"w+");
         foreach ($CompanyCsvData as $exp_data){
-          fputcsv($file,explode(',',$exp_data));
+          fputcsv($file,explode('|',$exp_data));
         }   
         fclose($file);  
     }
@@ -2320,8 +2326,13 @@ class ClientdashboardController extends BaseController
 
         }
 
-        $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf"; // you can specify path here where you want to store file.
-        $file = fopen($filePath,"w");
+        // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/contacts.vcf"; // you can specify path here where you want to store file.
+        $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        $file_path =  $folderPath.'/contacts.vcf'; 
+        $file = fopen($file_path,"w");
         fwrite($file,$vCard);
         fclose($file);
 
@@ -2352,8 +2363,13 @@ class ClientdashboardController extends BaseController
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
             $vCard .= "END:VCARD\r\n";
         }
-        $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.vcf"; // you can specify path here where you want to store file.
-        $file = fopen($filePath,"w");
+        // $filePath = '/import/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.vcf"; // you can specify path here where you want to store file.
+        $folderPath = public_path('import/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        $file_path =  $folderPath.'/companies.vcf'; 
+        $file = fopen($file_path,"w");
         fwrite($file,$vCard);
         fclose($file);
 
