@@ -64,7 +64,7 @@
                                 <?php 
                                 if(!empty($CaseMasterData)){?>
                                 <a
-                                    href="{{BASE_URL}}court_cases/{{$CaseMasterData->case_unique_number}}">{{$CaseMasterData->case_title}}</a>
+                                    href="{{ route('info', $CaseMasterData->case_unique_number) }}">{{$CaseMasterData->case_title}}</a>
                                 <?php } else  { ?>
                                 Not specified
                                 <?php } ?>
@@ -119,7 +119,7 @@
                                                     foreach($caseLinkedStaffList as $kstaff=>$vstaff){?>
                                                         <div class="col-8">
                                                             <div class="d-flex flex-row">
-                                                                <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($vstaff->id)}}"
+                                                                <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff->id)) }}"
                                                                     class="d-flex align-items-center user-link"
                                                                     title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                                     {{substr($vstaff->last_name,0,15)}}
@@ -138,7 +138,7 @@
                                                     foreach($CaseEventLinkedContactLead as $kstaff=>$vstaff){?>
                                                         <div class="col-8">
                                                             <div class="d-flex flex-row">
-                                                                <a href="{{BASE_URL}}contacts/clients/{{$vstaff->contact_id}}"
+                                                                <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
                                                                     class="d-flex align-items-center user-link"
                                                                     title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                                     {{substr($vstaff->last_name,0,15)}}

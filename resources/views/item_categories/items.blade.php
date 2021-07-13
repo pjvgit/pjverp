@@ -7,7 +7,7 @@
     <div class="col-md-12">
         <div class="card text-left">
             <div class="card-body">
-                <a href={{ route('events/') }}?view=month>Back to Calendar</a>               
+                <a href="{{ route('events/') }}?view=month">Back to Calendar</a>               
                 <h4 class="mt-4">Event Types</h4>
              
                 <div>    

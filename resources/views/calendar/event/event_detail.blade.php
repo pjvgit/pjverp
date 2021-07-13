@@ -91,7 +91,7 @@
                             <div class="detail-info  col-9">
                                 @if(!empty($evetData->case))
                                 <a
-                                    href="{{ route('caseview', $evetData->case->case_unique_number) }}">{{ $evetData->case->case_title }}</a>
+                                    href="{{ route('info', $evetData->case->case_unique_number) }}">{{ $evetData->case->case_title }}</a>
                                 @else
                                 Not specified
                                 @endif
@@ -145,7 +145,7 @@
                                                     @foreach($evetData->eventLinkedStaff as $kstaff=>$vstaff)
                                                         <div class="col-8">
                                                             <div class="d-flex flex-row">
-                                                                <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($vstaff->id)}}"
+                                                                <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff->id)) }}"
                                                                     class="d-flex align-items-center user-link"
                                                                     title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                                     {{substr($vstaff->last_name,0,15)}}
@@ -164,7 +164,7 @@
                                                     foreach($CaseEventLinkedContactLead as $kstaff=>$vstaff){?>
                                                         <div class="col-8">
                                                             <div class="d-flex flex-row">
-                                                                <a href="{{BASE_URL}}contacts/clients/{{$vstaff->contact_id}}"
+                                                                <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
                                                                     class="d-flex align-items-center user-link"
                                                                     title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                                     {{substr($vstaff->last_name,0,15)}}

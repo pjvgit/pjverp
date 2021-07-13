@@ -69,7 +69,7 @@ $userTypes = unserialize(USER_TYPE);
     <div class="history-info col-8">
         <span>Event added by
             <a class=""
-                href="{{BASE_URL}}contacts/attorneys/{{base64_encode($eventCreatedBy->id)}}">{{substr($eventCreatedBy->first_name,0,15)}}
+            href="{{ route('contacts/attorneys/info', base64_encode($eventCreatedBy->id)) }}">{{substr($eventCreatedBy->first_name,0,15)}}
                 {{substr($eventCreatedBy->last_name,0,15)}}
                 ({{$userTypes[$eventCreatedBy->user_type]}})
             </a>
