@@ -1079,9 +1079,9 @@ td,th{
                         return false;
                     } else {
                         $("#adjustmentBulkInvoice").modal("hide");
-                        $("#adjustmentNotApplied").modal("show");
+                        // $("#adjustmentNotApplied").modal("show");
                         $(".my-3").html(res.list);
-                      //  window.location.reload();
+                        window.location.reload();
                     }
                 },
                 error: function (xhr, status, error) {
