@@ -14,6 +14,8 @@
                     <i class="invoice-banner-paid"></i>
                 <?php }else if($findInvoice->status=="Overdue"){?>
                     <i class="invoice-banner-overdue"></i>
+                <?php }else if($findInvoice->status=="Forwarded"){?>
+                    <i class="invoice-banner-forwarded"></i>
                 <?php } ?>
             </td>
             <td style="vertical-align: top; white-space: nowrap; width: 350px;"

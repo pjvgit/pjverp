@@ -898,7 +898,13 @@ td,th{
                     
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.total_amount_new+'</div>');
                     $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.paid_amount_new+'</div>');
-                    $('td:eq(7)', nRow).html('<div class="text-left">$'+aData.due_amount_new+'</div>');
+                    var fwd = "";
+                    if(aData.status == "Forwarded") {
+                        $.each(aData.invoice_forwarded_to_invoice, function(invkey, invitem) {
+                            fwd = '<div style="font-size: 11px;">Forwarded to <a href="'+baseUrl+'/bills/invoices/view/'+invitem.decode_id+'">'+invitem.invoice_id+'</a></div>'
+                        });
+                    }
+                    $('td:eq(7)', nRow).html('<div class="text-left">$'+aData.due_amount_new+'</div><div>'+fwd+'</div>');
                     $('td:eq(8)', nRow).html('<div class="text-left">'+aData.due_date_new+'</div>');
                     $('td:eq(9)', nRow).html('<div class="text-left">'+aData.created_date_new+'</div>');
                     
@@ -926,17 +932,20 @@ td,th{
                     }else{
                         $('td:eq(11)', nRow).html('<div class="text-left">Yes</div>');
                     }
-
-                    var reminder='';
-                    if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
-                        var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                    if(aData.status == "Forwarded") {
+                        $('td:eq(12)', nRow).html('');
+                    } else {
+                        var reminder='';
+                        if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
+                            var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                        }
+                        var dollor='&nbsp;';
+                        if(aData.status!="Paid"){
+                            var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
+                        }
+                        var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                        $('td:eq(12)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     }
-                    var dollor='&nbsp;';
-                    if(aData.status!="Paid"){
-                        var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
-                    }
-                    var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
-                    $('td:eq(12)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                 },
                 "initComplete": function(settings, json) {
                     $('[data-toggle="tooltip"]').tooltip();

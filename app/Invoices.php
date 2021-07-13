@@ -104,7 +104,7 @@ class Invoices extends Model
      } 
 
      public function getInvoiceIdAttribute(){
-        return sprintf("%05d", $this->id);
+        return sprintf("%06d", $this->id);
     }
     
     /**
@@ -145,5 +145,35 @@ class Invoices extends Model
     public function firmDetail()
     {
         return $this->belongsTo(Firm::class, 'firm_id');
+    }
+
+    /**
+     * Get all of the invoiceShared for the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoiceShared()
+    {
+        return $this->hasMany(SharedInvoice::class, 'invoice_id');
+    }
+
+    /**
+     * The forwardedInvoices that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function forwardedInvoices()
+    {
+        return $this->belongsToMany(Invoices::class, 'invoice_forwarded_invoices', 'invoice_id', 'forwarded_invoice_id');
+    }
+
+    /**
+     * Get invoice Forwarded To Invoice that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceForwardedToInvoice()
+    {
+        return $this->belongsToMany(Invoices::class, 'invoice_forwarded_invoices', 'forwarded_invoice_id', 'invoice_id');
     }
 }

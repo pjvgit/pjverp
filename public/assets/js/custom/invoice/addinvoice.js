@@ -298,10 +298,27 @@ $(document).ready(function () {
     }
 
     if(selectdValue==""){
-        $("#automated_reminders").prop("checked",false);
+        $("#automated_reminders").prop("checked",false);/*  */
+        $("#automated_reminders").prop("disabled",true);
         $('#bill_due_date').val('');
     }else{
+        $("#automated_reminders").prop("disabled",false);
         $("#automated_reminders").prop("checked",true);
     }
  
 }
+
+$(document).on("change", ".forwarded-invoices-check", function() {
+    var lineTotal = 0.00;
+    $(".forwarded-invoices-check").each(function(ind, item) {
+        var dueAmt = 0.00;
+        if($(this).is(":checked")) {
+            dueAmt = $(this).attr("data-due-amount");
+            $("#unpaid_amt_"+$(this).val()).text(dueAmt);
+        } else {
+            $("#unpaid_amt_"+$(this).val()).text("");
+        }
+        lineTotal += parseFloat(dueAmt);
+    });
+    $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+});
