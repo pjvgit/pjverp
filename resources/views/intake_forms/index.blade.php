@@ -33,17 +33,17 @@
                         foreach($ContactUSIntakeForm as $k=>$v){?>
                         <tr>
                             <td>
-                                <a href="{{BASE_URL}}form_templates/{{$v->form_unique_id}}">
+                                <a href="{{ route('form_templates/view', $v->form_unique_id) }}">
                                     {{$v->form_name}}
                                 </a>
                             </td>
                             <td class="text-right">
-                                <a onclick="copyLink('{{$v->id}}')" link="{{BASE_URL}}contact_us/{{$v->form_unique_id}}" id="{{$v->id}}" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle  mr-4" data="MyText"></i></span>
+                                <a onclick="copyLink('{{$v->id}}')" link="{{ route('contact_us/view', $v->form_unique_id) }}" id="{{$v->id}}" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle  mr-4" data="MyText"></i></span>
                                 </a>
-                                <a onclick="copyHTMLCode('{{$v->id}}')" link='<iframe src="{{BASE_URL}}contact_us/{{$v->form_unique_id}}" title="Contact Us Form" style="border:none;" width="600" height="800"><!-- Specify a width and height by changing the width/height properties of this iframe --></iframe>' id="Code{{$v->id}}" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy HTML Code"><i
+                                <a onclick="copyHTMLCode('{{$v->id}}')" link='<iframe src="{{ route('contact_us/view', $v->form_unique_id) }}" title="Contact Us Form" style="border:none;" width="600" height="800"><!-- Specify a width and height by changing the width/height properties of this iframe --></iframe>' id="Code{{$v->id}}" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy HTML Code"><i
                                     class="fas fa-code  align-middle  mr-4"></i></span>
                                 </a>
-                                <a href="{{BASE_URL}}form_templates/{{$v->form_unique_id}}" title="">
+                                <a href="{{ route('form_templates/view', $v->form_unique_id) }}" title="">
                                     <span data-toggle="tooltip" data-trigger="hover" title="" data-content="Edit"
                                         data-placement="top" data-html="true" data-original-title="Edit"> <i
                                             class="fas fa-pen align-middle mr-4"></i></span>
@@ -83,7 +83,7 @@
                         <tr>
 
                             <td>
-                                <a href="{{BASE_URL}}form_templates/{{$v->form_unique_id}}">
+                                <a href="{{ route('form_templates/view', $v->form_unique_id) }}">
                                     {{$v->form_name}}
                                 </a>
                             </td>
@@ -106,7 +106,7 @@
 
                                 </a>
 
-                                <a href="{{BASE_URL}}form_templates/{{$v->form_unique_id}}" title="">
+                                <a href="{{ route('form_templates/view', $v->form_unique_id) }}" title="">
                                     <span data-toggle="tooltip" data-trigger="hover" title="" data-content="Edit"
                                         data-placement="top" data-html="true" data-original-title="Edit"> <i
                                             class="fas fa-pen align-middle mr-4"></i></span>

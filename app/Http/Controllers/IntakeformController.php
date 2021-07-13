@@ -183,6 +183,11 @@ class IntakeformController extends BaseController
                 exit; 
                 // return redirect()->route('form_templates/{id}',[$IntakeForm->form_unique_id]);
                 // exit;
+            }else if($request->pressButton=="sc"){
+                return response()->json(['errors'=>'','url'=>route('form_templates')]);
+                exit; 
+                // return redirect()->route('form_templates/{id}',[$IntakeForm->form_unique_id]);
+                // exit;
             }else{
                 return response()->json(['errors'=>'','url'=>'']);
                 exit; 

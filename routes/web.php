@@ -695,7 +695,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('intake_form/loadFields','IntakeformController@loadFeilds')->name('intake_form/loadFields');
     Route::post('intake_form/loadFieldsSelected','IntakeformController@loadFieldsSelected')->name('intake_form/loadFieldsSelected');
     Route::post('intake_form/saveIntakeForm','IntakeformController@saveIntakeForm')->name('intake_form/saveIntakeForm');
-    Route::get('form_templates/{id}','IntakeformController@updateIntakeForm')->name('form_templates/{id}');
+    Route::get('form_templates/{id}','IntakeformController@updateIntakeForm')->name('form_templates/view');
     Route::post('intake_form/saveUpdateIntakeForm','IntakeformController@saveUpdateIntakeForm')->name('intake_form/saveUpdateIntakeForm');
     Route::post('intake_form/deleteIntakeForm','IntakeformController@deleteIntakeForm')->name('intake_form/deleteIntakeForm');
     Route::post('intake_form/cloneIntakeForm','IntakeformController@cloneIntakeForm')->name('intake_form/cloneIntakeForm');
@@ -1099,7 +1099,7 @@ Route::get('bills/invoicepdf/{id}', 'LeadController@viewInvoiceForPdf')->name('b
 Route::get('preview/{id}','IntakeformController@formPreview')->name('preview/{id}');
 Route::get('form/{id}','IntakeformController@formSent')->name('form/{id}');
 Route::get('cform/{id}','LeadController@CaseFormSent')->name('cform/{id}');
-Route::get('contact_us/{id}','LeadController@contact_us')->name('contact_us/{id}');
+Route::get('contact_us/{id}','LeadController@contact_us')->name('contact_us/view');
 
 Route::post('leads/collectFormData', 'LeadController@collectFormData')->name('leads/collectFormData');
 Route::post('collectContactUSFormData', 'LeadController@collectContactUSFormData')->name('collectContactUSFormData');
