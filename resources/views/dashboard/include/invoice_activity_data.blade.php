@@ -18,13 +18,17 @@
                         #{{sprintf('%06d', $v->activity_for)}}
                     @endif 
                     <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                    <?php  if($v->case_unique_number!=NULL){  ?>
+                        <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                    <?php } ?>
                     <?php } else{ ?>
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                     {{$v->activity}} for {{$v->title}} 
                     <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                    <?php  if($v->case_unique_number!=NULL){  ?>
+                        <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                    <?php }  ?>
                     <?php } ?>
                 </div>
             </td>

@@ -2468,6 +2468,8 @@ class ClientdashboardController extends BaseController
                             
                             $UsersAdditionalInfo= new UsersAdditionalInfo;
                             $UsersAdditionalInfo->user_id=$User->id; 
+                            $UsersAdditionalInfo->contact_group_id=$finalOperationVal['contact_group_id']; 
+                            $UsersAdditionalInfo->multiple_compnay_id=$finalOperationVal['multiple_compnay_id']; 
                             $UsersAdditionalInfo->fax_number=$finalOperationVal['fax_number']; 
                             $UsersAdditionalInfo->job_title=$finalOperationVal['job_title']; 
                             $UsersAdditionalInfo->driver_license=$finalOperationVal['driver_license']; 
@@ -2755,11 +2757,20 @@ class ClientdashboardController extends BaseController
     
     public function getContactGroupId($cgroup){
         if($cgroup!=NULL){
-            $name=ClientGroup::select("group_name")->where("group_name",$cgroup)->first();
-            return $name['id'];
+            $getChildUsers = User::select("id")->where('firm_name',Auth::user()->firm_name)->get()->pluck('id');
+            $ClientGroupCheck=ClientGroup::select('*')->whereIn('created_by',$getChildUsers)->where('group_name',$cgroup)->first();
+            if(empty($ClientGroupCheck)){
+                $ClientGroup=new ClientGroup;
+                $ClientGroup->group_name=$cgroup; 
+                $ClientGroup->status="1";
+                $ClientGroup->created_by=Auth::User()->id;
+                $ClientGroup->save();
+                return $ClientGroup->id;
+            }else{
+                return $ClientGroupCheck->id;
+            }
         }else{
-            return "";
-
+            return NULL;
         }
     }
 

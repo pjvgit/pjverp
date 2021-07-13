@@ -26,7 +26,7 @@ if(!$commentData->isEmpty()){
                             <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
                             <?php } ?>
                             
-                            <?php if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id}})">{{$v->fullname}} (Company)</a>
+                            <?php if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
                             <?php } ?>
 
                             <?php if($v->action=="link"){ ?> to case <?php } ?>
@@ -168,7 +168,7 @@ if(!$commentData->isEmpty()){
                     <a class="name"
                         href="{{route('contacts/attorneys/info', base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for company <a class="name"
-                        href="{{route('contacts/companies/view',$v->notes_for_c)ompany}}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                        href="{{route('contacts/companies/view',$v->notes_for_company) }}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
                         (Company)</a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about
                         {{$v->time_ago}}</abbr> via web
                     <?php } ?>
