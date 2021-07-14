@@ -310,6 +310,7 @@ $(document).ready(function () {
 
 $(document).on("change", ".forwarded-invoices-check", function() {
     var lineTotal = 0.00;
+    var finaltotal = $("#final_total_text").val();
     $(".forwarded-invoices-check").each(function(ind, item) {
         var dueAmt = 0.00;
         if($(this).is(":checked")) {
@@ -320,5 +321,14 @@ $(document).on("change", ".forwarded-invoices-check", function() {
         }
         lineTotal += parseFloat(dueAmt);
     });
+    var due = $(this).attr("data-due-amount");
+    if($(this).is(":checked")) {
+        finaltotal = parseFloat(finaltotal) + parseFloat(due);
+    } else {
+        finaltotal = parseFloat(finaltotal) - parseFloat(due);
+    }
     $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+    $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+    $("#final_total").text(finaltotal.toFixed(2));
+    $("#final_total_text").val(finaltotal.toFixed(2));
 });

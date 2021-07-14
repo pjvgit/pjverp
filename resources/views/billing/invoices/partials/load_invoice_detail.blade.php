@@ -132,6 +132,7 @@
         $timeEntryTime=$timeEntryAmount=0;
         $expenseTime=$expenseAmount=0;
         $flatFeeEntryAmount=0;
+        $totalFwdAmt = 0;
         if(!$FlatFeeEntryForInvoice->isEmpty()){?>
             <div class="line-items-table">
                 <h3>Flat Fees</h3>
@@ -527,6 +528,41 @@
     </div>
     <?php } ?>
 
+    @if (count($findInvoice->forwardedInvoices))
+        <div class="line-items-table">
+            <h3>Unpaid Invoice Balance Forward</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr class="invoice_info_row">
+                        <td class="invoice_info_bg">Invoice #</td>
+                        <td class="invoice_info_bg">Invoice Total</td>
+                        <td class="invoice_info_bg">Amount Paid</td>
+                        <td class="invoice_info_bg">Due Date</td>
+                        <td class="invoice_info_bg" style=" text-align: right;width:10%;">Balance Forward</td>
+                    </tr>
+                    @forelse ($findInvoice->forwardedInvoices as $invkey => $invitem)
+                        <tr class="invoice_info_row">
+                            <td><a href="{{ route("bills/invoices/view", $invitem->decode_id) }}">{{ $invitem->invoice_id }}</td>
+                            <td>${{ $invitem->total_amount_new }}</td>
+                            <td>${{ $invitem->paid_amount_new }}</td>
+                            <td>{{ ($invitem->due_date) ? date('m/d/Y', strtotime($invitem->due_date)) : "" }}</td>
+                            <td style="vertical-align: top; text-align: right;">${{ $invitem->due_amount_new }}</td>
+                        </tr>
+                    @empty                        
+                    @endforelse
+                    <tr>
+                        <td colspan="4" class="total-summary-column">
+                            Balance Forward:
+                        </td>
+                        @php
+                            $totalFwdAmt = $findInvoice->forwardedInvoices->sum('due_amount');
+                        @endphp
+                        <td class="total-data-column"> ${{ number_format($totalFwdAmt, 2) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     <?php  if(!$InvoiceAdjustment->isEmpty()){?>
         <div class="line-items-table">
@@ -648,7 +684,7 @@
         </div>
         <?php } ?>
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
         <tbody>
             <tr class="invoice_info_row">
                 <?php if($findInvoice->terms_condition!=""){?>
@@ -672,6 +708,11 @@
                     Expense Sub-Total:<br>
                     <span style="font-weight: bold;">Sub-Total:</span><br>
                     <br>
+
+                    @if ($findInvoice->forwardedInvoices)
+                    <span>Balance Forward:</span><br>
+                    @endif
+
                     <?php if($discount!="0"){?>
                     <span>Discounts:</span>
                     <br>
@@ -693,6 +734,10 @@
                     ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount,2)}}<br>
                     <br>
 
+                    @if ($findInvoice->forwardedInvoices)
+                    ${{ number_format($totalFwdAmt, 2) }}<br>
+                    @endif
+
                     <?php if($discount!="0"){?>
                     ${{number_format($discount,2)}}<br>
                     <?php } ?>
@@ -701,7 +746,7 @@
                     ${{number_format($addition,2)}}<br>
                     <?php } ?>
                     <br>
-                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition,2)}}<br>
+                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$totalFwdAmt-$discount+$addition,2)}}<br>
                     ${{number_format($findInvoice->paid_amount,2)}}
                 </td>
             </tr>
@@ -730,7 +775,7 @@
                     style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
                     <?php 
                     $paidAmount = ($findInvoice->paid_amount) ? (float) $findInvoice->paid_amount : 0;
-                    $total = @$timeEntryAmount + @$expenseAmount + @$flatFeeEntryAmount + $addition;
+                    $total = @$timeEntryAmount + @$expenseAmount + @$flatFeeEntryAmount + $addition + $totalFwdAmt;
                     $F= number_format($total - ($discount + $paidAmount), 2);
                     if($F<=0){
                         $fAmt=0;

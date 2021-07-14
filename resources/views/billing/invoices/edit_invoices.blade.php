@@ -766,6 +766,60 @@
                             </table>
                         </div>
 
+                        @if(count($unpaidInvoices))
+                        <div style="margin-top: 15px;">
+                            <div class="invoice_entry_header">
+                                <table>
+                                    <tr>
+                                        <td width="100%">
+                                            <h3 class="entry-header">Unpaid Balances Invoices</h3>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="clear-header"></div>
+                            </div>
+                            <table class="data invoice_entries" id="unpaid_balance_invoices">
+                                <thead>
+                                    <th style="text-align: center">Forward Invoice</th>
+                                    <th>Invoice #</th>
+                                    <th>Invoice Total</th>
+                                    <th>Amount Paid</th>
+                                    <th>Balance Due</th>
+                                    <th>Due Date</th>
+                                    <th>Line Total</th>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $selectedFwdInv = []; $totalFwdAmt = 0;
+                                        if(count($findInvoice->forwardedInvoices)) {
+                                            $selectedFwdInv = $findInvoice->forwardedInvoices->pluck("id")->toArray();
+                                            $totalFwdAmt = $findInvoice->forwardedInvoices->sum('due_amount');
+                                        }
+                                    @endphp
+                                    @forelse ($unpaidInvoices as $invkey => $invitem)
+                                        <tr>
+                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}" @if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) checked @endif></td>
+                                            <td>{{ $invitem->invoice_id }}</td>
+                                            <td>{{ $invitem->total_amount }}</td>
+                                            <td>{{ $invitem->paid_amount }}</td>
+                                            <td>{{ $invitem->due_amount }}</td>
+                                            <td>{{ ($invitem->due_date) ? date("m/d/Y", strtotime($invitem->due_date)) : "" }}</td>
+                                            <td style="text-align: right"><span id="unpaid_amt_{{$invitem->id}}">@if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) {{ $invitem->due_amount }} @endif<span></td>
+                                        </tr>
+                                    @empty
+                                    @endforelse
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6" style="text-align: right;">{{ @$caseMaster->case_title }} balance forward:</td>
+                                        <td><div class="locked" style="text-align: right;">
+                                            $<span id="unpaid_invoice_total">@if(count($findInvoice->forwardedInvoices)) {{ number_format($totalFwdAmt, 2) }} @else 0.00 @endif</span>
+                                        </div></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        @endif
 
                         <div style="margin-top: 15px;">
 
@@ -1025,9 +1079,11 @@
                                 <tr class="footer no-border totals">
                                     <td style="text-align: right; font-weight: bold;">
                                         <div class="locked" style="padding-bottom: 7px;">
-                                            <div id="transfers_bottom_label" style="padding-top: 7px; display: none;">
+                                            @if(count($unpaidInvoices))
+                                            <div id="transfers_bottom_label" style="padding-top: 7px;">
                                                 Balance Forward:
                                             </div>
+                                            @endif
                                             <?php if($discount!="0"){?>
                                             <div class="billing-discounts-area">
                                                 Discounts:
@@ -1042,9 +1098,11 @@
                                     </td>
                                     <td style="text-align: right;">
                                         <div class="locked" style="padding-bottom: 15px;">
-                                            <div class="billing-additions-area" style="display: none;">
-                                                $<span id="additions_total_amount">0.00</span>
+                                            @if(count($unpaidInvoices))
+                                            <div class="billing-additions-area">
+                                                $<span id="forwarded_total_amount">{{ number_format($totalFwdAmt, 2) }}</span>
                                             </div>
+                                            @endif
                                             <?php if($discount!="0"){?>
                                             <div class="billing-discounts-area">
                                                 ($<span id="discounts_section_total"
@@ -1083,8 +1141,7 @@
 
                                 <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
-                                <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"
-                                    id="expense_sub_total_text">
+                                <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text" id="expense_sub_total_text">
                                 <input type="hidden" value="" name="sub_total_text" id="sub_total_text">
                                 <input type="hidden" value="" name="total_text" id="total_text">
                                 <input type="hidden" value="{{$discount}}" name="discount_total_text"
@@ -1093,6 +1150,7 @@
                                 id="addition_total_text">
                                 <input type="hidden" value="" name="final_total_text" id="final_total_text">
                                 <input type="hidden" value="{{$adjustment_token}}" name="adjustment_token" id="adjustment_token">
+                                <input type="hidden" value="{{ $totalFwdAmt ?? 0}}" name="forwarded_total_text" id="forwarded_total_text">
                             </tbody>
                         </table>
                     </div>
@@ -2006,6 +2064,11 @@
     }
     i.invoice-banner-overdue {
         background-image: url('{{ asset("images/invoice_banner_overdue.png") }}');
+        height: 127px;
+        width: 127px;
+    }
+    i.invoice-banner-forwarded {
+        background-image: url('{{ asset("images/invoice_banner_forwarded.png") }}');
         height: 127px;
         width: 127px;
     }
@@ -3034,11 +3097,12 @@
         var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
         var flat_fee_sub_total_text = parseFloat($("#flat_fee_sub_total_text").val());
         total = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
-
+        
         var discount_amount = parseFloat($("#discount_total_text").val());
         var addition_amount = parseFloat($("#addition_total_text").val());
-
-        var final_total=total-discount_amount+addition_amount;
+        
+        var forwarded_amount = parseFloat($("#forwarded_total_text").val());
+        var final_total=total+forwarded_amount-discount_amount+addition_amount;
         if(final_total <= 0 ){
             final_total=0;
         }

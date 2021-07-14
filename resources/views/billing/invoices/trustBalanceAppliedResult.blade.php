@@ -18,11 +18,11 @@
                     <tbody class="apply-funds-invoices">
                         <?php foreach($SavedInvoices as $k=>$v){?>
                         <tr>
-                            <td>{{$v->case_title}}</td>
-                            <td>{{sprintf('%06d', $v->id)}}</td>
-                            <td>{{$v->status}}</td>
-                            <td>${{number_format($v->due_amount,2)}}</td>
-                            <td>${{number_format($v->trust_account_balance,2)}}</td>
+                            <td>{{ @$v->case->case_title }}</td>
+                            <td>{{ $v->id }}</td>
+                            <td>{{ $v->status }}</td>
+                            <td>${{ number_format($v->due_amount ?? 0,2) }}</td>
+                            <td>${{ number_format(@$v->portalAccessUserAdditionalInfo->trust_account_balance ?? 0,2) }}</td>
                         </tr>
                         <?php } ?>
                     </tbody>

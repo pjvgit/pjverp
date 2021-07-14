@@ -22,7 +22,7 @@
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
-                            $notes=$value->notes;
+                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', $findInvoice->decode_id).'">'.@$findInvoice->invoiceForwardedToInvoice[0]->invoice_id.'</a>';
                         }else{
                             $notes="<i class='table-cell-placeholder'></i>";
                         }  
