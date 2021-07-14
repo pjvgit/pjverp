@@ -26,7 +26,7 @@ if(!isset($adjustment_token)){
                             </li>
                             <li class="d-print-none nav-item arrow-right">
                                 <a href="{{route('bills/invoices/new')}}"
-                                    class="nav-link {{ request()->is('bills/invoices/new*') ? 'active' : '' }}">From
+                                    class="nav-link {{ request()->is('bills/invoices/new*') ? 'active' : '' }}  {{ request()->is('bills/invoices/load_new*') ? 'active' : '' }}">From
                                     Scratch</a>
                             </li>
                         </ul>

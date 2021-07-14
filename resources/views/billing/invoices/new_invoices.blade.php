@@ -38,13 +38,13 @@ if(!isset($adjustment_token)){
                         <ul class="d-inline-flex nav nav-pills pl-4">
                             <li class="d-print-none nav-item">
                                 <a href="{{route('bills/invoices/open')}}"
-                                    class="nav-link {{ request()->is('bills/invoices/open*') ? 'active' : '' }} {{ request()->is('bills/invoices/load_new*') ? 'active' : '' }}">From
+                                    class="nav-link {{ request()->is('bills/invoices/open*') ? 'active' : '' }}">From
                                     Open Balances
                                 </a>
                             </li>
                             <li class="d-print-none nav-item arrow-right">
                                 <a href="{{route('bills/invoices/new')}}"
-                                    class="nav-link {{ request()->is('bills/invoices/new*') ? 'active' : '' }}">From
+                                    class="nav-link {{ request()->is('bills/invoices/new*') ? 'active' : '' }} {{ request()->is('bills/invoices/load_new*') ? 'active' : '' }}" >From
                                     Scratch</a>
                             </li>
                         </ul>
