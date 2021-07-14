@@ -2303,10 +2303,9 @@ class ClientdashboardController extends BaseController
       
         $user = User::select("*")->where("user_level","2")->where("parent_user",Auth::user()->id);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            $user = $user->where("users.user_status","4");  
-        }else{
-            $user = $user->where("users.user_status","1"); 
+            $user = $user->orWhere("users.user_status","4");  
         }
+        $user = $user->where("users.user_status","1"); 
         $user = $user->get();
         $vCard = '';
         foreach($user as $k=>$v){
@@ -2315,7 +2314,7 @@ class ClientdashboardController extends BaseController
             }else{
                 $countryName="";
             }
-            $vCard = "BEGIN:VCARD\r\n";
+            $vCard .= "BEGIN:VCARD\r\n";
             $vCard .= "VERSION:3.0\r\n";
             $vCard .= "N:".$v->last_name.";".$v->first_name.";".$v->middle_name.";\r\n";
             $vCard .= "FN:".$v->first_name." ".$v->middle_name." ".$v->last_name."\r\n";
@@ -2342,10 +2341,9 @@ class ClientdashboardController extends BaseController
       
         $user = User::select("*")->where("user_level","4")->where("parent_user",Auth::user()->id);
         if(isset($request['include_archived']) && $request['include_archived']=="1"){
-            $user = $user->where("users.user_status","4");  
-        }else{
-            $user = $user->where("users.user_status","1"); 
+            $user = $user->orWhere("users.user_status","4"); 
         }
+        $user = $user->whereIn("users.user_status",["1","2"]);
         $user = $user->get();
         $vCard = '';
         foreach($user as $k=>$v){
@@ -2354,10 +2352,11 @@ class ClientdashboardController extends BaseController
             }else{
                 $countryName="";
             }
-            $vCard = "BEGIN:VCARD\r\n";
+            $vCard .= "BEGIN:VCARD\r\n";
             $vCard .= "VERSION:3.0\r\n";
-            $vCard .= "N:".$v->first_name.";\r\n";
-            $vCard .= "FN:".$v->first_name."\r\n";
+            $vCard .= "N:;\r\n";
+            $vCard .= "FN:;\r\n";
+            $vCard .= "ORG:".$v->first_name."\r\n";
             $vCard .= "ADR:TYPE=work,pref:".$v->street.";".$v->apt_unit.";".$v->city.";".$v->state.";".$v->postal_code.";".$countryName.";\r\n";
             $vCard .= "EMAIL;TYPE=work,pref:".$v->email."\r\n";
             $vCard .= "TEL;TYPE=work,voice:".$v->mobile_number."\r\n"; 
@@ -2377,7 +2376,6 @@ class ClientdashboardController extends BaseController
 
     public function importContacts(Request $request)
     {
-
         // print_r($request->all());exit;
         $validator = \Validator::make($request->all(), [
             'upload_file' => 'required|max:8192', //8 mb
@@ -2406,7 +2404,15 @@ class ClientdashboardController extends BaseController
                 $ClientCompanyImport->save(); 
                 $UserArray=[];
                 if(!empty($csv_data)){
-                    if($csv_data[0][0]=="first_name" || $csv_data[0][0]=="First Name"){
+                    if($csv_data[0][0]=="Legalcase ID" ){
+                        $errorString='<ul><li>please remove Legalcase ID or 1st column from csv and try again.</li></ui>';
+                        $ClientCompanyImport->error_code=$errorString;
+                        $ClientCompanyImport->status=2;
+                        $ClientCompanyImport->save();
+
+                        return response()->json(['errors'=>$errorString,'contact_id'=>'']);
+                        exit;
+                    } else if($csv_data[0][0]=="first_name" || $csv_data[0][0]=="First Name" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="2";
                         unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
@@ -2564,7 +2570,7 @@ class ClientdashboardController extends BaseController
                             }else{
                                 $UserArray[$key]['user_status']=1;
                             }
-                            $UserArray[$key]['notes']=$val[12];
+                            $UserArray[$key]['notes']=$val[13];
                             $UserArray[$key]['user_level']=$user_level;
                         }
                         $ic=0;
@@ -2648,65 +2654,89 @@ class ClientdashboardController extends BaseController
                 $ClientCompanyImport->file_type="2";
                 $ClientCompanyImport->save(); 
                 $arrayGroup=[];
+                $UserArray=[];
                 $counter=0;
                 foreach($csv_data as $k=>$v){
-                   if($v[0]=="BEGIN:VCARD"){
-                        $counter++;
-                   }else{
-                    if($v[0]=="VERSION:3.0" || $v[0]=="END:VCARD" ){
+                    if($v[0]=="BEGIN:VCARD"){
+                            $counter++;
                     }else{
-                        $arrayGroup[$counter][]=$v[0];
+                            if($v[0]=="VERSION:3.0" || $v[0]=="END:VCARD" ){
+                            }else{
+                                $arrayGroup[$counter][]=$v[0];
+                            }
                     }
-                   }
-                }
+                }               
                 // echo count($arrayGroup);
                 // exit;
                 // print_r($arrayGroup);
-                // exit;
-                if(count($arrayGroup)>1){
-                    foreach($arrayGroup as $finalOperationKey=>$finalOperationVal){
-
-                        $org=explode(":",$finalOperationVal[1]);
+                // exit;       
+                $ClientCompanyImport->total_record=count($arrayGroup);
+                $ClientCompanyImport->save();
+                if(count($arrayGroup)>=1){
+                    $ic=0;                   
+                    foreach($arrayGroup as $finalOperationKey => $finalOperationVal){
+                        $finalOperationKey = $finalOperationKey - 1;                        
+                        $org=explode(":",$finalOperationVal[0]);                        
                         if($org[0]=="ORG"){
-                            $userLevel=4;
-                            $fullNameString[1]=$org[1];
-                            $fullName=$org[1];
-                            $User=new User;
-                            $User->first_name=$fullName;
+                            $UserArray[$finalOperationKey]['user_level']=4;
+                            $UserArray[$finalOperationKey]['first_name']=$org[1];
+                            $UserArray[$finalOperationKey]['fullNameString']=$org[1];
                         }else{
-                            $userLevel=2;
-                            $fullNameString=explode(":",$finalOperationVal[1]);
-                            $fullName=explode(" ",$fullNameString[1]);
-                            $User=new User;
-                            $User->first_name=$fullName[0];
-                            $User->middle_name=$fullName[1];
-                            $User->last_name=$fullName[2];
+                            $fullName=explode(" ",$org[1]);
+                            $UserArray[$finalOperationKey]['user_level']=2;
+                            $UserArray[$finalOperationKey]['first_name']=$fullName[0];
+                            $UserArray[$finalOperationKey]['last_name']=$fullName[1] ?? NULL;
+                            $UserArray[$finalOperationKey]['fullNameString']=$org[1];
                         }
-                        
-                        $email=explode(":",$finalOperationVal[3]);
-                        if($email[0]=="EMAIL;TYPE=home"){
-                            $User->email=$email[1];
+                        if (strpos($org[0], 'FN')  !== false) {
+                            foreach($finalOperationVal as $k => $v){
+                                if (strpos($v, 'EMAIL')  !== false) { 
+                                    $email=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['email']=($email[1] != '') ? $email[1] : NULL;
+                                    $UserArray[$finalOperationKey]['emailSting']=($email[1] != '') ? $email[1] : NULL;
+                                }
+                                
+                                if (strpos($v, 'TEL') !== false) { 
+                                    $phone=explode(":",$v);
+                                    $UserArray[$finalOperationKey]['mobile_number'] = ($phone[1] != '') ? str_replace(" ", "", $phone[1]) : NULL;
+                                }
+
+                                if (strpos($v, 'ORG') !== false) { 
+                                    $company_name = explode(":",$v);
+                                    $UserArray[$finalOperationKey]['multiple_compnay_id'] = ($company_name[1] != '') ? $this->createOrReturn($company_name[1]) : NULL;
+                                    $UserArray[$finalOperationKey]['company_name'] = ($company_name[1] != '') ? $company_name[1] : NULL;
+                                }
+
+                                if (strpos($v, 'NOTE') !== false) { 
+                                    $notes = explode(":",$v);
+                                    $UserArray[$finalOperationKey]['UsersAdditionalInfoNotes'] = ($notes[1] != '') ? $notes[1] : NULL;
+                                } 
+                            }
                         }
-                        $User->user_level=$userLevel;
+                    }
+                    foreach($UserArray as $userKey=>$userVal){
+                        $User = New User;
+                        $User->user_level=$userVal['user_level'];
+                        $User->first_name=$userVal['first_name'];
+                        $User->last_name=$userVal['last_name'] ?? NULL;
+                        $User->email=$userVal['email']?? NULL; 
+                        $User->mobile_number=$userVal['mobile_number']?? NULL; 
                         $User->parent_user=Auth::User()->id;
                         $User->firm_name=Auth::User()->firm_name;
                         $User->save();
-
+                        
                         $UsersAdditionalInfo= new UsersAdditionalInfo;
                         $UsersAdditionalInfo->user_id=$User->id; 
-                        $notes=explode(":",$finalOperationVal[4]);
-                        if($notes[0]=="NOTE"){
-                            $UsersAdditionalInfo->notes=$notes[1];
-                        }
-                        $UsersAdditionalInfo->created_by =Auth::User()->id;
+                        $UsersAdditionalInfo->multiple_compnay_id=$userVal['multiple_compnay_id'] ?? NULL; 
+                        $UsersAdditionalInfo->notes=$userVal['UsersAdditionalInfoNotes'] ?? NULL; 
+                        $UsersAdditionalInfo->created_by = Auth::User()->id;
                         $UsersAdditionalInfo->save();
-
 
                         $ClientCompanyImportHistory=new ClientCompanyImportHistory;
                         $ClientCompanyImportHistory->client_company_import_id=$ClientCompanyImport->id;
-                        $ClientCompanyImportHistory->full_name=$fullNameString[1];
-                        $ClientCompanyImportHistory->company_name=NULL;
-                        $ClientCompanyImportHistory->email=$email[1];
+                        $ClientCompanyImportHistory->full_name=$userVal['fullNameString'] ?? NULL;
+                        $ClientCompanyImportHistory->company_name=$userVal['company_name'] ?? NULL;
+                        $ClientCompanyImportHistory->email=$userVal['emailSting'] ?? NULL;
                         $ClientCompanyImportHistory->contact_group=NULL;
                         $ClientCompanyImportHistory->outstanding_amount=0;
                         $ClientCompanyImportHistory->status="1";
@@ -2714,8 +2744,12 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImportHistory->firm_id=Auth::User()->firm_name;
                         $ClientCompanyImportHistory->created_by=Auth::User()->id;
                         $ClientCompanyImportHistory->save();
+                        $ic++;
                         
                     }
+                    $ClientCompanyImport->status="1";
+                    $ClientCompanyImport->total_imported=$ic;
+                    $ClientCompanyImport->save();   
                 }else{
                     $ClientCompanyImport->error_code="<ul><li>Worng file selected, Column of selected files are list below </li></ui></br>".implode(", ",$csv_data[0]);
                     $ClientCompanyImport->status=2;
