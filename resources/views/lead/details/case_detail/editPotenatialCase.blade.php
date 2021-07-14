@@ -70,8 +70,10 @@
         <div class="form-group row addmore">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Office</label>
             <div class="col-md-4 form-group mb-3">
-                <select class="form-control contact_group" id="contact_group" name="contact_group">
-                    <option <?php if($LeadAdditionalInfo->office=="1"){ echo "selected=selected"; }?> value="1">Primary</option>
+                <select class="form-control contact_group" id="office" name="office">
+                    <?php  foreach($firmAddress as $k=>$v){?>
+                    <option <?php if($v->id == $LeadAdditionalInfo->office ){ echo "selected=selected"; }?> value="{{$v->id}}">{{$v->office_name}}</option>
+                    <?php } ?>
                 </select>
             </div>
         </div>

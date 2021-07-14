@@ -1,3 +1,8 @@
+------------------------------------ 14-Jul-2021 ------------------------------
+ALTER TABLE `lead_additional_info`
+	CHANGE COLUMN `office` `office` INT(2) NOT NULL DEFAULT 1 COLLATE 'utf8mb4_unicode_ci' AFTER `assigned_to`;
+UPDATE `legalcase_dev`.`lead_additional_info` SET `office`='1';
+
 ------------------------------------ 13-Jul-2021 ------------------------------
 CREATE TABLE `invoice_forwarded_invoices` (
   `invoice_id` int(11) NOT NULL,

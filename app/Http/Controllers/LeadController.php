@@ -763,8 +763,8 @@ class LeadController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
-       
-        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff'));
+        $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
     }
     public function updateLead(Request $request)
     {
@@ -801,6 +801,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->dob=($request->dob) ? date('Y-m-d',strtotime($request->dob)) : NULL;
             $LeadAdditionalInfoMaster->driver_license=$request->driver_license;
             $LeadAdditionalInfoMaster->license_state=$request->driver_state;
+            $LeadAdditionalInfoMaster->office=$request->office;
 
             if($request->referal_source_text!=''){
                 $ReferalResource=new ReferalResource;
@@ -822,7 +823,7 @@ class LeadController extends BaseController
                 $LeadAdditionalInfoMaster->practice_area=$request->practice_area;
                 $LeadAdditionalInfoMaster->potential_case_value=str_replace(",","",$request->potential_case_value);
                 $LeadAdditionalInfoMaster->assigned_to=$request->assigned_to;
-                $LeadAdditionalInfoMaster->office="1";
+                
                 $LeadAdditionalInfoMaster->potential_case_description=$request->potential_case_description;
                // $LeadAdditionalInfoMaster->user_status='1';
                 $LeadAdditionalInfoMaster->conflict_check=($request->conflict_check)?'yes':'no';
@@ -2428,8 +2429,8 @@ class LeadController extends BaseController
         }
 
         $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")->where("users.id",$user_id)->first();
-
-        return view('lead.details.index',compact('LeadData','createdByAndDate','user_id','referBy','notesData','LeadData','assignedToData','CaseNotesData','allEvents','CaseMaster','totalForm','totalInvoiceData','totalCalls','getAllFirmUser'));
+        $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+        return view('lead.details.index',compact('LeadData','createdByAndDate','user_id','referBy','notesData','LeadData','assignedToData','CaseNotesData','allEvents','CaseMaster','totalForm','totalInvoiceData','totalCalls','getAllFirmUser','firmAddress'));
     }
     public function reactivateLead(Request $request)
     {
@@ -2642,7 +2643,8 @@ class LeadController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
-        return view('lead.details.case_detail.editPotenatialCase',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff'));
+        $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();        
+        return view('lead.details.case_detail.editPotenatialCase',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
     }
 
     public function savePotentailCase(Request $request)
@@ -2663,7 +2665,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->practice_area=$request->practice_area;
             $LeadAdditionalInfoMaster->potential_case_value=str_replace(",","",$request->potential_case_value);
             $LeadAdditionalInfoMaster->assigned_to=$request->assigned_to;
-            $LeadAdditionalInfoMaster->office="1";
+            $LeadAdditionalInfoMaster->office=$request->office;
             $LeadAdditionalInfoMaster->potential_case_description=$request->potential_case_description;
             $LeadAdditionalInfoMaster->conflict_check=($request->conflict_check)?'yes':'no';
             if($LeadAdditionalInfoMaster->conflict_check=="no"){

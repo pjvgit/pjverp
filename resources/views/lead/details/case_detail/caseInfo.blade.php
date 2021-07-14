@@ -76,10 +76,10 @@
                 </label></div>
                  <div class="col-9">
                      <span class="field-value">
-                         <?php
-                         if($LeadData['office']=="1"){
-                             echo "Primary";
-                         }?>
+                         <?php  foreach($firmAddress as $k=>$v){
+                         if($LeadData['office']==$v->id){
+                             echo $v->office_name;
+                         }}?>
                      </span></div>
              </div>
              <div class="row ">

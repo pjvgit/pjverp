@@ -2044,11 +2044,11 @@ class ClientdashboardController extends BaseController
     public function downloadFormat(Request $request)
     {
         if($request->section=="contact"){
-            $filename = public_path('import/Case_Contact_Import_Template.csv');
+            $filename = asset('import/Case_Contact_Import_Template.csv');
         }elseif($request->section=="cases"){
-            $filename = public_path('import/Legalcase_Case_Import_Template.csv');
+            $filename = asset('import/Legalcase_Case_Import_Template.csv');
         }else{
-             $filename =public_path('import/Case_Company_Import_Template.csv');
+             $filename =asset('import/Case_Company_Import_Template.csv');
         }
         return response()->json(['errors'=>'','url'=>$filename]);
     }
