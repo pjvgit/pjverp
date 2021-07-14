@@ -3126,7 +3126,7 @@ class BillingController extends BaseController
                 }
             }
 
-            if(count($request->forwarded_invoices)) {
+            if($request->forwarded_invoices) {
                 $InvoiceSave->forwardedInvoices()->sync($request->forwarded_invoices);
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
