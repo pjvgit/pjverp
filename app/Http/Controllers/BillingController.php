@@ -1670,7 +1670,7 @@ class BillingController extends BaseController
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
-                Invoices::where("id", $id)->delete();
+                // Invoices::where("id", $id)->delete();
 
                  //Removed time entry id
                  $TimeEntryForInvoice=TimeEntryForInvoice::where("invoice_id",$id)->get();
@@ -1697,6 +1697,28 @@ class BillingController extends BaseController
                  //Removed invoice adjustment entry
                  $InvoiceAdjustment=InvoiceAdjustment::where("invoice_id",$id)->delete();
 
+                // Update trust balance
+                $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
+                $accessUser = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
+                if($accessUser && $invoicePaymentFromTrust) {
+                    $paidAmount = $invoicePaymentFromTrust->sum('amount_paid');
+                    $refundAmount = $invoicePaymentFromTrust->sum('amount_refund');
+                    $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
+                }
+
+                // Update forwarded invoices
+                $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
+                if($forwardedInvoices) {
+                    foreach($forwardedInvoices as $key => $item) {
+                        $this->updateInvoiceAmount($item->id);
+                    }
+                }
+
+                InvoicePaymentPlan::where("invoice_id", $Invoices->id)->delete();
+                InvoiceInstallment::where("invoice_id", $Invoices->id)->delete();
+                InvoicePayment::where("invoice_id",$Invoices->id)->delete();
+
+                $Invoices->delete();
                 session(['popup_success' => 'Invoice was deleted']);
                 return response()->json(['errors'=>'']);
                 exit;  
@@ -1907,7 +1929,7 @@ class BillingController extends BaseController
             ->get();
 
 
-            $maxInvoiceNumber=Invoices::max("id")+1;
+            $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
 
             $adjustment_token=$request->token;
 
@@ -2039,14 +2061,14 @@ class BillingController extends BaseController
             ->get();
 
 
-            $maxInvoiceNumber=Invoices::max("id")+1;
+            $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
 
             $adjustment_token=$request->token;
 
             // Get unpaid balances invoices list
             $unpaidInvoices = [];
             if($caseMaster) {
-                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->get();
+                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("status", "!=", "Forwarded")->get();
             }
 
             return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices'));
@@ -2898,12 +2920,11 @@ class BillingController extends BaseController
     }
 
     public function addInvoiceEntry(Request $request)
-    {
-        // print_r($request->all());exit;
-     
+    {     
         // return $request->all();
         $rules = [
-            'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
+            // 'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
+            'invoice_number_padded' => 'required|numeric|unique:invoices,id',
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
@@ -3126,7 +3147,7 @@ class BillingController extends BaseController
                 }
             }
 
-            if($request->forwarded_invoices) {
+            if(!empty($request->forwarded_invoices)) {
                 $InvoiceSave->forwardedInvoices()->sync($request->forwarded_invoices);
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
@@ -3168,7 +3189,7 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         // echo Hash::make($invoiceID);
-        $findInvoice=Invoices::find($invoiceID);
+        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices")->first();
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
             return view('pages.404');
@@ -3294,7 +3315,27 @@ class BillingController extends BaseController
             InvoicePaymentPlan::where("invoice_id",$id)->delete();
             InvoiceInstallment::where("invoice_id",$id)->delete();
             InvoiceHistory::where("invoice_id",$id)->delete();
-            Invoices::where("id", $id)->delete();
+            $Invoices = Invoices::where("id", $id)->first();
+            // Update trust balance
+            $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
+            $accessUser = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
+            if($accessUser && $invoicePaymentFromTrust) {
+                $paidAmount = $invoicePaymentFromTrust->sum('amount_paid');
+                $refundAmount = $invoicePaymentFromTrust->sum('amount_refund');
+                $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
+            }
+
+            // Update forwarded invoices
+            $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
+            if($forwardedInvoices) {
+                foreach($forwardedInvoices as $key => $item) {
+                    $this->updateInvoiceAmount($item->id);
+                }
+            }
+
+            InvoicePayment::where("invoice_id",$Invoices->id)->delete();
+
+            $Invoices->delete();
             session(['popup_success' => 'Invoice has been deleted.']);
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
@@ -3826,7 +3867,7 @@ class BillingController extends BaseController
     public function editInvoice(Request $request)
     {
         $invoiceID=base64_decode($request->id);
-        $findInvoice=Invoices::find($invoiceID);
+        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices")->first();
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
             return view('pages.404');
@@ -3905,7 +3946,14 @@ class BillingController extends BaseController
             $SharedInvoice=SharedInvoice::select("*")->where("invoice_id",$invoiceID)->get()->pluck('user_id')->toArray();
 
             $adjustment_token=$request->token;
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice'));
+
+            // Get unpaid balances invoices list
+            $unpaidInvoices = [];
+            if($caseMaster) {
+                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("id", "!=", $findInvoice->id)->get();
+            }
+
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices'));
         }
     }
 
@@ -3936,16 +3984,6 @@ class BillingController extends BaseController
             "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"
         ]);
 
-        // // print_r($request->all());exit;
-        // $validator = \Validator::make($request->all(), [
-        //     'invoice_number_padded' => 'required|numeric',
-        //     'court_case_id' => 'required|numeric',
-        //     'contact' => 'required|numeric',
-        //     'total_text' => 'required',
-        //     'timeEntrySelectedArray'=>'required|array',
-        //     'expenseEntrySelectedArray'=>'required|array'
-        // ],["timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice."]);
-       
             // print_r($request->all());exit;
             $InvoiceSave=Invoices::find($request->invoice_id);
             $InvoiceSave->user_id=$request->contact;
@@ -3970,7 +4008,7 @@ class BillingController extends BaseController
             }
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
-            $InvoiceSave->due_amount=$request->final_total_text;
+            $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
             $InvoiceSave->notes=$request->bill['bill_notes'];
             if(!in_array($InvoiceSave->status, ['Partial','Paid','Forwarded','Overdue'])) {
@@ -3980,6 +4018,7 @@ class BillingController extends BaseController
                 $InvoiceSave->status = $request->bill_sent_status;
             }
             $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
+            $InvoiceSave->firm_id = auth()->user()->firm_name; 
             $InvoiceSave->updated_by=Auth::User()->id; 
             $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->save();
@@ -4139,6 +4178,26 @@ class BillingController extends BaseController
                     $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
                     $InvoiceInstallment->save();
                 }
+            }
+
+            if(!empty($request->forwarded_invoices)) {
+                $InvoiceSave->forwardedInvoices()->sync($request->forwarded_invoices);
+                $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
+                if($forwardedInvoices) {
+                    foreach($forwardedInvoices as $key => $item) {
+                        $item->fill(["status" => "Forwarded"])->save();
+                        InvoiceHistory::create([
+                            "invoice_id" => $item->id,
+                            "acrtivity_title" => "balance forwarded",
+                            "amount" => $item->due_amount,
+                            "responsible_user" => auth()->id(),
+                            "notes" => "Forwarded to ".$InvoiceSave->invoice_id,
+                            "created_by" => auth()->id()
+                        ]);
+                    }
+                }
+            } else {
+                $InvoiceSave->forwardedInvoices()->sync([]);
             }
 
             //Add Invoice history
@@ -4838,7 +4897,7 @@ class BillingController extends BaseController
             foreach($data as $k=>$v){
 
                 $Invoice=Invoices::find($v);
-                if(!in_array($Invoice->status,["Paid","Partial"])){
+                if(!in_array($Invoice->status,["Paid","Partial","Forwarded"])){
                     $Invoice->status=$request->status;
                     $Invoice->save();    
                 }
@@ -4916,49 +4975,91 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $data = json_decode(stripslashes($request->invoice_id));
+            $nonDeletedInvoice = [];
             foreach($data as $k1=>$v1){
-                $Invoices=Invoices::find($v1);
+                $Invoices = Invoices::whereId($v1)->first();
                 if(!empty($Invoices)){
-                    //Add Invoice history
-                    $data=[];
-                    $data['case_id']=$Invoices['case_id'];
-                    $data['user_id']=$Invoices['user_id'];
-                    $data['activity']='deleted an invoice';
-                    $data['activity_for']=$Invoices['id'];
-                    $data['type']='invoices';
-                    $data['action']='delete';
-                    $CommonController= new CommonController();
-                    $CommonController->addMultipleHistory($data);
-                    
-                    Invoices::where("id", $v1)->delete();
+                    if($Invoices->status != "Forwarded") {
+                        //Add Invoice history
+                        $data=[];
+                        $data['case_id']=$Invoices['case_id'];
+                        $data['user_id']=$Invoices['user_id'];
+                        $data['activity']='deleted an invoice';
+                        $data['activity_for']=$Invoices['id'];
+                        $data['type']='invoices';
+                        $data['action']='delete';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+                        
+                        // Invoices::where("id", $v1)->delete();
 
-                    //Removed time entry id
-                    $TimeEntryForInvoice=TimeEntryForInvoice::where("invoice_id",$v1)->get();
-                    foreach($TimeEntryForInvoice as $k=>$v){
-                        DB::table('task_time_entry')->where("id",$v->time_entry_id)->update([
-                            'status'=>'unpaid',
-                            'invoice_link'=>NULL
-                        ]);
+                        //Removed time entry id
+                        $TimeEntryForInvoice=TimeEntryForInvoice::where("invoice_id",$v1)->get();
+                        foreach($TimeEntryForInvoice as $k=>$v){
+                            DB::table('task_time_entry')->where("id",$v->time_entry_id)->update([
+                                'status'=>'unpaid',
+                                'invoice_link'=>NULL
+                            ]);
 
-                        $deleteFromLinkTable=TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
+                            $deleteFromLinkTable=TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
+                        }
+                        //Removed expense entry
+                        $ExpenseForInvoice=ExpenseForInvoice::where("invoice_id",$v1)->get();
+                        foreach($ExpenseForInvoice as $k=>$v){
+                            DB::table('expense_entry')->where("id",$v->expense_entry_id)->update([
+                                'status'=>'unpaid',
+                                'invoice_link'=>NULL
+                            ]);
+                            $ExpenseForInvoice=ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
+                        }
+                        //Removed shared invoice 
+                        $SharedInvoice=SharedInvoice::where("invoice_id",$v1)->delete();
+
+                        //Removed invoice adjustment entry
+                        $InvoiceAdjustment=InvoiceAdjustment::where("invoice_id",$v1)->delete();
+
+                        // Update trust balance
+                        $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $v1)->where("payment_from", "trust")->get();
+                        $accessUser = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
+                        if($accessUser && $invoicePaymentFromTrust) {
+                            $paidAmount = $invoicePaymentFromTrust->sum('amount_paid');
+                            $refundAmount = $invoicePaymentFromTrust->sum('amount_refund');
+                            $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
+                        }
+
+                        // Update forwarded invoices
+                        $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
+                        if($forwardedInvoices) {
+                            foreach($forwardedInvoices as $key => $item) {
+                                $this->updateInvoiceAmount($item->id);
+                                array_push($nonDeletedInvoice, $item->id);
+                            }
+                        }
+
+                        InvoicePaymentPlan::where("invoice_id",$v1)->delete();
+                        InvoiceInstallment::where("invoice_id",$v1)->delete();
+                        InvoicePayment::where("invoice_id",$v1)->delete();
+
+                        // Delete Invoice
+                        $Invoices->delete();
+                    } else {
+                        if(count($Invoices->invoiceForwardedToInvoice)) {
+                            array_push($nonDeletedInvoice, $Invoices->id);
+                        } else {
+                            $this->updateInvoiceAmount($Invoices->id);
+                        }
                     }
-                    //Removed expense entry
-                    $ExpenseForInvoice=ExpenseForInvoice::where("invoice_id",$v1)->get();
-                    foreach($ExpenseForInvoice as $k=>$v){
-                        DB::table('expense_entry')->where("id",$v->expense_entry_id)->update([
-                            'status'=>'unpaid',
-                            'invoice_link'=>NULL
-                        ]);
-                        $ExpenseForInvoice=ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
-                    }
-                    //Removed shared invoice 
-                    $SharedInvoice=SharedInvoice::where("invoice_id",$v1)->delete();
-
-                    //Removed invoice adjustment entry
-                    $InvoiceAdjustment=InvoiceAdjustment::where("invoice_id",$v1)->delete();
                 }
             }
-            return response()->json(['errors'=>'']);
+            // return $nonDeletedInvoice;
+            // return $deletedIds = array_intersect($data, $nonDeletedInvoice);
+            if(count($nonDeletedInvoice)) {
+                $deletedIds = array_intersect($data, $nonDeletedInvoice);
+                $nonDeleted = Invoices::whereIn("invoices.id",$deletedIds)->with("portalAccessUserAdditionalInfo")->get();
+                $view = view('billing.invoices.partials.load_invoice_not_deleted',compact('nonDeleted'))->render();
+            }
+            // return $view;
+            return response()->json(['errors'=>'', 'view' => $view ?? ""]);
             exit;  
         } 
     }
@@ -5103,6 +5204,7 @@ class BillingController extends BaseController
 
     public function applyTrustBalanceForm(Request $request)
     {
+        // return $request->all();
         $request->merge([
             'invoice_id' => ($request->invoice_id!="[]") ? $request->invoice_id : NULL
         ]);
@@ -5126,9 +5228,14 @@ class BillingController extends BaseController
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$Invoices['user_id'])->first();
 
                 //Get the trust account balance and invoice due amount
-                if($userData['trust_account_balance']>0)
+                if($userData['trust_account_balance']>0 && $Invoices->status != "Forwarded")
                 {
-                  
+                    if($finalAmt >= $userData['trust_account_balance'] ){
+                        $trustAccountAmount=0;
+                        $finalAmt = $userData['trust_account_balance'];
+                    }else{
+                        $trustAccountAmount=($userData['trust_account_balance']-$finalAmt);
+                    }
                     //Insert invoice payment record.
                     $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
                                     
@@ -5156,26 +5263,19 @@ class BillingController extends BaseController
                     //Deduct invoice amount when payment done
                     $totalPaid=InvoicePayment::where("invoice_id",$invoice_id)->get()->sum("amount_paid");
                     
-                    if(($totalPaid-$InvoiceData['total_amount'])==0){
+                    if(($Invoices['total_amount'] - $totalPaid) == 0){
                         $status="Paid";
                     }else{
                         $status="Partial";
                     }
                     DB::table('invoices')->where("id",$invoice_id)->update([
                         'paid_amount'=>$totalPaid,
-                        'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
+                        'due_amount'=>($Invoices['total_amount'] - $totalPaid),
                         'status'=>$status,
                     ]);
 
                     // Deduct amount from trust account after payment.
-                    
-                    if($finalAmt >= $userData['trust_account_balance'] ){
-                        $trustAccountAmount=0;
-                    }else{
-                        $trustAccountAmount=($userData['trust_account_balance']-$finalAmt);
-                    }
-                    UsersAdditionalInfo::where('user_id',$InvoiceData['user_id'])
-                    ->update(['trust_account_balance'=>$trustAccountAmount]);
+                    UsersAdditionalInfo::where('user_id',$Invoices['user_id'])->update(['trust_account_balance'=>$trustAccountAmount]);
 
                     DB::commit();
                     //Response message
@@ -5267,13 +5367,15 @@ class BillingController extends BaseController
          $user = User::find($id);
          $savedInvoice=[];
         if(!empty($user)){
-            $appliedInvoice=$request->response['savedInvoice'];
-            $nonappliedInvoice=$request->response['notSavedInvoice'];
+            $appliedInvoice= (isset($request->response['savedInvoice'])) ? $request->response['savedInvoice'] : [];
+            $nonappliedInvoice= (isset($request->response['notSavedInvoice'])) ? $request->response['notSavedInvoice'] : [];
 
-            $SavedInvoices=Invoices::select("case_master.*","invoices.*","users_additional_info.*")->whereIn("invoices.id",$appliedInvoice);
-            $SavedInvoices=$SavedInvoices->leftJoin("case_master","case_master.id","=","invoices.case_id");
-            $SavedInvoices=$SavedInvoices->leftJoin("users_additional_info","users_additional_info.user_id","=","invoices.user_id");
-            $SavedInvoices=$SavedInvoices->get();
+            // $SavedInvoices=Invoices::select("case_master.*","invoices.*","users_additional_info.*")->whereIn("invoices.id",$appliedInvoice);
+            // $SavedInvoices=$SavedInvoices->leftJoin("case_master","case_master.id","=","invoices.case_id");
+            // $SavedInvoices=$SavedInvoices->leftJoin("users_additional_info","users_additional_info.user_id","=","invoices.user_id");
+            // $SavedInvoices=$SavedInvoices->get();
+
+            $SavedInvoices = Invoices::whereIn("id",$appliedInvoice)->with("case", "portalAccessUserAdditionalInfo")->get();
            
             $NonSavedInvoices=Invoices::select("case_master.case_title","invoices.id")->whereIn("invoices.id",$nonappliedInvoice);
             $NonSavedInvoices=$NonSavedInvoices->leftJoin("case_master","case_master.id","=","invoices.case_id");

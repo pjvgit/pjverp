@@ -17,7 +17,8 @@ class UsersAdditionalInfo extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'id', 'user_id', 'contact_group_id', 'user_timezone', 'user_status', 'client_portal_enable', 'address2', 'dob', 'job_title', 'driver_license', 'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at'
+        'id', 'user_id', 'contact_group_id', 'user_timezone', 'user_status', 'client_portal_enable', 'address2', 'dob', 'job_title', 'driver_license', 
+        'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance'
     ];
     protected $appends  = ['lastloginnewformate','caselist'];
 
@@ -45,5 +46,15 @@ class UsersAdditionalInfo extends Authenticatable
         ->where('case_client_selection.selected_user',$this->id)  
         ->get();
         return json_encode($ContractUserCase); 
+    }
+
+    /**
+     * Get the user that owns the UsersAdditionalInfo
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

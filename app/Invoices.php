@@ -176,4 +176,15 @@ class Invoices extends Model
     {
         return $this->belongsToMany(Invoices::class, 'invoice_forwarded_invoices', 'forwarded_invoice_id', 'invoice_id');
     }
+
+    /**
+     * Get the portalAccessUserAdditionalInfo that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function portalAccessUserAdditionalInfo()
+    {
+        return $this->belongsTo(UsersAdditionalInfo::class, 'user_id', 'user_id');
+    }
+
 }

@@ -830,6 +830,30 @@ td,th{
         </div>
     </div>
 </div>
+
+<div id="invoiceNotDeleted" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Some Invoices Could Not Be Deleted</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body" id="invoiceNotDeletedArea">
+                
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12  text-center">
+                    <div class="form-group row float-right">
+                        <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
@@ -1278,7 +1302,13 @@ td,th{
                     afterLoader();
                     return false;
                 } else {
-                    window.location.reload();
+                    if(res.view != "") {
+                        $("#deleteBulkInvoice").modal("hide");
+                        $("#invoiceNotDeletedArea").html(res.view);
+                        $("#invoiceNotDeleted").modal("show");
+                    } else {
+                        window.location.reload();
+                    }
                 }
             },
             error: function (xhr, status, error) {
@@ -1497,7 +1527,7 @@ td,th{
         $(".filterBy").submit();
     });
 
-    $('#adjustmentNotApplied,#trustFundNotApplied').on('hidden.bs.modal', function () {
+    $('#adjustmentNotApplied,#trustFundNotApplied,#invoiceNotDeleted').on('hidden.bs.modal', function () {
         window.location.reload();
     });
 
