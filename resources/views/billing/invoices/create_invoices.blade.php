@@ -717,6 +717,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
             // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
             pageResize: true, // enable page resize
             pageLength: {{USER_PER_PAGE_LIMIT}},
+            lengthMenu : [ [10, 25, 50, 100, 99999999], [10, 25, 50, 100, "All"] ],
             columns: [{
                     data: 'contact_name'
                 },
