@@ -598,6 +598,7 @@ class UserController extends BaseController
         //         unlink($storeImageFullPath);
 
         // }
+        $request->session()->flash('page', 'image');
         return redirect()->route('load_profile')->with('success');
            
         
@@ -611,6 +612,7 @@ class UserController extends BaseController
        $User->profile_image=NULL;
        $User->is_published="no";
        $User->save();
+       $request->session()->flash('page', 'image');
        return response()->json(['errors'=>'','contact_id'=>""]);
        exit;
     }
@@ -636,6 +638,7 @@ class UserController extends BaseController
         $User->profile_image=$file;
         $User->is_published="yes";
         $User->save();
+        $request->session()->flash('page', 'image');
         return redirect()->route('load_profile')->with('success',SUCCESS_SAVE_PROFILE);
 
         exit;
