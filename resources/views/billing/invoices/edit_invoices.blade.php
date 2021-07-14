@@ -139,7 +139,11 @@
                                         Address</td>
                                     <td rowspan="4"
                                         style="width: 350px; white-space: nowrap; vertical-align: top; padding-top: 16px;">
-                                        <textarea id="bill_address_text" name="bill[address_text]" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">{{$UsersAdditionalInfo['full_address']}}</textarea>
+                                        <textarea id="bill_address_text" name="bill[address_text]" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">{{@$UsersAdditionalInfo['street']}}
+{{@$UsersAdditionalInfo['address2']}}
+{{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} {{@$UsersAdditionalInfo['postal_code']}}
+{{@$UsersAdditionalInfo['county_name']}}
+</textarea>
                                     </td>
                                     <td style="width: auto;">&nbsp;</td>
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">

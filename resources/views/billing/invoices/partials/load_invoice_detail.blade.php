@@ -109,8 +109,10 @@
                     <a href="{{BASE_URL}}contacts/clients/{{$userMaster->id}}">{{$userMaster->first_name}}
                         {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
 
-                        {{($userMaster->street)??''}}   {{($userMaster->apt_unit)??''}}<br>
-                        {{($userMaster->city)??''}} {{($userMaster->state)??''}} {{($userMaster->postal_code)??''}}
+                        {{@$UsersAdditionalInfo['street']}}<br>
+                        {{@$UsersAdditionalInfo['address2']}}<br>
+                        {{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} {{@$UsersAdditionalInfo['postal_code']}}<br>
+                        {{@$UsersAdditionalInfo['county_name']}}
                 </span>
                 <p></p>
             </td>

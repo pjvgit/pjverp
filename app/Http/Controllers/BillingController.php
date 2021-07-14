@@ -3206,6 +3206,11 @@ class BillingController extends BaseController
 
             $caseMaster=CaseMaster::find($findInvoice->case_id);
             $userMaster=User::find($findInvoice->user_id);
+            $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
+            $UsersAdditionalInfo = $UsersAdditionalInfo->leftJoin('countries','users.country','=','countries.id');
+            $UsersAdditionalInfo = $UsersAdditionalInfo->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"users_additional_info.*","users.state","countries.name as county_name")
+            ->where("user_id",$findInvoice->user_id)
+            ->first();
             
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
 
@@ -3221,10 +3226,10 @@ class BillingController extends BaseController
 
             $invoiceNo = sprintf('%06d', $findInvoice->id);
             if($request->ajax()) {
-                return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo'))->render();
+                return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo'))->render();
             }
 
-            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo'));     
+            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo'));     
             exit; 
         }
     }
@@ -3849,7 +3854,7 @@ class BillingController extends BaseController
 
             $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
             $UsersAdditionalInfo = $UsersAdditionalInfo->leftJoin('countries','users.country','=','countries.id');
-            $UsersAdditionalInfo = $UsersAdditionalInfo->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users.street,users_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"users_additional_info.*")
+            $UsersAdditionalInfo = $UsersAdditionalInfo->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"users_additional_info.*","users.state","countries.name as county_name")
             ->where("user_id",$client_id)
             ->first();
 
