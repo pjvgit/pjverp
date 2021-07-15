@@ -639,7 +639,7 @@
                 $("#text_case_id").val('');
                 firmStaff();
             }
-            if($("#timeTrackingEnabled").val() == "yes"){
+            if($("#timeTrackingEnabled").val() == "yes" && $("#time_tracking_enabled").is(":checked")){
                 $('input:checkbox#time_tracking_enabled').trigger('click');
             }
         }else{
@@ -708,11 +708,21 @@
             $("#dynamicUSerTimes").hide();
         }
     });
-    function loadTimeEstimationUsersList() {
+    function loadTimeEstimationUsersList(SU) {
+        var arrayList = [];
+
+        $(".userwiseHours").each(function(){
+            arrayList.push({'hour':$(this).val(),'id':$(this).attr('ownid')});
+           
+        });
+        console.log(arrayList);
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTimeEstimationUsersList",
-            data: "",
+            data: {
+                "userList": JSON.stringify(SU),
+                "arrayList": JSON.stringify(arrayList)
+            },
             success: function (res) {
                 $("#dynamicUSerTimes").html(res);
                 afterLoader();
@@ -762,12 +772,11 @@
     }
     if($("#timeTrackingEnabled").val() == "yes"){
         setTimeout(function(){  
+            $('input:checkbox#time_tracking_enabled').trigger('click');
             if($("input:checkbox#time_tracking_enabled").is(":checked")){
                 loadTimeEstimationUsersLinkedStaffList1();
-            }else{
-                $('input:checkbox#time_tracking_enabled').trigger('click');
             }
-          }, 500);        
+        }, 500);        
     }
     function afterLoader(){
         $(".innerLoader").css('display', 'none');
