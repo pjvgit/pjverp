@@ -150,13 +150,13 @@
                                         <td class="pl-1" style="width: 33%;">${{number_format($CaseMaster['billing_amount'],2)}}</td>
                                         <td class="pl-1" style="width: 33%;"></td>
                                     </tr>
-                                    <?php }else{ ?>
+                                    <?php }else{ if($m != ''){?>
                                         <tr>
                                         <td class="pl-1" style="width: 33%;">{{$m}}</td>
                                         <td class="pl-1" style="width: 33%;">${{number_format($CaseMaster['billing_amount'],2)}}</td>
                                         <td class="pl-1" style="width: 33%;"></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php }} ?>
                                     <tr>
                                         <td class="pl-1" style="width: 33%;">Billing Contact</td>
                                         <td class="pl-1" style="width: 33%;">
