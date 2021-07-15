@@ -461,7 +461,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 // $('td:eq(0)', nRow).html('<div class="text-center"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a></div>');
                 // $('td:eq(7)', nRow).html('<div class="text-center"><div class="details">'+aData.created_new_date+'<small> by <a href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a></small></div></div>');
                 
-                $('td:eq(11)', nRow).html('<div class="d-flex align-items-center"><a data-toggle="modal"  data-target="#editLead" onclick="editLead('+aData.user_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt text-black-50"></i></a><a data-toggle="modal"  data-target="#backToActivePopup" data-placement="bottom" href="javascript:;"   title="Reactivate" data-testid="mark-no-hire-button" class="btn btn-link" onclick="backToActive('+aData.id+');"><i class="fas fa-archive text-black-50 m-2"></i></a><a data-toggle="modal"  data-target="#deleteLead" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteLeadFunction('+aData.id+');"><i class="fas fa-trash text-black-50"></i></a></div>');
+                $('td:eq(11)', nRow).html('<div class="d-flex align-items-center"><a data-toggle="modal"  data-target="#editLead" onclick="editLead('+aData.user_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt text-black-50"></i></a><a data-toggle="modal"  data-target="#backToActivePopup" data-placement="bottom" href="javascript:;"   title="Reactivate" data-testid="mark-no-hire-button" class="btn btn-link" onclick="backToActive('+aData.id+');"><i class="fas fa-archive text-black-50 m-2"></i></a><a data-toggle="modal"  data-target="#deleteLead" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteLeadFunction('+aData.user_id+');"><i class="fas fa-trash text-black-50"></i></a></div>');
                         
             },
             "initComplete": function(settings, json) {
@@ -530,7 +530,51 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             modifyFontSize('decrease');  
         });  
 
-      
+        $('#DeletLeadForm').submit(function (e) {
+            $("#submit").attr("disabled", true);
+            $("#innerLoader").css('display', 'block');
+            e.preventDefault();
+
+            var dataString = '';
+            dataString = $("#DeletLeadForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/leads/deleteLead", // json datasource
+                data: dataString,
+                beforeSend: function (xhr, settings) {
+                    settings.data += '&delete=yes';
+                },
+                success: function (res) {
+                    $("#innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('#showError').html('<img src="{{LOADER}}"> Loading...');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('#showError').append(errotHtml);
+                        $('#showError').show();
+                        $("#innerLoader").css('display', 'none');
+                        $('#submit').removeAttr("disabled");
+                        return false;
+                    } else {
+                        toastr.success(res.msg, "", {
+                            progressBar: !0,
+                            positionClass: "toast-top-full-width",
+                            containerId: "toast-top-full-width"
+                        });
+                        
+                        $("#innerLoader").css('display', 'none');
+                        $('#submit').removeAttr("disabled");
+
+                        $("#deleteLead").modal("hide");
+                        dataTable.ajax.reload(null, false);
+                    }
+                }
+            });
+        });      
     });
    
     function changeAction(){
@@ -801,6 +845,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#printArea").hide();
         document.location.reload(); //in this instance, I'm doing a re-direct
 
+    }
+
+    function deleteLeadFunction(id) {
+        $("#delete_lead_id").val(id);
     }
 </script>
 
