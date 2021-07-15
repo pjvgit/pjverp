@@ -210,3 +210,30 @@ function userLevelList()
         "1"=>"Admin","2"=>"Client","3"=>"User", "4" => "Company", "5" => "Lead"
     ];
 }
+
+/**
+ * Show this list in invoice setting
+ */
+function trustCreditDisplayList()
+{
+    return [
+        'dont show' => "Don't Show",
+        'show account summary' => "Show Account Summary",
+        'show account history' => "Show Account History",
+    ];
+}
+
+/**
+ * invoice payment term list
+ */
+function invoicePaymentTermList()
+{
+    return [
+        "" => "",
+        "due date" => "Due Date",
+        "due on receipt" => "Due on Receipt",
+        "net 15" => "Net 15",
+        "net 30" => "Net 30",
+        "net 60" => "Net 60",
+    ];
+}

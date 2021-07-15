@@ -1089,6 +1089,11 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('print', 'BillingController@printView')->name('print');
     Route::post('bills/loadCaseList', 'BillingController@loadCaseList')->name('bills/loadCaseList');
     
+    // For Billing & Invoice Settings
+    Route::get('billing/settings', 'BillingSettingController@index')->name('billing/settings');
+    Route::get('billing/settings/edit/preferences', 'BillingSettingController@editPreferences')->name('billing/settings/edit/preferences');
+    Route::post('billing/settings/update/preferences', 'BillingSettingController@updatePreferences')->name('billing/settings/update/preferences');
+    Route::get('billing/settings/view/preferences', 'BillingSettingController@viewPreferences')->name('billing/settings/view/preferences');
 
 });
 
@@ -1118,4 +1123,6 @@ Route::get('setbilling', 'CronController@setBillingMethod');
 Route::get('setgroup', 'CronController@setContactGroup');
 Route::get('sendReminderEmail', 'JobController@store');
 Route::get('check/job', 'PodcastController@index');
+
+
 

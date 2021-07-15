@@ -52,7 +52,7 @@
                         <div class="card-body">
                             <h5 class="mt-3">Get a Personalized Demo</h5>
                             <div class="icons"><i class="brittany-icon rounded-circle"></i></div>
-                            <div class="description">I know you are busy – let me demo MyCase for you in 15 minutes.
+                            <div class="description">I know you are busy – let me demo LegalCase for you in 15 minutes.
                             </div>
                         </div>
                         <div class="card-footer bg-white border-top-0 mt-auto mb-2">

@@ -45,9 +45,6 @@ class EventHourReminderEmailCommand extends Command
     public function handle()
     {
         $result = CaseEventReminder::where("reminder_type", "email")
-                    /* ->whereHas("event", function($query) {
-                        $query->whereDate("start_date", Carbon::now());
-                    }) */
                     ->where("reminder_frequncy", "hour")/* ->where("event_id", "38439") */
                     ->whereDate("remind_at", Carbon::now())
                     ->whereNull("reminded_at")
@@ -58,7 +55,6 @@ class EventHourReminderEmailCommand extends Command
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
-                // Log::info("hour before user count");
                 if(count($users)) {
                     $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
                     $now = Carbon::now();

@@ -73,9 +73,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link "
-                            href="https://mylegal1.mycase.com/firms/mylegal1/billing_settings">Client Billing
-                            &amp; Invoice Settings</a>
+                        <a class="nav-link " href="{{ route('billing/settings') }}">Client Billing &amp; Invoice Settings</a>
                     </li>
                 <?php } ?>
                 </div>

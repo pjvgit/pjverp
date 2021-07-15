@@ -55,7 +55,7 @@ class TaskReminderEmailCommand extends Command
                 $users = $this->getTaskLinkedUser($item, "email");
                 if(count($users)) {
                     foreach($users as $userkey => $useritem) {
-                        $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
+                        $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 00) { 
                             Log::info("task day time true");

@@ -27,7 +27,7 @@
                     </div>
                     <br>
                     <label class="checkbox checkbox-outline-primary">
-                        <input type="checkbox" id="full_refund" checked="checked" name="payfull"><span>Refund entire
+                        <input type="checkbox" id="full_refund" checked="checked" name="payfull" data-full-amount="{{$mt}}"><span>Refund entire
                             payment</span><span class="checkmark"></span>
                     </label>
 
@@ -155,9 +155,11 @@
     });
     $('#full_refund').change(function () {
         if ($(this).is(":checked")) {
-            $("#amount").attr('readonly', true);
+            $("#RefundPopup #amount").val($(this).attr("data-full-amount"));
+            $("#RefundPopup #amount").attr('readonly', true);
         } else {
-            $("#amount").removeAttr('readonly')
+            // $("#amount").removeAttr('readonly')
+            $("#RefundPopup #amount").attr('readonly', false);
         }
     });
 

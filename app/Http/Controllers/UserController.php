@@ -9,12 +9,15 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
+use App\Traits\InvoiceSettingTrait;
 use Carbon\Carbon;
 use App\UserPreferanceReminder;
+use Exception;
 use Illuminate\Support\Str;
 
 class UserController extends BaseController
 {
+    use InvoiceSettingTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -75,6 +78,8 @@ class UserController extends BaseController
             'mobile_number' => 'required',
             'firm_name' => 'required|unique:firm,firm_name,NULL,id,deleted_at,NULL'
         ]);
+        dbStart();
+        try {
         $user = new User;
         $user->first_name=$request->first_name;
         $user->last_name=$request->last_name;
@@ -97,6 +102,9 @@ class UserController extends BaseController
         
         $user->firm_name=$firm->id;
         $user->save();
+
+        // Save invoice settings
+        $this->saveDefaultInvoicePreferences($firm->id, $user->id);
 
         // //Create default plan for the user type is client or end user
         // $start_date = date('Y-m-d h:i:s');
@@ -134,7 +142,12 @@ class UserController extends BaseController
             "mail_body" => $mail_body
             ];
         $sendEmail = $this->sendMail($user);
+        dbCommit();
         return redirect('/login')->with('status', SENT_LINK);
+        } catch (Exception $e) {
+            dbEnd();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     //Verify user once click on link shared by email.

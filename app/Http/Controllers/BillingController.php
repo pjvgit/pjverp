@@ -1373,7 +1373,7 @@ class BillingController extends BaseController
                 $InvoicePayment->save();
                
                 //Deduct invoice amount when payment done
-                $totalPaid=InvoicePayment::where("invoice_id",$request->invoice_id)->get()->sum("amount_paid");
+                /* $totalPaid=InvoicePayment::where("invoice_id",$request->invoice_id)->get()->sum("amount_paid");
                 
                 if(($totalPaid-$InvoiceData['total_amount'])==0){
                     $status="Paid";
@@ -1384,7 +1384,8 @@ class BillingController extends BaseController
                     'paid_amount'=>$totalPaid,
                     'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
                     'status'=>$status,
-                ]);
+                ]); */
+                $this->updateInvoiceAmount($request->invoice_id);
 
                 // Deduct amount from trust account after payment.
                 $trustAccountAmount=($userData['trust_account_balance']-$request->amount);
@@ -1547,7 +1548,7 @@ class BillingController extends BaseController
                 $InvoicePayment->save();
 
                 //Deduct invoice amount when payment done
-                $totalPaid=InvoicePayment::where("invoice_id",$request->invoice_id)->get()->sum("amount_paid");
+                /* $totalPaid=InvoicePayment::where("invoice_id",$request->invoice_id)->get()->sum("amount_paid");
                 if(($totalPaid-$InvoiceData['total_amount'])==0){
                     $status="Paid";
                 }else{
@@ -1557,7 +1558,8 @@ class BillingController extends BaseController
                     'paid_amount'=>$totalPaid,
                     'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
                     'status'=>$status,
-                ]);
+                ]); */
+                $this->updateInvoiceAmount($request->invoice_id);
 
                 //Deposit into trust account
                 if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
@@ -4835,16 +4837,18 @@ class BillingController extends BaseController
      */
     public function updateInvoiceAmount($invoiceId)
     {
+        $invoice = Invoices::whereId($invoiceId)->first();
         $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
         if($remainPaidAmt == 0) {
             $status="Unsent";
+        } elseif($invoice->total_amount == $remainPaidAmt) {
+            $status = "Paid";
         } else {
             $status="Partial";
         }
-        $invoice = Invoices::whereId($invoiceId)->first();
         $invoice->fill([
             'paid_amount'=> $remainPaidAmt,
             'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
@@ -5032,15 +5036,6 @@ class BillingController extends BaseController
                             $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
                         }
 
-                        // Update forwarded invoices
-                        $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
-                        if($forwardedInvoices) {
-                            foreach($forwardedInvoices as $key => $item) {
-                                $this->updateInvoiceAmount($item->id);
-                                array_push($nonDeletedInvoice, $item->id);
-                            }
-                        }
-
                         InvoicePaymentPlan::where("invoice_id",$v1)->delete();
                         InvoiceInstallment::where("invoice_id",$v1)->delete();
                         InvoicePayment::where("invoice_id",$v1)->delete();
@@ -5048,19 +5043,20 @@ class BillingController extends BaseController
                         // Delete Invoice
                         $Invoices->delete();
                     } else {
-                        if(count($Invoices->invoiceForwardedToInvoice)) {
-                            array_push($nonDeletedInvoice, $Invoices->id);
-                        } else {
-                            $this->updateInvoiceAmount($Invoices->id);
-                        }
+                        array_push($nonDeletedInvoice, $Invoices->id);
                     }
                 }
             }
             // return $nonDeletedInvoice;
-            // return $deletedIds = array_intersect($data, $nonDeletedInvoice);
             if(count($nonDeletedInvoice)) {
-                $deletedIds = array_intersect($data, $nonDeletedInvoice);
-                $nonDeleted = Invoices::whereIn("invoices.id",$deletedIds)->with("portalAccessUserAdditionalInfo")->get();
+                $nonDeleted = Invoices::whereIn("invoices.id",$nonDeletedInvoice)->with("portalAccessUserAdditionalInfo")->get();
+                if($nonDeleted) {
+                    foreach($nonDeleted as $key => $item) {
+                        if(count($item->invoiceForwardedToInvoice) == 0) {
+                            $this->updateInvoiceAmount($item->id);
+                        }
+                    }
+                }
                 $view = view('billing.invoices.partials.load_invoice_not_deleted',compact('nonDeleted'))->render();
             }
             // return $view;
