@@ -55,6 +55,7 @@ class UserController extends BaseController
                     $user->save();
                     return redirect()->intended('dashboard')->with('success','Login Successfully');
                 }else{
+                    $this->sendEmailVerificationMail(auth()->user());
                     Auth::logout();
                     Session::flush();
                     return redirect('login')->with('warning', INACTIVE_ACCOUNT);
@@ -901,12 +902,14 @@ class UserController extends BaseController
                     session(['layout' => 'horizontal']);
                     return redirect()->intended('dashboard')->with('success','Login Successfully');
                 }else{
+                    $this->sendEmailVerificationMail(auth()->user());
                     Auth::logout();
                     Session::flush();
                     return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                 }
             }
         }else{
+            $this->sendEmailVerificationMail(auth()->user());
             Auth::logout();
             Session::flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
@@ -916,4 +919,35 @@ class UserController extends BaseController
         Auth::logout();
         return redirect('/login');
       }
+
+    /**
+     * Send email verification email
+     */
+    public function sendEmailVerificationMail($user)
+    {
+        $getTemplateData = EmailTemplate::find(5);
+        $fullName=$user->first_name. ' ' .$user->last_name;
+        $email=$user->email;
+        $token=url('user/verify', $user->token);
+        $mail_body = $getTemplateData->content;
+        $mail_body = str_replace('{name}', $fullName, $mail_body);
+        $mail_body = str_replace('{email}', $email,$mail_body);
+        $mail_body = str_replace('{token}', $token,$mail_body);
+        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+        $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+        $mail_body = str_replace('{regards}', REGARDS, $mail_body);
+        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+
+
+        $mailData = [
+            "from" => FROM_EMAIL,
+            "from_title" => FROM_EMAIL_TITLE,
+            "subject" => $getTemplateData->subject,
+            "to" => $user->email,
+            "full_name" => $fullName,
+            "mail_body" => $mail_body
+            ];
+        $sendEmail = $this->sendMail($mailData);
+    }
 }
