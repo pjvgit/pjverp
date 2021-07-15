@@ -2,7 +2,7 @@
 $controllerLoad = new App\Http\Controllers\CommonController();
 ?>
 <div class="d-flex align-items-center p-3">
-    <a class="btn btn-sm btn-outline-secondary btn-rounded " class="close" type="button" data-dismiss="modal" aria-label="Close">
+    <a class="btn btn-sm btn-outline-secondary btn-rounded " class="close" type="button" onclick="backTocase();" aria-label="Close">
         <i class="fas fa-arrow-left"></i>
         <span class="sr-only">Back</span>
     </a>
@@ -523,5 +523,11 @@ $controllerLoad = new App\Http\Controllers\CommonController();
             })
         })
     }
-    
+
+    function backTocase(){
+        $("#loadTaskDetailsView").modal("hide");
+        setTimeout( function(){ 
+            filterTaskByStatus() 
+        },200 );
+    }    
 </script>
