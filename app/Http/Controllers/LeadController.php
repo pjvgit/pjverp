@@ -867,10 +867,10 @@ class LeadController extends BaseController
 
                 Task::where('lead_id',$request->user_id)->delete();
                 CaseEvent::where('lead_id',$request->user_id)->delete();
-                
+                session(['popup_success' => 'Lead deleted successfully.']);
             }
-            return response()->json(['errors'=>'','id'=>$request->user_id]);
-            exit;
+            return response()->json(['errors'=>'','msg'=>'Lead deleted successfully.', 'id'=>$request->user_id]);
+            exit; 
         }
         
     }
@@ -1713,7 +1713,7 @@ class LeadController extends BaseController
     {
         $id=$request->id;
         OnlineLeadSubmit::where("id",$id)->delete();
-        return response()->json(['errors'=>'','msg'=>'Your lead ahas been deleted.']);
+        return response()->json(['errors'=>'','msg'=>'Your lead has been deleted.']);
         exit;  
         
     }
