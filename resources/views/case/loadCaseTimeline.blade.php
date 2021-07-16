@@ -40,12 +40,7 @@
                 <input type="text"  name="old_start_date[{{$AllCaseStageHistory[$i]['id']}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($AllCaseStageHistory[$i]['created_at']))}}"></p>
             </div>
             <div class="col-3">
-            <?php  if($i+1>=count($AllCaseStageHistory)){?>
-                <input type="text"  class="form-control dp"  name="old_end_date[{{$AllCaseStageHistory[$i]['id']}}]" value="{{date('m/d/Y')}}"></p>
-
-            <?php }else{ ?>
-                <input type="text"  class="form-control dp"  name="old_end_date[{{$AllCaseStageHistory[$i]['id']}}]" value="{{date('m/d/Y',strtotime($AllCaseStageHistory[$i+1]['created_at']))}}"></p>
-            <?php }?>
+                <input type="text"  class="form-control dp"  name="old_end_date[{{$AllCaseStageHistory[$i]['id']}}]" value="{{date('m/d/Y',strtotime($AllCaseStageHistory[$i]['updated_at']))}}"></p>
             </div>
             <input type="hidden" name="old_state_id[{{$AllCaseStageHistory[$i]['id']}}]" value="{{$AllCaseStageHistory[$i]['id']}}">
 
@@ -162,7 +157,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.dp').datepicker({
-            'format': 'm/d/yyyy',
+            'format': 'mm/dd/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
@@ -174,13 +169,14 @@
             var fieldHTML = '<div class="form-group fieldGroup"><div class="row fieldGroupCopy" ><div class="col-3 d-flex"><p class="mt-2 mr-1 counterIc">0)</p> <select id="case_status_'+cur+'" name="case_status[]" class="form-control custom-select col"><option value="0">No Stage</option> <?php foreach($caseStageList as $kcs=>$vcs){?><option value="{{$vcs->id}}">{{$vcs->title}}</option> <?php } ?> </select></div><div class="col-3"> <input type="text" id="start_date_'+cur+'"  name="start_date[]" onchange="getEndDate('+cur+')"  class="form-control dp" autocomplete="off" value=""></p></div><div class="col-3"> <input type="text" name="end_date[]" id="end_date_'+cur+'" class="form-control dp" onchange="getEndDate('+cur+')" value=""></p></div><div class="col-2"> <input type="text" autocomplete="off"class="form-control" name="days[]" id="days_'+cur+'" disabled value="0"></div><div class="col-1"> <button type="button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link"></button></div></div></div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
             $('.dp').datepicker({
-                'format': 'm/d/yyyy',
+                'format': 'mm/dd/yyyy',
                 'autoclose': true,
                 'todayBtn': "linked",
                 'clearBtn': true,
                 "orientation": "bottom",
                 'todayHighlight': true
             });
+            getEndDate(cur);
 
             // $(this).html($(".counterIc").length);
             $(".remove").on("click", function() {
@@ -265,7 +261,7 @@
         
         if (Date.parse(start) > Date.parse(end)) {
             $("#days_"+cur).val('0');
-            $("#start_date_"+cur).val($("#end_date_"+cur).val());
+            $("#end_date_"+cur).val($("#start_date_"+cur).val());
         }else{
             var diffDate = (end - start) / (1000 * 60 * 60 * 24);
             var days = Math.round(diffDate);

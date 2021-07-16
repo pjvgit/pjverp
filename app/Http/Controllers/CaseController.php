@@ -6580,16 +6580,15 @@ class CaseController extends BaseController
        $case_id=$request->case_id;
        $CaseMaster=CaseMaster::find($case_id);
 
-       $caseStageList = CaseStage::select("*")->where("status","1");
        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
        $getChildUsers[]=Auth::user()->id;
-       $caseStageList = $caseStageList->whereIn("created_by",$getChildUsers);          
-       $caseStageList=$caseStageList->orderBy('stage_order','ASC')->get();
-    
+       
+       $caseStageList = CaseStage::select("*")->where("status","1")->whereIn("created_by",$getChildUsers)->orderBy('stage_order','ASC')->get();
+          
        $CaseStageHistory=[];
        if($CaseMaster->case_status!=0){
         $CaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->where("stage_id",$CaseMaster->case_status)->first();
-       }
+       }       
 
        $AllCaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->get()->toArray();
        
@@ -6612,6 +6611,7 @@ class CaseController extends BaseController
             foreach($request->old_state_id as $k=>$v){
                 $caseStageHistory = CaseStageUpdate::find($v);
                 $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
+                $caseStageHistory->updated_at=date('Y-m-d',strtotime($request->old_end_date[$v]));
                 $caseStageHistory->save();
                 $ids[]=$v;  
             }
@@ -6619,14 +6619,17 @@ class CaseController extends BaseController
                 $CaseStageUpdate=CaseStageUpdate::whereNotIn("id",$ids)->where("case_id",$request->case_id)->delete();
             }
             
-           for($i=0; $i<count($request->case_status);$i++){
-                $caseStageHistory = new CaseStageUpdate;
-                $caseStageHistory->stage_id=$request->case_status[$i];
-                $caseStageHistory->case_id=$request->case_id;
-                $caseStageHistory->created_by=Auth::user()->id; 
-                $caseStageHistory->created_at=date('Y-m-d',strtotime($request->start_date[$i]));
-                $caseStageHistory->save();
-           }
+            if(isset($request->case_status) && !empty($request->case_status)){
+                for($i=0; $i<count($request->case_status);$i++){
+                        $caseStageHistory = new CaseStageUpdate;
+                        $caseStageHistory->stage_id=$request->case_status[$i];
+                        $caseStageHistory->case_id=$request->case_id;
+                        $caseStageHistory->created_by=Auth::user()->id; 
+                        $caseStageHistory->created_at=date('Y-m-d',strtotime($request->start_date[$i]));
+                        $caseStageHistory->updated_at = (strtotime($request->start_date[$i]) >= strtotime($request->end_date[$i])) ? date('Y-m-d',strtotime($request->start_date[$i])) : date('Y-m-d',strtotime($request->end_date[$i]));
+                        $caseStageHistory->save();
+                }
+            }
            return response()->json(['errors'=>'']);
            exit;
        }
