@@ -249,3 +249,16 @@ function reminderScheduleTypeList()
         "overdue by" => "Overdue by",
     ];
 }
+
+/**
+ * Check and get table column name if value is yes and remove null value from array
+ */
+function getColumnsIfYes($array)
+{
+    $result = array_map(function ($ind, $val) {
+        if($val == "yes") {
+            return ucfirst($ind);
+        }
+    }, array_keys($array), $array);
+    return array_filter($result, function($v) { return !is_null($v); });
+}

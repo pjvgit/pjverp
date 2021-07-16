@@ -72,3 +72,15 @@ $(document).on("click", "#edit-idp-btn", function() {
         }
     })
 });
+
+// Save invoice customization setting
+$(document).on("click", "#save_customiz_settings", function() {
+    $.ajax({
+        url: $("#customization_form").attr("action"),
+        type: 'POST',
+        data: $("#customization_form").serialize(),
+        success: function(data) {
+            $("#invoice-customization-defaults").html(data);
+        }
+    })
+});

@@ -19,8 +19,38 @@ class InvoiceCustomizationSetting extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function reminderSchedule()
+    public function billingTypeColumn()
     {
-        return $this->hasMany(InvoiceSettingReminderSchedule::class, 'inv_setting_id');
+        return $this->hasMany(InvoiceCustomizationSettingColumn::class, 'inv_customiz_setting_id');
+    }
+
+    /**
+     * Get the flatFeeColumn associated with the InvoiceCustomizationSetting
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function flatFeeColumn()
+    {
+        return $this->hasOne(InvoiceCustomizationSettingColumn::class, 'inv_customiz_setting_id')->where("billing_type", 'flat fee');
+    }
+
+    /**
+     * Get the timeEntryColumn associated with the InvoiceCustomizationSetting
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function timeEntryColumn()
+    {
+        return $this->hasOne(InvoiceCustomizationSettingColumn::class, 'inv_customiz_setting_id')->where("billing_type", 'time entry');
+    }
+
+    /**
+     * Get the expenseColumn associated with the InvoiceCustomizationSetting
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function expenseColumn()
+    {
+        return $this->hasOne(InvoiceCustomizationSettingColumn::class, 'inv_customiz_setting_id')->where("billing_type", 'expense');
     }
 }
