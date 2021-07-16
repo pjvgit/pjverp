@@ -12,10 +12,9 @@
                     class="form-control custom-select col">
                     <option value="">- Select a Billing Contact -</option>
                     <?php foreach($caseCllientSelection as $ksul=>$vsul){?>
-                    <option <?php if($caseMasterDefaultBiller['selected_user']==$vsul->selected_user){ echo "selected=selected"; }?> value="{{$vsul->selected_user}}"> {{$vsul->first_name}} {{$vsul->last_name}}</option>
+                    <option <?php if(isset($caseMasterDefaultBiller['selected_user']) &&  $caseMasterDefaultBiller['selected_user'] == $vsul->selected_user){ echo "selected=selected"; }?> value="{{$vsul->selected_user}}"> {{$vsul->first_name}} {{$vsul->last_name}}</option>
                     <?php } ?>
                 </select>
-
             </div>
             <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
         </div>
@@ -27,7 +26,6 @@
             @endif
         </div>
         <div class="form-group row">
-
             <p class="col-sm-7">
                 How should this case be billed?
             </p>
