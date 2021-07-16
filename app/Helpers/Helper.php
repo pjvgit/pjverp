@@ -230,10 +230,22 @@ function invoicePaymentTermList()
 {
     return [
         "" => "",
-        "due date" => "Due Date",
-        "due on receipt" => "Due on Receipt",
-        "net 15" => "Net 15",
-        "net 30" => "Net 30",
-        "net 60" => "Net 60",
+        "0" => "Due Date",
+        "1" => "Due on Receipt",
+        "2" => "Net 15",
+        "3" => "Net 30",
+        "4" => "Net 60",
+    ];
+}
+
+/**
+ * Invoice reminder schedule type list
+ */
+function reminderScheduleTypeList()
+{
+    return [
+        "due in" => "Due in",
+        "on the due date" => "On the Due Date",
+        "overdue by" => "Overdue by",
     ];
 }

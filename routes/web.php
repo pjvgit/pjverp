@@ -1094,6 +1094,9 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('billing/settings/edit/preferences', 'BillingSettingController@editPreferences')->name('billing/settings/edit/preferences');
     Route::post('billing/settings/update/preferences', 'BillingSettingController@updatePreferences')->name('billing/settings/update/preferences');
     Route::get('billing/settings/view/preferences', 'BillingSettingController@viewPreferences')->name('billing/settings/view/preferences');
+    Route::get('billing/settings/edit/customization', 'BillingSettingController@editCustomization')->name('billing/settings/edit/customization');
+    Route::post('billing/settings/update/customization', 'BillingSettingController@updateCustomization')->name('billing/settings/update/customization');
+    Route::get('billing/settings/view/customization', 'BillingSettingController@viewCustomization')->name('billing/settings/view/customization');
 
 });
 

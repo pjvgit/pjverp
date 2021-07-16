@@ -274,3 +274,23 @@ button:disabled {
 .nowrap{
     white-space: normal !important;
 }
+.standard-thumbnail, .modern-thumbnail {
+    transition: 0.3s ease-in-out;
+    position: relative;
+}
+.standard-thumbnail:hover, .modern-thumbnail:hover {
+    transform: scale(3.5) !important;
+}
+
+/* .standard-thumbnail{
+    background-image: url(http://localhost/legalcase_7/images/thumbnail_standard.png);
+    display: block;
+    height: 437px;
+    width: 336px !important;
+    transition: 0.3s ease-in-out; 
+    z-index: 1;
+    position: relative !important;
+    }
+    .standard-thumbnail:hover{
+        transform: scale(3.5) !important;
+    } */

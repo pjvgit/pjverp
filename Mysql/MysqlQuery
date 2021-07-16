@@ -1,3 +1,10 @@
+------------------------------------ 16-Jul-2021 ------------------------------
+ALTER TABLE `invoice_settings` CHANGE `default_invoice_payment_terms` `default_invoice_payment_terms` ENUM('0', '1', '2', '3', '4', '5') NULL DEFAULT '5' COMMENT '0 : Due date 1: Due on receipt 2: Net 15 3: Net 30 4: Net 60 5: Not Set';
+ALTER TABLE `invoice_customization_settings` CHANGE `include_non_billable_time_entries_and_expenses` `non_billable_time_entries_and_expenses` ENUM('no','yes') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'yes';
+
+------------------------------------ 15-Jul-2021 ------------------------------
+create invoice setting, invoice setting reminder schedule, invoice customization setting
+
 ------------------------------------ 14-Jul-2021 ------------------------------
 ALTER TABLE `lead_additional_info`
 	CHANGE COLUMN `office` `office` INT(2) NOT NULL DEFAULT 1 COLLATE 'utf8mb4_unicode_ci' AFTER `assigned_to`;
