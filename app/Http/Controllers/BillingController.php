@@ -1133,7 +1133,7 @@ class BillingController extends BaseController
             $getChildUsers=$this->getParentAndChildUserIds();
             $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->whereIn("id",$getCaseIds)->where('is_entry_done',"1")->get();
            
-            $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->whereIn("id",$getClientIds)->get();
+            $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)/* ->where("parent_user",Auth::user()->id) */->where("firm_name",Auth::user()->firm_name)->whereIn("id",$getClientIds)->get();
            
             $CaseMasterCompanies = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->whereIn("id",$getClientIds)->get();
            

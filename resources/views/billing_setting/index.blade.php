@@ -25,47 +25,25 @@
                 </div>
             </div>
         </div>
+        <hr class="my-4">
+        <div class="row ">
+            <div class="pr-5 col-md-4">
+                <h6>Invoice Customization</h6>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="invoice-customization-defaults">
+                            @include('billing_setting.partial.view_invoice_customization')
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section('page-js-inner')
-<script>
-$(document).on("click", ".edit-billing-defaults", function() {
-    var settingId = $(this).attr("data-setting-id");
-    var url = $(this).attr("data-url");
-    $.ajax({
-        url: url,
-        type: 'GET',
-        data: {setting_id: settingId},
-        success: function(data) {
-            $("#firm-billing-defaults").html(data);
-        }
-    })
-});
-
-$(document).on("click", "#save_billing_settings", function() {
-    $.ajax({
-        url: $("#billing_defaults_form").attr("action"),
-        type: 'POST',
-        data: $("#billing_defaults_form").serialize(),
-        success: function(data) {
-            $("#firm-billing-defaults").html(data);
-        }
-    })
-});
-
-$(document).on("click", "#cancel_edit_billing_settings", function() {
-    var settingId = $(this).attr("data-setting-id");
-    var url = $(this).attr("data-url");
-    $.ajax({
-        url: url,
-        type: 'GET',
-        data: {setting_id: settingId},
-        success: function(data) {
-            $("#firm-billing-defaults").html(data);
-        }
-    })
-});
-</script>
+<script src="{{ asset('assets\js\custom\billing_setting\index.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 @stop
 @endsection

@@ -6,12 +6,12 @@
 </div>
 <div class="form-group row">
     <div class="col-3 col-form-label"> Default Invoice Payment Terms </div>
-    <div id="default-payment-terms" class="col-9 form-control-plaintext"> {{ ucfirst($invSetting->default_invoice_payment_terms) ?? "" }} </div>
+    <div id="default-payment-terms" class="col-9 form-control-plaintext"> {{ invoicePaymentTermList()[$invSetting->default_invoice_payment_terms ?? ""] }} </div>
 </div>
 <div class="form-group row">
     <div class="col-3 col-form-label"> Invoice Reminder Schedule </div>
     <div id="reminders-schedule" class="col-9 form-control-plaintext">
-        @if ($invSetting->reminderSchedule)
+        @if (isset($invSetting) && $invSetting->reminderSchedule)
             @forelse($invSetting->reminderSchedule as $key => $item)
                 @if($item->remind_type == "on the due date")
                 <div class="py-1">On the Due Date</div>

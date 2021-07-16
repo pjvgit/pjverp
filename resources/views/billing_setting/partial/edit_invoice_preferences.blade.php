@@ -1,6 +1,6 @@
 <form class="edit_firm" id="billing_defaults_form" action="{{ route('billing/settings/update/preferences') }}" method="post">
     @csrf
-    <input type="hidden" name="setting_id" value="{{ $invSetting->id }}">
+    <input type="hidden" name="setting_id" value="{{ @$invSetting->id }}">
     <div class="preference-section-title">Invoice Preferences</div>
     <div class="form-group row">
         <div class="col-3 col-form-label"> Time Entry Hours </div>
@@ -8,7 +8,7 @@
             <div class="mt-1">
                 <div class="form-check">
                     <label class="form-check-label">
-                        <input class="form-check-input" type="radio" value="1" name="time_entry_hours_decimal_point" id="firm_time_entry_digits_1" @if(isset($invSetting) && $invSetting->time_entry_hours_decimal_point == 1) checked @endif> Display 1 number after the decimal point </label>
+                        <input class="form-check-input" type="radio" value="1" name="time_entry_hours_decimal_point" id="firm_time_entry_digits_1" @if(isset($invSetting) && $invSetting->time_entry_hours_decimal_point == 1) checked @endif @if(!isset($invSetting)) checked @endif> Display 1 number after the decimal point </label>
                 </div>
                 <div class="form-check">
                     <label class="form-check-label">
@@ -32,67 +32,51 @@
         <div class="row pb-3">
             <div class="col-3"><span>Invoice Reminder Schedule</span></div>
             <div class="col-9">
-                <div class="pb-1 reminder-schedule-0">
-                    <div class="d-flex col-12 pl-0 align-items-center">
-                        <div class="pl-0 col-4">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type" class="form-control custom-select  ">
-                                        <option value="-1">Due in</option>
-                                        <option value="0">On the Due Date</option>
-                                        <option value="1">Overdue by</option>
+                <div id="reminder_schedule_div">
+                    @if (isset($invSetting) && $invSetting->reminderSchedule)
+                        @forelse ($invSetting->reminderSchedule as $key => $item)
+                        <div class="pb-1 reminder-schedule">
+                            <div class="d-flex col-12 pl-0 align-items-center">
+                                <div class="pl-0 col-4">
+                                    <select name="reminder_type[]" class="form-control custom-select  ">
+                                        @forelse (reminderScheduleTypeList() as $rtkey => $rtitem)
+                                        <option value="{{ $rtkey }}" @if($rtkey == $item->remind_type) selected @endif>{{ $rtitem }}</option>
+                                        @empty
+                                        @endforelse
                                     </select>
                                 </div>
+                                <input type="text" class="form-control col-2 reminder-option-days digits" name="days[]" value="{{ ($item->remind_type == "on the due date") ? "" : $item->days }}" maxlength="3" @if($item->remind_type == "on the due date")  readonly @endif ><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
+                                <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="fa fa-trash delete_link" aria-hidden="true"></i></button>
                             </div>
-                        </div>
-                        <input type="text" class="form-control col-2 reminder-option-days" value="8"><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
-                        <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="delete-icon delete_link text-danger" aria-hidden="true"></i></button>
-                    </div>
-                </div>
-                <div class="pb-1 reminder-schedule-1">
-                    <div class="d-flex col-12 pl-0 align-items-center">
-                        <div class="pl-0 col-4">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type" class="form-control custom-select  ">
-                                        <option value="-1">Due in</option>
-                                        <option value="0">On the Due Date</option>
-                                        <option value="1">Overdue by</option>
-                                    </select>
-                                </div>
+                        </div>    
+                        @empty
+                        @endforelse
+                    @else
+                    <div class="pb-1 reminder-schedule">
+                        <div class="d-flex col-12 pl-0 align-items-center">
+                            <div class="pl-0 col-4">
+                                <select name="reminder_type[]" class="form-control custom-select  ">
+                                    @forelse (reminderScheduleTypeList() as $key => $item)
+                                        <option value="{{ $key }}">{{ $item }}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
                             </div>
+                            <input type="text" class="form-control col-2 reminder-option-days digits" name="days[]" value="7" maxlength="3"><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
+                            <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="fa fa-trash delete_link" aria-hidden="true"></i></button>
                         </div>
-                        <input type="text" class="form-control col-2 reminder-option-days" disabled="" value=""><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
-                        <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="delete-icon delete_link text-danger" aria-hidden="true"></i></button>
                     </div>
-                </div>
-                <div class="pb-1 reminder-schedule-2">
-                    <div class="d-flex col-12 pl-0 align-items-center">
-                        <div class="pl-0 col-4">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type" class="form-control custom-select  ">
-                                        <option value="-1">Due in</option>
-                                        <option value="0">On the Due Date</option>
-                                        <option value="1">Overdue by</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <input type="text" class="form-control col-2 reminder-option-days" value="7"><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
-                        <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="delete-icon delete_link text-danger" aria-hidden="true"></i></button>
-                    </div>
+                    @endif
                 </div>
                 <div>
-                    <button type="button" class="btn btn-link p-0">Add a reminder</button>
+                    <button type="button" class="btn btn-link p-0 add-more-reminder">Add a reminder</button>
                 </div>
                 <br>
                 <p><strong>Note:</strong> Automated reminders will be sent based on the next installment date. If Automatic Payment is On, reminders will show automatic payment status. We recommend keeping a “Due In” reminder to inform your client of pending automatic payment.</p>
             </div>
         </div>
     </div>
-    <input id="reminders-schedule" name="reminders_schedule" type="hidden" value="[-8,0,7]">
-    <input id="reminders-schedule-changed" name="reminders_schedule_changed" type="hidden" value="false">
+    
     <div class="form-group row">
         <div class="col-3 col-form-label"> Default Trust and Credit Display on New Invoices </div>
         <div id="default-show-trust-credit" class="col-9 form-control-plaintext">
@@ -144,14 +128,65 @@
         </div>
         <div class="col-9 form-control-plaintext">
             <textarea rows="5" class="form-control" maxlength="160" name="request_funds_preferences_default_msg" id="firm_default_message">{{ @$invSetting->request_funds_preferences_default_msg }}</textarea>
-            <div id="retainer-request-character-counter-container" class="helper-text mt-1 text-right text-muted text-right">Character count: 0/160</div>
+            <div id="retainer-request-character-counter-container" class="helper-text mt-1 text-right text-muted text-right">Character count: <span id="ta_char_count">{{ strlen(@$invSetting->request_funds_preferences_default_msg) }}</span>/160</div>
         </div>
     </div>
 </form>
 <div>
     <div id="link_button" class="text-right">
         <button id="cancel_edit_billing_settings" class="btn btn-link" data-url="{{ route('billing/settings/view/preferences') }}" data-setting-id="{{ @$invSetting->id }}">Cancel Without Saving</button>
-        <button id="save_billing_settings" class="btn btn-cta-primary">Save Preferences</button>
+        <button id="save_billing_settings" class="btn btn-primary">Save Preferences</button>
     </div>
     <div id="adding_box" style="display: none;"> <img style="vertical-align: middle;" class="retina" src="https://assets.mycase.com/packs/retina/ajax_arrows-0ba8e6a4d4.gif" width="16" height="16"> Saving… </div>
 </div>
+
+<div class="reminder-schedule-copy copy hide" style="display: none;">
+    <div class="pb-1 reminder-schedule">
+        <div class="d-flex col-12 pl-0 align-items-center">
+            <div class="pl-0 col-4">
+                <select name="reminder_type[]" class="form-control custom-select  ">
+                    @forelse (reminderScheduleTypeList() as $key => $item)
+                        <option value="{{ $key }}">{{ $item }}</option>
+                    @empty
+                    @endforelse
+                </select>
+            </div>
+            <input type="text" class="form-control col-2 reminder-option-days digits" name="days[]" value="7" maxlength="3"><span class="ml-1 col-1 pl-1 pr-0">day(s)</span>
+            <button class="btn btn-link col-2 pl-0 reminder-option-delete" type="button"><i class="fa fa-trash delete_link" aria-hidden="true"></i></button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    $(".add-more-reminder").click(function () {
+        var fieldHTML = $(".reminder-schedule-copy").html();
+        $("#reminder_schedule_div").append(fieldHTML);
+    });
+    $('body').on('click', '.reminder-option-delete', function () {
+        var $row = $(this).parents('.reminder-schedule').remove();
+    });
+
+    $('#firm_default_message').keyup(function() {
+        var length = $(this).val().length;
+        $('#ta_char_count').text(length);
+    });
+});
+
+$(document).on("change", ".custom-select", function() {
+    var selectVal = $(this).val();
+    if(selectVal == "on the due date") {
+        $(this).parents('.reminder-schedule').find('.reminder-option-days').val("");
+        $(this).parents('.reminder-schedule').find('.reminder-option-days').attr("readonly", true);
+    } else {
+        $(this).parents('.reminder-schedule').find('.reminder-option-days').attr("readonly", false);
+    }
+});
+
+$(".reminder-option-days").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+    if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        return false;
+    }
+});
+</script>
