@@ -47,11 +47,7 @@
             <div class="col-2">
                 <?php 
                     $start = strtotime($AllCaseStageHistory[$i]['created_at']);
-                    if($i+1>=count($AllCaseStageHistory)){
-                        $end = strtotime(date('m/d/Y'));
-                    }else{
-                        $end = strtotime($AllCaseStageHistory[$i+1]['created_at']);
-                    }
+                    $end = strtotime($AllCaseStageHistory[$i]['updated_at']);
                     $days_between = abs($end - $start) / 86400;
 
                     if($days_between>0.99){

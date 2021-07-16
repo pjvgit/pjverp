@@ -6607,11 +6607,19 @@ class CaseController extends BaseController
        {
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
+            $errors = [];
+            foreach($request->old_state_id as $k=>$v){
+                if(strtotime($request->old_start_date[$v]) >= strtotime($request->old_end_date[$v])) 
+                {
+                    $errors[$k] = $request->old_end_date[$v].' is not smaller than '.$request->old_start_date[$v];                    
+                }      
+            }
+            if(empty($errors)){
             $ids=[];
             foreach($request->old_state_id as $k=>$v){
                 $caseStageHistory = CaseStageUpdate::find($v);
                 $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
-                $caseStageHistory->updated_at=date('Y-m-d',strtotime($request->old_end_date[$v]));
+                $caseStageHistory->updated_at=(strtotime($request->old_start_date[$v]) >= strtotime($request->old_end_date[$v])) ? date('Y-m-d',strtotime($request->old_start_date[$v])) : date('Y-m-d',strtotime($request->old_end_date[$v]));
                 $caseStageHistory->save();
                 $ids[]=$v;  
             }
@@ -6632,6 +6640,11 @@ class CaseController extends BaseController
             }
            return response()->json(['errors'=>'']);
            exit;
+            }else{
+                return response()->json(['errors'=>$errors]);
+                exit;
+            }
+        
        }
    }
 
