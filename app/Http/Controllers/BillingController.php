@@ -1956,7 +1956,10 @@ class BillingController extends BaseController
         $tempInvoiceToken = $request->temp_invoice_token;
         /* if(!$request->temp_invoice_token) {
             $tempInvoiceToken = round(microtime(true) * 1000);
-        } */
+        } */        
+        if(!$request->contact){
+            return redirect('bills/invoices/new');
+        }
         if(!empty($user)){
             //Get all client related to firm
             // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
