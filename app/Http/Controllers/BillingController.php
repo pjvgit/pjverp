@@ -531,36 +531,38 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            
-            for($i=1;$i<=count($request->case_or_lead)-1;$i++){
-                $TaskTimeEntry = new ExpenseEntry; 
-                $TaskTimeEntry->case_id =$request->case_or_lead[$i];
-                $TaskTimeEntry->user_id =$request->staff_user;
-                $TaskTimeEntry->activity_id=$request->activity[$i];
-                if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
-                    $TaskTimeEntry->time_entry_billable="yes";
-                }else{
-                    $TaskTimeEntry->time_entry_billable="no";
-                }
-                $TaskTimeEntry->description=$request->description[$i];
-                $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
-                $TaskTimeEntry->cost=$request->cost[$i];
-                $TaskTimeEntry->duration =$request->duration[$i];
-                $TaskTimeEntry->created_at=date('Y-m-d h:i:s'); 
-                $TaskTimeEntry->created_by=Auth::User()->id; 
-                $TaskTimeEntry->save();
+            $lastKey = key(array_slice($request->case_or_lead, -1, 1, true));
+            for($i=1;$i<=$lastKey;$i++){
+                if(isset($request->case_or_lead[$i])){
+                    $TaskTimeEntry = new ExpenseEntry; 
+                    $TaskTimeEntry->case_id =$request->case_or_lead[$i];
+                    $TaskTimeEntry->user_id =$request->staff_user;
+                    $TaskTimeEntry->activity_id=$request->activity[$i];
+                    if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
+                        $TaskTimeEntry->time_entry_billable="yes";
+                    }else{
+                        $TaskTimeEntry->time_entry_billable="no";
+                    }
+                    $TaskTimeEntry->description=$request->description[$i];
+                    $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+                    $TaskTimeEntry->cost=$request->cost[$i];
+                    $TaskTimeEntry->duration =$request->duration[$i];
+                    $TaskTimeEntry->created_at=date('Y-m-d h:i:s'); 
+                    $TaskTimeEntry->created_by=Auth::User()->id; 
+                    $TaskTimeEntry->save();
 
-                //Add expense history
-                $data=[];
-                $data['case_id']=$TaskTimeEntry->case_id;
-                $data['user_id']=$TaskTimeEntry->user_id;
-                $data['activity']='added an expense';
-                $data['activity_for']=$TaskTimeEntry->activity_id;
-                $data['expense_id']=$TaskTimeEntry->id;
-                $data['type']='expenses';
-                $data['action']='add';
-                $CommonController= new CommonController();
-                $CommonController->addMultipleHistory($data);
+                    //Add expense history
+                    $data=[];
+                    $data['case_id']=$TaskTimeEntry->case_id;
+                    $data['user_id']=$TaskTimeEntry->user_id;
+                    $data['activity']='added an expense';
+                    $data['activity_for']=$TaskTimeEntry->activity_id;
+                    $data['expense_id']=$TaskTimeEntry->id;
+                    $data['type']='expenses';
+                    $data['action']='add';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+                }
             }
             
             return response()->json(['errors'=>'','id'=>$TaskTimeEntry->id]);

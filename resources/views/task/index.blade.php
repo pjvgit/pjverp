@@ -355,7 +355,7 @@ if(isset($_GET['task_read'])){
                             <td class="task-case-lead-cell align-middle">
                                 <?php
                                             if(isset($subrow->case_name)){?>
-                                <a href="{{BASE_URL}}court_cases/{{$subrow->case_name['case_unique_number']}}/info">{{$subrow->case_name['case_title']}}
+                                <a href="{{ route('info',$subrow->case_name['case_unique_number']) }}">{{$subrow->case_name['case_title']}}
                                 </a>
                                 <?php } ?>
                             </td>
@@ -377,7 +377,7 @@ if(isset($_GET['task_read'])){
                                                 }else{
                                                     if(isset($subrow->task_user[0])){?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
+                                    href="{{ route('contacts/attorneys/info',base64_encode($subrow->task_user[0]->id)) }}">{{substr($subrow->task_user[0]->first_name,0,15)}}
                                     {{substr($subrow->task_user[0]->last_name,0,15)}}</a>
                                 <?php }
                                                 }
@@ -664,10 +664,10 @@ if(isset($_GET['task_read'])){
                             </td>
                             <td class="task-case-lead-cell align-middle">
                                 <?php if(isset($subrow->case_name)){?>
-                                        <a href="{{BASE_URL}}court_cases/{{$subrow->case_name['case_unique_number']}}/info">       {{$subrow->case_name['case_title']}}
+                                        <a href="{{ route('info',$subrow->case_name['case_unique_number']) }}">       {{$subrow->case_name['case_title']}}
                                         </a>
                                 <?php }else if($subrow->lead_id){
-                                    ?><a href="{{BASE_URL}}leads/{{$subrow->lead_id}}/lead_details/info">
+                                    ?><a href="{{ route('lead_details/info',$subrow->lead_id ) }}">
                                     {{$subrow->lead_name['first_name']}} {{$subrow->lead_name['last_name']}}
                                         </a><?php 
                                 } ?>
@@ -690,7 +690,7 @@ if(isset($_GET['task_read'])){
                                                 }else{
                                                     if(isset($subrow->task_user[0])){?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->task_user[0]->id)}}">{{substr($subrow->task_user[0]->first_name,0,15)}}
+                                    href="{{ route('contacts/attorneys/info',base64_encode($subrow->task_user[0]->id)) }}">{{substr($subrow->task_user[0]->first_name,0,15)}}
                                     {{substr($subrow->task_user[0]->last_name,0,15)}}</a>
                                 <?php }
                                                 }
@@ -849,7 +849,7 @@ if(isset($_GET['task_read'])){
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Task 852</h5>
+                <h5 class="modal-title" id="exampleModalCenterTitle">Edit Task</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">×</span></button>
             </div>

@@ -2,7 +2,7 @@
     <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
             aria-controls="homeBasic" aria-selected="true">Single</a></li>
     <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
-            aria-controls="profileBasic" aria-selected="false">Bulk</a></li>
+            aria-controls="profileBasic" aria-selected="false">Bulk 05</a></li>
 </ul>
 <div class="tab-content" id="myTabContent">
     <span id="showError" class="showError" style="display: none;"></span>
@@ -165,6 +165,7 @@
                 </div>
                 <div class="col-md-3 form-group mb-3">
                     <label for="firstName1">User</label>
+                    <br>
                     <select class="form-control staff_user " id="select2List" name="staff_user">
 
                         <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
@@ -176,16 +177,16 @@
                 </div>
             </div>
             <h5 class="mb-3 bold">Time Entries</h5>
-            <div class="no-gutters row ">
-                <div class="m-0 pr-3 col-4"><label>Case</label></div>
-                <div class="m-0 pr-3 col-2"><label>Activity</label></div>
-                <div class="m-0 pr-3 col-3"><label>Description</label></div>
-                <div class="m-0 pr-1 col-1"><label>Cost</label></div>
-                <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
-                <div class="col-1"></div>
-            </div>
-
             <div class="bulk-time-entries-row-0 fieldGroup">
+                <h5 class="mt-3 bold">Expense 1</h5>
+                <div class="no-gutters row ">
+                    <div class="m-0 pr-3 col-4"><label>Case</label></div>
+                    <div class="m-0 pr-3 col-2"><label>Activity</label></div>
+                    <div class="m-0 pr-3 col-3"><label>Description</label></div>
+                    <div class="m-0 pr-1 col-1"><label>Cost</label></div>
+                    <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
+                    <div class="col-1"></div>
+                </div>
                 <div class="no-gutters row ">
                     <div class="pr-4 col-4">
                         <div class="">
@@ -254,6 +255,15 @@
                 </div>
             </div>
             <div class="maturity_div copy-new hide maturity_div" id="optionTemplate2">
+                <h5 class="mt-3 bold">Expense <span name="expenseCount[]"></span></h5>
+                <div class="no-gutters row ">
+                    <div class="m-0 pr-3 col-4"><label>Case</label></div>
+                    <div class="m-0 pr-3 col-2"><label>Activity</label></div>
+                    <div class="m-0 pr-3 col-3"><label>Description</label></div>
+                    <div class="m-0 pr-1 col-1"><label>Cost</label></div>
+                    <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
+                    <div class="col-1"></div>
+                </div>
                 <div class="no-gutters row ">
                     <div class="pr-4 col-4">
                         <div class="">
@@ -395,6 +405,9 @@
             $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('required', 'required');
+
+            $option999 = $clone.find('[name="expenseCount[]"]');
+            $option999.html((parseInt(hideinputcount2) + parseInt(1)));
 
             $option2 = $clone.find('[name="activity[]"]');
             $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1)) +
@@ -567,6 +580,9 @@
                 $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
 
                 $option.attr('required', 'required');
+
+                $option999 = $clone.find('[name="expenseCount[]"]');
+                $option999.html((parseInt(hideinputcount2) + parseInt(1)));
 
                 $option2 = $clone.find('[name="activity[]"]');
                 $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(
@@ -879,6 +895,9 @@
             $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
 
             $option.attr('required', 'required');
+
+            $option999 = $clone.find('[name="expenseCount[]"]');
+            $option999.html((parseInt(hideinputcount2) + parseInt(1)));
 
             $option2 = $clone.find('[name="activity[]"]');
             $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1)) + '');
