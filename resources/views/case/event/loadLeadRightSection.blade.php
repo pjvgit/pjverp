@@ -36,7 +36,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input  class="lead_client_attend_all_users"  name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php }else{ ?>disabled="" <?php } ?>>
+                        <input  class="lead_client_attend_all_users"  id="attend_user_{{$val->id}}" name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php }else{ ?>disabled="" <?php } ?>>
                     </label>
                 </td>
 
@@ -208,16 +208,24 @@
                 });
                 $("#SelectAllLeadAttend").prop('checked', false);
             }
+            $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             if(!$(this).is(":checked")) {
                 $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
                 $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
             }  
         });
         $(".lead_client_share_all_users ").click(function () {
+            var userId = $(this).val();
             if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
-                $("#SelectAllLeadShare").prop('checked', "checked")
+                $("#SelectAllLeadShare").prop('checked', true);
             } else {
-                $("#SelectAllLeadShare").prop('checked', false)
+                $("#SelectAllLeadShare").prop('checked', false);
+            }
+            if($(this).is(":checked")){
+                $("#attend_user_"+userId).prop('disabled', false);
+            }else{
+                $("#attend_user_"+userId).prop('disabled', true);
+                $("#attend_user_"+userId).prop('checked', false);
             }
         });
         $("#SelectAllLeadAttend").click(function () {
