@@ -13,15 +13,7 @@ class BillingSettingController extends BaseController
     public function index()
     {
         $invSetting = InvoiceSetting::where('firm_id', auth()->user()->firm_name)->with('reminderSchedule')->first();
-        $customize = InvoiceCustomizationSetting::where('firm_id', auth()->user()->firm_name)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();
-        // return collect($customize->flatFeeColumn);
-        // $flatFeeColumn = $customize->flatFeeColumn->toArray();
-        // return array_map(function ($ind, $val) {
-        //     if($val == "yes") {
-        //         return $ind;
-        //     }
-        // }, array_keys($flatFeeColumn), $flatFeeColumn);
-        
+        $customize = InvoiceCustomizationSetting::where('firm_id', auth()->user()->firm_name)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();        
         return view("billing_setting.index", compact('invSetting', 'customize'));
     }
 
@@ -88,8 +80,11 @@ class BillingSettingController extends BaseController
      */
     public function editCustomization(Request $request)
     {
-        $customize = InvoiceCustomizationSetting::whereId($request->customize_id)->first();
-        return view("billing_setting.partial.edit_invoice_customization", compact('customize'))->render();
+        $customize = InvoiceCustomizationSetting::whereId($request->customize_id)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();
+        $flatFeeColumn = ($customize->flatFeeColumn) ? getColumnsIfYes($customize->flatFeeColumn->toArray()) : [];
+        $timeEntryColumn = ($customize->timeEntryColumn) ? getColumnsIfYes($customize->timeEntryColumn->toArray()) : [];
+        $expenseColumn = ($customize->expenseColumn) ? getColumnsIfYes($customize->expenseColumn->toArray()) : [];
+        return view("billing_setting.partial.edit_invoice_customization", compact('customize', 'flatFeeColumn', 'timeEntryColumn', 'expenseColumn'))->render();
     }
 
     /**
@@ -111,12 +106,10 @@ class BillingSettingController extends BaseController
         ]);
 
         if($request->column) {
+            InvoiceCustomizationSettingColumn::where('firm_id', $authUser->firm_name)->forceDelete();
             foreach($request->column as $keys => $items) {
-                // return $keys;
                 foreach($items as $key => $item) {
-                    InvoiceCustomizationSettingColumn::updateOrCreate([
-                            'id' => @$item['id'],
-                        ], [
+                    InvoiceCustomizationSettingColumn::create([
                         'inv_customiz_setting_id' => $customize->id,
                         'firm_id' => $authUser->firm_name,
                         'billing_type' => $keys,
@@ -135,49 +128,7 @@ class BillingSettingController extends BaseController
                     ]);
                 }
             }
-        }
-    
-            /* InvoiceCustomizationSettingColumn::insert([
-                [
-                    'inv_customiz_setting_id' => $customizeSetting->id,
-                    'firm_id' => $firmId,
-                    'billing_type' => 'flat fee',
-                    'date' => 'yes',
-                    'employee' => 'no',
-                    'item' => 'yes',
-                    'notes' => 'yes',
-                    'amount' => 'yes',
-                    'created_by' => $userId
-                ],
-                [
-                    'inv_customiz_setting_id' => $customizeSetting->id,
-                    'firm_id' => $firmId,
-                    'billing_type' => 'time entry',
-                    'date' => 'yes',
-                    'employee' => 'yes',
-                    'activity' => 'yes',
-                    'notes' => 'yes',
-                    'amount' => 'yes',
-                    'hour' => 'yes',
-                    'line_total' => 'yes',
-                    'created_by' => $userId
-                ],
-                [
-                    'inv_customiz_setting_id' => $customizeSetting->id,
-                    'firm_id' => $firmId,
-                    'billing_type' => 'expense',
-                    'date' => 'yes',
-                    'employee' => 'yes',
-                    'expense' => 'yes',
-                    'notes' => 'yes',
-                    'amount' => 'yes',
-                    'quantity' => 'yes',
-                    'line_total' => 'yes',
-                    'created_by' => $userId
-                ],
-            ]); */
-
-        
+        }       
 
         return view("billing_setting.partial.view_invoice_customization", compact('customize'));
     }

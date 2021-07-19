@@ -15,18 +15,18 @@
     <div class="col-9">
         <div class="mb-2">
             <div>Flat Fee</div>
-            <div class="text-muted flat-fee-columns">{{ (isset($customize) && $customize->flatFeeColumn) ? implode(", ", getColumnsIfYes($customize->flatFeeColumn->toArray()) ?? []) : "" }}</div>
+            <div class="text-muted flat-fee-columns">{{ (isset($customize) && $customize->flatFeeColumn) ? ucwords(implode(", ", getColumnsIfYes($customize->flatFeeColumn->toArray()) ?? [])) : "" }}</div>
         </div>
         <div class="mb-2">
             <div>Time Entry</div>
-            <div class="text-muted time-entry-columns">{{ (isset($customize) && $customize->timeEntryColumn) ? implode(", ", getColumnsIfYes($customize->timeEntryColumn->toArray()) ?? []) : "" }}</div>
+            <div class="text-muted time-entry-columns">{{ (isset($customize) && $customize->timeEntryColumn) ? ucwords(implode(", ", getColumnsIfYes($customize->timeEntryColumn->toArray()) ?? [])) : "" }}</div>
         </div>
         <div class="mb-2">
             <div>Expense</div>
-            <div class="text-muted expense-columns">{{ (isset($customize) && $customize->expenseColumn) ? implode(", ", getColumnsIfYes($customize->expenseColumn->toArray()) ?? []) : "" }}</div>
+            <div class="text-muted expense-columns">{{ (isset($customize) && $customize->expenseColumn) ? ucwords(implode(", ", getColumnsIfYes($customize->expenseColumn->toArray()) ?? [])) : "" }}</div>
         </div>
         <div class="text-right pt-2 pb-1">
-            <button type="button" id="edit-idp-btn" class="btn btn-cta-primary" data-customize-id="{{ @$customize->id }}" data-url="{{ route('billing/settings/edit/customization') }}">Edit</button>
+            <button type="button" id="edit-idp-btn" class="btn btn-primary" data-customize-id="{{ @$customize->id }}" data-url="{{ route('billing/settings/edit/customization') }}">Edit</button>
         </div>
     </div>
 </div>

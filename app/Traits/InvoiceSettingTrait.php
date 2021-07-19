@@ -45,8 +45,7 @@ trait InvoiceSettingTrait {
             'created_by' => $userId,
         ]);
 
-        InvoiceCustomizationSettingColumn::insert([
-            [
+        InvoiceCustomizationSettingColumn::create([
                 'inv_customiz_setting_id' => $customizeSetting->id,
                 'firm_id' => $firmId,
                 'billing_type' => 'flat fee',
@@ -56,8 +55,8 @@ trait InvoiceSettingTrait {
                 'notes' => 'yes',
                 'amount' => 'yes',
                 'created_by' => $userId
-            ],
-            [
+            ]);
+        InvoiceCustomizationSettingColumn::create([
                 'inv_customiz_setting_id' => $customizeSetting->id,
                 'firm_id' => $firmId,
                 'billing_type' => 'time entry',
@@ -69,8 +68,8 @@ trait InvoiceSettingTrait {
                 'hour' => 'yes',
                 'line_total' => 'yes',
                 'created_by' => $userId
-            ],
-            [
+            ]);
+        InvoiceCustomizationSettingColumn::create([
                 'inv_customiz_setting_id' => $customizeSetting->id,
                 'firm_id' => $firmId,
                 'billing_type' => 'expense',
@@ -82,7 +81,6 @@ trait InvoiceSettingTrait {
                 'quantity' => 'yes',
                 'line_total' => 'yes',
                 'created_by' => $userId
-            ],
         ]);
     }
 }

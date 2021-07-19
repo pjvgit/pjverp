@@ -155,14 +155,12 @@ if(!isset($adjustment_token)){
                                     <td style="width: auto;">&nbsp;</td>
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">
                                         Payment Terms</td>
-                                    <td><select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown"
-                                            name="payment_terms">
-                                            <option value="" selected="selected"></option>
-                                            <option value="0">Due Date</option>
-                                            <option value="1">Due on Receipt</option>
-                                            <option value="2">Net 15</option>
-                                            <option value="3">Net 30</option>
-                                            <option value="4">Net 60</option>
+                                    <td>
+                                        <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms">
+                                            @forelse (invoicePaymentTermList() as $key => $item)
+                                                <option value="{{ $key }}" {{ (@$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : "" }}>{{ $item }}</option>
+                                            @empty
+                                            @endforelse
                                         </select></td>
                                 </tr>
                                 <tr>
@@ -170,8 +168,7 @@ if(!isset($adjustment_token)){
                                     <td style="width: auto;">&nbsp;</td>
                                     <td style="width: 120px; text-align: right; padding-right: 5px; ">
                                         Due Date</td>
-                                    <td><input id="bill_due_date" class="form-control date datepicker" name="bill_due_date"
-                                            value=""></td>
+                                    <td><input id="bill_due_date" class="form-control date datepicker" name="bill_due_date" value="" ></td>
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
@@ -273,12 +270,36 @@ if(!isset($adjustment_token)){
                             <tbody>
                                 <tr>
                                     <th style="border-right: none;">&nbsp;</th>
-                                    <th style="border-left: none;">Date</th>
-                                    <th> EE </th>
-                                    <th> Employee</th>
-                                    <th> Item </th>
-                                    <th> Falt Fee Notes</th>
-                                    <th> Amount </th>
+                                    <th style="border-left: none;">Date
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('amount', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> EE 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('employee', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Employee
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('employee', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Item 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('item', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Falt Fee Notes
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('notes', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Amount 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('amount', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
                                     <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable</th>
                                 </tr>
                                 <?php
@@ -416,14 +437,46 @@ if(!isset($adjustment_token)){
                             <tbody>
                                 <tr>
                                     <th style="border-right: none;">&nbsp;</th>
-                                    <th style="border-left: none;">Date</th>
-                                    <th> EE </th>
-                                    <th> Employee</th>
-                                    <th> Activity </th>
-                                    <th> Time Entry Notes</th>
-                                    <th> Rate </th>
-                                    <th> Hours </th>
-                                    <th> Line Total </th>
+                                    <th style="border-left: none;">Date
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('date', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> EE 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('employee', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Employee
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('employee', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Activity 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('activity', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Time Entry Notes
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('notes', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Rate 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('amount', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Hours 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('hour', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Line Total 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('line_total', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
                                     <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable
                                     </th>
                                 </tr>
@@ -613,27 +666,51 @@ if(!isset($adjustment_token)){
                                         </th>
                                         <th style="width: 100px; border-left: none;">
                                             Date
+                                            @if (count(getExpenseColumnArray()) && !in_array('date', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 60px;">
                                             EE
+                                            @if (count(getExpenseColumnArray()) && !in_array('employee', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 120px;">
                                             Employee
+                                            @if (count(getExpenseColumnArray()) && !in_array('employee', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 150px;">
                                             Expense
+                                            @if (count(getExpenseColumnArray()) && !in_array('expense', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 250px;">
                                             Expense Notes
+                                            @if (count(getExpenseColumnArray()) && !in_array('notes', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Cost
+                                            @if (count(getExpenseColumnArray()) && !in_array('amount', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Quantity
+                                            @if (count(getExpenseColumnArray()) && !in_array('quantity', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Line Total
+                                            @if (count(getExpenseColumnArray()) && !in_array('line_total', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 40px; font-size: 11px; line-height: 12px; text-align: center;">
                                             Non<br>Billable
@@ -1577,10 +1654,6 @@ if(!isset($adjustment_token)){
                         <div class="loader-bubble loader-bubble-primary innerLoader float-left mr-5" id="innerLoader" style="display: none;">
                         </div>
                         &nbsp;
-                            {{-- <input type="text" name="new_added_flat_fee[]" id="new_added_flat_fee"> --}}
-                            {{-- <input type="text" name="new_added_time_entry[]" id="new_added_time_entry"> --}}
-                            {{-- <input type="text" name="new_added_expense[]" id="new_added_expense"> --}}
-                            {{-- <input type="text" name="new_added_adjustment[]" id="new_added_adjustment"> --}}
                             <!-- <button class="btn btn-secondary btn-rounded  m-1" type="button" data-dismiss="modal">Cancel</button> -->
                             <a data-toggle="modal"  data-target="#cancelEdit" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-secondary btn-rounded  m-1" >Cancel</a>
                         </a>
@@ -1641,94 +1714,6 @@ if(!isset($adjustment_token)){
     </div>
 </div>
 <!-- end cancel -->
-<!-- For Time Entry -->
-{{-- <div id="delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
-        <form class="removeExistingEntryForm" id="removeExistingEntryForm" name="removeExistingEntryForm" method="POST">
-            @csrf
-            <input type="hidden" value="" name="time_entry_id" id="delete_time_entry_id">
-            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="showError" style="display:none"></div>
-                    <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
-                            Would you like to <strong>remove</strong> the selected entry from this invoice or
-                            permanently <strong>delete</strong> it from {{config('app.name')}}?
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-md-10  text-center">
-                        <div class="form-group row float-left">
-                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
-                                style="display: none;"></div>
-                        </div>
-                        <div class="form-group row float-right">
-                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
-                            <input class="btn btn-primary ladda-button example-button m-1 submit"
-                                onclick="actionTimeEntry('delete')" name="action" value="Delete" id="submit"
-                                type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
-                                value="Remove" id="submit" onclick="actionTimeEntry('remove')" type="submit">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div> --}}
-
-{{-- <div id="flat_fee_delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
-        <form class="removeExistingFlatFeeEntryForm" id="removeExistingFlatFeeEntryForm" name="removeExistingFlatFeeEntryForm" method="POST">
-            @csrf
-            <input type="hidden" value="" name="flat_fee_id" id="flat_fee_delete_entry_id">
-            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="showError" style="display:none"></div>
-                    <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
-                            Would you like to <strong>remove</strong> the selected entry from this invoice or
-                            permanently <strong>delete</strong> it from {{config('app.name')}}?
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-md-10  text-center">
-                        <div class="form-group row float-left">
-                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
-                                style="display: none;"></div>
-                        </div>
-                        <div class="form-group row float-right">
-                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
-                            <input class="btn btn-primary ladda-button example-button m-1 submit"
-                                onclick="actionFlatFeeEntry('delete')" name="action" value="Delete" id="submit"
-                                type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
-                                value="Remove" id="submit" onclick="actionFlatFeeEntry('remove')" type="submit">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div> --}}
 
 @include('billing.invoices.partials.modal')
 
@@ -1856,52 +1841,6 @@ if(!isset($adjustment_token)){
 </div>
 <!-- For Time Entry -->
 
-
-<!-- For Expense Entry -->
-{{-- <div id="delete_expense_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
-        <form class="removeExistingExpenseEntryForm" id="removeExistingExpenseEntryForm"
-            name="removeExistingExpenseEntryForm" method="POST">
-            @csrf
-            <input type="hidden" value="" name="expense_entry_id" id="delete_expense_entry_id">
-            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="showError" style="display:none"></div>
-                    <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
-                            Would you like to <strong>remove</strong> the selected entry from this invoice or
-                            permanently <strong>delete</strong> it from {{config('app.name')}}?
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-md-10  text-center">
-                        <div class="form-group row float-left">
-                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
-                                style="display: none;"></div>
-                        </div>
-                        <div class="form-group row float-right">
-                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
-                            <input class="btn btn-primary ladda-button example-button m-1 submit"
-                                onclick="actionExpenseEntry('delete')" name="action" value="Delete" id="submit"
-                                type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
-                                value="Remove" id="submit" onclick="actionExpenseEntry('remove')" type="submit">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div> --}}
 <div id="removeAlllExistingExpenseEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
@@ -2898,6 +2837,10 @@ if(!isset($adjustment_token)){
         }).on('change',function(e){
             reloadByDate();
         });
+
+        @if(isset($invoiceSetting) && $invoiceSetting->default_invoice_payment_terms) 
+            paymentTerm();
+        @endif
     });
     $('#removeAlllExistingTimeEntryForm').submit(function (e) {
         beforeLoader();

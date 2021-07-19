@@ -4,6 +4,9 @@ use App\CaseMaster;
 use App\CasePracticeArea;
 use App\Firm;
 use App\FirmAddress;
+use App\InvoiceCustomizationSetting;
+use App\InvoiceCustomizationSettingColumn;
+use App\InvoiceSetting;
 use App\LeadAdditionalInfo;
 use App\User;
 use Carbon\Carbon;
@@ -257,8 +260,66 @@ function getColumnsIfYes($array)
 {
     $result = array_map(function ($ind, $val) {
         if($val == "yes") {
-            return ucfirst($ind);
+            return $ind;
         }
     }, array_keys($array), $array);
     return array_filter($result, function($v) { return !is_null($v); });
+}
+
+/**
+ * get invoice setting
+ */
+function getInvoiceSetting()
+{
+    return InvoiceSetting::where("firm_id", auth()->user()->firm_name)->first();
+}
+
+/**
+ * get customize setting
+ */
+function getCustomizeSetting()
+{
+    return InvoiceCustomizationSetting::where("firm_id", auth()->user()->firm_name)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();
+}
+
+/**
+ * Get flat fee column array
+ */
+function getFlatFeeColumnArray()
+{
+    $columns = InvoiceCustomizationSettingColumn::where("firm_id", auth()->user()->firm_name)->where("billing_type", 'flat fee')->first();
+    if($columns) {
+        $columns = getColumnsIfYes($columns->toArray());
+    } else {
+        $columns = [];
+    }
+    return $columns;
+}
+
+/**
+ * Get time entry column array
+ */
+function getTimeEntryColumnArray()
+{
+    $columns = InvoiceCustomizationSettingColumn::where("firm_id", auth()->user()->firm_name)->where("billing_type", 'time entry')->first();
+    if($columns) {
+        $columns = getColumnsIfYes($columns->toArray());
+    } else {
+        $columns = [];
+    }
+    return $columns;
+}
+
+/**
+ * Get time entry column array
+ */
+function getExpenseColumnArray()
+{
+    $columns = InvoiceCustomizationSettingColumn::where("firm_id", auth()->user()->firm_name)->where("billing_type", 'expense')->first();
+    if($columns) {
+        $columns = getColumnsIfYes($columns->toArray());
+    } else {
+        $columns = [];
+    }
+    return $columns;
 }
