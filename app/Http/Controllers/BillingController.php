@@ -16,6 +16,8 @@ use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePractic
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice,App\TrustHistory;
 use App\CaseStage,App\TempUserSelection;
+use App\InvoiceCustomizationSetting;
+use App\InvoiceSetting;
 use App\Jobs\InvoiceReminderEmailJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -2077,8 +2079,8 @@ class BillingController extends BaseController
             if($caseMaster) {
                 $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("status", "!=", "Forwarded")->get();
             }
-
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices'));
+            $invoiceSetting = getInvoiceSetting();
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting'));
         }else{
             return view('pages.404');
         }
@@ -2935,8 +2937,6 @@ class BillingController extends BaseController
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
-            // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            // 'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
@@ -3182,6 +3182,46 @@ class BillingController extends BaseController
             $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
+
+            // Store invoice view settings
+            $jsonData = [];
+            $preferenceSetting = InvoiceSetting::where("firm_id", auth()->user()->firm_name)->with("reminderSchedule")->first();
+            $customizationSetting = InvoiceCustomizationSetting::where("firm_id", auth()->user()->firm_name)->with("flatFeeColumn", "timeEntryColumn", "expenseColumn")->first();
+            if($preferenceSetting) {
+                $jsonData = [
+                    'hours_decimal_point' => $preferenceSetting->time_entry_hours_decimal_point,
+                    'payment_terms' => $preferenceSetting->time_entry_default_invoice_payment_terms,
+                    'activity_display_on_new_invoices' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
+                    'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
+                    'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
+                    'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
+                    'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
+                ];
+                if($preferenceSetting->reminderSchedule) {
+                    foreach($preferenceSetting->reminderSchedule as $key => $item) {
+                        $jsonData['reminder'][] = [
+                            'remind_type' => $item->remind_type,
+                            'days' => $item->days,
+                        ];
+                    }
+                }
+            }
+            if($customizationSetting) {
+                $jsonData['invoice_theme'] = $customizationSetting->invoice_theme;
+                $jsonData['show_case_no_after_case_name'] = $customizationSetting->show_case_no_after_case_name;
+                $jsonData['non_billable_time_entries_and_expenses'] = $customizationSetting->non_billable_time_entries_and_expenses;
+                if($customizationSetting->flatFeeColumn) {
+                    $jsonData['flat_fee'] = getColumnsIfYes($customizationSetting->flatFeeColumn->toArray());
+                }
+                if($customizationSetting->timeEntryColumn) {
+                    $jsonData['time_entry'] = getColumnsIfYes($customizationSetting->timeEntryColumn->toArray());
+                }
+                if($customizationSetting->expenseColumn) {
+                    $jsonData['expense'] = getColumnsIfYes($customizationSetting->expenseColumn->toArray());
+                }
+            }
+            $InvoiceSave->invoice_setting = json_encode($jsonData);
+            $InvoiceSave->save();
 
             $decodedId=base64_encode($InvoiceSave->id);
             return redirect('bills/invoices/view/'.$decodedId);

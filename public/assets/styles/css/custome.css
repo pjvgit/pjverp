@@ -294,3 +294,8 @@ button:disabled {
     .standard-thumbnail:hover{
         transform: scale(3.5) !important;
     } */
+
+.tiny-icon {
+    height: 16px;
+    width: 16px;
+}

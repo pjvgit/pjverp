@@ -284,17 +284,17 @@ $(document).ready(function () {
     }else if(selectdValue==2){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
         CheckOut = moment().add(15, 'day').toDate();
-        $('#bill_due_date').datepicker('update', CheckOut).focus();
+        $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
        
     }else if(selectdValue==3){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
         CheckOut = moment().add(30, 'day').toDate();
-        $('#bill_due_date').datepicker('update', CheckOut).focus();
+        $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
        
     }else{
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
         CheckOut = moment().add(60, 'day').toDate();
-        $('#bill_due_date').datepicker('update', CheckOut).focus();
+        $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
     }
 
     if(selectdValue==""){
