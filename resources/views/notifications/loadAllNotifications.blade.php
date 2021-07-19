@@ -77,21 +77,19 @@ if(!$commentData->isEmpty()){
                         $image=$ImageArray[$v->action];
                         ?>
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                        <a class="name"
-                            href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
-                            {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
-                        #R-{{sprintf('%06d', $v->deposit_id)}}</a>  
-                        <?php if($v->ulevel=="2"){?>
-                            to <a class="name" href="{{ route('contacts/clients/view',$v->deposit_for) }}">{{$v->fullname}} (Client)</a>
+                        <a class="name"  href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
+                            {{$v->last_name}} ({{$v->user_title}})</a> 
+                        {{$v->activity}} 
+                        #R-{{sprintf('%06d', $v->deposit_id)}}
+                        <?php if($v->ulevel=="2" && $v->deposit_for != ''){?>
+                            to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} {{ $v->deposit_for}}(Client)</a>
                         <?php } ?>
 
-                        <?php if($v->ulevel=="4"){?>
+                        <?php if($v->ulevel=="4" && $v->deposit_for != ''){?>
                             to <a class="name"
-                            href="{{route('contacts/companies/view',$v->deposit_for)}}">{{$v->fullname}} (Company)</a>
-                            <?php } ?>
-
-                        {{$v->ulevel}} <abbr class="timeago"
-                            title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
+                            href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
+                        <?php } ?>
+                        {{$v->ulevel}} <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                     </div>
                 </td>
             </tr>
