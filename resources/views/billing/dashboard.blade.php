@@ -153,7 +153,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         </div>
                                     </div>
                                     <div class="pt-3">
-                                        <a href="{{BASE_URL}}notifications" class="pendo-view-all-activity">View all
+                                        <a href="{{ route('notifications') }}" class="pendo-view-all-activity">View all
                                             activity</a>
                                     </div>
                                 </div>

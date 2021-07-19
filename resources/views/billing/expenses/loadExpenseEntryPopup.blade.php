@@ -2,7 +2,7 @@
     <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
             aria-controls="homeBasic" aria-selected="true">Single</a></li>
     <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
-            aria-controls="profileBasic" aria-selected="false">Bulk 05</a></li>
+            aria-controls="profileBasic" aria-selected="false">Bulk</a></li>
 </ul>
 <div class="tab-content" id="myTabContent">
     <span id="showError" class="showError" style="display: none;"></span>

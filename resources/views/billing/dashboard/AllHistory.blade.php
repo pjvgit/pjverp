@@ -1,6 +1,6 @@
 <?php 
 $CommonController= new App\Http\Controllers\CommonController();
-?>
+if(!$commentData->isEmpty()){ ?>
 <table class="display table table-striped table-bordered dataTable no-footer" id="caseHistoryGrid" style="width: 100%;"
     role="grid">
     <tbody>
@@ -191,3 +191,6 @@ $CommonController= new App\Http\Controllers\CommonController();
         } ?>
     </tbody>
 </table>
+<?php } else{ ?>
+No recent activity available.
+<?php } ?>
