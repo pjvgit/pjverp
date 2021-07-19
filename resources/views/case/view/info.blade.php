@@ -32,7 +32,7 @@
                                 x-placement="top-start">
                                 <div class="card">
                                     <div class="card-body">
-                                    <a href="{{BASE_URL}}case_stages">
+                                    <a href="{{ route('case_stages') }}">
                                         <button type="button" tabindex="0" role="menuitem"  class="m-0 bulk-mark-tasks-as-read dropdown-item">
                                         <span> Manage Case Stages</span>
                                         </button>
@@ -73,7 +73,7 @@
                             $startDate[$val['stage_id']]=$val['startDate'];
                             $endDate[$val['stage_id']]=$val['endDate'];
                          }
-                       
+                        
                         foreach($days as $k=>$v){
                             $p=100;
                             if($val['days']!=0){
@@ -86,13 +86,10 @@
                             
                             <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                            <?php }else{ 
-                                ?>
-                                <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ (in_array($k, (array)$caseStageListArray)) ? @$caseStageListArray[$k] : "" }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(@$startDate[$k])) }}<br>Ended :{{ date('m/d/Y',strtotime(@$endDate[$k])) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
-                                style="width:{{$p}}%;background-color:{{ (in_array($k, (array)$color)) ? @$color[$k] : ""}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                <?php 
-                             }
-                             ?>
+                            <?php }else{ ?>
+                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ (in_array($k, (array)$caseStageListArray)) ? @$caseStageListArray[$k] : '' }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(@$startDate[$k])) }}<br>Ended :{{ date('m/d/Y',strtotime(@$endDate[$k])) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
+                            style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                            <?php  } ?>
                     <?php } ?>
                     </div>
                     <div style="opacity: 1;" class="insights-legend d-flex flex-row undefined flex-wrap">
