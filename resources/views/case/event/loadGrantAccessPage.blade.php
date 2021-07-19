@@ -25,7 +25,7 @@
         <div></div>
         <div class="mr-0">
             <button class="btn btn-primary example-button ml-1" id="submit" type="submit" data-style="expand-left">
-                Grant access 28
+                Grant access
             </button>
         </div>
     </div>

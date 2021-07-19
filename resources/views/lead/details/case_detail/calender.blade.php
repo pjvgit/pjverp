@@ -7,7 +7,6 @@ $CommonController= new App\Http\Controllers\CommonController();
 
 ?>
 <div class="col-md-12">
-
     <div id="calendar_page" class="case_info_page" style="">
         <div id="case-calendar-container" data-court-case-id="12126380" data-can-edit-events="true">
             <div class="case-calendar-view mt-2">
@@ -150,7 +149,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                         @php
                                         $userListHtml="";
                                         foreach($vv->eventLinkedStaff as $linkuserValue){
-                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_user_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
                                         }
                                         @endphp
                                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
@@ -159,7 +158,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                         style="float:left;">{{count($vv->eventLinkedStaff)}} People</a>
                                     @else
                                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                        href="{{BASE_URL}}/contacts/attorneys/{{ @$vv->eventLinkedStaff[0]->decode_user_id }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>
+                                        href="{{ route('contacts/attorneys/info', base64_encode(@$vv->eventLinkedStaff[0]->decode_id)) }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>
                                     @endif
                                 @else
                                     <i class="table-cell-placeholder mt-3"></i>
