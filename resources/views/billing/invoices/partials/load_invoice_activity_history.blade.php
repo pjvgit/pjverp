@@ -174,7 +174,7 @@
 
 
                     ?>
-                    <tr id="" class="invoice-history-row nowrap">
+                    <tr id="inv_{{$value->id}}" data-id="inv_{{$value->invoice_id}}" class="invoice-history-row nowrap">
                         <td class="first_child invoice-history-row-type">
                             <?php if($value->acrtivity_title=="Unshared w/Contacts"){?>
                                 <span class="bill-history-indicator status_indicator_red"></span>
@@ -204,13 +204,10 @@
                             ?>
                         </td>
                         <td class="invoice-history-row-amount">
-                            
                             @if($value->acrtivity_title=="Payment Received")
-                                @if($value->refund_amount!=NULL)
-                                    ${{$value->refund_amount}}
-                                @else
-                                    ${{number_format($value->amount,2)}}
-                                @endif
+                                ${{number_format($value->amount,2)}}
+                            @elseif($value->acrtivity_title=="Payment Received" && $value->refund_amount!=NULL)
+                                (${{number_format($value->amount,2)}})
                             @elseif($value->acrtivity_title=="Payment Refund")
                                 (${{number_format($value->amount,2)}})
                             @elseif($value->amount)

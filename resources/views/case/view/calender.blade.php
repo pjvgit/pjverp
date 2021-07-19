@@ -147,7 +147,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                         style="float:left;">{{count($vv->eventLinkedStaff)}} People</a>
                                     @else
                                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                        href="{{ route('contacts/attorneys/info', base64_encode(@$vv->eventLinkedStaff[0]->decode_id)) }}">{{ @$vv->eventLinkedStaff[0]->full_name}} 178</a>
+                                        href="{{ route('contacts/attorneys/info', base64_encode(@$vv->eventLinkedStaff[0]->decode_id)) }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>
                                     @endif
                                 @else
                                     <i class="table-cell-placeholder mt-3"></i>
