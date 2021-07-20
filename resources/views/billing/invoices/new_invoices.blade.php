@@ -158,7 +158,7 @@ if(!isset($adjustment_token)){
                                     <td>
                                         <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms">
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ (@$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : "" }}>{{ $item }}</option>
+                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (($bill_payment_terms == $key) ? "selected" : "") }}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -3092,11 +3092,18 @@ if(!isset($adjustment_token)){
         })
        
     }
+    <?php if($bill_payment_terms >= 0) {?>
+        paymentTerm();
+    <?php } ?>
     function changeCase(){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
-
-        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        var bill_payment_terms = $("#bill_payment_terms").val();
+        if(bill_payment_terms != ''){
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&bill_payment_terms='+bill_payment_terms;
+        }else{
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        }
         window.location.href=URLS;
     }
 

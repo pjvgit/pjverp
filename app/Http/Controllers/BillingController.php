@@ -2094,7 +2094,8 @@ class BillingController extends BaseController
                 $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("status", "!=", "Forwarded")->get();
             }
             $invoiceSetting = getInvoiceSetting();
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting'));
+            $bill_payment_terms = $request->bill_payment_terms;
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting','bill_payment_terms'));
         }else{
             return view('pages.404');
         }

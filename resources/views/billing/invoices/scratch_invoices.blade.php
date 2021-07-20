@@ -1675,7 +1675,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function changeCase(){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
-        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        var bill_payment_terms = $("#bill_payment_terms").val();
+        if(bill_payment_terms != ''){
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&bill_payment_terms='+bill_payment_terms;
+        }else{
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        }
         window.location.href=URLS;
     }
 

@@ -270,6 +270,16 @@ $(document).ready(function () {
     });
 });
 
+$("#bill_invoice_date").on("change", function() {
+    paymentTerm();
+});
+
+function addDaysToDate(bill_invoice_date, days){
+    var now = new Date(bill_invoice_date);
+    now.setDate(now.getDate()+days);
+    console.log(now);
+    return (now.getMonth() + 1).toString().padStart(2, '0') + '/' + now.getDate().toString().padStart(2, '0') + '/' + now.getFullYear();
+}
 /**
  * Check payment terms and due date
  */
@@ -279,21 +289,20 @@ $(document).ready(function () {
     var selectdValue = $("#bill_payment_terms option:selected").val();
     var bill_invoice_date=$("#bill_invoice_date").val();
     if(selectdValue==0 || selectdValue==1){
-        var minDate =  $('#bill_invoice_date').datepicker('getDate');
-        $('#bill_due_date').datepicker("setDate", minDate);
+        $('#bill_due_date').datepicker("update", bill_invoice_date);
     }else if(selectdValue==2){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
-        CheckOut = moment().add(15, 'day').toDate();
+        CheckOut = addDaysToDate(bill_invoice_date, 15)
         $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
        
     }else if(selectdValue==3){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
-        CheckOut = moment().add(30, 'day').toDate();
+        CheckOut = addDaysToDate(bill_invoice_date, 30)
         $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
        
     }else{
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
-        CheckOut = moment().add(60, 'day').toDate();
+        CheckOut = addDaysToDate(bill_invoice_date, 60)
         $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
     }
 
