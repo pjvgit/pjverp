@@ -101,24 +101,42 @@
 
 
             </div>
-
+            @if (isset($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+            <div class="invoice-modern-theme">
+                <div class="invoice invoice_page" style="padding: 0 0 30px 0;">
+                    <div id="invoice_total_div">
+                        @include('billing.invoices.partials.load_invoice_detail')
+                    </div>
+                    @if(isset($invoiceDefaultSetting) && $invoiceDefaultSetting->is_payment_history_on_bills == "yes")
+                    <div style="padding: 20px;">
+                        <br>
+                        <div id="payment_history_div">
+                        @include('billing.invoices.partials.load_invoice_payment_history')
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @else
             <div id="preview_page">
-
                 <div style="padding: 30px 50px;">
                     <div class="invoice invoice_page" style="padding: 0 0 20px 0;">
                         <div id="invoice_total_div">
                             @include('billing.invoices.partials.load_invoice_detail')
                         </div>
+                        @if(isset($invoiceDefaultSetting) && $invoiceDefaultSetting->is_payment_history_on_bills == "yes")
                         <div style="padding: 20px;">
                             <br>
                             <div id="payment_history_div">
                             @include('billing.invoices.partials.load_invoice_payment_history')
                             </div>
                         </div>
+                        @endif
                     </div>
                 
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

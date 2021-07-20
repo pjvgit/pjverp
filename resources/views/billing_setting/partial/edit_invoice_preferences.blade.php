@@ -108,7 +108,7 @@
         <label class="col-sm-3">Payment History on Bills</label>
         <div class="col-9">
             <input name="is_payment_history_on_bills" type="hidden" value="no">
-            <input type="checkbox" value="yes" checked="checked" name="is_payment_history_on_bills" id="firm_bill_payment_history_enabled" @if(isset($invSetting) && $invSetting->is_payment_history_on_bills == 'yes') checked @endif>
+            <input type="checkbox" value="yes" name="is_payment_history_on_bills" id="firm_bill_payment_history_enabled" @if(isset($invSetting) && $invSetting->is_payment_history_on_bills == 'yes') checked @endif>
             <label for="firm_bill_payment_history_enabled">Enabled</label>
         </div>
     </div>

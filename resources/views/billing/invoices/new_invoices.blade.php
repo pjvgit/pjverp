@@ -181,7 +181,8 @@ if(!isset($adjustment_token)){
                                             style="display: inline; position: relative; top: -7px; left: 5px; color: rgb(0, 112, 187);"
                                             class="switch pr-5 switch-success mr-3">
                                             <span data-toggle="tooltip" data-placement="bottom"
-                                                title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i
+                                                {{-- title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i --}}
+                                                title="{{ (isset($invoiceSetting) && $invoiceSetting->reminderSchedule) ? $invoiceSetting->getReminderMessage() : "" }}"><i
                                                     class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
                                             <input type="checkbox" name="automated_reminders" id="automated_reminders" disabled><span
@@ -235,7 +236,11 @@ if(!isset($adjustment_token)){
                     <?php if($case_id!=""){?>
                     <div id="entries" style="margin: 5px;">
                         <div class="invoice_case_gradient">
-                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} </h2>
+                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} 
+                                @if(isset($customizSetting) && $customizSetting->show_case_no_after_case_name == "yes")
+                                    ({{ $caseMaster->case_number }})
+                                @endif
+                            </h2>
                         </div>
                         <div class="invoice_entry_header">
                             <table>
@@ -550,8 +555,9 @@ if(!isset($adjustment_token)){
                                             flat
                                         </a>
                                     </td>
-                                    <?php }else{?>
-                                    <td style="text-align: right;" class="billable_toggle time-entry-hours row_total <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                    <?php }else{
+                                        ?>
+                                    <td style="text-align: right;" class="billable_toggle time-entry-hours {{-- row_total --}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
                                         <a data-toggle="modal" data-target="#editNewTimeEntry"
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0">
@@ -1260,7 +1266,7 @@ if(!isset($adjustment_token)){
                             </tr>
                             <tr>
                             <td style="padding: 0px 5px 5px 5px;">
-                                <textarea style="width: 100%; height: 150px;" class="boxsizingBorder" name="bill[terms_and_conditions]" id="bill_terms_and_conditions"></textarea>
+                                <textarea style="width: 100%; height: 150px;" class="boxsizingBorder" name="bill[terms_and_conditions]" id="bill_terms_and_conditions">{{ (isset($invoiceSetting)) ? $invoiceSetting->default_terms_conditions : "" }}</textarea>
                             </td>
                             <td style="padding: 0px 5px 5px 5px;">
                                 <textarea style="width: 100%; height: 150px;" class="boxsizingBorder" name="bill[bill_notes]" id="bill_bill_notes"></textarea>

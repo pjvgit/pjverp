@@ -792,9 +792,6 @@
             $("#repeat_custom").hide();
             updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'WEEKLY') {
-            // var selectedDate = $("#start_date").val();
-            // var date = new Date(selectedDate);
-            // $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
             updateMonthlyWeeklyOptions();
         } else {
             $("#repeat_daily").hide();
