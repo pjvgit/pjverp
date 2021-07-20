@@ -176,7 +176,7 @@
 
                 </div>
             </div>
-            <h5 class="mb-3 bold">Time Entries</h5>
+            <!-- <h5 class="mb-3 bold">Time Entries</h5> -->
             <div class="bulk-time-entries-row-0 fieldGroup">
                 <h5 class="mt-3 bold">Expense 1</h5>
                 <div class="no-gutters row ">

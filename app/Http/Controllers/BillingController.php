@@ -2049,9 +2049,23 @@ class BillingController extends BaseController
                             'created_by' => auth()->id(), 
                         ]);
                     }
+                }                
+            }
+            if($case_id == "none"){
+                $totalFlatFee = FlatFeeEntry::where('case_id', 0)->where('user_id', auth()->id())->where("status","unpaid")->first();
+                if(empty($totalFlatFee)) {
+                    FlatFeeEntry::create([
+                        'case_id' => 0,
+                        'user_id' => auth()->id(),
+                        'entry_date' => Carbon::now(),
+                        'cost' =>  0,
+                        'time_entry_billable' => 'yes',
+                        'created_by' => auth()->id(), 
+                    ]);
                 }
             }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")->where("flat_fee_entry.case_id",$case_id)
+            ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
                 $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
@@ -2255,7 +2269,7 @@ class BillingController extends BaseController
 
                 $FlatFeeEntry = FlatFeeEntry::find($request->id);
                 $case_id=$FlatFeeEntry['case_id'];
-                $CaseMasterData = CaseMaster::find($case_id);
+                $CaseMasterData = CaseMaster::find($case_id);                
                 return view('billing.invoices.editSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id','FlatFeeEntry'));     
                 exit; 
             }else{
