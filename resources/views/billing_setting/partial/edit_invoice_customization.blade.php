@@ -9,7 +9,7 @@
                     <div class="card text-center thumbnail-card">
                         <div class="card-header mb-2">Standard</div>
                         <div class="card-body">
-                            <div class="ml-4 standard-thumbnail"><img src="{{ asset('images/thumbnail_standard.png') }}" ></div>
+                            <div class="standard-thumbnail"><img src="{{ asset('images/thumbnail_standard.png') }}" ></div>
                             <div class="pt-3">
                                 <input id="input-standard-thumbnail" name="invoice_theme" value="standard" type="radio" @if(isset($customize) && $customize->invoice_theme == "standard") checked @endif @if(!isset($customize)) checked @endif> Standard</div>
                         </div>
@@ -19,7 +19,7 @@
                     <div class="card text-center thumbnail-card">
                         <div class="card-header mb-2">Modern</div>
                         <div class="card-body">
-                            <div class="ml-4 modern-thumbnail"><img src="{{ asset('images/thumbnail_modern.png') }}" ></div>
+                            <div class="modern-thumbnail"><img src="{{ asset('images/thumbnail_modern.png') }}" ></div>
                             <div class="pt-3">
                                 <input id="input-modern-thumbnail" name="invoice_theme" value="modern" type="radio" @if(isset($customize) && $customize->invoice_theme == "modern") checked @endif> Modern</div>
                         </div>

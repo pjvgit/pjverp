@@ -2095,7 +2095,8 @@ class BillingController extends BaseController
             }
             $invoiceSetting = getInvoiceSetting();
             $bill_payment_terms = $request->bill_payment_terms;
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting','bill_payment_terms'));
+            $customizSetting = getCustomizeSetting();
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting', 'bill_payment_terms', 'customizSetting'));
         }else{
             return view('pages.404');
         }
@@ -3235,7 +3236,7 @@ class BillingController extends BaseController
                     $jsonData['expense'] = getColumnsIfYes($customizationSetting->expenseColumn->toArray());
                 }
             }
-            $InvoiceSave->invoice_setting = json_encode($jsonData);
+            $InvoiceSave->invoice_setting = $jsonData;
             $InvoiceSave->save();
 
             $decodedId=base64_encode($InvoiceSave->id);
@@ -3308,11 +3309,13 @@ class BillingController extends BaseController
             }
 
             $invoiceNo = sprintf('%06d', $findInvoice->id);
+            $invoiceSetting = $findInvoice->invoice_setting;
+            $invoiceDefaultSetting = getInvoiceSetting();
             if($request->ajax()) {
-                return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo'))->render();
+                return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting'))->render();
             }
-
-            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo'));     
+            // return $findInvoice->invoice_setting['flat_fee'];
+            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting'));     
             exit; 
         }
     }
@@ -4019,8 +4022,8 @@ class BillingController extends BaseController
             if($caseMaster) {
                 $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("id", "!=", $findInvoice->id)->get();
             }
-
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices'));
+            $invoiceSetting = $findInvoice->invoice_setting;
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting'));
         }
     }
 

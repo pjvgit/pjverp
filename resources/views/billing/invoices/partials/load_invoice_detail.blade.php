@@ -93,9 +93,10 @@
                                 @if($findInvoice->case_id == 0)
                                     None
                                 @else
-                                <a class="bill-court-case-link"
-                                    {{-- href="{{BASE_URL}}court_cases/{{@$caseMaster->case_unique_number}}/info">{{$caseMaster->case_title}}</a> --}}
-                                    href="{{ route('info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
+                                <a class="bill-court-case-link" href="{{ route('info', @$caseMaster->case_unique_number) }} ">{{ @$caseMaster->case_title }}</a>
+                                    @if(isset($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
+                                        ({{ $caseMaster->case_number }})
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -139,21 +140,31 @@
                 <table style="width: 100%; border-collapse: collapse;">
                     <tbody>
                         <tr class="invoice_info_row">
+                            @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['flat_fee']))
                             <td class="invoice_info_bg">
                                 Date
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['flat_fee']))
                             <td class="invoice_info_bg">
                                 EE
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("item", $invoiceSetting['flat_fee']))
                             <td class="invoice_info_bg">
                                 Item
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['flat_fee']))
                             <td class="invoice_info_bg">
                                 Description
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['flat_fee']))
                             <td class="invoice_info_bg" style=" text-align: right;width:10%;">
                                 Amount
                             </td>
+                            @endif
                         </tr>
                         <?php
                         $nonBillDataFlateFee=[];
@@ -161,24 +172,33 @@
                             if($v->time_entry_billable=="yes"){
                                 ?>
                             <tr class="invoice_info_row ">
+                                @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['flat_fee']))
                                 <td class="time-entry-date" style="vertical-align: top;">
                                     {{date('m/d/Y',strtotime($v->entry_date))}}
                                 </td>
+                                @endif
+                                @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['flat_fee']))
                                 <td class="time-entry-ee" style="vertical-align: top;">
                                     {{$v->first_name[0]}}{{$v->last_name[0]}}
                                 </td>
+                                @endif
+                                @if (isset($invoiceSetting) && in_array("item", $invoiceSetting['flat_fee']))
                                 <td class="time-entry-activity" style="vertical-align: top;">
                                     Flat Fee
                                 </td>
+                                @endif
+                                @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['flat_fee']))
                                 <td class="time-entry-description" style="vertical-align: top;">
                                     <p class="invoice_notes">
                                         {{$v->description}}
                                     </p>
                                 </td>
+                                @endif
+                                @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['flat_fee']))
                                 <td style="vertical-align: top; text-align: right;" class="" >
                                     ${{number_format($v->cost,2)}}
                                 </td>
-                                
+                                @endif
                             </tr>
                         <?php 
                         $flatFeeEntryAmount+=$v->cost;
@@ -239,27 +259,41 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <tbody>
                     <tr class="invoice_info_row">
+                        @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg">
                             Date
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg">
                             EE
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("activity", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg">
                             Activity
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg">
                             Description
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg" style="width: 65px; text-align: right;">
                             Rate
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("hour", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg" style="width: 65px; text-align: right;">
                             Hours
                         </td>
+                        @endif
+                        @if (isset($invoiceSetting) && in_array("line_total", $invoiceSetting['time_entry']))
                         <td class="invoice_info_bg" style="width: 140px; text-align: right;">
                             Line Total
                         </td>
+                        @endif
                     </tr>
                     <?php
                     $nonBillData=[];
@@ -267,31 +301,44 @@
                         if($v->time_entry_billable=="yes"){
                             ?>
                         <tr class="invoice_info_row ">
+                            @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['time_entry']))
                             <td class="time-entry-date" style="vertical-align: top;">
                                 {{date('m/d/Y',strtotime($v->entry_date))}}
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['time_entry']))
                             <td class="time-entry-ee" style="vertical-align: top;">
                                 {{$v->first_name[0]}}{{$v->last_name[0]}}
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("activity", $invoiceSetting['time_entry']))
                             <td class="time-entry-activity" style="vertical-align: top;">
                                 {{$v->activity_title}}
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['time_entry']))
                             <td class="time-entry-description" style="vertical-align: top;">
                                 <p class="invoice_notes">
                                     {{$v->description}}
                                 </p>
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['time_entry']))
                             <td style="vertical-align: top; text-align: right;" class="" >
                                 ${{number_format($v->entry_rate,2)}}
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("hour", $invoiceSetting['time_entry']))
                             <td style="vertical-align: top; text-align: right;" class="">
                                 <?php 
                                     if($v->rate_type=="flat"){
                                         echo "flat";
                                     }else{
-                                        echo number_format($v->duration,1);
+                                        echo number_format($v->duration, getInvoiceSetting()->time_entry_hours_decimal_point ?? 1);
                                     } ?>
                             </td>
+                            @endif
+                            @if (isset($invoiceSetting) && in_array("line_total", $invoiceSetting['time_entry']))
                             <td style="vertical-align: top; text-align: right;" class="">
                                 <?php
                                     if($v->rate_type=="flat"){
@@ -307,6 +354,7 @@
 
                                     ?>
                             </td>
+                            @endif
                         </tr>
                     <?php }else{
                             $nonBillData[]=$v;
@@ -314,7 +362,7 @@
                     } ?>
 
                     <?php
-                    if(!empty($nonBillData)){
+                    if(!empty($nonBillData) && isset($invoiceSetting) && $invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
                         ?>
                         <tr class="invoice_info_row nonbillable-title">
                             <td class="invoice_info_bg" colspan="7">
@@ -394,27 +442,41 @@
         <table style="width: 100%; border-collapse: collapse;">
             <tbody>
                 <tr class="invoice_info_row">
+                    @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['expense']))
                     <td class="invoice_info_bg">
                         Date
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['expense']))
                     <td class="invoice_info_bg">
                         EE
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("activity", $invoiceSetting['expense']))
                     <td class="invoice_info_bg">
                         Activity
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['expense']))
                     <td class="invoice_info_bg">
                         Description
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['expense']))
                     <td class="invoice_info_bg" style="width: 65px; text-align: right;">
                         Cost
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("quantity", $invoiceSetting['expense']))
                     <td class="invoice_info_bg" style="width: 65px; text-align: right;">
                         Quantity
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                     <td class="invoice_info_bg" style="width: 140px; text-align: right;">
                         Line Total
                     </td>
+                    @endif
                 </tr>
                 <?php 
                     $expenseTime=0;
@@ -425,34 +487,48 @@
                             ?>
                     
                 <tr class="invoice_info_row ">
+                    @if (isset($invoiceSetting) && in_array("date", $invoiceSetting['expense']))
                     <td class="time-entry-date" style="vertical-align: top;">
                         {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("employee", $invoiceSetting['expense']))
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{$v->first_name[0]}}{{$v->last_name[0]}}
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("expense", $invoiceSetting['expense']))
                     <td class="time-entry-activity" style="vertical-align: top;">
                         {{$v->activity_title}}
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("notes", $invoiceSetting['expense']))
                     <td class="time-entry-description" style="vertical-align: top;">
                         <p class="invoice_notes">
                             {{$v->description}}
                         </p>
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("amount", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
                         ${{number_format($v->cost,2)}}
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("quantity", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
 
                         <?php 
                             echo number_format($v->duration,1);?>
                     </td>
+                    @endif
+                    @if (isset($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
                         <?php
                                 echo "$".$Total= ($v->duration * $v->cost);
                                 $expenseAmount=$expenseAmount+$Total;
                             ?>
                     </td>
+                    @endif
                 </tr>
                 <?php } else{
                     $expenseNonBill[]=$v;
@@ -460,7 +536,7 @@
                     } ?>
 
                 <?php
-                if(!empty($expenseNonBill)){
+                if(!empty($expenseNonBill) && isset($invoiceSetting) && $invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
                     ?>
                     <tr class="invoice_info_row nonbillable-title">
                         <td class="invoice_info_bg" colspan="7">

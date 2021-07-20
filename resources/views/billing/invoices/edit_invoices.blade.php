@@ -243,7 +243,11 @@
                     <div id="entries" style="margin: 5px;">
 
                         <div class="invoice_case_gradient">
-                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} </h2>
+                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} 
+                                @if(isset($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
+                                    ({{ $caseMaster->case_number }})
+                                @endif
+                            </h2>
                         </div>
                         <div class="invoice_entry_header">
                             <table>
@@ -276,12 +280,36 @@
                             <tbody>
                                 <tr>
                                     <th style="border-right: none;">&nbsp;</th>
-                                    <th style="border-left: none;">Date</th>
-                                    <th> EE </th>
-                                    <th> Employee</th>
-                                    <th> Item </th>
-                                    <th> Falt Fee Notes</th>
-                                    <th> Amount </th>
+                                    <th style="border-left: none;">Date
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('date', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> EE 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('employee', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Employee
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('employee', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Item 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('item', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Falt Fee Notes
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('notes', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Amount 
+                                        @if (count(getFlatFeeColumnArray()) && !in_array('amount', getFlatFeeColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
                                     <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable</th>
                                 </tr>
                                 <?php
@@ -419,14 +447,46 @@
                             <tbody>
                                 <tr>
                                     <th style="border-right: none;">&nbsp;</th>
-                                    <th style="border-left: none;">Date</th>
-                                    <th> EE </th>
-                                    <th> Employee</th>
-                                    <th> Activity </th>
-                                    <th> Time Entry Notes</th>
-                                    <th> Rate </th>
-                                    <th> Hours </th>
-                                    <th> Line Total </th>
+                                    <th style="border-left: none;">Date
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('date', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> EE 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('employee', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Employee
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('employee', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Activity 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('activity', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Time Entry Notes
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('notes', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Rate 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('amount', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Hours 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('hour', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
+                                    <th> Line Total 
+                                        @if (count(getTimeEntryColumnArray()) && !in_array('line_total', getTimeEntryColumnArray()))
+                                        <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                        @endif
+                                    </th>
                                     <th style="font-size: 11px; line-height: 12px; text-align: center;"> Non<br>Billable
                                     </th>
                                 </tr>
@@ -614,27 +674,51 @@
                                         </th>
                                         <th style="width: 100px; border-left: none;">
                                             Date
+                                            @if (count(getExpenseColumnArray()) && !in_array('date', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 60px;">
                                             EE
+                                            @if (count(getExpenseColumnArray()) && !in_array('employee', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 120px;">
                                             Employee
+                                            @if (count(getExpenseColumnArray()) && !in_array('employee', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 150px;">
                                             Expense
+                                            @if (count(getExpenseColumnArray()) && !in_array('expense', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 250px;">
                                             Expense Notes
+                                            @if (count(getExpenseColumnArray()) && !in_array('notes', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Cost
+                                            @if (count(getExpenseColumnArray()) && !in_array('amount', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Quantity
+                                            @if (count(getExpenseColumnArray()) && !in_array('quantity', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 100px;">
                                             Line Total
+                                            @if (count(getExpenseColumnArray()) && !in_array('line_total', getExpenseColumnArray()))
+                                            <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
+                                            @endif
                                         </th>
                                         <th style="width: 40px; font-size: 11px; line-height: 12px; text-align: center;">
                                             Non<br>Billable

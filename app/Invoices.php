@@ -15,6 +15,10 @@ class Invoices extends Model
     protected $fillable = ['id', 'user_id', 'case_id', 'invoice_date', 'total_amount', 'paid_amount', 'due_amount', 'due_date', 'is_viewed', 'is_sent', 
             'reminder_sent_counter', 'reminder_viewed_on', 'last_reminder_sent_on', 'status', 'payment_term', 'automated_reminder', 'terms_condition', 
             'notes', 'payment_plan_enabled', 'created_by', 'updated_by', 'invoice_unique_token', 'invoice_token', 'firm_id', 'invoice_setting'];
+
+    protected $casts = [
+        'invoice_setting' => 'array',
+    ];
     
     protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status","check_portal_access","invoice_id"];
     public function getDecodeIdAttribute(){

@@ -34,4 +34,16 @@ class TaskTimeEntry extends Authenticatable
         }
     }
     
+    /**
+     * Get duration decimal point as per settings
+     */
+    public function getDurationAttribute()
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return number_format($this->attributes['duration'], $decimalPoint);
+    }
 }
