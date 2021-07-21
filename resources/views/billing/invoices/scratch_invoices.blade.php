@@ -12,6 +12,7 @@ if(!isset($adjustment_token)){
     <div class="col-md-12">
         <form class="saveInvoiceForm" id="saveInvoiceForm" name="saveInvoiceForm" method="POST" action="{{route('bills/invoices/addInvoiceEntry')}}">
             @csrf
+            <input class="form-control" id="adjustment_token" value="{{$adjustment_token}}" name="adjustment_token" type="hidden">
             <div class="card text-left">
                 <div class="card-body" id="main_content">
                     <span id="responseMain"></span>

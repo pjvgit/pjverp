@@ -362,115 +362,67 @@
 
     });
 
-    $(":submit").on('click', function () {
-        // alert($(this).val());
-        if ($(this).val() == 'savandaddcase') {
-            $('#createNewUser').submit(function (e) {
+    $(":submit").on('click', function () {       
+        $('#createNewUser').submit(function (e) {
+            var me = $(this);
+            e.preventDefault();
+
+            if ( me.data('requestRunning') ) {
+                return;
+            }
+
+            me.data('requestRunning', true);
                 $("#submit").attr("disabled", true);
-                $("#innerLoader").css('display', 'block');
-                e.preventDefault();
+            $(".innerLoader").css('display', 'block');
+            e.preventDefault();
 
-                if (!$('#createNewUser').valid()) {
-                    $("#innerLoader").css('display', 'none');
-                    $('#submit').removeAttr("disabled");
-                    return false;
-                }
-                var dataString = '';
-                dataString = $("form").serialize();
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "/contacts/saveAddContact", // json datasource
-                    data: dataString,
-                    beforeSend: function (xhr, settings) {
-                        settings.data += '&saveandaddcase=yes';
-                    },
-                    success: function (res) {
-                        $("#innerLoader").css('display', 'block');
-                        if (res.errors != '') {
-                            $('#showError').html('');
-                            var errotHtml =
-                                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                            $.each(res.errors, function (key, value) {
-                                errotHtml += '<li>' + value + '</li>';
-                            });
-                            errotHtml += '</ul></div>';
-                            $('#showError').append(errotHtml);
-                            $('#showError').show();
-                            $("#innerLoader").css('display', 'none');
-                            $('#submit').removeAttr("disabled");
-                            $('#AddContactModal').animate({
-                                scrollTop: 0
-                            }, 'slow');
+            if (!$('#createNewUser').valid()) {
+                $(".innerLoader").css('display', 'none');
+                $('#submit').removeAttr("disabled");
+                me.data('requestRunning', false);
+                return false;
+            }
+            var dataString = '';
+            dataString = $("#createNewUser").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/saveAddContact", // json datasource
+                data: dataString,
+                success: function (res) {
+                    $(".innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('#showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('#showError').append(errotHtml);
+                        $('#showError').show();
+                        $(".innerLoader").css('display', 'none');
+                        $('#submit').removeAttr("disabled");
+                        // $("#AddContactModal").scrollTop(0);
+                        $('#AddContactModal').animate({
+                            scrollTop: 0
+                        }, 'slow');
 
-                            return false;
-                        } else {
-                            loadClient(res.id);
-                            $('#AddContactModal').modal('hide');
-
-                        }
+                        return false;
+                    } else {
+                        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token='+$("#adjustment_token").val()+'&contact='+res.user_id;
+                        window.location.href=URLS;
+                        // $("#response").html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Success!</b> Changes saved.</div>');
+                        // $("#response").show();
+                        // $("#innerLoader").css('display', 'none');
+                        // $('#AddContactModal').modal('hide');     
+                        // $('#submit').removeAttr("disabled");                
                     }
-                });
-            });
-        } else {
-            $('#createNewUser').submit(function (e) {
-                var me = $(this);
-                e.preventDefault();
-
-                if ( me.data('requestRunning') ) {
-                    return;
-                }
-
-                me.data('requestRunning', true);
-                 $("#submit").attr("disabled", true);
-                $(".innerLoader").css('display', 'block');
-                e.preventDefault();
-
-                if (!$('#createNewUser').valid()) {
-                    $(".innerLoader").css('display', 'none');
-                    $('#submit').removeAttr("disabled");
+                },complete: function() {
                     me.data('requestRunning', false);
-                    return false;
                 }
-                var dataString = '';
-                dataString = $("#createNewUser").serialize();
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "/contacts/saveAddContact", // json datasource
-                    data: dataString,
-                    success: function (res) {
-                        $(".innerLoader").css('display', 'block');
-                        if (res.errors != '') {
-                            $('#showError').html('');
-                            var errotHtml =
-                                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                            $.each(res.errors, function (key, value) {
-                                errotHtml += '<li>' + value + '</li>';
-                            });
-                            errotHtml += '</ul></div>';
-                            $('#showError').append(errotHtml);
-                            $('#showError').show();
-                            $(".innerLoader").css('display', 'none');
-                            $('#submit').removeAttr("disabled");
-                            // $("#AddContactModal").scrollTop(0);
-                            $('#AddContactModal').animate({
-                                scrollTop: 0
-                            }, 'slow');
-
-                            return false;
-                        } else {
-                            window.location.reload();
-                            // $("#response").html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Success!</b> Changes saved.</div>');
-                            // $("#response").show();
-                            // $("#innerLoader").css('display', 'none');
-                            // // $('#EditContactModal').modal('hide'); 
-                            // $('#submit').removeAttr("disabled");                
-                        }
-                    },complete: function() {
-                        me.data('requestRunning', false);
-                    }
-                });
             });
-        }
+        });
+      
     });
     
     $('#collapsed').click(function () {
