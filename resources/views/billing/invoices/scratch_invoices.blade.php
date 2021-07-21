@@ -1676,10 +1676,22 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var bill_payment_terms = $("#bill_payment_terms").val();
+        var invoice_number_padded = $("input[name='invoice_number_padded']").val();
+        var bill_sent_status = $("#bill_sent_status").val();
+        var bill_invoice_date  = $("#bill_invoice_date").val();
+
+        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
         if(bill_payment_terms != ''){
-            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&bill_payment_terms='+bill_payment_terms;
-        }else{
-            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+            URLS+='&bill_payment_terms='+bill_payment_terms;
+        }
+        if(invoice_number_padded != ''){
+            URLS+='&invoice_number_padded='+invoice_number_padded;
+        }
+        if(bill_sent_status != ''){
+            URLS+='&bill_sent_status='+bill_sent_status;
+        }
+        if(bill_invoice_date != ''){
+            URLS+='&bill_invoice_date='+bill_invoice_date;
         }
         window.location.href=URLS;
     }

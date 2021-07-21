@@ -2094,9 +2094,14 @@ class BillingController extends BaseController
                 $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("status", "!=", "Forwarded")->get();
             }
             $invoiceSetting = getInvoiceSetting();
-            $bill_payment_terms = $request->bill_payment_terms;
+            $arrSetting = [
+                'bill_payment_terms' => $request->bill_payment_terms,
+                'invoice_number_padded' => $request->invoice_number_padded,
+                'bill_sent_status' => $request->bill_sent_status,
+                'bill_invoice_date' => $request->bill_invoice_date
+            ];
             $customizSetting = getCustomizeSetting();
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting', 'bill_payment_terms', 'customizSetting'));
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting', 'arrSetting', 'customizSetting'));
         }else{
             return view('pages.404');
         }

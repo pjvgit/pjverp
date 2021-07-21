@@ -96,7 +96,7 @@ if(!isset($adjustment_token)){
                                     <td>
                                         <div class="form_control" style="width: 200px;">
                                             <?php 
-                                            $formatted_value = sprintf("%06d", $maxInvoiceNumber);
+                                            $formatted_value = $arrSetting['invoice_number_padded']  ?? sprintf("%06d", $maxInvoiceNumber);
                                             ?>
                                             <input class="form-control" name="invoice_number_padded" value="{{$formatted_value}}">
                                             @error('invoice_number_padded')
@@ -137,7 +137,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td>
                                         <input id="bill_invoice_date" class="form-control date datepicker"
-                                            name="bill_invoice_date" value="{{date('m/d/Y')}}">
+                                            name="bill_invoice_date" value="{{ $arrSetting['bill_invoice_date']  ?? date('m/d/Y') }}">
                                     </td>
                                 </tr>
                                 <tr>
@@ -158,7 +158,7 @@ if(!isset($adjustment_token)){
                                     <td>
                                         <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms">
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (($bill_payment_terms == $key) ? "selected" : "") }}>{{ $item }}</option>
+                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (($arrSetting['bill_payment_terms'] == $key) ? "selected" : "") }}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -198,9 +198,9 @@ if(!isset($adjustment_token)){
                                         Status</td>
                                     <td style=" vertical-align: bottom;">
                                         <select id="bill_sent_status" name="bill_sent_status" class="custom-select">
-                                            <option value="Draft">Draft</option>
-                                            <option value="Unsent" selected>Unsent</option>
-                                            <option value="Sent">Sent</option>
+                                            <option value="Draft" {{ (($arrSetting['bill_sent_status'] == 'Draft') ? "selected" : "") }} >Draft</option>
+                                            <option value="Unsent" {{ (($arrSetting['bill_sent_status'] == 'Unsent') ? "selected" : "selected") }} >Unsent</option>
+                                            <option value="Sent" {{ (($arrSetting['bill_sent_status'] == 'Sent') ? "selected" : "") }} >Sent</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -2852,7 +2852,7 @@ if(!isset($adjustment_token)){
             'clearBtn': true,
             'todayHighlight': true
         }).on('change',function(e){
-            reloadByDate();
+            changeCase();
         });
 
         @if(isset($invoiceSetting) && $invoiceSetting->default_invoice_payment_terms) 
@@ -3114,31 +3114,30 @@ if(!isset($adjustment_token)){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var bill_payment_terms = $("#bill_payment_terms").val();
+        var invoice_number_padded = $("input[name='invoice_number_padded']").val();
+        var bill_sent_status = $("#bill_sent_status").val();
+        var bill_invoice_date  = $("#bill_invoice_date").val();
+        var bill_from_date=$("#bill_from_date").val();
+        var bill_to_date=$("#bill_to_date").val();
+
+        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
         if(bill_payment_terms != ''){
-            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&bill_payment_terms='+bill_payment_terms;
-        }else{
-            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+            URLS+='&bill_payment_terms='+bill_payment_terms;
+        }
+        if(invoice_number_padded != ''){
+            URLS+='&invoice_number_padded='+invoice_number_padded;
+        }
+        if(bill_sent_status != ''){
+            URLS+='&bill_sent_status='+bill_sent_status;
+        }
+        if(bill_invoice_date != ''){
+            URLS+='&bill_invoice_date='+bill_invoice_date;
+        }
+        if(bill_from_date != '' && bill_to_date != ''){
+            URLS+='&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
         }
         window.location.href=URLS;
     }
-
-
-    function reloadByDate(){
-        var case_id=$("#court_case_id").val();
-        var bill_from_date=$("#bill_from_date").val();
-        var bill_to_date=$("#bill_to_date").val();
-        var contact=$("#contact").val();
-        
-        if(bill_from_date != '' && bill_to_date != ''){
-            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
-            window.location.href=URLS;
-        }
-
-    }
-    
-
-    
-    
     
     function installmentCalculation(){
            var sumR=0;
