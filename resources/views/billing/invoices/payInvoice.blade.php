@@ -10,7 +10,7 @@ $finalAmt=$invoice-$paid;
     <div class="col-md-2 text-right selenium-total-amount">${{number_format($invoice,2)}}</div>
 </div>
 <div class="row">
-    <div class="col-md-6 selenium-case-name"> {{ucfirst(substr($caseMaster['case_title'],0,50))}}</div>
+    <div class="col-md-6 selenium-case-name"> {{  (($caseMaster) ? ucfirst(substr($caseMaster['case_title'],0,50)) : 'None') }}</div>
     <div class="col-md-4 text-right">Amount Paid:</div>
     <div class="col-md-2 text-right selenium-paid-amount">${{number_format($paid,2)}}</div>
 </div>
