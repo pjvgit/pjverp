@@ -137,7 +137,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td>
                                         <input id="bill_invoice_date" class="form-control date datepicker"
-                                            name="bill_invoice_date" value="{{ $arrSetting['bill_invoice_date']  ?? date('m/d/Y') }}">
+                                            name="bill_invoice_date" value="{{ old('bill_invoice_date', $arrSetting['bill_invoice_date']  ?? date('m/d/Y'))  }}">
                                     </td>
                                 </tr>
                                 <tr>
@@ -158,7 +158,7 @@ if(!isset($adjustment_token)){
                                     <td>
                                         <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms">
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (($arrSetting['bill_payment_terms'] == $key) ? "selected" : "") }}>{{ $item }}</option>
+                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (( old('payment_terms') == $key) ? "selected" : (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : "")) }}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -195,12 +195,12 @@ if(!isset($adjustment_token)){
                                     <td>&nbsp;</td>
                                     <td style="width: auto;">&nbsp;</td>
                                     <td colspan="2" style="text-align: right; padding-right: 5px;">
-                                        Status</td>
+                                        Status </td>
                                     <td style=" vertical-align: bottom;">
                                         <select id="bill_sent_status" name="bill_sent_status" class="custom-select">
-                                            <option value="Draft" {{ (($arrSetting['bill_sent_status'] == 'Draft') ? "selected" : "") }} >Draft</option>
-                                            <option value="Unsent" {{ (($arrSetting['bill_sent_status'] == 'Unsent') ? "selected" : "selected") }} >Unsent</option>
-                                            <option value="Sent" {{ (($arrSetting['bill_sent_status'] == 'Sent') ? "selected" : "") }} >Sent</option>
+                                            <option value="Draft" {{ ((old('bill_sent_status') == 'Draft') ? "selected" : (( $arrSetting['bill_sent_status'] == 'Draft') ? "selected" : "") ) }} >Draft</option>
+                                            <option value="Unsent" {{ ((old('bill_sent_status') == 'Unsent')? "selected" : (( $arrSetting['bill_sent_status'] == 'Unsent') ? "selected" : "")) }} >Unsent</option>
+                                            <option value="Sent" {{ ((old('bill_sent_status') == 'Sent') ? "selected" : (( $arrSetting['bill_sent_status'] == 'Sent') ? "selected" : "")) }} >Sent</option>
                                         </select>
                                     </td>
                                 </tr>
