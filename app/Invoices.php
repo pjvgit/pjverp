@@ -191,4 +191,26 @@ class Invoices extends Model
         return $this->belongsTo(UsersAdditionalInfo::class, 'user_id', 'user_id');
     }
 
+     /**
+     * Get default reminder schedule message
+     */
+    public function getReminderMessage()
+    {
+        $msg = "";
+        if($this->invoice_setting['reminder']) {
+            $data = collect($this->invoice_setting['reminder'])->sortBy("remind_type");
+            foreach($data as $key => $item) {
+                if($item['remind_type'] == "due in") {
+                    $msg .= $item['days']." days before the due date, ";
+                } else if($item['remind_type'] == "on the due date") {
+                    $msg .= "on the due date,";
+                } else if($item['remind_type'] == "overdue by") {
+                    $msg .= " and ".$item['days']." days after the due date";
+                } else {
+
+                }
+            }
+        }
+        return "When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders ".$msg;
+    }
 }

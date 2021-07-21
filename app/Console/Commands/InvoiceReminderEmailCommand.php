@@ -83,12 +83,12 @@ class InvoiceReminderEmailCommand extends Command
                     foreach($item->case->caseBillingClient as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
-                        // if ($date->hour === 14) { 
+                        if ($date->hour === 05) { 
                             if($emailTemplate) {
                                 Log::info("invoice day time true");
                                 dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate));
                             }
-                        // }
+                        }
                     }
                 }
             }

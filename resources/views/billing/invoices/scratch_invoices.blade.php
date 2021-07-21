@@ -165,8 +165,9 @@ if(!isset($adjustment_token)){
                                             style="display: inline; position: relative; top: -7px; left: 5px; color: rgb(0, 112, 187);"
                                             class="switch pr-5 switch-success mr-3">
                                             <span data-toggle="tooltip" data-placement="bottom"
-                                                title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i
-                                                    class="pl-1 fas fa-question-circle fa-lg"></i></span>
+                                                {{-- title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."> --}}
+                                                title="{{ (isset($invoiceSetting) && $invoiceSetting->reminderSchedule) ? $invoiceSetting->getReminderMessage() : "" }}">
+                                                <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
                                             <input type="checkbox" name="automated_reminders" id="automated_reminders"><span
                                                 class="slider">
