@@ -221,14 +221,16 @@ if(!isset($adjustment_token)){
                                         <label for="range_check_box">Filter by date range</label>
                                     </td>
                                     <td style="color: black; vertical-align: middle;" class="range_select disabled">From:
+                                    </td>  
+                                    <td style="width: 100%;">
+                                        <div class="input-daterange input-group" id="datepicker" style="display:ruby;">
+                                        <input style="width: 115px;" type="text" class="form-control" name="bill_from_date" value="{{$from_date}}"
+                                        id="bill_from_date" disabled="disabled" />
+                                        <span class="input-group-addon">&nbsp;To&nbsp;</span>
+                                        <input style="width: 115px;"  disabled="disabled" type="text" class="form-control" name="bill_to_date" value="{{$bill_to_date}}"
+                                        id="bill_to_date" />
+                                        </div>
                                     </td>
-                                    <td><input value="{{$from_date}}" class="date range_select disabled form-control  datepicker"
-                                            style="width: 115px;" disabled="disabled" type="text" name="bill_from_date"
-                                            id="bill_from_date"></td>
-                                    <td style="color: black; vertical-align: middle;" class="range_select disabled">to</td>
-                                    <td><input value="{{$bill_to_date}}" class="date range_select disabled  form-control "
-                                            style="width: 115px;" disabled="disabled" type="text"  name="bill_to_date"
-                                            id="bill_to_date"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2214,14 +2216,14 @@ if(!isset($adjustment_token)){
             allowClear: true,
             placeholder: "Select...",
         });
-        /* $('.datepicker').datepicker({
+        $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             startDate: "dateToday",
             'todayHighlight': true
-        }); */
+        }); 
         $('[data-toggle="tooltip"]').tooltip();
 
         $('.tdTime').hover(
@@ -2834,6 +2836,15 @@ if(!isset($adjustment_token)){
             $(".invoiceSharingBox").removeAttr('checked');
         });
 
+        $('.input-daterange').datepicker({
+            format : 'm/d/yyyy',
+            clearBtn: true,
+            keyboardNavigation: false,
+            forceParse: false,
+            todayBtn: "linked",
+            todayHighlight : true
+        });
+
         $('#bill_to_date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -3098,9 +3109,7 @@ if(!isset($adjustment_token)){
         })
        
     }
-    <?php if($bill_payment_terms >= 0) {?>
-        paymentTerm();
-    <?php } ?>
+
     function changeCase(){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
@@ -3118,10 +3127,13 @@ if(!isset($adjustment_token)){
         var case_id=$("#court_case_id").val();
         var bill_from_date=$("#bill_from_date").val();
         var bill_to_date=$("#bill_to_date").val();
-        
         var contact=$("#contact").val();
-        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
-        window.location.href=URLS;
+        
+        if(bill_from_date != '' && bill_to_date != ''){
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact+'&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
+            window.location.href=URLS;
+        }
+
     }
     
 
