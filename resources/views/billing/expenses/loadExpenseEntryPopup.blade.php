@@ -125,7 +125,7 @@
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
                                         id="rate_field_id" name="rate_field_id" maxlength="15"
-                                        class="form-control number" value="">
+                                        class="form-control" min="0" value="">
                                 </div>
                                 <span id="rfi"></span>
                             </div>
@@ -133,7 +133,7 @@
                     </div>
                    
                     <div class="pl-4 col-4">
-                        <div class=""><input id="duration-field" maxlength="15" name="duration_field"
+                        <div class=""><input id="duration-field" maxlength="15" min="0" name="duration_field"
                                 class="form-control text-right" value=""></div>
                     </div>
                 </div>

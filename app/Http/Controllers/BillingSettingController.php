@@ -81,9 +81,9 @@ class BillingSettingController extends BaseController
     public function editCustomization(Request $request)
     {
         $customize = InvoiceCustomizationSetting::whereId($request->customize_id)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();
-        $flatFeeColumn = ($customize->flatFeeColumn) ? getColumnsIfYes($customize->flatFeeColumn->toArray()) : [];
-        $timeEntryColumn = ($customize->timeEntryColumn) ? getColumnsIfYes($customize->timeEntryColumn->toArray()) : [];
-        $expenseColumn = ($customize->expenseColumn) ? getColumnsIfYes($customize->expenseColumn->toArray()) : [];
+        $flatFeeColumn = (!empty($customize) && $customize->flatFeeColumn) ? getColumnsIfYes($customize->flatFeeColumn->toArray()) : [];
+        $timeEntryColumn = (!empty($customize) && $customize->timeEntryColumn) ? getColumnsIfYes($customize->timeEntryColumn->toArray()) : [];
+        $expenseColumn = (!empty($customize) && $customize->expenseColumn) ? getColumnsIfYes($customize->expenseColumn->toArray()) : [];
         return view("billing_setting.partial.edit_invoice_customization", compact('customize', 'flatFeeColumn', 'timeEntryColumn', 'expenseColumn'))->render();
     }
 

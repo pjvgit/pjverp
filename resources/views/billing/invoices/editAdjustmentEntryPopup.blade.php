@@ -27,7 +27,7 @@
                     <option <?php if($InvoiceAdjustment['applied_to']=="balance_forward_total"){ echo "selected=selected"; }?> value="balance_forward_total">Balance Forward Total</option>
                     <option <?php if($InvoiceAdjustment['applied_to']=="sub_total"){ echo "selected=selected"; }?> value="sub_total">Sub Total</option>
                 </select>
-                <span id="2Error"></span>
+                <span id="applied_toError"></span>
             </div>
         </div>
         <div class="form-group row">
@@ -51,7 +51,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basis</label>
             <div class="col-9 form-group mb-3">
-                <input id="basic" name="basic" maxlength="15" class="form-control number" value="{{$InvoiceAdjustment['basis']}}">
+                <input id="basic" name="basic" maxlength="15" class="form-control" min="0" value="{{$InvoiceAdjustment['basis']}}" type="number">
             </div>
         </div>
 
@@ -121,7 +121,7 @@
                 if (element.is('#item')) {
                     error.appendTo('#1Error');
                 } else if (element.is('#applied_to')) {
-                    error.appendTo('#2Error');
+                    error.appendTo('#applied_toError');
                 } else if (element.is('#ad_type')) {
                     error.appendTo('#3Error');
                 } else {

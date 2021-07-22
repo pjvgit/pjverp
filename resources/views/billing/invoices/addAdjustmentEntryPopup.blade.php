@@ -28,7 +28,7 @@
                     <option value="balance_forward_total">Balance Forward Total</option>
                     <option value="sub_total">Sub Total</option>
                 </select>
-                <span id="2Error"></span>
+                <span id="applied_to1Error"></span>
             </div>
         </div>
         <div class="form-group row">
@@ -52,7 +52,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Basis</label>
             <div class="col-9 form-group mb-3">
-                <input id="basic" name="basic" maxlength="15" class="form-control number" value="">
+                <input id="basic" name="basic" maxlength="15" class="form-control" min="0" value="" type="number">
             </div>
         </div>
 
@@ -125,7 +125,7 @@
                 if (element.is('#item')) {
                     error.appendTo('#1Error');
                 } else if (element.is('#applied_to1')) {
-                    error.appendTo('#2Error');
+                    error.appendTo('#applied_to1Error');
                 } else if (element.is('#ad_type')) {
                     error.appendTo('#3Error');
                 } else {

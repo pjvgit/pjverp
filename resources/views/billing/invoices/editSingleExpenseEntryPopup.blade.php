@@ -90,7 +90,7 @@
                         <div class="px-0 undefined">
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
-                                    id="rate-field-id" name="rate_field_id" maxlength="15" class="form-control number"
+                                    id="rate-field-id" name="rate_field_id" maxlength="15" class="form-control" min="0"
                                     value="{{$ExpenseEntry['cost']}}">
                             </div>
                             <span id="eCost"></span>
@@ -100,7 +100,7 @@
                 <div class="col-4">
                     <div class="">
                         <input id="duration-field" maxlength="15" name="duration_field" class="form-control text-right"
-                            value="{{$ExpenseEntry['duration']}}">
+                        min="0" value="{{$ExpenseEntry['duration']}}">
                     </div>
                 </div>
             </div>
@@ -170,7 +170,8 @@
                     required: true
                 },
                 rate_field_id: {
-                    required: true
+                    required: true,
+                    number:true
                 },
                 duration_field: {
                     required: true,

@@ -134,7 +134,7 @@
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
                                         id="rate-field-id" name="rate_field_id" maxlength="15"
-                                        class="form-control number" value="{{$defaultRate}}">
+                                        class="form-control" min="0" value="{{$defaultRate}}">
                                 </div>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="pl-4 col-3">
-                        <div class=""><input id="duration-field" maxlength="15" name="duration_field"
+                        <div class=""><input id="duration-field" maxlength="15" min="0" name="duration_field"
                                 class="form-control text-right" value=""></div>
                     </div>
                 </div>
@@ -665,7 +665,8 @@
                     required: true
                 },
                 rate_field_id: {
-                    required: true
+                    required: true,
+                    number:true
                 },
                 duration_field: {
                     required: true,

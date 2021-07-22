@@ -43,7 +43,7 @@
             <div class="col-md-10 form-group mb-3">
                 <div class="input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                        <input id="rate_field_id" name="rate_field_id" maxlength="15" class="form-control number" value="{{$FlatFeeEntry['cost']}}">
+                        <input id="rate_field_id" name="rate_field_id" maxlength="15" class="form-control" min="0" value="{{$FlatFeeEntry['cost']}}">
                     </div>
                 </div>
             </div>

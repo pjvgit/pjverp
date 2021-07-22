@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="pl-4 col-3">
-                        <div class=""><input id="duration-field" maxlength="15" name="duration_field"
+                        <div class=""><input id="duration-field" maxlength="15" min="0" name="duration_field"
                                 class="form-control text-right" value=""></div>
                     </div>
                 </div>
