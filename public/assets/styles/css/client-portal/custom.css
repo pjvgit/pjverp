@@ -1,0 +1,30 @@
+.app-container__content {
+    margin: 0 auto;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.app-container__content {
+    max-width: 1280px;
+    padding-bottom: 58px;
+    padding-top: 40px;
+    width: 100%;
+}
+
+.main-navigation {
+    /* background-color: #2c2c2c; */
+    bottom: 0;
+    display: flex;
+    position: fixed;
+    width: 100%;
+    z-index: 2;
+}
+
+@media (min-width: 992px) {
+    .main-navigation {
+        margin: 0 auto;
+        max-width: 1280px;
+        padding: .5rem 1rem;
+        position: static;
+    }
+}

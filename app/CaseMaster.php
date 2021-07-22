@@ -69,7 +69,7 @@ class CaseMaster extends Authenticatable
     public function getUpcomingEventAttribute(){
         
         $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone = Auth::User()->user_timezone ?? 'UTC';
         // $currentConvertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s'),$timezone);
         $case_events =  CaseEvent::select('*')
         ->where('case_id',$this->id)  

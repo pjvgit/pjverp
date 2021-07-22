@@ -1329,11 +1329,11 @@
             var $row = $(this).parents('.fieldGroup').remove();
         });
 
-        @if(isset($show_your_firm_popup))
+        @if(session()->has('show_your_firm_popup') && session()->get('show_your_firm_popup') == "yes")
             $("#your_firm_popup").modal("show");
         @endif
 
-        @if(Session::has('firmCaseCount') && session()->get('firmCaseCount') == 0 && !isset($show_your_firm_popup))
+        @if(Session::has('firmCaseCount') && session()->get('firmCaseCount') == 0 && !session()->has('show_your_firm_popup'))
             $("#AddCaseModelUpdate").modal("show");
         @endif
     });

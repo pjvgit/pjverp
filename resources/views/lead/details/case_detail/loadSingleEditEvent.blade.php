@@ -582,8 +582,28 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             'startClass': 'input-start',
             'endClass': 'input-end'
         });
+
+        $("#start_date").datepicker().on('change',function(e){
+            $(this).removeClass('error');
+            $("#start_date-error").text('');
+            updateMonthlyWeeklyOptions();
+        });
+        $("#end_date").datepicker().on('change',function(e){
+            $(this).removeClass('error');
+            $("#end_date-error").text('');
+        });
      
-        $("#end_on").datepicker();
+        $("#end_on").datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        }).on('changeDate', function(ev) {
+            if($('#end_on').valid()){
+            $('#datepicker').removeClass('invalid').addClass('success');   
+            }
+        });
 
         $("#innerLoader").css('display', 'none');
         $(".add-new").hide();
@@ -667,6 +687,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
              dataString = $("#EditEventForm").serialize();
             $.ajax({
                 type: "POST",
+                // url: baseUrl + "/court_cases/saveEditEventPage", // json datasource
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource
                 data: dataString,
                 success: function (res) {
@@ -726,7 +747,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             if ($(this).is(":checked")) {
                 $("#end_on").attr("disabled", true);
             } else {
-                $('#end_on').removeAttr("disabled");
+                $('#end_on').attr("disabled", false);
             }
         });
 
@@ -737,7 +758,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                 if ($("input:checkbox#no_end_date_checkbox").is(":checked")) {
                     $("#end_on").attr("disabled", true);
                 } else {
-                    $('#end_on').removeAttr("disabled");
+                    $('#end_on').attr("disabled", false);
                 }
 
             } else {
@@ -809,10 +830,14 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'YEARLY') {
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
+        } else if (selectdValue == 'WEEKLY') {
+            updateMonthlyWeeklyOptions();
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
@@ -1067,4 +1092,33 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
     <?php } ?>
     // setTimeout(function(){  firmStaffOnload({{$evetData->id}}) }, 1000);
 
+    // Get weekdays name
+    function getWeekdays(date) {
+        var weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        return weekday[date.getDay()];
+    }
+
+    // Get nth day of month 
+    function getNthDayOfMonth(date, weekday) {
+        var nth= ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+        return "On the "+nth[Math.floor(date.getDate()/7)]+' '+getWeekdays(date);
+    }
+
+    // Get updated option of weekly/monthly/yearly recurring
+    function updateMonthlyWeeklyOptions() {
+        var date = new Date($("#start_date").val());
+        // for month
+        $("#monthly-frequency").find('option').remove();
+        $("#monthly-frequency").append(
+            '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
+        );
+        // for year
+        $("#yearly-frequency").find('option').remove();
+        var monthName = date.toLocaleString('default', { month: 'long' });
+        $("#yearly-frequency").append(
+            '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
+        );
+        // for week
+        $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
+    }
 </script>

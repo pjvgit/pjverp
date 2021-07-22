@@ -40,6 +40,7 @@
     <script src="{{asset('public/assets/js/scripts/script.min.js')}}"></script>
     <script src="{{asset('public/assets/js/scripts/sidebar.large.script.min.js')}}"></script>
     <script src="{{asset('public/assets/js/plugins/toastr.min.js')}}"></script>
+    <script src="{{asset('public/assets/js/jquery.validate.min.js')}}"></script>
 
     @section('page-js-script')
     <script type="text/javascript">

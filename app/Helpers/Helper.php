@@ -232,7 +232,7 @@ function trustCreditDisplayList()
 function invoicePaymentTermList()
 {
     return [
-        "" => "",
+        "5" => "",
         "0" => "Due Date",
         "1" => "Due on Receipt",
         "2" => "Net 15",
