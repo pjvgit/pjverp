@@ -2039,7 +2039,7 @@ class BillingController extends BaseController
             // //Get Flat fees entry
             if($caseMaster) {
                 $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->sum('cost');
-                if($caseMaster->billing_method == "flat") {
+                if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
                     if($remainFlatFee > 0) {
                         FlatFeeEntry::create([
