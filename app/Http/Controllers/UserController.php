@@ -56,6 +56,7 @@ class UserController extends BaseController
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                     $user->save();
+                    session()->flash("firmCaseCount", count(userCaseList() ?? []));
                     return redirect()->intended('dashboard')->with('success','Login Successfully');
                 }else{
                     $this->sendEmailVerificationMail(auth()->user());
@@ -913,7 +914,7 @@ class UserController extends BaseController
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 
                     session(['layout' => 'horizontal']);
-                    return redirect()->intended('dashboard')->with('success','Login Successfully');
+                    return redirect()->intended('dashboard')->with('success','Login Successfully')->with("show_your_firm_popup", "yes");
                 }else{
                     $this->sendEmailVerificationMail(auth()->user());
                     Auth::logout();

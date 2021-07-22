@@ -488,3 +488,42 @@ p {
     margin-right: 10px;
     }
 }
+
+.your_firm_popup {
+    display: block;
+    position: fixed!important;
+    /* opacity: 100% !important; */
+}
+
+.width_set {
+    max-width: 800px !important;
+    /* margin-top: 50px; */
+}
+
+.header_bg_color {
+    background-color: #d3d3d33d !important;
+}
+
+.title_font-weight {
+    font-weight: 400 !important;
+}
+
+.margin_set_top{
+    margin-top: 126px !important;
+}
+
+@media only screen and (max-width: 768px){
+    .margin_set_top{
+        margin-top:150px !important;
+    }
+}
+@media only screen and (max-width: 600px){
+    .margin_set_top{
+        margin-top:230px !important;
+    }
+}
+@media only screen and (max-width: 320px){
+    .margin_set_top{
+        margin-top:235px !important;
+    }
+}

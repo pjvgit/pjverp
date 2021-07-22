@@ -1941,8 +1941,10 @@ class BillingController extends BaseController
 
             $selectedClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->select("*")->get();
             $selectedClient = User::where('user_level',2)->whereIn('id',$selectedClient->pluck('selected_user'))->first();
+
+            $invoiceSetting = getInvoiceSetting();
             
-            return view('billing.invoices.scratch_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','selectedClient'));
+            return view('billing.invoices.scratch_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','selectedClient', 'invoiceSetting'));
         }else{
             return view('pages.404');
         }
@@ -4028,7 +4030,8 @@ class BillingController extends BaseController
                 $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("id", "!=", $findInvoice->id)->get();
             }
             $invoiceSetting = $findInvoice->invoice_setting;
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting'));
+            $invoiceDefaultSetting = getInvoiceSetting();
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting'));
         }
     }
 

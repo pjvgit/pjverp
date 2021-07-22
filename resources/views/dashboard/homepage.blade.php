@@ -1238,8 +1238,7 @@
     .modal { overflow: auto !important; }
 </style>
 
-
-
+@include('dashboard.include.modal')
 
 @endsection
 @section('page-js')
@@ -1330,7 +1329,13 @@
             var $row = $(this).parents('.fieldGroup').remove();
         });
 
+        @if(isset($show_your_firm_popup))
+            $("#your_firm_popup").modal("show");
+        @endif
 
+        @if(Session::has('firmCaseCount') && session()->get('firmCaseCount') == 0 && !isset($show_your_firm_popup))
+            $("#AddCaseModelUpdate").modal("show");
+        @endif
     });
     function showText() {
         $("#area_text").show();
@@ -1622,5 +1627,45 @@
     }
     loadAllActivity();
 
+// For select module button
+$(".module-btn").click(function() {
+    if($(this).hasClass("btn-secondary")) {
+        var selectedModule = $(".module-btn.btn-primary").length;
+        if(selectedModule >= 2) {
+            $(".module-error").text("Please choose no more than 2 topics. To make a change, unselect one of your choices.");
+        } else {
+            $(this).removeClass("btn-secondary");
+            $(this).addClass("btn-primary");
+        }
+    } else {
+        $(this).removeClass("btn-primary");
+        $(this).addClass("btn-secondary");
+        $(".module-error").text("");
+    }
+    $('#interest_module').val("");
+    $(".module-btn.btn-primary").each(function() {
+        $('#interest_module').val($('#interest_module').val() + ","+$(this).attr("data-option"));
+    });
+});
+/**
+* Save user interested modules
+*/
+$("#take_to_legalcase").click(function() {
+    var intModule = $('#interest_module').val();
+    var looking = $('input[type="radio"][name="looking_out"]:checked').val();
+
+    $.ajax({
+        url: "{{ route('save/user/interested/detail') }}",
+        type: "GET",
+        data: {interest_module: intModule, looking_out: looking},
+        success: function(data) {
+            $("#your_firm_popup").modal("hide");
+            // $("#AddCaseModelUpdate").modal("show");
+        }
+    })
+});
+$("#your_firm_popup").on("hidden.bs.modal", function() {
+    $("#AddCaseModelUpdate").modal("show");
+})
 </script>
 @endsection

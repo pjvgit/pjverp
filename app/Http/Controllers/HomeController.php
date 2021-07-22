@@ -24,6 +24,7 @@ use App\Http\Requests\MultiuserRequest;
 use App\TaskReminder;
 use App\Traits\EventReminderTrait;
 use App\Traits\TaskReminderTrait;
+use App\UserInterestedModule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class HomeController extends BaseController
@@ -210,7 +211,7 @@ class HomeController extends BaseController
         $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
         ->select("*")->whereIn("users.user_level",["2","4"])->where("firm_name",Auth::user()->firm_name)->whereRaw('users_additional_info.minimum_trust_balance > users_additional_info.trust_account_balance')->get();
 
-        return view('dashboard.homepage',compact('practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','upcomingTenEvents','upcomingTask','InvoicesOverdue','totalEvetdueInvoiceCount','clientList'));
+        return view('dashboard.homepage',compact('practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','upcomingTenEvents','upcomingTask','InvoicesOverdue','totalEvetdueInvoiceCount','clientList'))/* ->with("show_your_firm_popup", "yes") */;
     }
     public function dismissWidget(Request $request)
     {
@@ -694,6 +695,29 @@ class HomeController extends BaseController
                     ])->save();
                 }              
             }
+        }
+        return response()->json(["status" => "success"]);
+    }
+
+    /**
+     * Save user interes detail after profile setup
+     */
+    public function saveUserInterestDetail(Request $request)
+    {
+        // return $request->all();
+        $authUser = auth()->user();
+        if($request->looking_out || $request->interest_module) {
+            $userInterest = explode(",", $request->interest_module);
+            $userInterest = array_filter($userInterest, fn($value) => !is_null($value) && $value !== '');
+            UserInterestedModule::updateOrCreate([
+                'firm_id' => $authUser->firm_name,
+                'user_id' => $authUser->id,
+            ], [
+                'interedted_module_1' => $userInterest[1] ?? NULL,
+                'interested_module_2' => $userInterest[2] ?? NULL,
+                'looking_to_get_out_this_trial' => $request->looking_out ?? NULL,
+                'created_by' => $authUser->id,
+            ]);
         }
         return response()->json(["status" => "success"]);
     }

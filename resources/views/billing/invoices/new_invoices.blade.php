@@ -240,7 +240,7 @@ if(!isset($adjustment_token)){
                         <div class="invoice_case_gradient">
                             <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} 
                                 @if(isset($customizSetting) && $customizSetting->show_case_no_after_case_name == "yes")
-                                    ({{ $caseMaster->case_number }})
+                                    @if($caseMaster) ({{ @$caseMaster->case_number }}) @endif
                                 @endif
                             </h2>
                         </div>
