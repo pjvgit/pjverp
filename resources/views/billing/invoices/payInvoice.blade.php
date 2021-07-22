@@ -434,10 +434,12 @@ $finalAmt=$invoice-$paid;
                         afterLoader();
                         return false;
                     } else {
-                        swal('Payment Successful!', res.msg, 'success');
+                        swal('Payment Successful!', res.msg, 'success').then(function(){
+                            window.location.reload();
+                        });
                         afterLoader();
                         setTimeout(function () {
-                            $("#payInvoice").modal("hide")
+                            $("#payInvoice").modal("hide");                           
                         }, 1000);
                     }
                 },
