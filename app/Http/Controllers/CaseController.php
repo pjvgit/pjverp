@@ -2903,7 +2903,7 @@ class CaseController extends BaseController
         return $caseEvent;
     }
     
-      public function saveEditEventPage(Request $request)
+      public function saveEditEventPageOld(Request $request)
       {
         //   return $request->all();
           if(!isset($request->no_case_link)){
@@ -4761,7 +4761,10 @@ class CaseController extends BaseController
         exit;
       }
 
-    public function saveEditEventPageNew(Request $request)
+    /**
+     * Update events
+     */
+    public function saveEditEventPage(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
@@ -4886,7 +4889,7 @@ class CaseController extends BaseController
                         
                         $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
                         $i++;
-                    } while ($startDate < $endDate);
+                    } while ($startDate <= $endDate);
                 }
                 else if($request->event_frequency=='EVERY_BUSINESS_DAY')
                 { 
@@ -5404,6 +5407,10 @@ class CaseController extends BaseController
                     $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
                     $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
                     $oldEvents->forceDelete();
+
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
+                    }
                    
                     $i=0;
                     $event_interval_day=$request->event_interval_day;
@@ -5603,9 +5610,8 @@ class CaseController extends BaseController
                     
                     if($request->end_on!=''){
                         $endDate = strtotime($request->end_on);
-                    }else{
-                        $endDate =  strtotime(date('Y-m-d', $endDate));
                     }
+
                     do {
                         $monthly_frequency=$request->monthly_frequency;
                         $event_interval_month=$request->event_interval_month;
@@ -5620,47 +5626,6 @@ class CaseController extends BaseController
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
                         $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
-                        // if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                        // if(!isset($request->no_case_link)){
-                        //     if(isset($request->case_or_lead)) { 
-                        //         if($request->text_case_id!=''){
-                        //             $CaseEvent->case_id=$request->text_case_id; 
-                        //         }    
-                        //         if($request->text_lead_id!=''){
-                        //             $CaseEvent->lead_id=$request->text_lead_id; 
-                        //         }    
-                        //     } 
-                        //     // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                        // }
-                        // if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                        // if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                        // if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                        // if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                        // if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                        // if(isset($request->all_day)) { $CaseEvent->all_day="yes";  $CaseEvent->start_time=NULL;
-                        //     $CaseEvent->end_time=NULL;}else{ $CaseEvent->all_day="no";} 
-                        // if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}
-                        // $CaseEvent->recuring_event="yes";
-                        // $CaseEvent->event_frequency=$request->event_frequency;
-                        // if(isset($request->no_end_date_checkbox)) { 
-                        //     $CaseEvent->no_end_date_checkbox="yes"; 
-                        //     $CaseEvent->end_on=NULL;
-                        // }else{ 
-                        //     $CaseEvent->no_end_date_checkbox="no";
-                        //     $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                        // } 
-                        // $CaseEvent->event_interval_month=$request->event_interval_month;
-                        // $CaseEvent->monthly_frequency=$request->monthly_frequency;
-                        // if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                        //     $CaseEvent->event_location_id=$request->case_location_list; 
-                        // }else{  
-                        //     $CaseEvent->event_location_id=($locationID)??NULL;
-                        // }   
-                        // if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                        // $CaseEvent->updated_by=Auth::user()->id; 
-                        // $CaseEvent->created_by=$OldCaseEvent->created_by;
-                        // $CaseEvent->created_at=$OldCaseEvent->created_at; 
-                        // $CaseEvent->save();
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
                             $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -5681,86 +5646,36 @@ class CaseController extends BaseController
                     } while ($startDate < $endDate);
                     $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
                     $OldCaseEvent->forceDelete();
-                }else if($request->event_frequency=='YEARLY'){ 
-                    $endTime =  strtotime(date('Y-m-d',strtotime('+25 years')));
-                    if($request->end_on!=''){
-                        $endTime =  strtotime(date('Y-m-d',strtotime($request->end_on)));
-                    }
+                }else if($request->event_frequency=='YEARLY') { 
+                    $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
                     
                     $yearly_frequency=$request->yearly_frequency;
-                    $Currentweekday= date("l", $startTime ); 
+                    $Currentweekday= date("l", $startDate ); 
                     $i=0;
                     $OldCaseEvent=CaseEvent::find($request->event_id);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                    $endTime =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                    // CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->forceDelete();
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    
+                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
                     $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
                     $oldEvents->forceDelete();
-                     //If new location is creating.
-                     if($request->location_name!=''){
-                        $locationID= $this->saveLocationOnce($request);
+
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
                     }
                     
                     do {
                         $event_interval_year=$request->event_interval_year;
                         if($yearly_frequency=='YEARLY_ON_DAY'){
-                            $startTime=$startTime;
-                            // echo date('Y-m-d', $startTime);
+                            $startDate=$startDate;
                         }else if($yearly_frequency=='YEARLY_ON_THE'){
-                            $startTime = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startTime);
-                        //    echo date('Y-m-d', $startTime);
+                            $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
                         }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
-                            $startTime = strtotime("last ".strtolower($Currentweekday)." of this month",$startTime);
-                            // echo date('Y-m-d', $startTime);
+                            $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
                         }
-                        $start_date = date("Y-m-d", $startTime);
-                        $start_time = date("H:i:s", strtotime($request->start_time));
-                        $end_date = date("Y-m-d", $startTime);
-                        $end_time = date("H:i:s", strtotime($request->end_time));
-                        $CaseEvent = new CaseEvent;
-                        if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                        if(!isset($request->no_case_link)){
-                            if(isset($request->case_or_lead)) { 
-                                if($request->text_case_id!=''){
-                                    $CaseEvent->case_id=$request->text_case_id; 
-                                }    
-                                if($request->text_lead_id!=''){
-                                    $CaseEvent->lead_id=$request->text_lead_id; 
-                                }    
-                            } 
-                            // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                        }
-                        if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                        if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                        if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                        if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                        if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                        if(isset($request->all_day)) { $CaseEvent->all_day="yes";  $CaseEvent->start_time=NULL;
-                            $CaseEvent->end_time=NULL;}else{ $CaseEvent->all_day="no";} 
-                        if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}
-                        $CaseEvent->recuring_event="yes";
-                        $CaseEvent->event_frequency=$request->event_frequency;
-                        $CaseEvent->event_interval_year=$request->event_interval_year;
-                        $CaseEvent->yearly_frequency=$request->yearly_frequency;
-
-                        if(isset($request->no_end_date_checkbox)) { 
-                            $CaseEvent->no_end_date_checkbox="yes"; 
-                            $CaseEvent->end_on=NULL;
-                        }else{ 
-                            $CaseEvent->no_end_date_checkbox="no";
-                            $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                        } 
-                        if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                            $CaseEvent->event_location_id=$request->case_location_list; 
-                        }else{  
-                            $CaseEvent->event_location_id=($locationID)??NULL;
-                        }   
-                      if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                        $CaseEvent->updated_by=Auth::user()->id; 
-                        $CaseEvent->created_by=$OldCaseEvent->created_by;
-                        $CaseEvent->created_at=$OldCaseEvent->created_at; 
-                        $CaseEvent->save();
+                        $start_date = date("Y-m-d", $startDate);
+                        $end_date = date("Y-m-d", $startDate);
+                        $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
                         if($i==0) { 
                             $parentCaseID=$CaseEvent->id;
                             $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -5775,14 +5690,16 @@ class CaseController extends BaseController
                         $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                         $this->saveEventHistory($CaseEvent->id);
                         
-                        $startTime = strtotime('+'.$event_interval_year.' years',$startTime);
+                        $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
                         $i++;
-                        } while ($startTime < $endTime);
+                    } while ($startDate < $endDate);
+                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
+                    $OldCaseEvent->forceDelete();
                 }
             }
         }
 
-        /* $data=[];
+        $data=[];
         if(!isset($request->no_case_link)){
             if(isset($request->case_or_lead)) { 
                 if($request->text_case_id!=''){
@@ -5801,13 +5718,16 @@ class CaseController extends BaseController
         $data['action']='update';
         
         $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data); */
+        $CommonController->addMultipleHistory($data);
 
         session(['popup_success' => 'Event was updated.']);
         return response()->json(['errors'=>'']);
         exit;
     }
 
+    /**
+     * Update recurring event
+     */
     public function updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $oldCaseEvent)
     {
         $caseEvent = CaseEvent::create([

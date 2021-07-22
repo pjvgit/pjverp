@@ -132,7 +132,8 @@ class ClientdashboardController extends BaseController
             // $email="testing.testuser6@gmail.com";
             $firmData=Firm::find($user->firm_name);
             // echo $decrypted = Crypt::decryptString($encrypted);
-            $token=BASE_URL.'activate_account/web_token?='.$user->token."&security_patch=".Crypt::encryptString($email);
+            // $token=BASE_URL.'activate_account/web_token?='.$user->token."&security_patch=".Crypt::encryptString($email);
+            $token= route("client/activate/account", $user->token)."?security_patch=".Crypt::encryptString($email);
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{name}', $fullName, $mail_body);
             $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);
@@ -1894,7 +1895,8 @@ class ClientdashboardController extends BaseController
                 // $email="testing.testuser6@gmail.com";
                 $firmData=Firm::find($user->firm_name);
                 // echo $decrypted = Crypt::decryptString($encrypted);
-                $token=BASE_URL.'activate_account/web_token?='.$user->token."&security_patch=".Crypt::encryptString($email);
+                // $token=BASE_URL.'activate_account/web_token?='.$user->token."&security_patch=".Crypt::encryptString($email);
+                $token= route("client/activate/account", $user->token)."?security_patch=".Crypt::encryptString($email);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{name}', $fullName, $mail_body);
                 $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);

@@ -914,7 +914,8 @@ class UserController extends BaseController
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 
                     session(['layout' => 'horizontal']);
-                    return redirect()->intended('dashboard')->with('success','Login Successfully')->with("show_your_firm_popup", "yes");
+                    session()->flash("show_your_firm_popup", "yes");
+                    return redirect()->intended('dashboard')->with('success','Login Successfully');
                 }else{
                     $this->sendEmailVerificationMail(auth()->user());
                     Auth::logout();

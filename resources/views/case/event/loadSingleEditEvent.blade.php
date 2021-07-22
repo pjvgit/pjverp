@@ -604,6 +604,7 @@
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#start_date-error").text('');
+            updateMonthlyWeeklyOptions();
         });
         $("#end_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
@@ -890,10 +891,14 @@
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'YEARLY') {
             $(".repeat_yearly").show();
             $(".repeat_monthly").hide();
             $("#repeat_custom").hide();
+            updateMonthlyWeeklyOptions();
+        } else if (selectdValue == 'WEEKLY') {
+            updateMonthlyWeeklyOptions();
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
@@ -1168,5 +1173,33 @@
      selectColor('{{$getEventColorCode}}', '{{$evetData->event_type}}');
     <?php } ?>
    
+    // Get weekdays name
+    function getWeekdays(date) {
+        var weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        return weekday[date.getDay()];
+    }
 
+    // Get nth day of month 
+    function getNthDayOfMonth(date, weekday) {
+        var nth= ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+        return "On the "+nth[Math.floor(date.getDate()/7)]+' '+getWeekdays(date);
+    }
+
+    // Get updated option of weekly/monthly/yearly recurring
+    function updateMonthlyWeeklyOptions() {
+        var date = new Date($("#start_date").val());
+        // for month
+        $("#monthly-frequency").find('option').remove();
+        $("#monthly-frequency").append(
+            '<option value="MONTHLY_ON_DAY">On day '+date.getDate()+'</option><option value="MONTHLY_ON_THE">'+getNthDayOfMonth(date)+'</option>'
+        );
+        // for year
+        $("#yearly-frequency").find('option').remove();
+        var monthName = date.toLocaleString('default', { month: 'long' });
+        $("#yearly-frequency").append(
+            '<option value="YEARLY_ON_DAY">On day '+date.getDate()+' of '+monthName+'</option><option value="YEARLY_ON_THE">'+getNthDayOfMonth(date)+' of '+monthName+'</option>'
+        );
+        // for week
+        $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
+    }
 </script>

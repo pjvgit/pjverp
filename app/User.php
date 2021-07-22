@@ -215,4 +215,24 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(CaseMaster::class, 'case_client_selection', 'selected_user', 'case_id')->where("is_entry_done", "1")->whereNull('case_client_selection.deleted_at');
     }
+
+    /**
+     * Get the firm that owns the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function firmDetail()
+    {
+        return $this->belongsTo(Firm::class, 'firm_name');
+    }
+
+    /**
+     * Get the userAdditionalInfo associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function userAdditionalInfo()
+    {
+        return $this->hasOne(userAdditionalInfo::class, 'user_id');
+    }
 }

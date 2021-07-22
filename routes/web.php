@@ -13,6 +13,7 @@
 // For check email markdown
 
 use Illuminate\Mail\Markdown;
+use Illuminate\Support\Facades\Route;
 
 Route::get('mail', function () {
     $markdown = new Markdown(view(), config('mail.markdown'));
@@ -159,6 +160,16 @@ Route::get('/setupuserpprofile/{token}', 'ContractController@setupuserpprofile')
 Route::post('/setupusersave', 'ContractController@setupusersave')->name('setupusersave');
 Route::get('/firmclient/verify/{token}', 'ContractController@verifyClient');
 
+/**
+ * For client portal
+ */
+Route::group(['namespace' => "ClientPortal"], function () {
+    Route::get('activate_account/web_token/{token}', 'AuthController@activeClientAccount')->name("client/activate/account");
+    Route::get('setup/client/profile/{token}', 'AuthController@setupClientProfile')->name("setup/client/profile");
+    Route::post('save/client/profile/{token}', 'AuthController@saveClientProfile')->name("save/client/profile");
+    Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
+    Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
+});
 
 //After Login can access this routes
 Route::group(['middleware'=>'auth'], function () {
@@ -786,7 +797,7 @@ Route::group(['middleware'=>'auth'], function () {
     
     Route::post('contacts/changeAccess', 'ClientdashboardController@changeAccessFromDashboard');
     Route::post('contacts/sendWelcomeEmailAgain', 'ClientdashboardController@ReSendWelcomeEmail');
-    Route::get('activate_account/web_token/{id}', 'ClientdashboardController@activeClientAccount');
+    // Route::get('activate_account/web_token/{id}', 'ClientdashboardController@activeClientAccount');
     Route::post('contacts/saveTrustAmount', 'ClientdashboardController@saveTrustAmount');
 
 
@@ -1100,7 +1111,13 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('billing/settings/edit/customization', 'BillingSettingController@editCustomization')->name('billing/settings/edit/customization');
     Route::post('billing/settings/update/customization', 'BillingSettingController@updateCustomization')->name('billing/settings/update/customization');
     Route::get('billing/settings/view/customization', 'BillingSettingController@viewCustomization')->name('billing/settings/view/customization');
+});
 
+/**
+ * For client portal
+ */
+Route::group(['middleware' => 'auth', 'namespace' => "ClientPortal"], function () {
+    Route::get('home', 'HomeController@index')->name("client/home");
 });
 
 //Without login 
