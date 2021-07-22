@@ -3901,7 +3901,10 @@ if(!isset($adjustment_token)){
 
         });
     }
-
+    
+    $("#bill_invoice_date").on("change", function() {
+        paymentTerm();
+    });
 </script>
 @stop
 @endsection

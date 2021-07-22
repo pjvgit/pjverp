@@ -4095,6 +4095,11 @@ class BillingController extends BaseController
             if($request->bill_sent_status == "Draft") {
                 $InvoiceSave->status = $request->bill_sent_status;
             }
+            if($request->bill_due_date != ''){
+                if(strtotime($request->bill_invoice_date) >= strtotime($request->bill_due_date)){
+                    $InvoiceSave->status = "Overdue";
+                }
+            }
             $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
             $InvoiceSave->firm_id = auth()->user()->firm_name; 
             $InvoiceSave->updated_by=Auth::User()->id; 

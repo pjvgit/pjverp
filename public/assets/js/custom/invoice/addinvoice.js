@@ -270,10 +270,6 @@ $(document).ready(function () {
     });
 });
 
-$("#bill_invoice_date").on("change", function() {
-    paymentTerm();
-});
-
 function addDaysToDate(bill_invoice_date, days){
     var now = new Date(bill_invoice_date);
     now.setDate(now.getDate()+days);
