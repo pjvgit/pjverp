@@ -408,7 +408,8 @@ if(!isset($adjustment_token)){
                             </tbody>
                         </table>
                         <br>
-
+                        <!-- start -->
+                        <?php if($case_id != 'none') { ?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -1105,6 +1106,13 @@ if(!isset($adjustment_token)){
 
 
                     </div>
+                    <!-- end -->
+                        <?php }else{ ?>
+                            <div id="entries" style="margin: 5px;">
+                                <div style="text-align: center; font-style: italic; border-bottom: 1px solid #8f4a4a; padding-bottom: 20px; padding-top: 15px;">Please select a client and a matter for this invoice
+                                </div>
+                            </div>
+                        <?php } ?>
                     <?php }else{ ?>
                         <div id="entries" style="margin: 5px;">
                              <div style="text-align: center; font-style: italic; border-bottom: 1px solid #8f4a4a; padding-bottom: 20px; padding-top: 15px;">Please select a client and a matter for this invoice
