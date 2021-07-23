@@ -213,4 +213,14 @@ class Invoices extends Model
         }
         return "When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders ".$msg;
     }
+
+    /**
+     * Get the applyTrustCreditFund associated with the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function applyTrustCreditFund()
+    {
+        return $this->hasOne(InvoiceApplyTrustCreditFund::class, 'invoice_id');
+    }
 }

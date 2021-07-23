@@ -337,3 +337,15 @@ $(document).on("change", ".forwarded-invoices-check", function() {
     $("#final_total").text(finaltotal.toFixed(2));
     $("#final_total_text").val(finaltotal.toFixed(2));
 });
+
+// Apply trust balance
+$("#apply_trust_amt").on("focusout", function() {
+    var amt = $(this).val();
+    var totalAmt = parseFloat($("#trust_balance").text());
+    if(amt != '') {
+        var remainAmt = totalAmt - parseFloat(amt);
+        $("#remain_trust_balance").text(remainAmt.toFixed(2));
+    } else {
+        $("#remain_trust_balance").text(totalAmt.toFixed(2));
+    }
+});

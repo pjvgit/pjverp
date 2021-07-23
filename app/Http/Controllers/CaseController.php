@@ -2682,7 +2682,7 @@ class CaseController extends BaseController
                     }
                     $i++;
                     $startDate = strtotime('+1 day',$startDate); 
-                    } while ($startDate < $endDate);
+                    } while ($startDate <= $endDate);
             }
             else if($request->event_frequency=='WEEKLY')
             {
@@ -5131,6 +5131,10 @@ class CaseController extends BaseController
                     $oldEvents = CaseEvent::where('parent_evnt_id',$oldCaseEvent->parent_evnt_id)->where('id',">",$oldCaseEvent->id);
                     $oldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
                     $oldEvents->forceDelete();
+
+                    if($request->end_on!=''){
+                        $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
+                    }
                   
                     $i=0;
                     $event_interval_day=$request->event_interval_day;
@@ -6130,8 +6134,8 @@ class CaseController extends BaseController
         $CaseEvent = CaseEvent::find($eventId);
 
         if($request->delete_event_type=='SINGLE_EVENT'){
-            // CaseEvent::where("id", $eventId)->delete();
-            $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id);
+            // $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id);
+            $oldEvents = CaseEvent::where("id", $eventId);
             $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
             $oldEvents->forceDelete();
 
