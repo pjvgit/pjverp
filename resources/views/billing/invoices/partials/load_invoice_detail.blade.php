@@ -452,7 +452,7 @@
                         EE
                     </td>
                     @endif
-                    @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("activity", $invoiceSetting['expense']))
+                    @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("expense", $invoiceSetting['expense']))
                     <td class="invoice_info_bg">
                         Activity
                     </td>
