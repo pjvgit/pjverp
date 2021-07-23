@@ -48,14 +48,14 @@
                                         <td class="pl-1" style="width: 33%;">
                                             ${{number_format($timeEntryData['billable_entry'],2)}}</td>
                                         <td class="pl-1" style="width: 33%;"><a
-                                                href="{{BASE_URL}}court_cases/{{$CaseMaster['case_unique_number']}}/time_entries">View Time Entries</a></td>
+                                                href="{{ route('time_entries', $CaseMaster['case_unique_number']) }}">View Time Entries</a></td>
                                     </tr>
                                     <tr>
                                         <td class="pl-1" style="width: 33%;">Expenses</td>
                                         <td class="pl-1" style="width: 33%;">
                                             ${{number_format($expenseEntryData['billable_entry'],2)}}</td>
                                         <td class="pl-1" style="width: 33%;"><a
-                                                href="{{BASE_URL}}court_cases/{{$CaseMaster['case_unique_number']}}/expenses">View Expenses</a></td>
+                                                href="{{ route('expenses',$CaseMaster['case_unique_number']) }}">View Expenses</a></td>
                                     </tr>
                                 </tbody>
                             </table>

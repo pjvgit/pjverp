@@ -81,14 +81,14 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->created_at))}}"></p>
+                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->created_at ?? date('m/d/Y')))}}"></p>
             </div>
             <div class="col-3">
                 <input type="text"  class="form-control" disabled value="{{date('m/d/Y')}}"></p>
             </div>
             <div class="col-3">
             <?php 
-                $start = strtotime($CaseStageHistory->created_at);
+                $start = strtotime($CaseStageHistory->created_at ?? date('m/d/Y'));
                 $end = strtotime(date('Y-m-d'));
                 $days_between = ceil(abs($end - $start) / 86400);
                 if($days_between>0.99){

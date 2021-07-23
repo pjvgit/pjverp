@@ -6690,7 +6690,7 @@ class CaseController extends BaseController
        $getChildUsers[]=Auth::user()->id;
        
        $caseStageList = CaseStage::select("*")->where("status","1")->whereIn("created_by",$getChildUsers)->orderBy('stage_order','ASC')->get();
-          
+
        $CaseStageHistory=[];
        if($CaseMaster->case_status!=0){
         $CaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->where("stage_id",$CaseMaster->case_status)->first();
@@ -6713,21 +6713,33 @@ class CaseController extends BaseController
        {
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
-            $errors = [];
-            foreach($request->old_state_id as $k=>$v){
-                if(strtotime($request->old_start_date[$v]) >= strtotime($request->old_end_date[$v])) 
-                {
-                    $errors[$k] = $request->old_end_date[$v].' is not smaller than '.$request->old_start_date[$v];                    
-                }      
+            $errors = [];            
+            if(isset($request->old_state_id) && !empty($request->old_state_id)){
+                foreach($request->old_state_id as $k=>$v){
+                    if(strtotime($request->old_start_date[$v]) > strtotime($request->old_end_date[$v])) 
+                    {
+                        $errors[$k] = $request->old_end_date[$v].' is not smaller than '.$request->old_start_date[$v];                    
+                    }      
+                }
+            }
+            if(isset($request->case_status) && !empty($request->case_status)){
+                $CaseMaster=CaseMaster::find($request->case_id);
+                foreach($request->case_status as $k=>$v){
+                    if($CaseMaster->case_status == $request->case_status[$k]){ 
+                        $errors[$k] = 'The Current Stage is not used again in a case.';                    
+                    }
+                }
             }
             if(empty($errors)){
             $ids=[];
-            foreach($request->old_state_id as $k=>$v){
-                $caseStageHistory = CaseStageUpdate::find($v);
-                $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
-                $caseStageHistory->updated_at=(strtotime($request->old_start_date[$v]) >= strtotime($request->old_end_date[$v])) ? date('Y-m-d',strtotime($request->old_start_date[$v])) : date('Y-m-d',strtotime($request->old_end_date[$v]));
-                $caseStageHistory->save();
-                $ids[]=$v;  
+            if(isset($request->old_state_id) && !empty($request->old_state_id)){
+                foreach($request->old_state_id as $k=>$v){
+                    $caseStageHistory = CaseStageUpdate::find($v);
+                    $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
+                    $caseStageHistory->updated_at=(strtotime($request->old_start_date[$v]) > strtotime($request->old_end_date[$v])) ? date('Y-m-d',strtotime($request->old_start_date[$v])) : date('Y-m-d',strtotime($request->old_end_date[$v]));
+                    $caseStageHistory->save();
+                    $ids[]=$v;  
+                }
             }
             if(!empty($ids)){
                 $CaseStageUpdate=CaseStageUpdate::whereNotIn("id",$ids)->where("case_id",$request->case_id)->delete();
@@ -6744,8 +6756,9 @@ class CaseController extends BaseController
                         $caseStageHistory->save();
                 }
             }
-           return response()->json(['errors'=>'']);
-           exit;
+            session(['popup_success' => 'Case stage timeline history has been successfully saved.']);
+            return response()->json(['errors'=>'']);
+            exit;
             }else{
                 return response()->json(['errors'=>$errors]);
                 exit;
