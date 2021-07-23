@@ -6,7 +6,7 @@
 </div>
 <div class="form-group row">
     <div class="col-3 col-form-label"> Default Invoice Payment Terms </div>
-    <div id="default-payment-terms" class="col-9 form-control-plaintext"> {{ invoicePaymentTermList()[$invSetting->default_invoice_payment_terms ?? ""] }} </div>
+    <div id="default-payment-terms" class="col-9 form-control-plaintext"> {{ invoicePaymentTermList()[$invSetting->default_invoice_payment_terms ?? "5"] }} </div>
 </div>
 <div class="form-group row">
     <div class="col-3 col-form-label"> Invoice Reminder Schedule </div>
