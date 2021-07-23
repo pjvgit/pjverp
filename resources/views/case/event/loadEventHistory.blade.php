@@ -1,6 +1,6 @@
 <?php
 $userTypes = unserialize(USER_TYPE);
- if(!empty($commentData)){
+ if(count($commentData) > 0){
      foreach ($commentData as $key => $value) {
          if($value->action_type=="1"){
         ?>
@@ -58,14 +58,18 @@ $userTypes = unserialize(USER_TYPE);
 ?>
 
 <div class="history-item row ">
+    <?php if(!empty($evetData)){ ?>
     <div class="history-date col-4">
         <p class="date-string">
             <?php 
             $CommonController= new App\Http\Controllers\CommonController();
             $creatdDate=$CommonController->convertUTCToUserTime($evetData->created_at,Auth::User()->user_timezone);?>
             {{date('D, M jS Y',strtotime($creatdDate))}}<br>
-            {{date('h:ia',strtotime($creatdDate))}}</p>
+            {{date('h:ia',strtotime($creatdDate))}}
+        </p>
     </div>
+    <?php  } ?>
+    @if($eventCreatedBy != ''))
     <div class="history-info col-8">
         <span>Event added by
             <a class=""
@@ -75,4 +79,5 @@ $userTypes = unserialize(USER_TYPE);
             </a>
         </span>
     </div>
+    @endif
 </div>

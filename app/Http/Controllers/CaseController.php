@@ -5908,10 +5908,14 @@ class CaseController extends BaseController
         $evnt_id=$request->event_id;
         $evetData=CaseEvent::find($evnt_id);
 
-          //Event created By user name
-        $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
+        
+        //Event created By user name
+        $eventCreatedBy = '';
+        if(!empty($evetData) && $evetData->created_by != NULL){
+            $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
+        }
        
-        $updatedEvenByUserData='';
+        $updatedEvenByUserData ='';
         // if($evetData->updated_by!=NULL){
         //     //Event updated By user name
         //     $updatedEvenByUserData = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->updated_by)->first();

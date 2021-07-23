@@ -64,8 +64,7 @@
                             <div class="detail-info  col-9">
                                 <?php 
                                 if(!empty($CaseMasterData)){?>
-                                <a
-                                    href="{{BASE_URL}}court_cases/{{$CaseMasterData->case_unique_number}}">{{$CaseMasterData->case_title}}</a>
+                                <a href="{{ route('info', $CaseMasterData->case_unique_number) }}">{{$CaseMasterData->case_title}}</a>
                                 <?php } else  { ?>
                                 Not specified
                                 <?php } ?>
