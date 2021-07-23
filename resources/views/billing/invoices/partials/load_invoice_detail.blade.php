@@ -912,7 +912,7 @@
         </tbody>
     </table>
     <br>
-    @if(!empty($invoiceSetting) && $invoiceSetting->trust_credit_activity_on_invoice != "dont show" && !empty($findInvoice->applyTrustCreditFund))
+    @if(!empty($invoiceSetting) && $invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" && !empty($findInvoice->applyTrustCreditFund))
     <div>
         <div class="line-items-table payment-section">
             <div> </div>
