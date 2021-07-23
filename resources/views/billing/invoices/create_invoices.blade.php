@@ -787,7 +787,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                 console.log("client: "+aData.selected_user);
                 if(aData.selected_user && aData.deleted_at == null) {
                     $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-                        '/bills/invoices/load_new?court_case_id=' + aData.ccid + '&token=' + aData
+                        '/bills/invoices/new?court_case_id=' + aData.ccid + '&token=' + aData
                         .token + '">Invoice This Case</a></div>');
                 } else {
                     $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" data-toggle="modal" data-target="#editBillingContactPopup"\
