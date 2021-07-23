@@ -3753,6 +3753,33 @@
         calculatePaymentPlansForm();
     });
 
+    $('#number_installment_field').keypress(function (e) {
+        var key = e.which;
+        if(key == 13)  // the enter key code
+        {
+            calculatePaymentPlansForm(); 
+            return false;
+        }
+    });
+
+    $('#amount_per_installment_field').keypress(function (e) {
+        var key = e.which;
+        if(key == 13)  // the enter key code
+        {
+            calculatePaymentPlansForm(); 
+            return false;
+        }
+    });
+
+    $('#first_payment_amount').keypress(function (e) {
+        var key = e.which;
+        if(key == 13)  // the enter key code
+        {
+            calculatePaymentPlansForm(); 
+            return false;
+        }
+    });
+
     function calculatePaymentPlansForm(x){
         var error = 0;
         if($("#amount_per_installment_field").val() == ''){
