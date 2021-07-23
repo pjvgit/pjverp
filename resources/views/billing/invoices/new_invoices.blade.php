@@ -1286,7 +1286,125 @@ if(!isset($adjustment_token)){
                         </table>
                     </div>
 
-
+                    {{-- For Trust and Credit FUnds --}}
+                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show")
+                    <div class="apply-funds-container p-3" id="apply-trust-and-credit-funds">
+                        <h3 class="section-header p-2 apply-trust-credit-funds">Apply Trust &amp; Credit Funds</h3>
+                        <div class="mt-3">
+                            <div class="mt-3">
+                                <h4>Applied Trust Funds</h4>
+                                <div class="row ">
+                                    <div class="col-9">
+                                        <div>
+                                            <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Client</th>
+                                                        <th>Account</th>
+                                                        <th>Available Amount</th>
+                                                        <th>Amount to Apply</th>
+                                                        <th>Balance After Application</th>
+                                                        <th>Deposit Into</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="apply-funds-row">
+                                                        <td class="apply-funds-client"><span>{{ (!empty($caseMaster->caseBillingClient)) ? @$caseMaster->caseBillingClient[0]->full_name : "" }}</span></td>
+                                                        <td class="apply-funds-account">
+                                                            <input type="text" name="trust[client_id]" value="{{ (!empty($caseMaster->caseBillingClient)) ? @$caseMaster->caseBillingClient[0]->id : "" }}" >
+                                                            <div>Trust (Trust Account)</div>
+                                                        </td>
+                                                        <td class="apply-funds-available-amount">
+                                                            <div>$<span id="trust_balance">{{ (!empty($UsersAdditionalInfo)) ? @$UsersAdditionalInfo->trust_account_balance : 00 }}</span> <span class="allocation-status">(Unallocated)</span></div>
+                                                        </td>
+                                                        <td class="apply-funds-amount-to-apply">
+                                                            <div class="amount-to-apply-field input-group-sm input-group">
+                                                                <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                                                <input class="form-control" value="" id="apply_trust_amt" name="trust[applied_amount]">
+                                                            </div>
+                                                        </td>
+                                                        <td class="apply-funds-balance-after-application">
+                                                            <div>$<span id="remain_trust_balance">{{ (!empty($UsersAdditionalInfo)) ? @$UsersAdditionalInfo->trust_account_balance : 00 }}</span></div>
+                                                        </td>
+                                                        <td class="apply-funds-deposit-into">
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="form-control" name="trust[deposite_into]">
+                                                                        <option value="">Select the deposit into account</option>
+                                                                        <option value="operating account">Operating Account</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div>
+                                            <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <div>{{ (!empty($caseMaster->caseBillingClient)) ? @$caseMaster->caseBillingClient[0]->full_name : "" }}</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown" name="trust[show_trust_account_history]">
+                                                                        <option value="dont show">Don't show on invoice</option>
+                                                                        <option value="trust account summary">Show Trust Account Summary</option>
+                                                                        <option value="trust account history">Show Trust Account History</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h4>Applied Credit Funds</h4>
+                                <div class="row ">
+                                    <div class="col-3">
+                                        <div>
+                                            <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <div>[SAMPLE] John Doe</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown"  name="trust[show_credit_account_history]">
+                                                                        <option value="dont show">Don't show on invoice</option>
+                                                                        <option value="trust account summary">Show Trust Account Summary</option>
+                                                                        <option value="trust account history">Show Trust Account History</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="invoice_option_header clearfix">
                         <div style="float: right;" class="mt-2">

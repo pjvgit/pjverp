@@ -101,7 +101,7 @@
 
 
             </div>
-            @if (isset($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
+            @if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
             <div class="invoice-modern-theme">
                 <div class="invoice invoice_page" style="padding: 0 0 30px 0;">
                     <div id="invoice_total_div">

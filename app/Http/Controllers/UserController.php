@@ -52,6 +52,10 @@ class UserController extends BaseController
                 $user = User::find(Auth::User()->id);
                 $user->last_login=date('Y-m-d h:i:s');
                 $user->save();
+
+                // Save invoice settings if user is old and has not invoice default setting
+                $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);
+
                 if($userStatus=='1') { //User status active then able to login
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');

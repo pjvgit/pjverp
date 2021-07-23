@@ -186,7 +186,7 @@
                                             class="switch pr-5 switch-success mr-3">    
                                             <span data-toggle="tooltip" data-placement="bottom"
                                                 {{-- title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."> --}}
-                                                title="{{ (isset($invoiceSetting) && $invoiceSetting['reminder']) ? $findInvoice->getReminderMessage() : ((isset($invoiceDefaultSetting) && $invoiceDefaultSetting->reminderSchedule) ? $invoiceDefaultSetting->getReminderMessage() : '' ) }}">
+                                                title="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['reminder']) ? $findInvoice->getReminderMessage() : ((isset($invoiceDefaultSetting) && $invoiceDefaultSetting->reminderSchedule) ? $invoiceDefaultSetting->getReminderMessage() : '' ) }}">
                                                 <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
                                             <input type="checkbox" name="automated_reminders" id="automated_reminders" <?php if($findInvoice->automated_reminder=="yes"){ echo "checked=checked";} ?> @if($findInvoice->payment_term == 5) disabled @endif><span
@@ -245,7 +245,7 @@
 
                         <div class="invoice_case_gradient">
                             <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} 
-                                @if(isset($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
+                                @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
                                     @if($caseMaster) ({{ $caseMaster->case_number }}) @endif
                                 @endif
                             </h2>

@@ -16,10 +16,12 @@ use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePractic
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice,App\TrustHistory;
 use App\CaseStage,App\TempUserSelection;
+use App\InvoiceApplyTrustCreditFund;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceSetting;
 use App\Jobs\InvoiceReminderEmailJob;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -1997,7 +1999,7 @@ class BillingController extends BaseController
             $caseListByClient = CaseMaster::select("*")->whereIn('case_master.id',$caseCllientSelection)->select("*")->get();
             
             //Get the case data
-            $caseMaster = CaseMaster::find($case_id);
+            $caseMaster = CaseMaster::whereId($case_id)->with('caseBillingClient')->first();
 
             //Get the Time Entry list
             $TimeEntry=TaskTimeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")->where("task_time_entry.case_id",$case_id)
@@ -2952,7 +2954,8 @@ class BillingController extends BaseController
     }
 
     public function addInvoiceEntry(Request $request)
-    {     
+    { 
+        // return $request->trust['applied_amount'];
         // return $request->all();
         $rules = [
             // 'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
@@ -2977,8 +2980,8 @@ class BillingController extends BaseController
             "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"
         ]);          
-       
-            // print_r($request->all());exit;
+        dbStart();
+        try {
             DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number_padded)->delete();
             $InvoiceSave=new Invoices;
             $InvoiceSave->id=$request->invoice_number_padded;
@@ -3214,7 +3217,7 @@ class BillingController extends BaseController
                 $jsonData = [
                     'hours_decimal_point' => $preferenceSetting->time_entry_hours_decimal_point,
                     'payment_terms' => $preferenceSetting->time_entry_default_invoice_payment_terms,
-                    'activity_display_on_new_invoices' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
+                    'trust_credit_activity_on_invoice' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
                     'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
                     'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
                     'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
@@ -3246,12 +3249,36 @@ class BillingController extends BaseController
             $InvoiceSave->invoice_setting = $jsonData;
             $InvoiceSave->save();
 
+            // Apply trust and credit funds
+            if(!empty($request->trust)) {
+                InvoiceApplyTrustCreditFund::create([
+                    'invoice_id' => $InvoiceSave->id,
+                    'client_id' => $request->trust['client_id'],
+                    'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
+                    'account_type' => 'trust',
+                    'applied_amount' => $request->trust['applied_amount'],
+                    'deposite_into' => $request->trust['deposite_into'],
+                    'show_trust_account_history' => $request->trust['show_trust_account_history'],
+                    'show_credit_account_history' => $request->trust['show_credit_account_history'],
+                    'created_by' => auth()->id(),
+                ]);
+
+                $userAddInfo = UsersAdditionalInfo::where("user_id", $request->trust['client_id'])->first();
+                if($userAddInfo) {
+                    $userAddInfo->fill([
+                        'trust_account_balance' => ($userAddInfo->trust_account_balance) ? $userAddInfo->trust_account_balance - $request->trust['applied_amount'] ?? 00 : $userAddInfo->trust_account_balance
+                    ])->save();
+                }
+            }
+            dbCommit();
             $decodedId=base64_encode($InvoiceSave->id);
             return redirect('bills/invoices/view/'.$decodedId);
             // return response()->json(['errors'=>'','invoice_id'=>$InvoiceSave->id]);
             exit;
-
-        
+        } catch (Exception $e) {
+            dbEnd();
+            return redirect()->back()->with("error", $e->getMessage());
+        }
     }
 
     //View Invoice 
@@ -3259,7 +3286,7 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         // echo Hash::make($invoiceID);
-        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices")->first();
+        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustCreditFund")->first();
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
             return view('pages.404');
