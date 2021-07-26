@@ -1783,7 +1783,7 @@ class CaseController extends BaseController
         $lead_originating_id=$request->lead_originating_id;
         $case_id=$request->case_id;
         if($lead_originating_id==null){
-            CaseStaff::where('case_id',$case_id)->update(['lead_originating_id' => NULL]);
+            CaseStaff::where('case_id',$case_id)->update(['originating_attorney' => NULL]);
         }else{
             CaseStaff::where('originating_attorney',"!=", $lead_originating_id)->where('case_id',$case_id)->update(['originating_attorney' => NULL]);
             CaseStaff::where('user_id', $lead_originating_id)->update(['originating_attorney' => $lead_originating_id]);

@@ -377,7 +377,8 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                 "status": status
             },
             success: function (res) {
-                loadTaskView(id);
+                window.location.reload();
+                // loadTaskView(id);
             }
         })
     }
