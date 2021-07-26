@@ -3699,8 +3699,10 @@
         });
     } */
 
-    setTimeout(function(){  $("#payment_plan_balance").html("{{($findInvoice->total_amount-$sum)}}");
-    $('#payment_plan_balance').number(true, 2); }, 1000);
+    setTimeout(function(){  
+        $("#payment_plan_balance").html($(".final_total").html());
+        $('#payment_plan_balance').number(true, 2); 
+    }, 1000);
 
     function editSingleFlatFeeEntry(id) {
         $('.showError').html('');
