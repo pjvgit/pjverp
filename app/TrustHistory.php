@@ -20,13 +20,11 @@ class TrustHistory extends Authenticatable
         return date('M j, Y h:i A',strtotime($this->created_at));
     }
     public function getAddedDateAttribute(){
-        $CommonController= new CommonController();
         if(isset(Auth::User()->user_timezone) && $this->payment_date!=null) 
         {
             $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->payment_date)),$timezone);
+            $convertedDate= convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->payment_date)),$timezone);
             return date('M j, Y',strtotime($convertedDate));
-
         }else{
             return null;
         }

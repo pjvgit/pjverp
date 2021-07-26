@@ -331,4 +331,14 @@ class CaseMaster extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->wherePivot("is_billing_contact", "yes");
     }
+
+    /**
+     * The caseAllClient that belong to the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function caseAllClient()
+    {
+        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user');
+    }
 }

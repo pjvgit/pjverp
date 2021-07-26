@@ -1,3 +1,11 @@
+------------------------------------ 26-Jul-2021 ------------------------------
+ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `show_credit_account_history` `show_credit_account_history` ENUM('dont show','credit account summary','credit account history') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'dont show';
+ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `client_id` `client_id` INT(11) NULL, CHANGE `case_id` `case_id` INT(11) NULL;
+ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `deposite_into` `deposite_into` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL;
+
+------------------------------------ 23-Jul-2021 ------------------------------
+Create invoice apply trust credit funds table
+
 ------------------------------------ 21-Jul-2021 ------------------------------
 create user interest module table
 

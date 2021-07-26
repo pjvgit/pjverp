@@ -179,19 +179,18 @@ function userCaseList()
 /**
  * Convert date UTC to user timezone
  */
-function convertUTCToUserDate($str, $timezone){
-    $timestamp = $str;
+function convertUTCToUserDate($timestamp, $timezone){
     $date = Carbon::createFromFormat('Y-m-d', $timestamp, "UTC");
     $date->setTimezone($timezone);
-    return $NewDate= $date->format("Y-m-d");
+    // return $date->format("Y-m-d");
+    return $date;
 }
 
 //TO UTC
-function convertDateToUTCzone($str,$timezone){
-    $timestamp = $str;
+function convertDateToUTCzone($timestamp,$timezone){
     $date = Carbon::createFromFormat('Y-m-d', $timestamp, $timezone);
     $date->setTimezone('UTC');
-    return $NewDate= $date->format("Y-m-d");
+    return $date->format("Y-m-d");
 }
 
 /**

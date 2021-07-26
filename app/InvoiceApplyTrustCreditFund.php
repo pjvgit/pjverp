@@ -13,4 +13,24 @@ class InvoiceApplyTrustCreditFund extends Model
     ];
 
     protected $appends = [];
+
+    /**
+     * Get the client that owns the InvoiceApplyTrustCreditFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    /**
+     * Get the userAdditionalInfo that owns the InvoiceApplyTrustCreditFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function userAdditionalInfo()
+    {
+        return $this->belongsTo(UsersAdditionalInfo::class, 'client_id', 'user_id');
+    }
 }

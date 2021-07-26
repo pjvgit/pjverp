@@ -1264,6 +1264,156 @@
                         </table>
                     </div>
 
+                    {{-- For Trust and Credit FUnds --}}
+                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['trust_credit_activity_on_invoice'] != "dont show")
+                    <div class="apply-funds-container p-3" id="apply-trust-and-credit-funds">
+                        <h3 class="section-header p-2 apply-trust-credit-funds">Apply Trust &amp; Credit Funds</h3>
+                        <div class="mt-3">
+                            <div class="mt-3">
+                                <h4>Applied Trust Funds</h4>
+                                <div class="row ">
+                                    @if(!empty($findInvoice->applyTrustFund))
+                                    <div class="col-9">
+                                        @forelse ($findInvoice->applyTrustFund as $key => $item)
+                                            <div>
+                                                <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="jsx-3954552588 apply-funds-client" style="cursor: initial;"><span>Client</span></th>
+                                                            <th class="jsx-3954552588 apply-funds-account" style="cursor: initial;"><span>Account</span></th>
+                                                            <th class="jsx-3954552588 apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
+                                                            <th class="jsx-3954552588 apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="apply-funds-row">
+                                                            <td class="apply-funds-client">
+                                                                <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                                <span>{{ @$item->client->full_name }}</span></td>
+                                                            <td class="apply-funds-account">
+                                                                <div>Trust (Trust Account)</div>
+                                                            </td>
+                                                            <td class="apply-funds-available-amount">
+                                                                <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
+                                                            </td>
+                                                            <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @empty
+                                        @endforelse
+                                    </div>
+                                    @endif
+                                    <div class="col-3">
+                                        <div>
+                                            <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if(!empty($caseMaster->caseAllClient))
+                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                        <tr class="account-history-config-row">
+                                                            <td class="account-history-display-setting">
+                                                                <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                                <div>{{ $citem->full_name }}</div>
+                                                                <div class="row form-group">
+                                                                    <div class="col-12 col-sm-12">
+                                                                        <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
+                                                                            <option value="dont show">Don't show on invoice</option>
+                                                                            <option value="trust account summary">Show Trust Account Summary</option>
+                                                                            <option value="trust account history">Show Trust Account History</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        @endforelse
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h4>Applied Credit Funds</h4>
+                                <div class="row">
+                                    @if(!empty($findInvoice->applyCreditFund))
+                                    <div class="col-9">
+                                        @forelse ($findInvoice->applyCreditFund as $key => $item)
+                                                <div>
+                                                    <table class="apply-credit-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="jsx-3954552588 apply-funds-client" style="cursor: initial;"><span>Client</span></th>
+                                                                <th class="jsx-3954552588 apply-funds-account" style="cursor: initial;"><span>Account</span></th>
+                                                                <th class="jsx-3954552588 apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
+                                                                <th class="jsx-3954552588 apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr class="apply-funds-row">
+                                                                <td class="apply-funds-client">
+                                                                    <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                                    <span>{{ @$item->client->full_name }}</span></td>
+                                                                <td class="apply-funds-account">
+                                                                    <div>Credit (Operating Account)</div>
+                                                                </td>
+                                                                <td class="apply-funds-available-amount">
+                                                                    <div>$0.00 <span class="allocation-status"></span></div>
+                                                                </td>
+                                                                <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                        @empty
+                                        @endforelse
+                                    </div>
+                                    @endif
+                                    <div class="col-3">
+                                        <div>
+                                            <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if(!empty($caseMaster->caseAllClient))
+                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                        <tr class="account-history-config-row">
+                                                            <td class="account-history-display-setting">
+                                                                <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                                <div>{{ $citem->full_name }}</div>
+                                                                <div class="row form-group">
+                                                                    <div class="col-12 col-sm-12">
+                                                                        <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
+                                                                            <option value="dont show">Don't show on invoice</option>
+                                                                            <option value="credit account summary">Show Credit Account Summary</option>
+                                                                            <option value="credit account history">Show Credit Account History</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        @endforelse
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
 
                     <div class="invoice_option_header clearfix">

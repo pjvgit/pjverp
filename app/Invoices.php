@@ -223,4 +223,24 @@ class Invoices extends Model
     {
         return $this->hasOne(InvoiceApplyTrustCreditFund::class, 'invoice_id');
     }
+
+    /**
+     * Get the applyTrustCreditFund associated with the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function applyTrustFund()
+    {
+        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "trust");
+    }
+
+    /**
+     * Get the applyTrustCreditFund associated with the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function applyCreditFund()
+    {
+        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "credit");
+    }
 }

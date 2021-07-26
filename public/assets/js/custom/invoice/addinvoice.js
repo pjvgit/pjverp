@@ -336,16 +336,27 @@ $(document).on("change", ".forwarded-invoices-check", function() {
     $("#forwarded_total_amount").text(lineTotal.toFixed(2));
     $("#final_total").text(finaltotal.toFixed(2));
     $("#final_total_text").val(finaltotal.toFixed(2));
+    $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
 });
 
 // Apply trust balance
-$("#apply_trust_amt").on("focusout", function() {
+$(".apply-trust-amt").on("focusout", function() {
     var amt = $(this).val();
-    var totalAmt = parseFloat($("#trust_balance").text());
+    var totalAmt = parseFloat($(this).parents('tr').find(".trust-balance").text());
     if(amt != '') {
         var remainAmt = totalAmt - parseFloat(amt);
-        $("#remain_trust_balance").text(remainAmt.toFixed(2));
+        $(this).parents('tr').find(".remain-trust-balance").text(remainAmt.toFixed(2));
     } else {
-        $("#remain_trust_balance").text(totalAmt.toFixed(2));
+        $(this).parents('tr').find(".remain-trust-balance").text(totalAmt.toFixed(2));
     }
+
+    var totalAppliedAmt = 0;
+    $(".apply-trust-amt").each(function() {
+        var amt = $(this).val();
+        if(amt != '') {
+            totalAppliedAmt = parseFloat(totalAppliedAmt) + parseFloat(amt);
+        }
+    });
+    $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
+    $(".invoice-total-amount").text('$'+$(".final_total").text());
 });

@@ -233,6 +233,16 @@ class User extends Authenticatable
      */
     public function userAdditionalInfo()
     {
-        return $this->hasOne(userAdditionalInfo::class, 'user_id');
+        return $this->hasOne(UsersAdditionalInfo::class, 'user_id');
+    }
+
+    /**
+     * Get all of the userTrustAccountHistory for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userTrustAccountHistory()
+    {
+        return $this->hasMany(TrustHistory::class, 'client_id');
     }
 }
