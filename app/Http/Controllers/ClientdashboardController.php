@@ -2543,7 +2543,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->total_imported=$ic;
                         $ClientCompanyImport->save();
                         } catch (\Exception $e) {
-                            $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                            $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
                             $ClientCompanyImport->status=2;
                             $ClientCompanyImport->save();
@@ -2630,7 +2630,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->total_imported=$ic;
                         $ClientCompanyImport->save();                            
                         } catch (\Exception $e) {
-                            $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                            $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
                             $ClientCompanyImport->status=2;
                             $ClientCompanyImport->save();
@@ -2684,11 +2684,19 @@ class ClientdashboardController extends BaseController
                             $UserArray[$finalOperationKey]['first_name']=$org[1];
                             $UserArray[$finalOperationKey]['fullNameString']=$org[1];
                         }else{
-                            $fullName=explode(" ",$org[1]);
-                            $UserArray[$finalOperationKey]['user_level']=2;
-                            $UserArray[$finalOperationKey]['first_name']=$fullName[0];
-                            $UserArray[$finalOperationKey]['last_name']=$fullName[1] ?? NULL;
-                            $UserArray[$finalOperationKey]['fullNameString']=$org[1];
+                            if(isset($org[1])){
+                                $fullName=explode(" ",$org[1]);
+                                $UserArray[$finalOperationKey]['user_level']=2;
+                                $UserArray[$finalOperationKey]['first_name']=$fullName[0];
+                                $UserArray[$finalOperationKey]['last_name']=$fullName[1] ?? NULL;
+                                $UserArray[$finalOperationKey]['fullNameString']=$org[1];
+                            }else{
+                                $ClientCompanyImport->error_code="<ul><li>Worng format selected, Column of selected files are list below </li></ui></br>".implode(", ",$csv_data[0]);
+                                $ClientCompanyImport->status=2;
+                                $ClientCompanyImport->save();
+                                return response()->json(['errors'=>'','contact_id'=>'']);
+                                exit;
+                            }
                         }
                         if (strpos($org[0], 'FN')  !== false) {
                             foreach($finalOperationVal as $k => $v){
@@ -2758,7 +2766,7 @@ class ClientdashboardController extends BaseController
                     $ClientCompanyImport->save();
                 }
             }  catch (\Exception $e) {
-                $errorString='<ul><li>'.$e->getMessage().'</li></ui>';
+                $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                 $ClientCompanyImport->error_code=$errorString;
                 $ClientCompanyImport->status=2;
                 $ClientCompanyImport->save();
