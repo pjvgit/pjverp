@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('main-content')
 @section('title', substr($LeadData['leadname'],0,200).' - Lead Details')
+@include('lead.lead_submenu')
 <?php
 $show="";
 if(isset($_GET['show']) && $_GET['show']=='all'){

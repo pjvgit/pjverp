@@ -16,6 +16,7 @@ if(isset($_GET['at'])){
     $at= $_GET['at'];
 }
 ?>
+@include('lead.lead_submenu')
 <div class="row">
     <div class="col-md-12">
         <div class="card text-left">

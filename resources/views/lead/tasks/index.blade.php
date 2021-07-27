@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Leads')
 @section('main-content')
-
+@include('lead.lead_submenu')
 <?php 
 $at="everyone";
 $status='0';

@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Leads')
 @section('main-content')
+@include('lead.lead_submenu')
 
 <div class="row">
     <div class="col-md-12">
