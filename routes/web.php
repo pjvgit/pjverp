@@ -944,6 +944,7 @@ Route::group(['middleware'=>'auth'], function () {
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');
+    Route::post('bills/invoices/loadUpcomingInvoicesWithLoader', 'BillingController@loadUpcomingInvoicesWithLoader')->name('bills/invoices/loadUpcomingInvoicesWithLoader');
     Route::get('bills/invoices/new', 'BillingController@newInvoiceScratch')->name('bills/invoices/new');
     Route::get('bills/invoices/load_new', 'BillingController@newInvoice')->name('bills/invoices/load_new');
     Route::post('bills/invoices/deleteTimeEntry', 'BillingController@deleteTimeEntry')->name('bills/invoices/deleteTimeEntry');

@@ -4,10 +4,6 @@
 @include('billing.submenu')
 <?php
 $practice_area_id=($_GET['practice_area_id'])??'';
-$lead_attorney_id=($_GET['lead_attorney_id'])??'';
-$office_id=($_GET['office_id'])??'';
-$balance_filter=($_GET['balance_filter'])??'';
-$fee_structure_filter=($_GET['fee_structure_filter'])??'';
 ?>
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
@@ -44,7 +40,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                                 class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
                                 @forelse (firmUserList() as $item)
-                                    <option value="{{ $item->id }}" <?php if($lead_attorney_id==$item->id){ echo "selected=selected"; } ?>>{{ $item->full_name }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->full_name }}</option>
                                 @empty
                                 @endforelse
                             </select>
@@ -54,8 +50,14 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                             <select id="practice_area_id" name="practice_area_id"
                                 class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
+                                {{-- <?php foreach($practiceAreaList as $k=>$v){
+                                    ?>
+                                <option <?php if($practice_area_id==$v->id){ echo "selected=selected"; } ?> value="{{$v->id}}">{{$v->title}}</option>
+                                <?php 
+                                }
+                                ?> --}}
                                 @forelse (casePracticeAreaList() as $key => $item)
-                                    <option value="{{ $key }}" <?php if($practice_area_id==$key){ echo "selected=selected"; } ?>>{{ $item }}</option>
+                                    <option value="{{ $key }}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>
@@ -65,7 +67,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                             <select id="office_id" name="office_id" class="form-control custom-select col select2Dropdown">
                                 <option value="all">Show All</option>
                                 @forelse (firmOfficeList() as $key => $item)
-                                    <option value="{{ $key }}" <?php if($office_id==$key){ echo "selected=selected"; } ?>>{{ $item }}</option>
+                                    <option value="{{ $key }}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>
@@ -73,9 +75,9 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Balance Type</label>
                             <select id="balance_filter" name="balance_filter" class="form-control custom-select col select2Dropdown">
-                                <option value="all" <?php if($balance_filter=="all"){ echo "selected=selected"; } ?>>Show All</option>
-                                <option value="unpaid" <?php if($balance_filter=="unpaid"){ echo "selected=selected"; } ?>>Unpaid Balances Only</option>
-                                <option value="uninvoiced" <?php if($balance_filter=="uninvoiced"){ echo "selected=selected"; } ?>>Un-Invoiced Balances Only</option>
+                                <option value="all">Show All</option>
+                                <option value="unpaid">Unpaid Balances Only</option>
+                                <option value="uninvoiced">Un-Invoiced Balances Only</option>
                             </select>
 
                             </select>
@@ -83,17 +85,19 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Fee Structure</label>
                             <select id="fee_structure_filter" name="fee_structure_filter" class="form-control custom-select col select2Dropdown">
-                                <option value="all" <?php if($fee_structure_filter=="all"){ echo "selected=selected"; } ?> >Show All</option>
-                                <option value="hourly" <?php if($fee_structure_filter=="hourly"){ echo "selected=selected"; } ?>>Hourly</option>
-                                <option value="contingency" <?php if($fee_structure_filter=="contingency"){ echo "selected=selected"; } ?>>Contingency</option>
-                                <option value="flat" <?php if($fee_structure_filter=="flat"){ echo "selected=selected"; } ?>>Flat</option>
-                                <option value="mixed" <?php if($fee_structure_filter=="mixed"){ echo "selected=selected"; } ?>>Mixed</option>
-                                <option value="pro_bono" <?php if($fee_structure_filter=="pro_bono"){ echo "selected=selected"; } ?>>Pro Bono</option>
+                                <option value="all">Show All</option>
+                                <option value="hourly">Hourly</option>
+                                <option value="contingency">Contingency</option>
+                                <option value="flat">Flat</option>
+                                <option value="mixed">Mixed</option>
+                                <option value="pro_bono">Pro Bono</option>
+                            </select>
                             </select>
                         </div>
                         <div class="col-md-2 form-group mb-3 mt-2 pt-2">
-                            <button class="btn btn-info btn-rounded m-1 filter-btn" type="submit">Apply Filters</button>
-                            <a href="{{route('bills/invoices/open')}}" class="test-clear-filters text-black-50 btn btn-link clear-filter-btn">Clear Filters</a>
+
+                            <button class="btn btn-info btn-rounded m-1 filter-btn" type="button">Apply Filters</button>
+                            <button type="reset" class="test-clear-filters text-black-50 btn btn-link clear-filter-btn">Clear Filters</button>
                         </div>
 
                     </div>
@@ -184,7 +188,8 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                         <tbody>
                             <tr>
                                 <td class="text-center align-middle">
-                                    The following cases have uninvoiced time entries, expenses, flat fees, or overdue balances.
+                                    The following cases have uninvoiced time entries, expenses, flat fees, or overdue
+                                    balances.
                                 </td>
                             </tr>
                         </tbody>
@@ -192,6 +197,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                     <table class="display table table-striped table-bordered" id="invoiceGrid" style="width:100%">
                         <thead>
                             <tr>
+                                <th class="col-md-auto"></th>
                                 <th class="col-md-auto">Contact/Case</th>
                                 <th class="col-md-auto">Lead Attorney</th>
                                 <th class="col-md-auto">Fee Structure</th>
@@ -203,8 +209,6 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                                 <th class="col-md-auto"></th>
                             </tr>
                         </thead>
-                        <tbody class="lazy-load-data">
-                        </tbody>
                     </table>
                 </div>
                 <?php
@@ -471,7 +475,6 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
         </div>
     </div>
 </div>
-<div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
 
 @include('case.view.timebilling.billingContactPopup')
 
@@ -640,10 +643,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 </style>
 @section('page-js-inner')
 <script type="text/javascript">
-var start = 0;
-    $(document).ready(function () {       
-        loadMoreData();
-
+    $(document).ready(function () {
         $('#batchSaved').on('hidden.bs.modal', function () {
             window.location.reload();
         });
@@ -683,7 +683,7 @@ var start = 0;
 
         $('.dropdown-toggle').dropdown();
         var groupColumn = 0;
-        var invoiceGrid = $('#invoiceGrid1').DataTable({
+        var invoiceGrid = $('#invoiceGrid').DataTable({
             "columnDefs": [{
                 "visible": false,
                 "targets": groupColumn
@@ -851,11 +851,9 @@ var start = 0;
                     }
                     if($('.client_box:checked').length>1){
                       $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
-                    $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
 
                     }else{
                       $("#batch_num_cases_selected").html($('.client_box:checked').length+' case');
-                    $("#batch_cases_selected").html("("+$('.client_box:checked').length+' case)');
 
                     }
                 });
@@ -894,13 +892,15 @@ var start = 0;
         });
 
         // For filter
-        // $(document).on('click', ".filter-btn", function() {
-        //     $('#invoiceGrid').DataTable().ajax.reload(null, false);
-        // });
+        $(document).on('click', ".filter-btn", function() {
+            $('#invoiceGrid').DataTable().ajax.reload(null, false);
+        });
 
         // For reset/clear filter
         $(document).on('click', ".clear-filter-btn", function() {
-            window.location.href='bills/invoices/open';
+            $("#filterBy").trigger("reset");
+            $(".custom-select").trigger("change");
+            $('#invoiceGrid').DataTable().ajax.reload(null, false);
         });
 
         $('#checkAllClientCase').on('change', function () {
@@ -914,17 +914,17 @@ var start = 0;
 
         });
         $('#invoiceGrid tr:first').after(
-            '<tr class="group"><td colspan="15"><input type="checkbox" id="selectAll" > Select All <span id="batch_cases_selected"></span></td></tr>'
+            '<tr class="group"><td colspan="15"><input type="checkbox" id="selectAll" > Select All</td></tr>'
         );
         // Order by the grouping
-        // $('#invoiceGrid tbody').on('click', 'tr.group', function () {
-        //     var currentOrder = table.order()[0];
-        //     if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
-        //         table.order([groupColumn, 'desc']).draw();
-        //     } else {
-        //         table.order([groupColumn, 'asc']).draw();
-        //     }
-        // });
+        $('#invoiceGrid tbody').on('click', 'tr.group', function () {
+            var currentOrder = table.order()[0];
+            if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+                table.order([groupColumn, 'desc']).draw();
+            } else {
+                table.order([groupColumn, 'asc']).draw();
+            }
+        });
     $("#batch_billing_tab").on("click", function () {
         $("#batch_billing").toggle("slide", {
             direction: "right"
@@ -1073,11 +1073,9 @@ var start = 0;
         }
         if($('.client_box:checked').length>1){
           $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
-          $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
 
         }else{
           $("#batch_num_cases_selected").html($('.client_box:checked').length+' case');
-          $("#batch_cases_selected").html("("+$('.client_box:checked').length+' case)');
 
         }
         $('input.client_box:checked').each(function () {
@@ -1129,210 +1127,33 @@ var start = 0;
 
     });
 
-    var scrollStop = true;
-
     $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() >= $(document).height() && scrollStop == true) {
-            loadMoreData();
+        if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+            var last_id = 1;
+            loadMoreData(last_id);
         }
     });
 
-    function loadMoreData(){
-        // $("#preloader").show();
-        beforeLoader();
-        var pageLength =  {{USER_PER_PAGE_LIMIT}};
+    function loadMoreData(last_id){
         $.ajax(
         {
-            url: baseUrl + "/bills/invoices/loadUpcomingInvoicesWithLoader",
-            type: "post",
-            data: {
-                load : 'true',
-                type : "all",
-                practice_area_id : $("#practice_area_id").val(),
-                lead_attorney_id : $("#lead_attorney_id").val(),
-                firm_office_id : $("#office_id").val(),
-                billing_method : $("#fee_structure_filter").val(),
-                balance_filter : $("#balance_filter").val(),
-                pageLength : (start == 0) ? pageLength : start,
-                start : 0,
-            },
-            error: function () {
-                $("#invoiceGrid_processing").css("display", "none");
+            url: '/loadMoreData.php?last_id=' + last_id,
+            type: "get",
+            beforeSend: function()
+            {
+                $('.ajax-load').show();
             }
         })
-        .done(function(result)
+        .done(function(data)
         {
-            var res = JSON.parse(result);
-            var resultHtml = '';
-            var last = null;
-
-            console.log(res.data);
-            $.each(res.data, function(i, v){
-                
-                var contactGroup = i.split('_');
-
-                resultHtml +='<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
-                contactGroup[1] + ')" id="checkAllClientCase"class="allSelect  mainBox_' + contactGroup[1] + ' "> <a class="name" href="' + baseUrl +
-                '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
-
-                $.each(v, function(j, aData){
-                    start = start + 1;
-                    // resultHtml +='<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
-                    // aData.id + ','+ aData.case_id +')" id="checkAllClientCase"class="allSelect case_id' + aData.case_id + ' ' + aData.id +
-                    // ' mainBox_' + aData.id + ' "> <a class="name" href="' + baseUrl +
-                    // '/contacts/clients/'+aData.selected_user+'">'+aData.contact_name+'</a></td></tr>';
-                                    
-                    resultHtml +='<tr><td><div class="text-left pl-3"><input id="select-row-74" client_id=' + aData
-                    .selected_user + '  case_id="' + aData.case_id + '"  class="client_box allSelect case_id' + aData.case_id + ' task_checkbox ' + aData
-                    .selected_user + '  client_' + aData.selected_user +
-                    '" type="checkbox" value="' + aData.id + '" name="expenceId[' + aData.id +
-                    ']"  >&nbsp;<a class="name" href="' + baseUrl + '/court_cases/' + aData
-                    .case_unique_number + '/info">' + aData.ctitle + '</a></div></td>';
-
-                    resultHtml +='<td><div class="text-left">' + aData.lead_attorney_name +
-                    '</div></td>';
-
-                    resultHtml +='<td><div class="text-left">' + aData.fee_structure +
-                        '</div></td>';
-
-                    resultHtml +='<td><div class="text-left">' + aData.practice_area_filter +
-                        '</div></td>';
-                    resultHtml +='<td><div class="text-left">' + aData.uninvoiced_balance +
-                        '</div></td>';
-
-                    resultHtml +='<td><div class="text-left">' + aData.unpaid_balance +'</div></td>';
-                    
-                    if(aData.payment_plan_active_for_case=="yes"){
-                        resultHtml +='<td><div class="text-left"><a class="payment-plan-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Payment Plans are active on this case."></a></div></td>';
-                    }else{
-                        resultHtml +='<td><div class="text-left">--</div></td>';
-                    }
-                    resultHtml +='<td><div class="text-left">' + aData.last_invoice +
-                        '</div></td>';
-                    console.log("client: "+aData.selected_user);
-                    if(aData.selected_user && aData.deleted_at == null) {
-                        resultHtml +='<td><div class="text-left"><a class="name" href="' + baseUrl +
-                            '/bills/invoices/new?court_case_id=' + aData.ccid + '&token=' + aData
-                            .token + '">Invoice This Case</a></div></td>';
-                    } else {
-                        resultHtml +='<td><div class="text-left"><a class="name" data-toggle="modal" data-target="#editBillingContactPopup"\
-                            data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
-                    }
-                    resultHtml +='</tr>';
-                });
-               
-            });
-            afterLoader();
-            // $(".lazy-load-data").append(resultHtml);
-            $(".lazy-load-data").html('');
-            $(".lazy-load-data").html(resultHtml);
-            // $("#preloader").hide();
-            reloadBilling();
+            $('.ajax-load').hide();
+            $("#post-data").append(data);
         })
         .fail(function(jqXHR, ajaxOptions, thrownError)
         {
-            console.log('server not responding...');
-            afterLoader();
-            $("#preloader").hide();
+            alert('server not responding...');
         });
     }
-
-function reloadBilling(){
-    $('[data-toggle="tooltip"]').tooltip();
-
-    $('#checkall').on('change', function () {
-        $('.task_checkbox').prop('checked', $(this).prop("checked"));
-        if ($('.task_checkbox:checked').length == "0") {
-            $('#actionbutton').attr('disabled', 'disabled');
-        } else {
-            $('#actionbutton').removeAttr('disabled');
-        }
-    });
-
-    $('#selectAll').on('change', function () {
-        $('input.allSelect').each(function () {
-            $('input.allSelect').prop('checked', $("#selectAll").prop(
-                "checked"));
-        });
-
-        if ($("#batch_billing_tab").hasClass("expand")) {
-        }else{
-            $("#batch_billing_tab").toggleClass("expand");
-            $("#batch_billing").toggle("slide", {direction: "right"});
-            $("#batch_billing_tab").animate({ right: "400px"});
-        }
-        if($('.client_box:checked').length>1){
-            $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
-            $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
-        }else{
-            $("#batch_num_cases_selected").html($('.client_box:checked').length+' case');
-            $("#batch_cases_selected").html("("+$('.client_box:checked').length+' case)');
-        }
-    });
-
-    $('.client_box').on('change', function () {
-        var client_id = $(this).attr('client_id');
-        if ($('.client_' + client_id + ':checked').length == $('.client_' +
-                client_id).length) {
-            $('.mainBox_' + client_id).prop('checked', true);
-        } else {
-            $('.mainBox_' + client_id).prop('checked', false);
-        }
-
-        if ($('.allSelect:checked').length == $('.allSelect').length) {
-            $('#selectAll').prop('checked', true);
-            $("#batch_billing_tab").toggleClass("expand");
-            $("#batch_billing").toggle("slide", {direction: "right"});
-            $("#batch_billing_tab").animate({ right: "400px"});
-        } else {
-            $('#selectAll').prop('checked', false);
-            $("#batch_billing_tab").removeClass("expand");
-        }
-        
-        if($('.client_box:checked').length>1){
-            $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
-            $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
-        }else{
-            $("#batch_num_cases_selected").html($('.client_box:checked').length+' case');
-            $("#batch_cases_selected").html("("+$('.client_box:checked').length+' case)');
-        }
-    });
-}
-
-function selectClient(i) {
-    $('input.' + i).each(function () {
-        $('.' + i).prop('checked', $(this).prop("checked"));
-    });
-    if ($('.allSelect:checked').length == $('.allSelect').length) {
-        $('#selectAll').prop('checked', true);
-    } else {
-        $('#selectAll').prop('checked', false);
-    }
-
-    if ($("#batch_billing_tab").hasClass("expand")) {
-    }else{
-        if ($('.allSelect:checked').length == $('.allSelect').length) {
-            $("#batch_billing_tab").toggleClass("expand");
-            $("#batch_billing").toggle("slide", {direction: "right"});
-            $("#batch_billing_tab").animate({ right: "400px"});
-        }
-    }
-    if($('.mainBox_'+i).is(":checked")){
-        $('.mainBox_'+i).prop('checked', true);
-        $(".client_"+i).prop('checked', true);
-    }else{
-        $('.mainBox_'+i).prop('checked', false);
-        $(".client_"+i).prop('checked', false);
-    } 
-    if($('.client_box:checked').length>1){
-        $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
-        $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
-    }else{
-        $("#batch_num_cases_selected").html($('.client_box:checked').length+' case');
-        $("#batch_cases_selected").html("("+$('.client_box:checked').length+' case)');
-    }
-}
-
 </script>
 @stop
 @endsection

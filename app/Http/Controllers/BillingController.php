@@ -1845,6 +1845,88 @@ class BillingController extends BaseController
         );
         echo json_encode($json_data);  
     }
+
+    public function loadUpcomingInvoicesWithLoader(Request $request)
+    {   
+        $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
+        $requestData= $_REQUEST;
+        
+        $Invoices = CaseMaster::
+        leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
+        ->leftJoin("users","case_client_selection.selected_user","=","users.id")
+        ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
+        ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
+        ->leftjoin("case_staff", "case_staff.case_id", "=", "case_master.id")
+        ->leftjoin("users as lau", "lau.id", "=", "case_staff.lead_attorney")
+        ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle",
+                "case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount",
+                DB::raw('CONCAT_WS(" ",lau.first_name,lau.last_name) as lead_attorney_name'));
+      
+        // $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
+        $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
+        // $Invoices = $Invoices->where("task_time_entry.status","unpaid");
+        // $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
+        if(Auth::user()->parent_user==0)
+        {
+            $getChildUsers=$this->getParentAndChildUserIds();
+            $Invoices = $Invoices->whereIn("case_master.created_by",$getChildUsers);
+            $Invoices->where(function($Invoices){
+                $Invoices = $Invoices->orwhere("task_time_entry.status","unpaid");
+                $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
+            });
+
+        }else{
+            $Invoices = $Invoices->where("case_master.created_by",Auth::User);
+
+        }
+        //Filters
+        if($request->practice_area_id != 'all') {
+            $Invoices = $Invoices->where("case_master.practice_area", $request->practice_area_id);
+        }
+        if($request->lead_attorney_id != "all") {
+            $Invoices = $Invoices->where("case_staff.lead_attorney", $request->lead_attorney_id);
+        }
+        if($request->firm_office_id != 'all') {
+            $Invoices = $Invoices->where("case_master.case_office", $request->firm_office_id);
+        }
+        if($request->billing_method != 'all') {
+            $Invoices = $Invoices->where("case_master.billing_method", $request->billing_method);
+        }
+        if($request->balance_filter != 'all') {
+            if($request->balance_filter == "uninvoiced") {
+                // $Invoices = $Invoices->whereDoesntHave("invoices");
+                $Invoices = $Invoices->where("task_time_entry.status","unpaid")->orWhere("expense_entry.status","unpaid");
+            } else {
+                $Invoices = $Invoices->whereHas("invoices", function($query) {
+                    $query->havingRaw('SUM(due_amount) > ?', array(0));
+                });
+            }
+        }
+        $totalData=$Invoices->count();
+        
+        $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['pageLength']);
+        $Invoices = $Invoices->orderBy("case_master.id", 'desc');
+        $Invoices = $Invoices->groupBy("case_master.id");
+        $Invoices = $Invoices->get();
+
+        $arrData = [];
+        $contactGroup = [];
+        foreach ($Invoices as $k=>$v){
+            array_push($contactGroup,$v->contact_name);
+            if(in_array($v->contact_name,$contactGroup))
+            {
+                $arrData[$v->contact_name.'_'.$v->selected_user][$k] = $v;            
+            }            
+        }
+        $arrData = array_map('array_values', $arrData);
+
+        $json_data = array(           
+            "recordsTotal"    => intval( $totalData ),             
+            "data"            => $arrData 
+        );
+        echo json_encode($json_data);  
+    }
+
     public function getInvoicePendingCase()
     {
         $getChildUsers=$this->getParentAndChildUserIds();
@@ -6376,7 +6458,7 @@ class BillingController extends BaseController
                 $TimeEntry=$TimeEntry->where("task_time_entry.case_id",$caseVal);
                 $TimeEntry=$TimeEntry->where("task_time_entry.status","unpaid");
                 if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
-                    $$TimeEntry=$TimeEntry->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
+                    $TimeEntry=$TimeEntry->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
                 }
                 $TimeEntry=$TimeEntry->get();
  
