@@ -57,8 +57,9 @@
     <?php } ?>
     </div>
 </div>
-<button type="button" class="btn btn-link" id="HideShowNonlink">Include staff member not linked to this case</button>
-<div class="sharing-table staff-table-nonlinked" style="display:none;">
+59
+<button type="button" class="btn btn-link" bladeName="resources/views/lead/tasks/loadTaskRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
+<div class="sharing-table staff-table-nonlinked" @if(count($caseNonLinkedAssigned) == 0) style="display:none;" @endif>
     <div class="table-responsive">
         <table class="table table-lg" id="CaseNoneLinkedStaffSection">
             <tr class="no-border"   style="background-color:#FBFBFC;">
