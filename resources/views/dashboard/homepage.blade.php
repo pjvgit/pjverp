@@ -461,20 +461,13 @@
 
                                 </div>
                                 <div id="event-details-{{$v->id}}" style="display: none;">
-                                    <?php 
-                                        if($v->case_id!=NULL){
-                                            ?>
-                                    <a class="pendo-upcoming-event-case-link"
-                                        href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{$v->case_title}}</a>
-                                    <?php 
-                                        }else {
-                                            ?>
-                                    <a class="pendo-upcoming-event-case-link"
-                                        href="{{BASE_URL}}leads/{{$v->lead_id}}/case_details/info">{{$v->first_name}}
-                                        {{$v->middle_name}} {{$v->last_name}}</a>
-                                    <?php 
-                                        }
-                                    ?>
+                                    @if ($v->case_id!=NULL && $v->case)
+                                    <a class="pendo-upcoming-event-case-link" href="{{BASE_URL}}court_cases/{{$v->case->case_unique_number}}/info">{{$v->case->case_title}}</a>
+                                    @elseif($v->lead_id!=NULL && $v->leadUser)
+                                    <a class="pendo-upcoming-event-case-link" href="{{BASE_URL}}leads/{{$v->lead_id}}/case_details/info">{{$v->full_name}}</a>
+                                    @else
+                                    {{ "<No Title>" }}
+                                    @endif
                                 </div>
                             </div>
                             <?php 

@@ -73,7 +73,7 @@
                             class="col-4 pt-2 d-block ">Email Message</label>
                         <div class="email-notes-wrapper col-8">
                             <textarea name="message"  id="retainer-request-email-notes-el" class="retainer-request-email-message form-control"
-                                placeholder="Type your personal message here..."></textarea>
+                                placeholder="Type your personal message here...">{{ @getInvoiceSetting()->request_funds_preferences_default_msg }}</textarea>
                             <div data-testid="retainer-request-character-counter-container"
                                 id="retainer-request-character-counter-container"
                                 class="helper-text mt-1 text-right text-muted">

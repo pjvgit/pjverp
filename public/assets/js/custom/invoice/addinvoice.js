@@ -339,6 +339,13 @@ $(document).on("change", ".forwarded-invoices-check", function() {
     $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
 });
 
+// Apply trust/credit balance input validation
+$('.apply-trust-amt').keypress(function(event) {
+    if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+        event.preventDefault();
+    }
+});
+
 // Apply trust balance
 $(".apply-trust-amt").on("focusout", function() {
     var amt = $(this).val();

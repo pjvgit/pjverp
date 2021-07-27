@@ -15,6 +15,9 @@ class TrustHistory extends Authenticatable
     protected $table = "trust_history";
     public $primaryKey = 'id';
 
+    protected $fillable = ['client_id', 'payment_method', 'amount_paid', 'withdraw_amount', 'withdraw_from_account', 'payment_date', 'notes', 'fund_type', 
+                'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by'];
+
     protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund'];
     public function getCreatedatnewformateAttribute(){
         return date('M j, Y h:i A',strtotime($this->created_at));

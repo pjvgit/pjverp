@@ -25,6 +25,9 @@ function updateInvoiceDetail() {
         // data: {'id':invoiceId},
         success: function (res) {
             $("#invoice_total_div").html(res);
+            getInvoiceActivityHistory();
+            getInvoicePaymentHistory();
+            refreshAccountHistory();
             $("#preloader").hide();
         }
     });
@@ -40,6 +43,21 @@ function getInvoiceActivityHistory() {
         data: {'id':invoiceId},
         success: function (res) {
             $("#invoice_activity_history_div").html(res);
+            $("#preloader").hide();
+        }
+    });
+}
+
+// Get invoice payment history
+function refreshAccountHistory() {
+    $("#preloader").show();
+    var invoiceId = $("#invoice_id").val();
+    $.ajax({
+        type: "GET",
+        url:  baseUrl +"/bills/invoices/refreshAccountHistory",
+        data: {'id':invoiceId},
+        success: function (res) {
+            $("#invoice_account_summary").html(res);
             $("#preloader").hide();
         }
     });

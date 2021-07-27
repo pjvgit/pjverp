@@ -1,3 +1,6 @@
+------------------------------------ 27-Jul-2021 ------------------------------
+ALTER TABLE `trust_history` ADD `related_to_invoice_id` INT(11) NULL AFTER `refund_amount`;
+
 ------------------------------------ 26-Jul-2021 ------------------------------
 ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `show_credit_account_history` `show_credit_account_history` ENUM('dont show','credit account summary','credit account history') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'dont show';
 ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `client_id` `client_id` INT(11) NULL, CHANGE `case_id` `case_id` INT(11) NULL;

@@ -1323,7 +1323,7 @@ if(!isset($adjustment_token)){
                                                                     <td class="apply-funds-amount-to-apply">
                                                                         <div class="amount-to-apply-field input-group-sm input-group">
                                                                             <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                            <input class="form-control apply-trust-amt" value="" name="trust[{{$citem->id}}][applied_amount]">
+                                                                            <input class="form-control apply-trust-amt" value="" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}">
                                                                         </div>
                                                                     </td>
                                                                     <td class="apply-funds-balance-after-application">
@@ -1367,9 +1367,10 @@ if(!isset($adjustment_token)){
                                                                 <div class="row form-group">
                                                                     <div class="col-12 col-sm-12">
                                                                         <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
-                                                                            <option value="dont show">Don't show on invoice</option>
-                                                                            <option value="trust account summary">Show Trust Account Summary</option>
-                                                                            <option value="trust account history">Show Trust Account History</option>
+                                                                            @forelse (trustAccountHistoryList() as $skey => $sitem)    
+                                                                            <option value="{{ $skey }}">{{ $sitem }}</option>
+                                                                            @empty
+                                                                            @endforelse
                                                                         </select>
                                                                     </div>
                                                                 </div>
@@ -1405,9 +1406,10 @@ if(!isset($adjustment_token)){
                                                                 <div class="row form-group">
                                                                     <div class="col-12 col-sm-12">
                                                                         <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
-                                                                            <option value="dont show">Don't show on invoice</option>
-                                                                            <option value="credit account summary">Show Credit Account Summary</option>
-                                                                            <option value="credit account history">Show Credit Account History</option>
+                                                                            @forelse (creditAccountHistoryList() as $skey => $sitem)    
+                                                                            <option value="{{ $skey }}">{{ $sitem }}</option>
+                                                                            @empty
+                                                                            @endforelse
                                                                         </select>
                                                                     </div>
                                                                 </div>

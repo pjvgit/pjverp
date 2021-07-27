@@ -52,6 +52,7 @@ $abbreviation = $dt->format('T');
 </tr>
 </table>
 <a style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
+<br>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 10px;">For additional details about the event, please log in to your <a href="">Account</a>.
 </p>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;">Thank you,<br>

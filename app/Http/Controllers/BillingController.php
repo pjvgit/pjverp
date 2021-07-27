@@ -2955,7 +2955,6 @@ class BillingController extends BaseController
 
     public function addInvoiceEntry(Request $request)
     { 
-        // return $request->trust['applied_amount'];
         // return $request->all();
         $rules = [
             // 'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
@@ -3262,13 +3261,78 @@ class BillingController extends BaseController
                         'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
                     ]);
-                    if(!empty($item) && in_array('client_id', $item)) {
+                    if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
+                        $authUser = auth()->user();
+                        //Insert invoice payment record.
+                        $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
+                            
+                        //Insert invoice payment record.
+                        $InvoicePayment = InvoicePayment::create([
+                            'invoice_id' => $InvoiceSave->id,
+                            'payment_from' => 'trust',
+                            'amount_paid' => @$item['applied_amount'] ?? 0,
+                            'payment_date' => date('Y-m-d'),
+                            'notes' => $request->notes,
+                            'status' => "0",
+                            'entry_type' => "0",
+                            'payment_from_id' => $item['client_id'],
+                            'deposit_into' => "Operating Account",
+                            'total' => ($currentBalance['total'] + $item['applied_amount']),
+                            'firm_id' => $authUser->firm_name,
+                            'created_by' => $authUser->id 
+                        ]);
+                        $InvoicePayment->fill(['ip_unique_id' => Hash::make($InvoicePayment->id)])->save();
+                    
+                        //Deduct invoice amount when payment done
+                        $this->updateInvoiceAmount($InvoiceSave->id);
+
+                        // Deduct amount from trust account after payment.
                         $userAddInfo = UsersAdditionalInfo::where("user_id", $item['client_id'])->first();
                         if($userAddInfo) {
                             $userAddInfo->fill([
                                 'trust_account_balance' => ($userAddInfo->trust_account_balance) ? $userAddInfo->trust_account_balance - $item['applied_amount'] ?? 00 : $userAddInfo->trust_account_balance
                             ])->save();
                         }
+                            
+                        // Add trust history
+                        TrustHistory::create([
+                            "client_id" => $item['client_id'],
+                            "withdraw_amount" => $item['applied_amount'] ?? 0,
+                            "current_trust_balance" => $userAddInfo->trust_account_balance,
+                            "payment_date" => date('Y-m-d'),
+                            "payment_method" => "Trust",
+                            "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
+                            "fund_type" => 'withdraw',
+                            "related_to_invoice_id" => $InvoiceSave->id,
+                            "created_by" => $authUser->id,
+                        ]);
+
+                        $invoiceHistory=[];
+                        $invoiceHistory['invoice_id'] = $InvoiceSave->id;
+                        $invoiceHistory['acrtivity_title']='Payment Received';
+                        $invoiceHistory['pay_method']='Trust';
+                        $invoiceHistory['amount'] = $item['applied_amount'] ?? 0;
+                        $invoiceHistory['responsible_user'] = $authUser->id;
+                        $invoiceHistory['deposit_into']='Operating Account';
+                        $invoiceHistory['deposit_into_id'] = ($request->trust_account)??NULL;
+                        $invoiceHistory['invoice_payment_id'] = $InvoicePayment->id;
+                        $invoiceHistory['notes']=$request->notes ?? NULL;
+                        $invoiceHistory['status']="1";
+                        $invoiceHistory['created_by'] = $authUser->id;
+                        $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                        $this->invoiceHistory($invoiceHistory);
+
+                        //Add Invoice history
+                        $data=[];
+                        $data['case_id'] = $InvoiceSave->case_id;
+                        $data['user_id'] = $InvoiceSave->user_id;
+                        $data['activity']='accepted a payment of $'.number_format($item['applied_amount'] ?? 0,2).' (Trust)';
+                        $data['activity_for'] = $InvoiceSave->id;
+                        $data['type']='invoices';
+                        $data['action']='pay';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+
                     }
                 }
             }
@@ -3301,7 +3365,6 @@ class BillingController extends BaseController
     public function viewInvoice(Request $request)
     {
         $invoiceID=base64_decode($request->id);
-        // echo Hash::make($invoiceID);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustCreditFund")->first();
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
@@ -4350,23 +4413,13 @@ class BillingController extends BaseController
                         'client_id' => @$item['client_id'] ?? NUll,
                         'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
                         'account_type' => 'trust',
-                        'applied_amount' => @$item['applied_amount'] ?? 0.00,
-                        'deposite_into' => @$item['deposite_into'] ?? NULL,
                         'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
-                        'created_by' => auth()->id(),
+                        'updated_by' => auth()->id(),
                     ]);
-                    if(in_array('client_id', $item)) {
-                        $userAddInfo = UsersAdditionalInfo::where("user_id", $item['client_id'])->first();
-                        if($userAddInfo) {
-                            $userAddInfo->fill([
-                                'trust_account_balance' => ($userAddInfo->trust_account_balance) ? $userAddInfo->trust_account_balance - $item['applied_amount'] ?? 00 : $userAddInfo->trust_account_balance
-                            ])->save();
-                        }
-                    }
                 }
             }
             if(!empty($request->credit)) {
-                foreach($request->trust as $key => $item) {
+                foreach($request->credit as $key => $item) {
                     InvoiceApplyTrustCreditFund::updateOrCreate([
                         'id' => @$item['id'],
                         ],[
@@ -4374,10 +4427,8 @@ class BillingController extends BaseController
                         'client_id' => @$item['client_id'] ?? NUll,
                         'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
                         'account_type' => 'credit',
-                        'applied_amount' => @$item['applied_amount'] ?? 0.00,
-                        'deposite_into' => @$item['deposite_into'] ?? NULL,
                         'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
-                        'created_by' => auth()->id(),
+                        'updated_by' => auth()->id(),
                     ]);
                 }
             }
@@ -4532,6 +4583,19 @@ class BillingController extends BaseController
                 UsersAdditionalInfo::where('user_id',$InvoiceData['user_id'])
                 ->update(['trust_account_balance'=>$trustAccountAmount]);
 
+                // Add trust history
+                TrustHistory::create([
+                    "client_id" => $InvoiceData['user_id'],
+                    "withdraw_amount" => $request->amount,
+                    "current_trust_balance" => $trustAccountAmount,
+                    "payment_date" => date('Y-m-d'),
+                    "payment_method" => "Trust",
+                    "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
+                    "fund_type" => 'withdraw',
+                    "related_to_invoice_id" => $InvoiceData->id,
+                    "created_by" => auth()->id(),
+                ]);
+
                 DB::commit();
                 //Response message
                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -4556,10 +4620,10 @@ class BillingController extends BaseController
 
                  //Add Invoice history
                  $data=[];
-                 $data['case_id']=$Invoices['case_id'];
-                 $data['user_id']=$Invoices['user_id'];
+                 $data['case_id']=$InvoiceData['case_id'];
+                 $data['user_id']=$InvoiceData['user_id'];
                  $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Trust)';
-                 $data['activity_for']=$Invoices['id'];
+                 $data['activity_for']=$InvoiceData['id'];
                  $data['type']='invoices';
                  $data['action']='pay';
                  $CommonController= new CommonController();
@@ -4618,7 +4682,7 @@ class BillingController extends BaseController
 
             } catch (\Exception $e) {
                 DB::rollback();
-                return response()->json(['errors'=>["Server error."]]); //$e->getMessage()
+                return response()->json(['errors'=> [$e->getMessage()]]); //$e->getMessage()
                  exit;   
             }
             return response()->json(['errors'=>'','msg'=>$msg]);
@@ -7970,6 +8034,16 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$request->id)->orderBy("id","DESC")->get();
         $lastEntry= $InvoiceHistory->first();
         return view("billing.invoices.partials.load_invoice_activity_history", ["InvoiceHistory" => $InvoiceHistory, 'lastEntry' => $lastEntry])->render();
+    }
+
+    /**
+     * Get invoice account history
+     */
+    public function invoiceAccountHistory(Request $request)
+    {
+        $findInvoice=Invoices::whereId($request->id)->with("forwardedInvoices", "applyTrustCreditFund")->first();
+        $caseMaster=CaseMaster::whereId($findInvoice->case_id)->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
+        return view("billing.invoices.partials.load_invoice_account_summary", ["findInvoice" => $findInvoice, "caseMaster" => $caseMaster])->render();
     }
 }
   

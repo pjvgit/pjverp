@@ -24,6 +24,6 @@ class Firm extends Authenticatable
      */
     public function getFirmLogoUrlAttribute()
     {
-        return !empty($this->firm_logo) ? asset('uploads/firm/'.$this->firm_logo) : asset('images/default.png');
+        return !empty($this->firm_logo) ? asset('uploads/firm/'.$this->firm_logo) : asset('images/logo.png');
     }
 }

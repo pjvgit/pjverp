@@ -124,12 +124,20 @@
                         <div id="invoice_total_div">
                             @include('billing.invoices.partials.load_invoice_detail')
                         </div>
+
                         @if(isset($invoiceDefaultSetting) && $invoiceDefaultSetting->is_payment_history_on_bills == "yes")
                         <div style="padding: 20px;">
                             <br>
                             <div id="payment_history_div">
                             @include('billing.invoices.partials.load_invoice_payment_history')
                             </div>
+                        </div>
+                        @endif
+
+                        
+                        @if(!empty($invoiceSetting) && @$invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" && !empty($findInvoice->applyTrustCreditFund))
+                        <div style="padding: 20px;" id="invoice_account_summary">
+                            @include('billing.invoices.partials.load_invoice_account_summary')
                         </div>
                         @endif
                     </div>

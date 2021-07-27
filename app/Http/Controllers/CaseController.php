@@ -4765,7 +4765,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage(Request $request)
+    public function saveEditEventPage1(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
@@ -5732,7 +5732,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPageNew(Request $request)
+    public function saveEditEventPage(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
@@ -6371,8 +6371,8 @@ class CaseController extends BaseController
                 if($request->event_frequency=='DAILY')
                 {
                     $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("id",$OldCaseEvent->parent_evnt_id)->first();
-                    $startDate = strtotime($OldCaseEventForDate->start_date);
+                    $OldCaseEventForDate=CaseEvent::where("parent_evnt_id",$OldCaseEvent->parent_evnt_id)->orderBy("id", "asc")->withTrashed()->first();
+                    $oldStartDate = strtotime($OldCaseEventForDate->start_date);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                     $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
 
@@ -6384,6 +6384,12 @@ class CaseController extends BaseController
                     if($request->end_on!=''){
                         $endDate = strtotime($request->end_on);
                     }
+                    $startDateDiff = false;
+                    if($oldStartDate != $startDate) {
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        $startDateDiff = true;
+                    }
                    
                     $i=0;
                     $event_interval_day=$request->event_interval_day;
@@ -6394,7 +6400,7 @@ class CaseController extends BaseController
                         if(in_array($start_date, $existEventDates)) {
                             $currentEventId = array_search($start_date, $existEventDates);
                             $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, $currentEventId);
-                        } else if(in_array($start_date, $deletedEvents)) {
+                        } else if(in_array($start_date, $deletedEvents) && !$startDateDiff) {
                             
                         } else {
                             $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
@@ -6416,8 +6422,8 @@ class CaseController extends BaseController
                         $i++;
                     } while ($startDate <= $endDate);
 
-                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    $OldCaseEvent->forceDelete();
+                    // $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
+                    // $OldCaseEvent->forceDelete();
                 }else if($request->event_frequency=='EVERY_BUSINESS_DAY')
                 { 
                     $i=0;

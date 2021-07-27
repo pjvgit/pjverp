@@ -243,6 +243,6 @@ class User extends Authenticatable
      */
     public function userTrustAccountHistory()
     {
-        return $this->hasMany(TrustHistory::class, 'client_id');
+        return $this->hasMany(TrustHistory::class, 'client_id')->orderBy("created_at", "desc");
     }
 }
