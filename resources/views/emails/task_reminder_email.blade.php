@@ -35,7 +35,7 @@
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-bottom: 10px;">For additional details about the event, please log in to your <a href="">Account</a>.
 </p>
 <a style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
-
+<br>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;">Thank you,<br>
 {{ @$firm->firm_name }}
 </p>      

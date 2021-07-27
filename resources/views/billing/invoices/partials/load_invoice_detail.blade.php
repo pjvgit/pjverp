@@ -912,28 +912,4 @@
         </tbody>
     </table>
     <br>
-    {{-- @include('billing.invoices.partials.load_invoice_account_summary') --}}
-    @if(!empty($invoiceSetting) && @$invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" && !empty($findInvoice->applyTrustCreditFund))
-    <div>
-        <div class="line-items-table payment-section">
-            <div> </div>
-            <br>
-            <div>
-                <div class="ledger-histories">
-                    <h3> Account Summary
-                        <a id="ledger-histories-refresh" class="ledger-histories-refresh"> Refresh Account Histories </a>
-                    </h3>
-                    <div class="ledger_history_balance mt-3">
-                        <h4>{{ @$findInvoice->applyTrustCreditFund->client->full_name }}'s Trust Balance</h4>
-                        <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: ${{ @$findInvoice->applyTrustCreditFund->userAdditionalInfo->trust_account_balance }} </div>
-                    </div>
-                    <div class="ledger_history_balance mt-3">
-                        <h4>{{ @$findInvoice->applyTrustCreditFund->client->full_name }}'s Credit Balance</h4>
-                        <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: $0.00 </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 </div>

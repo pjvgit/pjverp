@@ -339,6 +339,6 @@ class CaseMaster extends Authenticatable
      */
     public function caseAllClient()
     {
-        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user');
+        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("id", "asc");
     }
 }

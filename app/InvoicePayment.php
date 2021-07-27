@@ -15,6 +15,10 @@ class InvoicePayment extends Authenticatable
     public $timestamps = true;
     protected $table = "invoice_payment";
     public $primaryKey = 'id';
+
+    protected $fillable = ['invoice_id', 'payment_method', 'amount_paid', 'amount_refund', 'payment_date', 'deposit_into', 'deposit_into_id', 'payment_from_id', 
+            'notes', 'payment_from', 'status', 'total', 'firm_id', 'ip_unique_id', 'refund_ref_id', 'entry_type', 'created_by', 'updated_by'];
+
     protected $appends  = ['added_date','case','decode_id','contact','refund_title'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->invoice_id);

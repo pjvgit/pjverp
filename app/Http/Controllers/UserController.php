@@ -62,7 +62,11 @@ class UserController extends BaseController
                     $user->save();
                     session()->flash("firmCaseCount", count(userCaseList() ?? []));
                     return redirect()->intended('dashboard')->with('success','Login Successfully');
-                }else{
+                }else if($userStatus == "3") {
+                    Auth::logout();
+                    Session::flush();
+                    return response()->make(view('errors.403'), 403);
+                } else {
                     $this->sendEmailVerificationMail(auth()->user());
                     Auth::logout();
                     Session::flush();

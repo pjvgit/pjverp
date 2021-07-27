@@ -145,7 +145,7 @@ Route::get('/', 'PageController@index')->name('index');
 
 //Without login can access this route
 Route::post('login','UserController@login');
-Route::get('autologout', 'UserController@autoLogout');
+Route::get('autologout', 'UserController@autoLogout')->name('autologout');
 Route::post('register','UserController@store');
 Route::post('password/email', 'UserController@sendResetLinkEmail')->name('password.email');
 Route::post('password/update', 'UserController@resetPassword')->name('password.update');
@@ -941,6 +941,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/deleteLeadInvoiceForm', 'BillingController@deleteLeadInvoiceForm')->name('bills/invoices/deleteLeadInvoiceForm');
     Route::get('bills/invoices/paymentHistory', 'BillingController@invoicePaymentHistory')->name('bills/invoices/paymentHistory');
     Route::get('bills/invoices/activityHistory', 'BillingController@invoiceActivityHistory')->name('bills/invoices/activityHistory');
+    Route::get('bills/invoices/refreshAccountHistory', 'BillingController@invoiceAccountHistory')->name('bills/invoices/refreshAccountHistory');
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');

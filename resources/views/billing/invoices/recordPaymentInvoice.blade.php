@@ -440,8 +440,6 @@ $finalAmt=$invoice-$paid;
                         return false;
                     } else {
                         swal('Payment Successful!', res.msg, 'success');
-                        getInvoiceActivityHistory();
-                        getInvoicePaymentHistory();
                         afterLoader();
                         setTimeout(function () {
                             $("#payInvoice").modal("hide")
@@ -522,6 +520,7 @@ $finalAmt=$invoice-$paid;
                         setTimeout(function () {
                             $("#payInvoice").modal("hide")
                         }, 1000);
+                        updateInvoiceDetail();
                     }
                 },
                 error: function (jqXHR, exception) {

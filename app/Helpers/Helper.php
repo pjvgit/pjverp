@@ -322,3 +322,27 @@ function getExpenseColumnArray()
     }
     return $columns;
 }
+
+/**
+ * Get trust account history list to show on invoice
+ */
+function trustAccountHistoryList()
+{
+    return [
+        "dont show" => "Don't show on invoice",
+        "trust account summary" => "Show Trust Account Summary",
+        "trust account history" => "Show Trust Account History",
+    ];
+}
+
+/**
+ * Get credit account history list to show on invoice
+ */
+function creditAccountHistoryList()
+{
+    return [
+        "dont show" => "Don't show on invoice",
+        "credit account summary" => "Show Credit Account Summary",
+        "credit account history" => "Show Credit Account History",
+    ];
+}
