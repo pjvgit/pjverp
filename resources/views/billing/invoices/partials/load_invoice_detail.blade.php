@@ -112,8 +112,8 @@
 
                         {{@$UsersAdditionalInfo['street']}}<br>
                         {{@$UsersAdditionalInfo['address2']}}<br>
-                        {{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} {{@$UsersAdditionalInfo['postal_code']}}<br>
-                        {{@$UsersAdditionalInfo['county_name']}}
+                        {{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} <br>
+                        {{@$UsersAdditionalInfo['county_name']}}, {{@$UsersAdditionalInfo['postal_code']}}
                 </span>
                 <p></p>
             </td>

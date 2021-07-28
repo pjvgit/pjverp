@@ -300,9 +300,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                             <div id="client-address">
                                                 {{$userProfile->street}}<br>
                                                 {{$UsersAdditionalInfo['address2']}}<br>
-                                                {{$userProfile->city}}, {{$userProfile->state}}
-                                                {{$userProfile->state}}<br>
-                                                {{$userProfile->countryname}}<br>
+                                                {{$userProfile->city}}, {{$userProfile->state}}<br>
+                                                {{$userProfile->countryname}}, {{$userProfile->postal_code}} <br>
 
                                             </div>
                                         </div>
