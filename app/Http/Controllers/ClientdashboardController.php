@@ -18,7 +18,10 @@ use App\TrustHistory,App\RequestedFund,App\Messages;
 use mikehaertl\wkhtmlto\Pdf;
 use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
+use App\DepositIntoCreditHistory;
 use Illuminate\Support\Str;
+// use Datatables;
+use Yajra\Datatables\Datatables;
 class ClientdashboardController extends BaseController
 {
     public function __construct()
@@ -2890,5 +2893,169 @@ class ClientdashboardController extends BaseController
     }
     /************************ Import Contacts**************************/
     
+    /**
+     * Load credit history list data
+     */
+    public function loadCreditHistory(Request $request)
+    {
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->get();
+        return Datatables::of($data)
+            ->addColumn('action', function ($data) {
+                $action = '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
+                $action .= '<a href="#" onclick="MyCase.Bills.Show.confirmPaymentDelete(); return false;">Delete</a>';
+                return $action;
+            })
+            ->editColumn('payment_date', function ($data) {
+                // return $data->payment_date ?? "--";
+                if($data->payment_date) {
+                    $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone);
+                    if ($pDate->isToday()) {
+                        return "Today";
+                    } else if($pDate->isYesterday()) {
+                        return "Yesterday";
+                    } else {
+                        return $pDate->format("M d, Y");
+                    }
+                } else {
+                    return "";
+                }
+            })
+            ->editColumn('related_to_invoice_id', function ($data) {
+                return $data->related_to_invoice_id;
+            })
+            ->editColumn('payment_method', function ($data) {
+                return ucwords($data->payment_method).' '.($data->is_refunded == "yes") ? "(Refunded)" : "";
+            })
+            ->editColumn('total_balance', function ($data) {
+                return '$'.number_format($data->total_balance, 2);
+            })
+            ->editColumn('deposit_amount', function ($data) {
+                return ($data->payment_type == "deposit") ? '$'.number_format($data->deposit_amount, 2) : '-$'.number_format($data->deposit_amount, 2);
+            })
+            ->addColumn('detail', function ($data) {
+                if($data->payment_type == "withdraw")
+                    $dText = "Withdraw from Credit (Operating Account)";
+                else if($data->payment_type == "refund withdraw")
+                    $dText = "Refund Withdraw from Credit (Operating Account)";
+                else if($data->payment_type == "payment")
+                    $dText = "Payment from Credit (Operating Account)";
+                else if($data->payment_type == "refund payment")
+                    $dText = "Refund Payment from Credit (Operating Account)";
+                else if($data->payment_type == "refund deposit")
+                    $dText = "Refund deposit from Credit (Operating Account)";
+                else
+                    $dText = "Deposit into Credit (Operating Account)";
+                return $dText.'<br>
+                        <a tabindex="0" class="" role="button" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+            })
+            ->rawColumns(['action', 'detail'])
+            ->make(true);
+    }
+
+    /**
+     * Withdraw credit fund
+     */
+    public function withdrawFromCredit(Request $request)
+    {
+        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
+        $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id)->first();
+        return view('client_dashboard.billing.withdraw_credit_fund',compact('userData','UsersAdditionalInfo'));     
+    } 
+    /**
+     * Save withdraw credit fund
+     */
+    public function saveWithdrawFromCredit(Request $request)
+    {
+        $request['amount']=str_replace(",","",$request->amount);
+
+        $validator = \Validator::make($request->all(), [
+            'credit_account' => 'required',
+            'amount' => 'required|numeric'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            dbStart();
+            DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('credit_account_balance', $request['amount']);
+
+            $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->client_id)->first();
+            
+            DepositIntoCreditHistory::create([
+                "user_id" => $request->client_id,
+                "payment_method" => $request->payment_method,
+                "deposit_amount" => $request->amount,
+                "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                "payment_type" => "withdraw",
+                "total_balance" => $UsersAdditionalInfo->credit_account_balance,
+                "notes" => $request->notes,
+                "created_by" => auth()->id(),
+                "firm_id" => auth()->user()->firm_name,
+            ]);
+            dbCommit();
+            session(['popup_success' => 'Withdraw fund successful']);
+            return response()->json(['errors'=>'']);
+        }
+    }
+
+    /**
+     * Refund credit amount
+     */
+    public function refundCreditPopup(Request $request)
+    {
+        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
+        $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id)->first();
+        $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
+        return view('client_dashboard.billing.refund_credit_fund',compact('userData','UsersAdditionalInfo','creditHistory'));   
+    } 
+    /**
+     * Save refunded amount of credit fund
+     */
+    public function saveCreditRefund(Request $request)
+    {
+        $request['amount']=str_replace(",","",$request->amount);
+        $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
+        
+        $validator = \Validator::make($request->all(), [
+            'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount,
+        ],[
+            'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+                
+            DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('credit_account_balance', $request['amount']);
+            $creditHistory->is_refunded="yes";
+            $creditHistory->save();
+            
+            $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->client_id)->first();
+            if($creditHistory->payment_type == "withdraw"){
+                $fund_type='refund withdraw';
+            }elseif($creditHistory->payment_type == "payment"){
+                $fund_type='refund deposit';
+            } else {
+                $fund_type='refund deposit';
+            }
+            DepositIntoCreditHistory::create([
+                "user_id" => $request->client_id,
+                "deposit_amount" => $request->amount,
+                "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                "payment_method" => "refund",
+                "payment_type" => $fund_type,
+                "total_balance" => $UsersAdditionalInfo->credit_account_balance,
+                "notes" => $request->notes,
+                "refund_ref_id" => $creditHistory->id,
+                "created_by" => auth()->id(),
+                "firm_id" => auth()->user()->firm_name,
+            ]);
+
+            session(['popup_success' => 'Refund successful']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    }
 }
   

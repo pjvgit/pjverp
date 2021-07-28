@@ -74,7 +74,7 @@
                                 Not specified
                                 <?php } ?> --}}
                                 @if($evetData->case_id)
-                                <a href="{{ route('caseview', $evetData->case->case_unique_number) }}">{{$evetData->case->case_title}}</a>
+                                <a href="{{ route('info', $evetData->case->case_unique_number) }}">{{$evetData->case->case_title}}</a>
                                 @else
                                 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
                                 @endif

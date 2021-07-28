@@ -1,3 +1,16 @@
+------------------------------------ 28-Jul-2021 ------------------------------
+ALTER TABLE `users_additional_info` ADD `credit_account_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `trust_account_balance`;
+ALTER TABLE `deposit_into_credit_history` ADD `payment_date` DATE NULL AFTER `deposit_amount`;
+ALTER TABLE `deposit_into_credit_history` ADD `related_to_invoice_id` INT(11) NULL AFTER `payment_date`;
+ALTER TABLE `deposit_into_credit_history` ADD `payment_method` ENUM('cash','check','credit card','paypal','other') NOT NULL DEFAULT 'cash' AFTER `user_id`;
+ALTER TABLE `deposit_into_credit_history` ADD `total_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `related_to_invoice_id`, ADD `notes` TEXT NULL AFTER `total_balance`;
+ALTER TABLE `deposit_into_credit_history` ADD `payment_type` ENUM('deposit','withdraw','payment') NOT NULL DEFAULT 'deposit' AFTER `payment_date`;
+ALTER TABLE `deposit_into_credit_history` CHANGE `payment_method` `payment_method` ENUM('cash','check','credit card','paypal','other') CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT 'cash';
+ALTER TABLE `deposit_into_credit_history` ADD `is_refunded` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `notes`;
+ALTER TABLE `deposit_into_credit_history` CHANGE `payment_type` `payment_type` ENUM('deposit','withdraw','payment','refund deposit','refund withdraw','refund payment') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'deposit';
+ALTER TABLE `deposit_into_credit_history` ADD `refund_ref_id` INT(11) NULL AFTER `is_refunded`;
+ALTER TABLE `deposit_into_credit_history` CHANGE `payment_method` `payment_method` ENUM('cash','check','credit card','paypal','other','refund') CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT 'cash';
+
 ------------------------------------ 27-Jul-2021 ------------------------------
 ALTER TABLE `trust_history` ADD `related_to_invoice_id` INT(11) NULL AFTER `refund_amount`;
 

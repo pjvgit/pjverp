@@ -736,6 +736,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('contacts/clients/{id}/messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_messages');
     Route::get('contacts/clients/{id}/text_messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_text_messages');
     Route::get('contacts/clients/{id}/email', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_email');
+    Route::get('contacts/clients/{id}/billing/credit/history', 'ClientdashboardController@clientDashboardView')->name('contacts/clients/billing/credit/history');
 
     Route::post('contacts/clients/casesLoad', 'ClientdashboardController@clientCaseList');
     Route::post('contacts/clients/unlinkFromCase', 'ClientdashboardController@unlinkFromCase');
@@ -800,6 +801,14 @@ Route::group(['middleware'=>'auth'], function () {
     // Route::get('activate_account/web_token/{id}', 'ClientdashboardController@activeClientAccount');
     Route::post('contacts/saveTrustAmount', 'ClientdashboardController@saveTrustAmount');
 
+    // For client -> billing credit history
+    Route::get('contacts/clients/load/credit/history', 'ClientdashboardController@loadCreditHistory')->name('contacts/clients/loadCreditHistory');
+    Route::post('contacts/clients/withdrawFromCredit', 'ClientdashboardController@withdrawFromCredit')->name('contacts/clients/withdrawFromCredit');
+    Route::post('contacts/clients/saveWithdrawFromCredit', 'ClientdashboardController@saveWithdrawFromCredit')->name('contacts/clients/saveWithdrawFromCredit');
+    Route::post('contacts/clients/credit/refundPopup', 'ClientdashboardController@refundCreditPopup')->name('contacts/clients/credit/refundPopup');
+    Route::post('contacts/clients/credit/saveRefundPopup', 'ClientdashboardController@saveCreditRefund')->name('contacts/clients/credit/saveRefundPopup');
+    // Route::post('contacts/clients/deletePaymentEntry', 'ClientdashboardController@deletePaymentEntry')->name('contacts/clients/deletePaymentEntry');
+    // Route::post('contacts/clients/exportPDFpopupForm', 'ClientdashboardController@exportPDFpopupForm')->name('contacts/clients/exportPDFpopupForm');
 
 
     //Company Dashboard
