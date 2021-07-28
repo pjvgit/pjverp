@@ -3,7 +3,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 ?>
 <div class="row">
     <div class="col-md-12 selenium-invoice-number">Contact: {{$userData['user_name']}}  (<?php echo $CommonController->getUserTypeText($userData['user_level']); ?>)</div>
-    <div class="col-md-12 selenium-invoice-number"><strong>Current Balance: ${{number_format($userData['trust_account_balance'],2)}}</strong></div>
+    <div class="col-md-12 selenium-invoice-number"><strong>Current Balance: ${{number_format($userData['credit_account_balance'],2)}}</strong></div>
 </div>
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -190,6 +190,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         setTimeout(function () {
                             $("#depositIntoNonTrustAccount").modal("hide")
                         }, 1000);
+                        $('#billing_credit_history_table').DataTable().ajax.reload(null, false);
                     }
                 },
                 error: function (jqXHR, exception) {

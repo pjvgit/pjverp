@@ -413,11 +413,16 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('client_dashboard.loadNotes')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice", "contacts/clients/billing/credit/history"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}">
                                     <span> <i class="fas fa-fw fa-landmark mr-2"></i>Trust History</span>
+                                </a>
+                            </div>
+                            <div class="nav-item mr-4">
+                                <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts/clients/billing/credit/history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/credit/history')}}">
+                                    <span> <i class="fas fa-fw fa-credit-card mr-2"></i>Credit History</span>
                                 </a>
                             </div>
                             <div class="nav-item mr-4">
@@ -436,6 +441,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_history"){
                                 ?> @include('client_dashboard.billing.trust_history')
                             <?php } ?>
+                            @if(Route::currentRouteName() == "contacts/clients/billing/credit/history")
+                                @include('client_dashboard.billing.credit_history')
+                            @endif
                             <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_request_fund"){
                                 ?> @include('client_dashboard.billing.requested_fund',compact('totalData'))
                             <?php } ?>
@@ -938,6 +946,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
             <div class="modal-body">
                 <div id="withdrawFromTrustArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="withdrawFromCredit" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Withdraw Credit Fund</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="withdrawFromCreditArea">
                 </div>
             </div>
         </div>
@@ -1454,6 +1480,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </form>
     </div>
 </div>
+
+<div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Deposit Into Non-Trust Credit Account</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="loadDepositIntoCreditArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     
 .remove-client-picture-button {
@@ -3146,5 +3192,44 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         var srcResized = $(this).rcrop('getDataURL', 130,130);
         $('#imageCode').val(srcResized);
     });
+
+    // Withdraw credit fund
+    function withdrawFromCredit() {
+        $("#preloader").show();
+        $("#withdrawFromCreditArea").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/withdrawFromCredit", 
+                data: {"user_id": "{{$client_id}}"},
+                success: function (res) {
+                    $("#withdrawFromCreditArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    // Refund credit fund
+    function RefundCreditPopup(id) {
+        $("#preloader").show();
+        $("#RefundPopupArea").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/credit/refundPopup", 
+                data: {"user_id": "{{$client_id}}",'transaction_id':id},
+                success: function (res) {
+                    $("#RefundPopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+    function deleteEntry(id) {
+        $("#deleteEntry").modal("show");
+        $("#delete_payment_id").val(id);
+    }
 </script>
+<script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

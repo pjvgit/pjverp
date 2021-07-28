@@ -6796,7 +6796,7 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $user_id=$request->id;
-            $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$user_id)->first();
+            $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"credit_account_balance","users.id as uid","users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$user_id)->first();
 
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -6811,6 +6811,7 @@ class BillingController extends BaseController
 
     public function saveDepositIntoNonTrustPopup(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $validator = \Validator::make($request->all(), [
             'payment_method' => 'required',
@@ -6824,20 +6825,33 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            
+            $userAddInfo = UsersAdditionalInfo::where("user_id", $request->non_trust_account)->first();
+
             $DepositIntoCreditHistory=new DepositIntoCreditHistory;
             $DepositIntoCreditHistory->user_id=$request->non_trust_account;
             $DepositIntoCreditHistory->deposit_amount=$request->amount;
+            $DepositIntoCreditHistory->payment_method = $request->payment_method;
+            $DepositIntoCreditHistory->payment_date = convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone);
+            $DepositIntoCreditHistory->notes = $request->notes;
+            $DepositIntoCreditHistory->total_balance = ($userAddInfo->credit_account_balance ?? 0.00 + $request->amount);
+            $DepositIntoCreditHistory->payment_type = "deposit";
             $DepositIntoCreditHistory->firm_id=Auth::User()->firm_name;                
             $DepositIntoCreditHistory->created_by=Auth::User()->id;                
             $DepositIntoCreditHistory->created_at=date('Y-m-d H:i:s');                
             $DepositIntoCreditHistory->save();
 
             //Deposit into trust account
-            $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->non_trust_account)->first();
+            /* $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->non_trust_account)->first();
             DB::table('users_additional_info')->where("user_id",$request->non_trust_account)->update([
                 'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
-            ]);
+            ]); */
+
+            // Deposit into credit account
+            if($userAddInfo) {
+                $userAddInfo->fill([
+                    "credit_account_balance" => ($userAddInfo->credit_account_balance + $request->amount),
+                ])->save();
+            }
 
             $firmData=Firm::find(Auth::User()->firm_name);
             $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";

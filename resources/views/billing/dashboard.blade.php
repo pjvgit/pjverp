@@ -77,25 +77,27 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             </a>
                                         </td>
                                         <?php 
-                                        if(Auth::User()->credit_account==0){
+                                        // if(Auth::User()->credit_account==0){
                                             ?>
+                                        @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
                                             <td>
                                             
-                                            <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup"
-                                                data-placement="bottom" href="javascript:;"
-                                                onclick="loadDepositIntoCredit();" class="add-expense-button">
+                                            <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;"
+                                                onclick="loadDepositIntoCredit(this);" class="add-expense-button" data-auth-user-id="{{ auth()->id() }}">
                                                 <img class="d-block mx-auto" src="{{ asset('svg/credit_active.svg') }}" width="42" height="42">
                                                 <div >Deposit Into Credit</div>
                                                 </a>
                                             </td>
                                         <?php
-                                        }else{?>
+                                        // }else{?>
+                                        @else
                                         <td>
                                             <img class="d-block mx-auto" src="{{ asset('svg/credit__inactive.svg') }}" width="42"
                                                 height="42">
                                             <div class="text-muted">Deposit Into Credit</div>
                                         </td>
-                                        <?php }
+                                        @endif
+                                        <?php //}
                                         ?>
                                     </tr>
                                 </tbody>
@@ -809,7 +811,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             }
         })
     }
-    function loadDepositIntoCredit() {
+    /* function loadDepositIntoCredit() {
         $('.showError').html('');
         $("#loadDepositIntoCreditArea").html('');
         $("#loadDepositIntoCreditArea").html('<img src="{{LOADER}}"> Loading...');
@@ -847,7 +849,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
               
             }
         })
-    }
+    } */
 
     function loadCalender(type=null) {
         $("#currentBox").val(type)
@@ -1043,5 +1045,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     });
    
 </script>
+<script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

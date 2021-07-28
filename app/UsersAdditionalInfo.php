@@ -18,7 +18,7 @@ class UsersAdditionalInfo extends Authenticatable
 
     protected $fillable = [
         'id', 'user_id', 'contact_group_id', 'user_timezone', 'user_status', 'client_portal_enable', 'address2', 'dob', 'job_title', 'driver_license', 
-        'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance'
+        'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 'credit_account_balance'
     ];
     protected $appends  = ['lastloginnewformate','caselist'];
 

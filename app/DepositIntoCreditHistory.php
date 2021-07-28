@@ -14,4 +14,7 @@ class DepositIntoCreditHistory extends Authenticatable
     public $timestamps = true;
     protected $table = "deposit_into_credit_history";
     public $primaryKey = 'id';
+
+    protected $fillable = ['user_id', 'payment_method', 'deposit_amount', 'payment_date', 'payment_type', 'related_to_invoice_id', 'total_balance', 
+            'notes', 'firm_id', 'created_by', 'is_refunded', "refund_ref_id"];
 }
