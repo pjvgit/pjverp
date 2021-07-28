@@ -66,7 +66,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Amount</label>
             <div class="col-9 form-group mb-3">
-                <input id="amount" name="amount" readonly class="form-control number" value="">
+                <input id="amount" name="amount" readonly class="form-control" min="0" value="" type="number">
             </div>
         </div>
         <div class="modal-footer  pb-0">
@@ -106,6 +106,10 @@
                     min: 0,
                     max: 100
                 },
+                amount: {
+                    required: true,
+                    min: 0,
+                },
             },
             messages: {
                 item: {
@@ -118,7 +122,10 @@
                     required: "Type can't be blank"
                 },
                 percentage: {
-                    required: "Type can't be blank"
+                    required: "percentage can't be blank"
+                },
+                amount: {
+                    amount: "amount can't be blank"
                 },
             },
             errorPlacement: function (error, element) {

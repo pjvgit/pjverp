@@ -65,7 +65,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label text-right ">Amount</label>
             <div class="col-9 form-group mb-3">
-                <input id="amount" name="amount" readonly class="form-control number" value="{{$InvoiceAdjustment['amount']}}">
+                <input id="amount" name="amount" readonly class="form-control"  min="0" type="number" value="{{$InvoiceAdjustment['amount']}}">
             </div>
         </div>
         <div class="modal-footer  pb-0">
@@ -105,6 +105,10 @@
                     min: 0,
                     max: 100
                 },
+                amount: {
+                    required: true,
+                    min: 0,
+                },
             },
             messages: {
                 item: {
@@ -115,6 +119,12 @@
                 },
                 ad_type: {
                     required: "Type can't be blank"
+                },
+                percentage: {
+                    required: "percentage can't be blank"
+                },
+                amount: {
+                    amount: "amount can't be blank"
                 },
             },
             errorPlacement: function (error, element) {
