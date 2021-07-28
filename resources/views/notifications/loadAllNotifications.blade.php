@@ -15,6 +15,7 @@ if(!$commentData->isEmpty()){
                         $ImageArray['add']="activity_client_added.png";
                         $ImageArray['update']="activity_client_updated.png";
                         $ImageArray['link']="activity_client_linked.png";
+                        $ImageArray['unlink']="activity_client_unlinked.png";
                         $ImageArray["pay"]="activity_ledger_deposited.png";
                         $image=$ImageArray[$v->action];
                         ?>
@@ -30,6 +31,7 @@ if(!$commentData->isEmpty()){
                             <?php } ?>
 
                             <?php if($v->action=="link"){ ?> to case <?php } ?>
+                            <?php if($v->action=="unlink"){ ?> from case <?php } ?>
                             
                             <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
                             <?php

@@ -1,9 +1,7 @@
 <div class="breadcrumb">
     <ul class="text-nowrap">  
-        <li><a class="<?php if(Route::currentRouteName()=='court_cases'  && !isset($_GET['i'])){ echo 'myactive'; } ?>"
-                href="{{route('court_cases')}}">My Open Cases</a></li>
-        <li><a class="<?php if(Route::currentRouteName()=='court_cases'  &&  isset($_GET['i'])){ echo 'myactive'; } ?>"
-                href="{{route('court_cases')}}?i=c">My Close Cases</a></li>
+        <li><a class="<?php if(Route::currentRouteName()=='court_cases'  && (!isset($_GET['i']) || isset($_GET['i']))){ echo 'myactive'; } ?>"
+                href="{{route('court_cases')}}">Cases</a></li>
         <!-- <li><a class="{{ Route::currentRouteName()=='apexAreaCharts' ? 'myactive' : '' }}"
                 href="{{route('apexAreaCharts')}}"> Firm Open Cases </a></li>
         <li><a class="{{ Route::currentRouteName()=='apexBarCharts' ? 'myactive' : '' }}"

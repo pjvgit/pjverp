@@ -11,9 +11,13 @@
             <div class="timeline-card card">
                 <div class="card-body"> 
                     <div class="mb-1">
-                        <a href=""> {{$v['created_by']}} </a>
+                        <a href="{{ route('contacts/attorneys/info', base64_encode($v['created_id'])) }}"> {{$v['created_by']}} </a>
                         <strong class="mr-1">{{$v['title']}} </strong> 
+                        @if($v['staff_id'] != '')
+                        <a href="{{ route('contacts/clients/view', $v['staff_id']) }}"> {{$v['staff_name']}} </a>
+                        @else
                         <a href=""> {{$v['case_name']}} </a>
+                        @endif
                         <p class="text-muted">{{$v['created_at']}}</p>
                     </div>
                 </div>

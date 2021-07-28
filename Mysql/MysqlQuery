@@ -1,7 +1,11 @@
+------------------------------------ 28-Jul-2021 ------------------------------
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none'; 
+
 ------------------------------------ 27-Jul-2021 ------------------------------
 ALTER TABLE `trust_history` ADD `related_to_invoice_id` INT(11) NULL AFTER `refund_amount`;
 ALTER TABLE `case_stage_history` ADD `start_date` DATETIME NULL DEFAULT NULL AFTER `stage_id`, ADD `end_date` DATETIME NULL DEFAULT NULL AFTER `start_date`; 
 ALTER TABLE `case_stage_history` ADD `days` INT NULL DEFAULT NULL AFTER `end_date`; 
+
 ------------------------------------ 26-Jul-2021 ------------------------------
 ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `show_credit_account_history` `show_credit_account_history` ENUM('dont show','credit account summary','credit account history') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'dont show';
 ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `client_id` `client_id` INT(11) NULL, CHANGE `case_id` `case_id` INT(11) NULL;

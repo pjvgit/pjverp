@@ -962,11 +962,15 @@ class CaseController extends BaseController
                 foreach($allStatus as $k=>$vv){
                     $caseData=$this->getCaseData($vv->case_id);
                     $createdUSer=$this->getCreatedByUserData($vv->created_by);
+                    $staffUSer=$this->getCreatedByUserData($vv->staff_id);
 
                     $mainArray[$k]['id']=$createdUSer->id;
                     $mainArray[$k]['title']=$vv->activity_title;
-                    $mainArray[$k]['created_by']=$createdUSer->first_name;
+                    $mainArray[$k]['created_id']=$vv->created_by;
+                    $mainArray[$k]['created_by']=$createdUSer->first_name.' '.$createdUSer->last_name;
                     $mainArray[$k]['case_name']=$caseData->case_title;
+                    $mainArray[$k]['staff_id']=$vv->staff_id;
+                    $mainArray[$k]['staff_name']=(isset($staffUSer->first_name)) ?  $staffUSer->first_name.' '.$staffUSer->last_name:  '';
 
                     $CommonController= new CommonController();
                     $timezone=Auth::User()->user_timezone;
@@ -1649,6 +1653,25 @@ class CaseController extends BaseController
     public function unlinkSelection(Request $request)
     {
         $id=$request->id;
+        $CaseClientSelection = CaseClientSelection::find($id);
+        $data=[];
+        $data['user_id']=$CaseClientSelection->selected_user;
+        $data['client_id']=$CaseClientSelection->selected_user;
+        $data['case_id']=$CaseClientSelection->case_id;
+        $data['activity']='unlinked Contact';
+        $data['type']='contact';
+        $data['action']='unlink';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
+
+        $data1=[];
+        $data1['activity_title']='unlinked staff';
+        $data1['case_id']=$CaseClientSelection->case_id;
+        $data1['activity_type']='';
+        $data1['staff_id']=$CaseClientSelection->selected_user;
+        $this->caseActivity($data1);
+
+
         CaseClientSelection::where("id", $id)->delete();
         session(['popup_success' => 'Unlink '.$request->username.' from case']);
         return response()->json(['errors'=>'','id'=>$id]);
@@ -1701,15 +1724,32 @@ class CaseController extends BaseController
             }
             $CaseClientSelection->save();
 
+            $data=[];
+            $data['user_id']=$request->user_type;
+            $data['client_id']=$request->user_type;
+            $data['case_id']=$request->case_id;
+            $data['activity']='linked Contact';
+            $data['type']='contact';
+            $data['action']='link';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            $data1=[];
+            $data1['activity_title']='linked staff';
+            $data1['case_id']=$request->case_id;
+            $data1['activity_type']='';
+            $data1['staff_id']=$request->user_type;
+            $this->caseActivity($data1);
+
             if(!empty($request->client_links)){
                 foreach($request->client_links as $k=>$v ){
                     $CaseClientSelection = new CaseClientSelection;
                     $CaseClientSelection->case_id=$request->case_id; 
                     $CaseClientSelection->selected_user=$v; 
                     $CaseClientSelection->created_by=Auth::user()->id; 
-                    $CaseClientSelection->save();
+                    $CaseClientSelection->save();                    
                 }
-            }
+            }            
             session(['popup_success' => 'Your contact has been added']);
             return response()->json(['errors'=>'','count'=>$CaseClientSelection->id]);
             exit;
