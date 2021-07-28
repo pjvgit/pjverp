@@ -4765,7 +4765,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage1(Request $request)
+    public function saveEditEventPage(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
@@ -5732,7 +5732,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage(Request $request)
+    public function saveEditEventPageNew(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
