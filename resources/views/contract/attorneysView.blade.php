@@ -1007,10 +1007,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                    
                     $('td:eq(0)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a></div>');
 
-                    if(aData.role_name==null){
+                    if(aData.user_title==null){
                         $('td:eq(1)', nRow).html('<div class="text-left"><div><i class="table-cell-placeholder" data-testid="default-placeholder"></i></div></div>');
                     }else{
-                        $('td:eq(1)', nRow).html('<div class="text-left">'+aData.role_name+'</div>');
+                        $('td:eq(1)', nRow).html('<div class="text-left">'+aData.user_title+'</div>');
                     }
 
                     if(aData.case_close_date==null){

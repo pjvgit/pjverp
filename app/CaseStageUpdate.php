@@ -14,6 +14,6 @@ class CaseStageUpdate extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'stage_id','case_id'
+        'stage_id','case_id','start_date','end_date','days'
     ];
 }

@@ -1415,7 +1415,7 @@ class ContractController extends BaseController
         $columns = array('id', 'case_title', 'case_desc', 'case_number', 'case_status','case_unique_number');
         $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")
         ->leftjoin("users","case_staff.user_id","=","users.id")
-        ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type");
+        ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type","users.user_title");
         $case = $case->where("case_staff.user_id",base64_decode($requestData['user_id']));
         $case = $case->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
         $case = $case->where("case_master.is_entry_done","1");
