@@ -21,6 +21,11 @@
                 Lead Insight
             </a>
         </li>
+        <li>
+            <a href="" class="{{ Route::currentRouteName()=='' ? 'myactive' : '' }}">
+                Dashboard
+            </a>
+        </li>
     </ul>
 </div>
 <div class="separator-breadcrumb border-top"></div>
