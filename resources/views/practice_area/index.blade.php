@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title','Practice Area')
 @section('main-content')
+@include('case.case_submenu')
 
 <div class="row">
     <div class="col-md-12">

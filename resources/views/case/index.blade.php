@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Cases')
 @section('main-content')
+@include('case.case_submenu')
 <style>.morecontent span {
     display: none;
 }

@@ -10,6 +10,7 @@
 @endsection
 
 @section('main-content')
+@include('case.case_submenu')
  <div class="breadcrumb">
                     <h1>ApexCharts</h1>
                     <ul>

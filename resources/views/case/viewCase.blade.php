@@ -1,5 +1,6 @@
 @extends('layouts.master')
 @section('main-content')
+@include('case.case_submenu')
 @section('title', $CaseMaster->case_title. ' - Case Details')
 
 <?php

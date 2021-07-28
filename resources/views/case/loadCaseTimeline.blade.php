@@ -23,31 +23,33 @@
         <?php 
         // print_r($AllCaseStageHistory);exit;
         // echo count($AllCaseStageHistory);exit;
-        for($i=0;$i<count($AllCaseStageHistory);$i++){?>
+        foreach($AllCaseStageHistory as $key => $stage)
+        // for($i=0;$i<count($AllCaseStageHistory);$i++)
+        {?>
 
         <div class="row fieldGroup">
             <div class="col-3 d-flex">
-            <p class="mt-2 mr-1 counterIc" >{{$i+1}})</p>
-            <select id="case_status" name="old_case_status[{{$AllCaseStageHistory[$i]['id']}}]"  name="case_status" 
+            <p class="mt-2 mr-1 counterIc" >{{$key+1}})</p>
+            <select id="case_status" name="old_case_status[{{$key}}]"  name="case_status" 
                 class="form-control custom-select col">
                 <option value="0">No Stage</option>
                 <?php foreach($caseStageList as $kcs=>$vcs){?>
-                    <option <?php if($AllCaseStageHistory[$i]['stage_id']==$vcs->id){ echo "selected=selected"; }?> value="{{$vcs->id}}">{{$vcs->title}}</option>
+                    <option <?php if($stage['stage_id']==$vcs->id){ echo "selected=selected"; }?> value="{{$vcs->id}}">{{$vcs->title}}</option>
                 <?php } ?>
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  name="old_start_date[{{$AllCaseStageHistory[$i]['id']}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($AllCaseStageHistory[$i]['created_at']))}}"></p>
+                <input type="text"  name="old_start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}"></p>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control dp"  name="old_end_date[{{$AllCaseStageHistory[$i]['id']}}]" value="{{date('m/d/Y',strtotime($AllCaseStageHistory[$i]['updated_at']))}}"></p>
+                <input type="text"  class="form-control dp"  name="old_end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}"></p>
             </div>
-            <input type="hidden" name="old_state_id[{{$AllCaseStageHistory[$i]['id']}}]" value="{{$AllCaseStageHistory[$i]['id']}}">
+            <input type="hidden" name="old_state_id[{{$key}}]" value="{{$stage['id']}}">
 
             <div class="col-2">
                 <?php 
-                    $start = strtotime($AllCaseStageHistory[$i]['created_at']);
-                    $end = strtotime($AllCaseStageHistory[$i]['updated_at']);
+                    $start = strtotime($stage['start_date']);
+                    $end = strtotime($stage['end_date']);
                     $days_between = abs($end - $start) / 86400;
 
                     if($days_between>0.99){
@@ -56,7 +58,7 @@
                         $f=0.5;
                     }
                 ?>
-                <input type="text"  class="form-control"  disabled value="{{$f}}">
+                <input type="text"  class="form-control" name="old_days[{{$key}}]" disabled value="{{ ($stage['days'] != '' ) ? $stage['days']: $f}}">
             </div>
             <div class="col-1">
                 <button type="button" data-testid="row-6-delete-button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link "></button>
@@ -81,14 +83,14 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->created_at ?? date('m/d/Y')))}}"></p>
+                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->start_date ?? date('m/d/Y')))}}"></p>
             </div>
             <div class="col-3">
                 <input type="text"  class="form-control" disabled value="{{date('m/d/Y')}}"></p>
             </div>
             <div class="col-3">
             <?php 
-                $start = strtotime($CaseStageHistory->created_at ?? date('m/d/Y'));
+                $start = strtotime($CaseStageHistory->start_date ?? date('m/d/Y'));
                 $end = strtotime(date('Y-m-d'));
                 $days_between = ceil(abs($end - $start) / 86400);
                 if($days_between>0.99){
@@ -226,7 +228,7 @@
                     afterLoader();
                     return false;
                 } else {
-                    window.location.reload();
+                    // window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
