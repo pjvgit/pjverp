@@ -514,20 +514,20 @@ $flatFeeEntryAmount=0;
             <td class="time-entry-date" style="vertical-align: top;">
                 <?php
                             $items=array("discount"=>"Discount","intrest"=>"Interest","tax"=>"Tax","addition"=>"Addition");
-                            echo $items[$v->item];
+                            echo ($v->item != '') ? $items[$v->item] : "";
                             ?>
             </td>
             <td class="time-entry-ee" style="vertical-align: top;">
                 <?php 
                         $AppliedTo=array("flat_fees"=>"Flat Fees","time_entries"=>"Time Entries","expenses"=>"Expenses","balance_forward_total"=>"Balance Forward Total","sub_total"=>"Sub Total");
-                        echo $AppliedTo[$v->applied_to];
+                        echo ($v->applied_to != '') ? $AppliedTo[$v->applied_to] : "";
                         ?>
             </td>
             <td class="time-entry-activity" style="vertical-align: top;">
 
                 <?php 
                             $adType=array("percentage"=>"% - Percentage","amount"=>"$ - Amount");
-                            echo $adType[$v->ad_type];
+                            echo ($v->ad_type != '') ? $adType[$v->ad_type] : "";
                             ?>
             </td>
             <td class="time-entry-description" style="vertical-align: top;">

@@ -17,9 +17,9 @@ class InvoiceBatch extends Authenticatable
     protected $appends  = ['decode_id','decode_type'];
 
     public function getDecodeIdAttribute(){
-        return base64_encode($this->id);
+        return base64_encode($this->invoice_batch_id);
     } 
     public function getDecodeTypeAttribute(){
-        return base64_encode('batch');
+        return base64_encode('batches');
     } 
 }
