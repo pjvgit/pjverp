@@ -30,7 +30,7 @@
         <div class="row fieldGroup">
             <div class="col-3 d-flex">
             <p class="mt-2 mr-1 counterIc" >{{$key+1}})</p>
-            <select id="case_status" name="old_case_status[{{$key}}]"  name="case_status" 
+            <select id="case_status" name="case_status[{{$key}}]"  name="case_status" 
                 class="form-control custom-select col">
                 <option value="0">No Stage</option>
                 <?php foreach($caseStageList as $kcs=>$vcs){?>
@@ -39,12 +39,12 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  name="old_start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}"></p>
+                <input type="text"  name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}"></p>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control dp"  name="old_end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}"></p>
+                <input type="text"  class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}"></p>
             </div>
-            <input type="hidden" name="old_state_id[{{$key}}]" value="{{$stage['id']}}">
+            <input type="hidden" name="state_id[{{$key}}]" value="{{$stage['id']}}">
 
             <div class="col-2">
                 <?php 
@@ -58,7 +58,7 @@
                         $f=0.5;
                     }
                 ?>
-                <input type="text"  class="form-control" name="old_days[{{$key}}]" disabled value="{{ ($stage['days'] != '' ) ? $stage['days']: $f}}">
+                <input type="text"  class="form-control" name="days[{{$key}}]" disabled value="{{ ($stage['days'] != '' ) ? $stage['days']: $f}}">
             </div>
             <div class="col-1">
                 <button type="button" data-testid="row-6-delete-button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link "></button>

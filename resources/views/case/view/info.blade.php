@@ -66,12 +66,13 @@
                     <div class="progress mb-3">
                         <?php
                         $defaultColorCode=['#BFD8E1'];
-                        $days=$color=$startDate=$endDate=[];
+                        $days=$color=$startDate=$endDate=$stage=[];
                          foreach($caseStatusHistory as $key=>$val){
-                            $days[$val['stage_id']][]=$val['days'];
-                            $color[$val['stage_id']]=$val['color'];
-                            $startDate[$val['stage_id']]=$val['startDate'];
-                            $endDate[$val['stage_id']]=$val['endDate'];
+                            $days[$val['id']][]=$val['days'];
+                            $stage[$val['id']]=$val['stage_id'];
+                            $color[$val['id']]=$val['color'];
+                            $startDate[$val['id']]=$val['startDate'];
+                            $endDate[$val['id']]=$val['endDate'];
                          }
                         
                         foreach($days as $k=>$v){
@@ -81,13 +82,11 @@
                             }
                             ?>
                             <?php 
-                            if($k==0){?>
-
-                            
+                            if($stage[$k]==0){?>                            
                             <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php }else{ ?>
-                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ (in_array($k, (array)$caseStageListArray)) ? @$caseStageListArray[$k] : '' }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(@$startDate[$k])) }}<br>Ended :{{ date('m/d/Y',strtotime(@$endDate[$k])) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
+                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ @$caseStageListArray[$stage[$k]] }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(@$startDate[$k])) }}<br>Ended :{{ date('m/d/Y',strtotime(@$endDate[$k])) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php  } ?>
                     <?php } ?>
@@ -106,13 +105,16 @@
                                             <div class="ml-2">
                                                 <div class="insights-labels Discovery font-weight-bold m-0">
                                                     <?php 
-                                                    if($k==0){?>
+                                                    if($stage[$k]==0){?>
                                                         No Stage <span class="font-weight-light ml-2"> 
                                                         <?php 
                                                         if(array_sum($v)==1) { echo "<". array_sum($v) ." Day"; } else { echo array_sum($v) ." Days"; } 
                                                         ?>  </span>
-                                                    <?php }else{?>
-                                                    {{@$caseStageListArray[$k]}} <span class="font-weight-light ml-2"><?php 
+                                                    <?php }else{
+                                                        
+                                                    ?>
+                                                        
+                                                    {{@$caseStageListArray[$stage[$k]]}} <span class="font-weight-light ml-2"><?php 
                                                         if(array_sum($v)==1) { echo "<". array_sum($v) ." Day"; } else { echo array_sum($v) ." Days"; } 
                                                         ?></span>
                                                     <?php } ?>

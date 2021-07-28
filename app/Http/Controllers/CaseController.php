@@ -863,29 +863,15 @@ class CaseController extends BaseController
              if(\Route::current()->getName()=="info"){
                 $lastStatusUpdate = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at")->where("case_id",$case_id)->orderBy('created_at','DESC')->first();
                
-                $caseStatusHistory=CaseStageUpdate::leftJoin('case_stage','case_stage.id','=','case_stage_history.stage_id')->select('case_stage_history.*','case_stage.stage_color')->where("case_stage_history.case_id",$case_id)->orderBy('case_stage_history.created_at','ASC')->get();
+                $caseStatusHistory=CaseStageUpdate::leftJoin('case_stage','case_stage.id','=','case_stage_history.stage_id')->select('case_stage_history.*','case_stage.stage_color')->where("case_stage_history.case_id",$case_id)->orderBy('case_stage_history.start_date','ASC')->get();
                 if(!$caseStatusHistory->isEmpty()){
                     $caseStatusHistory=$caseStatusHistory->toArray();
                        
                     foreach($caseStatusHistory as $k=>$v){
-                        $fdate = ($caseStatusHistory[$k+1]['created_at'])??date('Y-m-d');
-                        $tdate = $caseStatusHistory[$k]['created_at'];
-                        $datetime1 = new DateTime($fdate);
-                        $datetime2 = new DateTime($tdate);
-                        $interval = $datetime1->diff($datetime2);
-                        $NoStageDays = $interval->format('%a');
-                        if($NoStageDays=="0"){
-                            $NoStageDays="1";
-                        }
-                        $caseStatusHistory[$k]['days']=$NoStageDays;
+                        $caseStatusHistory[$k]['days']=$caseStatusHistory[$k]['days'];
                         $caseStatusHistory[$k]['color']=$caseStatusHistory[$k]['stage_color'];
-                        $caseStatusHistory[$k]['startDate']=$caseStatusHistory[$k]['created_at'];
-                        if($k+1>count($caseStatusHistory)-1){   
-                            $caseStatusHistory[$k]['endDate']=$caseStatusHistory[$k]['created_at'];
-                        }else{   
-                            $caseStatusHistory[$k]['endDate']=$caseStatusHistory[$k+1]['created_at'];
-                        }
-                     
+                        $caseStatusHistory[$k]['startDate']=$caseStatusHistory[$k]['start_date'];
+                        $caseStatusHistory[$k]['endDate']=$caseStatusHistory[$k]['end_date'];                       
                     }
                 }
 
@@ -7767,14 +7753,14 @@ class CaseController extends BaseController
         $CaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->where("stage_id",$CaseMaster->case_status)->first();
        }       
 
-       $AllCaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->get()->toArray();
+       $AllCaseStageHistory=CaseStageUpdate::select("*")->where("case_id",$case_id)->orderBy('start_date','ASC')->get()->toArray();
        
        return view('case.loadCaseTimeline',compact('CaseMaster','caseStageList','CaseStageHistory','AllCaseStageHistory','case_id'));
    }
 
    public function saveCaseHistory(Request $request)
-   {
-    //    print_r($request->all());
+   {        
+    //    dd($request->all());
        $validator = \Validator::make($request->all(), [
            'start_date.*' => 'required',
            'case_id' => 'required',
@@ -7785,11 +7771,11 @@ class CaseController extends BaseController
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
             $errors = [];            
-            if(isset($request->old_state_id) && !empty($request->old_state_id)){
-                foreach($request->old_state_id as $k=>$v){
-                    if(strtotime($request->old_start_date[$v]) > strtotime($request->old_end_date[$v])) 
+            if(isset($request->state_id) && !empty($request->state_id)){
+                foreach($request->state_id as $k=>$v){
+                    if(strtotime($request->start_date[$k]) > strtotime($request->end_date[$k])) 
                     {
-                        $errors[$k] = $request->old_end_date[$v].' is not smaller than '.$request->old_start_date[$v];                    
+                        $errors[$k] = $request->end_date[$k].' is not smaller than '.$request->start_date[$k];                    
                     }      
                 }
             }
@@ -7802,31 +7788,45 @@ class CaseController extends BaseController
                 }
             }
             if(empty($errors)){
-            $ids=[];
-            if(isset($request->old_state_id) && !empty($request->old_state_id)){
-                foreach($request->old_state_id as $k=>$v){
-                    $caseStageHistory = CaseStageUpdate::find($v);
-                    $caseStageHistory->created_at=date('Y-m-d',strtotime($request->old_start_date[$v]));
-                    $caseStageHistory->updated_at=(strtotime($request->old_start_date[$v]) > strtotime($request->old_end_date[$v])) ? date('Y-m-d',strtotime($request->old_start_date[$v])) : date('Y-m-d',strtotime($request->old_end_date[$v]));
+            $CaseStageUpdate=CaseStageUpdate::where("case_id",$request->case_id)->delete();
+            if(isset($request->case_status) && !empty($request->case_status)){                
+                foreach($request->case_status as $k=>$v){
+                    
+                    $start = strtotime($request->start_date[$k]);
+                    $end = strtotime($request->end_date[$k]);
+                    $days_between = abs($end - $start) / 86400;
+
+                    $caseStageHistory = new CaseStageUpdate;
+                    $caseStageHistory->stage_id=$request->case_status[$k];
+                    $caseStageHistory->case_id=$request->case_id;
+                    $caseStageHistory->created_by=Auth::user()->id; 
+                    $caseStageHistory->start_date = date('Y-m-d',strtotime($request->start_date[$k]));
+                    $caseStageHistory->end_date = date('Y-m-d',strtotime($request->end_date[$k]));
+                    $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
                     $caseStageHistory->save();
-                    $ids[]=$v;  
+                   
+                    if(isset($request->start_date[$k+1])){
+                        if($request->end_date[$k] != $request->start_date[$k+1]){
+                            
+                            $start = strtotime($request->end_date[$k]);
+                            $end = strtotime($request->start_date[$k+1]);
+                            $days_between = abs($end - $start) / 86400;
+
+                            $caseStageHistory = new CaseStageUpdate;
+                            $caseStageHistory->stage_id=0;
+                            $caseStageHistory->case_id=$request->case_id;
+                            $caseStageHistory->created_by=Auth::user()->id; 
+                            $caseStageHistory->start_date = date('Y-m-d',strtotime($request->end_date[$k]));
+                            $caseStageHistory->end_date = date('Y-m-d',strtotime($request->start_date[$k+1]));
+                            $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
+                            $caseStageHistory->save();
+                        }
+                    }                    
+                   
                 }
-            }
-            if(!empty($ids)){
-                $CaseStageUpdate=CaseStageUpdate::whereNotIn("id",$ids)->where("case_id",$request->case_id)->delete();
             }
             
-            if(isset($request->case_status) && !empty($request->case_status)){
-                for($i=0; $i<count($request->case_status);$i++){
-                        $caseStageHistory = new CaseStageUpdate;
-                        $caseStageHistory->stage_id=$request->case_status[$i];
-                        $caseStageHistory->case_id=$request->case_id;
-                        $caseStageHistory->created_by=Auth::user()->id; 
-                        $caseStageHistory->created_at=date('Y-m-d',strtotime($request->start_date[$i]));
-                        $caseStageHistory->updated_at = (strtotime($request->start_date[$i]) >= strtotime($request->end_date[$i])) ? date('Y-m-d',strtotime($request->start_date[$i])) : date('Y-m-d',strtotime($request->end_date[$i]));
-                        $caseStageHistory->save();
-                }
-            }
+            
             session(['popup_success' => 'Case stage timeline history has been successfully saved.']);
             return response()->json(['errors'=>'']);
             exit;
