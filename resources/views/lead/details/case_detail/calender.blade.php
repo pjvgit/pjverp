@@ -527,7 +527,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $("#grantCase").html(res);
                         $("#preloader").hide();
                         $("#innerLoader").css('display', 'none');
-                       
                         $(".add-more").trigger('click');
                         return false;
                     }

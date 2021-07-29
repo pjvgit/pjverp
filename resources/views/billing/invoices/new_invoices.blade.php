@@ -1287,12 +1287,16 @@ if(!isset($adjustment_token)){
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show")
-                    <div class="apply-funds-container p-3" id="apply-trust-and-credit-funds">
-                        <h3 class="section-header p-2 apply-trust-credit-funds">Apply Trust &amp; Credit Funds</h3>
+                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show" && $case_id != "none")
+                    <div class="apply-funds-container" id="apply-trust-and-credit-funds">
+                        <div class="invoice_option_header clearfix">
+                            <h3 class="invoice_header">
+                                Apply Trust &amp; Credit Funds
+                            </h3>
+                        </div>
                         <div class="mt-3">
                             <div class="mt-3">
-                                <h4>Applied Trust Funds</h4>
+                                <h4>Available Trust Funds</h4>
                                 <div class="row ">
                                     @if(!empty($caseMaster->caseAllClient))
                                     <div class="col-9">
@@ -1386,8 +1390,52 @@ if(!isset($adjustment_token)){
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <h4>Applied Credit Funds</h4>
+                                <h4>Available Credit Funds</h4>
                                 <div class="row ">
+                                    @if(!empty($caseMaster->caseAllClient))
+                                    <div class="col-9">
+                                        <div>
+                                            <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Client</th>
+                                                        <th>Account</th>
+                                                        <th>Available Amount</th>
+                                                        <th>Amount to Apply</th>
+                                                        <th>Balance After Application</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if(!empty($caseMaster->caseAllClient))
+                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                            @if($citem->userAdditionalInfo->credit_account_balance > 0)
+                                                                <tr class="apply-funds-row">
+                                                                    <td class="apply-funds-client"><span>{{ $citem->full_name ?? "" }}</span></td>
+                                                                    <td class="apply-funds-account">
+                                                                        <div>Credit (Operating Account)</div>
+                                                                    </td>
+                                                                    <td class="apply-funds-available-amount">
+                                                                        <div>$<span class="credit-balance">{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}</span> <span class="allocation-status">(Unallocated)</span></div>
+                                                                    </td>
+                                                                    <td class="apply-funds-amount-to-apply">
+                                                                        <div class="amount-to-apply-field input-group-sm input-group">
+                                                                            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                                                            <input class="form-control apply-credit-amt" value="" name="credit[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="apply-funds-balance-after-application">
+                                                                        <div>$<span class="remain-credit-balance">{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}</span></div>
+                                                                    </td>
+                                                                </tr>
+                                                            @endif
+                                                        @empty
+                                                        @endforelse
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @endif
                                     <div class="col-3">
                                         <div>
                                             <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
@@ -1426,7 +1474,7 @@ if(!isset($adjustment_token)){
                             </div>
                             <div>
                                 <span>Total Invoice Amount: <b class="ml-2 invoice-total-amount">$00.00</b></span>
-                                <span class="ml-3">Total To Apply: <b class="ml-2 total-to-apply ">$00.00</b></span>
+                                <span class="ml-3">Total To Apply: <b class="ml-2">$<span class="total-to-apply">00.00</span></b></span>
                             </div>
                         </div>
                     </div>

@@ -420,11 +420,13 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     <span> <i class="fas fa-fw fa-landmark mr-2"></i>Trust History</span>
                                 </a>
                             </div>
+                            @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts/clients/billing/credit/history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/credit/history')}}">
                                     <span> <i class="fas fa-fw fa-credit-card mr-2"></i>Credit History</span>
                                 </a>
                             </div>
+                            @endif
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_request_fund"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/request_fund')}}">
                                     <span> <i class="fas fa-fw fa-hand-holding-usd  mr-2"></i> Requested Funds</span>
@@ -441,8 +443,10 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_history"){
                                 ?> @include('client_dashboard.billing.trust_history')
                             <?php } ?>
+                            @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
                             @if(Route::currentRouteName() == "contacts/clients/billing/credit/history")
                                 @include('client_dashboard.billing.credit_history')
+                            @endif
                             @endif
                             <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_request_fund"){
                                 ?> @include('client_dashboard.billing.requested_fund',compact('totalData'))
@@ -1024,6 +1028,39 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
+{{-- Delete credit history entry popup --}}
+<div id="deleteCreditHistoryEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteCreditHistoryEntry" id="deleteCreditHistoryEntryForm" method="POST">
+            @csrf
+            <input type="hidden" value="" name="delete_credit_id" id="delete_credit_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Payment</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this payment and remove all record of it from {{config('app.name')}}?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 <div id="exportPDFpopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -1499,7 +1536,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-
+@include('billing.invoices.partials.invoice_action_modal')
 <style>
     
 .remove-client-picture-button {
@@ -3225,11 +3262,58 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function deleteEntry(id) {
-        $("#deleteEntry").modal("show");
-        $("#delete_payment_id").val(id);
+    function deleteCreditEntry(id) {
+        $("#deleteCreditHistoryEntry").modal("show");
+        $("#delete_credit_id").val(id);
     }
+
+    $('#deleteCreditHistoryEntryForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+
+        if (!$('#deleteCreditHistoryEntryForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#deleteCreditHistoryEntryForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/clients/deleteCreditHistoryEntry", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&delete=yes';
+            },
+            success: function (res) {
+                    beforeLoader();
+                    if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+            $('.showError').html('');
+            var errotHtml =
+                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+            $('.showError').append(errotHtml);
+            $('.showError').show();
+            afterLoader();
+        }
+        });
+    });
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+// <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

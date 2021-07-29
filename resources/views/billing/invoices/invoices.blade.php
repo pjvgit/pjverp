@@ -382,9 +382,9 @@ td,th{
 }
 </style>
 
+@include('billing.invoices.partials.invoice_action_modal')
 
-
-<div id="sendInvoiceReminder" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="sendInvoiceReminder" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-lg ">
         <div class="modal-content">
@@ -475,7 +475,7 @@ td,th{
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 
 <div id="deleteBulkInvoice" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">

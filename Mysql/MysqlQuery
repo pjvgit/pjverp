@@ -1,3 +1,7 @@
+------------------------------------ 29-Jul-2021 ------------------------------
+ALTER TABLE `deposit_into_credit_history` CHANGE `payment_method` `payment_method` ENUM('cash','check','credit card','paypal','other','refund','withdraw','payment') CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT 'cash';
+ALTER TABLE `invoice_payment` CHANGE `payment_from` `payment_from` ENUM('trust','client','credit') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
 ------------------------------------ 28-Jul-2021 ------------------------------
 ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none'; 
 ALTER TABLE `users_additional_info` ADD `credit_account_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `trust_account_balance`;

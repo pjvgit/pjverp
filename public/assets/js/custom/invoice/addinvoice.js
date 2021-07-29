@@ -340,7 +340,7 @@ $(document).on("change", ".forwarded-invoices-check", function() {
 });
 
 // Apply trust/credit balance input validation
-$('.apply-trust-amt').keypress(function(event) {
+$('.apply-trust-amt, .credit-trust-amt').keypress(function(event) {
     if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
         event.preventDefault();
     }
@@ -364,6 +364,30 @@ $(".apply-trust-amt").on("focusout", function() {
             totalAppliedAmt = parseFloat(totalAppliedAmt) + parseFloat(amt);
         }
     });
-    $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
+    var applied = parseFloat($(".total-to-apply").text()) + totalAppliedAmt;
+    $(".total-to-apply").text(applied.toFixed(2));
+    $(".invoice-total-amount").text('$'+$(".final_total").text());
+});
+
+// Apply credit balance
+$(".apply-credit-amt").on("focusout", function() {
+    var amt = $(this).val();
+    var totalAmt = parseFloat($(this).parents('tr').find(".credit-balance").text());
+    if(amt != '') {
+        var remainAmt = totalAmt - parseFloat(amt);
+        $(this).parents('tr').find(".remain-credit-balance").text(remainAmt.toFixed(2));
+    } else {
+        $(this).parents('tr').find(".remain-credit-balance").text(totalAmt.toFixed(2));
+    }
+
+    var totalAppliedAmt = 0;
+    $(".apply-credit-amt").each(function() {
+        var amt = $(this).val();
+        if(amt != '') {
+            totalAppliedAmt = parseFloat(totalAppliedAmt) + parseFloat(amt);
+        }
+    });
+    var applied = parseFloat($(".total-to-apply").text()) + totalAppliedAmt;
+    $(".total-to-apply").text(applied.toFixed(2));
     $(".invoice-total-amount").text('$'+$(".final_total").text());
 });
