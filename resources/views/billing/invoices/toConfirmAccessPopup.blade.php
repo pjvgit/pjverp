@@ -52,6 +52,7 @@
                     } else {
                         $('#grantAccessModal').modal("hide");
                         $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).prop('checked', true);
+                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).attr('pe', 1);
                         reloadRow({{$UsersAdditionalInfo['user_id']}});
                     }
                 },

@@ -1691,22 +1691,27 @@
                                                         </th>
                                                     </tr>
                                                     <?php 
+                                                    $CompanyList = [];
+                                                    foreach($getAllClientForSharing as $k=>$v){
+                                                        if($v->user_level == 4)
+                                                        {
+                                                            $CompanyList[$v->id] = $v->first_name; 
+                                                        }
+                                                    }
                                                     foreach($getAllClientForSharing as $k=>$v){?>
-                                                    <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
+                                                     <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
+                                                    <?php if($v->user_level=="2"){ ?>    
                                                         <td style="text-align: center;padding:10px;">
-                                                            <div class="locked">
-                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})"  <?php if(in_array($v->user_id,$SharedInvoice)) { echo "checked=checked"; } ?> >
-                                                            </div>
+                                                            <div class="locked">                                                                
+                                                                @if (array_key_exists($v->multiple_compnay_id, $CompanyList))
+                                                                    {{$CompanyList[$v->multiple_compnay_id]}} (Company)                                                             
+                                                                @endif
+                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})">
+                                                            </div>                                                            
                                                         </td>
                                                         <td class="invoice-sharing-name">
                                                             <div class="locked pl-1">
-                                                                {{ucfirst($v->unm)}} 
-                                                                <?php 
-                                                                if($v->user_level=="2"){
-                                                                    echo "(Client)";
-                                                                }else{
-                                                                    echo "(Company)";
-                                                                }?>
+                                                                {{ucfirst($v->unm)}}  (Client)
                                                             </div>
                                                         </td>
                                                         <td class="invoice-sharing-last-login">
@@ -1724,6 +1729,8 @@
                                                                 }
                                                                 ?></div>
                                                         </td>
+                                                        <?php } ?>
+                                                        
                                                     </tr>
                                                     <?php } ?>
                                                 </tbody>
@@ -3768,39 +3775,40 @@
     }
 
     function reloadRow(id) {
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/bills/invoices/reloadRow",
-            data: {"id": id},
-            success: function (res) {
-                if (typeof (res.errors) != "undefined" && res.errors !== null) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                    $("#preloader").hide();
-                    return false;
-                } else {
-                    afterLoader()
-                    $("#row_"+id).html(res);
-                    $("#preloader").hide();
-                    return true;
-                }
-            },
-            error: function (xhr, status, error) {
-                $('.showError').html('');
-                var errotHtml =
-                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                $('.showError').append(errotHtml);
-                $('.showError').show();
-                $('#editAdjustmentEntry').animate({
-                    scrollTop: 0
-                }, 'slow');
-                afterLoader();
-            }
-        })
+        $(".invoiceSharingBox").trigger('change'); 
+        // $.ajax({
+        //     type: "POST",
+        //     url: baseUrl + "/bills/invoices/reloadRow",
+        //     data: {"id": id},
+        //     success: function (res) {
+        //         if (typeof (res.errors) != "undefined" && res.errors !== null) {
+        //             $('.showError').html('');
+        //             var errotHtml =
+        //                 '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+        //             $('.showError').append(errotHtml);
+        //             $('.showError').show();
+        //             afterLoader();
+        //             $("#preloader").hide();
+        //             return false;
+        //         } else {
+        //             afterLoader()
+        //             $("#row_"+id).html(res);
+        //             $("#preloader").hide();
+        //             return true;
+        //         }
+        //     },
+        //     error: function (xhr, status, error) {
+        //         $('.showError').html('');
+        //         var errotHtml =
+        //             '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+        //         $('.showError').append(errotHtml);
+        //         $('.showError').show();
+        //         $('#editAdjustmentEntry').animate({
+        //             scrollTop: 0
+        //         }, 'slow');
+        //         afterLoader();
+        //     }
+        // })
     }
     // $('input[name=client_portal_enable]').attr("checked",false);
 
