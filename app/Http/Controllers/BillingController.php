@@ -2187,7 +2187,7 @@ class BillingController extends BaseController
 
             // //Get Flat fees entry
             if($caseMaster) {
-                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->sum('cost');
+                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
                     if($remainFlatFee > 0) {
@@ -2215,7 +2215,8 @@ class BillingController extends BaseController
                     ]);
                 }
             }
-            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")->where("flat_fee_entry.case_id",$case_id)
+            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+            ->where("flat_fee_entry.case_id",$case_id)
             ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
