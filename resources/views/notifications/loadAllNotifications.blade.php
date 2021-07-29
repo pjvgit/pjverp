@@ -190,7 +190,7 @@ if(!$commentData->isEmpty()){
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name"
                         href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for  <?php if($v->action!="delete"){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  <abbr
+                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for  <?php if($v->ExpenseEntry){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  <abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
                         href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
@@ -212,7 +212,7 @@ if(!$commentData->isEmpty()){
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name"
                         href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for <?php if($v->action!="delete"){ ?> <a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup({{$v->time_entry_id}});"> {{$v->title}}</a>  <?php }else{ ?> {{$v->title}}<?php } ?><abbr
+                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for <?php if(!$v->timeEntry){ ?> <a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup({{$v->time_entry_id}});"> {{$v->title}}</a>  <?php }else{ ?> {{$v->title}}<?php } ?><abbr
                         class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <a class="name"
                         href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>

@@ -1,4 +1,4 @@
-<div class="tab-pane fade active show" id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
+<div class="tab-pane fade active show"  id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
     <ul class="timeline clearfix">
         <li class="timeline-line"></li>
         <?php 
@@ -16,7 +16,11 @@
                         @if($v['staff_id'] != '')
                         <a href="{{ route('contacts/clients/view', $v['staff_id']) }}"> {{$v['staff_name']}} </a>
                         @else
-                        <a href=""> {{$v['case_name']}} </a>
+                            @if($v['extra_notes'] != '')
+                                {{ $v['extra_notes']}}
+                            @else
+                            <a href=""> {{$v['case_name']}} </a>
+                            @endif
                         @endif
                         <p class="text-muted">{{$v['created_at']}}</p>
                     </div>
@@ -34,7 +38,6 @@
         </li>
     </ul>
 </div>
-
 {{-- <div class="case-activities-container" data-court-case-id="12065562">
     <div>
         <div>

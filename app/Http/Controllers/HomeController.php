@@ -328,7 +328,9 @@ class HomeController extends BaseController
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('document_master','document_master.id','=','all_history.document_id')
         ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-        ->select("case_events.id as eventID","users.*","all_history.*","document_master.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
+        ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
+        ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID","users.*","all_history.*","document_master.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)
@@ -402,7 +404,9 @@ class HomeController extends BaseController
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
             ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-            ->select("case_events.id as eventID", "users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
+            ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
+            ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", "users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
             ->where("all_history.firm_id",Auth::User()->firm_name);
             if(isset($request->user_id)){
                 $commentData=$commentData->where("user_id",$request->user_id);
@@ -443,7 +447,8 @@ class HomeController extends BaseController
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
+            ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","time_entry")
             ->orderBy('all_history.id','DESC');
@@ -462,7 +467,8 @@ class HomeController extends BaseController
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
+            ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","expenses")
             ->orderBy('all_history.id','DESC');

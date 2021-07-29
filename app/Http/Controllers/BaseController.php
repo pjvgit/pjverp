@@ -110,6 +110,7 @@ class BaseController extends Controller
         $CaseActivity->case_id=$data['case_id'];
         $CaseActivity->activity_title=$data['activity_title'];
         $CaseActivity->activity_type=($data['activity_type'])??NULL;
+        $CaseActivity->extra_notes=($data['extra_notes'])??NULL;
         $CaseActivity->staff_id=($data['staff_id'])??NULL;
         $CaseActivity->created_by=Auth::user()->id; 
         $CaseActivity->save();

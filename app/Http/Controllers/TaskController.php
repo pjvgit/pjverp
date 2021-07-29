@@ -975,6 +975,15 @@ class TaskController extends BaseController
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
 
+        //Case Activity
+        $activity_text = TaskActivity::find($TaskTimeEntry->activity_id);
+        $data=[];
+        $data['activity_title']='added an time entry';
+        $data['case_id']=$TaskTimeEntry->case_id;
+        $data['activity_type']='';
+        $data['extra_notes']=$activity_text->title;
+        $this->caseActivity($data);
+
         if(isset($request->from)){
             $from="timesheet";
         }else{
@@ -1039,6 +1048,14 @@ class TaskController extends BaseController
                 $data['action']='add';
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
+
+                //Case Activity
+                $data=[];
+                $data['activity_title']='added an time entry';
+                $data['case_id']=$TaskTimeEntry->case_id;
+                $data['activity_type']='';
+                $data['extra_notes']=$TaskTimeEntry->activity_id;
+                $this->caseActivity($data);
             }
                 
         }
