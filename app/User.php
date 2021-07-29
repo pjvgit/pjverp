@@ -245,4 +245,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(TrustHistory::class, 'client_id')->orderBy("created_at", "desc");
     }
+
+    /**
+     * Get all of the invoices for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class, 'user_id');
+    }
+
+    /**
+     * Get all of the userCreditAccountHistory for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userCreditAccountHistory()
+    {
+        return $this->hasMany(DepositIntoCreditHistory::class, 'user_id')->orderBy("created_at", "desc");
+    }
 }

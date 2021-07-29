@@ -79,7 +79,8 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
-            'todayHighlight': true
+            'todayHighlight': true,
+            'endDate': new Date()
         });
         
         $("#applied_to").select2({

@@ -22,3 +22,33 @@
         </tr>
     </thead>
 </table> --}}
+ 
+<div class="container-fluid mb-12">
+    <div class="justify-content-end pt-2 d-print-none row ">
+        <div class="align-self-end text-right col-6">
+            <a class="btn btn-primary client-add-invoice-button" href="{{ route('bills/invoices/load_new', ['court_case_id' => 'none', 'contact' => $client_id]) }}">Add Invoice</a>
+        </div>
+    </div>
+</div>
+@if($userProfile->has("invoices"))
+<table class="display table table-striped table-bordered" id="billing_invoice_table" style="width:100%" data-url="{{ route('contacts/clients/load/invoices') }}" data-client-id="{{ @$client_id }}">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Number</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Amount Due</th>
+            <th>Due</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Viewed</th>
+            <th></th>
+        </tr>
+    </thead>
+</table>
+@else
+<div class="text-center">
+    <p>There are no invoices.</p> <p><a href="{{ route('bills/invoices/load_new', ['court_case_id' => 'none', 'contact' => $client_id]) }}">Add Invoice</a></p>
+</div>
+@endif

@@ -84,6 +84,8 @@
                         $("#innerLoader").css('display', 'none');
                         $("#cleintUSER_"+{{$UserMasterData->id}}).prop('checked',"checked");
                         $("#cleintUSER_"+{{$UserMasterData->id}}).attr("data-client_portal_enable",1);
+                        var userId = $("#grantAccessPage #client_id").val();
+                        $("input[type='checkbox'][value='" + userId + "']").prop('disabled', false);
                         $(".tooltip-alert").hide();
                         $("#loadGrantAccessModal").modal("hide");
                     }

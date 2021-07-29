@@ -19,6 +19,7 @@ use mikehaertl\wkhtmlto\Pdf;
 use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
 use App\DepositIntoCreditHistory;
+use App\Invoices;
 use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
@@ -2898,11 +2899,18 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->get();
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("created_at", "desc")->orderBy("id", "desc")->get();
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
-                $action = '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
-                $action .= '<a href="#" onclick="MyCase.Bills.Show.confirmPaymentDelete(); return false;">Delete</a>';
+                $action = '';
+                if($data->is_refunded == "yes") {
+
+                } else if($data->payment_method == "refund") {
+                    $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                } else {
+                    $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
+                    $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                }
                 return $action;
             })
             ->editColumn('payment_date', function ($data) {
@@ -2921,18 +2929,29 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->editColumn('related_to_invoice_id', function ($data) {
-                return $data->related_to_invoice_id;
+                return $data->related_to_invoice_id ?? "--"." ".$data->id;
             })
             ->editColumn('payment_method', function ($data) {
-                return ucwords($data->payment_method).' '.($data->is_refunded == "yes") ? "(Refunded)" : "";
+                $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
+                if($data->payment_method == "withdraw")
+                    $pMethod = "Non-Trust Credit Account";
+                else
+                    $pMethod = $data->payment_method;
+                return ucwords($pMethod).' '.$isRefund;
             })
             ->editColumn('total_balance', function ($data) {
                 return '$'.number_format($data->total_balance, 2);
             })
             ->editColumn('deposit_amount', function ($data) {
-                return ($data->payment_type == "deposit") ? '$'.number_format($data->deposit_amount, 2) : '-$'.number_format($data->deposit_amount, 2);
+                if($data->payment_type == "deposit" || $data->payment_type == "refund withdraw") {
+                    $amt = '$'.number_format($data->deposit_amount, 2);
+                } else {
+                    $amt = '-$'.number_format($data->deposit_amount, 2);
+                }
+                return $amt;
             })
             ->addColumn('detail', function ($data) {
+                $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
                 if($data->payment_type == "withdraw")
                     $dText = "Withdraw from Credit (Operating Account)";
                 else if($data->payment_type == "refund withdraw")
@@ -2942,10 +2961,10 @@ class ClientdashboardController extends BaseController
                 else if($data->payment_type == "refund payment")
                     $dText = "Refund Payment from Credit (Operating Account)";
                 else if($data->payment_type == "refund deposit")
-                    $dText = "Refund deposit from Credit (Operating Account)";
+                    $dText = "Refund Deposit into Credit (Operating Account)";
                 else
                     $dText = "Deposit into Credit (Operating Account)";
-                return $dText.'<br>
+                return $dText.' '.$isRefund.'<br>
                         <a tabindex="0" class="" role="button" data-toggle="popover" data-html="true" data-placement="bottom" 
                         data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
             })
@@ -2984,7 +3003,7 @@ class ClientdashboardController extends BaseController
             
             DepositIntoCreditHistory::create([
                 "user_id" => $request->client_id,
-                "payment_method" => $request->payment_method,
+                "payment_method" => "withdraw",
                 "deposit_amount" => $request->amount,
                 "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
                 "payment_type" => "withdraw",
@@ -3014,6 +3033,7 @@ class ClientdashboardController extends BaseController
      */
     public function saveCreditRefund(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
         
@@ -3027,18 +3047,24 @@ class ClientdashboardController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
                 
-            DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('credit_account_balance', $request['amount']);
-            $creditHistory->is_refunded="yes";
-            $creditHistory->save();
+            // DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('credit_account_balance', $request['amount']);
             
-            $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->client_id)->first();
-            if($creditHistory->payment_type == "withdraw"){
+            $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$request->client_id)->first();
+
+            if($creditHistory->payment_type == "withdraw") {
                 $fund_type='refund withdraw';
-            }elseif($creditHistory->payment_type == "payment"){
-                $fund_type='refund deposit';
+                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+            } elseif($creditHistory->payment_type == "payment") {
+                $fund_type='refund payment';
             } else {
                 $fund_type='refund deposit';
+                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
             }
+            $UsersAdditionalInfo->refresh();
+            // return $UsersAdditionalInfo;
+            $creditHistory->is_refunded="yes";
+            $creditHistory->save();
+
             DepositIntoCreditHistory::create([
                 "user_id" => $request->client_id,
                 "deposit_amount" => $request->amount,
@@ -3056,6 +3082,119 @@ class ClientdashboardController extends BaseController
             return response()->json(['errors'=>'']);
             exit;   
         }
+    }
+
+    /**
+     * Delete credit history entry
+     */
+    public function deleteCreditHistoryEntry(Request $request)
+    {
+        
+        $validator = \Validator::make($request->all(), [
+            'delete_credit_id' => 'required|numeric',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
+            if($creditHistory->payment_type == "refund deposit") {
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+
+                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
+            }else if($creditHistory->payment_type == "refund withdraw") {
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
+            }else if($creditHistory->payment_type == "diposit"){
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+            }
+
+
+            $updateBalaance=UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
+            if($updateBalaance->credit_account_balance <= 0){
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
+            }
+
+            DepositIntoCreditHistory::where('id',$request->delete_credit_id)->delete();
+            session(['popup_success' => 'Credit entry was deleted']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    }
+
+    /**
+     * client > billing > invoices list
+     */
+    public function loadInvoices(Request $request)
+    {
+        $data = Invoices::where("user_id", $request->client_id)->orderBy("created_at", "desc")->with('invoiceForwardedToInvoice')->get();
+        return Datatables::of($data)
+            ->addColumn('action', function ($data) {
+                $action = '';
+                if($data->status == "Forwarded") {
+                } else {
+                    if($data->status=="Partial" || $data->status=="Draft" || $data->status=="Unsent"){
+                        $action .='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('.$data->case_id.','.$data->id.');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                    }
+                    if($data->status!="Paid"){
+                        $action .='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('.$data->id.');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
+                    }
+                    $action .='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('.$data->id.');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                }
+                return $action;
+            })
+            ->addColumn('viewed', function ($data) {
+                if($data->is_viewed=="no"){
+                    return 'Never';
+                }else{
+                    return 'Yes';
+                }
+            })
+            ->editColumn('status', function ($data) {
+                if($data->status=="Paid"){
+                    $curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'.$data->status;
+                }else if($data->status=="Partial"){
+                    $curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'.$data->status;
+                }else if($data->status=="Overdue"){
+                    $curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>'.$data->status;
+                }else {
+                    $curSetatus=$data->status;
+                }
+                return $curSetatus;
+            })
+            ->editColumn('due_amount', function ($data) {
+                $fwd = "";
+                if($data->status == "Forwarded") {
+                    foreach($data->invoiceForwardedToInvoice as $invkey => $invitem) {
+                        $fwd = '<div style="font-size: 11px;">Forwarded to <a href="'.route("bills/invoices/view", $invitem->decode_id).'">'.$invitem->invoice_id.'</a></div>';
+                    }
+                }
+                return '$'.$data->due_amount_new.'<br>'.$fwd;
+            })
+            ->editColumn('total_amount', function ($data) {
+                return '$'.$data->total_amount_new;
+            })
+            ->editColumn('paid_amount', function ($data) {
+                return '$'.$data->paid_amount_new;
+            })
+            ->editColumn('due_date', function ($data) {
+                return $data->due_date_new;
+            })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_date_new;
+            })
+            ->addColumn('invoice_number', function ($data) {
+                return '<a href="'.route("bills/invoices/view", $data->decode_id).'">'.$data->invoice_id.' </a>';
+            })
+            ->addColumn('view', function ($data) {
+                return '<a href="'.route("bills/invoices/view", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
+            })
+            ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount'])
+            ->make(true);
     }
 }
   

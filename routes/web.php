@@ -807,8 +807,11 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/clients/saveWithdrawFromCredit', 'ClientdashboardController@saveWithdrawFromCredit')->name('contacts/clients/saveWithdrawFromCredit');
     Route::post('contacts/clients/credit/refundPopup', 'ClientdashboardController@refundCreditPopup')->name('contacts/clients/credit/refundPopup');
     Route::post('contacts/clients/credit/saveRefundPopup', 'ClientdashboardController@saveCreditRefund')->name('contacts/clients/credit/saveRefundPopup');
-    // Route::post('contacts/clients/deletePaymentEntry', 'ClientdashboardController@deletePaymentEntry')->name('contacts/clients/deletePaymentEntry');
+    Route::post('contacts/clients/deleteCreditHistoryEntry', 'ClientdashboardController@deleteCreditHistoryEntry')->name('contacts/clients/deleteCreditHistoryEntry');
     // Route::post('contacts/clients/exportPDFpopupForm', 'ClientdashboardController@exportPDFpopupForm')->name('contacts/clients/exportPDFpopupForm');
+
+    // For client -> billing invoice
+    Route::get('contacts/clients/load/invoices', 'ClientdashboardController@loadInvoices')->name('contacts/clients/load/invoices');
 
 
     //Company Dashboard
@@ -1025,6 +1028,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/downloadBulkInvoice', 'BillingController@downloadBulkInvoice')->name('bills/invoices/downloadBulkInvoice');
     Route::post('bills/invoices/applyTrustBalanceForm', 'BillingController@applyTrustBalanceForm')->name('bills/invoices/applyTrustBalanceForm');
     Route::post('bills/invoices/trustBalanceResponse', 'BillingController@trustBalanceResponse')->name('bills/invoices/trustBalanceResponse');
+    Route::post('bills/invoices/save/credit/payment', 'BillingController@saveInvoicePaymentFromCredit')->name('bills/invoices/save/credit/payment');
 
     //Account Activity
     Route::get('bills/account_activity', 'BillingController@account_activity')->name('bills/account_activity');

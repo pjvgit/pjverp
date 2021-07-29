@@ -18,14 +18,15 @@
             <tr class="sharing-user">
                 <td class="d-flex no-border">
                     <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#" data-toggle="popover" title=""
-                        data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
-                        data-html="true">
+                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#" data-toggle="popover" title="" data-trigger="hover"
+                        data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('contacts/clients/view', $val->user_id) }}'>Edit Info</a>" data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
                     </a>
                     <?php if($val->client_portal_enable=='0'){?> 
-                    <i class="tooltip-alert" data-toggle="popover"  data-placement= "bottom"  title="" data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' data-html="true" data-original-title="" ></i>
+                    <i class="tooltip-alert" id="err_popover_{{ $val->id }}" data-toggle="popover"  data-placement= "bottom" data-trigger="hover"  title="" 
+                        data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
+                        data-html="true" data-original-title="" style="display: none;"></i>
                     <?php } ?>
                 </td>
                 <td>
@@ -37,7 +38,9 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" class="lead_client_attend_all_users" id="attend_user_{{$val->id}}" name="ContactAttendClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" type="checkbox">
+                        <input disabled="" class="lead_client_attend_all_users {{ ($val->client_portal_enable == 0) ? 'not-enable-portal' : '' }}" id="attend_user_{{$val->id}}" name="ContactAttendClientCheckbox[]" 
+                        <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" 
+                        type="checkbox">
                     </label>
                 </td>
             </tr>
@@ -248,6 +251,7 @@
             $.each(multi, function (index, item) {
                 if($(item).attr('data-client_portal_enable') == 0){
                     winners_array.push( {name: $(item).val(), value: $(item).attr('data-client_portal_enable')} );  
+                    $("#err_popover_"+item.value).show();
                 }
             });
 
@@ -260,9 +264,12 @@
                 $("#SelectAllLeadAttend").prop('checked', false);
             }
             $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+            $(".not-enable-portal").prop('disabled', true);
             if(!$(this).is(":checked")) {
                 $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
                 $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
+                $(".not-enable-portal").prop('checked', false);
+                $(".not-enable-portal").prop('disabled', true);
             }            
         });
         $(".lead_client_share_all_users ").click(function () {
@@ -280,8 +287,14 @@
             }            
         });
         $("#SelectAllLeadAttend").click(function () {
-            $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
-            // $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+            // $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+            var checkVal = $(this).prop('checked');
+            $(".lead_client_attend_all_users").each(function() {
+                if(!$(this).is(":disabled")) {
+                    $(this).prop('checked', checkVal);
+                }
+            });
+            $(".not-enable-portal").prop('checked', false);
         });
         $(".lead_client_attend_all_users ").click(function () {
             if ($('.lead_client_attend_all_users:checked').length == $('.lead_client_attend_all_users').length) {

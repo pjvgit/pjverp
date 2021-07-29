@@ -31,10 +31,17 @@ $finalAmt=$invoice-$paid;
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link " id="profile-basic-tab" data-toggle="tab" href="#fromTrustccount" role="tab"
+        <a class="nav-link " id="trust-account-tab" data-toggle="tab" href="#fromTrustccount" role="tab"
             aria-controls="fromTrustccount" aria-selected="true">From Trust Account
         </a>
     </li>
+    @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+    <li class="nav-item">
+        <a class="nav-link " id="credit-account-tab" data-toggle="tab" href="#fromCreditccount" role="tab"
+            aria-controls="fromCreditccount" aria-selected="true">From Credit Account
+        </a>
+    </li>
+    @endif
 </ul>
 <div class="tab-content" id="myTabContent">
 
@@ -183,7 +190,7 @@ $finalAmt=$invoice-$paid;
             </div>
         </form>
     </div>
-    <div class="tab-pane fade" id="fromTrustccount" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade" id="fromTrustccount" role="tabpanel" aria-labelledby="trust-account-tab">
         <form class="PayInvoiceFromTrustForm" id="PayInvoiceFromTrustForm" name="PayInvoiceFromTrustForm" method="POST">
             @csrf
             <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
@@ -243,6 +250,69 @@ $finalAmt=$invoice-$paid;
                 </a>
                 <button class="btn btn-primary ladda-button example-button m-1 submit" id="submitButton"
                     onclick="trustPaymentConfitmation()" type="button">
+                    Make Payment
+                </button>
+            </div>
+
+        </form>
+    </div>
+    <div class="tab-pane fade" id="fromCreditccount" role="tabpanel" aria-labelledby="credit-account-tab">
+        <form class="PayInvoiceFromCreditForm" id="PayInvoiceFromCreditForm" name="PayInvoiceFromCreditForm" method="POST">
+            @csrf
+            <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label for="firstName1">Select User Account</label>
+                    <select class="form-control" id="from_credit_account" name="credit_account" style="width: 100%;">
+                        <option></option>
+                        <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                            ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
+                        </option>
+                    </select>
+                    <span id="ccaccount"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group mb-3">
+                    <label for="firstName1">Amount</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                        </div>
+                        <input class="form-control number amountCredit" style="width:50%; " maxlength="20" name="amount" id="credit_amount" value="" type="text" max="{{number_format($finalAmt,2)}}" aria-label="Amount (to the nearest dollar)">
+                        <small>&nbsp;</small>
+                        <div class="input-group col-sm-9" id="TypeError"></div>
+                        <span id="cre_amt"></span>
+                    </div>
+                </div>
+                <div class="col-md-2 form-group">
+                    <label for="firstName1">&nbsp;</label>
+                    <label class="checkbox checkbox-outline-primary">
+                        <input type="checkbox" class="payfullCredit" value="{{number_format($finalAmt,2)}}" name="payfull">
+                        <span>Pay in full</span><span class="checkmark"></span>
+                    </label>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="firstName1">Date</label>
+                    <input class="form-control input-date" value="{{date('m/d/Y')}}" maxlength="15" name="payment_date" type="text">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label for="firstName1">Notes</label>
+                    <textarea class="form-control" value="" id="notes" name="notes"></textarea>
+                </div>
+            </div>
+            <hr>
+            <div class="loader-bubble loader-bubble-primary innerLoader" style="display: none;">
+            </div>
+            <div class="form-group row float-right">
+                <a href="#">
+                    <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
+                </a>
+                <button class="btn btn-primary ladda-button example-button m-1 submit" onclick="creditPaymentConfirmation()" type="button">
                     Make Payment
                 </button>
             </div>
@@ -541,4 +611,119 @@ jQuery.validator.addMethod("validAmount", function(value, element) {
     value = value.replace(/,/g, '');
     return (parseFloat(value) <= parseFloat($('#amountFirst').attr("data-payable-amount")));
 }, "Amount exceeds requested balance of ${{number_format($finalAmt,2)}}");
+
+// Validate credit payment form
+$("#PayInvoiceFromCreditForm").validate({
+    rules: {
+        credit_account: {
+            required: true,
+        },
+        amount: {
+            required: true
+        }
+    },
+    messages: {
+        credit_account: {
+            required: "Account is required",
+        },
+        amount: {
+            required: "Amount is required"
+        }
+    },
+    errorPlacement: function (error, element) {
+        if (element.is('#from_credit_account')) {
+            error.appendTo('#ccaccount');
+        } else {
+            element.after(error);
+        }
+    }
+});
+
+$('.payfullCredit').change(function () {
+    if ($(this).is(":checked")) {
+        $(".amountCredit").val($(this).val());
+        $(".amountCredit").attr("readonly", true);
+    } else {
+        $(".amountCredit").val("");
+        $(".amountCredit").removeAttr("readonly");
+    }
+});
+
+// For credit payment
+function creditPaymentConfirmation() {
+    if (!$('#PayInvoiceFromCreditForm').valid()) {
+        afterLoader();
+        return false;
+    } else {
+        didCreditPayment();
+        return false;
+    }
+}
+
+// Credit payment
+function didCreditPayment() {
+    var f= $.number($('.amountCredit ').val(),2);
+    var currentAmt = f;
+    // var currentAmt = $.number($('#amountTrust').val(),2);
+    swal({
+        title: 'Confirm the payment amount of $' + currentAmt + '?',
+        text: "",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0CC27E',
+        cancelButtonColor: '#FF586B',
+        confirmButtonText: 'Confirm Payment',
+        cancelButtonText: 'Close',
+        confirmButtonClass: 'btn btn-success ml-3',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false,
+        reverseButtons: true
+    }).then(function () {
+        beforeLoader();
+        var dataString = '';
+        dataString = $("#PayInvoiceFromCreditForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/save/credit/payment", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&save=yes';
+            },
+            success: function (res) {
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    $('#payInvoice').animate({
+                        scrollTop: 0
+                    }, 'slow');
+                    afterLoader();
+                    return false;
+                } else {
+                    swal('Payment Successful!', res.msg, 'success');
+                    afterLoader();
+                    setTimeout(function () {
+                        $("#payInvoice").modal("hide")
+                    }, 1000);
+                    updateInvoiceDetail();
+                }
+            },
+            error: function (jqXHR, exception) {
+                afterLoader();
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+            },
+        });
+
+    });
+}
 </script>
