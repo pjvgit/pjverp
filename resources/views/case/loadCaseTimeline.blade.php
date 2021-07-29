@@ -228,7 +228,7 @@
                     afterLoader();
                     return false;
                 } else {
-                    // window.location.reload();
+                    window.location.reload();
                 }
             },
             error: function (xhr, status, error) {

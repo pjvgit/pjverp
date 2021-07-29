@@ -3,7 +3,7 @@
 
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/client_dashboard/sendMessage.blade.php">
         <div class="row">
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Send To</label>
