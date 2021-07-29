@@ -4372,7 +4372,11 @@ class BillingController extends BaseController
                         $InvoiceSave->status = "Overdue";
                     }
                 }else{
-                    $InvoiceSave->status = "Partial";
+                    if($InvoiceSave->paid_amount > 0){
+                        $InvoiceSave->status = "Partial";
+                    }else{
+                        $InvoiceSave->status = $request->bill_sent_status;
+                    }
                 }                       
             }
             $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
