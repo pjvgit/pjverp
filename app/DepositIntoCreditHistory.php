@@ -17,4 +17,14 @@ class DepositIntoCreditHistory extends Authenticatable
 
     protected $fillable = ['user_id', 'payment_method', 'deposit_amount', 'payment_date', 'payment_type', 'related_to_invoice_id', 'total_balance', 
             'notes', 'firm_id', 'created_by', 'is_refunded', "refund_ref_id"];
+
+    /**
+     * Get the invoice that owns the DepositIntoCreditHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'related_to_invoice_id');
+    }
 }

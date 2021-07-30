@@ -43,12 +43,16 @@ $(document).ready(function() {
                 // window.location.reload();
             }
         },
+        "drawCallback": function (settings) { 
+            var response = settings.json;
+            $(".credit-total-balance").text(response.credit_total);
+        },
     });
 
     // For Invoices list
-    var tableName = 'billing_invoice_table';
-    var url = $('#'+tableName).attr('data-url');
-    $('#'+tableName).DataTable({
+    var tableName1 = 'billing_invoice_table';
+    var url = $('#'+tableName1).attr('data-url');
+    $('#'+tableName1).DataTable({
         stateSave:true,
         "processing": false,
         // "order": [[1, "desc"]],
@@ -86,11 +90,16 @@ $(document).ready(function() {
             type: "get", // method  , by default get
             // global: false,
             data: function ( d ) {
-                d.client_id = $('#'+tableName).attr('data-client-id');
+                d.client_id = $('#'+tableName1).attr('data-client-id');
             },
             "error":function(){
                 // window.location.reload();
             }
+        },
+        "drawCallback": function (settings) { 
+            var response = settings.json;
+            $(".credit-total-balance").text(response.credit_balance);
+            $(".trust-total-balance").text(response.trust_balance);
         },
     });
 });

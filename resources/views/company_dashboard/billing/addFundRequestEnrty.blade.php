@@ -73,7 +73,7 @@
                             class="col-4 pt-2 d-block ">Email Message</label>
                         <div class="email-notes-wrapper col-8">
                             <textarea name="message"  id="retainer-request-email-notes-el" class="retainer-request-email-message form-control"
-                                placeholder="Type your personal message here...">{{ @getInvoiceSetting()->request_funds_preferences_default_msg }}</textarea>
+                                placeholder="Type your personal message here..."></textarea>
                             <div data-testid="retainer-request-character-counter-container"
                                 id="retainer-request-character-counter-container"
                                 class="helper-text mt-1 text-right text-muted">
@@ -358,6 +358,7 @@
                         $('#minimum-trust-balance').number(true, 2);
                          
                         $("#current-balance-list-down").text(res.minimum_trust_balance);
+                        $("#retainer-request-email-notes-el").text(res.request_default_message);
                         $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
                         $(".text-muted").show();
                         $('#disabledArea').removeClass('retainer-request-opaque');
@@ -380,6 +381,7 @@
                 $("#current-balance").html(res.trust_account_balance);
                 $("#minimum-trust-balance").html(res.minimum_trust_balance);
                 $("#current-balance-list-down").text(res.minimum_trust_balance);
+                $("#retainer-request-email-notes-el").text(res.request_default_message);
                 $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
                 $("#preloader").hide();
             }

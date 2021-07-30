@@ -1,12 +1,15 @@
 <div class="container-fluid mb-12">
     <div class="justify-content-end pt-2 d-print-none row ">
+        <input type="hidden" id="client_id" value="{{ $client_id }}">
         <div class="align-self-end text-right col-6">
-            <a data-toggle="modal" data-target="#exportPDFpopup" data-placement="bottom" href="javascript:;" onclick="exportPDFpopup();"> 
-                <button type="button" class="trust-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
+            <a data-toggle="modal" data-target="#export_credit_popup" data-placement="bottom" href="javascript:;" onclick="exportCreditPDFpopup();"> 
+                <button type="button" class="credit-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
             </a>
+            @if(!empty($userProfile->userCreditAccountHistory) && count($userProfile->userCreditAccountHistory))
             <a data-toggle="modal" data-target="#withdrawFromCredit" data-placement="bottom" href="javascript:;" onclick="withdrawFromCredit();">
                 <button type="button" class="mx-1 btn btn-outline-info">Withdraw from Credit</button>
             </a>
+            @endif
             <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}"> 
                 <button type="button" class="mx-1 btn btn-primary">Deposit into Credit</button>
             </a>

@@ -27,7 +27,7 @@ class CompanydashboardController extends BaseController
         Session::forget('caseLinkToClient');
         Session::forget('clientId');
         $contractUserID=$client_id=$company_id=$id;
-        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->first();
+        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->with("userCreditAccountHistory")->first();
 
         if(empty($userProfile)){
             $User= User::find($id);

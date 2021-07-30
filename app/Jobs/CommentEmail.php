@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\CaseEvent,App\CaseEventLinkedContactLead,App\Firm,App\EmailTemplate,App\CaseEventComment;
+use App\Mail\EventCommentMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+
 class CommentEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -40,13 +44,14 @@ class CommentEmail implements ShouldQueue
      */
     public function handle()
     {
-        $CommonController= new \App\Http\Controllers\CommonController();
-        $BaseController= new \App\Http\Controllers\BaseController();
+        // $CommonController= new \App\Http\Controllers\CommonController();
+        // $BaseController= new \App\Http\Controllers\BaseController();
         $eventData=CaseEvent::find($this->event_id);
         $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$this->event_id)->get();
-        $fromUserData=User::find($this->fromUser);
+        // $fromUserData=User::find($this->fromUser);
 
         $CaseEventComment=CaseEventComment::find($this->CaseEventComment);
+        Log::info("comment handle");
         foreach($CaseEventLinkedContactLead as $k=>$v){
             $firmData=Firm::find($this->firm); 
             if($v->lead_id!=NULL){
@@ -54,8 +59,11 @@ class CommentEmail implements ShouldQueue
             }else{
                 $findUSer=User::find($v->contact_id);
             }   
-            $getTemplateData = EmailTemplate::find(22);
-            $email=$findUSer['email'];
+            $getTemplateData = EmailTemplate::find(25);
+
+            Mail::to($findUSer->email)->send((new EventCommentMail($eventData, $firmData, $findUSer, $getTemplateData)));
+
+            /* $email=$findUSer['email'];
             $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
             $sender=$fromUserData['first_name']." ".$fromUserData['last_name'];
 
@@ -64,7 +72,7 @@ class CommentEmail implements ShouldQueue
             $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($eventData->start_date ." " .$eventData->start_time)),$timezone);
             $Edates=date('m-d-Y h:i A',strtotime($convertedDate));
 
-
+            Log::info($email);
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{email}', $email,$mail_body);
             $mail_body = str_replace('{receiver}', $fullName,$mail_body);
@@ -80,7 +88,7 @@ class CommentEmail implements ShouldQueue
             $mail_body = str_replace('{EmailLinkOnLogo}', QUEUE_BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{url}', QUEUE_BASE_URL."login", $mail_body);  
 
-            $userEmail = [
+            $user = [
                 "from" => FROM_EMAIL,
                 "from_title" => $firmData['firm_name'],
                 "subject" => $getTemplateData->subject,
@@ -88,7 +96,7 @@ class CommentEmail implements ShouldQueue
                 "full_name" => $fullName,
                 "mail_body" => $mail_body
                 ];
-            $sendEmail = $BaseController->sendMail($userEmail);
+            $sendEmail = $BaseController->sendMail($userEmail); */
         }
     }
 }
