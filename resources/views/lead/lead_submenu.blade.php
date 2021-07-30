@@ -7,6 +7,11 @@
             </a>
         </li>
         <li>
+            <a href="" class="{{ Route::currentRouteName()=='' ? 'myactive' : '' }}">
+                Dashboard
+            </a>
+        </li>
+        <li>
             <a href="{{route('leads/tasks')}}" class="{{ Route::currentRouteName()=='leads/tasks' ? 'myactive' : '' }}">
                 Tasks
             </a>
@@ -19,11 +24,6 @@
         <li>
             <a href="{{route('leads/statuses')}}" class="{{ Route::currentRouteName()=='' ? 'myactive' : '' }}">
                 Lead Insight
-            </a>
-        </li>
-        <li>
-            <a href="" class="{{ Route::currentRouteName()=='' ? 'myactive' : '' }}">
-                Dashboard
             </a>
         </li>
     </ul>

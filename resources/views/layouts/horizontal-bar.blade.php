@@ -328,7 +328,11 @@
                                             <span class="item-name">Manage Pipeline</span>
                                         </a>
                                     </li>
-
+                                    <li class="nav-item">
+                                        <a href="{{route('leads/statuses')}}" class="">
+                                            <span class="item-name">Dashboard</span>
+                                        </a>
+                                    </li>
                                     <li class="nav-item">
                                         <a href="{{route('leads/tasks')}}" class="">
                                             <span class="item-name">Tasks</span>
