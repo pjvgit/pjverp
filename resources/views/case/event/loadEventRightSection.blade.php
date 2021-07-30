@@ -49,7 +49,7 @@
     <?php } ?>
     </div>
 </div>
-49
+
 <button type="button" class="btn btn-link" bladeName="resources/views/case/event/loadEventRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
 <div class="sharing-table staff-table-nonlinked" @if(count($caseLinkeSaved) == 0) style="display:none;" @endif>
     <div class="table-responsive">
