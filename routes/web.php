@@ -384,6 +384,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('court_cases/{id}/payment_activity','CaseController@showCaseDetails')->name('payment_activity');
     
     Route::get('court_cases/{id}/communications/messages','CaseController@showCaseDetails')->name('communications/messages');
+    Route::post('court_cases/communications/loadMessagesEntry', 'CaseController@loadMessagesEntry')->name('court_cases/communications/loadMessagesEntry');
     Route::get('court_cases/{id}/communications/calls','CaseController@showCaseDetails')->name('communications/calls');
     Route::get('court_cases/{id}/communications/emails','CaseController@showCaseDetails')->name('communications/emails');
     Route::get('court_cases/{id}/communications/chat_conversations','CaseController@showCaseDetails')->name('communications/chat_conversations');
@@ -795,6 +796,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/clients/deleteProfileImageForm', 'ClientdashboardController@deleteProfileImageForm')->name('contacts/clients/deleteProfileImageForm');
     Route::post('contacts/clients/submitAndSaveImageForm', 'ClientdashboardController@submitAndSaveImageForm')->name('contacts/clients/submitAndSaveImageForm');
     Route::post('contacts/clients/updateProfileImageForm', 'ClientdashboardController@updateProfileImageForm')->name('contacts/clients/updateProfileImageForm');
+    Route::post('contacts/clients/loadMessagesEntryPopup', 'ClientdashboardController@loadMessagesEntryPopup')->name('contacts/clients/loadMessagesEntryPopup');
     
     Route::post('contacts/changeAccess', 'ClientdashboardController@changeAccessFromDashboard');
     Route::post('contacts/sendWelcomeEmailAgain', 'ClientdashboardController@ReSendWelcomeEmail');

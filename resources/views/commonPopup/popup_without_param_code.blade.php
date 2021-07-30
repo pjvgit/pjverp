@@ -304,6 +304,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+<div id="loadMessagesEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">View Message</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="loadMessagesEntryPopupArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="addNoteModal" class="modal fade show" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -1240,6 +1257,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
+
+    function loadMessagesEntryPopup(id, subject) {
+        $("#preloader").show();
+        $("#loadMessagesEntryPopupArea").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/loadMessagesEntryPopup", 
+                data: {"message_id": id},
+                success: function (res) {
+                    $("#loadMessagesEntryPopupArea").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
     function loadAddNotBox() {
         $("#preloader").show();
         $("#addNoteModalArea").html('<img src="{{LOADER}}""> Loading...');

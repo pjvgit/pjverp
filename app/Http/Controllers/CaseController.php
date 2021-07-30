@@ -19,7 +19,7 @@ use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
-use App\FlatFeeEntry;
+use App\FlatFeeEntry,App\Messages;
 use Illuminate\Support\Str;
 use App\Jobs\CommentEmail;
 use App\Jobs\EventReminderEmailJob;
@@ -7572,6 +7572,7 @@ class CaseController extends BaseController
             // CaseNotes::where("case_id", $case_id)->delete();
             // Invoices::where("case_id", $case_id)->delete();
             // CaseEvent::where("case_id", $case_id)->delete();
+            // Messages::where("case_id", $case_id)->delete();
             // CaseMaster::where("id", $case_id)->delete();
 
 
@@ -8161,6 +8162,35 @@ class CaseController extends BaseController
         }else{
             return response()->json(['errors'=>'']);
         }
+    }
+
+    public function loadMessagesEntry(Request $request){
+        $columns = array('id', 'sender_name', 'subject', 'updated_at');
+        $requestData= $_REQUEST;
+        
+        $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
+        ->select('messages.*', DB::raw('CONCAT_WS("-",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'));
+        if(isset($requestData['case_id']) && $requestData['case_id']!=''){
+            $messages = $messages->where("messages.case_id",$requestData['case_id']);
+        }
+
+        $totalData=$messages->count();
+        $totalFiltered = $totalData; 
+
+        $messages = $messages->offset($requestData['start'])->limit($requestData['length']);
+        if(!isset($requestData['order'][0]['dir'])){
+            $requestData['order'][0]['dir']="DESC";
+        }
+        $messages = $messages->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $messages = $messages->get();
+
+        $json_data = array(
+            "draw"            => intval( $requestData['draw'] ),   
+            "recordsTotal"    => intval( $totalData ),  
+            "recordsFiltered" => intval( $totalFiltered ), 
+            "data"            => $messages 
+        );
+        echo json_encode($json_data);  
     }
 }
   

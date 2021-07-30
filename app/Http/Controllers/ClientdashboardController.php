@@ -1643,39 +1643,50 @@ class ClientdashboardController extends BaseController
     public function sendNewMessageToUser(Request $request)
     {
         if(isset($request->send_global) && $request->send_global=="on"){
-            if(isset($request->message['global_lawyers'])){
-                //Get firm user list 
-                $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->get();
-                foreach($loadFirmUser as $k=>$v){
-                    $this->sendMailGlobal($request->all(),$v->id);
-                }
-            
-            
-            }
-            if(isset($request->message['global_clients'])){
-                //Get client list with client enable portal is active
-                $clientLists = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
-                ->select("first_name","last_name","users.id","user_level")
-                ->where("users.user_level",2)
-                ->where("parent_user",Auth::user()->id)
-                ->where("lead_additional_info.client_portal_enable",1)
-                ->get();
-                foreach($clientLists as $k=>$v){
-                    $this->sendMailGlobal($request->all(),$v->id);
-                }
-                
-            }
-            session(['popup_success' => 'Your message has been sent']);
-            return response()->json(['errors'=>'']);
-            exit;   
-        }else{
             $validator = \Validator::make($request->all(), [
-                'send_to' => 'required|array|min:1'
-            ], ['min'=>'No users selected','required'=>'No users selected']);
+                'message' => 'required',
+            ], ['required'=>'No users selected']);
             if ($validator->fails())
             {
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }else{
+                if(isset($request->message['global_lawyers'])){
+                    //Get firm user list 
+                    $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->get();
+                    foreach($loadFirmUser as $k=>$v){
+                        $this->sendMailGlobal($request->all(),$v->id);
+                    }
+                
+                
+                }
+                if(isset($request->message['global_clients'])){
+                    //Get client list with client enable portal is active
+                    $clientLists = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
+                    ->select("first_name","last_name","users.id","user_level")
+                    ->where("users.user_level",2)
+                    ->where("parent_user",Auth::user()->id)
+                    ->where("lead_additional_info.client_portal_enable",1)
+                    ->get();
+                    foreach($clientLists as $k=>$v){
+                        $this->sendMailGlobal($request->all(),$v->id);
+                    }
+                    
+                }
+                session(['popup_success' => 'Your message has been sent']);
+                return response()->json(['errors'=>'']);
+                exit;  
+            } 
+        }else{
+            $validator = \Validator::make($request->all(), [
+                'send_to' => 'required|array|min:1',
+                'case_link' => 'required',
+            ], ['min'=>'No users selected']);
+            if ($validator->fails())
+            {
+                return response()->json(['errors'=>$validator->errors()->all()]);
+            }else{
+
+                // dd($request->all());
                 foreach($request->send_to as $k=>$v){
                     $Messages=new Messages;
                     $decideCode=explode("-",$v);
@@ -1683,6 +1694,8 @@ class ClientdashboardController extends BaseController
                         $Messages->case_id=$decideCode[1];
                     }else{
                         $Messages->user_id=$decideCode[1];
+                        $caseLinkExplode = explode("-",$request->case_link);
+                        $Messages->case_id=$caseLinkExplode[1];                        
                     }
                     if($request->message['private_reply']=="false"){
                         $Messages->replies_is='public';
@@ -3195,6 +3208,17 @@ class ClientdashboardController extends BaseController
             })
             ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount'])
             ->make(true);
+    }
+
+    public function loadMessagesEntryPopup(Request $request){
+        
+        $messagesData = Messages::leftJoin("users","users.id","=","messages.user_id")
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->where('messages.id', $request->message_id)
+        ->first();
+        return view('client_dashboard.viewMessage',compact('messagesData'));   
+        exit;  
     }
 }
   

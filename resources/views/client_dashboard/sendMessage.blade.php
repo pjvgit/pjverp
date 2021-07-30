@@ -448,7 +448,7 @@
                     quill.root.innerHTML = '';
                     // $("#sendEmailsModal").modal("hide");
                     afterLoader()
-                    window.location.reload();
+                    // window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
