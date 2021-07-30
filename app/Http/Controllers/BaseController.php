@@ -11,6 +11,7 @@ use Validator, Response, Mail,Storage,DB;
 use App\User,App\CaseActivity,App\AccountActivity;
 use App\CaseClientSelection,App\ClientActivity,App\UsersAdditionalInfo;
 use App\TaskTimeEntry,App\ExpenseEntry,App\ViewCaseState,App\CaseStaff;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class BaseController extends Controller
 {   
@@ -30,10 +31,12 @@ class BaseController extends Controller
             
             if( count(Mail::failures()) > 0 ) {
                 foreach(Mail::failures() as $email_address) {
+                    \Log::info("failed email:". $email_address);
                     return 0;
                 }
             } else {
                 return 1;
+                Log::info("email sent");
             }
         }
         catch(\Exception $e){

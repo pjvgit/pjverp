@@ -113,6 +113,18 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                         onclick="return false; return false;">$<?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?>
                                     </a>
                                 </div>
+
+                                @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                                <div class="mb-4">
+                                    <div class="font-weight-bold">Non-Trust Credit Balance <span tabindex="0" role="button" data-toggle="popover" data-placement="top" 
+                                        data-trigger="hover" data-html="true"
+                                        data-content="<b>Non-Trust Credit Bank Accounts</b><br> Credit (Operating Account) $<span class='credit-total-balance'>{{ number_format($UsersAdditionalInfo['credit_account_balance'],2)??'0.0' }}</span>">
+                                        <i class="fas fa-info-circle"></i></span>
+                                    </div>
+                                    $<span class="credit-total-balance">{{ number_format($UsersAdditionalInfo['credit_account_balance'],2)??'0.0' }}</span>
+                                </div>
+                                @endif
+
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Minimum Trust Balance:</div>
                                     <div class="input-group">
@@ -169,7 +181,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/companies/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
+                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/messages')}}" >Messages</a>
@@ -283,13 +295,20 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('company_dashboard.loadNotes')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}">
                                     <span> <i class="fas fa-fw fa-landmark mr-2"></i>Trust History</span>
                                 </a>
                             </div>
+                            @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                            <div class="nav-item mr-4">
+                                <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts/company/billing/credit/history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/credit/history')}}">
+                                    <span> <i class="fas fa-fw fa-credit-card mr-2"></i>Credit History</span>
+                                </a>
+                            </div>
+                            @endif
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_company_billing_trust_request_fund"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/request_fund')}}">
                                     <span> <i class="fas fa-fw fa-hand-holding-usd  mr-2"></i> Requested Funds</span>
@@ -306,6 +325,11 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){
                                 ?> @include('company_dashboard.billing.trust_history')
                             <?php } ?>
+                            @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                            @if(Route::currentRouteName() == "contacts/company/billing/credit/history")
+                                @include('client_dashboard.billing.credit_history')
+                            @endif
+                            @endif
                             <?php if(Route::currentRouteName()=="contacts_company_billing_trust_request_fund"){
                                 ?> @include('company_dashboard.billing.requested_fund',compact('totalData'))
                             <?php } ?>
@@ -350,7 +374,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom" href="javascript:;" onclick="AddContactModal();"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/contact.svg" width="60" height="60">
+                                <img src="{{ asset('svg/contact.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">New Contact</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -362,7 +386,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#addExistingContact" data-placement="bottom" href="javascript:;" onclick="addExistingContact();"> 
                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/existing_contacts.svg" width="60" height="60">
+                                <img src="{{ asset('svg/existing_contacts.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">Existing Contact</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -475,7 +499,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" onclick="loadStep1FromCompnay();"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/court_case_add.svg" width="60" height="60">
+                                <img src="{{ asset('svg/court_case_add.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">New Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -487,7 +511,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#addExistingCase" data-placement="bottom" href="javascript:;" onclick="addExistingCase();"> 
                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/exisiting_case.svg" width="60" height="60">
+                                <img src="{{ asset('svg/exisiting_case.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">Existing Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -1054,6 +1078,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
+@include('client_dashboard.billing.credit_history_modal')
 
 <style>
     .ui-dialog-titlebar,
@@ -2445,4 +2470,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
 
 </script>
+<script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

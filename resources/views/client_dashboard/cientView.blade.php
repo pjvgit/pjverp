@@ -102,9 +102,19 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Trust Account:</div>
                                     <a id="link_rate19630204" class="default-rate-link btn btn-link pl-0" href="#"
-                                        onclick="return false; return false;">$<?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?>
+                                        onclick="return false; return false;">$<span class="trust-total-balance"><?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?></span>
                                     </a>
                                 </div>
+                                @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                                <div class="mb-4">
+                                    <div class="font-weight-bold">Non-Trust Credit Balance <span tabindex="0" role="button" data-toggle="popover" data-placement="top" 
+                                        data-trigger="hover" data-html="true"
+                                        data-content="<b>Non-Trust Credit Bank Accounts</b><br> Credit (Operating Account) $<span class='credit-total-balance'>{{ number_format($UsersAdditionalInfo['credit_account_balance'],2)??'0.0' }}</span>">
+                                        <i class="fas fa-info-circle"></i></span>
+                                    </div>
+                                    $<span class="credit-total-balance">{{ number_format($UsersAdditionalInfo['credit_account_balance'],2)??'0.0' }}</span>
+                                </div>
+                                @endif
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Minimum Trust Balance:</div>
                                     <div class="input-group">
@@ -670,7 +680,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" onclick="loadStep1();"> 
                             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/court_case_add.svg" width="60" height="60">
+                                <img src="{{ asset('svg/court_case_add.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">New Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -682,7 +692,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <a data-toggle="modal" data-target="#addExistingCase" data-placement="bottom" href="javascript:;" onclick="addExistingCase();"> 
                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
-                                <img src="{{BASE_URL}}public/svg/exisiting_case.svg" width="60" height="60">
+                                <img src="{{ asset('svg/exisiting_case.svg') }}" width="60" height="60">
                                 <div class="content">
                                     <p class="text-muted mt-2 mb-0">Existing Case</p>
                                     <p class="text-primary text-24 line-height-1 mb-2"></p>
@@ -956,24 +966,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
-<div id="withdrawFromCredit" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depostifundtitle">Withdraw Credit Fund</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span>
-                    </button>
-            </div>
-            <div class="modal-body">
-                <div id="withdrawFromCreditArea">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -1028,38 +1020,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
-{{-- Delete credit history entry popup --}}
-<div id="deleteCreditHistoryEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog">
-        <form class="deleteCreditHistoryEntry" id="deleteCreditHistoryEntryForm" method="POST">
-            @csrf
-            <input type="hidden" value="" name="delete_credit_id" id="delete_credit_id">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Payment</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="showError" style="display:none"></div>
-                    <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
-                            Are you sure you want to delete this payment and remove all record of it from {{config('app.name')}}?
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-md-12  text-center">
-                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
-                        <div class="form-group row float-right">
-                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary ladda-button example-button m-1 submit" type="submit">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 
 <div id="exportPDFpopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -1428,7 +1389,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <div class="col-md-4 pl-2">
                             <div class="current-profile-picture-container">
                                 <?php if($userProfile->is_published=="no"){ ?>
-                                    <img src="{{BASE_URL}}public/svg/default_avatar_256.svg" width="256" height="256">
+                                    <img src="{{ asset('svg/default_avatar_256.svg') }}" width="256" height="256">
                             <?php } else{ ?> 
                                     <div class="current-profile-picture-container">
                                         <img class="" src="{{BASE_URL}}public/profile/{{$userProfile->profile_image}}" width="256" height="256">
@@ -1518,24 +1479,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
-<div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog  modal-lg ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depostifundtitle">Deposit Into Non-Trust Credit Account</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="showError" style="display:none"></div>
-                <div id="loadDepositIntoCreditArea">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@include('client_dashboard.billing.credit_history_modal')
 @include('billing.invoices.partials.invoice_action_modal')
 <style>
     
@@ -3228,89 +3172,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     $('.cropper').on('rcrop-changed', function(){
         var srcResized = $(this).rcrop('getDataURL', 130,130);
         $('#imageCode').val(srcResized);
-    });
-
-    // Withdraw credit fund
-    function withdrawFromCredit() {
-        $("#preloader").show();
-        $("#withdrawFromCreditArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/clients/withdrawFromCredit", 
-                data: {"user_id": "{{$client_id}}"},
-                success: function (res) {
-                    $("#withdrawFromCreditArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    // Refund credit fund
-    function RefundCreditPopup(id) {
-        $("#preloader").show();
-        $("#RefundPopupArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/clients/credit/refundPopup", 
-                data: {"user_id": "{{$client_id}}",'transaction_id':id},
-                success: function (res) {
-                    $("#RefundPopupArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    function deleteCreditEntry(id) {
-        $("#deleteCreditHistoryEntry").modal("show");
-        $("#delete_credit_id").val(id);
-    }
-
-    $('#deleteCreditHistoryEntryForm').submit(function (e) {
-        beforeLoader();
-        e.preventDefault();
-
-        if (!$('#deleteCreditHistoryEntryForm').valid()) {
-            beforeLoader();
-            return false;
-        }
-        var dataString = '';
-        dataString = $("#deleteCreditHistoryEntryForm").serialize();
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/contacts/clients/deleteCreditHistoryEntry", // json datasource
-            data: dataString,
-            beforeSend: function (xhr, settings) {
-                settings.data += '&delete=yes';
-            },
-            success: function (res) {
-                    beforeLoader();
-                    if (res.errors != '') {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                    $.each(res.errors, function (key, value) {
-                        errotHtml += '<li>' + value + '</li>';
-                    });
-                    errotHtml += '</ul></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                    return false;
-                } else {
-                    window.location.reload();
-                }
-            },
-            error: function (xhr, status, error) {
-            $('.showError').html('');
-            var errotHtml =
-                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-            $('.showError').append(errotHtml);
-            $('.showError').show();
-            afterLoader();
-        }
-        });
     });
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>

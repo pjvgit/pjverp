@@ -1261,7 +1261,8 @@ class ClientdashboardController extends BaseController
             $trust_account_balance=number_format($UsersAdditionalInfo->trust_account_balance,2);
             $minimum_trust_balance=number_format($UsersAdditionalInfo->minimum_trust_balance,2);
         }
-        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance]);
+        $requestDefaultMessage = @getInvoiceSetting()->request_funds_preferences_default_msg ?? "";
+        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage]);
         exit;
 
     } 
@@ -2899,7 +2900,8 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("created_at", "desc")->orderBy("id", "desc")->get();
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("created_at", "desc")->orderBy("id", "desc")->with("invoice")->get();
+        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 $action = '';
@@ -2929,7 +2931,7 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->editColumn('related_to_invoice_id', function ($data) {
-                return $data->related_to_invoice_id ?? "--"." ".$data->id;
+                return ($data->related_to_invoice_id) ? '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>' : "--";
             })
             ->editColumn('payment_method', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
@@ -2968,8 +2970,10 @@ class ClientdashboardController extends BaseController
                         <a tabindex="0" class="" role="button" data-toggle="popover" data-html="true" data-placement="bottom" 
                         data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
             })
-            ->rawColumns(['action', 'detail'])
-            ->make(true);
+            ->rawColumns(['action', 'detail', 'related_to_invoice_id'])
+            ->with("credit_total", $userAddInfo->credit_account_balance ?? 0.00)
+            ->make(true)
+            ;
     }
 
     /**
@@ -3132,6 +3136,7 @@ class ClientdashboardController extends BaseController
     public function loadInvoices(Request $request)
     {
         $data = Invoices::where("user_id", $request->client_id)->orderBy("created_at", "desc")->with('invoiceForwardedToInvoice')->get();
+        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
                 $action = '';
@@ -3194,7 +3199,55 @@ class ClientdashboardController extends BaseController
                 return '<a href="'.route("bills/invoices/view", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
             })
             ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount'])
+            ->with("credit_balance", $userAddInfo->credit_account_balance ?? 0.00)
+            ->with("trust_balance", $userAddInfo->trust_account_balance ?? 0.00)
             ->make(true);
+    }
+
+    /**
+     * Export/Download credit history
+     */
+    public function exportCreditHistory(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'from_date'    => 'date|nullable',
+            'to_date'      => 'date|after_or_equal:from_date|nullable',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+                
+            $id=$request->user_id;
+            $firmData=Firm::find(Auth::User()->firm_name);
+            $userData=User::find($id);
+            $country = Countries::get();
+            $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
+            $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$id)->first();
+
+            $creditHistory = DepositIntoCreditHistory::where("user_id", $request->user_id);
+            if(isset($request->from_date) && isset($request->to_date)){
+                $creditHistory = $creditHistory->whereBetween('payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
+            }  
+            $creditHistory = $creditHistory->orderBy('payment_date','asc')->with("invoice")->get();
+
+            $filename='credit_export_'.time().'.pdf';
+            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory'));
+            $pdf = new Pdf;
+            if($_SERVER['SERVER_NAME']=='localhost'){
+                $pdf->binary = EXE_PATH;
+            }
+            $pdf->addPage($PDFData);
+            $pdf->setOptions(['javascript-delay' => 5000]);
+            $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
+            // $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
+            $pdf->saveAs(storage_path("app/public/download/pdf/".$filename));
+            $path = storage_path("app/public/download/pdf/".$filename);
+            // return response()->download($path);
+            // exit;
+            return response()->json([ 'success' => true, "url"=>asset(Storage::url('download/pdf/'.$filename)),"file_name"=>$filename,'errors'=>''], 200);
+            exit;
+        }
     }
 }
   

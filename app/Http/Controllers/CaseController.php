@@ -7250,7 +7250,7 @@ class CaseController extends BaseController
         $eventData=CaseEvent::find($request->event_id);
         $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
         if(!$CaseEventLinkedContactLead->isEmpty()){
-            CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
+            // CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
 
             // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));
 

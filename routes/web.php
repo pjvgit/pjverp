@@ -808,7 +808,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/clients/credit/refundPopup', 'ClientdashboardController@refundCreditPopup')->name('contacts/clients/credit/refundPopup');
     Route::post('contacts/clients/credit/saveRefundPopup', 'ClientdashboardController@saveCreditRefund')->name('contacts/clients/credit/saveRefundPopup');
     Route::post('contacts/clients/deleteCreditHistoryEntry', 'ClientdashboardController@deleteCreditHistoryEntry')->name('contacts/clients/deleteCreditHistoryEntry');
-    // Route::post('contacts/clients/exportPDFpopupForm', 'ClientdashboardController@exportPDFpopupForm')->name('contacts/clients/exportPDFpopupForm');
+    Route::post('contacts/clients/export/credit/history', 'ClientdashboardController@exportCreditHistory')->name('contacts/clients/export/credit/history');
 
     // For client -> billing invoice
     Route::get('contacts/clients/load/invoices', 'ClientdashboardController@loadInvoices')->name('contacts/clients/load/invoices');
@@ -824,6 +824,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('contacts/companies/{id}/billing/invoice', 'CompanydashboardController@companyDashboardView')->name('contacts_company_billing_invoice');
     Route::get('contacts/companies/{id}/messages', 'CompanydashboardController@companyDashboardView')->name('contacts_company_messages');
     Route::get('contacts/companies/{id}/email', 'CompanydashboardController@companyDashboardView')->name('contacts_company_email');
+    Route::get('contacts/companies/{id}/billing/credit/history', 'CompanydashboardController@companyDashboardView')->name('contacts/company/billing/credit/history');
 
     Route::post('contacts/companies/clientLoad', 'CompanydashboardController@clientList');
     Route::post('contacts/companies/clientArchiveLoad', 'CompanydashboardController@clientArchiveList');
