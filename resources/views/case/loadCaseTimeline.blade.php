@@ -39,10 +39,10 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}"></p>
+                <input type="text" id="start_date_{{$key+1}}"   name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}"></p>
+                <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <input type="hidden" name="state_id[{{$key}}]" value="{{$stage['id']}}">
 
@@ -58,7 +58,7 @@
                         $f=0.5;
                     }
                 ?>
-                <input type="text"  class="form-control" name="days[{{$key}}]" disabled value="{{ ($stage['days'] != '' ) ? $stage['days']: $f}}">
+                <input type="text"  class="form-control" id="days_{{$key+1}}"  name="days[{{$key}}]" disabled value="{{ ($stage['days'] != '' ) ? $stage['days']: $f}}">
             </div>
             <div class="col-1">
                 <button type="button" data-testid="row-6-delete-button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link "></button>
@@ -99,7 +99,7 @@
                     $f1=0.5;
                 }
             ?>
-                 <input type="text"  class="form-control" disabled value="{{$f1}}">
+                 <input type="text" class="form-control" disabled value="{{$f1}}">
             </div>
         </div>
         <?php } ?>
@@ -256,7 +256,8 @@
 
         var start = new Date(startDate);
         var end = new Date(endDate);
-        
+        console.log(start +' --> '+end);
+        console.log(Date.parse(start) +'>'+ Date.parse(end));
         if (Date.parse(start) > Date.parse(end)) {
             $("#days_"+cur).val('0');
             $("#end_date_"+cur).val($("#start_date_"+cur).val());

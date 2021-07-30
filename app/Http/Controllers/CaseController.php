@@ -723,11 +723,11 @@ class CaseController extends BaseController
         $CaseMaster->save();
         
         
-        $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$request->status));
-        $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
-        $caseStageHistory->case_id=$CaseMaster->id;
-        $caseStageHistory->created_by=Auth::user()->id; 
-        $caseStageHistory->save();
+        // $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$request->status));
+        // $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
+        // $caseStageHistory->case_id=$CaseMaster->id;
+        // $caseStageHistory->created_by=Auth::user()->id; 
+        // $caseStageHistory->save();
 
         session(['popup_success' => 'Case status has been changed.']);
         return response()->json(['errors'=>'','case_id'=>$CaseMaster->id]);
@@ -7779,13 +7779,18 @@ class CaseController extends BaseController
                     {
                         $errors[$k] = $request->end_date[$k].' is not smaller than '.$request->start_date[$k];                    
                     }      
+                    if(isset($request->start_date[$k+1])){
+                        if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
+                            $errors[$k] = 'Wrong Date selection of next to index of '.($k+1);                    
+                        }
+                    }
                 }
             }
             if(isset($request->case_status) && !empty($request->case_status)){
                 $CaseMaster=CaseMaster::find($request->case_id);
                 foreach($request->case_status as $k=>$v){
                     if($CaseMaster->case_status == $request->case_status[$k]){ 
-                        $errors[$k] = 'The Current Stage is not used again in a case.';                    
+                        $errors[$k] = 'The Current Stage is not used again in index of '.($k+1);                    
                     }
                 }
             }
