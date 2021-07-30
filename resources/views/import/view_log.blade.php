@@ -76,12 +76,13 @@
     </tr>
     <?php 
     $counter=0;
+    print_r($ClientCompanyImportHistory);
     foreach($ClientCompanyImportHistory as $key=>$val){?>
     <tr>
         <td style='color: green; white-space: nowrap;'>
             Success
             <br />
-            <?php if($val['warning_list']!=NULL){?>
+            <?php if($val['warning_list']!=NULL && $val['warning_list'] != '<ul></ul>'){?>
             <span style='color:orange'>(With warnings)</span>
             <?php } ?>
         </td>
