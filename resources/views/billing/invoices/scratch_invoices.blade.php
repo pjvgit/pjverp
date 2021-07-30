@@ -1682,7 +1682,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         var bill_sent_status = $("#bill_sent_status").val();
         var bill_invoice_date  = $("#bill_invoice_date").val();
 
-        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        var openPage = "{{isset($_REQUEST['page']) ? $_REQUEST['page'] : ''}}";
+        if(openPage != ''){
+            var URLS=baseUrl+'/bills/invoices/load_new?page=open&court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        }else{
+            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        }
+
         if(bill_payment_terms != ''){
             URLS+='&bill_payment_terms='+bill_payment_terms;
         }
