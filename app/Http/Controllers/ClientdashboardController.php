@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
-use App\TrustHistory,App\RequestedFund,App\Messages;
+use App\TrustHistory,App\RequestedFund,App\Messages,App\ReplyMessages;
 use mikehaertl\wkhtmlto\Pdf;
 use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
@@ -1689,6 +1689,10 @@ class ClientdashboardController extends BaseController
 
                 // dd($request->all());
                 foreach($request->send_to as $k=>$v){
+                    $text = str_replace('</p>', '', $request->delta);
+                    $msg = explode('<p>', $text);
+                    array_shift($msg);
+
                     $Messages=new Messages;
                     $decideCode=explode("-",$v);
                     if($decideCode[0]=='case'){
@@ -1704,9 +1708,15 @@ class ClientdashboardController extends BaseController
                         $Messages->replies_is='private';
                     }
                     $Messages->subject=$request->subject;
-                    $Messages->message=$request->delta;
+                    $Messages->message=$msg[0];
                     $Messages->created_by =Auth::User()->id;
                     $Messages->save();
+
+                    $ReplyMessages=new ReplyMessages;
+                    $ReplyMessages->message_id=$Messages->id;
+                    $ReplyMessages->reply_message=$request->delta;
+                    $ReplyMessages->created_by =Auth::User()->id;
+                    $ReplyMessages->save();
     
                     if($decideCode[0]=='case'){
                         $caseCllientSelection = CaseClientSelection::select("case_client_selection.selected_user")
@@ -1734,6 +1744,58 @@ class ClientdashboardController extends BaseController
            
         }
     }
+    public function replyMessageToUserCase(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'selected_user_id' => 'required',
+            'selected_case_id' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $text = str_replace('</p>', '', $request->delta);
+            $msg = explode('<p>', $text);
+            array_shift($msg);
+
+            $ReplyMessages=new ReplyMessages;
+            $ReplyMessages->message_id=$request->message_id;
+            $ReplyMessages->reply_message=$request->delta;
+            $ReplyMessages->created_by =Auth::User()->id;
+            $ReplyMessages->save();
+
+            $Messages=Messages::find($request->message_id);
+            $Messages->message=$msg[0];
+            $Messages->save();
+
+            $this->sendMailGlobal($request->all(),$request->selected_user_id);
+            
+            session(['popup_success' => 'Your message has been sent']);
+            return response()->json(['errors'=>'']);
+            exit;       
+        }
+           
+    }
+
+    public function messageInfo(Request $request){
+        $messagesData = Messages::leftJoin("users","users.id","=","messages.user_id")
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->where('messages.id', $request->id)
+        ->first();
+
+        $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
+        ->leftJoin("users","users.id","=","messages.user_id")
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->where('reply_messages.message_id', $request->id)
+        ->get();
+
+        
+        return view('communications.messages.viewMessage',compact('messagesData','messageList'));   
+         
+    }
+
     public function sendMailGlobal($request,$id)
     {
         $firmData=Firm::find(Auth::User()->firm_name);
@@ -1743,7 +1805,7 @@ class ClientdashboardController extends BaseController
         $mail_body = str_replace('{sender}', $senderName, $mail_body);
         $mail_body = str_replace('{subject}', $request['subject'], $mail_body);
         $mail_body = str_replace('{loginurl}', BASE_URL.'login', $mail_body);
-        $mail_body = str_replace('{url}', BASE_URL.'messages/t/'.$id, $mail_body);
+        $mail_body = str_replace('{url}', BASE_URL.'messages/'.$id.'/info', $mail_body);
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -3224,7 +3286,15 @@ class ClientdashboardController extends BaseController
         ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
         ->where('messages.id', $request->message_id)
         ->first();
-        return view('client_dashboard.viewMessage',compact('messagesData'));   
+
+        $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
+        ->leftJoin("users","users.id","=","messages.user_id")
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->where('reply_messages.message_id', $request->message_id)
+        ->get();
+
+        return view('client_dashboard.viewMessage',compact('messagesData','messageList'));   
         exit;  
     }
     /**

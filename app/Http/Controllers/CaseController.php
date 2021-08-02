@@ -8174,7 +8174,7 @@ class CaseController extends BaseController
         $requestData= $_REQUEST;
         
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
-        ->select('messages.*', DB::raw('CONCAT_WS("-",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'));
+        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'));
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
         }

@@ -1,3 +1,14 @@
+------------------------------------ 2-AUG-2021 ------------------------------
+CREATE TABLE `reply_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `message_id` int(11) NULL,
+  `reply_message` text NULL,
+  `created_at` datetime NULL,
+  `created_by` int(11) NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL
+);
+
 ------------------------------------ 30-Jul-2021 ------------------------------
 select `case_master`.`id` AS `id`,(select count(0) from `case_events` where `case_master`.`id` = `case_events`.`case_id`) AS `case_event_counter`,(select count(0) from `task` where `case_master`.`id` = `task`.`case_id`) AS `case_task_counter`,(select count(0) from `task_time_entry` where `case_master`.`id` = `task_time_entry`.`case_id`) AS `case_timeentry_counter`,(select count(0) from `expense_entry` where `case_master`.`id` = `expense_entry`.`case_id`) AS `case_expenseentry_counter`,(select count(0) from `client_notes` where `case_master`.`id` = `client_notes`.`case_id`) AS `case_note_counter`,(select count(0) from `invoices` where `case_master`.`id` = `invoices`.`case_id`) AS `case_invoice_counter`,(select count(0) from `messages` where `case_master`.`id` = `messages`.`case_id`) AS `case_message_counter` from `case_master`
 

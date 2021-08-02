@@ -797,6 +797,7 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/clients/submitAndSaveImageForm', 'ClientdashboardController@submitAndSaveImageForm')->name('contacts/clients/submitAndSaveImageForm');
     Route::post('contacts/clients/updateProfileImageForm', 'ClientdashboardController@updateProfileImageForm')->name('contacts/clients/updateProfileImageForm');
     Route::post('contacts/clients/loadMessagesEntryPopup', 'ClientdashboardController@loadMessagesEntryPopup')->name('contacts/clients/loadMessagesEntryPopup');
+    Route::post('contacts/clients/replyMessageToUserCase', 'ClientdashboardController@replyMessageToUserCase')->name('contacts/clients/replyMessageToUserCase');
     
     Route::post('contacts/changeAccess', 'ClientdashboardController@changeAccessFromDashboard');
     Route::post('contacts/sendWelcomeEmailAgain', 'ClientdashboardController@ReSendWelcomeEmail');
@@ -1129,6 +1130,10 @@ Route::group(['middleware'=>'auth'], function () {
     Route::get('billing/settings/edit/customization', 'BillingSettingController@editCustomization')->name('billing/settings/edit/customization');
     Route::post('billing/settings/update/customization', 'BillingSettingController@updateCustomization')->name('billing/settings/update/customization');
     Route::get('billing/settings/view/customization', 'BillingSettingController@viewCustomization')->name('billing/settings/view/customization');
+
+    //messages
+    Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('messages/info');
+
 });
 
 /**

@@ -310,6 +310,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="depostifundtitle">View Message</h5>
+                    <div style="float: right;">    
+                    <button onclick="printData()" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    </div>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">×</span>
                     </button>
