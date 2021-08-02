@@ -16,6 +16,7 @@ $(document).ready(function() {
         "autoWidth": false,
         "orderCellsTop": true,
         "bPaginate":true,
+        "ordering": false,
         dom: '<"top">rt<"bottom"pl>',
         "columns": [
             { "data": "payment_date"},

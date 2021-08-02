@@ -13,11 +13,12 @@
                     <h3> Invoice #{{$invoiceNo}} </h3>
                     <input type="hidden" value="{{ @$findInvoice->id }}" id="invoice_id">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
-                        @if($findInvoice->status != "Forwarded")
+                        @if($findInvoice->status != "Forwarded" && $findInvoice->status != "Paid")
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->invoice_unique_token}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
-
+                        @endif
+                        @if($findInvoice->status != "Forwarded")
                         <div class="pl-1">
                             {{-- <a class="btn btn-outline-secondary  m-1" href="{{BASE_URL}}bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}">Edit</a> --}}
                             <a class="btn btn-outline-secondary  m-1" href="{{ route('bills/invoices/edit', base64_encode($findInvoice->id)) }}?token={{base64_encode($findInvoice->id)}}">Edit</a>

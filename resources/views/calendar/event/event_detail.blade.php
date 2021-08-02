@@ -166,7 +166,7 @@
                                                             <div class="d-flex flex-row">
                                                                 <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
                                                                     class="d-flex align-items-center user-link"
-                                                                    title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                                    title="{{@$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                                     {{substr($vstaff->last_name,0,15)}}
                                                                     (Client)</a>
                                                             </div>

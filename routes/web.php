@@ -1033,6 +1033,8 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('bills/invoices/applyTrustBalanceForm', 'BillingController@applyTrustBalanceForm')->name('bills/invoices/applyTrustBalanceForm');
     Route::post('bills/invoices/trustBalanceResponse', 'BillingController@trustBalanceResponse')->name('bills/invoices/trustBalanceResponse');
     Route::post('bills/invoices/save/credit/payment', 'BillingController@saveInvoicePaymentFromCredit')->name('bills/invoices/save/credit/payment');
+    Route::post('bills/invoices/applyCreditBalanceForm', 'BillingController@applyCreditBalanceForm')->name('bills/invoices/applyCreditBalanceForm');
+    Route::post('bills/invoices/creditBalanceResponse', 'BillingController@creditBalanceResponse')->name('bills/invoices/creditBalanceResponse');
 
     //Account Activity
     Route::get('bills/account_activity', 'BillingController@account_activity')->name('bills/account_activity');

@@ -585,6 +585,7 @@ $finalAmt=$invoice-$paid;
                             $("#payInvoice").modal("hide")
                         }, 1000);
                         $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                        $('#invoiceGrid').DataTable().ajax.reload(null, false);
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -706,6 +707,7 @@ function didCreditPayment() {
                         $("#payInvoice").modal("hide")
                     }, 1000);
                     $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                    $('#invoiceGrid').DataTable().ajax.reload(null, false);
                     updateInvoiceDetail();
                 }
             },

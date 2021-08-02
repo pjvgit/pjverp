@@ -181,7 +181,7 @@
                                                 @forelse ($evetData->eventLinkedContact as $key => $item)
                                                 <div class="col-8">
                                                     <div class="d-flex flex-row">
-                                                        <a href="{{ route('contacts/clients/view', base64_encode($item->id)) }}" class="d-flex align-items-center user-link">
+                                                        <a href="{{ route('contacts/clients/view', $item->id) }}" class="d-flex align-items-center user-link">
                                                             {{substr($item->full_name,0,15)}} ({{ userLevelList()[$item->user_level] }})</a>
                                                     </div>
                                                 </div>

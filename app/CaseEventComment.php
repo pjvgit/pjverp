@@ -14,4 +14,14 @@ class CaseEventComment extends Model
     protected $fillable = [
         'id', 'event_id', 'comment','created_by', 'created_at'
     ];
+
+    /**
+     * Get the createdByUser that owns the CaseEventComment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

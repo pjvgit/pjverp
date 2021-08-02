@@ -623,7 +623,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                         <li>{{$caseStat->case_event_counter}} events</li>
                                         <li>0 documents</li>
                                         <li>{{$caseStat->case_task_counter}} tasks</li>
-                                        <li>{{$caseStat->case_message_counter }} messages</li>
+                                        <li>{{ @$caseStat->case_message_counter }} messages</li>
                                         <li>{{$caseStat->case_note_counter}} note</li>
                                         <li>{{$caseStat->case_timeentry_counter}} time entry</li>
                                         <li>{{$caseStat->case_expenseentry_counter}} expense</li>

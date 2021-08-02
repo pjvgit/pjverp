@@ -47,11 +47,34 @@ class CommentEmail implements ShouldQueue
         // $CommonController= new \App\Http\Controllers\CommonController();
         // $BaseController= new \App\Http\Controllers\BaseController();
         $eventData=CaseEvent::find($this->event_id);
-        $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$this->event_id)->get();
+        // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$this->event_id)->get();
         // $fromUserData=User::find($this->fromUser);
-
-        $CaseEventComment=CaseEventComment::find($this->CaseEventComment);
+        $firmData=Firm::find($this->firm); 
+        $getTemplateData = EmailTemplate::find(25);
+        $caseEventComment = CaseEventComment::whereId($this->CaseEventComment)->with("createdByUser")->first();
+        $caseEvent = CaseEvent::whereId($this->event_id)->with("eventLinkedStaff", "eventLinkedContact", "eventLinkedLead")->first();
+        if($caseEvent) {
+            if($caseEvent->eventLinkedStaff) {
+                Log::info("event linked staff");
+                foreach($caseEvent->eventLinkedStaff as $key => $item) {
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                }
+            }
+            if($caseEvent->eventLinkedContact) {
+                Log::info("event contact staff");
+                foreach($caseEvent->eventLinkedContact as $key => $item) {
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                }
+            }
+            if($caseEvent->eventLinkedLead) {
+                Log::info("event linked lead");
+                foreach($caseEvent->eventLinkedLead as $key => $item) {
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                }
+            }
+        }
         Log::info("comment handle");
+        /* $CaseEventComment=CaseEventComment::find($this->CaseEventComment);
         foreach($CaseEventLinkedContactLead as $k=>$v){
             $firmData=Firm::find($this->firm); 
             if($v->lead_id!=NULL){
@@ -63,7 +86,7 @@ class CommentEmail implements ShouldQueue
 
             Mail::to($findUSer->email)->send((new EventCommentMail($eventData, $firmData, $findUSer, $getTemplateData)));
 
-            /* $email=$findUSer['email'];
+            $email=$findUSer['email'];
             $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
             $sender=$fromUserData['first_name']." ".$fromUserData['last_name'];
 
@@ -96,7 +119,7 @@ class CommentEmail implements ShouldQueue
                 "full_name" => $fullName,
                 "mail_body" => $mail_body
                 ];
-            $sendEmail = $BaseController->sendMail($userEmail); */
-        }
+            $sendEmail = $BaseController->sendMail($userEmail);
+        } */
     }
 }
