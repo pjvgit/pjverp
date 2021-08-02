@@ -32,20 +32,38 @@
         <hr>
         <?php } ?>
         <div id="apply-funds-failures">
-            <div>
-                <b>Funds were not applied to the following invoices:</b>
-            </div><br>
-            <ul>
-                <?php foreach($NonSavedInvoices as $k=>$v){?>
-                <li>{{sprintf('%06d', $v->id)}} ({{$v->case_title}})</li>
-                <?php } ?>
-            </ul>
-            <div>Funds cannot be applied to invoices if
-                1) it is forwarded,
-                2) there is no trust account,
-                3) the associated trust account has insufficient funds,
-                or 4) the associated case has multiple trust accounts.
-            </div>
+            @if(isset($fund_type) && $fund_type == "credit")
+                <div>
+                    <b>Funds were not applied to the following invoices:</b>
+                </div><br>
+                <ul>
+                    @foreach($NonSavedInvoices as $k=>$v)
+                        <li>{{sprintf('%06d', $v->id)}}</li>
+                    @endforeach
+                </ul>
+                <div>
+                    Funds cannot be applied to invoices if 
+                    1) it is forwarded, 
+                    2) there is no credit account, 
+                    3) the associated credit account has insufficient funds, or 
+                    4) the associated case has multiple credit accounts.
+                </div>
+            @else
+                <div>
+                    <b>Funds were not applied to the following invoices:</b>
+                </div><br>
+                <ul>
+                    <?php foreach($NonSavedInvoices as $k=>$v){?>
+                    <li>{{sprintf('%06d', $v->id)}} ({{$v->case_title}})</li>
+                    <?php } ?>
+                </ul>
+                <div>Funds cannot be applied to invoices if
+                    1) it is forwarded,
+                    2) there is no trust account,
+                    3) the associated trust account has insufficient funds,
+                    or 4) the associated case has multiple trust accounts.
+                </div>
+            @endif
         </div>
     </div>
 </div>

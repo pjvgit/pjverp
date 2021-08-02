@@ -71,7 +71,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <div class="collapse show">
                         <div class="py-3 pl-2">
                             <?php
-                                
+                                if(!empty($staffData)) {
                                  foreach($staffData as $k1=>$v1){?>
                                 <style>
                                     .checkbox-outline-staff-{{$k1}} .checkmark {
@@ -100,7 +100,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             value="{{$v1->id}}"><span>{{$v1->first_name}} {{$v1->last_name}}</span><span class="checkmark"></span>
                                     </label>
                                 <?php } ?>
-                            <?php } ?>
+                            <?php } } ?>
                         </div>
                     </div>
                 </div>
@@ -125,6 +125,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <span>Select All</span><span class="checkmark"></span>
                             </label>
                             <div class="cp-checkbox-container mt-1 ml-2">
+                                @if(!empty($EventType))
                                 <?php foreach($EventType as $k=>$v){?>
                                     <style>
                                         .checkbox-outline-{{$k}} .checkmark {
@@ -144,7 +145,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         value="{{$v->id}}"><span>{{$v->title}}</span><span class="checkmark"></span>
                                 </label>
                                 <?php } ?>
-
+                                @endif
                             </div>
                         <button type="button" class="edit-event-types-calendar-picker btn btn-link"><i
                                 aria-hidden="true" class="fa fa-plus icon-plus icon"></i><span

@@ -7247,10 +7247,10 @@ class CaseController extends BaseController
         $CaseEventComment->created_by=Auth::user()->id; 
         $CaseEventComment->save();
 
-        $eventData=CaseEvent::find($request->event_id);
-        $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
-        if(!$CaseEventLinkedContactLead->isEmpty()){
-            // CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
+        // $eventData=CaseEvent::find($request->event_id);
+        // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
+        // if(!$CaseEventLinkedContactLead->isEmpty()){
+            CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
 
             // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));
 
@@ -7298,7 +7298,7 @@ class CaseController extends BaseController
             //         ];
             //     $sendEmail = $this->sendMail($userEmail);
             //}
-        }
+        // }
         return response()->json(['errors'=>'']);
         exit;    
     }

@@ -219,6 +219,9 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                                     <button type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="applyTrustBalance();">Apply Trust Funds
                                                     </button>
+                                                    <button type="button" tabindex="0" role="menuitem"
+                                                        class="dropdown-item" onclick="applyCreditBalance();">Apply Credit Funds
+                                                    </button>
                                                     <div tabindex="-1" class="dropdown-divider"></div><button
                                                         type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="downloadBulkInvoice();">Export as PDF</button><button
@@ -807,7 +810,7 @@ td,th{
 </div>
 
 
-<div id="trustFundNotApplied" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+<div id="creditFundNotApplied" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -817,7 +820,7 @@ td,th{
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <div class="modal-body" id="trustFundNotAppliedArea">
+            <div class="modal-body" id="creditFundNotAppliedArea">
                 
             </div>
             <div class="modal-footer">
@@ -854,6 +857,67 @@ td,th{
         </div>
     </div>
 </div>
+
+{{-- For credit funds --}}
+<div id="applyCreditBalancePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="applyCreditBalanceForm" id="applyCreditBalanceForm" name="applyCreditBalanceForm" method="POST">
+            @csrf
+            <input type="hidden" name="status" value="" id="current_status">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Apply Credit Balances to Invoices</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 form-group mb-3">
+                            Are you sure you want to apply credit balances to these invoices?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" type="submit">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="trustFundNotApplied" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Funds Summary</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body" id="trustFundNotAppliedArea">
+                
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12  text-center">
+                    <div class="form-group row float-right">
+                        <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
@@ -1527,11 +1591,102 @@ td,th{
         $(".filterBy").submit();
     });
 
-    $('#adjustmentNotApplied,#trustFundNotApplied,#invoiceNotDeleted').on('hidden.bs.modal', function () {
+    $('#adjustmentNotApplied,#trustFundNotApplied,#invoiceNotDeleted,#creditFundNotApplied').on('hidden.bs.modal', function () {
         window.location.reload();
     });
 
-    
+    // For apply credit fund
+    function applyCreditBalance() {
+        $("#applyCreditBalancePopup").modal("show");
+    }
+
+    $('#applyCreditBalanceForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+
+        if (!$('#applyCreditBalanceForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var array = [];
+        $("input[class=task_checkbox]:checked").each(function (i) {
+            array.push($(this).val());
+        });
+        var dataString = '';
+        dataString = $("#applyCreditBalanceForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/applyCreditBalanceForm", // json datasource
+            data: dataString + '&invoice_id=' + JSON.stringify(array),
+            beforeSend: function (xhr, settings) {
+                settings.data += '&bulk_action=yes';
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    appliedCredit(res);
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
+    });
+
+    function appliedCredit(res) {
+        $("#applyCreditBalancePopup").modal("hide");
+       $("#creditFundNotApplied").modal("show");
+       $("#creditFundNotAppliedArea").html('<img src="{{LOADER}}"> Loading...');
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/creditBalanceResponse", 
+            data: {"response":res},
+            success: function (res) {
+                if(typeof(res.errors) != "undefined" && res.errors !== null) {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal server error. Please reload the screen.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    $("#preloader").hide();
+                    $("#creditFundNotAppliedArea").html('');
+                    return false;
+                } else {
+                    afterLoader()
+                    $("#creditFundNotAppliedArea").html(res);
+                    $("#preloader").hide();
+                    return true;
+                }
+            },error: function (xhr, status, error) {
+                $("#preloader").hide();
+                $("#creditFundNotAppliedArea").html('');
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        })
+    }
 </script>
 @stop
 @endsection

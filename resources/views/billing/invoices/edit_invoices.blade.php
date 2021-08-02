@@ -1288,7 +1288,7 @@
                                                         @forelse ($findInvoice->applyTrustFund as $key => $item)
                                                         <tr class="apply-funds-row">
                                                             <td class="apply-funds-client">
-                                                                <input type="text" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                                <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                                 <span>{{ @$item->client->full_name }}</span></td>
                                                             <td class="apply-funds-account">
                                                                 <div>Trust (Trust Account)</div>
@@ -1363,7 +1363,7 @@
                                                     @forelse ($findInvoice->applyCreditFund as $key => $item)
                                                     <tr class="apply-funds-row">
                                                         <td class="apply-funds-client">
-                                                            <input type="text" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                            <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                             <span>{{ @$item->client->full_name }}</span></td>
                                                         <td class="apply-funds-account">
                                                             <div>Credit (Operating Account)</div>

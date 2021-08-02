@@ -4462,7 +4462,11 @@ class BillingController extends BaseController
 
             session(['invoiceUpdate' => true]);
 
-        // print_r($request->all());exit;
+            $InvoiceSave->refresh();
+            if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0) {
+                $InvoiceSave->status = "Partial";
+                $InvoiceSave->save();
+            }
 
 
             $invoiceHistory=[];
@@ -5701,7 +5705,7 @@ class BillingController extends BaseController
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$Invoices['user_id'])->first();
 
                 //Get the trust account balance and invoice due amount
-                if($userData['trust_account_balance']>0 && $Invoices->status != "Forwarded")
+                if($userData['trust_account_balance']>0 && $Invoices->status != "Forwarded" && $Invoices->status != "Paid")
                 {
                     if($finalAmt >= $userData['trust_account_balance'] ){
                         $trustAccountAmount=0;
@@ -6988,6 +6992,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            dbStart();
             $userAddInfo = UsersAdditionalInfo::where("user_id", $request->non_trust_account)->first();
 
             $DepositIntoCreditHistory=new DepositIntoCreditHistory;
@@ -7003,12 +7008,6 @@ class BillingController extends BaseController
             $DepositIntoCreditHistory->created_at=date('Y-m-d H:i:s');                
             $DepositIntoCreditHistory->save();
 
-            //Deposit into trust account
-            /* $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->non_trust_account)->first();
-            DB::table('users_additional_info')->where("user_id",$request->non_trust_account)->update([
-                'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
-            ]); */
-
             // Deposit into credit account
             if($userAddInfo) {
                 $userAddInfo->fill([
@@ -7016,6 +7015,25 @@ class BillingController extends BaseController
                 ])->save();
             }
 
+            /* $creditHistory = DepositIntoCreditHistory::where("user_id", $request->non_trust_account)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
+            foreach($creditHistory as $key => $item) {
+                $previous = $creditHistory->get(--$key);  
+                $currentBal = 0;
+                if($previous) {
+                    $currentBal = $previous->total_balance;
+                }
+                if($item->payment_type == "deposit") {
+                    $currentBal = $currentBal + $item->deposit_amount;
+                } else if($item->payment_type == "withdraw") {
+                    $currentBal = $currentBal - $item->deposit_amount;
+                } else if($item->payment_type == "payment") {
+                    $currentBal = $currentBal - $item->deposit_amount;
+                }
+                $item->total_balance = $currentBal;
+                $item->save();
+            } */
+
+            dbCommit();
             $firmData=Firm::find(Auth::User()->firm_name);
             $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
             // all good
@@ -8334,7 +8352,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            DB::beginTransaction();
+            dbStart();
             try {
                 $authUser = auth()->user();
                 //Insert invoice payment record.
@@ -8380,7 +8398,7 @@ class BillingController extends BaseController
                     "firm_id" => $authUser->firm_name,
                 ]);
 
-                DB::commit();
+                dbCommit();
                 //Response message
                 $firmData=Firm::find($authUser->firm_name);
                 $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
@@ -8471,6 +8489,194 @@ class BillingController extends BaseController
             }
             return response()->json(['errors'=>'','msg'=>$msg]);
             exit;   
+        }
+    }
+
+    /**
+     * Apply credit balance
+     */
+    public function applyCreditBalanceForm(Request $request)
+    {
+        // return $request->all();
+        $request->merge([
+            'invoice_id' => ($request->invoice_id!="[]") ? $request->invoice_id : NULL
+        ]);
+        $validator = \Validator::make($request->all(), [
+            'invoice_id' => 'required|json',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $data = json_decode(stripslashes($request->invoice_id));
+            $notSavedInvoice=$savedInvoice=[];
+            $authUser = auth()->user();
+            foreach($data as $k1=>$v1){
+                dbStart();
+                $Invoices=Invoices::find($v1);
+                $invoice_id=$Invoices['id'];
+                $finalAmt = $Invoices['total_amount'] - $Invoices['paid_amount'];
+
+                $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"credit_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$Invoices['user_id'])->first();
+
+                //Get the credit account balance and invoice due amount
+                if($userData['credit_account_balance']>0 && $Invoices->status != "Forwarded" && $Invoices->status != "Paid")
+                {
+                    if($finalAmt >= $userData['credit_account_balance'] ){
+                        $creditAccountAmount=0;
+                        $finalAmt = $userData['credit_account_balance'];
+                    }else{
+                        $creditAccountAmount=($userData['credit_account_balance']-$finalAmt);
+                    }
+                    //Insert invoice payment record.
+                    $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","credit")->orderBy("created_at","DESC")->first();
+                
+                    $InvoicePayment = InvoicePayment::create([
+                        'invoice_id' => $Invoices->id,
+                        'payment_from' => 'credit',
+                        'amount_paid' => @$Invoices->due_amount ?? 0,
+                        'payment_date' => date('Y-m-d'),
+                        'notes' => $request->notes,
+                        'status' => "0",
+                        'entry_type' => "0",
+                        'payment_from_id' => $Invoices['user_id'],
+                        'deposit_into' => "Operating Account",
+                        'total' => (@$currentBalance['total'] ?? 0 + $Invoices->due_amount),
+                        'firm_id' => $authUser->firm_name,
+                        'created_by' => $authUser->id,
+                    ]);
+                    $InvoicePayment->fill(['ip_unique_id' => Hash::make($InvoicePayment->id)])->save();
+                
+                    //Deduct invoice amount when payment done
+                    $this->updateInvoiceAmount($Invoices->id);
+
+                    // Deduct amount from credit account after payment.
+                    $userAddInfo = UsersAdditionalInfo::where("user_id", $Invoices['user_id'])->first();
+                    if($userAddInfo) {
+                        $userAddInfo->fill([
+                            'credit_account_balance' => $creditAccountAmount
+                        ])->save();
+                    }
+                        
+                    // Add credit history
+                    DepositIntoCreditHistory::create([
+                        "user_id" => $Invoices['user_id'],
+                        "payment_method" => "payment",
+                        "deposit_amount" => $Invoices->due_amount ?? 0,
+                        "payment_date" => date('Y-m-d'),
+                        "payment_type" => "payment",
+                        "total_balance" => $userAddInfo->credit_account_balance,
+                        "related_to_invoice_id" => $Invoices->id,
+                        "created_by" => $authUser->id,
+                        "firm_id" => $authUser->firm_name,
+                    ]);
+
+                    dbCommit();
+                    //Response message
+                    $firmData=Firm::find(Auth::User()->firm_name);
+                    $msg="Thank you. Your payment of $".number_format($finalAmt,2)." has been sent to ".$firmData['firm_name']." ";
+                    // all good
+
+
+                    $invoiceHistory=[];
+                    $invoiceHistory['invoice_id']=$invoice_id;
+                    $invoiceHistory['acrtivity_title']='Payment Received';
+                    $invoiceHistory['pay_method']='Trust';
+                    $invoiceHistory['amount']=$finalAmt;
+                    $invoiceHistory['responsible_user']=Auth::User()->id;
+                    $invoiceHistory['deposit_into']='Operating Account';
+                    $invoiceHistory['deposit_into_id']=($userData['user_id'])??NULL;
+                    $invoiceHistory['invoice_payment_id']=$InvoicePayment->id;
+                    $invoiceHistory['notes']=NULL;
+                    $invoiceHistory['status']="1";
+                    $invoiceHistory['created_by']=Auth::User()->id;
+                    $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                    $this->invoiceHistory($invoiceHistory);
+
+
+                    //Add Invoice history
+                    $InvoiceData=Invoices::find($invoice_id);
+                    $data=[];
+                    $data['case_id']=$InvoiceData['case_id'];
+                    $data['user_id']=$InvoiceData['user_id'];
+                    $data['activity']='accepted a payment of $'.number_format($finalAmt,2).' (Credit)';
+                    $data['activity_for']=$InvoiceData['id'];
+                    $data['type']='invoices';
+                    $data['action']='pay';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+
+
+                    //Get previous amount
+                    $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","credit")->orderBy("id","DESC")->first();
+                    $activityHistory=[];
+                    $activityHistory['user_id']=$InvoiceData['user_id'];
+                    $activityHistory['related_to']=$InvoiceData['id'];
+                    $activityHistory['case_id']=$InvoiceData['case_id'];
+                    $activityHistory['credit_amount']=0.00;
+                    $activityHistory['debit_amount']=$finalAmt;
+                    $activityHistory['total_amount']= ($AccountActivityData && $AccountActivityData['total_amount']) ? $AccountActivityData['total_amount']-$finalAmt : 0;
+                    $activityHistory['entry_date']=date('Y-m-d');
+                    $activityHistory['notes']=NULL;
+                    $activityHistory['status']="unsent";
+                    $activityHistory['pay_type']="credit";
+                    $activityHistory['firm_id']=Auth::User()->firm_name;
+                    $activityHistory['section']="invoice";
+                    $activityHistory['created_by']=Auth::User()->id;
+                    $activityHistory['created_at']=date('Y-m-d H:i:s');
+                    $this->saveAccountActivity($activityHistory);
+
+                    
+                    //Get previous amount
+                    $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                    $activityHistory=[];
+                    $activityHistory['user_id']=$InvoiceData['user_id'];
+                    $activityHistory['related_to']=$InvoiceData['id'];
+                    $activityHistory['case_id']=$InvoiceData['case_id'];
+                    $activityHistory['debit_amount']=0.00;
+                    $activityHistory['credit_amount']=$finalAmt;
+                    $activityHistory['total_amount']= ($AccountActivityData) ? $AccountActivityData['total_amount']+$finalAmt : 0;
+                    $activityHistory['entry_date']=date('Y-m-d');
+                    $activityHistory['notes']=NULL;
+                    $activityHistory['status']="unsent";
+                    $activityHistory['pay_type']="client";
+                    $activityHistory['from_pay']="credit";
+                    $activityHistory['firm_id']=Auth::User()->firm_name;
+                    $activityHistory['section']="invoice";
+                    $activityHistory['created_by']=Auth::User()->id;
+                    $activityHistory['created_at']=date('Y-m-d H:i:s');
+                    $this->saveAccountActivity($activityHistory);
+                    $savedInvoice[]=$invoice_id;
+                }else{
+                    $notSavedInvoice[]=$invoice_id;
+                }
+            }
+            return response()->json(['errors'=>'','savedInvoice'=>$savedInvoice,'notSavedInvoice'=>$notSavedInvoice, 'fund_type' => 'credit']);
+            exit;  
+        } 
+    }
+
+    /**
+     * Appled credit balance response
+     */
+    public function creditBalanceResponse(Request $request)
+    {
+        $id=Auth::user()->id;
+         $user = User::find($id);
+         $savedInvoice=[];
+        if(!empty($user)){
+            $appliedInvoice= (isset($request->response['savedInvoice'])) ? $request->response['savedInvoice'] : [];
+            $nonappliedInvoice= (isset($request->response['notSavedInvoice'])) ? $request->response['notSavedInvoice'] : [];
+
+            $SavedInvoices = Invoices::whereIn("id",$appliedInvoice)->with("case", "portalAccessUserAdditionalInfo")->get();
+           
+            $NonSavedInvoices=Invoices::select("case_master.case_title","invoices.id")->whereIn("invoices.id",$nonappliedInvoice);
+            $NonSavedInvoices=$NonSavedInvoices->leftJoin("case_master","case_master.id","=","invoices.case_id");
+            $NonSavedInvoices=$NonSavedInvoices->get();
+            $fund_type = $request->fund_type;
+            return view('billing.invoices.trustBalanceAppliedResult',compact('SavedInvoices','NonSavedInvoices', 'fund_type'));
+        }else{
+            return view('pages.404');
         }
     }
 }
