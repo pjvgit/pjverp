@@ -409,7 +409,7 @@ class HomeController extends BaseController
             ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", "users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
             ->where("all_history.firm_id",Auth::User()->firm_name);
             if(isset($request->user_id)){
-                $commentData=$commentData->where("user_id",$request->user_id);
+                $commentData=$commentData->where("all_history.user_id",$request->user_id);
             }
             $commentData=$commentData->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
