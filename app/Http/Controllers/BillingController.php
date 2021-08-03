@@ -3562,6 +3562,7 @@ class BillingController extends BaseController
                             "related_to_invoice_id" => $InvoiceSave->id,
                             "created_by" => auth()->id(),
                             "firm_id" => auth()->user()->firm_name,
+                            "related_to_invoice_payment_id" => $InvoicePayment->id,
                         ]);
 
                         $invoiceHistory=[];
@@ -5212,6 +5213,34 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
+                $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $GetAmount->invoice_payment_id)->first();
+                if($creditHistory) {
+                    $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
+                    if($creditHistory->payment_type == "payment") {
+                        $fund_type='refund payment';
+                        $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+                    }
+                    $UsersAdditionalInfo->refresh();
+                    $creditHistory->is_refunded="yes";
+                    $creditHistory->save();
+        
+                    $depCredHis = DepositIntoCreditHistory::create([
+                        "user_id" => $creditHistory->user_id,
+                        "deposit_amount" => $request->amount,
+                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                        "payment_method" => "refund",
+                        "payment_type" => $fund_type,
+                        "total_balance" => $UsersAdditionalInfo->credit_account_balance,
+                        "notes" => $request->notes,
+                        "refund_ref_id" => $creditHistory->id,
+                        "created_by" => auth()->id(),
+                        "firm_id" => auth()->user()->firm_name,
+                        "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
+                        "related_to_invoice_payment_id" => $entryDone,
+                    ]);
+
+                    $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                }
             }else{
                 //Insert invoice payment record.
                 $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Trust Account")->orderBy("created_at","DESC")->first();
@@ -5244,20 +5273,9 @@ class BillingController extends BaseController
             }
             $invoiceHistory['invoice_payment_id']=$entryDone;
             $this->invoiceHistory($invoiceHistory);
-            $allPayment = InvoicePayment::where("invoice_id", $findInvoice['id'])->get();
-            $totalPaid = $allPayment->sum("amount_paid");
-            $totalRefund = $allPayment->sum("amount_refund");
-            $remainPaidAmt = ($totalPaid - $totalRefund);
-            if($remainPaidAmt == 0) {
-                $status="Unsent";
-            } else {
-                $status="Partial";
-            }
-            DB::table('invoices')->where("id", $findInvoice['id'])->update([
-                'paid_amount'=>$remainPaidAmt,
-                'due_amount'=>($findInvoice['total_amount'] - $remainPaidAmt),
-                'status'=>$status,
-            ]);
+
+            // Update invoice status and paid/due amount
+            $this->updateInvoiceAmount($findInvoice['id']);
 
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
@@ -5293,6 +5311,18 @@ class BillingController extends BaseController
             $PaymentMaster->save();
 
             $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
+            $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
+            if($creditHistory) {
+                if($creditHistory->payment_type == "refund payment") {
+                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->save();
+                } else {
+                    UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+                }
+                $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                $creditHistory->delete();
+            }
             if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
                 $invoicePayment->delete();
                 $this->updateInvoiceAmount($PaymentMaster->invoice_id);
@@ -5313,7 +5343,7 @@ class BillingController extends BaseController
     /**
      * Update invoice paid/due amount and status
      */
-    public function updateInvoiceAmount($invoiceId)
+    /* public function updateInvoiceAmount($invoiceId)
     {
         $invoice = Invoices::whereId($invoiceId)->first();
         $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
@@ -5332,7 +5362,7 @@ class BillingController extends BaseController
             'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
             'status'=>$status,
         ])->save();
-    }
+    } */
 
     public function InvoiceHistoryInlineView(Request $request)
     {
@@ -8382,6 +8412,7 @@ class BillingController extends BaseController
                     "related_to_invoice_id" => $InvoiceData->id,
                     "created_by" => $authUser->id,
                     "firm_id" => $authUser->firm_name,
+                    "related_to_invoice_payment_id" => $InvoicePayment->id,
                 ]);
 
                 dbCommit();
@@ -8555,6 +8586,7 @@ class BillingController extends BaseController
                         "related_to_invoice_id" => $Invoices->id,
                         "created_by" => $authUser->id,
                         "firm_id" => $authUser->firm_name,
+                        "related_to_invoice_payment_id" => $InvoicePayment->id,
                     ]);
 
                     dbCommit();
