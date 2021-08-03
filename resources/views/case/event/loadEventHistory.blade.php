@@ -69,7 +69,7 @@ $userTypes = unserialize(USER_TYPE);
         </p>
     </div>
     <?php  } ?>
-    @if($eventCreatedBy != ''))
+    @if($eventCreatedBy != '')
     <div class="history-info col-8">
         <span>Event added by
             <a class=""

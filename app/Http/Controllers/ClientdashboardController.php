@@ -20,22 +20,27 @@ use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
 use App\DepositIntoCreditHistory;
 use App\Invoices;
+use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
 class ClientdashboardController extends BaseController
 {
+    use CreditAccountTrait;
     public function __construct()
     {
         // $this->middleware("auth");
     }
     public function clientDashboardView(Request $request,$id)
     {
-        // return $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
+        // $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
         // foreach($creditHistory as $key => $item) {
         //     $previous = $creditHistory->get(--$key);  
         //     $currentBal = 0;
         //     if($previous) {
+        //         echo "<pre>";
+        //         print_r($previous);
+        //         echo "</pre>";
         //         $currentBal = $previous->total_balance;
         //     }
         //     if($item->payment_type == "deposit") {
@@ -48,7 +53,7 @@ class ClientdashboardController extends BaseController
         //     $item->total_balance = $currentBal;
         //     $item->save();
         // }
-        // return $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->get();
+        // return $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
         // return "ahvhdaf";
         Session::forget('caseLinkToClient');
         Session::forget('clientId');
@@ -2994,7 +2999,7 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")/* ->orderBy("id", "desc") */->with("invoice")->get();
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice")->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
@@ -3110,6 +3115,9 @@ class ClientdashboardController extends BaseController
                 "created_by" => auth()->id(),
                 "firm_id" => auth()->user()->firm_name,
             ]);
+
+            $this->updateNextPreviousCreditBalance($request->client_id);
+
             dbCommit();
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);

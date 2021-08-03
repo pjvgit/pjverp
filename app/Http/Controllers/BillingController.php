@@ -20,6 +20,7 @@ use App\InvoiceApplyTrustCreditFund;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceSetting;
 use App\Jobs\InvoiceReminderEmailJob;
+use App\Traits\CreditAccountTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -30,6 +31,7 @@ use mikehaertl\wkhtmlto\Pdf;
 use Illuminate\Support\Str;
 class BillingController extends BaseController
 {
+    use CreditAccountTrait;
     public function __construct()
     {
     }
@@ -7015,23 +7017,7 @@ class BillingController extends BaseController
                 ])->save();
             }
 
-            /* $creditHistory = DepositIntoCreditHistory::where("user_id", $request->non_trust_account)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
-            foreach($creditHistory as $key => $item) {
-                $previous = $creditHistory->get(--$key);  
-                $currentBal = 0;
-                if($previous) {
-                    $currentBal = $previous->total_balance;
-                }
-                if($item->payment_type == "deposit") {
-                    $currentBal = $currentBal + $item->deposit_amount;
-                } else if($item->payment_type == "withdraw") {
-                    $currentBal = $currentBal - $item->deposit_amount;
-                } else if($item->payment_type == "payment") {
-                    $currentBal = $currentBal - $item->deposit_amount;
-                }
-                $item->total_balance = $currentBal;
-                $item->save();
-            } */
+            $this->updateNextPreviousCreditBalance($request->non_trust_account);
 
             dbCommit();
             $firmData=Firm::find(Auth::User()->firm_name);
