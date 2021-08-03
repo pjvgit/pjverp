@@ -109,7 +109,7 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client-attend-all" id="client_attend_all"
-                        <?php if(count($caseLinkedStaffList)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkeSavedAttending) > 0 && count($caseLinkeSavedAttending)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>

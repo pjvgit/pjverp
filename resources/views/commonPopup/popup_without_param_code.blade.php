@@ -1247,14 +1247,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     } 
 
-    function addNewMessagePopup() {
+    function addNewMessagePopup(page, id) {        
         $("#preloader").show();
         $("#addNewMessagePopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/contacts/clients/addNewMessagePopup", 
-                data: {"user_id": ""},
+                data: {"id": id, "page" : page},
                 success: function (res) {
                     $("#addNewMessagePopupArea").html(res);
                     $("#preloader").hide();

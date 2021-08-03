@@ -1710,38 +1710,10 @@ class ClientdashboardController extends BaseController
             {
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }else{
-
                 // dd($request->all());
                 foreach($request->send_to as $k=>$v){
-                    $text = str_replace('</p>', '', $request->delta);
-                    $msg = explode('<p>', $text);
-                    array_shift($msg);
-
-                    $Messages=new Messages;
-                    $decideCode=explode("-",$v);
-                    if($decideCode[0]=='case'){
-                        $Messages->case_id=$decideCode[1];
-                    }else{
-                        $Messages->user_id=$decideCode[1];
-                        $caseLinkExplode = explode("-",$request->case_link);
-                        $Messages->case_id=$caseLinkExplode[1];                        
-                    }
-                    if($request->message['private_reply']=="false"){
-                        $Messages->replies_is='public';
-                    }else{
-                        $Messages->replies_is='private';
-                    }
-                    $Messages->subject=$request->subject;
-                    $Messages->message=$msg[0];
-                    $Messages->created_by =Auth::User()->id;
-                    $Messages->save();
-
-                    $ReplyMessages=new ReplyMessages;
-                    $ReplyMessages->message_id=$Messages->id;
-                    $ReplyMessages->reply_message=$request->delta;
-                    $ReplyMessages->created_by =Auth::User()->id;
-                    $ReplyMessages->save();
-    
+                    $decideCode=explode("-",$v);                        
+                   
                     if($decideCode[0]=='case'){
                         $caseCllientSelection = CaseClientSelection::select("case_client_selection.selected_user")
                         ->where("case_client_selection.case_id",$decideCode[1])
@@ -1752,12 +1724,88 @@ class ClientdashboardController extends BaseController
                         ->select("id")
                         ->whereIn("user_id",$caseCllientSelection)
                         ->where("client_portal_enable",1)
-                        ->get();
+                        ->get()
+                        ->pluck("id");;
+
+                        $selectUser = [];
                         foreach($compnayIdWithEnablePortal as $k=>$v){
-                            $this->sendMailGlobal($request->all(),$v->id);
+                            array_push($selectUser,$v);
                         }
-                    
+                        $Messages=new Messages;
+                        $Messages->user_id=implode(',',$selectUser);
+                        if($request['message']['private_reply'] =="false"){
+                            $Messages->replies_is='public';
+                        }else{
+                            $Messages->replies_is='private';
+                        }
+                        $Messages->case_id=$request['case_link'];
+                        $Messages->subject=$request['subject'];
+                        $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->created_by =Auth::User()->id;
+                        $Messages->save();
+
+                        $ReplyMessages=new ReplyMessages;
+                        $ReplyMessages->message_id=$Messages->id;
+                        $ReplyMessages->reply_message=$request['delta'];
+                        $ReplyMessages->created_by =Auth::User()->id;
+                        $ReplyMessages->save();
+
+                        foreach($compnayIdWithEnablePortal as $k=>$v){  
+                            $this->sendMailGlobal($request->all(),$v);
+                        }                    
+                    }else if($decideCode[0]=='company'){                                                
+                        $userIdWithEnablePortal = DB::table("users_additional_info")
+                        ->select("user_id")
+                        ->where("multiple_compnay_id","like",'%'.$decideCode[1].'%')
+                        ->where("client_portal_enable",1)
+                        ->get()
+                        ->pluck("user_id");
+
+                        $selectUser = [];
+                        foreach($userIdWithEnablePortal as $k=>$v){
+                            array_push($selectUser,$v);
+                        }
+                        $Messages=new Messages;
+                        $Messages->user_id=implode(',',$selectUser);
+                        if($request['message']['private_reply'] =="false"){
+                            $Messages->replies_is='public';
+                        }else{
+                            $Messages->replies_is='private';
+                        }
+                        $Messages->case_id=$request['case_link'];
+                        $Messages->subject=$request['subject'];
+                        $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->created_by =Auth::User()->id;
+                        $Messages->save();
+
+                        $ReplyMessages=new ReplyMessages;
+                        $ReplyMessages->message_id=$Messages->id;
+                        $ReplyMessages->reply_message=$request['delta'];
+                        $ReplyMessages->created_by =Auth::User()->id;
+                        $ReplyMessages->save();
+
+                        foreach($userIdWithEnablePortal as $k=>$v){
+                            $this->sendMailGlobal($request->all(),$v);
+                        }                    
                     }else{
+                        $Messages=new Messages;
+                        $Messages->user_id=$decideCode[1];
+                        if($request['message']['private_reply'] =="false"){
+                            $Messages->replies_is='public';
+                        }else{
+                            $Messages->replies_is='private';
+                        }
+                        $Messages->case_id=$request['case_link'];
+                        $Messages->subject=$request['subject'];
+                        $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->created_by =Auth::User()->id;
+                        $Messages->save();
+
+                        $ReplyMessages=new ReplyMessages;
+                        $ReplyMessages->message_id=$Messages->id;
+                        $ReplyMessages->reply_message=$request['delta'];
+                        $ReplyMessages->created_by =Auth::User()->id;
+                        $ReplyMessages->save();
                         $this->sendMailGlobal($request->all(),$decideCode[1]);
                     }
                 }
@@ -1778,10 +1826,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $text = str_replace('</p>', '', $request->delta);
-            $msg = explode('<p>', $text);
-            array_shift($msg);
-
+            // dd($request->delta);
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->delta;
@@ -1789,11 +1834,13 @@ class ClientdashboardController extends BaseController
             $ReplyMessages->save();
 
             $Messages=Messages::find($request->message_id);
-            $Messages->message=$msg[0];
+            $Messages->message=substr(strip_tags($request->delta),0,50);
             $Messages->save();
 
-            $this->sendMailGlobal($request->all(),$request->selected_user_id);
-            
+            $userlist = explode(",",$request->selected_user_id);
+            foreach ($userlist as $k=>$v){
+                $this->sendMailGlobal($request->all(),$v);
+            }
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);
             exit;       
@@ -1802,22 +1849,24 @@ class ClientdashboardController extends BaseController
     }
 
     public function messageInfo(Request $request){
-        $messagesData = Messages::leftJoin("users","users.id","=","messages.user_id")
-        ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        $messagesData = Messages::leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),"case_master.case_title","case_master.case_unique_number")
         ->where('messages.id', $request->id)
         ->first();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->leftJoin("users","users.id","=","messages.user_id")
-        ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"))
         ->where('reply_messages.message_id', $request->id)
         ->get();
+    
+        $clientList = [];    
+        $userlist = explode(',', $messagesData->user_id);
+        foreach ($userlist as $key => $value) {
+            $userInfo =  User::where('id',$value)->select('first_name','last_name')->first();
+            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'];
+        }
 
-        
-        return view('communications.messages.viewMessage',compact('messagesData','messageList'));   
-         
+        return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
     }
 
     public function sendMailGlobal($request,$id)
@@ -3308,20 +3357,23 @@ class ClientdashboardController extends BaseController
 
     public function loadMessagesEntryPopup(Request $request){
         
-        $messagesData = Messages::leftJoin("users","users.id","=","messages.user_id")
-        ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        $messagesData = Messages::leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),"case_master.case_title","case_master.case_unique_number")
         ->where('messages.id', $request->message_id)
         ->first();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->leftJoin("users","users.id","=","messages.user_id")
-        ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"case_master.case_title","case_master.case_unique_number")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"))
         ->where('reply_messages.message_id', $request->message_id)
         ->get();
-
-        return view('client_dashboard.viewMessage',compact('messagesData','messageList'));   
+    
+        $clientList = [];    
+        $userlist = explode(',', $messagesData->user_id);
+        foreach ($userlist as $key => $value) {
+            $userInfo =  User::where('id',$value)->select('first_name','last_name')->first();
+            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'];
+        }
+        return view('client_dashboard.viewMessage',compact('messagesData','messageList','clientList'));   
         exit;  
     }
     /**

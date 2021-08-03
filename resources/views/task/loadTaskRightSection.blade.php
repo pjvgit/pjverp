@@ -1,4 +1,4 @@
-<div class="sharing-table clients-table">
+<div class="sharing-table clients-table" bladeFile="resources/views/task/loadTaskRightSection.blade.php">
     <div class="table-responsive">
         <?php 
         if(!$caseCllientSelection->isEmpty()){?>
@@ -189,7 +189,6 @@
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
         });
         $("#client_attend_all").click(function () {
-           
             $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
@@ -233,9 +232,9 @@
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }
             if ($('.client_attend_all_users:checked').length == $('.client_attend_all_users').length) {
-                $('.client_attend_all').prop('checked', true);
+                $('#client_attend_all').prop('checked', true);
             } else {
-                $('.client_attend_all').prop('checked', false);
+                $('#client_attend_all').prop('checked', false);
             }
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();

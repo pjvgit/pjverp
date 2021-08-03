@@ -718,17 +718,18 @@ class CaseController extends BaseController
     public function saveStatus(Request $request)
     {
         // print_r($request->all());exit;
-        $CaseMaster = CaseMaster::find($request->case_id);
+        $CaseMaster = CaseMaster::find($request->case_id);        
+
+        $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$CaseMaster->case_status));
+        $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
+        $caseStageHistory->case_id=$CaseMaster->id;
+        $caseStageHistory->start_Date=date("Y-m-d");
+        $caseStageHistory->end_Date=date("Y-m-d"); 
+        $caseStageHistory->created_by=Auth::user()->id; 
+        $caseStageHistory->save();
+
         $CaseMaster->case_status=$request->case_status;
         $CaseMaster->save();
-        
-        
-        // $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$request->status));
-        // $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
-        // $caseStageHistory->case_id=$CaseMaster->id;
-        // $caseStageHistory->created_by=Auth::user()->id; 
-        // $caseStageHistory->save();
-
         session(['popup_success' => 'Case status has been changed.']);
         return response()->json(['errors'=>'','case_id'=>$CaseMaster->id]);
         exit;
@@ -8176,9 +8177,13 @@ class CaseController extends BaseController
         $requestData= $_REQUEST;
         
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
-        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'));
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
+        }
+        if(isset($requestData['user_id']) && $requestData['user_id']!=''){
+            $messages = $messages->where("messages.user_id",'like', '%'.$requestData['user_id'].'%');
         }
 
         $totalData=$messages->count();

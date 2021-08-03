@@ -3104,25 +3104,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
       //Billing Tab @END
 
-
-      //Message Tab @END
-      function addNewMessagePopup() {
-        $("#preloader").show();
-        $("#addNewMessagePopupArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/clients/addNewMessagePopup", 
-                data: {"user_id": "{{$client_id}}"},
-                success: function (res) {
-                    $("#addNewMessagePopupArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    //Message Tab @END
-
     function confirmDelete(){
         $("#confirmAccessChange").html('<p style="font-weight:bold; color: red;">This action is permanent and cannot be reversed!</p>');
         $(".confirmsubmit").hide();

@@ -76,7 +76,7 @@
     </tr>
     <?php 
     $counter=0;
-    print_r($ClientCompanyImportHistory);
+    // print_r($ClientCompanyImportHistory);
     foreach($ClientCompanyImportHistory as $key=>$val){?>
     <tr>
         <td style='color: green; white-space: nowrap;'>
