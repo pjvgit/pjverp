@@ -19,6 +19,8 @@ use mikehaertl\wkhtmlto\Pdf;
 use ZipArchive,File;
 use App\ClientCompanyImport,App\ClientCompanyImportHistory;
 use App\DepositIntoCreditHistory;
+use App\InvoiceHistory;
+use App\InvoicePayment;
 use App\Invoices;
 use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
@@ -3162,6 +3164,7 @@ class ClientdashboardController extends BaseController
                 $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
             } elseif($creditHistory->payment_type == "payment") {
                 $fund_type='refund payment';
+                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
             } else {
                 $fund_type='refund deposit';
                 $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
@@ -3171,7 +3174,7 @@ class ClientdashboardController extends BaseController
             $creditHistory->is_refunded="yes";
             $creditHistory->save();
 
-            DepositIntoCreditHistory::create([
+            $depCredHis = DepositIntoCreditHistory::create([
                 "user_id" => $request->client_id,
                 "deposit_amount" => $request->amount,
                 "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
@@ -3182,7 +3185,15 @@ class ClientdashboardController extends BaseController
                 "refund_ref_id" => $creditHistory->id,
                 "created_by" => auth()->id(),
                 "firm_id" => auth()->user()->firm_name,
+                "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
             ]);
+
+            if($fund_type == "refund payment") {
+                $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);
+                $depCredHis->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
+            }
+
+            $this->updateNextPreviousCreditBalance($request->client_id);
 
             session(['popup_success' => 'Refund successful']);
             return response()->json(['errors'=>'']);
@@ -3195,7 +3206,6 @@ class ClientdashboardController extends BaseController
      */
     public function deleteCreditHistoryEntry(Request $request)
     {
-        
         $validator = \Validator::make($request->all(), [
             'delete_credit_id' => 'required|numeric',
         ]);
@@ -3210,22 +3220,31 @@ class ClientdashboardController extends BaseController
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
-            }else if($creditHistory->payment_type == "refund withdraw") {
+            } else if($creditHistory->payment_type == "refund withdraw") {
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
-            }else if($creditHistory->payment_type == "diposit"){
+            } else if($creditHistory->payment_type == "refund payment") {
+                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
+            } else if($creditHistory->payment_type == "diposit"){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
-            }
+            } 
 
 
-            $updateBalaance=UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
-            if($updateBalaance->credit_account_balance <= 0){
+            $userAddInfo=UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
+            if($userAddInfo->credit_account_balance <= 0){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
             }
 
-            DepositIntoCreditHistory::where('id',$request->delete_credit_id)->delete();
+            if($creditHistory->payment_type == "refund payment") {
+                $this->deleteInvoicePaymentHistory($creditHistory->id);
+            }
+            $clientId = $creditHistory->user_id;
+            $creditHistory->delete();
+            $this->updateNextPreviousCreditBalance($clientId);
             session(['popup_success' => 'Credit entry was deleted']);
             return response()->json(['errors'=>'']);
             exit;   
