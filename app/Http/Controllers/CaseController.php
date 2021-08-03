@@ -718,17 +718,18 @@ class CaseController extends BaseController
     public function saveStatus(Request $request)
     {
         // print_r($request->all());exit;
-        $CaseMaster = CaseMaster::find($request->case_id);
+        $CaseMaster = CaseMaster::find($request->case_id);        
+
+        $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$CaseMaster->case_status));
+        $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
+        $caseStageHistory->case_id=$CaseMaster->id;
+        $caseStageHistory->start_Date=date("Y-m-d");
+        $caseStageHistory->end_Date=date("Y-m-d"); 
+        $caseStageHistory->created_by=Auth::user()->id; 
+        $caseStageHistory->save();
+
         $CaseMaster->case_status=$request->case_status;
         $CaseMaster->save();
-        
-        
-        // $caseStageHistory = CaseStageUpdate::firstOrNew(array('case_id' => $CaseMaster->id,'stage_id'=>$request->status));
-        // $caseStageHistory->stage_id=($CaseMaster->case_status)??0;
-        // $caseStageHistory->case_id=$CaseMaster->id;
-        // $caseStageHistory->created_by=Auth::user()->id; 
-        // $caseStageHistory->save();
-
         session(['popup_success' => 'Case status has been changed.']);
         return response()->json(['errors'=>'','case_id'=>$CaseMaster->id]);
         exit;
