@@ -1,6 +1,5 @@
 <form class="sendEmails" id="sendEmails" name="sendEmails" method="POST">
     @csrf
-
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>
     <div class="col-md-12" bladeFile="resources/views/client_dashboard/sendMessage.blade.php">
@@ -13,13 +12,13 @@
                         multiple>
                         <optgroup label="Contact">
                             <?php foreach($clientLists as $clientekey=>$clientval){ ?>
-                                <option uType="client" data-set="client" value="client-{{$clientval->id}}">
+                                <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo ($_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
                                     {{substr($clientval->first_name,0,100)}} {{substr($clientval->last_name,0,100)}} </option>
                                     <?php } ?>
                         </optgroup>
                         <optgroup label="Companies">
                             <?php foreach($CaseMasterCompany as $companykey=>$companyval){ ?>
-                            <option uType="company" data-set="company" value="company-{{$companyval->id}}">
+                            <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo ($_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
                                 {{substr($companyval->first_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
@@ -32,7 +31,7 @@
                         </optgroup>
                         <optgroup label="Firm Users">
                             <?php foreach($loadFirmUser as $staffkey=>$staffval){ ?>
-                            <option uType="staff" data-set="staff" value="staff-{{$staffval->id}}">
+                            <option uType="staff" data-set="staff" value="staff-{{$staffval->id}}" <?php echo ($_REQUEST['id'] == $staffval->id) ? "selected" : ""; ?> >
                                 {{substr($staffval->first_name,0,100)}} {{substr($staffval->last_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
@@ -112,8 +111,7 @@
                     data-placeholder="Type a name">
                     <option></option>
                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                    
-                    <option uType="case" data-set="case" value="case-{{$Caseval->id}}">
+                    <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo ($_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>
                         {{substr($Caseval->case_title,0,100)}}
                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
                     <?php } ?>
@@ -158,8 +156,8 @@
         </div>
     </div>
     <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
-    <input class="form-control" value="" id="selected_case_id" maxlength="250" name="current_submit" type="hidden">
-    <input class="form-control" value="" id="selected_user_id" maxlength="250" name="current_submit" type="hidden">
+    <input class="form-control" value="" id="selected_case_id" maxlength="250" name="selected_case_id" type="hidden">
+    <input class="form-control" value="" id="selected_user_id" maxlength="250" name="selected_user_id" type="hidden">
 
 </form>
 
@@ -441,14 +439,21 @@
 
                     return false;
                 } else {
-                    // toastr.success('Your note has been created', "", {
-                    //     positionClass: "toast-top-full-width",
-                    //     containerId: "toast-top-full-width"
-                    // });
+                    toastr.success('Your message has been sent', "", {
+                        positionClass: "toast-top-full-width",
+                        containerId: "toast-top-full-width"
+                    });
                     quill.root.innerHTML = '';
-                    // $("#sendEmailsModal").modal("hide");
                     afterLoader()
-                    window.location.reload();
+                    if($("#current_submit").val() == 'saveandtime'){            
+                        $("#addNewMessagePopup").modal('hide');
+                        $("#loadTimeEntryPopup").modal('show');
+                        if($("#current_submit").val() == 'saveandtime'){
+                            loadTimeEntryPopupByCase($("#case_link").val());
+                        }
+                    }else{
+                        window.location.reload();
+                    }                    
                 }
             },
             error: function (xhr, status, error) {

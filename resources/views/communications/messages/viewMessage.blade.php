@@ -15,9 +15,11 @@
                         <h2 class="details_header" style="margin-bottom: 0px; padding-bottom: 10px; font-weight: normal;">{{$messagesData->subject}}</h2>
                         A {{ucwords($messagesData->replies_is)}} Message Sent To:
                         @if($messagesData->user_id != '')
-                        <span class="message_user_name">
-                            <a href="{{ route('contacts/clients/view', $messagesData->user_id) }}">{{$messagesData->user_name.' (Client)'}}</a>
-                        </span>
+                            @foreach($clientList as $k=>$v)
+                            <span class="message_user_name">
+                                <a href="{{ route('contacts/clients/view', $k) }}">{{$v.' (Client)'}}</a>
+                            </span>,
+                            @endforeach
                         @endif
                         <br>
                         <div class="clearfix">

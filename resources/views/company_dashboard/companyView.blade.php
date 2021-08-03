@@ -2403,25 +2403,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
     //Billing Tab @END
 
-
-    //Message Tab @END
-    function addNewMessagePopup() {
-        $("#preloader").show();
-        $("#addNewMessagePopupArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/companies/addNewMessagePopup", 
-                data: {"user_id": "{{$company_id}}"},
-                success: function (res) {
-                    $("#addNewMessagePopupArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    //Message Tab @END
-
     function archiveCompany() {
         $("#preloader").show();
         $("#archiveCompanyArea").html('<img src="{{LOADER}}""> Loading...');
