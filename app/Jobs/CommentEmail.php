@@ -44,6 +44,7 @@ class CommentEmail implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("comment handle");
         // $CommonController= new \App\Http\Controllers\CommonController();
         // $BaseController= new \App\Http\Controllers\BaseController();
         $eventData=CaseEvent::find($this->event_id);
@@ -73,7 +74,6 @@ class CommentEmail implements ShouldQueue
                 }
             }
         }
-        Log::info("comment handle");
         /* $CaseEventComment=CaseEventComment::find($this->CaseEventComment);
         foreach($CaseEventLinkedContactLead as $k=>$v){
             $firmData=Firm::find($this->firm); 
