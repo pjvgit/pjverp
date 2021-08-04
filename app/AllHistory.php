@@ -16,6 +16,9 @@ class AllHistory extends Authenticatable
     public $primaryKey = 'id';
 
     protected $appends  = ['padding_id','time_ago','notes_for','events_for','task_for'];
+
+    protected $dates = ['created_at', 'updated_at'];
+
     public function getPaddingIdAttribute(){
        return "#R-".sprintf('%06d', $this->id);
 
@@ -122,4 +125,14 @@ class AllHistory extends Authenticatable
         }
        
     } 
+
+    /**
+     * Get the depositForUser that owns the AllHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function depositForUser()
+    {
+        return $this->belongsTo(User::class, 'deposit_for');
+    }
 }

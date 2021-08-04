@@ -1281,20 +1281,22 @@ class ClientdashboardController extends BaseController
     public function reloadAmount(Request $request)
     {
         $client_id=$request->user_id;
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("user_id","trust_account_balance","minimum_trust_balance")->where("user_id",$client_id)->first(); 
+        $UsersAdditionalInfo=UsersAdditionalInfo::select("user_id","trust_account_balance","minimum_trust_balance", "credit_account_balance")->where("user_id",$client_id)->first(); 
         $trust_account_balance=$minimum_trust_balance=0.00;
         if(!empty($UsersAdditionalInfo)){
             $trust_account_balance=number_format($UsersAdditionalInfo->trust_account_balance,2);
             $minimum_trust_balance=number_format($UsersAdditionalInfo->minimum_trust_balance,2);
         }
         $requestDefaultMessage = @getInvoiceSetting()->request_funds_preferences_default_msg ?? "";
-        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage]);
+        $is_non_trust_retainer = @getInvoiceSetting()->is_non_trust_retainers_credit_account ?? "no";
+        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage, 'credit_account_balance' => $UsersAdditionalInfo->credit_account_balance ?? 0, 'is_non_trust_retainer' => $is_non_trust_retainer]);
         exit;
 
     } 
 
     public function saveRequestFundPopup(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
 
         $validator = \Validator::make($request->all(), [
@@ -1308,7 +1310,8 @@ class ClientdashboardController extends BaseController
        
             $RequestedFund=new RequestedFund;
             $RequestedFund->client_id=$request->contact;
-            $RequestedFund->deposit_into=$request->deposit_into;
+            $RequestedFund->deposit_into=$request->contact;
+            $RequestedFund->deposit_into_type=$request->deposit_into;
             $RequestedFund->amount_requested=$request->amount;
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_paid="0.00";
@@ -1340,6 +1343,7 @@ class ClientdashboardController extends BaseController
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+            $mail_body = str_replace('{request_url}', "#", $mail_body);        
 
             $clientData=User::find($request->contact);
             $message="";
@@ -1353,6 +1357,7 @@ class ClientdashboardController extends BaseController
                     "full_name" => "",
                     "mail_body" => $mail_body
                 ];
+                // print_r($user);
                 $sendEmail = $this->sendMail($user);
                 $message.="<p>You successfully requested funds from ".$nameIs." .</p>";
                 $url="<a href='".BASE_URL."/contacts/clients/".$clientData->id."?load_funds=true'>Contact Billing Page</a>";

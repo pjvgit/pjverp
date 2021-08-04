@@ -7049,6 +7049,17 @@ class BillingController extends BaseController
 
             $this->updateNextPreviousCreditBalance($request->non_trust_account);
 
+            $data=[];
+            $data['deposit_id']=$DepositIntoCreditHistory->id;
+            $data['deposit_for']=$DepositIntoCreditHistory->user_id;
+            $data['user_id']=$DepositIntoCreditHistory->created_by;
+            $data['client_id']=$DepositIntoCreditHistory->user_id;
+            $data['activity']='accepted a deposit into credit of $'.$DepositIntoCreditHistory->deposit_amount.' ('.ucfirst($DepositIntoCreditHistory->payment_method).') for';
+            $data['type']='credit';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             dbCommit();
             $firmData=Firm::find(Auth::User()->firm_name);
             $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
@@ -8441,7 +8452,7 @@ class BillingController extends BaseController
                  $data=[];
                  $data['case_id']=$InvoiceData['case_id'];
                  $data['user_id']=$InvoiceData['user_id'];
-                 $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Credit)';
+                 $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Non-Trust Credit Account)';
                  $data['activity_for']=$InvoiceData['id'];
                  $data['type']='invoices';
                  $data['action']='pay';

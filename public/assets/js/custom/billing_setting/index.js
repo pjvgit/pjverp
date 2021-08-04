@@ -84,3 +84,17 @@ $(document).on("click", "#save_customiz_settings", function() {
         }
     })
 });
+
+// Cancel invoice customization saving
+$(document).on("click", "#cancel_customiz_btn", function() {
+    var customizeId = $(this).attr("data-customize-id");
+    var url = $(this).attr("data-url");
+    $.ajax({
+        url: url,
+        type: 'GET',
+        data: {customize_id: customizeId},
+        success: function(data) {
+            $("#invoice-customization-defaults").html(data);
+        }
+    });
+});
