@@ -798,6 +798,8 @@ Route::group(['middleware'=>'auth'], function () {
     Route::post('contacts/clients/updateProfileImageForm', 'ClientdashboardController@updateProfileImageForm')->name('contacts/clients/updateProfileImageForm');
     Route::post('contacts/clients/loadMessagesEntryPopup', 'ClientdashboardController@loadMessagesEntryPopup')->name('contacts/clients/loadMessagesEntryPopup');
     Route::post('contacts/clients/replyMessageToUserCase', 'ClientdashboardController@replyMessageToUserCase')->name('contacts/clients/replyMessageToUserCase');
+    Route::post('contacts/clients/archiveMessageToUserCase', 'ClientdashboardController@archiveMessageToUserCase')->name('contacts/clients/archiveMessageToUserCase');
+    Route::post('contacts/clients/unarchiveMessageToUserCase', 'ClientdashboardController@unarchiveMessageToUserCase')->name('contacts/clients/unarchiveMessageToUserCase');
     
     Route::post('contacts/changeAccess', 'ClientdashboardController@changeAccessFromDashboard');
     Route::post('contacts/sendWelcomeEmailAgain', 'ClientdashboardController@ReSendWelcomeEmail');

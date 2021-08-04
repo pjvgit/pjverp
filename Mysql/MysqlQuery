@@ -1,4 +1,9 @@
------------------------------------- 2-AUG-2021 ------------------------------
+------------------------------------ 04-AUG-2021 ------------------------------
+ALTER TABLE `messages`
+ADD `is_archive` tinyint(2) NULL DEFAULT '0' AFTER `message`,
+ADD `is_draft` tinyint(2) NULL DEFAULT '0' AFTER `is_archive`;
+
+------------------------------------ 02-AUG-2021 ------------------------------
 CREATE TABLE `reply_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `message_id` int(11) NULL,

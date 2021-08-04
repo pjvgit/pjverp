@@ -5,6 +5,7 @@
     <div class="col-md-12" id="printArea">
         <div class="card mb-4">
             <div class="card-body">
+            <div id="showError" class="showError" style="display:none"></div>
             @if($messagesData)
             <div id="printArea">
                 <div class="message_details_header" data-message-id="{{$messagesData->id}}">
@@ -17,7 +18,12 @@
                         @if($messagesData->user_id != '')
                             @foreach($clientList as $k=>$v)
                             <span class="message_user_name">
-                                <a href="{{ route('contacts/clients/view', $k) }}">{{$v.' (Client)'}}</a>
+                                @php $u = explode("|",$v); @endphp
+                                @if($u[1] == '2')
+                                <a href="{{ route('contacts/clients/view', $k) }}">{{$u[0].' (Client)'}}</a>                
+                                @else
+                                <a href="{{ route('contacts/attorneys/info', base64_encode($k)) }}">{{$u[0].' (Attorney)'}}</a>
+                                @endif
                             </span>,
                             @endforeach
                         @endif
@@ -82,6 +88,39 @@
                 </div>
                 </div>
                 <br>
+                <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
+                    @csrf
+                    <input class="form-control" value="{{$messagesData->replies_is}}" id="replies_is" name="replies_is" type="hidden">
+                    <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
+                    <input class="form-control" value="{{$messagesData->user_id}}" id="selected_user_id" name="selected_user_id" type="hidden">
+                    <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
+                    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
+                   
+                    <span id="response"></span>    
+                    <div class="row">
+                        <div class="col-md-12 form-group mb-3">
+                            <div id="editor" class="field">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="justify-content-between modal-footer">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;">
+                        </div>        
+                        </button>
+                        &nbsp;
+                        <div>
+                            <button class="btn btn-outline-secondary btn-rounded  m-1" id="saveandtime" value="saveandtime"
+                                type="submit">Save + <i class="far fa-clock fa-lg"></i>
+                            </button>
+                            <button class="btn btn-primary  btn-rounded m-1 submit" id="submitButton" value="savenote"
+                                type="submit">Reply
+                            </button>
+                        </div>
+                    </div>
+                    <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
+                    <input class="form-control" value="{{$messagesData->case_id}}" id="case_link" maxlength="250" name="case_link" type="hidden">
+                </form>
             @else
                 <div id="messages_page_data">  <div class="no_items text-center">no records found</div><br></div>
             @endif
@@ -89,4 +128,246 @@
         </div>
     </div>
 </div>
+@endsection
+@section('bottom-js')
+<style>
+    body>#editor {
+        margin: 50px auto;
+        max-width: 720px;
+    }
+
+    #editor {
+        height: 200px;
+        background-color: white;
+    }
+</style>
+
+<script type="text/javascript">
+<?php if($messagesData->is_archive == 1){?>
+    $(".archiveMessage").css("display","none");
+    $(".unarchiveMessage").css("display","block");
+<?php }else{?>
+    $(".archiveMessage").css("display","block");
+    $(".unarchiveMessage").css("display","none");
+<?php }?>
+$(document).on("click", ":submit", function (e) {
+    $("#current_submit").val($(this).val());
+});
+$('#replyEmails').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+        var delta = quill.root.innerHTML;
+        if (delta == '<p><br></p>') {
+            toastr.error('Initial message can\'t be blank', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            })
+            afterLoader();
+            return false;
+        }
+        if (!$('#replyEmails').valid()) {
+            afterLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#replyEmails").serialize();
+        console.log(dataString);
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/clients/replyMessageToUserCase", // json datasource
+            data: dataString + '&delta=' + delta,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&save=yes';
+            },
+            success: function (res) {
+                $("#innerLoaderTime").css('display', 'block');
+                if (res.errors != '') {
+                    $('#showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('#showError').append(errotHtml);
+                    $('#showError').show();
+                    afterLoader();
+                    // $("#replyEmails").scrollTop(0);
+                    $('#replyEmails').animate({
+                        scrollTop: 0
+                    }, 'slow');
+
+                    return false;
+                } else {
+                    // toastr.success('Your note has been created', "", {
+                    //     positionClass: "toast-top-full-width",
+                    //     containerId: "toast-top-full-width"
+                    // });
+                    quill.root.innerHTML = '';
+                    afterLoader()
+                    if($("#current_submit").val() == 'saveandtime'){            
+                        $("#loadMessagesEntryPopup").modal('hide');
+                        $("#loadTimeEntryPopup").modal('show');
+                        if($("#current_submit").val() == 'saveandtime'){
+                            loadTimeEntryPopupByCase($("#case_link").val());
+                        }
+                    }else{
+                        window.location.reload();
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
+    });
+var toolbarOptions = [
+    ['bold', 'italic', 'underline', 'strike'], // toggled buttons
+    ['blockquote', 'code-block'],
+    [{
+        'header': 1
+    }, {
+        'header': 2
+    }], // custom button values
+    [{
+        'list': 'ordered'
+    }, {
+        'list': 'bullet'
+    }],
+    [{
+        'size': ['small', false, 'large', 'huge']
+    }], // custom dropdown
+    [{
+        'header': [1, 2, 3, 4, 5, 6, false]
+    }],
+    [{
+        'color': []
+    }, {
+        'background': []
+    }], // dropdown with defaults from theme
+    [{
+        'font': []
+    }],
+    [{
+        'align': []
+    }],
+    ['clean'] // remove formatting button
+];
+var quill = new Quill('#editor', {
+    modules: {
+        toolbar: toolbarOptions
+    },
+    theme: 'snow'
+});
+function deleteDraft(){
+    toastr.warning('Draft message has been deleted', "", {
+        positionClass: "toast-top-full-width",
+        containerId: "toast-top-full-width"
+    })
+}  
+
+function printData()
+{
+    var divContents = document.getElementById("printArea").innerHTML;
+    var a = window.open('');
+    a.document.write('<html><body>');
+    a.document.write(divContents);
+    a.document.write('</body></html>');
+    a.document.close();
+    a.print();
+}
+
+function archiveMessage(){
+    var message_id = $('#message_id').val();
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/contacts/clients/archiveMessageToUserCase", // json datasource
+        data: {'message_id' : message_id},
+        success: function (res) {
+            $("#innerLoaderTime").css('display', 'block');
+            if (res.errors != '') {
+                $('#showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                $.each(res.errors, function (key, value) {
+                    errotHtml += '<li>' + value + '</li>';
+                });
+                errotHtml += '</ul></div>';
+                $('#showError').append(errotHtml);
+                $('#showError').show();
+                afterLoader();
+                // $("#replyEmails").scrollTop(0);
+                $('#replyEmails').animate({
+                    scrollTop: 0
+                }, 'slow');
+                return false;
+            } else {
+                toastr.success('Message was archived', "", {
+                    positionClass: "toast-top-full-width",
+                    containerId: "toast-top-full-width"
+                });
+                $("#loadMessagesEntryPopup").modal('hide');
+            }
+        },
+        error: function (xhr, status, error) {
+            $('.showError').html('');
+            var errotHtml =
+                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+            $('.showError').append(errotHtml);
+            $('.showError').show();
+            afterLoader();
+        }
+    });
+}
+
+
+function unarchiveMessage(){
+    var message_id = $('#message_id').val();
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/contacts/clients/unarchiveMessageToUserCase", // json datasource
+        data: {'message_id' : message_id},
+        success: function (res) {
+            $("#innerLoaderTime").css('display', 'block');
+            if (res.errors != '') {
+                $('#showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                $.each(res.errors, function (key, value) {
+                    errotHtml += '<li>' + value + '</li>';
+                });
+                errotHtml += '</ul></div>';
+                $('#showError').append(errotHtml);
+                $('#showError').show();
+                afterLoader();
+                // $("#replyEmails").scrollTop(0);
+                $('#replyEmails').animate({
+                    scrollTop: 0
+                }, 'slow');
+                return false;
+            } else {
+                toastr.success('Message was unarchived', "", {
+                    positionClass: "toast-top-full-width",
+                    containerId: "toast-top-full-width"
+                });
+                $("#loadMessagesEntryPopup").modal('hide');
+            }
+        },
+        error: function (xhr, status, error) {
+            $('.showError').html('');
+            var errotHtml =
+                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+            $('.showError').append(errotHtml);
+            $('.showError').show();
+            afterLoader();
+        }
+    });
+}
+</script>
+
 @endsection

@@ -40,6 +40,7 @@ class BaseController extends Controller
             }
         }
         catch(\Exception $e){
+            \Log::info("mail sent failed:". $e->getMessage());
             return 0;
         }
     }

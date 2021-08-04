@@ -1706,6 +1706,25 @@ class ClientdashboardController extends BaseController
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }else{
                 // dd($request->all());
+
+                $error = [];
+                foreach($request->send_to as $k=>$v){
+                    $decideCode=explode("-",$v); 
+                    if($decideCode[0]=='client'){     
+                        $userInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                        ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.client_portal_enable')
+                        ->where('users.id',$decideCode[1])->first();
+                        if(!empty($userInfo)){
+                            if(!$userInfo->client_portal_enable){
+                                $error[$k] = "Please enable client portal for ".$userInfo->name;
+                            }
+                        }                        
+                    }   
+                }
+                if(count($error)>0){
+                    return response()->json(['errors'=>$error]);
+                }else{
+                $sendToClient = 0;
                 foreach($request->send_to as $k=>$v){
                     $decideCode=explode("-",$v);                        
                    
@@ -1748,7 +1767,9 @@ class ClientdashboardController extends BaseController
                         foreach($compnayIdWithEnablePortal as $k=>$v){  
                             $this->sendMailGlobal($request->all(),$v);
                         }                    
-                    }else if($decideCode[0]=='company'){                                                
+                    }
+                    
+                    if($decideCode[0]=='company'){                                                
                         $userIdWithEnablePortal = DB::table("users_additional_info")
                         ->select("user_id")
                         ->where("multiple_compnay_id","like",'%'.$decideCode[1].'%')
@@ -1782,27 +1803,36 @@ class ClientdashboardController extends BaseController
                         foreach($userIdWithEnablePortal as $k=>$v){
                             $this->sendMailGlobal($request->all(),$v);
                         }                    
-                    }else{
-                        $Messages=new Messages;
-                        $Messages->user_id=$decideCode[1];
-                        if($request['message']['private_reply'] =="false"){
-                            $Messages->replies_is='public';
-                        }else{
-                            $Messages->replies_is='private';
-                        }
-                        $Messages->case_id=$request['case_link'];
-                        $Messages->subject=$request['subject'];
-                        $Messages->message=substr(strip_tags($request->delta),0,50);
-                        $Messages->created_by =Auth::User()->id;
-                        $Messages->save();
-
-                        $ReplyMessages=new ReplyMessages;
-                        $ReplyMessages->message_id=$Messages->id;
-                        $ReplyMessages->reply_message=$request['delta'];
-                        $ReplyMessages->created_by =Auth::User()->id;
-                        $ReplyMessages->save();
-                        $this->sendMailGlobal($request->all(),$decideCode[1]);
                     }
+                    
+                    if($decideCode[0]=='client' || $decideCode[0]=='staff'){
+                        $sendToClient = $sendToClient + 1; 
+                    }
+                }}
+                if($sendToClient > 0){                    
+                    $Messages=new Messages;
+                    $Messages->user_id=str_replace(['client-','staff-'],'',implode(',',$request->send_to));
+                    if($request['message']['private_reply'] =="false"){
+                        $Messages->replies_is='public';
+                    }else{
+                        $Messages->replies_is='private';
+                    }
+                    $Messages->case_id=$request['case_link'];
+                    $Messages->subject=$request['subject'];
+                    $Messages->message=substr(strip_tags($request->delta),0,50);
+                    $Messages->created_by =Auth::User()->id;
+                    $Messages->save();
+
+                    $ReplyMessages=new ReplyMessages;
+                    $ReplyMessages->message_id=$Messages->id;
+                    $ReplyMessages->reply_message=$request['delta'];
+                    $ReplyMessages->created_by =Auth::User()->id;
+                    $ReplyMessages->save();
+
+                    foreach($request->send_to as $k=>$v){     
+                        $decideCode=explode("-",$v);
+                        $this->sendMailGlobal($request->all(),$decideCode[1]);
+                    }  
                 }
                 session(['popup_success' => 'Your message has been sent']);
                 return response()->json(['errors'=>'']);
@@ -1843,6 +1873,20 @@ class ClientdashboardController extends BaseController
            
     }
 
+    public function archiveMessageToUserCase(Request $request){
+        $Messages=Messages::find($request->message_id);
+        $Messages->is_archive = 1;
+        $Messages->save();
+        return response()->json(['errors'=>'']);
+    }
+
+    public function unarchiveMessageToUserCase(Request $request){
+        $Messages=Messages::find($request->message_id);
+        $Messages->is_archive = 0;
+        $Messages->save();
+        return response()->json(['errors'=>'']);
+    }
+
     public function messageInfo(Request $request){
         $messagesData = Messages::leftJoin("case_master","case_master.id","=","messages.case_id")
         ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),"case_master.case_title","case_master.case_unique_number")
@@ -1857,8 +1901,8 @@ class ClientdashboardController extends BaseController
         $clientList = [];    
         $userlist = explode(',', $messagesData->user_id);
         foreach ($userlist as $key => $value) {
-            $userInfo =  User::where('id',$value)->select('first_name','last_name')->first();
-            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'];
+            $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
+            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
         }
 
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
@@ -3362,8 +3406,8 @@ class ClientdashboardController extends BaseController
         $clientList = [];    
         $userlist = explode(',', $messagesData->user_id);
         foreach ($userlist as $key => $value) {
-            $userInfo =  User::where('id',$value)->select('first_name','last_name')->first();
-            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'];
+            $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
+            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
         }
         return view('client_dashboard.viewMessage',compact('messagesData','messageList','clientList'));   
         exit;  

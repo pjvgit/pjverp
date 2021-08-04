@@ -7,10 +7,7 @@
         </div>
     </div>
 </div>
-<p><br></p>
-<hr>
-
-<hr>
+<br>
 <div class="col-md-12">
     <div data-testid="mc-table-container" style="font-size: small;">
         <table class="display table table-striped table-bordered" id="messagesGrid" style="width:100%">
