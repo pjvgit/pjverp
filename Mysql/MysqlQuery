@@ -3,6 +3,9 @@ ALTER TABLE `messages`
 ADD `is_archive` tinyint(2) NULL DEFAULT '0' AFTER `message`,
 ADD `is_draft` tinyint(2) NULL DEFAULT '0' AFTER `is_archive`;
 
+------------------------------------ 03-Aug-2021 -----------------------------
+ALTER TABLE `deposit_into_credit_history` ADD `related_to_invoice_payment_id` INT(11) NULL AFTER `firm_id`;
+
 ------------------------------------ 02-AUG-2021 ------------------------------
 CREATE TABLE `reply_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

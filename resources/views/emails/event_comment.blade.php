@@ -14,10 +14,12 @@
 @php
     $content = str_replace('[USER_NAME]', $user->first_name, $template->content);
     $content = str_replace('[COMMENT_ADDED_USER]', @$commentAddedUser->full_name, $content);
-    $date = \Carbon\Carbon::parse($event->start_date);
     $content = str_replace('[EVENT_NAME]', $event->event_title, $content);
-    $content = str_replace('[DATE_TIME]', date("M d, Y", strtotime(convertUTCToUserDate($date->format("Y-m-d"), $user->user_timezone))), $content);
-    $content = str_replace('[EVENT_URL]', config('app.url')."/events/detail/".$event->decode_id, $content);
+    $dt = new DateTime('now', new DateTimeZone(@$user->user_timezone ?? 'UTC'));
+    $abbreviation = $dt->format('T');
+    $date = date('M jS Y, h:ia', strtotime(convertUTCToUserTime(@$event->start_date." ".@$event->start_time, @$user->user_timezone ?? 'UTC'))).' — '.date('h:ia',strtotime(convertUTCToUserTime(@$event->end_date." ".@$event->end_time, @$user->user_timezone ?? 'UTC'))).' '.@$abbreviation;
+    $content = str_replace('[DATE_TIME]', $date, $content);
+    $content = str_replace('[EVENT_URL]', config('app.url')."/events/".$event->decode_id, $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
     $content = str_replace('[CLIENT_PORTAL_URL]', config('app.url'), $content);
 @endphp
