@@ -184,7 +184,7 @@
                 </table>
             </div>
             <div class="text-right pt-2 pb-1 edit-idp-footer">
-                <button type="button" class="btn btn-link cancel_form_button">Cancel</button>
+                <button type="button" class="btn btn-link" id="cancel_customiz_btn" data-url="{{ route('billing/settings/view/customization') }}" data-customize-id="{{ @$customize->id }}">Cancel</button>
                 <button type="button" id="save_customiz_settings" class="btn btn-primary mr-2">Save</button>
             </div>
         </div>

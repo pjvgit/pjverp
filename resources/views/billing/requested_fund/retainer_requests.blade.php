@@ -337,16 +337,20 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(0)', nRow).html('<div class="text-left">'+aData.padding_id+'</div>');
 
                     $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.contact_name+'</a></div>');
-                    var trustLabel="";
-                    if(aData.trust_account!=""){
+                    var trustLabel="Trust Account";
+                    /* if(aData.trust_account!=""){
                         var trustLabel=" (Trust Account)";
+                    } */
+                    if(aData.deposit_into_type == "credit"){
+                        var trustLabel=" (Credit Account)";
                     }
                     if(aData.email_message==null){
                         var $msg='';
                     }else{
                         var $msg='<br><a href="javascript:void(0);"  data-toggle="tooltip" data-html="true" data-placement="bottom" data-original-title="'+aData.email_message+'" >View Message</a>';
                     }
-                    $('td:eq(2)', nRow).html('<div class="text-left">'+aData.trust_account+' '+trustLabel+' ' +$msg+'</div>');
+                    // $('td:eq(2)', nRow).html('<div class="text-left">'+aData.trust_account+' '+trustLabel+' ' +$msg+'</div>');
+                    $('td:eq(2)', nRow).html('<div class="text-left">'+aData.deposit_into_type.substr(0,1).toUpperCase()+aData.deposit_into_type.substr(1)+' '+trustLabel+' ' +$msg+'</div>');
 
                     $('td:eq(3)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');

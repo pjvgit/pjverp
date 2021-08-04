@@ -16,7 +16,7 @@
         <?php  if($v->event_for_case!=NULL){  ?>
             <a class="name" href="{{ route('info', $v->events_for['case_unique_number']) }}">{{$v->events_for['case_title']}}</a>
         <?php }else if($v->event_for_lead!=NULL){ ?>
-            <a class="name" href="{{ route('case_details/info/',$v->events_for['id']) }}">{{$v->events_for['first_name']}} {{$v->events_for['last_name']}}</a>
+            <a class="name" href="{{ route('case_details/info',$v->events_for['id']) }}">{{$v->events_for['first_name']}} {{$v->events_for['last_name']}}</a>
         <?php } ?>
         </div>
     </td>

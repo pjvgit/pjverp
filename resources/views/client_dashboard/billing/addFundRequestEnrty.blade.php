@@ -59,7 +59,10 @@
                                 <select class="form-control caller_name select2" id="deposit_into" name="deposit_into"
                                     style="width: 100%;" placeholder="Select user's account...">
                                     <option></option>
-                                    <option selected="selected">Trust Account (${{number_format($UsersAdditionalInfo->trust_account_balance,2)}})</option>
+                                    <option selected="selected" value="trust">Trust Account (${{number_format($UsersAdditionalInfo->trust_account_balance,2)}})</option>
+                                    @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes" && isset($UsersAdditionalInfo->credit_account_balance))
+                                    <option value="credit">Operating Account (${{number_format($UsersAdditionalInfo->credit_account_balance ?? 0,2)}})</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -339,6 +342,9 @@
                         $("#minimum-trust-balance").html(res.minimum_trust_balance);
                         $("#current-balance-list-down").text(res.minimum_trust_balance);
                         $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
+                        if(res.is_non_trust_retainer == "yes") {
+                            $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
+                        }
                         $(".text-muted").show();
                         $('#disabledArea').removeClass('retainer-request-opaque');
                         $('.submit').removeAttr("disabled");  
@@ -362,6 +368,9 @@
                 $("#minimum-trust-balance").html(res.minimum_trust_balance);
                 $("#current-balance-list-down").text(res.minimum_trust_balance);
                 $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
+                if(res.is_non_trust_retainer == "yes") {
+                    $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
+                }
             }
         })
     }

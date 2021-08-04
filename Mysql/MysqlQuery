@@ -2,6 +2,9 @@
 ALTER TABLE `messages`
 ADD `is_archive` tinyint(2) NULL DEFAULT '0' AFTER `message`,
 ADD `is_draft` tinyint(2) NULL DEFAULT '0' AFTER `is_archive`;
+------------------------------------ 04-Aug-2021 -----------------------------
+ALTER TABLE `requested_fund` ADD `deposit_into_type` ENUM('trust','credit') NOT NULL DEFAULT 'trust' AFTER `deposit_into`;
+ALTER TABLE `all_history` CHANGE `type` `type` ENUM('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 
 ------------------------------------ 03-Aug-2021 -----------------------------
 ALTER TABLE `deposit_into_credit_history` ADD `related_to_invoice_payment_id` INT(11) NULL AFTER `firm_id`;

@@ -26,11 +26,12 @@ class UserController extends BaseController
     {
         return view('auth.login');
     }
-    protected function authenticated($request, $user) { auth()->logoutOtherDevices(request('password')); }
+    // protected function authenticated($request, $user) { auth()->logoutOtherDevices(request('password')); }
 
 
     public function login(Request $request)
     {
+        // return $request->all();
         $input=$request->all();
         $validator = Validator::make($input, [
             'email' => 'required|email|exists:users,email',

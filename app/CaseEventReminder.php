@@ -15,7 +15,8 @@ class CaseEventReminder extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'event_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'is_dismiss', 'snoozed_at', 'remind_at', 'snooze_remind_at', 'reminded_at'
+        'event_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'snooze_time', 'snooze_type', 'is_dismiss', 'snoozed_at', 'remind_at', 
+        'snooze_remind_at', 'reminded_at', 'reminder_user_type'
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){

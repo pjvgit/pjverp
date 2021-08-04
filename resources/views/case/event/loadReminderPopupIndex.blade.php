@@ -19,8 +19,10 @@
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
                                             <div>
+                                                <input type="hidden" name="reminder[id][]" value="{{ $rval->id }}">
                                                 <div class="">
-                                                    <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
+                                                    {{-- <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  "> --}}
+                                                    <select id="reminder_user_type" name="reminder[user_type][]" class="form-control custom-select  ">
                                                         @forelse (reminderUserType() as $key => $item)
                                                         <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? "selected" : "" }}>{{ $item }}</option>
                                                         @empty
@@ -32,17 +34,19 @@
                                         <div class="pl-0 col-3">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
+                                                    {{-- <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false"> --}}
+                                                    <select id="reminder_type" name="reminder[type][]" class="form-control custom-select valid" aria-invalid="false">
                                                         <option <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?> value="popup">popup</option>
                                                         <option <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?> value="email">email</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                        </div><input name="reminder[number][]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                         <div class="col-4">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
+                                                    {{-- <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  "> --}}
+                                                    <select id="reminder_time_unit" name="reminder[time_unit][]" class="form-control custom-select  ">
                                                         <option <?php if($rval->reminder_frequncy=="minute"){ echo "selected=selected"; } ?> value="minute">minutes</option>
                                                         <option <?php if($rval->reminder_frequncy=="hour"){ echo "selected=selected"; } ?> value="hour">hours</option>
                                                         <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
@@ -51,7 +55,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="btn remove" type="button">
+                                        <button class="btn remove" type="button" data-remind-id="{{ $rval->id }}">
                                             <i class="fa fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -65,60 +69,61 @@
                 </div>
             </div>  
 
-            <div class="fieldGroupCopy copy hide" style="display: none;">
-                <div class="">
-                    <div class="d-flex col-10 pl-0 align-items-center">
-                        <div class="pl-0 col-3">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_user_type" name="reminder_user_type[]"
-                                        class="form-control custom-select  ">
-                                        @forelse (reminderUserType() as $key => $item)
-                                        <option value="{{ $key }}">{{ $item }}</option>
-                                        @empty
-                                        @endforelse
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pl-0 col-3">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type[]"
-                                        class="form-control custom-select  ">
-                                        <option value="popup">popup</option>
-                                        <option value="email">email</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
-                        <div class="col-4">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_time_unit" name="reminder_time_unit[]"
-                                        class="form-control custom-select  ">
-                                        <option value="minute">minutes</option>
-                                        <option value="hour">hours</option>
-                                        <option value="day">days</option>
-                                        <option value="week">weeks</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn remove" type="button">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
     </div>
 </div><!-- end of main-content -->
 <div class="modal-footer">
     <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
     <button type="submit" name="submit" class="btn btn-primary">Set Reminders</button>
 </div>
+<input type="hidden" id="deleted_reminder_id" name="deleted_reminder_id" >
 </form>
+{{-- Copy reminder fields --}}
+<div class="fieldGroupCopy copy hide" style="display: none;">
+    <div class="">
+        <div class="d-flex col-10 pl-0 align-items-center">
+            <div class="pl-0 col-3">
+                <div>
+                    <div class="">
+                        <select id="reminder_user_type" name="reminder[user_type][]"
+                            class="form-control custom-select  ">
+                            @forelse (reminderUserType() as $key => $item)
+                            <option value="{{ $key }}">{{ $item }}</option>
+                            @empty
+                            @endforelse
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="pl-0 col-3">
+                <div>
+                    <div class="">
+                        <select id="reminder_type" name="reminder[type][]"
+                            class="form-control custom-select  ">
+                            <option value="popup">popup</option>
+                            <option value="email">email</option>
+                        </select>
+                    </div>
+                </div>
+            </div><input name="reminder[number][]" class="form-control col-2 reminder-number" value="1">
+            <div class="col-4">
+                <div>
+                    <div class="">
+                        <select id="reminder_time_unit" name="reminder[time_unit][]"
+                            class="form-control custom-select  ">
+                            <option value="minute">minutes</option>
+                            <option value="hour">hours</option>
+                            <option value="day">days</option>
+                            <option value="week">weeks</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn remove" type="button" data-remind-id="">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $(document).ready(function () {
 
@@ -128,6 +133,11 @@
             $('body').find('.fieldGroup:last').before(fieldHTML);
         });
         $('#editReminderIndex').on('click', '.remove', function () {
+            var remindId = $(this).attr("data-remind-id");
+            if($("#deleted_reminder_id").val() != '')
+                $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + ','+remindId);
+            else
+                $("#deleted_reminder_id").val($('#deleted_reminder_id').val() + remindId);
             var $row = $(this).parents('.fieldGroup').remove();
         });
 

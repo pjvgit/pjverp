@@ -1076,7 +1076,8 @@ class CompanydashboardController extends BaseController
        
             $RequestedFund=new RequestedFund;
             $RequestedFund->client_id=$request->contact;
-            $RequestedFund->deposit_into=$request->deposit_into;
+            $RequestedFund->deposit_into=$request->contact;
+            $RequestedFund->deposit_into_type=$request->deposit_into;
             $RequestedFund->amount_requested=$request->amount;
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_paid="0.00";
