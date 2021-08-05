@@ -233,7 +233,7 @@
                 $("#client_share_all").prop('checked', false)
             }
         });
-        $(".client_attend_all_users ").click(function () {
+        $(".client_attend_all_users").click(function () {
             if ($('.client_attend_all_users:checked').length == $('.client_attend_all_users').length) {
                 $("#client_attend_all").prop('checked', "checked")
             } else {

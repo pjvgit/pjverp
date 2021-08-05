@@ -2,16 +2,12 @@
 
 namespace App\Jobs;
 
-use App\User,DB;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\CaseEvent,App\CaseEventLinkedContactLead,App\Firm,App\EmailTemplate,App\CaseEventComment;
+use App\CaseEvent,App\Firm,App\EmailTemplate,App\CaseEventComment;
 use App\Mail\EventCommentMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -51,26 +47,29 @@ class CommentEmail implements ShouldQueue
         // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$this->event_id)->get();
         // $fromUserData=User::find($this->fromUser);
         $firmData=Firm::find($this->firm); 
-        $getTemplateData = EmailTemplate::find(25);
         $caseEventComment = CaseEventComment::whereId($this->CaseEventComment)->with("createdByUser")->first();
-        $caseEvent = CaseEvent::whereId($this->event_id)->with("eventLinkedStaff", "eventLinkedContact", "eventLinkedLead")->first();
+        $caseEvent = CaseEvent::whereId($this->event_id)->with(["eventLinkedStaff" => function($query) use($caseEventComment) {
+                        $query->wherePivot("user_id", "!=", $caseEventComment->created_by);
+                    }, "eventLinkedContact", "eventLinkedLead"])->first();
         if($caseEvent) {
             if($caseEvent->eventLinkedStaff) {
                 Log::info("event linked staff");
+                $getTemplateData = EmailTemplate::find(26);
                 foreach($caseEvent->eventLinkedStaff as $key => $item) {
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'staff')));        
                 }
             }
+            $getTemplateData = EmailTemplate::find(25);
             if($caseEvent->eventLinkedContact) {
                 Log::info("event contact staff");
                 foreach($caseEvent->eventLinkedContact as $key => $item) {
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
                 }
             }
             if($caseEvent->eventLinkedLead) {
                 Log::info("event linked lead");
                 foreach($caseEvent->eventLinkedLead as $key => $item) {
-                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser)));        
+                    Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
                 }
             }
         }

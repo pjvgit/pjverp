@@ -122,7 +122,7 @@
                                                 <div class="d-flex flex-row">
                                                     <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($vstaff->id)}}"
                                                         class="d-flex align-items-center user-link"
-                                                        title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
+                                                        title="{{@$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
                                                         {{substr($vstaff->last_name,0,15)}}
                                                         ({{$userTypes[$vstaff->user_type]}})</a>
                                                 </div>

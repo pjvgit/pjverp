@@ -56,6 +56,15 @@
                     } else {
                         $("#innerLoader").css('display', 'none');
                         $("#cleintUSER_"+{{$UserMasterData->id}}).prop('checked',"checked");
+                        var userId = $("#grantAccessPageConfirm #client_id").val();
+                        $("#loadTaskSection #cleintUSER_"+ userId).attr('data-client_portal_enable', "1");
+                        $("#loadTaskSection #attend_user_"+ userId).prop('disabled', false);
+                        $("#loadTaskSection #attend_user_"+ userId).removeClass('not-enable-portal');
+                        if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
+                            $("#SelectAllLeadShare").prop('checked', true);
+                        } else {
+                            $("#SelectAllLeadShare").prop('checked', false);
+                        }
                         $("#loadGrantAccessModal").modal("hide");
 
                     }

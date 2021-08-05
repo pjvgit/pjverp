@@ -1,7 +1,3 @@
-<?php 
-// echo $user["mail_body"];
-?>
-
 @component('mail::layout')
 
 {{-- Header --}}
