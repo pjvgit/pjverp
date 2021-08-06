@@ -194,10 +194,13 @@
         $("#client_share_all").click(function () {
 
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
-            // $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             if(!$(this).is(":checked")) {
                 $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
                 $("#client_attend_all").prop('checked', $(this).prop('checked'));
+                $(".client_attend_all_users").prop("disabled", true)
+            } else {
+                $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+                $(".client_share_all_users").prop('checked', $(this).prop('checked'));
             }
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();

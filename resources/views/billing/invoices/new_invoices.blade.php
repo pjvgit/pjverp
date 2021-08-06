@@ -1287,7 +1287,7 @@ if(!isset($adjustment_token)){
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show" && $case_id != "none")
+                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices == "dont show" && $case_id != "none")
                     <div class="apply-funds-container" id="apply-trust-and-credit-funds">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">
@@ -1372,7 +1372,7 @@ if(!isset($adjustment_token)){
                                                                     <div class="col-12 col-sm-12">
                                                                         <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
                                                                             @forelse (trustAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}">{{ $sitem }}</option>
+                                                                            <option value="{{ $skey }}" {{ ($skey == str_replace("show","trust", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
                                                                             @empty
                                                                             @endforelse
                                                                         </select>
@@ -1455,7 +1455,7 @@ if(!isset($adjustment_token)){
                                                                     <div class="col-12 col-sm-12">
                                                                         <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
                                                                             @forelse (creditAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}">{{ $sitem }}</option>
+                                                                            <option value="{{ $skey }}" {{ ($skey == str_replace("show","credit", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
                                                                             @empty
                                                                             @endforelse
                                                                         </select>
