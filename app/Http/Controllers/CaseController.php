@@ -5798,8 +5798,10 @@ class CaseController extends BaseController
         }
 
         // Start-End time for all events convert into UTC
-        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser ->user_timezone)));
-        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser ->user_timezone)));
+        Log::info("UTC seleted: ".convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser ->user_timezone));
+        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
+        Log::info("Final start time: ".$start_time);
+        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
 
         if($request->delete_event_type=='SINGLE_EVENT') {
             $CaseEvent = CaseEvent::find($request->event_id);
@@ -6582,8 +6584,7 @@ class CaseController extends BaseController
                     }
                 }
             }
-
-        } elseif($request->delete_event_type=='ALL_EVENTS'){
+        } elseif($request->delete_event_type=='ALL_EVENTS') {
             $CaseEvent=CaseEvent::find($request->event_id);
             if(!isset($request->recuring_event)){
                 $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id)->where('id',"!=",$request->event_id);
@@ -6626,39 +6627,26 @@ class CaseController extends BaseController
                 if($request->event_frequency=='DAILY')
                 {
                     $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("parent_evnt_id",$OldCaseEvent->parent_evnt_id)->orderBy("id", "asc")->withTrashed()->first();
-                    $oldStartDate = strtotime($OldCaseEventForDate->start_date);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                     $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)/* ->where("id", "!=", $OldCaseEvent->id) */->get();
-                    // $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    // $oldEvents->forceDelete();
-                    $deletedEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->onlyTrashed()->pluck("start_date", "id")->toArray();
-
                     if($request->end_on!=''){
                         $endDate = strtotime($request->end_on);
                     }
-                    $startDateDiff = false;
-                    if($oldStartDate != $startDate) {
-                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                        $oldEvents->forceDelete();
-                        $startDateDiff = true;
-                    }
-                   
                     $i=0;
                     $event_interval_day=$request->event_interval_day;
-                    $existEventDates = $oldEvents->pluck("start_date", "id")->toArray();
-                    do {
-                        $start_date = date("Y-m-d",$startDate);
-                        $end_date = $start_date;
-                        if(in_array($start_date, $existEventDates)) {
-                            $currentEventId = array_search($start_date, $existEventDates);
-                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, $currentEventId);
-                        } else if(in_array($start_date, $deletedEvents) && !$startDateDiff) {
-                            
-                        } else {
-                            $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete old records
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        // Create new events for new frequency
+                        $event_interval_day=$request->event_interval_day;
+                        do {
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
                                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -6667,87 +6655,127 @@ class CaseController extends BaseController
                                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                                 $CaseEvent->save();
                             }
+                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                
+                            // $this->saveEventHistory($CaseEvent->id);
+                            
+                            $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
+                            $i++;
+                        } while ($startDate <= $endDate);
+                    } else {
+                        do {
+                            $start_date = date("Y-m-d",$startDate);
+                            $end_date = $start_date;
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+
                             $this->saveEventReminder($request->all(),$CaseEvent->id); 
                             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id);                               
                             $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
                             $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                             $this->saveEventHistory($CaseEvent->id);
-                        }
-                        $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
-                        $i++;
-                    } while ($startDate <= $endDate);
-
-                    // $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    // $OldCaseEvent->forceDelete();
+                            $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
+                            $i++;
+                        } while ($startDate <= $endDate);
+                    }
                 }else if($request->event_frequency=='EVERY_BUSINESS_DAY')
                 { 
                     $i=0;
                     $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("id",$OldCaseEvent->parent_evnt_id)->first();
-                    $startDate = strtotime($OldCaseEventForDate->start_date);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                    $endTime =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
+                    }
                     
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
-                    $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    $oldEvents->forceDelete();
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete old records
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        // Create new events for new frequency
+                        $elseFist = true; $currentI = 0;  
+                        do {
+                            $timestamp = $startDate;
+                            $weekday= date("l", $timestamp );            
+                            if ($weekday =="Saturday" OR $weekday =="Sunday") { 
+                            }else {
+                                if($elseFist) {
+                                    $elseFist = false;
+                                    $currentI = $i;
+                                }
+                                $start_date = date("Y-m-d", $startDate);
+                                $end_date = date("Y-m-d", $startDate);
+                                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                                if($i==$currentI) { 
+                                    $parentCaseID=$CaseEvent->id;
+                                    $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                                    $CaseEvent->save();
+                                }else{
+                                    $CaseEvent->parent_evnt_id =  $parentCaseID;
+                                    $CaseEvent->save();
+                                }
+                                $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
 
-                    $elseFist = true; $currentI = 0;    
-                    do {
-                        $timestamp = $startDate;
-                        $weekday= date("l", $timestamp );    
-                        if ($weekday =="Saturday" OR $weekday =="Sunday") { 
-                        }else {
-                            if($elseFist) {
-                                $elseFist = false;
-                                $currentI = $i;
+                                // $this->saveEventHistory($CaseEvent->id);
                             }
-                            $start_date = date("Y-m-d", $startDate);
-                            $end_date = date("Y-m-d", $startDate);
-                            $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
-                            if($i==$currentI) { 
-                                $parentCaseID=$CaseEvent->id;
-                                $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                                $CaseEvent->save();
-                            }else{
-                                $CaseEvent->parent_evnt_id =  $parentCaseID;
-                                $CaseEvent->save();
-                            }
-                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-                            $this->saveEventHistory($CaseEvent->id);
+                            $i++;
+                            $startDate = strtotime('+1 day',$startDate); 
+                        } while ($startDate <= $endDate);
 
-                        }
-                        $i++;
-                        $startDate = strtotime('+1 day',$startDate); 
-                    } while ($startDate <= $endDate);
+                    } else {    
+                        do {
+                            $timestamp = $startDate;
+                            $weekday= date("l", $timestamp );    
+                            if ($weekday =="Saturday" OR $weekday =="Sunday") { 
+                            }else {
+                                $start_date = date("Y-m-d", $startDate);
+                                $end_date = date("Y-m-d", $startDate);
+                                $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+
+                                $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                                $this->saveEventHistory($CaseEvent->id);
+
+                            }
+                            $i++;
+                            $startDate = strtotime('+1 day',$startDate); 
+                        } while ($startDate <= $endDate);
+                    }
 
                     $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
                     $OldCaseEvent->forceDelete();
                        
-                }else if($request->event_frequency=='WEEKLY')
-                {
+                } else if($request->event_frequency=='WEEKLY') {
                     $i=0;
                     $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("id",$OldCaseEvent->parent_evnt_id)->first();
-                    $startDate = strtotime($OldCaseEventForDate->start_date);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                    $endTime =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
+                    }                    
                     
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
-                    $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    $oldEvents->forceDelete();
-                    
-                    do {
-                    
-                        // $timestamp = $startDate;
-                        // $weekday= date("l", $timestamp );       
-                        // if ($weekday==date("l")) { 
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete next records from current event                        
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        // Create new events for new frequency
+                        do {
                             $start_date = date("Y-m-d", $startDate);
                             $end_date = date("Y-m-d", $startDate);
-                            $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
                                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -6760,61 +6788,147 @@ class CaseController extends BaseController
                             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
                             $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
                             $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                            $i++;
+                            $startDate = strtotime('+7 day',$startDate); 
+                        } while ($startDate <= $endDate);
+                    } else {
+                        do {
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+
+                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                             $this->saveEventHistory($CaseEvent->id);
 
-                        // }
-                        $startDate = strtotime('+7 day',$startDate); 
-                        $i++;
-                    } while ($startDate <= $endDate);
-                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    $OldCaseEvent->forceDelete();
+                            $startDate = strtotime('+7 day',$startDate); 
+                            $i++;
+                        } while ($startDate <= $endDate);
+                    }
                 }else if($request->event_frequency=='CUSTOM')
-                { 
+                {
                     $i=0;
                     $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("id",$OldCaseEvent->parent_evnt_id)->first();
-                    $startDate = strtotime($OldCaseEventForDate->start_date);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
                     $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                   
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
-                    $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    $oldEvents->forceDelete();
-                    
-                    // $weekFirstDay=date("Y-m-d", strtotime('monday this week'));
-                    // $start = new DateTime($weekFirstDay);
-                    // $startClone = new DateTime($weekFirstDay);
-
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
                     $start = new DateTime(date("Y-m-d", $startDate));
                     $startClone = new DateTime(date("Y-m-d", $startDate));
                     if($request->end_on!=''){
                         $end=new DateTime($request->end_on);
                     }else{
-                        $end =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                        $end=$startClone->add(new DateInterval('P365D'));
+                    }                
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete next records from current event  
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+
+                        $interval = new DateInterval('P1D');
+                        $period = new DatePeriod($start, $interval, $end);
+                        
+                        $weekInterval = $request->daily_weekname;
+                        $fakeWeek = 0;
+                        $currentWeek = $start->format('W');
+                        
+                        foreach ($period as $date) {
+                            if ($date->format('W') !== $currentWeek) {
+                                $currentWeek = $date->format('W');
+                                $fakeWeek++;
+                            }
+                            if ($fakeWeek % $weekInterval !== 0) {
+                                continue;
+                            }
+                        
+                            $dayOfWeek = $date->format('l');
+                            if(in_array($dayOfWeek,$request->custom)){
+                                $start_date = $date->format('Y-m-d');
+                                $end_date =$date->format('Y-m-d');
+                                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                                if($i==0) { 
+                                    $parentCaseID=$CaseEvent->id;
+                                    $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                                    $CaseEvent->save();
+                                }else{
+                                    $CaseEvent->parent_evnt_id =  $parentCaseID;
+                                    $CaseEvent->save();
+                                }
+                                $i++;
+                                $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                                // $this->saveEventHistory($CaseEvent->id);
+                            }
+                        }
+                    } else {
+                        $interval = new DateInterval('P1D');
+                        $period = new DatePeriod($start, $interval, $end);
+                        
+                        $weekInterval = $request->daily_weekname;
+                        $fakeWeek = 0;
+                        $currentWeek = $start->format('W');
+                        
+                        foreach ($period as $date) {
+                            if ($date->format('W') !== $currentWeek) {
+                                $currentWeek = $date->format('W');
+                                $fakeWeek++;
+                            }
+                            if ($fakeWeek % $weekInterval !== 0) {
+                                continue;
+                            }
+                            $dayOfWeek = $date->format('l');
+                            if(in_array($dayOfWeek,$request->custom)){
+                                $start_date = $date->format('Y-m-d');
+                                $end_date =$date->format('Y-m-d');
+                                $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                                $i++;
+                                $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                                $this->saveEventHistory($CaseEvent->id);
+                            }
+                        }
+                    }
+                }else if($request->event_frequency=='MONTHLY')
+                { 
+                    $Currentweekday= date("l", $startDate ); 
+                    $i=0;
+                    $OldCaseEvent=CaseEvent::find($request->event_id);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
+                    $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
                     }
 
-                    $interval = new DateInterval('P1D');
-                    $period = new DatePeriod($start, $interval, $end);
                     
-                    $weekInterval = $request->daily_weekname;
-                    $fakeWeek = 0;
-                    $currentWeek = $start->format('W');
-                    
-                    foreach ($period as $date) {
-                        if ($date->format('W') !== $currentWeek) {
-                            $currentWeek = $date->format('W');
-                            $fakeWeek++;
-                        }
-                    
-                        if ($fakeWeek % $weekInterval !== 0) {
-                            continue;
-                        }
-                    
-                        $dayOfWeek = $date->format('l');
-                        if(in_array($dayOfWeek,$request->custom)){
-
-                            $start_date = $date->format('Y-m-d');
-                            $end_date =$date->format('Y-m-d');
-                            $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete next records from current event                        
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        // Create new events for new frequency
+                        do {
+                            $monthly_frequency=$request->monthly_frequency;
+                            $event_interval_month=$request->event_interval_month;
+                            if($monthly_frequency=='MONTHLY_ON_DAY'){
+                                $startDate=$startDate;
+                            }else if($monthly_frequency=='MONTHLY_ON_THE'){
+                                $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                            }else if($monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                                $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                            }
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
                             if($i==0) { 
                                 $parentCaseID=$CaseEvent->id;
                                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -6823,118 +6937,116 @@ class CaseController extends BaseController
                                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                                 $CaseEvent->save();
                             }
+                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                            //  $this->saveEventHistory($CaseEvent->id);
+                            $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
                             $i++;
+                        } while ($startDate < $endDate);
+                    } else {
+                        do {
+                            $monthly_frequency=$request->monthly_frequency;
+                            $event_interval_month=$request->event_interval_month;
+                            if($monthly_frequency=='MONTHLY_ON_DAY'){
+                                $startDate=$startDate;
+                            }else if($monthly_frequency=='MONTHLY_ON_THE'){
+                            $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                            }else if($monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                                $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                            }
+
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+
+                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                            $this->saveEventHistory($CaseEvent->id);
+
+                            
+                            $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
+                            $i++;
+                        } while ($startDate < $endDate);
+                    }
+                }else if($request->event_frequency=='YEARLY') { 
+                    $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+                    $yearly_frequency=$request->yearly_frequency;
+                    $Currentweekday= date("l", $startDate ); 
+                    $i=0;
+                    $OldCaseEvent=CaseEvent::find($request->event_id);
+                    $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                    $startDate = strtotime($oldFirstEvent->start_date);
+                    $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
+                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
+                    if($request->end_on!=''){
+                        $endDate = strtotime($request->end_on);
+                    }
+
+                    if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                        // Delete next records from current event                        
+                        $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                        // Create new events for new frequency
+                        do {
+                            $event_interval_year=$request->event_interval_year;
+                            if($yearly_frequency=='YEARLY_ON_DAY'){
+                                $startDate=$startDate;
+                            }else if($yearly_frequency=='YEARLY_ON_THE'){
+                            $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                            }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
+                                $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                            }
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                            if($i==0) { 
+                                $parentCaseID=$CaseEvent->id;
+                                $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                                $CaseEvent->save();
+                            }else{
+                                $CaseEvent->parent_evnt_id =  $parentCaseID;
+                                $CaseEvent->save();
+                            }
+                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                            // $this->saveEventHistory($CaseEvent->id);
+
+                            $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
+                            $i++;
+                        } while ($startDate < $endDate);
+                    } else {
+                        do {
+                            $event_interval_year=$request->event_interval_year;
+                            if($yearly_frequency=='YEARLY_ON_DAY'){
+                                $startDate=$startDate;
+                            }else if($yearly_frequency=='YEARLY_ON_THE'){
+                                $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                            }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
+                                $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                            }
+                            $start_date = date("Y-m-d", $startDate);
+                            $end_date = date("Y-m-d", $startDate);
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+
                             $this->saveEventReminder($request->all(),$CaseEvent->id); 
                             $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
                             $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
                             $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                             $this->saveEventHistory($CaseEvent->id);
-                        }
+                            
+                            $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
+                            $i++;
+                        } while ($startDate < $endDate);
                     }
-                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    $OldCaseEvent->forceDelete();
-                
-                }else if($request->event_frequency=='MONTHLY')
-                { 
-                    $Currentweekday= date("l", $startDate ); 
-                    $i=0;
-                    $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $OldCaseEventForDate=CaseEvent::where("id",$OldCaseEvent->parent_evnt_id)->first();
-                    $startDate = strtotime($OldCaseEventForDate->start_date);
-                    $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                    $endDate = strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
-                    $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    $oldEvents->forceDelete();
-                    
-                    if($request->end_on!=''){
-                        $endDate = strtotime($request->end_on);
-                    }
-
-                    do {
-                        $monthly_frequency=$request->monthly_frequency;
-                        $event_interval_month=$request->event_interval_month;
-                        if($monthly_frequency=='MONTHLY_ON_DAY'){
-                            $startDate=$startDate;
-                        }else if($monthly_frequency=='MONTHLY_ON_THE'){
-                        $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
-                        }else if($monthly_frequency=='MONTHLY_ON_THE_LAST'){
-                            $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
-                        }
-
-                        $start_date = date("Y-m-d", $startDate);
-                        $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
-                        if($i==0) { 
-                            $parentCaseID=$CaseEvent->id;
-                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                            $CaseEvent->save();
-                        }else{
-                            $CaseEvent->parent_evnt_id =  $parentCaseID;
-                            $CaseEvent->save();
-                        }
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-                        $this->saveEventHistory($CaseEvent->id);
-
-                        
-                        $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
-                        $i++;
-                    } while ($startDate < $endDate);
-                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    $OldCaseEvent->forceDelete();
-                }else if($request->event_frequency=='YEARLY') { 
-                    $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
-                    
-                    $yearly_frequency=$request->yearly_frequency;
-                    $Currentweekday= date("l", $startDate ); 
-                    $i=0;
-                    $OldCaseEvent=CaseEvent::find($request->event_id);
-                    $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                    $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                    
-                    $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where("id", "!=", $OldCaseEvent->id);
-                    $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
-                    $oldEvents->forceDelete();
-
-                    if($request->end_on!=''){
-                        $endDate = strtotime($request->end_on);
-                    }
-                    
-                    do {
-                        $event_interval_year=$request->event_interval_year;
-                        if($yearly_frequency=='YEARLY_ON_DAY'){
-                            $startDate=$startDate;
-                        }else if($yearly_frequency=='YEARLY_ON_THE'){
-                            $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
-                        }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
-                            $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
-                        }
-                        $start_date = date("Y-m-d", $startDate);
-                        $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
-                        if($i==0) { 
-                            $parentCaseID=$CaseEvent->id;
-                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                            $CaseEvent->save();
-                        }else{
-                            $CaseEvent->parent_evnt_id =  $parentCaseID;
-                            $CaseEvent->save();
-                        }
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-                        $this->saveEventHistory($CaseEvent->id);
-                        
-                        $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
-                        $i++;
-                    } while ($startDate < $endDate);
-                    $OldCaseEvent->deleteChildTableRecords([$OldCaseEvent->id]);
-                    $OldCaseEvent->forceDelete();
                 }
             }
         }
