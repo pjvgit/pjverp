@@ -55,7 +55,9 @@ class EventMinuteReminderEmailCommand extends Command
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
+                Log::info("users: ". implode(",", $users));
                 if(count($users)) {
+                    Log::info("minute before time");
                     if(Carbon::now()->eq(Carbon::parse($item->remind_at))) {
                         Log::info("minute time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
