@@ -1,5 +1,6 @@
 <div id="printArea">
 <div class="message_details_header" data-message-id="{{$messagesData->id}}">
+    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
     <div style="float: left; width: 50px;">
       <img src="{{ asset('images/message.svg') }}" width="42" height="42">
     </div>
@@ -23,9 +24,15 @@
             <div style="float: left; margin-top: 3px;">
             Case:
             </div>
+            @if($messagesData->case_unique_number)
             <div id="case_link_text" style="float: left; margin-left: 5px; margin-top: 3px;">
                 <a href="{{ route('info',$messagesData->case_unique_number) }}">{{$messagesData->case_title}}</a>
             </div>
+            @else
+            <div style="float: left; margin-top: 3px;">
+                <p> &nbsp;Not linked to a case</p>
+            </div>                           
+            @endif
         </div>
     </div>
 </div>
@@ -73,6 +80,7 @@
     </div>
 </div>
 </div>
+@if($messagesData->is_global == "0")
 <br>
 <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
     @csrf
@@ -81,7 +89,6 @@
     <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
     <input class="form-control" value="{{$messagesData->user_id}}" id="selected_user_id" name="selected_user_id" type="hidden">
     <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
-    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>    
     <div class="row">
@@ -108,6 +115,11 @@
     <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
     <input class="form-control" value="{{$messagesData->case_id}}" id="case_link" maxlength="250" name="case_link" type="hidden">
 </form>
+@else
+<div style="text-align: center; padding: 20px;">
+    <em>You cannot reply to this message.</em>
+</div>
+@endif
 <style>
     body>#editor {
         margin: 50px auto;
@@ -184,6 +196,7 @@ $('#replyEmails').submit(function (e) {
                     afterLoader()
                     if($("#current_submit").val() == 'saveandtime'){            
                         $("#loadMessagesEntryPopup").modal('hide');
+                        $("#addNewMessagePopup").modal('hide');
                         $("#loadTimeEntryPopup").modal('show');
                         if($("#current_submit").val() == 'saveandtime'){
                             loadTimeEntryPopupByCase($("#case_link").val());

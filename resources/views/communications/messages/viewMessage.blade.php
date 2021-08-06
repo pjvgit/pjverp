@@ -2,13 +2,22 @@
 @section('title','Communications')
 @section('main-content')
 <div class="row">
-    <div class="col-md-12" id="printArea">
+    <div class="col-md-12">
         <div class="card mb-4">
             <div class="card-body">
             <div id="showError" class="showError" style="display:none"></div>
             @if($messagesData)
+            <div style="float: right;">    
+                <button onclick="printData()" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <a class="btn btn-sm btn-secondary ml-1 archiveMessage" style="display:none;" href="javascript:void(0);" onclick="archiveMessage(); return false;">Archive</a>    
+                <a class="btn btn-sm btn-secondary ml-1 unarchiveMessage" style="display:none;" href="javascript:void(0);" onclick="unarchiveMessage(); return false;">Unarchive</a>    
+            </div>
             <div id="printArea">
                 <div class="message_details_header" data-message-id="{{$messagesData->id}}">
+                    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
+                    
                     <div style="float: left; width: 50px;">
                     <img src="{{ asset('images/message.svg') }}" width="42" height="42">
                     </div>
@@ -36,6 +45,10 @@
                             <div id="case_link_text" style="float: left; margin-left: 5px; margin-top: 3px;">
                                 <a href="{{ route('info',$messagesData->case_unique_number) }}">{{$messagesData->case_title}}</a>
                             </div>
+                            @else
+                            <div style="float: left; margin-top: 3px;">
+                                <p> &nbsp;Not linked to a case</p>
+                            </div>                           
                             @endif
                         </div>
                     </div>
@@ -87,6 +100,7 @@
                     </div>
                 </div>
                 </div>
+                @if ($messagesData->is_global == "0" || ($messagesData->is_global == "1" && $messagesData->created_by != Auth::user()->id))
                 <br>
                 <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
                     @csrf
@@ -94,8 +108,7 @@
                     <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
                     <input class="form-control" value="{{$messagesData->user_id}}" id="selected_user_id" name="selected_user_id" type="hidden">
                     <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
-                    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
-                   
+                    
                     <span id="response"></span>    
                     <div class="row">
                         <div class="col-md-12 form-group mb-3">
@@ -121,6 +134,11 @@
                     <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
                     <input class="form-control" value="{{$messagesData->case_id}}" id="case_link" maxlength="250" name="case_link" type="hidden">
                 </form>
+                @else
+                <div style="text-align: center; padding: 20px;">
+                    <em>You cannot reply to this message.</em>
+                </div>
+                @endif
             @else
                 <div id="messages_page_data">  <div class="no_items text-center">no records found</div><br></div>
             @endif
@@ -311,7 +329,7 @@ function archiveMessage(){
                     positionClass: "toast-top-full-width",
                     containerId: "toast-top-full-width"
                 });
-                $("#loadMessagesEntryPopup").modal('hide');
+                window.location.reload();
             }
         },
         error: function (xhr, status, error) {
@@ -355,7 +373,7 @@ function unarchiveMessage(){
                     positionClass: "toast-top-full-width",
                     containerId: "toast-top-full-width"
                 });
-                $("#loadMessagesEntryPopup").modal('hide');
+                window.location.reload();
             }
         },
         error: function (xhr, status, error) {

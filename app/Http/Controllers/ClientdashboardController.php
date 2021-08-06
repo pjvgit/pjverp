@@ -1686,21 +1686,55 @@ class ClientdashboardController extends BaseController
                     //Get firm user list 
                     $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->get();
                     foreach($loadFirmUser as $k=>$v){
-                        $this->sendMailGlobal($request->all(),$v->id);
-                    }
-                
+                        $Messages=new Messages;
+                        $Messages->user_id=$v->id;
+                        $Messages->replies_is='private';
+                        $Messages->case_id=NUll;
+                        $Messages->is_global = 1;
+                        $Messages->subject=$request['subject'];
+                        $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->created_by =Auth::User()->id;
+                        $Messages->save();
+
+                        $ReplyMessages=new ReplyMessages;
+                        $ReplyMessages->message_id=$Messages->id;
+                        $ReplyMessages->reply_message=$request['delta'];
+                        $ReplyMessages->created_by =Auth::User()->id;
+                        $ReplyMessages->save();
+
+                        $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                    }            
                 
                 }
                 if(isset($request->message['global_clients'])){
                     //Get client list with client enable portal is active
-                    $clientLists = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
-                    ->select("first_name","last_name","users.id","user_level")
-                    ->where("users.user_level",2)
-                    ->where("parent_user",Auth::user()->id)
-                    ->where("lead_additional_info.client_portal_enable",1)
+                    $clientLists = UsersAdditionalInfo::leftJoin('users','users_additional_info.user_id','=','users.id')
+                    ->select("first_name","last_name","users.id","user_level","users_additional_info.client_portal_enable")
+                    ->where("users_additional_info.client_portal_enable", "1")
+                    ->where("users.user_level","2")
+                    ->where("users.parent_user",Auth::user()->id)                    
                     ->get();
+                    
                     foreach($clientLists as $k=>$v){
-                        $this->sendMailGlobal($request->all(),$v->id);
+                        if($v->client_portal_enable == 1){
+                            $Messages=new Messages;
+                            $Messages->user_id=$v->id;
+                            $Messages->replies_is='private';
+                            $Messages->case_id=NUll;
+                            $Messages->is_global = 1;
+                            $Messages->subject=$request['subject'];
+                            $Messages->message=substr(strip_tags($request->delta),0,50);
+                            $Messages->created_by =Auth::User()->id;
+                            $Messages->save();
+
+                            $ReplyMessages=new ReplyMessages;
+                            $ReplyMessages->message_id=$Messages->id;
+                            $ReplyMessages->reply_message=$request['delta'];
+                            $ReplyMessages->created_by =Auth::User()->id;
+                            $ReplyMessages->save();
+
+                            $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                        }
                     }
                     
                 }
@@ -1749,7 +1783,7 @@ class ClientdashboardController extends BaseController
                         $compnayIdWithEnablePortal = DB::table("users_additional_info")
                         ->select("id")
                         ->whereIn("user_id",$caseCllientSelection)
-                        ->where("client_portal_enable",1)
+                        ->where("client_portal_enable","1")
                         ->get()
                         ->pluck("id");;
 
@@ -1777,7 +1811,7 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->save();
 
                         foreach($compnayIdWithEnablePortal as $k=>$v){  
-                            $this->sendMailGlobal($request->all(),$v);
+                            $this->sendMailGlobal($request->all(),$v, $Messages->id);
                         }                    
                     }
                     
@@ -1785,7 +1819,7 @@ class ClientdashboardController extends BaseController
                         $userIdWithEnablePortal = DB::table("users_additional_info")
                         ->select("user_id")
                         ->where("multiple_compnay_id","like",'%'.$decideCode[1].'%')
-                        ->where("client_portal_enable",1)
+                        ->where("client_portal_enable","1")
                         ->get()
                         ->pluck("user_id");
 
@@ -1813,7 +1847,7 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->save();
 
                         foreach($userIdWithEnablePortal as $k=>$v){
-                            $this->sendMailGlobal($request->all(),$v);
+                            $this->sendMailGlobal($request->all(),$v,$Messages->id);
                         }                    
                     }
                     
@@ -1843,7 +1877,7 @@ class ClientdashboardController extends BaseController
 
                     foreach($request->send_to as $k=>$v){     
                         $decideCode=explode("-",$v);
-                        $this->sendMailGlobal($request->all(),$decideCode[1]);
+                        $this->sendMailGlobal($request->all(),$decideCode[1],$Messages->id);
                     }  
                 }
                 session(['popup_success' => 'Your message has been sent']);
@@ -1876,7 +1910,7 @@ class ClientdashboardController extends BaseController
 
             $userlist = explode(",",$request->selected_user_id);
             foreach ($userlist as $k=>$v){
-                $this->sendMailGlobal($request->all(),$v);
+                $this->sendMailGlobal($request->all(),$v,$request->message_id);
             }
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);
@@ -1887,7 +1921,7 @@ class ClientdashboardController extends BaseController
 
     public function archiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = 1;
+        $Messages->is_archive = "1";
         $Messages->save();
         return response()->json(['errors'=>'']);
     }
@@ -1920,7 +1954,7 @@ class ClientdashboardController extends BaseController
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
     }
 
-    public function sendMailGlobal($request,$id)
+    public function sendMailGlobal($request,$id, $messageID)
     {
         $firmData=Firm::find(Auth::User()->firm_name);
         $getTemplateData = EmailTemplate::find(11);
@@ -1929,7 +1963,7 @@ class ClientdashboardController extends BaseController
         $mail_body = str_replace('{sender}', $senderName, $mail_body);
         $mail_body = str_replace('{subject}', $request['subject'], $mail_body);
         $mail_body = str_replace('{loginurl}', BASE_URL.'login', $mail_body);
-        $mail_body = str_replace('{url}', BASE_URL.'messages/'.$id.'/info', $mail_body);
+        $mail_body = str_replace('{url}', BASE_URL.'messages/'.$messageID.'/info', $mail_body);
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -1943,7 +1977,7 @@ class ClientdashboardController extends BaseController
                 "from_title" => $firmData->firm_name,
                 "replyto"=>DO_NOT_REPLAY_FROM_EMAIL,
                 "replyto_title"=>DO_NOT_REPLAY_FROM_EMAIL_TITLE,
-                "subject" => "You have a new message on ".$firmData->firm_name,
+                "subject" => "You have a new message from ".$firmData->firm_name,
                 "to" => $clientData->email,
                 "full_name" => "",
                 "mail_body" => $mail_body

@@ -327,22 +327,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
-<div id="loadTimeEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Time Entry</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div id="addTimeEntry">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div id="loadEditTimeEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">

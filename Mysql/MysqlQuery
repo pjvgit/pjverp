@@ -1,3 +1,6 @@
+------------------------------------ 06-AUG-2021 ------------------------------
+ALTER TABLE `messages` ADD `is_global` tinyint(2) NULL DEFAULT '0' AFTER `is_draft`;
+
 ------------------------------------ 04-AUG-2021 ------------------------------
 ALTER TABLE `messages`
 ADD `is_archive` tinyint(2) NULL DEFAULT '0' AFTER `message`,
