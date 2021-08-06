@@ -1287,7 +1287,7 @@ if(!isset($adjustment_token)){
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices == "dont show" && $case_id != "none")
+                    @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show" && $case_id != "none")
                     <div class="apply-funds-container" id="apply-trust-and-credit-funds">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">

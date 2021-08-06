@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\User;
+use Illuminate\Support\Facades\Log;
 
 trait EventReminderTrait {
  
@@ -30,6 +31,7 @@ trait EventReminderTrait {
         if($notifyType == "popup") {
             $users = $users->where("id", auth()->id());
         }
+        Log::info("users id:". $users);
         return ['users' => $users, 'attendEvent' => $attendEvent];
     }
  
