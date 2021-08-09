@@ -1,4 +1,4 @@
-@if(isset($InvoiceHistoryTransaction) && !empty($InvoiceHistoryTransaction))
+@if(!empty($InvoiceHistoryTransaction) && count($InvoiceHistoryTransaction))
     <h3> Payment History</h3>
     <table style="width: 100%; border-collapse: collapse;" class="payment_history">
         <tbody><tr class="invoice_info_row invoice_header_row invoice-table-row">

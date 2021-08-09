@@ -671,7 +671,7 @@
         });
        
         $(".hide").hide();
-        $(".add-more").click(function () {
+        $("#firstStep .add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);

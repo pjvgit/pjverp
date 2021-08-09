@@ -31,7 +31,7 @@ trait EventReminderTrait {
         if($notifyType == "popup") {
             $users = $users->where("id", auth()->id());
         }
-        Log::info("users id:". $users);
+        // Log::info("users id:". $users);
         return ['users' => $users, 'attendEvent' => $attendEvent];
     }
  

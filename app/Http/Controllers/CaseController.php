@@ -7119,26 +7119,6 @@ class CaseController extends BaseController
             $CaseEventReminder->reminder_user_type=$request['reminder_user_type'][$i];
             $CaseEventReminder->created_by=Auth::user()->id; 
             $CaseEventReminder->remind_at=Carbon::now(); 
-            /* $event = CaseEvent::whereId($event_id)->first();
-            if($request->reminder_frequncy == "week" || $request->reminder_frequncy == "day") {
-                $eventStartDate = Carbon::parse($event->start_date);
-                if($request->reminder_frequncy == "week") {
-                    $remindTime = $eventStartDate->subWeeks($request->reminer_number)->format('Y-m-d H:i:s');
-                } else {
-                    $remindTime = $eventStartDate->subDays($request->reminer_number)->format('Y-m-d H:i:s');
-                }
-            } else if($request->reminder_frequncy == "hour") {
-                $eventStartTime = @$event->start_date." ".@$event->start_time;
-                $remindTime = Carbon::parse($eventStartTime)->subHours($request->reminer_number)->format('Y-m-d H:i:s');
-            } else if($request->reminder_frequncy == "minute") {
-                $eventStartTime = @$event->start_date." ".@$event->start_time;
-                $remindTime = Carbon::parse($eventStartTime)->subMinutes($request->reminer_number)->format('Y-m-d H:i:s');
-            } else {
-                $remindTime = Carbon::now()->format('Y-m-d H:i:s');
-            }
-            // return $remindTime;
-            // if($remindTime != '') 
-                return convertTimeToUTCzone($remindTime, auth()->user()->user_timezone); */
 
             $CaseEventReminder->save();
         }

@@ -57,8 +57,11 @@ class EventHourReminderEmailCommand extends Command
                 $attendEvent = $response["attendEvent"] ?? [];
                 if(count($users)) {
                     $eventStartTime = Carbon::parse($item->event->start_date.' '.$item->event->start_time);
-                    $now = Carbon::now();
-                    if($now->gte(Carbon::parse($item->remind_at)) && $eventStartTime->gt($now)) {
+                    $currentTime = Carbon::now()->format('Y-m-d H:i');
+                    $date1 = Carbon::createFromFormat('Y-m-d H:i', $currentTime);
+                    $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($item->remind_at)->format('Y-m-d H:i'));
+                    if($date1->gte($date2) && $eventStartTime->gt(Carbon::now())) {
+                    // if($now->gte(Carbon::parse($item->remind_at)) && $eventStartTime->gt($now)) {
                         Log::info("hour time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
                     } else {
