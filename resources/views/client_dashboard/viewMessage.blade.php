@@ -80,7 +80,7 @@
     </div>
 </div>
 </div>
-@if($messagesData->is_global == "0")
+@if ($messagesData->is_global == "0")
 <br>
 <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
     @csrf
