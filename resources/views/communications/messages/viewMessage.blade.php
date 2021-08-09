@@ -100,7 +100,7 @@
                     </div>
                 </div>
                 </div>
-                @if ($messagesData->is_global == "0" || ($messagesData->is_global == "1" && $messagesData->created_by != Auth::user()->id))
+                @if ($messagesData->is_global == "0")
                 <br>
                 <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
                     @csrf

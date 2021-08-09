@@ -39,10 +39,10 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text" id="start_date_{{$key+1}}"   name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date']))}}" onchange="getEndDate({{$key+1}})"></p>
+                <input type="text" id="start_date_{{$key+1}}"   name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date'] ?? date('Y-m-d')))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <div class="col-3">
-                <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date']))}}" onchange="getEndDate({{$key+1}})"></p>
+                <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date'] ?? date('Y-m-d')))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <input type="hidden" name="state_id[{{$key}}]" value="{{$stage['id']}}">
 
