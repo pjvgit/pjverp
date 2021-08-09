@@ -8143,7 +8143,7 @@ class CaseController extends BaseController
                 foreach($request->state_id as $k=>$v){
                     if(strtotime($request->start_date[$k]) > strtotime($request->end_date[$k])) 
                     {
-                        $errors[$k] = $request->end_date[$k].' is not smaller than '.$request->start_date[$k];                    
+                        $errors[$k] = $request->end_date[$k].' End date must be come after start date '.$request->start_date[$k];                    
                     }      
                     if(isset($request->start_date[$k+1])){
                         if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
@@ -8154,9 +8154,11 @@ class CaseController extends BaseController
             }
             if(isset($request->case_status) && !empty($request->case_status)){
                 $CaseMaster=CaseMaster::find($request->case_id);
-                foreach($request->case_status as $k=>$v){
-                    if($CaseMaster->case_status == $request->case_status[$k]){ 
-                        $errors[$k] = 'The Current Stage is not used again in index of '.($k+1);                    
+                if($CaseMaster->case_status > 0){
+                    foreach($request->case_status as $k=>$v){
+                        if($CaseMaster->case_status == $request->case_status[$k]){ 
+                            $errors[$k] = 'The Current Stage is not used again in index of '.($k+1);                    
+                        }
                     }
                 }
             }
