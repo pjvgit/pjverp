@@ -336,6 +336,8 @@ class CaseController extends BaseController
                 $caseStageHistory = new CaseStageUpdate;
                 $caseStageHistory->stage_id=($caseStatusChange->case_status)??NULL;
                 $caseStageHistory->case_id=$caseStatusChange->id;
+                $caseStageHistory->start_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
+                $caseStageHistory->end_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
                 $caseStageHistory->created_by=Auth::user()->id; 
                 $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
                 $caseStageHistory->save();
@@ -638,6 +640,8 @@ class CaseController extends BaseController
             $caseStageHistory = new CaseStageUpdate;
             $caseStageHistory->stage_id=($caseStatusChange->case_status)??NULL;
             $caseStageHistory->case_id=$caseStatusChange->id;
+            $caseStageHistory->start_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
+            $caseStageHistory->end_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
             $caseStageHistory->created_by=Auth::user()->id; 
             $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
             $caseStageHistory->save();
