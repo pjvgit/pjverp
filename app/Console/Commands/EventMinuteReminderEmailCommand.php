@@ -55,7 +55,6 @@ class EventMinuteReminderEmailCommand extends Command
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
-                Log::info("users: ". implode(",", $users));
                 if(count($users)) {
                     Log::info("user found:".$users);
                     $currentTime = Carbon::now()->format('Y-m-d H:i');
