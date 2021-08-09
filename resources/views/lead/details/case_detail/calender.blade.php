@@ -149,7 +149,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                         @php
                                         $userListHtml="";
                                         foreach($vv->eventLinkedStaff as $linkuserValue){
-                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
                                         }
                                         @endphp
                                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
