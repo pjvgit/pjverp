@@ -564,11 +564,12 @@ if(!isset($adjustment_token)){
                                         <a data-toggle="modal" data-target="#editNewTimeEntry"
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0">
-                                           {{$v->duration}}
+                                           {{str_replace(",","",$v->duration)}}
                                         </a>
                                     </td>
                                     <?php } ?>
                                     <td class="billable_toggle pr-2">
+                                        
                                         <div class="locked row_total <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                             <?php 
                                                 if($v->rate_type=="flat"){
@@ -576,16 +577,17 @@ if(!isset($adjustment_token)){
                                                     if($v->time_entry_billable=="yes"){
                                                         $timeEntryAmount=$timeEntryAmount+$v->entry_rate;
                                                     }
-                                                }else{
-                                                    echo $Total= ($v->duration * $v->entry_rate);
+                                                }else{                                                    
+                                                    echo $Total= (str_replace(",","",$v->duration) * $v->entry_rate);
                                                    
                                                     if($v->time_entry_billable=="yes"){
                                                         $timeEntryAmount=$timeEntryAmount+$Total;
-                                                        $timeEntryTime=$timeEntryTime+$v->duration;
+                                                        $timeEntryTime=$timeEntryTime+str_replace(",","",$v->duration);
                                                     }
                                                 }
                                           
                                             ?>
+                                           
                                             <input type="hidden" value="{{$Total}}" class="amount_{{$v->itd}}">
                                             
                                         
@@ -798,14 +800,14 @@ if(!isset($adjustment_token)){
                                                 if($v->rate_type=="flat"){
                                                     echo "flat";
                                                 }else{
-                                                    echo $v->duration;
+                                                    echo str_replace(",","",$v->duration);
                                                 } ?>
                                             </a>
                                         </td>
                                         <td class="billable_toggle pr-2">
                                             <div class="locked row_total <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                                 <?php 
-                                                echo $Total= ($v->duration * $v->cost);
+                                                echo $Total= (str_replace(",","",$v->duration) * $v->cost);
                                                 if($v->time_entry_billable=="yes"){
                                                     $expenseAmount=$expenseAmount+$Total;
                                                 }
