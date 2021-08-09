@@ -1785,20 +1785,84 @@ if(!isset($adjustment_token)){
                                                     </tr>
                                                     <?php 
                                                     $CompanyList = [];
+                                                    $CompanyArray = [];
                                                     foreach($getAllClientForSharing as $k=>$v){
                                                         if($v->user_level == 4)
                                                         {
                                                             $CompanyList[$v->id] = $v->first_name; 
+                                                            $CompanyArray[$v->id] = []; 
                                                         }
                                                     }
-                                                    foreach($getAllClientForSharing as $k=>$v){ ?>
+                                                    foreach($getAllClientForSharing as $k=>$v){
+                                                        if($v->user_level=="2" && $v->is_billing_contact == "yes")
+                                                        {
+                                                            $multipleCompnays = explode(",",$v->multiple_compnay_id); 
+                                                            foreach($multipleCompnays as $kv => $vv){                                                                  
+                                                                if (array_key_exists($vv, $CompanyList)){
+                                                                    $CompanyArray[$vv] = array($v->id => $v->unm.'|'.$v->email.'|'.$v->client_portal_enable.'|'.$v->last_login); 
+                                                                }
+                                                            }                                                            
+                                                        }
+                                                    }                                                    
+                                                    ?>
+                                                    <?php foreach($getAllClientForSharing as $k=>$v){ ?>
+                                                        <?php if($v->user_level=="42"){ ?> 
+                                                            <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">                                                            
+                                                                <td colspan="<3">
+                                                                <div class="locked" style="font-weight: bold;">
+                                                                    {{ucfirst($v->unm)}} (Company)
+                                                                </div>
+                                                                </td>
+                                                            </tr>
+                                                            <?php if(empty($CompanyArray)){ 
+                                                                foreach($CompanyArray as $innerKey=>$innerValue){
+                                                                    foreach($innerValue as $kk =>$vv ){
+                                                                    $explodeValues = explode("|", $vv);
+                                                            ?>
+                                                                <tr class="invoice-sharing-row client-id-21672788" id="row_{{$kk}}">
+                                                                    <td style="text-align: center;padding:10px;">
+                                                                        <div class="locked">
+                                                                            <input type="checkbox" name="portalAccess[]"  value="{{$kk}}"  id="portalAccess_{{$kk}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$kk}}"  em="{{$explodeValues[1]}}" pe="{{$explodeValues[2]}}" onclick="checkPortalAccess({{$kk}})">
+                                                                        </div>                                                            
+                                                                    </td>
+                                                                    <td class="invoice-sharing-name">
+                                                                        <div class="locked pl-1">
+                                                                            {{ucfirst($explodeValues[0])}}  (Client)
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="invoice-sharing-last-login">
+                                                                        <div class="locked last-login-at pl-1">
+                                                                            <?php if($explodeValues[1]==""){
+                                                                                echo "Disabled";
+                                                                            }else{
+                                                                                $CommonController= new App\Http\Controllers\CommonController();
+                                                                                if($explodeValues[3]!=NULL){
+                                                                                    $loginDate=$CommonController->convertUTCToUserTime($explodeValues[3],Auth::User()->user_timezone);
+                                                                                    echo date('F jS Y, h:i:s A',strtotime($loginDate));
+                                                                                }else{
+                                                                                    echo "Never";
+                                                                                }
+                                                                            }
+                                                                            ?></div>
+                                                                    </td>   
+                                                                </tr>
+                                                            <?php }}} ?>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                    <tr>
+                                                        <td colspan="3" class="invoice_sharing_break">&nbsp;</td>
+                                                    </tr>
+                                                    <?php foreach($getAllClientForSharing as $k=>$v){ ?>
                                                     <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
-                                                    <?php if($v->user_level=="2"){ ?>    
+                                                    <?php if($v->user_level=="2" && $v->is_billing_contact == "yes"){ ?>    
                                                         <td style="text-align: center;padding:10px;">
-                                                            <div class="locked">                                                                
-                                                                @if (array_key_exists($v->multiple_compnay_id, $CompanyList))
-                                                                    {{$CompanyList[$v->multiple_compnay_id]}} (Company)                                                             
-                                                                @endif
+                                                            <div class="locked">   
+                                                                <?php $multipleCompnays = explode(",",$v->multiple_compnay_id); ?>
+                                                                @foreach($multipleCompnays as $kv => $vv)  
+                                                                    @if (array_key_exists($vv, $CompanyList))
+                                                                        {{$CompanyList[$vv]}} (Company)                                                             
+                                                                    @endif
+                                                                @endforeach
                                                                 <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})">
                                                             </div>                                                            
                                                         </td>
@@ -1823,7 +1887,6 @@ if(!isset($adjustment_token)){
                                                                 ?></div>
                                                         </td>
                                                         <?php } ?>
-                                                        
                                                     </tr>
                                                     <?php } ?>
                                                 </tbody>
