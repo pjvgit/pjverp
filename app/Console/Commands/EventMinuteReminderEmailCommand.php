@@ -56,10 +56,20 @@ class EventMinuteReminderEmailCommand extends Command
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
                 if(count($users)) {
-                    if(Carbon::now()->eq(Carbon::parse($item->remind_at))) {
+                    Log::info("user found:".$users);
+                    $currentTime = Carbon::now()->format('Y-m-d H:i');
+                    $date1 = Carbon::createFromFormat('Y-m-d H:i', $currentTime);
+                    Log::info("carbon now:". $date1);
+                    $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($item->remind_at)->format('Y-m-d H:i'));
+                    Log::info("remind at:". $date2);
+                    if($date1->eq($date2)) {
                         Log::info("minute time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
+                    } else {
+                        Log::info("event minute time not match");
                     }
+                } else {
+                    Log::info("user not found");
                 }
             }
         }

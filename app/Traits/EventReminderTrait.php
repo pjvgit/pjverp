@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\User;
+use Illuminate\Support\Facades\Log;
 
 trait EventReminderTrait {
  
