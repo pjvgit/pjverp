@@ -167,6 +167,7 @@ class User extends Authenticatable
         $g=CaseMaster::leftJoin('case_staff','case_master.id','=','case_staff.case_id')
         ->where("case_staff.user_id",$this->id)
         ->where("case_master.case_close_date",NULL)
+        ->where("case_staff.lead_attorney",'!=','')
         ->get();
         return count($g);
     }
