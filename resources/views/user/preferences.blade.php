@@ -29,7 +29,83 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </div>
                     </div>
                     <div class="col-md-9">
-                        <div class="card mb-4">
+                        <div class="card mb-4 preferences_table">
+                        <div class="card-body" id="preferences_table"><div class="form-group row ">
+                            <div class="col-3 col-form-label">
+                            <label>Default Event Reminders</label>
+                            </div>
+                            <div class="col form-control-plaintext default-appt-reminders">
+                                <span style="font-style: italic;"> 
+                                <?php
+                                if(count($UserPreferanceEventReminder) > 0){ 
+                                    echo ucwords($UserPreferanceEventReminder[0]['reminder_type']).' '.
+                                    $UserPreferanceEventReminder[0]['reminer_number'].' '.
+                                    $UserPreferanceEventReminder[0]['reminder_frequncy'].' before '.
+                                    $UserPreferanceEventReminder[0]['type'];
+                                }else{
+                                    echo "None";
+                                }?>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-3 col-form-label">
+                            <label>Default Task Reminders</label>
+                            </div>
+                            <div class="col form-control-plaintext default-task-reminders">
+                                <span style="font-style: italic;"> 
+                                <?php 
+                                if(count($UserPreferanceTaskReminder) > 0){ 
+                                    echo ucwords($UserPreferanceTaskReminder[0]['reminder_type']).' '.
+                                    $UserPreferanceTaskReminder[0]['reminer_number'].' '.
+                                    $UserPreferanceTaskReminder[0]['reminder_frequncy'].' before '.
+                                    $UserPreferanceTaskReminder[0]['type'].' due date ';
+                                }else{
+                                    echo "None";
+                                }?></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-3 col-form-label">
+                                <label>Time Zone</label>
+                            </div>
+                            <div class="col form-control-plaintext time-zone-preference">
+                                {{Auth::User()->user_timezone}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-3 col-form-label">
+                                <label>Getting Started Tips</label>
+                            </div>
+                            <div class="col form-control-plaintext">
+                                {{ ucwords($user->started_tips) }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-3 col-form-label">
+                                <label>Automatic Logout</label>
+                            </div>                            
+                            <div class="col form-control-plaintext">
+                            <?php if($user->auto_logout=="on"){ ?>
+                                Automatically log me out after {{$user->sessionTime}} minutes of inactivity.
+                                <br>
+                                Do not automatically log me out if I have a timer running.
+                                <br>                                
+                            <?php }else{ ?>
+                                Do not automatically log me out. 
+                                <br>
+                            <?php } ?>
+                                <span class="font-italic text-muted">Note: You will always be logged out when you close your web browser.</span>
+                            </div>
+                        </div>
+                            <div class="text-right">
+                                <div class="d-flex flex-row justify-content-end">
+                                    <button class="btn btn-outline-secondary btn-rounded m-1" onclick="showMe('editPreferance');"> Edit Preferences</button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="card mb-4 editPreferance" style="display: none;">
                             <form id="editPreferance" method="POST" action="{{ route('account/savePreferences') }}"
                                 enctype="multipart/form-data">
                                 @csrf
@@ -104,7 +180,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     </div>
                                                     <?php } ?>
                                                     <div class="fieldGroup"></div>
-                                                    <div>                                                        <img src="{{BASE_URL}}public/svg/add-sign.svg">
+                                                    <div>                                                        <img src="{{ asset('svg/add-sign.svg') }}">
 
                                                         <button type="button"
                                                             class="btn btn-link p-0 test-add-new-reminder add-more">Add
@@ -223,7 +299,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     <?php } ?>
                                                     <div class="fieldGroup-2"></div>
                                                     <div>
-                                                        <img src="{{BASE_URL}}public/svg/add-sign.svg">
+                                                        <img src="{{ asset('svg/add-sign.svg') }}">
                                                         <button type="button"
                                                             class="btn btn-link p-0 test-add-new-reminder add-more-2">Add
                                                             a reminder
@@ -370,13 +446,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             </div>
                                         </div>
                                         <div class="d-flex flex-row justify-content-end">
-                                            <button type="submit" class="btn btn-outline-secondary btn-rounded m-1">
-                                                Save Preferences</button>
+                                            <span class="btn btn-outline-secondary btn-rounded m-1" onclick="showMe('preferences_table');">Cancel</span>    
+                                            <button type="submit" class="btn btn-outline-secondary btn-rounded m-1">Save Preferences</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -449,7 +524,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 $("#auto-logout-options").hide(); 
             <?php } ?>
         });
-
+    function showMe(div) {
+        if (div == 'preferences_table') {
+            var r = confirm("Are you sure you want to cancel your changes?");
+            if (r == true) {
+                window.location.reload();
+            } 
+        }else {            
+            $(".preferences_table").hide();   
+            $(".editPreferance").show();
+        }
+    }
     </script>
     @stop
     @endsection
