@@ -172,7 +172,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
 });
 
 //After Login can access this routes
-Route::group(['middleware'=>'auth'], function () {
+Route::group(['middleware'=>['auth', 'role:user']], function () {
     // Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/execute', 'MysqlController@executeQuery');
     Route::get('/load_profile', 'UserController@profile_load')->name('load_profile');
@@ -1143,8 +1143,12 @@ Route::group(['middleware'=>'auth'], function () {
 /**
  * For client portal
  */
-Route::group(['middleware' => 'auth', 'namespace' => "ClientPortal"], function () {
+Route::group(['middleware' => ['auth', 'role:client'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
+
+    // For billing
+    Route::get('bills', 'BillingController@index')->name('client/bills');
+    Route::get('bills/{id}', 'BillingController@show')->name('client/bills/detail');
 });
 
 //Without login 

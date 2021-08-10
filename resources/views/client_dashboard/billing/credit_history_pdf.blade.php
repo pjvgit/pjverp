@@ -52,8 +52,14 @@
                     <b>Credit Account Summary for {{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
                         {{ucfirst(substr($userData['last_name'],0,50))}}</b>
-                    <br>Credit Balance on {{date('m/d/Y')}}:
-                    ${{number_format($UsersAdditionalInfo['credit_account_balance'],2)}}
+                    <br>Credit Balance on {{date('F,d,Y', strtotime($endDate))}}:
+                    @if(!empty($creditHistory) && count($creditHistory))
+                        @php
+                            $lastCreditBalance = $creditHistory->sortByDesc('payment_date')->first();
+                            $finalBalance = $lastCreditBalance->total_balance ?? 0;
+                        @endphp
+                    @endif
+                    ${{number_format($finalBalance ?? 0, 2)}}
                 </td>
             </tr>
         </tbody>
@@ -62,7 +68,7 @@
     <br>
     <br>
 
-    <span style="float: right;padding:5px;">Credit account activity through {{date('F,d,Y')}}</span>
+    <span style="float: right;padding:5px;">Credit account activity from {{date('F,d,Y', strtotime($startDate))}} to {{date('F,d,Y', strtotime($endDate))}}</span>
     <br>
     <hr>
     <br>
@@ -80,11 +86,11 @@
         <tbody>
             @if(!empty($creditHistory) && count($creditHistory))
             <tr>
-                <td style="padding:5px;">{{date('m/d/Y',strtotime($UsersAdditionalInfo->created_at))}}</td>
+                <td style="padding:5px;">{{ date('m/d/Y') }}</td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
-                <td style="padding:5px;text-align: right;">$0.00</td>
+                <td style="padding:5px;text-align: right;">${{ ($initialBalance) ? number_format($initialBalance->total_balance) : 0.00 }}</td>
             </tr>
             @endif
             

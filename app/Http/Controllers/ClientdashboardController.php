@@ -3512,9 +3512,13 @@ class ClientdashboardController extends BaseController
                 $creditHistory = $creditHistory->whereBetween('payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
             $creditHistory = $creditHistory->orderBy('payment_date','asc')->with("invoice")->get();
+            $initialBalance = DepositIntoCreditHistory::where("user_id", $request->user_id)
+                        ->whereDate('payment_date', '<', date('Y-m-d',strtotime($request->from_date)))
+                        ->orderBy('payment_date', 'desc')->orderBy("created_at", "desc")->first();
 
             $filename='credit_export_'.time().'.pdf';
-            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory'));
+            $startDate = $request->from_date; $endDate = $request->to_date;
+            $PDFData=view('client_dashboard.billing.credit_history_pdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','creditHistory', 'startDate', 'endDate', 'initialBalance'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
