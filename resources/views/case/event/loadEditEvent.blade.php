@@ -546,7 +546,7 @@
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-md-10 form-group mb-3">
-                                <div class="m-2">
+                                <div class="m-2" id="this_event_radio_div">
                                     <label class="form-check-label">
                                         <input type="radio" name="delete_event_type" class="pick-option mr-2" value="SINGLE_EVENT">
                                             <span>This event only</span>
@@ -634,6 +634,9 @@
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
             $("#start_date-error").text('');
+            $("#this_event_radio_div").hide();
+            var selected = $(this).val();
+            $("#end_date").datepicker('setDate', selected);
             updateMonthlyWeeklyOptions();
         });
         $("#end_date").datepicker().on('change',function(e){
@@ -668,7 +671,7 @@
         });
        
         $(".hide").hide();
-        $(".add-more").click(function () {
+        $("#firstStep .add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);

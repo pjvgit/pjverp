@@ -1300,101 +1300,95 @@ if(!isset($adjustment_token)){
                             <div class="mt-3">
                                 <h4>Available Trust Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($caseMaster->caseAllClient))
+                                    @if(!empty($caseMaster->caseAllClient) && count($caseMaster->caseAllClient))
                                     <div class="col-9">
-                                        <div>
-                                            <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Client</th>
-                                                        <th>Account</th>
-                                                        <th>Available Amount</th>
-                                                        <th>Amount to Apply</th>
-                                                        <th>Balance After Application</th>
-                                                        <th>Deposit Into</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if(!empty($caseMaster->caseAllClient))
-                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
-                                                            @if($citem->userAdditionalInfo->trust_account_balance > 0)
-                                                                <tr class="apply-funds-row">
-                                                                    <td class="apply-funds-client"><span>{{ $citem->full_name ?? "" }}</span></td>
-                                                                    <td class="apply-funds-account">
-                                                                        <div>Trust (Trust Account)</div>
-                                                                    </td>
-                                                                    <td class="apply-funds-available-amount">
-                                                                        <div>$<span class="trust-balance">{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}</span> <span class="allocation-status">(Unallocated)</span></div>
-                                                                    </td>
-                                                                    <td class="apply-funds-amount-to-apply">
-                                                                        <div class="amount-to-apply-field input-group-sm input-group">
-                                                                            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                            <input class="form-control apply-trust-amt" value="" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}">
-                                                                        </div>
-                                                                    </td>
-                                                                    <td class="apply-funds-balance-after-application">
-                                                                        <div>$<span class="remain-trust-balance">{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}</span></div>
-                                                                    </td>
-                                                                    <td class="apply-funds-deposit-into">
-                                                                        <div class="row form-group">
-                                                                            <div class="col-12 col-sm-12">
-                                                                                <select class="form-control" name="trust[deposite_into]">
-                                                                                    <option value="">Select the deposit into account</option>
-                                                                                    <option value="operating account">Operating Account</option>
-                                                                                </select>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            @endif
-                                                        @empty
-                                                        @endforelse
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    <div class="col-3">
-                                        <div>
-                                            <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if(!empty($caseMaster->caseAllClient))
-                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
-                                                        <tr class="account-history-config-row">
-                                                            <td class="account-history-display-setting">
-                                                                <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
-                                                                <div>{{ $citem->full_name }}</div>
+                                        <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Client</th>
+                                                    <th>Account</th>
+                                                    <th>Available Amount</th>
+                                                    <th>Amount to Apply</th>
+                                                    <th>Balance After Application</th>
+                                                    <th>Deposit Into</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    @if($citem->userAdditionalInfo->trust_account_balance > 0)
+                                                        <tr class="apply-funds-row">
+                                                            <td class="apply-funds-client"><span>{{ $citem->full_name ?? "" }}</span></td>
+                                                            <td class="apply-funds-account">
+                                                                <div>Trust (Trust Account)</div>
+                                                            </td>
+                                                            <td class="apply-funds-available-amount">
+                                                                <div>$<span class="trust-balance">{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}</span> <span class="allocation-status">(Unallocated)</span></div>
+                                                            </td>
+                                                            <td class="apply-funds-amount-to-apply">
+                                                                <div class="amount-to-apply-field input-group-sm input-group">
+                                                                    <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                                                    <input class="form-control apply-trust-amt" value="" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}">
+                                                                </div>
+                                                            </td>
+                                                            <td class="apply-funds-balance-after-application">
+                                                                <div>$<span class="remain-trust-balance">{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}</span></div>
+                                                            </td>
+                                                            <td class="apply-funds-deposit-into">
                                                                 <div class="row form-group">
                                                                     <div class="col-12 col-sm-12">
-                                                                        <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
-                                                                            @forelse (trustAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}" {{ ($skey == str_replace("show","trust", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
-                                                                            @empty
-                                                                            @endforelse
+                                                                        <select class="form-control" name="trust[deposite_into]">
+                                                                            <option value="">Select the deposit into account</option>
+                                                                            <option value="operating account">Operating Account</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                         </tr>
-                                                        @empty
-                                                        @endforelse
                                                     @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @endif
+                                    <div class="col-3">
+                                        <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($caseMaster->caseAllClient))
+                                                    @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                            <div>{{ $citem->full_name }}</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
+                                                                        @forelse (trustAccountHistoryList() as $skey => $sitem)    
+                                                                        <option value="{{ $skey }}" {{ ($skey == str_replace("show","trust", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
+                                                                        @empty
+                                                                        @endforelse
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    @endforelse
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <h4>Available Credit Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($caseMaster->caseAllClient))
+                                    @if(!empty($caseMaster->caseAllClient) && count($caseMaster->caseAllClient))
                                     <div class="col-9">
                                         <div>
                                             <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
@@ -1439,38 +1433,36 @@ if(!isset($adjustment_token)){
                                     </div>
                                     @endif
                                     <div class="col-3">
-                                        <div>
-                                            <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if(!empty($caseMaster->caseAllClient))
-                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
-                                                        <tr class="account-history-config-row">
-                                                            <td class="account-history-display-setting">
-                                                                <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
-                                                                <div>{{ $citem->full_name }}</div>
-                                                                <div class="row form-group">
-                                                                    <div class="col-12 col-sm-12">
-                                                                        <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
-                                                                            @forelse (creditAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}" {{ ($skey == str_replace("show","credit", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
-                                                                            @empty
-                                                                            @endforelse
-                                                                        </select>
-                                                                    </div>
+                                        <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($caseMaster->caseAllClient))
+                                                    @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                            <div>{{ $citem->full_name }}</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
+                                                                        @forelse (creditAccountHistoryList() as $skey => $sitem)    
+                                                                        <option value="{{ $skey }}" {{ ($skey == str_replace("show","credit", $invoiceSetting->default_trust_and_credit_display_on_new_invoices)) ? 'selected' : '' }}>{{ $sitem }}</option>
+                                                                        @empty
+                                                                        @endforelse
+                                                                    </select>
                                                                 </div>
-                                                            </td>
-                                                        </tr>
-                                                        @empty
-                                                        @endforelse
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    @endforelse
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

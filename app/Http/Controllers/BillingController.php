@@ -1176,7 +1176,7 @@ class BillingController extends BaseController
             $InvoiceCounter=$Invoices->count();
             if($Invoices->get()){
                 foreach($Invoices->get() as $k=>$v){
-                    if($v->due_date!=NULL && $v->due_date < date('Y-m-d')){
+                    if($v->due_date!=NULL && $v->due_date < date('Y-m-d') && $v->status != "Forwarded"){
                         $updateInvoice= Invoices::find($v->id);
                         $updateInvoice->status="Overdue";
                         $updateInvoice->save();
@@ -4468,6 +4468,9 @@ class BillingController extends BaseController
             $InvoiceSave->refresh();
             if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0) {
                 $InvoiceSave->status = "Partial";
+                $InvoiceSave->save();
+            } else if($InvoiceSave->due_amount == 0 && $InvoiceSave->paid_amount == $InvoiceSave->total_amount) {
+                $InvoiceSave->status = "Paid";
                 $InvoiceSave->save();
             }
 
