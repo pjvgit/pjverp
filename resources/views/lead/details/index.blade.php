@@ -440,7 +440,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                 <button class="btn btn-secondary  m-1" type="button"
                                     data-dismiss="modal">Cancel</button>
                             </a>
-                            <button class="btn btn-primary ladda-button example-button m-1" id="submit"
+                            <button class="btn btn-primary ladda-button example-button m-1" id="submitLead"
                                 type="submit">Delete Lead</button>
                         </div>
                     </div>
@@ -924,7 +924,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             });
         });
         $('#DeletLeadForm').submit(function (e) {
-            $("#submit").attr("disabled", true);
+            $("#submitLead").attr("disabled", true);
             $("#innerLoader").css('display', 'block');
             e.preventDefault();
 
@@ -955,7 +955,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('#showError').append(errotHtml);
                         $('#showError').show();
                         $("#innerLoader").css('display', 'none');
-                        $('#submit').removeAttr("disabled");
+                        $('#submitLead').removeAttr("disabled");
                         return false;
                     } else {
                         window.location.href=baseUrl+'/leads/statuses';
