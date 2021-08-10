@@ -2636,7 +2636,7 @@ class ClientdashboardController extends BaseController
             $ClientCompanyImport->firm_id=Auth::User()->firm_name;
             $ClientCompanyImport->created_by=Auth::User()->id;
             $ClientCompanyImport->save();
-
+            $waringCount = 0;
             if($request->import_format=="csv"){
                 $path = $request->file('upload_file')->getRealPath();
                 $csv_data = array_map('str_getcsv', file($path));
@@ -2744,18 +2744,22 @@ class ClientdashboardController extends BaseController
                             $UsersAdditionalInfo->save();
 
                             if(!is_numeric($finalOperationVal['mobile_number'])){
+                                $waringCount = $waringCount + 1;
                                 $errorString.="<li>Mobile number was invalid: ".$finalOperationVal['mobile_number']."</li>";
                             }
                             
                             if(!is_numeric($finalOperationVal['home_phone'])){
+                                $waringCount = $waringCount + 1;
                                 $errorString.="<li>Home phone was invalid: ".$finalOperationVal['home_phone']."</li>";
                             }
                             
                             if(!is_numeric($finalOperationVal['work_phone'])){
+                                $waringCount = $waringCount + 1;
                                 $errorString.="<li>Work phone was invalid: ".$finalOperationVal['work_phone']."</li>";
                             }
 
                             if(!is_numeric($finalOperationVal['fax_number'])){
+                                $waringCount = $waringCount + 1;
                                 $errorString.="<li>Home fax was invalid: ".$finalOperationVal['fax_number']."</li>";
                             }
 
@@ -2779,6 +2783,7 @@ class ClientdashboardController extends BaseController
                         }
                         $ClientCompanyImport->status="1";
                         $ClientCompanyImport->total_imported=$ic;
+                        $ClientCompanyImport->total_warning=$waringCount;
                         $ClientCompanyImport->save();
                         } catch (\Exception $e) {
                             $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
@@ -2844,6 +2849,7 @@ class ClientdashboardController extends BaseController
                       
                             if(!is_numeric($finalOperationVal['fax_number'])){
                                 $errorString.="<li>Home fax was invalid: ".$finalOperationVal['fax_number']."</li>";
+                                $waringCount = $waringCount + 1;
                             }
 
                             $errorString.="</ul>";
@@ -2866,7 +2872,9 @@ class ClientdashboardController extends BaseController
 
                         $ClientCompanyImport->status="1";
                         $ClientCompanyImport->total_imported=$ic;
-                        $ClientCompanyImport->save();                            
+                        $ClientCompanyImport->total_warning=$waringCount;
+                        $ClientCompanyImport->save();                        
+                            
                         } catch (\Exception $e) {
                             $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
