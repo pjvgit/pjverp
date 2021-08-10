@@ -180,15 +180,16 @@
             <div class="bulk-time-entries-row-0 fieldGroup">
                 <h5 class="mt-3 bold">Expense 1</h5>
                 <div class="no-gutters row ">
-                    <div class="m-0 pr-3 col-4"><label>Case</label></div>
+                    <div class="m-0 pr-3 col-3"><label>Case</label></div>
                     <div class="m-0 pr-3 col-2"><label>Activity</label></div>
                     <div class="m-0 pr-3 col-3"><label>Description</label></div>
                     <div class="m-0 pr-1 col-1"><label>Cost</label></div>
                     <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
+                    <div class="m-0 pr-3 col-1"><label>Billable</label></div>
                     <div class="col-1"></div>
                 </div>
                 <div class="no-gutters row ">
-                    <div class="pr-4 col-4">
+                    <div class="pr-4 col-3">
                         <div class="">
                             <div class="row no-gutters">
                                 <select class="form-control case_or_lead" dvid="1" id="hideoptioninput21"
@@ -235,9 +236,15 @@
                         </div>
                     </div>
                     <div class="pl-3 col-1">
+                        <div class="">
+                            <input type="checkbox" name="billable[1]" class="billable-field form-check-input"
+                                checked="checked">
+                        </div>
+                    </div>
+                    <div class="pl-3 col-1">
                     </div>
                 </div>
-                <div class="mb-2 row ">
+                <!-- <div class="mb-2 row hide">
                     <div class="col-7">
                         <div class="">
                             <div class="form-check">
@@ -252,20 +259,21 @@
                     </div>
                     <div class="text-right col-4 showtaax" id="showtaax"></div>
                     <div class="col-1"></div>
-                </div>
+                </div> -->
             </div>
             <div class="maturity_div copy-new hide maturity_div" id="optionTemplate2">
                 <h5 class="mt-3 bold">Expense <span name="expenseCount[]"></span></h5>
                 <div class="no-gutters row ">
-                    <div class="m-0 pr-3 col-4"><label>Case</label></div>
+                    <div class="m-0 pr-3 col-3"><label>Case</label></div>
                     <div class="m-0 pr-3 col-2"><label>Activity</label></div>
                     <div class="m-0 pr-3 col-3"><label>Description</label></div>
                     <div class="m-0 pr-1 col-1"><label>Cost</label></div>
                     <div class="m-0 pr-3 col-1"><label>Quantity</label></div>
+                    <div class="m-0 pr-3 col-1"><label>Billable</label></div>
                     <div class="col-1"></div>
                 </div>
                 <div class="no-gutters row ">
-                    <div class="pr-4 col-4">
+                    <div class="pr-4 col-3">
                         <div class="">
                             <div class="row no-gutters">
                                 <select class="form-control case_or_lead" id="case_or_lead" name="case_or_lead[]"
@@ -309,13 +317,21 @@
                                 class="form-control duration-field" value="">
                         </div>
                     </div>
+
+                    <div class="pl-3 col-1">
+                        <div class="">
+                            <input type="checkbox" name="billable[]" class="billable-field form-check-input"
+                                checked="checked">
+                        </div>
+                    </div>
                     <div class="pl-3 col-1">
                         <button class="btn remove" type="button">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
-                <div class="mb-2 row ">
+
+                <!-- <div class="mb-2 row ">
                     <div class="col-7">
                         <div class="">
                             <div class="form-check">
@@ -330,7 +346,7 @@
                     </div>
                     {{-- <div class="text-right col-4 showtaax" >0.1 = 6 minutes</div> --}}
                     <div class="col-1"></div>
-                </div>
+                </div> -->
             </div>
             <div class="after-add-more-new"></div>
             <div class="row ">
