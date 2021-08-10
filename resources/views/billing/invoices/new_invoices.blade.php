@@ -1806,19 +1806,21 @@ if(!isset($adjustment_token)){
                                                             }                                                            
                                                         }
                                                     }                                                    
+                                                    // print_r($CompanyArray);
                                                     ?>
+
                                                     <?php foreach($getAllClientForSharing as $k=>$v){ ?>
-                                                        <?php if($v->user_level=="42"){ ?> 
+                                                        <?php if($v->user_level=="4"){ ?> 
                                                             <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">                                                            
                                                                 <td colspan="<3">
                                                                 <div class="locked" style="font-weight: bold;">
                                                                     {{ucfirst($v->unm)}} (Company)
                                                                 </div>
                                                                 </td>
-                                                            </tr>
-                                                            <?php if(empty($CompanyArray)){ 
-                                                                foreach($CompanyArray as $innerKey=>$innerValue){
-                                                                    foreach($innerValue as $kk =>$vv ){
+                                                            </tr>                                                             
+                                                            <?php
+                                                             if(!empty($CompanyArray[$v->id])){ 
+                                                                    foreach($CompanyArray[$v->id] as $kk =>$vv ){
                                                                     $explodeValues = explode("|", $vv);
                                                             ?>
                                                                 <tr class="invoice-sharing-row client-id-21672788" id="row_{{$kk}}">
@@ -1848,23 +1850,32 @@ if(!isset($adjustment_token)){
                                                                             ?></div>
                                                                     </td>   
                                                                 </tr>
-                                                            <?php }}} ?>
+                                                            <?php } } else {?>
+                                                                <tr>
+                                                                <td style="border-right: none;">&nbsp;</td>
+                                                                <td style="border-left: none;">
+                                                                    <div class="locked" style="font-style: italic; color: gray;">
+                                                                    No contacts from this company are linked to this case.
+                                                                    </div>
+                                                                </td>
+                                                                </tr>
+                                                                <?php } ?>        
                                                         <?php } ?>
                                                     <?php } ?>
                                                     <tr>
                                                         <td colspan="3" class="invoice_sharing_break">&nbsp;</td>
                                                     </tr>
-                                                    <?php foreach($getAllClientForSharing as $k=>$v){ ?>
-                                                    <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
-                                                    <?php if($v->user_level=="2" && $v->is_billing_contact == "yes"){ ?>    
+                                                    <?php foreach($getAllClientForSharing as $k=>$v){
+                                                        $show = 0;
+                                                        foreach($CompanyArray as $innerKey => $innerValue){
+                                                            if (array_key_exists($v->id,$innerValue)){
+                                                                $show = 1;
+                                                            }                                                  
+                                                        }      
+                                                        if($show == 0 && $v->user_level=="2" && $v->is_billing_contact == "yes"){ ?>    
+                                                        <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
                                                         <td style="text-align: center;padding:10px;">
                                                             <div class="locked">   
-                                                                <?php $multipleCompnays = explode(",",$v->multiple_compnay_id); ?>
-                                                                @foreach($multipleCompnays as $kv => $vv)  
-                                                                    @if (array_key_exists($vv, $CompanyList))
-                                                                        {{$CompanyList[$vv]}} (Company)                                                             
-                                                                    @endif
-                                                                @endforeach
                                                                 <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})">
                                                             </div>                                                            
                                                         </td>
@@ -1888,9 +1899,8 @@ if(!isset($adjustment_token)){
                                                                 }
                                                                 ?></div>
                                                         </td>
-                                                        <?php } ?>
-                                                    </tr>
-                                                    <?php } ?>
+                                                        </tr>
+                                                    <?php }  } ?>
                                                 </tbody>
                                             </table>
                                             <div class="reminder-tip text-right">*Once shared, you will have the option of sending reminders to clients.</div>
