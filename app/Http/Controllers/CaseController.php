@@ -5739,6 +5739,7 @@ class CaseController extends BaseController
      */
     public function saveEditEventPage(Request $request)
     {
+        // return $request->delete_event_type;
         // return $request->all();
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [

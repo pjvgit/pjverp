@@ -67,7 +67,7 @@
             <button type="button" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
+            <div role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
                 <button type="button" tabindex="0" value="dismiss-all" role="menuitem" class="dropdown-item cursor-pointer dismiss-notification">Dismiss All</button>
             </div>
         </div>

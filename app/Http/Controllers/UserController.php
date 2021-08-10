@@ -51,27 +51,33 @@ class UserController extends BaseController
 
                 $userStatus = Auth::User()->user_status;
                 $user = User::find(Auth::User()->id);
-                $user->last_login=date('Y-m-d h:i:s');
-                $user->save();
-
-                // Save invoice settings if user is old and has not invoice default setting
-                $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);
-
-                if($userStatus=='1') { //User status active then able to login
-                    session(['layout' => 'horizontal']);
+                // $user->last_login=date('Y-m-d h:i:s');
+                // $user->save();
+                if(in_array($user->user_level, [2, 4, 5])) {
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                     $user->save();
                     session()->flash("firmCaseCount", count(userCaseList() ?? []));
-                    return redirect()->intended('dashboard')->with('success','Login Successfully');
-                }else if($userStatus == "3") {
-                    Auth::logout();
-                    Session::flush();
-                    return response()->make(view('errors.403'), 403);
+                    return redirect()->intended('client/home')->with('success','Login Successfully');
                 } else {
-                    $this->sendEmailVerificationMail(auth()->user());
-                    Auth::logout();
-                    Session::flush();
-                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+                    // Save invoice settings if user is old and has not invoice default setting
+                    $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);
+
+                    if($userStatus=='1') { //User status active then able to login
+                        session(['layout' => 'horizontal']);
+                        $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                        $user->save();
+                        session()->flash("firmCaseCount", count(userCaseList() ?? []));
+                        return redirect()->intended('dashboard')->with('success','Login Successfully');
+                    }else if($userStatus == "3") {
+                        Auth::logout();
+                        Session::flush();
+                        return response()->make(view('errors.403'), 403);
+                    } else {
+                        $this->sendEmailVerificationMail(auth()->user());
+                        Auth::logout();
+                        Session::flush();
+                        return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+                    }
                 }
             }else{
                 return redirect('login')->with('error', ERROR_LOGIN_MESSAGE)->withInput();
