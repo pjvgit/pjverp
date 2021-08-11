@@ -53,6 +53,7 @@ class TaskReminderEmailCommand extends Command
         if($result) {
             foreach($result as $key => $item) {
                 $users = $this->getTaskLinkedUser($item, "email");
+                Log::info("task users:". $users);
                 if(count($users)) {
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
@@ -64,6 +65,8 @@ class TaskReminderEmailCommand extends Command
                             Log::info("task user email: ".$useritem->email.", time not match");
                         }
                     }
+                } else {
+                    Log::info("task no user found");
                 }
             }
         }
