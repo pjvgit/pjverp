@@ -4385,6 +4385,37 @@ class BillingController extends BaseController
         }
     }
 
+    public function updateInvoiceBatchCount($invoice_id, $oldStatus, $newStatus){
+        $InvoiceBatch=InvoiceBatch::where('invoice_id','like', "%".$invoice_id."%")->first();
+        if(!empty($InvoiceBatch)){
+            switch ($oldStatus) {
+                case 'Unsent':
+                    $InvoiceBatch->unsent_invoice = ($InvoiceBatch->unsent_invoice > 0 ) ? $InvoiceBatch->unsent_invoice - 1 : 0;
+                    break;
+                case 'Sent':
+                    $InvoiceBatch->sent_invoice = ($InvoiceBatch->sent_invoice > 0 ) ? $InvoiceBatch->sent_invoice - 1 : 0;
+                    break;
+                default:
+                    $InvoiceBatch->draft_invoice = ($InvoiceBatch->draft_invoice > 0 ) ?  $InvoiceBatch->draft_invoice - 1 : 0;
+                    break;
+            }
+            $InvoiceBatch->save(); 
+            switch ($newStatus) {
+                case 'Unsent':
+                    $InvoiceBatch->unsent_invoice = $InvoiceBatch->unsent_invoice + 1;
+                    break;
+                case 'Sent':
+                    $InvoiceBatch->sent_invoice = $InvoiceBatch->sent_invoice + 1;
+                    break;
+                default:
+                    $InvoiceBatch->draft_invoice = $InvoiceBatch->draft_invoice + 1;
+                    break;
+            }
+            $InvoiceBatch->save(); 
+        }    
+           
+    }
+
     public function updateInvoiceEntry(Request $request)
     {
         // return $request->all();
@@ -4434,6 +4465,10 @@ class BillingController extends BaseController
             }else{
                 $InvoiceSave->payment_plan_enabled="no";
             }
+            $oldStatus = $InvoiceSave->bill_sent_status;
+            $newStatus = $request->bill_sent_status;
+            $this->updateInvoiceBatchCount($request->invoice_id, $oldStatus, $newStatus);
+            $InvoiceSave->bill_sent_status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
@@ -6692,8 +6727,10 @@ class BillingController extends BaseController
                 $InvoiceSave->payment_plan_enabled="no";
                 if(isset($request->batch['draft'])){
                     $InvoiceSave->status='Draft';
+                    $totalDraft++;
                 }else{
                     $InvoiceSave->status='Unsent';
+                    $totalUnsent++;
                 }
                 $InvoiceSave->notes=($request->bill['notes'])??'';
                 $InvoiceSave->created_by=Auth::User()->id; 
@@ -6869,7 +6906,7 @@ class BillingController extends BaseController
                         }
                     }
                 }
-                $totalDraft++;
+                
                 $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$caseVal)->first();
 
                 $flatFees=($CaseClientSelection['billing_amount'])??0;
@@ -6949,6 +6986,7 @@ class BillingController extends BaseController
             if(!empty($totalInvoice)){
                 $InvoiceBatch->invoice_id=implode(",",$totalInvoice);
             }
+            $InvoiceBatch->total_invoice=$totalDraft + $totalUnsent + $totalSent;
             $InvoiceBatch->draft_invoice=$totalDraft;
             $InvoiceBatch->unsent_invoice=$totalUnsent;
             $InvoiceBatch->sent_invoice=$totalSent;
