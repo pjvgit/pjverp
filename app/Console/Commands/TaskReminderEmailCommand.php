@@ -44,6 +44,7 @@ class TaskReminderEmailCommand extends Command
      */
     public function handle()
     {
+        Log::info("task command enter");
         $result = TaskReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])
                     // ->where("task_id", 90)
                     ->whereDate("remind_at", Carbon::now()) 
