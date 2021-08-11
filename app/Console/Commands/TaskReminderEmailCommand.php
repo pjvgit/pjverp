@@ -60,7 +60,7 @@ class TaskReminderEmailCommand extends Command
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
-                        if ($date->hour === 19) { 
+                        if ($date->hour === 05) { 
                             Log::info("task day time true");
                             dispatch(new TaskReminderEmailJob($item, $useritem))->onConnection('database');
                         } else {

@@ -27,17 +27,16 @@
 
                     </tbody>
                 </table>
-                <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0; background-image: url(&quot;{{ asset('images/mail/table_header.jpg') }}&quot;); background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: initial"
-                    bgcolor="#ffffff" width="601" cellpadding="0">
+                <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0; background-image: url(&quot;{{ asset('images/mail/table_header.jpg') }}&quot;); background-size: initial; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: initial" bgcolor="#ffffff" width="601" cellpadding="0">
 
                     <tbody>
                         <tr height="83" style="margin: 0; padding: 0; border: 0">
 
                             <td style="padding: 0; border: 0; margin: 0" cellpadding="0">
 
-                                <div style="margin-top: 20px; margin-left: 15px; font-size: 18px">
+                                <div style="margin-top: 2px; margin-left: 15px; font-size: 18px; width: 100%; text-align: center;">
 
-                                    <img src="{{ @$firm->firm_logo_url }}" alt="LegalCase - Simplify Your Law Practice">
+                                    <img src="{{ @$firm->firm_logo_url }}" alt="LegalCase - Simplify Your Law Practice" style="max-width: 110px; margin: 0px auto;">
 
                                 </div>
 
