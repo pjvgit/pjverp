@@ -35,6 +35,7 @@ class TaskReminderEmailJob implements ShouldQueue
     public function handle()
     {
         if(!empty($this->user)) {
+            Log::info("task mail job");
             Mail::to($this->user->email)->send((new TaskReminderMail($this->taskReminder->task, $this->taskReminder->task->firm, $this->user)));
             TaskReminder::where("id", $this->taskReminder->id)->update(["reminded_at" => Carbon::now()]);
         }
