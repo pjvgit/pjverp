@@ -271,8 +271,8 @@ class LeadController extends BaseController
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
-       
-        return view('lead.addLead',compact('country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff'));
+        $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
+        return view('lead.addLead',compact('country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
     }
     public function checkUserEmail(Request $request) {
         $contacts = User::where('email',$request->email)->count();
@@ -327,7 +327,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->dob=($request->dob) ? date('Y-m-d',strtotime($request->dob)) : NULL;
             $LeadAdditionalInfoMaster->driver_license=$request->driver_license;
             $LeadAdditionalInfoMaster->license_state=$request->driver_state;
-
+            
             if($request->referal_source_text!=''){
                 $ReferalResource=new ReferalResource;
                 $ReferalResource->title=$request->referal_source_text;
@@ -347,7 +347,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->practice_area=$request->practice_area;
             $LeadAdditionalInfoMaster->potential_case_value=str_replace(",","",$request->potential_case_value);
             $LeadAdditionalInfoMaster->assigned_to=$request->assigned_to;
-            $LeadAdditionalInfoMaster->office="1";
+            $LeadAdditionalInfoMaster->office=$request->office;
             $LeadAdditionalInfoMaster->potential_case_description=$request->notes;
             $LeadAdditionalInfoMaster->user_status='1';
             $LeadAdditionalInfoMaster->conflict_check=($request->conflict_check)?'yes':'no';
