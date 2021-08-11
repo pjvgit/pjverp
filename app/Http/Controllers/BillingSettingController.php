@@ -44,7 +44,7 @@ class BillingSettingController extends BaseController
                 'default_terms_conditions' => $request->default_terms_conditions,
                 'is_non_trust_retainers_credit_account' => $request->is_non_trust_retainers_credit_account,
                 'is_payment_history_on_bills' => $request->is_payment_history_on_bills,
-                'is_ledes_billing' => $request->is_ledes_billing,
+                // 'is_ledes_billing' => $request->is_ledes_billing,
                 'request_funds_preferences_default_msg' => $request->request_funds_preferences_default_msg,
                 'updated_by' => auth()->id(),
             ]);

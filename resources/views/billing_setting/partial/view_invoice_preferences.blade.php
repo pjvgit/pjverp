@@ -41,10 +41,6 @@
     <div class="col-3 col-form-label"> Payment History on Bills </div>
     <div id="payment-history" class="col-9 form-control-plaintext"> {{ (@$invSetting->is_payment_history_on_bills == 'no') ? 'Disabled' : 'Enabled' }} </div>
 </div>
-<div class="form-group row">
-    <div class="col-3 col-form-label"> LEDES Billing </div>
-    <div id="ledes-billing" class="col-9 form-control-plaintext"> {{ (@$invSetting->is_ledes_billing == 'yes') ? 'Enabled' : 'Disabled' }} </div>
-</div>
 <div class="preference-section-title section-title-distance">Request Funds Preferences </div>
 <div class="form-group row">
     <div class="col-3 col-form-label"> Default Message

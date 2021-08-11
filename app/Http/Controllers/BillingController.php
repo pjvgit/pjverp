@@ -3388,7 +3388,7 @@ class BillingController extends BaseController
                     'trust_credit_activity_on_invoice' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
                     'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
                     'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
-                    'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
+                    // 'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
                     'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
                 ];
                 if($preferenceSetting->reminderSchedule) {
