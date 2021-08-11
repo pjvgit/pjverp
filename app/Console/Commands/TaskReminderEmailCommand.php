@@ -52,6 +52,7 @@ class TaskReminderEmailCommand extends Command
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
+                Log::info("task id:". $item->task->id);
                 $users = $this->getTaskLinkedUser($item, "email");
                 Log::info("task users:". $users);
                 if(count($users)) {

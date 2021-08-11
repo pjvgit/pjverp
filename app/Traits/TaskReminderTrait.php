@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\User;
+use Illuminate\Support\Facades\Log;
 
 trait TaskReminderTrait {
  
@@ -10,17 +11,19 @@ trait TaskReminderTrait {
         // return $notifyType;
         $taskLinkedUser = [];
         if(!empty($item->task->taskLinkedStaff)) {
-            $taskLinkedUser = $item->task->taskLinkedStaff->pluck('id');
+            $taskLinkedUser = $item->task->taskLinkedStaff->pluck('id')->toArray();
         }
         if($item->task->case_id) {
-            $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id');
+            $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id')->toArray();
         } else if(!empty($item->task->lead_id)) {
             // if(!empty($item->task->lead->userLeadAdditionalInfo)) {
-                $caseLinkedUser = @$item->task->lead->userLeadAdditionalInfo->pluck("assigned_to");
+                $caseLinkedUser = @$item->task->lead->userLeadAdditionalInfo->pluck("assigned_to")->toArray();
             // }
         } else {
             $caseLinkedUser = [];
         }
+        Log::info("Task linked user:". $taskLinkedUser);
+        Log::info("Task assigned user:". $caseLinkedUser);
         $users = User::where(function($query) use($taskLinkedUser, $caseLinkedUser) {
             $query->whereIn("id", $taskLinkedUser)->orWhereIn("id", $caseLinkedUser);
         });
