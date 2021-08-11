@@ -8,15 +8,15 @@
 			<section id="dashboard_view">
 				<div class="dashboard-actions">
 					<div class="dashboard-actions__button-container">
-						<button id="send_message" class="dashboard-actions__button"><i class="dashboard-actions__icon">email</i></button>
+						<button id="send_message" class="dashboard-actions__button"><i class="far fa-envelope"></i></button>
 						<label for="send_message" class="dashboard-actions__text" aria-hidden="true">Send Message</label>
 					</div>
 					<div class="dashboard-actions__button-container">
-						<button id="add_document" class="dashboard-actions__button"><i class="dashboard-actions__icon">insert_drive_file</i></button>
+						<button id="add_document" class="dashboard-actions__button"><i class="far fa-file"></i></button>
 						<label for="add_document" class="dashboard-actions__text" aria-hidden="true">Add Document</label>
 					</div>
 					<div class="dashboard-actions__button-container">
-						<button id="view_bills" class="dashboard-actions__button"><i class="dashboard-actions__icon">monetization_on</i></button>
+						<button id="view_bills" class="dashboard-actions__button"><i class="fas fa-dollar-sign"></i></button>
 						<label for="view_bills" class="dashboard-actions__text" aria-hidden="true">View Bills</label>
 					</div>
 				</div>

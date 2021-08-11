@@ -141,7 +141,7 @@
                                 </div>
                                 <div class="col-md-3 form-group mb-3 pt-2">
                                     <label class="form-check-label"><input title="You can not edit recurring events"
-                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->recuring_event=='yes'){?> checked="checked" <?php } ?>  name="recuring_event" type="checkbox"><span>This event
+                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->recuring_event=='yes'){?> checked <?php } ?>  name="recuring_event" type="checkbox"><span>This event
                                             repeats</span></label>
                                 </div>
                             </div>
@@ -1080,17 +1080,18 @@
             $('.submit').removeAttr("disabled");
             return false;
         }
-        
-        $("#confirmSave").css('display','block');
-        $("#firstStep").css('display','none');
-        $(".modal-dialog").removeClass("modal-xl");
-        $("#exampleModalCenterTitle").html("Edit Recurring Event");
-        $("#editEtitle").hide();
-        $("#editRtitle").show();
-        $(".innerLoader").css('display', 'none');
-        return false;
-
-
+        if(!$("#recuring_event").is(":checked")) {
+            $(".submit").trigger("click");
+        } else {
+            $("#confirmSave").css('display','block');
+            $("#firstStep").css('display','none');
+            $(".modal-dialog").removeClass("modal-xl");
+            $("#exampleModalCenterTitle").html("Edit Recurring Event");
+            $("#editEtitle").hide();
+            $("#editRtitle").show();
+            $(".innerLoader").css('display', 'none');
+            return false;
+        }
     }
     function goBack() {
         $("#confirmSave").css('display','none');

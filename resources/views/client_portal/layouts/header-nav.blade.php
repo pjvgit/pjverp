@@ -61,7 +61,7 @@
                         <a class="nav-link" href="/"><span class="nav-item__label">Tasks</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Billing</span></a>
+                        <a class="nav-link" href="{{ route('client/bills') }}"><span class="nav-item__label">Billing</span></a>
                     </li>
                 </ul>
                 <div class="header-part-right">
