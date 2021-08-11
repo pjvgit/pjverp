@@ -40,4 +40,14 @@ class ExpenseEntry extends Authenticatable
     public function getCalulatedCostAttribute(){
         return number_format($this->duration * $this->cost,2);
     }
+
+    /**
+     * Get the taskActivity that owns the TaskTimeEntry
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function expenseActivity()
+    {
+        return $this->belongsTo(TaskActivity::class, 'activity_id');
+    }
 }

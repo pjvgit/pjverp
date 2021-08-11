@@ -24,7 +24,7 @@ class FlatFeeEntry extends Authenticatable
         return base64_encode($this->invoice_link);
     } 
     public function getDateFormatNewAttribute(){
-        return date('M j, Y',strtotime($this->entry_date));
+        return date('M d, Y',strtotime($this->entry_date));
     }
     public function getCalculatedAmtAttribute(){
         if($this->rate_type=="flat"){

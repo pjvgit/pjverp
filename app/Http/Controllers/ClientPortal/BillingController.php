@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Invoices;
+use App\TimeEntryForInvoice;
 
 class BillingController extends Controller 
 {
@@ -24,7 +25,10 @@ class BillingController extends Controller
     public function show($id)
     {
         $invoiceId = base64_decode($id);
-        $invoice = Invoices::where("id",$invoiceId)->first();
+        $invoice = Invoices::where("id",$invoiceId)->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
+                    'invoiceExpenseEntry', 'invoiceTimeEntry.taskActivity', 'invoiceExpenseEntry.expenseActivity', 'invoiceAdjustmentEntry', 
+                    'forwardedInvoices', 'invoicePaymentHistory')->first();
+        
         return view("client_portal.billing.detail", ["invoice" => $invoice]);
     }
 }

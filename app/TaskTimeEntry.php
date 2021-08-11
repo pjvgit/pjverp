@@ -46,4 +46,14 @@ class TaskTimeEntry extends Authenticatable
         }        
         return number_format($this->attributes['duration'], $decimalPoint);
     }
+
+    /**
+     * Get the taskActivity that owns the TaskTimeEntry
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function taskActivity()
+    {
+        return $this->belongsTo(TaskActivity::class, 'activity_id');
+    }
 }

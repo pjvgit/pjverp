@@ -118,3 +118,61 @@
 .payable-detail__summary {
     display: flex;
 }
+.payable-detail__summary__left-panel {
+    flex: 2;
+    margin-top: 1.5rem;
+}
+.payable-detail__address-text {
+    white-space: pre-line;
+}
+.payable-detail__summary__right-panel {
+    flex: 1;
+}
+.payable-detail__datapair {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+.payable-detail-item-entry {
+    display: flex;
+    flex: 1;
+    font-size: 14px;
+    overflow: hidden;
+}
+.list-row__icon {
+    color: #636c72;
+    padding: 5px 20px 0 0;
+}
+.list-row__header-detail {
+    font-size: 11px;
+}
+.payable-detail-item-description {
+    flex: 1;
+    font-size: 14px;
+    overflow: hidden;
+    padding-left: 0;
+}
+.payable-detail-item-status {
+    flex: 1;
+    font-size: 14px;
+    overflow: hidden;
+    padding-left: 0;
+}
+.payable-detail-item-price {
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+    text-align: right;
+}
+.payable-detail__actions {
+    display: flex;
+    margin-left: auto;
+}
+.payable-detail__totals {
+    padding: 1em;
+    width: 100%;
+}
+.payable-detail__datapair {
+    display: flex;
+    justify-content: space-between;
+}

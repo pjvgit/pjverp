@@ -30,7 +30,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name'];
+    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name', 'full_address'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -265,5 +265,13 @@ class User extends Authenticatable
     public function userCreditAccountHistory()
     {
         return $this->hasMany(DepositIntoCreditHistory::class, 'user_id')->orderBy("created_at", "desc");
+    }
+
+    /**
+     * Get user full address attribute
+     */
+    public function getFullAddressAttribute()
+    {
+        return $this->apt_unit.', '.$this->street.', '.$this->city.', '.$this->state.', '.$this->postal_code.', '.$this->country;
     }
 }

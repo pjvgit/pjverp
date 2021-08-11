@@ -103,5 +103,16 @@ class InvoiceHistory extends Authenticatable
             return NULL;
         }
      }
-      
+    
+    /**
+     * Set pay menthod attribute
+     */
+    public function setPayMethodAttribute($value)
+    {
+        if($value == "Credit") {
+            $this->attributes['pay_method'] = 'Non-Trust Credit Account';
+        } else {
+            $this->attributes['pay_method'] = $value;
+        }
+    }
 }

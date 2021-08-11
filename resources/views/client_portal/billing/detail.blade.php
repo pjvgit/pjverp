@@ -5,14 +5,14 @@
 	<section class="detail-view" id="payable_detail_view">
 		<div class="payable-detail ">
 			<div class="detail-view__header">
-				<div>Invoice #00103</div>
+				<div>Invoice #{{ $invoice->invoice_id }}</div>
 				<div class="payable-detail__actions"><a class="payable-detail__export-link" href="/bills/14231674.pdf" target="_blank"><i class="payable-detail__export-icon">file_download</i><span class="payable-detail__export-button">View Full Invoice (PDF)</span></a></div>
 			</div>
 			<div class="mb-3 mb-md-0">
 				<div class="p-3">
 					<div class="payable-detail__summary">
-						<div class="payable-detail__summary__left-panel"><b>[SAMPLE] John Doe</b>
-							<div class="payable-detail__address-text">123 Main St. Anytown, CA 93455</div>
+						<div class="payable-detail__summary__left-panel"><b>{{ @$invoice->case->caseBillingClient[0]->full_name }}</b>
+							<div class="payable-detail__address-text">{{ @$invoice->case->caseBillingClient[0]->full_address}}</div>
 						</div>
 						<div class="payable-detail__summary__right-panel">
 							<div class="payable-detail__datapair">
@@ -29,19 +29,64 @@
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Due Date</div>
-								<div>Aug 9, 2021</div>
+								<div>{{ ($invoice->invoice_date) ? convertUTCToUserDate($invoice->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') : '' }}</div>
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Payment Terms</div>
-								<div>Due Date</div>
+								<div>{{ invoicePaymentTermList()[$invoice->payment_term] }}</div>
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Case</div>
-								<div class="text-right">[SAMPLE] John Doe Matter</div>
+								<div class="text-right">
+									@if($invoice->case_id == 0)
+                                    None
+									@else
+									{{ @$invoice->case->case_title }}
+									@endif
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				{{-- For forwarded balances --}}
+				@if(!empty($invoice->forwardedInvoices) && count($invoice->forwardedInvoices))
+					@php
+						$forwardedBalance = $invoice->forwardedInvoices->sum('due_amount_new');
+					@endphp
+				<div>
+					<div class="payable-detail-header payable-detail-header--dark">
+						<div class="payable-detail-line-header-name">Invoice Balance Forward</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->forwardedInvoices as $key => $item)
+					<div class="list-row  ">
+						<div class="payable-detail-item-entry"><i class="fas fa-arrow-right list-row__icon"></i>
+							<div><span>Balance Forward <a href="/bills/14218835">#{{ $item->invoice_id }}</a></span>
+								<div class="list-row__header-detail">Due Date: {{ $item->due_date }}</div>
+							</div>
+						</div>
+						<div class="payable-detail-item-description">
+							<div>Invoice Total: ${{ $item->total_amount_new }}
+								<br>Amount Paid: ${{ $item->paid_amount_new }}</div>
+						</div>
+						<div class="payable-detail-item-status "></div>
+						<div class="payable-detail-item-price">
+							<div>Balance Forward
+								<br>${{ $item->due_amount_new }}</div>
+						</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
+				{{-- For flat fee --}}
+				@if(!empty($invoice->invoiceFlatFeeEntry) && count($invoice->invoiceFlatFeeEntry))
+					@php
+						$flatFeeTotal = $invoice->invoiceFlatFeeEntry->sum('cost');
+					@endphp
 				<div>
 					<div class="payable-detail-header">
 						<div class="payable-detail-line-header-name">Flat Fees</div>
@@ -49,17 +94,27 @@
 						<div class="payable-detail-line-header-status"></div>
 						<div class="payable-detail-line-header-price"></div>
 					</div>
+					@forelse ($invoice->invoiceFlatFeeEntry as $key => $item)
 					<div class="list-row  ">
-						<div class="payable-detail-item-entry"><i class="list-row__icon">receipt</i>
+						<div class="payable-detail-item-entry"><i class="fas fa-receipt list-row__icon"></i>
 							<div>Flat Fee
-								<div class="list-row__header-detail">Aug 10, 2021</div>
+								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
 							</div>
 						</div>
-						<div class="payable-detail-item-description"></div>
+						<div class="payable-detail-item-description">{{ $item->description }}</div>
 						<div class="payable-detail-item-status "></div>
-						<div class="payable-detail-item-price">$1,000.00</div>
+						<div class="payable-detail-item-price">${{ number_format($item->cost, 2) }}</div>
 					</div>
+					@empty
+					@endforelse
 				</div>
+				@endif
+
+				{{-- For time entry --}}
+				@if(!empty($invoice->invoiceTimeEntry) && count($invoice->invoiceTimeEntry))
+					@php
+						$timeEntryTotal = $invoice->invoiceTimeEntry->sum('calculated_amt');
+					@endphp
 				<div>
 					<div class="payable-detail-header">
 						<div class="payable-detail-line-header-name">Time Entries</div>
@@ -67,34 +122,159 @@
 						<div class="payable-detail-line-header-status"></div>
 						<div class="payable-detail-line-header-price"></div>
 					</div>
+					@forelse ($invoice->invoiceTimeEntry as $key => $item)
 					<div class="list-row  ">
-						<div class="payable-detail-item-entry"><i class="list-row__icon">access_time</i>
-							<div>Document Preparation
-								<div class="list-row__header-detail">Aug 10, 2021</div>
+						<div class="payable-detail-item-entry"><i class="far fa-clock list-row__icon"></i>
+							<div>{{ @$item->taskActivity->title}}
+								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
 							</div>
+						</div>
+						<div class="payable-detail-item-description">{{ $item->description }}</div>
+						<div class="payable-detail-item-status "></div>
+						<div class="payable-detail-item-price">${{ $item->calculated_amt }}</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
+				{{-- For expense entry --}}
+				@if(!empty($invoice->invoiceExpenseEntry) && count($invoice->invoiceExpenseEntry))
+					@php
+						$expenseTotal = $invoice->invoiceExpenseEntry->sum('calulated_cost');
+					@endphp
+				<div>
+					<div class="payable-detail-header">
+						<div class="payable-detail-line-header-name">Expenses</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->invoiceExpenseEntry as $key => $item)
+					<div class="list-row  ">
+						<div class="payable-detail-item-entry"><i class="fas fa-receipt list-row__icon"></i>
+							<div>{{ @$item->expenseActivity->title}}
+								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
+							</div>
+						</div>
+						<div class="payable-detail-item-description">{{ $item->description }}</div>
+						<div class="payable-detail-item-status "></div>
+						<div class="payable-detail-item-price">${{ $item->calulated_cost }}</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
+				{{-- For adjustment entry --}}
+				@if(!empty($invoice->invoiceAdjustmentEntry) && count($invoice->invoiceAdjustmentEntry))
+					@php
+						$totalDiscount = $invoice->invoiceAdjustmentEntry->sum('amount');
+					@endphp
+				<div>
+					<div class="payable-detail-header">
+						<div class="payable-detail-line-header-name">Adjustments</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->invoiceAdjustmentEntry as $key => $item)
+					<div class="list-row  ">
+						<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
+							<div>Discount applied to Bill</div>
 						</div>
 						<div class="payable-detail-item-description"></div>
 						<div class="payable-detail-item-status "></div>
-						<div class="payable-detail-item-price">$500.00</div>
+						<div class="payable-detail-item-price">$-{{ number_format($item->amount, 2) }}</div>
 					</div>
+					@empty
+					@endforelse
 				</div>
+				@endif
+
+				{{-- Payment history --}}
+				@if(!empty($invoice->invoicePaymentHistory) && count($invoice->invoicePaymentHistory))
+				<div id="payment_history">
+					<div class="payable-detail-header payable-detail-header--dark">
+						<div class="payable-detail-line-header-name">Payment History</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->invoicePaymentHistory as $key => $item)
+					<div class="list-row  ">
+						<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
+							<div>{{ $item->acrtivity_title }}
+								<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->added_date)) }}</div>
+							</div>
+						</div>
+						<div class="payable-detail-item-description">{{ $item->notes }}</div>
+						<div class="payable-detail-item-status "></div>
+						<div class="payable-detail-item-price">
+							@if($item->acrtivity_title=="Payment Received")
+								${{number_format($item->amount,2)}}
+							@elseif($item->acrtivity_title=="Payment Refund")
+								(${{number_format($item->amount,2)}})
+							@endif
+						</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
+				{{-- Invoice total --}}
 				<div class="payable-detail-header">
 					<div class="payable-detail-line-header-name">Totals</div>
 				</div>
 				<div class="payable-detail__totals">
 					<div class="mb-3">
+						@if(!empty($invoice->invoiceTimeEntry) && count($invoice->invoiceTimeEntry))
 						<div class="payable-detail__datapair mt-0">
 							<div>Time Entry Sub-Total:</div>
-							<div>$500.00</div>
+							<div>${{ number_format($timeEntryTotal ?? 0, 2) }}</div>
 						</div>
+						@endif
+						@if(!empty($invoice->invoiceExpenseEntry) && count($invoice->invoiceExpenseEntry))
+						<div class="payable-detail__datapair mt-0">
+							<div>Expense Sub-Total:</div>
+							<div>${{ number_format($expenseTotal ?? 0, 2) }}</div>
+						</div>
+						@endif
+						@if(!empty($invoice->invoiceFlatFeeEntry) && count($invoice->invoiceFlatFeeEntry))
 						<div class="payable-detail__datapair mt-0">
 							<div>Flat Fee Sub-Total:</div>
-							<div>$1,000.00</div>
-						</div><strong><div class="payable-detail__datapair mt-0"><div>Sub-Total:</div><div>$1,500.00</div></div></strong></div>
-					<div class="totals"><strong><div class="payable-detail__datapair mt-0"><div>Total:</div><div>$1,500.00</div></div></strong>
+							<div>${{ number_format($flatFeeTotal ?? 0, 2) }}</div>
+						</div>
+						@endif
+						<strong>
+							<div class="payable-detail__datapair mt-0">
+								<div>Sub-Total:</div><div>${{ number_format((@$timeEntryTotal ?? 0 + @$expenseTotal ?? 0 + @$flatFeeTotal ?? 0), 2) }}</div>
+							</div>
+						</strong>
+						@if(!empty($invoice->invoiceAdjustmentEntry) && count($invoice->invoiceAdjustmentEntry))
+						<div class="payable-detail__datapair mt-0">
+							<div>Discounts:</div>
+							<div>$-{{ number_format($totalDiscount ?? 0, 2) }}</div>
+						</div>
+						@endif
+						@if(!empty($invoice->forwardedInvoices) && count($invoice->forwardedInvoices))
+						<div class="mb-3">
+							<div class="payable-detail__datapair mt-0">
+								<div>Balance Forward:</div><div>${{ number_format($forwardedBalance ?? 0, 2) }}</div>
+							</div>
+						</div>
+						@endif
+					</div>
+					<div class="totals">
+						<strong>
+							<div class="payable-detail__datapair mt-0">
+								<div>Total:</div><div>${{ $invoice->total_amount_new }}</div>
+							</div>
+						</strong>
 						<div class="payable-detail__datapair mt-0">
 							<div>Amount Paid:</div>
-							<div>$0.00</div>
+							<div>${{ $invoice->paid_amount_new }}</div>
 						</div>
 					</div>
 				</div>

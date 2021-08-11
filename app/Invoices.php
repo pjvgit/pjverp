@@ -243,4 +243,54 @@ class Invoices extends Model
     {
         return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "credit");
     }
+
+    /**
+     * The invoiceTimeEntry that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceTimeEntry()
+    {
+        return $this->belongsToMany(TaskTimeEntry::class, 'time_entry_for_invoice', 'invoice_id', 'time_entry_id')->wherePivotNull("deleted_at");
+    }
+
+    /**
+     * The invoiceExpenseEntry that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceExpenseEntry()
+    {
+        return $this->belongsToMany(ExpenseEntry::class, 'expense_for_invoice', 'invoice_id', 'expense_entry_id')->wherePivotNull("deleted_at");
+    }
+
+    /**
+     * The invoiceFlatFeeEntry that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceFlatFeeEntry()
+    {
+        return $this->belongsToMany(FlatFeeEntry::class, 'flat_fee_entry_for_invoice', 'invoice_id', 'flat_fee_entry_id')->wherePivotNull("deleted_at");
+    }
+
+    /**
+     * The invoiceAdjustmentEntry that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceAdjustmentEntry()
+    {
+        return $this->hasMany(InvoiceAdjustment::class, 'invoice_id');
+    }
+
+    /**
+     * Get all of the invoicePayment for the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoicePaymentHistory()
+    {
+        return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC");
+    }
 }
