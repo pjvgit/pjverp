@@ -112,14 +112,6 @@
             <label for="firm_bill_payment_history_enabled">Enabled</label>
         </div>
     </div>
-    <div class="form-group row">
-        <label class="col-sm-3">LEDES Billing</label>
-        <div class="col-9">
-            <input name="is_ledes_billing" type="hidden" value="no">
-            <input type="checkbox" value="yes" name="is_ledes_billing" id="firm_ledes_billing_enabled" @if(isset($invSetting) && $invSetting->is_ledes_billing == 'yes') checked @endif>
-            <label for="firm_ledes_billing_enabled">Enabled</label>
-        </div>
-    </div>
     <div class="preference-section-title section-title-distance">Request Funds Preferences</div>
     <div class="form-group row">
         <div class="col-3 col-form-label">

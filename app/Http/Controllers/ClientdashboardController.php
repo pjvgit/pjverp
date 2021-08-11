@@ -325,7 +325,7 @@ class ClientdashboardController extends BaseController
                     return response()->json(['errors'=>'','user_id'=>$request->client_id]);
                     exit;
                 }else{
-                    return response()->json(['errors'=>['Client name is already linked to this case']]);
+                    return response()->json(['errors'=>['Staff member is already linked to this case']]);
                     exit;
                 }
             }else{
@@ -359,7 +359,7 @@ class ClientdashboardController extends BaseController
                     return response()->json(['errors'=>'','user_id'=>$request->client_id]);
                     exit;
                 }else{
-                    return response()->json(['errors'=>['Client name is already linked to this case']]);
+                    return response()->json(['errors'=>['Staff member is already linked to this case']]);
                     exit;
                 }
             }
