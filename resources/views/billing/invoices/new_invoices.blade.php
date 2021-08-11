@@ -321,7 +321,7 @@ if(!isset($adjustment_token)){
                                 <?php 
                                 $flateFeeTotal=0;
                                 foreach($FlatFeeEntry as $k=>$v){
-                                    $flateFeeTotal+=$v->cost;
+                                    $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
                                 <tr id="time-79566738-7" class="invoice_entry time_entry ">
@@ -366,15 +366,13 @@ if(!isset($adjustment_token)){
                                             href="javascript:;" class="ml-0">
                                             {{$v->description}}
                                         </a>
-                                    </td>
-                                    <td style="text-align: left;" class="billable_toggle time-entry-hours row_total">
-                                        <a data-toggle="modal" data-target="#editNewFlatFeeEntry"  onclick="editSingleFlatFeeEntry({{$v->itd}})" data-placement="bottom" href="javascript:;" class="ml-0">
-                                           {{$v->cost}}
-                                        </a>
-                                    </td>
+                                    </td>                                    
+                                    <td style="text-align: left;" class="billable_toggle time-entry-hours flat_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                           {{$v->cost}} 
+                                    </td>   
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -2348,8 +2346,8 @@ if(!isset($adjustment_token)){
 
 <style>
     .strike{
-        /* text-decoration: line-through;
-        color: #aaa; */
+        text-decoration: line-through;
+        color: #aaa;
     }
     .tooltip {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -2582,6 +2580,7 @@ if(!isset($adjustment_token)){
             var id = $(this).attr('id');
             var val = $(this).val;
             var sum = 0;
+            var primaryid = $(this).data('primaryid');
             $('input[name="flat_fee_entry[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
@@ -2590,7 +2589,9 @@ if(!isset($adjustment_token)){
                     $(this).parent().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().prev().css('text-decoration', '');
+                    $(".flat_amount_"+primaryid).removeClass("strike");
                 } else {
+                    $(".flat_amount_"+primaryid).addClass("strike");
                     $(this).parent().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().prev().css('text-decoration','line-through');

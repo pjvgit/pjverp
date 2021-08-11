@@ -1,3 +1,7 @@
+------------------------------------ 11-AUG-2021 ------------------------------
+ALTER TABLE `invoices`
+ADD `bill_sent_status` enum('Sent','Unsent','Draft') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'Unsent' AFTER `status`;
+
 ------------------------------------ 06-AUG-2021 ------------------------------
 ALTER TABLE `messages` ADD `is_global` tinyint(2) NULL DEFAULT '0' AFTER `is_draft`;
 

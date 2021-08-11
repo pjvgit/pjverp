@@ -569,7 +569,7 @@ td,th{
                                                 <div class="col">
                                                     <div class="">
                                                         <div class="row">
-                                                            <div class="col-5 form-group"><input step="0.01" min="0"
+                                                            <div class="col-5 form-group"><input step="0.01" min="0.10" max="999999999999999"
                                                                     name="amount" type="number" class="form-control"
                                                                     value="0"></div>
                                                             <div class="col-3 form-check"><label
@@ -1142,10 +1142,17 @@ td,th{
     $('#adjustmentBulkInvoiceForm').submit(function (e) {
             beforeLoader();
             e.preventDefault();
+            if($("input[name='amountType']").val() == 'percentage'){
+                $("input[name='amount']").attr('max', '100');
+            }else{
+                $("input[name='amount']").attr('max', '100');
+            }
             if (!$('#adjustmentBulkInvoiceForm').valid()) {
-                beforeLoader();
+                afterLoader();
                 return false;
             }
+            
+
             var dataString = '';
             var array = [];
             $("input[class=task_checkbox]:checked").each(function (i) {
