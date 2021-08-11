@@ -89,6 +89,7 @@
     <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
     <input class="form-control" value="{{$messagesData->user_id}}" id="selected_user_id" name="selected_user_id" type="hidden">
     <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
+    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>    
     <div class="row">
