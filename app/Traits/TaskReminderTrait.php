@@ -22,8 +22,8 @@ trait TaskReminderTrait {
         } else {
             $caseLinkedUser = [];
         }
-        Log::info("Task linked user:". $taskLinkedUser);
-        Log::info("Task assigned user:". $caseLinkedUser);
+        // Log::info("Task linked user:". $taskLinkedUser);
+        // Log::info("Task assigned user:". $caseLinkedUser);
         $users = User::where(function($query) use($taskLinkedUser, $caseLinkedUser) {
             $query->whereIn("id", $taskLinkedUser)->orWhereIn("id", $caseLinkedUser);
         });
