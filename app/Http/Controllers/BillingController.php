@@ -1174,15 +1174,19 @@ class BillingController extends BaseController
             ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
             ->where("invoices.created_by",$id);
             $InvoiceCounter=$Invoices->count();
+            
             if($Invoices->get()){
                 foreach($Invoices->get() as $k=>$v){
                     if($v->due_date!=NULL && $v->due_date < date('Y-m-d') && $v->status != "Forwarded"){
                         $updateInvoice= Invoices::find($v->id);
-                        $updateInvoice->status="Overdue";
-                        $updateInvoice->save();
+                        if($v->status != "Paid"){
+                            $updateInvoice->status="Overdue";
+                            $updateInvoice->save();
+                        }
                     }   
                 }
             }
+
 
             $InvoicesPaidAmount = Invoices::where("invoices.created_by",$id)->where("invoices.status","Paid")->where("invoices.created_by",$id)->sum("paid_amount");
            
