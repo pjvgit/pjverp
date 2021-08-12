@@ -1175,7 +1175,6 @@ Route::get('createPracticeArea','CronController@createPracticeArea')->name('crea
 Route::post('check-email', 'LeadController@checkUserEmail')->name('check.email');
 Route::get('setbilling', 'CronController@setBillingMethod');
 Route::get('setgroup', 'CronController@setContactGroup');
-Route::get('sendReminderEmail', 'JobController@store');
 Route::get('check/job', 'PodcastController@index');
 
 
