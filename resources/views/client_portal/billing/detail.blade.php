@@ -6,7 +6,12 @@
 		<div class="payable-detail ">
 			<div class="detail-view__header">
 				<div>Invoice #{{ $invoice->invoice_id }}</div>
-				<div class="payable-detail__actions"><a class="payable-detail__export-link" href="/bills/14231674.pdf" target="_blank"><i class="payable-detail__export-icon">file_download</i><span class="payable-detail__export-button">View Full Invoice (PDF)</span></a></div>
+				<div class="payable-detail__actions">
+					<a class="btn btn-primary payable-detail__export-link" href="{{ route('client/bills/invoices/download', $invoice->decode_id) }}" target="_blank">
+						{{-- <i class="fa fa-download" aria-hidden="true"></i> --}}
+						<span class="payable-detail__export-button">View Full Invoice (PDF)</span>
+					</a>
+				</div>
 			</div>
 			<div class="mb-3 mb-md-0">
 				<div class="p-3">
@@ -205,10 +210,15 @@
 					<div class="list-row  ">
 						<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
 							<div>{{ $item->acrtivity_title }}
-								<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->added_date)) }}</div>
+								<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->created_at)) }}</div>
 							</div>
 						</div>
-						<div class="payable-detail-item-description">{{ $item->notes }}</div>
+						<div class="payable-detail-item-description">
+							Deposited into Operating via {{ $item->pay_method }}
+							@if($item->refund_amount)
+							(Refunded)
+							@endif
+						</div>
 						<div class="payable-detail-item-status "></div>
 						<div class="payable-detail-item-price">
 							@if($item->acrtivity_title=="Payment Received")

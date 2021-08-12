@@ -4496,7 +4496,7 @@ class BillingController extends BaseController
             $oldStatus = $InvoiceSave->bill_sent_status;
             $newStatus = $request->bill_sent_status;
             $this->updateInvoiceBatchCount($request->invoice_id, $oldStatus, $newStatus);
-            $InvoiceSave->bill_sent_status = $request->bill_sent_status;
+            $InvoiceSave->status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
@@ -5242,7 +5242,7 @@ class BillingController extends BaseController
             }
             $invoiceHistory['amount']=$request['amount'];
             $invoiceHistory['responsible_user']=Auth::User()->id;
-            $invoiceHistory['deposit_into']=NULL;
+            $invoiceHistory['deposit_into'] = ($GetAmount->pay_method == "Trust") ? "Trust" : "Operating";
             $invoiceHistory['notes']=$request->notes;
             $invoiceHistory['status']="4";
             $invoiceHistory['refund_ref_id']=$request->transaction_id;
@@ -5322,7 +5322,7 @@ class BillingController extends BaseController
                     'amount_refund'=>$request->amount,
                     'amount_paid'=>0.00,
                     'payment_method'=>"Trust Refund",
-                    'deposit_into'=>NULL,
+                    'deposit_into'=>"Trust",
                     'notes'=>$request->notes,
                     // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
                     'refund_ref_id'=>$GetAmount->invoice_payment_id,
