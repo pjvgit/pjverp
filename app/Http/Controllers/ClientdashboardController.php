@@ -3537,5 +3537,104 @@ class ClientdashboardController extends BaseController
             exit;
         }
     }
+
+    public function exportCases(Request $request)
+    {
+        File::deleteDirectory(public_path('export/'.date('Y-m-d').'/'.Auth::User()->firm_name));
+        if(!is_dir(public_path("export/".date('Y-m-d').'/'.Auth::User()->firm_name))) {
+            File::makeDirectory(public_path("export/".date('Y-m-d').'/'.Auth::User()->firm_name), $mode = 0777, true, true);
+        }
+        
+        $this->generateCasesCSV($request->all());
+        $CSV[] = public_path('export/'.date('Y-m-d').'/'.Auth::User()->firm_name."/cases.csv");
+        $CSV[] = public_path('export/'.date('Y-m-d').'/'.Auth::User()->firm_name."/notes.csv");
+
+        $zip = new ZipArchive;
+        $storage_path = '/export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $timeName = str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-cases-".date("m-d-Y");
+        $zipFileName = $storage_path . '/' . $timeName . '.zip';
+        
+        $zipPath = asset($zipFileName);
+        if ($zip->open((public_path($zipFileName)), ZipArchive::CREATE) === true) {
+            foreach ($CSV as $relativName) {
+                $zip->addFile($relativName,basename($relativName));
+            }
+            $zip->close();
+            if ($zip->open(public_path($zipFileName)) === true) {
+                $Path= $zipPath;
+            } else {
+                $Path="";
+            }
+        }
+        return response()->json(['errors'=>'','url'=>$Path,'msg'=>" Building File... it will downloading automaticaly"]);
+        exit;
+    } 
+
+    public function generateCasesCSV($request){
+        $casesCsvData=[];
+        $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|MyCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
+        $casesCsvData[]=$casesHeader;
+
+        $caseNotesCsvData=[];
+        $caseNotesHeader="Case Name|Created By|Date|Created at|Updated at|Subject|Note";
+        $caseNotesCsvData[]=$caseNotesHeader;
+
+        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+
+        if($request['export_cases'] == 0){
+            if(Auth::user()->parent_user==0){
+                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+                $getChildUsers[]=Auth::user()->id;
+                $case = $case->whereIn("case_master.created_by",$getChildUsers);
+            }else{
+                $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
+                $case = $case->whereIn("case_master.id",$childUSersCase);
+            }
+            if($request['include_archived']){
+                $case = $case->where("case_master.case_close_date",'!=', NULL);
+            }else{
+                $case = $case->where("case_master.case_close_date", NULL);
+            }
+        }else{
+            if($request['include_archived']){
+                $case = $case->where("case_master.case_close_date",'!=', NULL);
+            }else{
+                $case = $case->where("case_master.case_close_date", NULL);
+            }
+        }
+        $case = $case->get();
+        foreach($case as $k=>$v){
+            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$v->practice_area."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".date("m/d/Y",strtotime($v->case_close_date))."|".$v->created_by_name."|Originating Attorney|SOL Date|Outstanding Balance|".$v->id."|Contacts|".$v->billing_method."|Billing Contact|Flat fee|Case Stage|Case Balance|".(($v->conflict_check == 0) ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+            
+            $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
+            if(count($ClientNotesData) > 0){
+                foreach($ClientNotesData as $key=>$notes)
+                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+            }
+        }
+        // print_r($casesCsvData);
+        // exit;
+        
+        $folderPath = public_path('export/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        $file_path =  $folderPath.'/cases.csv';  
+        $file = fopen($file_path,"w+");
+        foreach ($casesCsvData as $exp_data){
+          fputcsv($file,explode('|',$exp_data));
+        }   
+        fclose($file); 
+
+        $file_path_notes =  $folderPath.'/notes.csv';  
+        $file_notes = fopen($file_path_notes,"w+");
+        foreach ($caseNotesCsvData as $exp_data_notes){
+          fputcsv($file_notes,explode('|',$exp_data_notes));
+        }   
+        fclose($file_notes); 
+
+        return true; 
+    }
 }
   

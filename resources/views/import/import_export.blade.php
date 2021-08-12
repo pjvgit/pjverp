@@ -333,20 +333,26 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 </div>
                                 <br>
                                 <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Option</label>
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
                                     <div class="col-sm-8">
                                         <div style="line-height: 1.5em;">
-                                            <input type="checkbox" name="include_companies" id="include_companies"
-                                                value="1" checked="checked">
-                                            <label for="include_companies">Include company contacts</label><br>
+                                            <input type="radio" name="export_cases"  value="0" checked="checked">
+                                            <label for="include_companies"> Only include cases I'm linked to</label><br>
 
-                                            <input type="checkbox" name="include_archived" id="include_archived"
-                                                value="1">
-                                            <label for="include_archived">Include archived contacts</label><br>
+                                            <input type="radio" name="export_cases"  value="1">
+                                            <label for="include_archived">Include all firm cases</label><br>
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Options</label>
+                                    <div class="col-sm-8">
+                                        <div style="line-height: 1.5em;">
+                                        <input type="checkbox" name="include_archived" id="include_archived" value="1">
+                                        <label for="include_archived">Include closed cases</label><br>  
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group row">
                                     <div class="col-sm-8 text-right">
                                         <div class="loader-bubble loader-bubble-primary innerLoader"></div>
@@ -357,7 +363,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 data-dismiss="modal">Cancel</button>
                                         </a>
                                         <button class="btn btn-primary ladda-button example-button m-1 submit"
-                                            id="submitButton" type="submit">Export Contacts</button>
+                                            type="submit">Export Contacts</button>
                                     </div>
                                 </div>
 
@@ -676,6 +682,55 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#import_id").val(import_id);
         $("#countSuccess").html(count);
     }
+
+    $('#exportCasesWithOptionForm').submit(function (e) {
+        $('.showError').html('');
+        beforeLoader();
+        e.preventDefault();
+        if (!$('#exportCasesWithOptionForm').valid()) {
+            afterLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#exportCasesWithOptionForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/imports/exportCases", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&save=yes';
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    errotHtml += '<li>' + res.errors + '</li>';
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    $("#exportContacts").modal("hide");
+                    swal('Success!', res.msg, 'success');
+                    window.open(res.url);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
+    });
 </script>
 @stop
 @endsection

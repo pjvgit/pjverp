@@ -1118,7 +1118,8 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('imports/revertImport', 'ClientdashboardController@revertImport')->name('imports/revertImport');
     Route::post('imports/loadErrorData', 'ClientdashboardController@loadErrorData')->name('imports/loadErrorData');
 
-
+    // exports
+    Route::post('imports/exportCases', 'ClientdashboardController@exportCases')->name('imports/exportCases');
     //Scripts
     Route::get('assignTokenToInvoice','CustomScriptController@assignTokenToInvoice')->name('assignTokenToInvoice');
 
