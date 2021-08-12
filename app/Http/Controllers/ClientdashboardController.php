@@ -64,6 +64,7 @@ class ClientdashboardController extends BaseController
         if(empty($userProfile)){
             return view('pages.404');
         }else{
+            
             $userProfileCreatedBy='';
             if(!empty($userProfile)){
                 //if parent user then data load using user id itself other wise load using parent user
@@ -88,6 +89,7 @@ class ClientdashboardController extends BaseController
             }
            
 
+            
             /* $case =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
             ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")
             ->where('case_client_selection.selected_user',$client_id)
@@ -107,7 +109,7 @@ class ClientdashboardController extends BaseController
             ->orderBy("case_master.id","DESC")  
             ->get();
              
-
+            // dd(67);
 
             return view('client_dashboard.cientView',compact('userProfile','userProfileCreatedBy','id','companyList','UsersAdditionalInfo','client_id','totalData','case','closed_case'));
         }

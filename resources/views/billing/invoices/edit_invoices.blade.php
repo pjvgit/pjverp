@@ -328,7 +328,7 @@
                                     $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
-                                <tr id="time-79566738-7" class="invoice_entry time_entry ">
+                                <tr id="FlatFee-{{$v->itd}}" class="invoice_entry time_entry ">
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">

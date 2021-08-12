@@ -4,6 +4,7 @@
 $paid=$Invoice['amount_paid'];
 $invoice=$Invoice['invoice_amount'];
 $finalAmt=$invoice-$paid;
+$flatFeeEntryAmount=0;
 ?>
 <table style="width:100%;">
     <tbody>
@@ -28,8 +29,11 @@ $finalAmt=$invoice-$paid;
                     {{ucfirst(substr($userData['first_name'],0,50))}}
                     {{ucfirst(substr($userData['middle_name'],0,50))}}
                     {{ucfirst(substr($userData['last_name'],0,50))}}</b><br>
-                {{($userData['street'])??''}} {{($userData['apt_unit'])??''}}<br>
-                {{($userData['city'])??''}} {{($userData['state'])??''}} {{($userData['postal_code'])??''}}<br>
+
+                    {{$UsersAdditionalInfo['street']}} <br>
+                    {{$UsersAdditionalInfo['address2']}} <br>
+                    {{$UsersAdditionalInfo['city']}}, {{$UsersAdditionalInfo['state']}}  <br>
+                    {{$UsersAdditionalInfo['county_name']}}, {{$UsersAdditionalInfo['postal_code']}}
             </td>
             <td style="width: 40%;">
 
@@ -108,7 +112,7 @@ $finalAmt=$invoice-$paid;
             </td>
         </tr>
         <?php
-        $flatFeeEntryAmount=0;
+       
         $nonBillDataFlateFee=[];
         foreach($FlatFeeEntryForInvoice as $k=>$v){
             if($v->time_entry_billable=="yes"){
@@ -135,7 +139,7 @@ $finalAmt=$invoice-$paid;
             </tr>
         <?php 
         $flatFeeEntryAmount+=$v->cost;
-    }else{
+        }else{
                 $nonBillDataFlateFee[]=$v;
             }
         } ?>
@@ -188,7 +192,7 @@ $finalAmt=$invoice-$paid;
 <?php } ?>
 <br>
 <?php
-$flatFeeEntryAmount=0;
+
     if(!$TimeEntryForInvoice->isEmpty()){?>
 <b>Time Entries</b>
 <table style="width: 100%; border-collapse: collapse;" border="1">

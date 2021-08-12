@@ -42,15 +42,22 @@
             </div>
             <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
         </div>
+        <?php 
+        $default_rate = 0.00;
+        if($caseDefaultBiller['billing_method']=='flat' || $caseDefaultBiller['billing_method']=='mixed'){ 
+            $default_rate = $caseDefaultBiller['billing_amount'];
+        } 
+        ?>
         <div class="form-group row" id="billing_rate_text">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Flat fee Amount</label>
             <div class="input-group mb-3 col-sm-5">
                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                 <input class="form-control case_rate" name="default_rate" maxlength="10" id="default_rate" type="text"
-                    aria-label="Amount (to the nearest dollar)" value="{{($caseDefaultBiller['billing_amount'])??'0.00'}}">
+                    aria-label="Amount (to the nearest dollar)" value="{{$default_rate}}">
             </div>
             <span id="TypeError"></span>
         </div>
+        
     </div>
     <div class="justify-content-between modal-footer">
         <div>

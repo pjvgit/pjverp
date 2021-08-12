@@ -11,7 +11,12 @@
                             <div class="col-4">
                                 <p class="">Un-Invoiced</p>
                                 <h4 class="font-weight-bold">
-                                    <?php $totalBills=$timeEntryData['billable_entry']+$expenseEntryData['billable_entry'];?>
+                                    <?php 
+                                    $default_rate = 0.00;
+                                    if($CaseMaster['billing_method']=='flat' || $CaseMaster['billing_method']=='mixed'){ 
+                                        $default_rate = $CaseMaster['billing_amount'];
+                                    } 
+                                    $totalBills=$timeEntryData['billable_entry']+$expenseEntryData['billable_entry']+$default_rate;?>
                                     ${{number_format($totalBills,2)}}
                                 </h4>
                             </div>
@@ -99,10 +104,10 @@
                                         <td class="pl-1" style="width: 33%;">
                                             <?php if($vv['user_level']=="2"){?>
                                             <a
-                                                href="{{BASE_URL}}contacts/clients/{{$vv['uid']}}">{{$vv['user_name']}}</a>
+                                                href="{{ route('contacts/clients/view',$vv['uid']) }}">{{$vv['user_name']}}</a>
                                             <?php } else if($vv['user_level']=="4"){?>
                                             <a
-                                                href="{{BASE_URL}}contacts/companies/{{$vv['uid']}}">{{$vv['user_name']}}</a>
+                                                href="{{ route('contacts/companies/view',$vv['uid']) }}">{{$vv['user_name']}}</a>
                                             <?php } ?>
                                         </td>
                                         <td class="pl-1" style="width: 33%;">
@@ -156,9 +161,9 @@
                                         <td class="pl-1" style="width: 33%;">
                                             <?php 
                                                 if(!empty($caseBiller) && $displayLevel=="2"){?>
-                                                    <a href="{{BASE_URL}}contacts/clients/{{$caseBiller['uid']}}">{{$displayName}}</a>
+                                                    <a href="{{ route('contacts/clients/view',$caseBiller['uid']) }}">{{$displayName}}</a>
                                                 <?php } else if(!empty($caseBiller) &&  $displayLevel=="4"){?>
-                                                    <a href="{{BASE_URL}}contacts/companies/{{$caseBiller['uid']}}">{{$displayName}}</a>
+                                                    <a href="{{ route('contacts/companies/view',$caseBiller['uid']) }}">{{$displayName}}</a>
                                                 <?php } ?> 
                                         </td>
                                         <td class="pl-1" style="width: 33%;"></td>
@@ -171,7 +176,7 @@
                         <button type="button" class="edit-court-case-billing btn btn-outline-secondary">Edit</button>
                             </a>
                             <a
-                            href="{{BASE_URL}}court_cases/{{$CaseMaster['case_unique_number']}}/case_link" class="ml-3 btn btn-outline-secondary">Change Case Rate</a>
+                            href="{{ route('case_link',$CaseMaster['case_unique_number']) }}" class="ml-3 btn btn-outline-secondary">Change Case Rate</a>
                     </div>
                 </div>
             </div>

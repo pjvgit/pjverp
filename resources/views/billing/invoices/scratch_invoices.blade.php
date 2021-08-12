@@ -139,7 +139,7 @@ if(!isset($adjustment_token)){
                                         Payment Terms</td>
                                     <td><select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown"
                                             name="payment_terms">
-                                            <option value="" selected="selected"></option>
+                                            <option value="5" selected="selected"></option>
                                             <option value="0">Due Date</option>
                                             <option value="1">Due on Receipt</option>
                                             <option value="2">Net 15</option>
@@ -1527,6 +1527,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         
         var setDate='';
         var selectdValue = $("#bill_payment_terms option:selected").val();
+        alert(selectdValue);
         var bill_invoice_date=$("#bill_invoice_date").val();
         if(selectdValue==0 || selectdValue==1){
             var minDate =  $('#bill_invoice_date').datepicker('getDate');
@@ -1541,13 +1542,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             CheckOut = moment(CheckIn).add(30, 'day').toDate();
             $('#bill_due_date').datepicker('update', CheckOut);
            
-        }else{
+        }else if(selectdValue==4){
             CheckIn = $("#bill_invoice_date").datepicker('getDate');
             CheckOut = moment(CheckIn).add(60, 'day').toDate();
             $('#bill_due_date').datepicker('update', CheckOut);
         }
 
-        if(selectdValue==""){
+        if(selectdValue=="5"){
             $("#automated_reminders").prop("checked",false);
             $('#bill_due_date').val('');
         }else{

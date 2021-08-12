@@ -22,7 +22,7 @@ function actionFlatFeeEntry(action) {
             return false;
         }
         var dataString = '';
-        dataString = $("#removeExistingFlatFeeEntryForm").serialize();
+        dataString = $("#removeExistingFlatFeeEntryForm").serialize();        
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/invoices/deleteFlatFeeEntry", // json datasource
@@ -44,8 +44,12 @@ function actionFlatFeeEntry(action) {
                     $('.showError').show();
                     afterLoader();
                     return false;
-                } else {
-                    window.location.reload();
+                } else {                    
+                    $("#FlatFee-"+$("#flat_fee_delete_entry_id").val()).remove();
+                    invoice_entry_nonbillable_flat();
+                    $("#flat_fee_delete_existing_dialog").modal("hide");
+                    afterLoader();
+                    // window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
@@ -58,6 +62,24 @@ function actionFlatFeeEntry(action) {
             }
         });
     });
+}
+
+function invoice_entry_nonbillable_flat(){
+    var sum = 0;
+    $('input[name="flat_fee_entry[]"]').each(function (i) {
+        if (!$(this).is(":checked")) {
+            // do something if the checkbox is NOT checked
+            var g = parseFloat($(this).attr("priceattr"));
+            sum += g;            
+        }
+    });
+    $(".flat_fee_table_total").html(sum);
+    $("#flat_fee_sub_total_text").val(sum);
+    $('.flat_fee_table_total').number(true, 2);
+
+    $(".flat_fee_total_amount").html(sum);
+    $('.flat_fee_total_amount').number(true, 2);
+    recalculate();
 }
 
 /**
@@ -296,13 +318,13 @@ function addDaysToDate(bill_invoice_date, days){
         CheckOut = addDaysToDate(bill_invoice_date, 30)
         $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
        
-    }else{
+    }else if(selectdValue==4){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
         CheckOut = addDaysToDate(bill_invoice_date, 60)
         $('#bill_due_date').datepicker('update', CheckOut)/* .focus() */;
     }
 
-    if(selectdValue==""){
+    if(selectdValue=="5"){
         $("#automated_reminders").prop("checked",false);/*  */
         $("#automated_reminders").prop("disabled",true);
         $('#bill_due_date').val('');

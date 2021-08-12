@@ -156,9 +156,9 @@ if(!isset($adjustment_token)){
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">
                                         Payment Terms</td>
                                     <td>
-                                        <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms">
+                                        <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" >
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (( old('payment_terms') == $key) ? "selected" : (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : "")) }}>{{ $item }}</option>
+                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : "") }}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -324,7 +324,7 @@ if(!isset($adjustment_token)){
                                     $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
-                                <tr id="time-79566738-7" class="invoice_entry time_entry ">
+                                <tr id="FlatFee-{{$v->itd}}" class="invoice_entry time_entry ">
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">

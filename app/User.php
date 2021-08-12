@@ -131,11 +131,19 @@ class User extends Authenticatable
         
     }
     public function getContactlistAttribute(){
-        $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+        $companyID = $this->id;
+        if($companyID != null){
+            $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                     // ->where('users_additional_info.company_id',$this->id)
-                    ->whereRaw("find_in_set($this->id,`multiple_compnay_id`)")
+                    ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
                     ->get();
+        }else{
+            $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+                    ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
+                    ->where('users_additional_info.company_id',$companyID)
+                    ->get();
+        }
         
         if(!$userCount->isEmpty()){
             foreach($userCount as $k=>$v){

@@ -167,28 +167,30 @@ class CaseMaster extends Authenticatable
      }
      public function getUninvoicedBalanceAttribute(){
         if(isset($this->case_id)){
-             $ExpenseEntry=ExpenseEntry::select(DB::raw('sum(cost*duration) AS totalExpenseEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
-            
-             $TaskTimeEntryFlat=TaskTimeEntry::select(DB::raw("sum(`entry_rate`) AS totalTimeEntry"))
-             ->where("case_id",$this->case_id)
-             ->where("status","unpaid")
-             ->where("rate_type","flat")
-             ->where("time_entry_billable","yes")
-             ->first();
+            $default_rate = 0.00;
+            if($this->billing_method =='flat' || $this->billing_method =='mixed'){ 
+                $default_rate = $this->billing_amount;
+            } 
 
-             $TaskTimeEntryhr=TaskTimeEntry::select(DB::raw("sum(entry_rate * duration)  AS totalTimeEntry"))
-             ->where("case_id",$this->case_id)
-             ->where("status","unpaid")
-             ->where("rate_type","hr")
-             ->where("time_entry_billable","yes")
-             ->first();
+            $ExpenseEntry=ExpenseEntry::select(DB::raw('sum(cost*duration) AS totalExpenseEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
+        
+            $TaskTimeEntryFlat=TaskTimeEntry::select(DB::raw("sum(`entry_rate`) AS totalTimeEntry"))
+            ->where("case_id",$this->case_id)
+            ->where("status","unpaid")
+            ->where("rate_type","flat")
+            ->where("time_entry_billable","yes")
+            ->first();
 
+            $TaskTimeEntryhr=TaskTimeEntry::select(DB::raw("sum(entry_rate * duration)  AS totalTimeEntry"))
+            ->where("case_id",$this->case_id)
+            ->where("status","unpaid")
+            ->where("rate_type","hr")
+            ->where("time_entry_billable","yes")
+            ->first();
 
             //  $TaskTimeEntry=TaskTimeEntry::select(DB::raw('sum(entry_rate*duration) AS totalTimeEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
 
-            return "$".number_format(($ExpenseEntry['totalExpenseEntry']+$TaskTimeEntryFlat['totalTimeEntry']+$TaskTimeEntryhr['totalTimeEntry']+$this->billing_amount),2);
-
-            
+            return "$".number_format(($ExpenseEntry['totalExpenseEntry']+$TaskTimeEntryFlat['totalTimeEntry']+$TaskTimeEntryhr['totalTimeEntry']+$default_rate),2);
         }else{
             return "Not Specified";
         }
