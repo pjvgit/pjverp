@@ -50,4 +50,14 @@ class ExpenseEntry extends Authenticatable
     {
         return $this->belongsTo(TaskActivity::class, 'activity_id');
     }
+
+    /**
+     * Get the user that owns the TaskTimeEntry
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

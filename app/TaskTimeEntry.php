@@ -24,7 +24,7 @@ class TaskTimeEntry extends Authenticatable
         return base64_encode($this->invoice_link);
     } 
     public function getDateFormatNewAttribute(){
-        return date('M j, Y',strtotime($this->entry_date));
+        return date('M d, Y',strtotime($this->entry_date));
     }
     public function getCalculatedAmtAttribute(){
         if($this->rate_type=="flat"){
@@ -55,5 +55,15 @@ class TaskTimeEntry extends Authenticatable
     public function taskActivity()
     {
         return $this->belongsTo(TaskActivity::class, 'activity_id');
+    }
+
+    /**
+     * Get the user that owns the TaskTimeEntry
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

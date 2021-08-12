@@ -134,10 +134,10 @@ class User extends Authenticatable
         $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                     // ->where('users_additional_info.company_id',$this->id)
-                    ->whereRaw("find_in_set($this->id,`multiple_compnay_id`)")
+                    ->whereRaw("find_in_set(?,'multiple_compnay_id')", [$this->id])
                     ->get();
         
-        if(!$userCount->isEmpty()){
+        if(!empty($userCount)){
             foreach($userCount as $k=>$v){
                 $v->cid=base64_encode($v->cid);
             }

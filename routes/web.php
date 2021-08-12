@@ -1149,6 +1149,7 @@ Route::group(['middleware' => ['auth', 'role:client'], 'namespace' => "ClientPor
     // For billing
     Route::get('bills', 'BillingController@index')->name('client/bills');
     Route::get('bills/{id}', 'BillingController@show')->name('client/bills/detail');
+    Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
 });
 
 //Without login 
