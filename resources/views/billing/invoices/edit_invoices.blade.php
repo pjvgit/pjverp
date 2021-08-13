@@ -1269,150 +1269,142 @@
                             <div class="mt-3">
                                 <h4>Applied Trust Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($findInvoice->applyTrustFund))
+                                    @if(!empty($findInvoice->applyTrustFund) && count($findInvoice->applyTrustFund))
                                     <div class="col-9">
-                                            <div>
-                                                <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="apply-funds-client" style="cursor: initial;"><span>Client</span></th>
-                                                            <th class="apply-funds-account" style="cursor: initial;"><span>Account</span></th>
-                                                            <th class="apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
-                                                            <th class="apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @forelse ($findInvoice->applyTrustFund as $key => $item)
-                                                        <tr class="apply-funds-row">
-                                                            <td class="apply-funds-client">
-                                                                <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
-                                                                <span>{{ @$item->client->full_name }}</span></td>
-                                                            <td class="apply-funds-account">
-                                                                <div>Trust (Trust Account)</div>
-                                                            </td>
-                                                            <td class="apply-funds-available-amount">
-                                                                <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
-                                                            </td>
-                                                            <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
-                                                        </tr>
-                                                        @empty
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="apply-funds-client" style="cursor: initial;"><span>Client</span></th>
+                                                    <th class="apply-funds-account" style="cursor: initial;"><span>Account</span></th>
+                                                    <th class="apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
+                                                    <th class="apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($findInvoice->applyTrustFund as $key => $item)
+                                                <tr class="apply-funds-row">
+                                                    <td class="apply-funds-client">
+                                                        <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                        <span>{{ @$item->client->full_name }}</span></td>
+                                                    <td class="apply-funds-account">
+                                                        <div>Trust (Trust Account)</div>
+                                                    </td>
+                                                    <td class="apply-funds-available-amount">
+                                                        <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
+                                                    </td>
+                                                    <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                </tr>
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
                                     @endif
                                     <div class="col-3">
-                                        <div>
-                                            <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if(!empty($caseMaster->caseAllClient))
-                                                        @php
-                                                            $appliedTrustClient = $findInvoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
-                                                        @endphp
-                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
-                                                        <tr class="account-history-config-row">
-                                                            <td class="account-history-display-setting">
-                                                                <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
-                                                                <div>{{ $citem->full_name }}</div>
-                                                                <div class="row form-group">
-                                                                    <div class="col-12 col-sm-12">
-                                                                        <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
-                                                                            @forelse (trustAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}" {{ (isset($appliedTrustClient) && array_key_exists($citem->id, $appliedTrustClient) && $skey == $appliedTrustClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
-                                                                            @empty
-                                                                            @endforelse
-                                                                        </select>
-                                                                    </div>
+                                        <table class="trust-history-config border table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="jsx-3954552588 account-history-display-setting" style="cursor: initial;"><span>Show Trust Account History on Invoice</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($caseMaster->caseAllClient))
+                                                    @php
+                                                        $appliedTrustClient = $findInvoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
+                                                    @endphp
+                                                    @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                            <div>{{ $citem->full_name }}</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
+                                                                        @forelse (trustAccountHistoryList() as $skey => $sitem)    
+                                                                        <option value="{{ $skey }}" {{ (isset($appliedTrustClient) && array_key_exists($citem->id, $appliedTrustClient) && $skey == $appliedTrustClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
+                                                                        @empty
+                                                                        @endforelse
+                                                                    </select>
                                                                 </div>
-                                                            </td>
-                                                        </tr>
-                                                        @empty
-                                                        @endforelse
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    @endforelse
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <h4>Applied Credit Funds</h4>
                                 <div class="row">
-                                    @if(!empty($findInvoice->applyCreditFund))
+                                    @if(!empty($findInvoice->applyCreditFund) && count($findInvoice->applyCreditFund))
                                     <div class="col-9">
-                                        <div>
-                                            <table class="apply-credit-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="apply-funds-client" style="cursor: initial;"><span>Client</span></th>
-                                                        <th class="apply-funds-account" style="cursor: initial;"><span>Account</span></th>
-                                                        <th class="apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
-                                                        <th class="apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse ($findInvoice->applyCreditFund as $key => $item)
-                                                    <tr class="apply-funds-row">
-                                                        <td class="apply-funds-client">
-                                                            <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
-                                                            <span>{{ @$item->client->full_name }}</span></td>
-                                                        <td class="apply-funds-account">
-                                                            <div>Credit (Operating Account)</div>
-                                                        </td>
-                                                        <td class="apply-funds-available-amount">
-                                                            <div>$0.00 <span class="allocation-status"></span></div>
-                                                        </td>
-                                                        <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
-                                                    </tr>
-                                                    @empty
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                        <table class="apply-credit-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="apply-funds-client" style="cursor: initial;"><span>Client</span></th>
+                                                    <th class="apply-funds-account" style="cursor: initial;"><span>Account</span></th>
+                                                    <th class="apply-funds-available-amount" style="cursor: initial;"><span>Available Amount</span></th>
+                                                    <th class="apply-funds-applied-amount" style="cursor: initial;"><span>Amount Applied</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($findInvoice->applyCreditFund as $key => $item)
+                                                <tr class="apply-funds-row">
+                                                    <td class="apply-funds-client">
+                                                        <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                        <span>{{ @$item->client->full_name }}</span></td>
+                                                    <td class="apply-funds-account">
+                                                        <div>Credit (Operating Account)</div>
+                                                    </td>
+                                                    <td class="apply-funds-available-amount">
+                                                        <div>$0.00 <span class="allocation-status"></span></div>
+                                                    </td>
+                                                    <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                </tr>
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
                                     @endif
                                     <div class="col-3">
-                                        <div>
-                                            <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if(!empty($caseMaster->caseAllClient))
-                                                        @php
-                                                            $appliedCreditClient = $findInvoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
-                                                        @endphp
-                                                        @forelse ($caseMaster->caseAllClient as $ckey => $citem)
-                                                        <tr class="account-history-config-row">
-                                                            <td class="account-history-display-setting">
-                                                                <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
-                                                                <div>{{ $citem->full_name }}</div>
-                                                                <div class="row form-group">
-                                                                    <div class="col-12 col-sm-12">
-                                                                        <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
-                                                                            @forelse (creditAccountHistoryList() as $skey => $sitem)    
-                                                                            <option value="{{ $skey }}" {{ (isset($appliedCreditClient) && array_key_exists($citem->id, $appliedCreditClient) && $skey == $appliedCreditClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
-                                                                            @empty
-                                                                            @endforelse
-                                                                        </select>
-                                                                    </div>
+                                        <table class="credit-history-config border table table-md table-hover" style="table-layout: auto;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="account-history-display-setting" style="cursor: initial;"><span>Show Credit Account History on Invoice</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($caseMaster->caseAllClient))
+                                                    @php
+                                                        $appliedCreditClient = $findInvoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
+                                                    @endphp
+                                                    @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    <tr class="account-history-config-row">
+                                                        <td class="account-history-display-setting">
+                                                            <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                            <div>{{ $citem->full_name }}</div>
+                                                            <div class="row form-group">
+                                                                <div class="col-12 col-sm-12">
+                                                                    <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
+                                                                        @forelse (creditAccountHistoryList() as $skey => $sitem)    
+                                                                        <option value="{{ $skey }}" {{ (isset($appliedCreditClient) && array_key_exists($citem->id, $appliedCreditClient) && $skey == $appliedCreditClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
+                                                                        @empty
+                                                                        @endforelse
+                                                                    </select>
                                                                 </div>
-                                                            </td>
-                                                        </tr>
-                                                        @empty
-                                                        @endforelse
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    @endforelse
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

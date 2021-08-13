@@ -1,9 +1,4 @@
 @extends('layouts.pdflayout')
-<?php
-$paid=$invoice['amount_paid'];
-// $invoice=$invoice['invoice_amount'];
-// $finalAmt=$invoice-$paid;
-?>
 <table style="width:100%;">
     <tbody>
         <tr>
@@ -37,7 +32,7 @@ $paid=$invoice['amount_paid'];
                         <tr style="padding-left: 4px;">
                             <td scope="col" style="width: 10%;text-align:right;"><b>Balance:</b></td>
                             <td scope="col" style="width: 10%;text-align:left;">
-                                ${{ $invoice->total_amount_new }}
+                                ${{ $invoice->due_amount_new }}
                             </td>
                         </tr>
                         <tr style="padding-left: 4px;">
@@ -101,10 +96,9 @@ $paid=$invoice['amount_paid'];
         $flatFeeEntryAmount = $invoice->invoiceFlatFeeEntry->where("time_entry_billable", "yes")->sum('cost');
         $billableFlatFees = $invoice->invoiceFlatFeeEntry->where("time_entry_billable", "yes");
         $nonBillableFlatFees = $invoice->invoiceFlatFeeEntry->where("time_entry_billable", "no");
-        $nonBillDataFlateFee=[];
         @endphp
+        @if(!empty($billableFlatFees) && count($billableFlatFees))
         @forelse($billableFlatFees as $key => $item)
-            @if($item->time_entry_billable == "yes")
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
                     {{date('m/d/Y',strtotime($item->entry_date))}}
@@ -124,13 +118,10 @@ $paid=$invoice['amount_paid'];
                     ${{number_format($item->cost,2)}}
                 </td>
             </tr>
-            @else
-                $nonBillDataFlateFee[]=$item;
-            @endif
         @empty
         @endforelse
-
-        @if(!empty($nonBillDataFlateFee))
+        @endif
+        @if(!empty($nonBillDataFlateFee) && count($nonBillDataFlateFee))
             <tr class="invoice_info_row nonbillable-title">
                 <td class="invoice_info_bg" colspan="7">Non-billable Flat Fees:</td>
             </tr>
@@ -187,7 +178,7 @@ $paid=$invoice['amount_paid'];
             $nonBillableTimeEntry = $invoice->invoiceTimeEntry->where("time_entry_billable", "no");
             $timeEntryTime = $invoice->invoiceTimeEntry->sum('duration');
         @endphp
-        @if(!empty($billableTimeEntry))
+        @if(!empty($billableTimeEntry) && count($billableTimeEntry))
         @forelse($billableTimeEntry as $k=>$v)
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
@@ -222,7 +213,7 @@ $paid=$invoice['amount_paid'];
         @empty
         @endforelse
         @endif
-        @if(!empty($nonBillableTimeEntry))
+        @if(!empty($nonBillableTimeEntry) && count($nonBillableTimeEntry))
             <tr class="invoice_info_row nonbillable-title">
                 <td class="invoice_info_bg" colspan="7">Non-billable Time Entries:</td>
             </tr>
@@ -277,94 +268,94 @@ $paid=$invoice['amount_paid'];
 @if(!empty($invoice->invoiceExpenseEntry) && count($invoice->invoiceExpenseEntry))
 <h3>Expenses</h3>
 <table style="width: 100%; border-collapse: collapse;" border="1">
-<tbody>
-    <tr class="invoice_info_row">
-        <td class="invoice_info_bg">Date</td>
-        <td class="invoice_info_bg">EE</td>
-        <td class="invoice_info_bg">Activity</td>
-        <td class="invoice_info_bg">Description</td>
-        <td class="invoice_info_bg" style="width: 65px; text-align: right;">Cost</td>
-        <td class="invoice_info_bg" style="width: 65px; text-align: right;">Quantity</td>
-        <td class="invoice_info_bg" style="width: 140px; text-align: right;">Line Total</td>
-    </tr>
-    @php
-        $expenseAmount = $invoice->invoiceExpenseEntry->where("time_entry_billable", "yes")->sum('calulated_cost');
-        $billableExpense = $invoice->invoiceExpenseEntry->where("time_entry_billable", "yes");
-        $nonBillableExpense = $invoice->invoiceExpenseEntry->where("time_entry_billable", "no");
-        $expenseTime = $invoice->invoiceExpenseEntry->sum('duration');
-    @endphp
-    @if(!empty($billableExpense))
-    @forelse($billableExpense as $k=>$v)        
-    <tr class="invoice_info_row ">
-        <td class="time-entry-date" style="vertical-align: top;">
-            {{date('m/d/Y',strtotime($v->entry_date))}}
-        </td>
-        <td class="time-entry-ee" style="vertical-align: top;">
-            {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
-        </td>
-        <td class="time-entry-activity" style="vertical-align: top;">
-            {{ @$v->expenseActivity->title }}
-        </td>
-        <td class="time-entry-description" style="vertical-align: top;">
-            <p class="invoice_notes">
-                {{$v->description}}
-            </p>
-        </td>
-        <td style="vertical-align: top; text-align: right;" class="">
-            ${{ $v->cost_value }}
-        </td>
-        <td style="vertical-align: top; text-align: right;" class="">
-            {{ $v->qty }}
-        </td>
-        <td style="vertical-align: top; text-align: right;" class="">
-            {{ $v->calulated_cost }}
-        </td>
-    </tr>
-    @empty
-    @endforelse
-    @endif
-    @if(!empty($nonBillableExpense))
-        <tr class="invoice_info_row nonbillable-title">
-            <td class="invoice_info_bg" colspan="7">
-                Non-billable Time Expenses:
+    <tbody>
+        <tr class="invoice_info_row">
+            <td class="invoice_info_bg">Date</td>
+            <td class="invoice_info_bg">EE</td>
+            <td class="invoice_info_bg">Activity</td>
+            <td class="invoice_info_bg">Description</td>
+            <td class="invoice_info_bg" style="width: 65px; text-align: right;">Cost</td>
+            <td class="invoice_info_bg" style="width: 65px; text-align: right;">Quantity</td>
+            <td class="invoice_info_bg" style="width: 140px; text-align: right;">Line Total</td>
+        </tr>
+        @php
+            $expenseAmount = $invoice->invoiceExpenseEntry->where("time_entry_billable", "yes")->sum('calulated_cost');
+            $billableExpense = $invoice->invoiceExpenseEntry->where("time_entry_billable", "yes");
+            $nonBillableExpense = $invoice->invoiceExpenseEntry->where("time_entry_billable", "no");
+            $expenseTime = $invoice->invoiceExpenseEntry->sum('duration');
+        @endphp
+        @if(!empty($billableExpense) && count($billableExpense))
+        @forelse($billableExpense as $k=>$v)        
+        <tr class="invoice_info_row ">
+            <td class="time-entry-date" style="vertical-align: top;">
+                {{date('m/d/Y',strtotime($v->entry_date))}}
             </td>
-            </tr>
-        @forelse($nonBillableExpense as $k=>$v)
-            <tr class="invoice_info_row ">
-                <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime($v->entry_date))}}
-                </td>
-                <td class="time-entry-ee" style="vertical-align: top;">
-                    {{ @$v->user->first_name[0] ??''}}{{ @$v->user->last_name[0] ??''}}
-                </td>
-                <td class="time-entry-activity" style="vertical-align: top;">
-                    {{ @$v->expenseActivity->title }}
-                </td>
-                <td class="time-entry-description" style="vertical-align: top;">
-                    <p class="invoice_notes">
-                        {{$v->description}}
-                    </p>
-                </td>
-                <td style="vertical-align: top; text-align: right;" class="nonbillableRow" >
-                    ${{ $v->cost_value }}
-                </td>
-                <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
-                    {{ $v->qty }}
-                </td>
-                <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
-                    {{ $v->calulated_cost }}
-                </td>
-            </tr>
+            <td class="time-entry-ee" style="vertical-align: top;">
+                {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
+            </td>
+            <td class="time-entry-activity" style="vertical-align: top;">
+                {{ @$v->expenseActivity->title }}
+            </td>
+            <td class="time-entry-description" style="vertical-align: top;">
+                <p class="invoice_notes">
+                    {{$v->description}}
+                </p>
+            </td>
+            <td style="vertical-align: top; text-align: right;" class="">
+                ${{ $v->cost_value }}
+            </td>
+            <td style="vertical-align: top; text-align: right;" class="">
+                {{ $v->qty }}
+            </td>
+            <td style="vertical-align: top; text-align: right;" class="">
+                {{ $v->calulated_cost }}
+            </td>
+        </tr>
         @empty
         @endforelse
-    @endif
-    <tr>
-        <td colspan="6" style="text-align: right; padding-top: 5px;text-align:right;">Expense Total:</td>
-        <td style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;text-align:right;">
-            ${{number_format($expenseAmount,2)}}
-        </td>
-    </tr>
-</tbody>
+        @endif
+        @if(!empty($nonBillableExpense) && count($nonBillableExpense))
+            <tr class="invoice_info_row nonbillable-title">
+                <td class="invoice_info_bg" colspan="7">
+                    Non-billable Time Expenses:
+                </td>
+                </tr>
+            @forelse($nonBillableExpense as $k=>$v)
+                <tr class="invoice_info_row ">
+                    <td class="time-entry-date" style="vertical-align: top;">
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
+                    </td>
+                    <td class="time-entry-ee" style="vertical-align: top;">
+                        {{ @$v->user->first_name[0] ??''}}{{ @$v->user->last_name[0] ??''}}
+                    </td>
+                    <td class="time-entry-activity" style="vertical-align: top;">
+                        {{ @$v->expenseActivity->title }}
+                    </td>
+                    <td class="time-entry-description" style="vertical-align: top;">
+                        <p class="invoice_notes">
+                            {{$v->description}}
+                        </p>
+                    </td>
+                    <td style="vertical-align: top; text-align: right;" class="nonbillableRow" >
+                        ${{ $v->cost_value }}
+                    </td>
+                    <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
+                        {{ $v->qty }}
+                    </td>
+                    <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
+                        {{ $v->calulated_cost }}
+                    </td>
+                </tr>
+            @empty
+            @endforelse
+        @endif
+        <tr>
+            <td colspan="6" style="text-align: right; padding-top: 5px;text-align:right;">Expense Total:</td>
+            <td style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;text-align:right;">
+                ${{number_format($expenseAmount,2)}}
+            </td>
+        </tr>
+    </tbody>
 </table>
 <br>
 @endif
@@ -518,28 +509,18 @@ $paid=$invoice['amount_paid'];
                                 <table class="payment_plan" style="width: 100%; border-collapse: collapse;">
                                     <tbody>
                                         <tr class="header">
-                                            <th class="invoice_info_bg installment_due"
-                                                style="padding: 5px;text-align:left;font-size: 12px;white-space: nowrap;">Installment
-                                                Due</th>
-                                                <th class="invoice_info_bg status" style="padding: 5px;"></th>
-                                                <th class="invoice_info_bg adjustment" style="padding: 5px;">Adjustment</th>
-                                            <th class="invoice_info_bg amount_due"
-                                                style="padding: 5px;text-align:right;font-size: 12px;white-space: nowrap;">Amount</th>
+                                            <th class="invoice_info_bg installment_due" style="padding: 5px;text-align:left;font-size: 12px;white-space: nowrap;">Installment Due</th>
+                                            <th class="invoice_info_bg status" style="padding: 5px;"></th>
+                                            <th class="invoice_info_bg amount_due" style="padding: 5px;text-align:right;font-size: 12px;white-space: nowrap;">Amount</th>
                                         </tr>
-                                        @forelse($invoice->invoiceInstallment as $lk=>$lv){ ?>
-                                        <tr class="even">
+                                        @forelse($invoice->invoiceInstallment as $lk=>$lv)
+                                        <tr class="even" {{ ($lv->status == 'paid') ? "style=color:#cbcccf;" : ''}}>
                                             <td style="border: none; border-bottom: 1px solid #cccccc;font-size: 12px;" class="nonbillable js-payment_plan_date">
                                                 {{date('M d,Y',strtotime($lv->due_date))}}
                                             </td>
                                             <td style="border: none; border-bottom: 1px solid #cccccc;white-space: nowrap;" class="nonbillable js-payment_plan_status">
                                                 @if($lv->status=="paid")
                                                     <i class="fas fa-check-circle" style="color: #40BC53"></i>&nbsp;&nbsp;Manual payment successful
-                                                @endif
-                                            </td>
-                                            <td style="border: none; border-bottom: 1px solid #cccccc;white-space: nowrap;" class="nonbillable js-payment_plan_adjustment">
-                                                @if($lv->status=="unpaid" && $lv->adjustment!=0.00 )
-                                                    (${{$lv->adjustment  }}) prepayment
-                                                    &nbsp;&nbsp; (${{$lv->installment_amount}} - ${{$lv->adjustment}})
                                                 @endif
                                             </td>
                                             <td style="text-align: right; border: none; border-bottom: 1px solid #cccccc;font-size: 12px;" class="nonbillable js-payment_plan_amount">
@@ -604,7 +585,93 @@ $paid=$invoice['amount_paid'];
     </tbody>
 </table>
 @endif
-&nbsp;
-&nbsp;
-&nbsp;
 <br>
+
+@if(!empty($invoice->invoice_setting))
+    @if($invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && !empty($invoice->applyTrustCreditFund))
+    <div>
+        @php
+            $appliedTrustClient = $invoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
+            $appliedcreditClient = $invoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
+        @endphp
+        <div class="ledger-histories">
+            <h3> Account Summary</h3>
+            @if(isset($invoice->case) && !empty($invoice->case->caseAllClient))
+                @forelse ($invoice->case->caseAllClient as $key => $item)
+                    <div class="ledger_history_full mt-3">
+                        @if ($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account summary")
+                            <h4>{{ $item->full_name }}'s Trust Balance</h4>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                        @elseif($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account history")
+                            <h4>{{ $item->full_name }}'s Trust History</h4>
+                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                            <br>
+                            <table  style="width: 100%; border-collapse: collapse;" border="1">
+                                <tbody>
+                                    <tr class="invoice_info_row invoice_header_row">
+                                        <td class="invoice_info_bg" style="width: 10%;"> Date </td>
+                                        <td class="invoice_info_bg" style="width: 12%;"> Related To </td>
+                                        <td class="invoice_info_bg" style="width: 48%;"> Details </td>
+                                        <td class="invoice_info_bg" style="width: 15%;"> Amount </td>
+                                        <td class="invoice_info_bg" style="width: 15%;"> Balance </td>
+                                    </tr>
+                                    @forelse ($item->userTrustAccountHistory as $thkey => $thitem)
+                                        <tr class="invoice_info_row invoice-table-row">
+                                            <td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
+                                            <td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
+                                            <td style="vertical-align: top;"> {{ ($thitem->fund_type == "diposit") ? "Trust deposit" : "Payment from trust" }} </td>
+                                            <td style="vertical-align: top;"> {{ ($thitem->fund_type == "diposit") ? "$".number_format($thitem->amount_paid, 2) : "-$".number_format($thitem->withdraw_amount, 2) }} </td>
+                                            <td style="vertical-align: top;"> ${{ number_format($thitem->current_trust_balance, 2) }} </td>
+                                        </tr>
+                                    @empty                                
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        @else
+                        @endif
+                    </div>
+                @empty
+                @endforelse
+            @endif
+    
+            @if(isset($invoice->case) && !empty($invoice->case->caseAllClient))
+                @forelse ($invoice->case->caseAllClient as $key => $item)
+                    <div class="ledger_history_full mt-3">
+                        @if ($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account summary")
+                            <h4>{{ $item->full_name }}'s Credit Balance</h4>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                        @elseif($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account history")
+                            <h4>{{ $item->full_name }}'s Credit History</h4>
+                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                            <br>
+                            <table  style="width: 100%; border-collapse: collapse;" border="1">
+                                <tbody>
+                                    <tr class="invoice_info_row invoice_header_row">
+                                        <td class="invoice_info_bg" style="width: 10%;"> Date </td>
+                                        <td class="invoice_info_bg" style="width: 12%;"> Related To </td>
+                                        <td class="invoice_info_bg" style="width: 48%;"> Details </td>
+                                        <td class="invoice_info_bg" style="width: 15%;"> Amount </td>
+                                        <td class="invoice_info_bg" style="width: 15%;"> Balance </td>
+                                    </tr>
+                                    @forelse ($item->userCreditAccountHistory as $thkey => $thitem)
+                                        <tr class="invoice_info_row invoice-table-row">
+                                            <td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
+                                            <td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
+                                            <td style="vertical-align: top;"> {{ ($thitem->payment_type == "payment" || $thitem->payment_type == "withdraw") ? "Credit withdrawal" : "Credit deposit" }} </td>
+                                            <td style="vertical-align: top;"> {{ ($thitem->payment_type == "payment" || $thitem->payment_type == "withdraw") ? "-$".number_format($thitem->deposit_amount, 2) : "$".number_format($thitem->deposit_amount, 2) }} </td>
+                                            <td style="vertical-align: top;"> ${{ number_format($thitem->total_balance, 2) }} </td>
+                                        </tr>
+                                    @empty                                
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        @else
+                        @endif
+                    </div>
+                @empty
+                @endforelse
+            @endif
+        </div>
+    </div>
+    @endif
+@endif
