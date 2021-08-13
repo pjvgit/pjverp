@@ -1108,7 +1108,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
 
     Route::get('imports/contacts', 'ClientdashboardController@imports_contacts')->name('imports/contacts');
-    Route::get('imports/court_cases', 'ClientdashboardController@imports_contacts')->name('imports/court_cases');
+    Route::get('imports/court_cases', 'ClientdashboardController@imports_cases')->name('imports/court_cases');
 
     Route::post('imports/download_template', 'ClientdashboardController@downloadFormat')->name('imports/download_template');
     Route::post('imports/createAndImports', 'ClientdashboardController@createAndImports')->name('imports/createAndImports');
@@ -1120,6 +1120,11 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
     // exports
     Route::post('imports/exportCases', 'ClientdashboardController@exportCases')->name('imports/exportCases');
+    Route::post('imports/importCases', 'ClientdashboardController@importCases')->name('imports/importCases');
+    Route::post('imports/loadImportCasesHistory', 'ClientdashboardController@loadImportCasesHistory')->name('imports/loadImportCasesHistory');
+    Route::get('imports/cases/{id}', 'ClientdashboardController@viewCasesLog')->name('imports/cases/{id}');
+    Route::post('imports/revertImportCases', 'ClientdashboardController@revertImportCases')->name('imports/revertImportCases');
+    
     //Scripts
     Route::get('assignTokenToInvoice','CustomScriptController@assignTokenToInvoice')->name('assignTokenToInvoice');
 
