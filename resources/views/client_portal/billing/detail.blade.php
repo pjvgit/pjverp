@@ -2,6 +2,12 @@
 
 @section('main-content')
 <div class="app-container__content">
+	@if ($message = Session::get('error'))
+	<div class="alert alert-danger alert-block">
+		<button class="close" type="button" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+		<strong>{{ $message }}</strong>
+	</div>
+	@endif
 	<section class="detail-view" id="payable_detail_view">
 		<div class="payable-detail ">
 			<div class="detail-view__header">
@@ -28,6 +34,16 @@
 								<div class="detail-view__label">Total Balance Due</div>
 								<div class="payable-detail__total-balance-due">${{ $invoice->due_amount_new }}</div>
 							</div>
+							@if(!empty($invoice->invoiceFirstInstallment))
+							<div class="payable-detail__datapair">
+								<div class="detail-view__label">Next Payment Due</div>
+								<div class="payable-detail__total-balance-due">${{ number_format(($invoice->invoiceFirstInstallment->installment_amount - $invoice->invoiceFirstInstallment->adjustment), 2) }}</div>
+							</div>
+							<div class="payable-detail__datapair">
+								<div class="detail-view__label">Next Payment Date</div>
+								<div>{{ convertUTCToUserDate($invoice->invoiceFirstInstallment->due_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }}</div>
+							</div>
+							@endif
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Invoice Date</div>
 								<div>{{ convertUTCToUserDate($invoice->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }}</div>
@@ -68,7 +84,7 @@
 					@forelse ($invoice->forwardedInvoices as $key => $item)
 					<div class="list-row  ">
 						<div class="payable-detail-item-entry"><i class="fas fa-arrow-right list-row__icon"></i>
-							<div><span>Balance Forward <a href="/bills/14218835">#{{ $item->invoice_id }}</a></span>
+							<div><span>Balance Forward <a href="{{ route('client/bills/detail', $item->decode_id) }}">#{{ $item->invoice_id }}</a></span>
 								<div class="list-row__header-detail">Due Date: {{ $item->due_date }}</div>
 							</div>
 						</div>
@@ -80,6 +96,34 @@
 						<div class="payable-detail-item-price">
 							<div>Balance Forward
 								<br>${{ $item->due_amount_new }}</div>
+						</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
+				{{-- For invoice foewarded to --}}
+				@if(!empty($invoice->invoiceForwardedToInvoice) && count($invoice->invoiceForwardedToInvoice))
+				<div>
+					<div class="payable-detail-header payable-detail-header--dark">
+						<div class="payable-detail-line-header-name">Invoice Forwarded To</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->invoiceForwardedToInvoice as $key => $item)
+					<div class="list-row  ">
+						<div class="payable-detail-item-entry"><i class="fas fa-arrow-right list-row__icon"></i>
+							<div>Balance Forward
+								<div class="list-row__header-detail">Due Date: {{ $item->due_date }}</div>
+							</div>
+						</div>
+						<div class="payable-detail-item-description"><span>Balance Forward To <a href="{{ route('client/bills/detail', $item->decode_id) }}">#{{ $item->invoice_id }}</a></span></div>
+						<div class="payable-detail-item-status "></div>
+						<div class="payable-detail-item-price">
+							<div>Forwarded Balance
+								<br>${{ $invoice->total_amount_new }}</div>
 						</div>
 					</div>
 					@empty
@@ -197,6 +241,33 @@
 				</div>
 				@endif
 
+				{{-- For payment plans --}}
+				@if(!empty($invoice->invoiceInstallment) && count($invoice->invoiceInstallment))
+				<div>
+					<div class="payable-detail-header payable-detail-header--dark">
+						<div class="payable-detail-line-header-name">Payment Plans</div>
+						<div class="payable-detail-line-header-description">Description</div>
+						<div class="payable-detail-line-header-status"></div>
+						<div class="payable-detail-line-header-price"></div>
+					</div>
+					@forelse ($invoice->invoiceInstallment as $key => $item)
+					<div class="list-row {{ ($item->status == 'paid') ? 'payable-detail-settled' : '' }} ">
+						<div class="payable-detail-item-entry"><i class="fas fa-credit-card list-row__icon"></i>
+							<div>Payment Plan
+								<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->due_date)) }}</div>
+							</div>
+						</div>
+						<div class="payable-detail-item-description">Status: {{ ($item->status == "paid") ? 'Settled' : 'Unsettled' }}</div>
+						<div class="payable-detail-item-status ">
+							{{ ($item->status == "paid") ? 'Manual payment successful' : '' }}
+						</div>
+						<div class="payable-detail-item-price">${{ number_format($item->installment_amount, 2) }}</div>
+					</div>
+					@empty
+					@endforelse
+				</div>
+				@endif
+
 				{{-- Payment history --}}
 				@if(!empty($invoice->invoicePaymentHistory) && count($invoice->invoicePaymentHistory))
 				<div id="payment_history">
@@ -262,17 +333,18 @@
 								<div>Sub-Total:</div><div>${{ number_format((@$timeEntryTotal ?? 0 + @$expenseTotal ?? 0 + @$flatFeeTotal ?? 0), 2) }}</div>
 							</div>
 						</strong>
-						@if(!empty($invoice->invoiceAdjustmentEntry) && count($invoice->invoiceAdjustmentEntry))
-						<div class="payable-detail__datapair mt-0">
-							<div>Discounts:</div>
-							<div>$-{{ number_format($totalDiscount ?? 0, 2) }}</div>
-						</div>
-						@endif
 						@if(!empty($invoice->forwardedInvoices) && count($invoice->forwardedInvoices))
+						<br>
 						<div class="mb-3">
 							<div class="payable-detail__datapair mt-0">
 								<div>Balance Forward:</div><div>${{ number_format($forwardedBalance ?? 0, 2) }}</div>
 							</div>
+						</div>
+						@endif
+						@if(!empty($invoice->invoiceAdjustmentEntry) && count($invoice->invoiceAdjustmentEntry))
+						<div class="payable-detail__datapair mt-0">
+							<div>Discounts:</div>
+							<div>$-{{ number_format($totalDiscount ?? 0, 2) }}</div>
 						</div>
 						@endif
 					</div>

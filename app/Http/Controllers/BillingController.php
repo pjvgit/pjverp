@@ -4833,6 +4833,7 @@ class BillingController extends BaseController
     }
     public function saveTrustInvoicePaymentWithHistory(Request $request)
     {
+        // return $request->all();
         $invoiceId=Invoices::where("invoice_unique_token",$request->invoice_id)->first();
 
         $request['amount']=str_replace(",","",$request->amount);
@@ -4883,18 +4884,7 @@ class BillingController extends BaseController
                 $InvoicePayment->save();
                
                 //Deduct invoice amount when payment done
-                $totalPaid=InvoicePayment::where("invoice_id",$invoiceId['id'])->get()->sum("amount_paid");
-                
-                if(($totalPaid-$InvoiceData['total_amount'])==0){
-                    $status="Paid";
-                }else{
-                    $status="Partial";
-                }
-                DB::table('invoices')->where("id",$invoiceId['id'])->update([
-                    'paid_amount'=>$totalPaid,
-                    'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
-                    'status'=>$status,
-                ]);
+                $this->updateInvoiceAmount($invoiceId['id']);
 
                 // Deduct amount from trust account after payment.
                 $trustAccountAmount=($userData['trust_account_balance']-$request->amount);
@@ -4913,6 +4903,12 @@ class BillingController extends BaseController
                     "related_to_invoice_id" => $InvoiceData->id,
                     "created_by" => auth()->id(),
                 ]);
+
+                // For update installment amount and status
+                $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$InvoiceData['id'])->first();
+                if(!empty($getInstallMentIfOn)){
+                    $this->installmentManagement($request->amount,$InvoiceData['id']);
+                }
 
                 DB::commit();
                 //Response message
@@ -5194,11 +5190,7 @@ class BillingController extends BaseController
         $GetAmount=InvoiceHistory::find($request->transaction_id);
         $findInvoice=Invoices::find($GetAmount['invoice_id']);
 
-        // if($GetAmount->deposit_into=="Operating Account"){
-        //     $mt=$GetAmount->amount;
-        // }
         $mt=$GetAmount->amount; 
-    //  echo $request['amount'];exit;
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt,
         ],[
@@ -5243,6 +5235,7 @@ class BillingController extends BaseController
             $invoiceHistory['amount']=$request['amount'];
             $invoiceHistory['responsible_user']=Auth::User()->id;
             $invoiceHistory['deposit_into'] = ($GetAmount->pay_method == "Trust") ? "Trust" : "Operating";
+            $invoiceHistory['deposit_into_id']=$GetAmount['deposit_into_id'];
             $invoiceHistory['notes']=$request->notes;
             $invoiceHistory['status']="4";
             $invoiceHistory['refund_ref_id']=$request->transaction_id;
@@ -5250,7 +5243,7 @@ class BillingController extends BaseController
             $invoiceHistory['created_at']=date('Y-m-d H:i:s');
             // $this->invoiceHistory($invoiceHistory);
 
-            if($GetAmount->deposit_into=="Operating Account"){
+            if($GetAmount->deposit_into=="Operating Account" && $GetAmount->pay_method != "Trust"){
                 //Insert invoice payment record.
                 $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Operating Account")->orderBy("created_at","DESC")->first();
                 if($currentBalance['total']-$request->amount<=0){
@@ -5323,6 +5316,7 @@ class BillingController extends BaseController
                     'amount_paid'=>0.00,
                     'payment_method'=>"Trust Refund",
                     'deposit_into'=>"Trust",
+                    'deposit_into_id' => $GetAmount['deposit_into_id'],
                     'notes'=>$request->notes,
                     // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
                     'refund_ref_id'=>$GetAmount->invoice_payment_id,
@@ -5336,6 +5330,11 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
+
+                $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $GetAmount['deposit_into_id'])->first();
+                if($UsersAdditionalInfo) {
+                    $UsersAdditionalInfo->fill(['trust_account_balance' => ($UsersAdditionalInfo->trust_account_balance + $request->amount)])->save();
+                }
             }
             $invoiceHistory['invoice_payment_id']=$entryDone;
             $this->invoiceHistory($invoiceHistory);
@@ -5343,9 +5342,33 @@ class BillingController extends BaseController
             // Update invoice status and paid/due amount
             $this->updateInvoiceAmount($findInvoice['id']);
 
+            // Update installment payment status and amount
+            $this->updateInvoiceInstallment($request->amount, $findInvoice['id']);
+
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
             exit;   
+        }
+    }
+
+    /**
+     * To update invoice installment status and amount
+     */
+    public function updateInvoiceInstallment($requestAmt, $invoiceId)
+    {
+        // Update installment payment status and amount
+        $installments = InvoiceInstallment::where('invoice_id', $invoiceId)->where("adjustment", '>', 0)->orderBy('due_date', 'desc')->get();
+        if($installments) {
+            foreach($installments as $key => $item) {
+                if($requestAmt >= $item->adjustment) {
+                    $requestAmt = $requestAmt - $item->adjustment;
+                    $item->fill(['status' => 'unpaid', 'adjustment' => 0])->save();
+                } else if($requestAmt > 0 && $requestAmt < $item->adjustment) {
+                    $item->fill(['status' => 'unpaid', 'adjustment' => $item->adjustment - $requestAmt])->save();
+                    $requestAmt = 0;
+                } else {
+                }
+            }
         }
     }
 
@@ -5383,19 +5406,31 @@ class BillingController extends BaseController
                     $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                     $updateRedord->is_refunded="no";
                     $updateRedord->save();
+                    UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
                 } else {
                     UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
                 }
                 $this->updateNextPreviousCreditBalance($creditHistory->user_id);
                 $creditHistory->delete();
             }
+
             if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
+                $this->updateInvoiceInstallment($invoicePayment->amount_paid, $PaymentMaster->invoice_id);
                 $invoicePayment->delete();
                 $this->updateInvoiceAmount($PaymentMaster->invoice_id);
             } else {
                 $refundPaymentReference = InvoiceHistory::whereId($PaymentMaster->refund_ref_id)->first();
                 $refundPaymentReference->fill(["status" => "1"])->save();
-                // return $refundPaymentReference;
+                // For update installment amount and status
+                $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id", $PaymentMaster->invoice_id)->first();
+                if(!empty($getInstallMentIfOn)){
+                    $this->installmentManagement($invoicePayment->amount_refund, $PaymentMaster->invoice_id);
+                }
+
+                // Update trust balance
+                if($invoicePayment->payment_method == "Trust Refund") {
+                    UsersAdditionalInfo::where("user_id", $invoicePayment->deposit_into_id)->decrement('trust_account_balance', $invoicePayment->amount_refund);
+                }
                 $invoicePayment->delete();
                 $this->updateInvoiceAmount($PaymentMaster->invoice_id);
             }
@@ -5405,30 +5440,6 @@ class BillingController extends BaseController
             exit;   
         }
     }
-
-    /**
-     * Update invoice paid/due amount and status
-     */
-    /* public function updateInvoiceAmount($invoiceId)
-    {
-        $invoice = Invoices::whereId($invoiceId)->first();
-        $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
-        $totalPaid = $allPayment->sum("amount_paid");
-        $totalRefund = $allPayment->sum("amount_refund");
-        $remainPaidAmt = ($totalPaid - $totalRefund);
-        if($remainPaidAmt == 0) {
-            $status="Unsent";
-        } elseif($invoice->total_amount == $remainPaidAmt) {
-            $status = "Paid";
-        } else {
-            $status="Partial";
-        }
-        $invoice->fill([
-            'paid_amount'=> $remainPaidAmt,
-            'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
-            'status'=>$status,
-        ])->save();
-    } */
 
     public function InvoiceHistoryInlineView(Request $request)
     {
@@ -8479,6 +8490,12 @@ class BillingController extends BaseController
                     $userAddInfo->fill([
                         'credit_account_balance' => ($userAddInfo->credit_account_balance) ? $userAddInfo->credit_account_balance - $request->amount ?? 00 : $userAddInfo->credit_account_balance
                     ])->save();
+                }
+
+                //Code For installment amount
+                $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$InvoiceData->id)->first();
+                if(!empty($getInstallMentIfOn)){
+                    $this->installmentManagement($request->amount, $InvoiceData->id);
                 }
                     
                 // Add credit history

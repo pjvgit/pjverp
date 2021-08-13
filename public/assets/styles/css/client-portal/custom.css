@@ -228,3 +228,22 @@
     max-width: 33.33333%;
     padding-left: 0;
 }
+.payable-detail-settled, .payable-nonbillable {
+    color: #cbcccf;
+}
+.payable-row__icon-paid {
+    background-color: #cbcccf;
+    border-color: #cbcccf;
+    color: #fff;
+}
+.list-row__body {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.list-row>a {
+    color: inherit;
+    display: flex;
+    text-decoration: none;
+    width: 100%;
+}

@@ -225,7 +225,7 @@ class Invoices extends Model
     }
 
     /**
-     * Get the applyTrustCreditFund associated with the Invoices
+     * Get the applyTrustFund associated with the Invoices
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -235,7 +235,7 @@ class Invoices extends Model
     }
 
     /**
-     * Get the applyTrustCreditFund associated with the Invoices
+     * Get the applyCreditFund associated with the Invoices
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
