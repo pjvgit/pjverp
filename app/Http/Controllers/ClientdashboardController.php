@@ -26,6 +26,7 @@ use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
+use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate;
 class ClientdashboardController extends BaseController
 {
     use CreditAccountTrait;
@@ -3088,6 +3089,7 @@ class ClientdashboardController extends BaseController
         $requestData= $_REQUEST;
         $hisotryImport = ClientCompanyImport::join("users","client_company_import.created_by","=","users.id")->select('client_company_import.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole");
         $hisotryImport = $hisotryImport->where("client_company_import.firm_id",Auth::User()->firm_name);
+        $hisotryImport = $hisotryImport->where("client_company_import.import_for",'contact');
         $totalData=$hisotryImport->count();
         $totalFiltered = $totalData; 
         
@@ -3583,6 +3585,7 @@ class ClientdashboardController extends BaseController
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
 
         if($request['export_cases'] == 0){
+            $case = $case->where("case_master.is_entry_done","1");
             if(Auth::user()->parent_user==0){
                 $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
                 $getChildUsers[]=Auth::user()->id;
@@ -3591,21 +3594,61 @@ class ClientdashboardController extends BaseController
                 $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
                 $case = $case->whereIn("case_master.id",$childUSersCase);
             }
-            if($request['include_archived']){
-                $case = $case->where("case_master.case_close_date",'!=', NULL);
-            }else{
+            if(!isset($request['include_archived'])){   
                 $case = $case->where("case_master.case_close_date", NULL);
             }
         }else{
-            if($request['include_archived']){
-                $case = $case->where("case_master.case_close_date",'!=', NULL);
-            }else{
+            if(!isset($request['include_archived'])){
                 $case = $case->where("case_master.case_close_date", NULL);
             }
         }
-        $case = $case->get();
+        $case = $case->get();        
         foreach($case as $k=>$v){
-            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$v->practice_area."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".date("m/d/Y",strtotime($v->case_close_date))."|".$v->created_by_name."|Originating Attorney|SOL Date|Outstanding Balance|".$v->id."|Contacts|".$v->billing_method."|Billing Contact|Flat fee|Case Stage|Case Balance|".(($v->conflict_check == 0) ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+            $practiceArea = '';
+            if($v->practice_area > 0){
+                $practiceAreaList = CasePracticeArea::where("status","1")->where("id",$v->practice_area)->first();  
+                $practiceArea = $practiceAreaList->title;
+            }
+
+            $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+            ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+            ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
+            ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
+            ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
+            ->where("case_client_selection.case_id",$v->id)
+            ->get();
+            
+            $contactList = '';
+            $is_billing_contact = '';
+            if(count($caseCllientSelection) > 0){
+                foreach($caseCllientSelection as $key=>$val){
+                    if($val->is_billing_contact == 'yes'){
+                        $is_billing_contact = $val->first_name.' '.$val->last_name;
+                    }
+                    if($val->user_level==4){
+                        $contactList .= $val->first_name.' '.$val->last_name.'(Attorney)'.PHP_EOL;
+                    }else{
+                        $contactList .= $val->first_name.' '.$val->last_name.'(Client)'.PHP_EOL;
+                    }
+                }                
+            }
+            
+            $caseStage = 'Not Specified';
+            if($v->case_status > 0){
+                $caseStageList = CaseStage::select("*")->where("status","1")->where("id",$v->case_status)->first();
+                $caseStage = $caseStageList->title ?? 'Not Specified';
+            }
+
+            $flatFee = 0;
+            if($v->billing_method =='flat' || $v->billing_method =='mixed'){ 
+                $flatFee = $v->billing_amount;
+            }
+
+            $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
+            $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
+          
+
+            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == 0) ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
             
             $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
             if(count($ClientNotesData) > 0){
@@ -3613,7 +3656,7 @@ class ClientdashboardController extends BaseController
                 $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
             }
         }
-        // print_r($casesCsvData);
+        // echo json_encode($casesCsvData);
         // exit;
         
         $folderPath = public_path('export/'.date('Y-m-d').'/'.Auth::User()->firm_name);
@@ -3635,6 +3678,314 @@ class ClientdashboardController extends BaseController
         fclose($file_notes); 
 
         return true; 
+    }
+
+    public function importCases(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'upload_file' => 'required|max:8192', //8 mb
+        ],['upload_file.required'=>"Please select file"]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $path = $request->file('upload_file')->getRealPath();
+            $csv_data = array_map('str_getcsv', file($path));
+            if(!empty($csv_data)){
+                if(count($csv_data) >= 1000){
+                    return response()->json(['errors'=>'We recommend importing less than 1000 records at a time or the import may error out. If you have more than 1000 records to import, we suggest breaking the import up into multiple spreadsheets and try again']);
+                    exit;
+                }else{
+                if($csv_data[0][0]=="Case/Matter Name" ){                    
+                    unset($csv_data[0]);
+                    
+                    $uploadFile = $request->upload_file;
+                    $namewithextension = $uploadFile->getClientOriginalName(); 
+
+                    $ClientCompanyImport=new ClientCompanyImport;
+                    $ClientCompanyImport->file_name=$namewithextension;
+                    $ClientCompanyImport->total_record=count($csv_data);
+                    $ClientCompanyImport->total_imported=0;
+                    $ClientCompanyImport->status="2";
+                    $ClientCompanyImport->import_for="case";
+                    $ClientCompanyImport->firm_id=Auth::User()->firm_name;
+                    $ClientCompanyImport->created_by=Auth::User()->id;
+                    $ClientCompanyImport->file_type="2";
+                    $ClientCompanyImport->save();
+                    $waringCount = 0;
+                    $caseArray = [];
+                    try{                        
+                        foreach($csv_data as $key=>$val){
+                            $caseArray[$key]['case_title'] = $val[0];
+                            $caseArray[$key]['case_number'] = $val[1];
+                            $caseArray[$key]['case_open_date'] = $val[2];
+                            $caseArray[$key]['practice_area'] = $val[3];
+                            $caseArray[$key]['case_description'] = $val[4];
+                            $caseArray[$key]['case_close'] = $val[5];
+                            $caseArray[$key]['case_close_date'] = $val[6];
+                            $caseArray[$key]['lead_attorney'] = $val[7];
+                            $caseArray[$key]['originating_attorney'] = $val[8];
+                            $caseArray[$key]['sol_date'] = $val[9];
+                            $caseArray[$key]['outstanding_balance'] = $val[10];
+                            $caseArray[$key]['case_stage'] = $val[11];
+                            $caseArray[$key]['conflict_check'] = $val[12];
+                            $caseArray[$key]['conflict_check_notes'] = $val[13];
+                            $caseArray[$key]['case_note_1'] = $val[14];
+                            $caseArray[$key]['case_note_2'] = $val[15];
+                        }
+
+                        $ic=0;
+                        foreach($caseArray as $finalOperationKey=>$finalOperationVal){
+                            $errorString='<ul>';
+
+                            $CaseMaster = new CaseMaster;
+                            $CaseMaster->case_title=$finalOperationVal['case_title'];
+                            $CaseMaster->case_number=$finalOperationVal['case_number'];                            
+                            $CaseMaster->case_description=$finalOperationVal['case_description'];
+                            $CaseMaster->case_open_date= date('Y-m-d', strtotime($finalOperationVal['case_open_date']));
+                            if($finalOperationVal['sol_date'] != ''){
+                                $CaseMaster->case_statute_date= date('Y-m-d', strtotime($finalOperationVal['sol_date']));
+                                $CaseMaster->sol_satisfied="yes";
+                            }
+                            if($finalOperationVal['conflict_check'] == 'true' || $finalOperationVal['conflict_check'] == 'TRUE'){
+                                $CaseMaster->conflict_check=1;
+                                $CaseMaster->conflict_check_description=$finalOperationVal['conflict_check_notes'];
+                            }
+
+                            if($finalOperationVal['practice_area'] != '') { 
+                                $caseArea =  CasePracticeArea::where('title','like','%'.$finalOperationVal['practice_area'].'%')->select('id')->first();
+                                if(!empty($caseArea)){
+                                    $CaseMaster->practice_area=$caseArea->id;
+                                }else{
+                                    $CasePracticeArea = new CasePracticeArea;
+                                    $CasePracticeArea->title=$finalOperationVal['practice_area']; 
+                                    $CasePracticeArea->firm_id =Auth::User()->firm_name;
+                                    $CasePracticeArea->created_by=Auth::User()->id; 
+                                    $CasePracticeArea->save();
+                                    
+                                    $CaseMaster->practice_area=$CasePracticeArea->id;
+                                }
+                            }
+                            $caseStageId = 0;
+                            if($finalOperationVal['case_stage'] != '') { 
+                                $caseStage =  CaseStage::where('title','like','%'.$finalOperationVal['case_stage'].'%')->select('id')->first();
+                                if(!empty($caseStage)){
+                                    $CaseMaster->case_status=$caseStage->id;
+                                    $caseStageId = $caseStage->id;
+                                }else{
+                                    $stage_order = DB::table('case_stage')->max('stage_order');
+                                    $CaseStage = new CaseStage;
+                                    $CaseStage->stage_order=$stage_order; 
+                                    $CaseStage->title=substr($finalOperationVal['case_stage'],0,255); 
+                                    $CaseStage->stage_color='#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+                                    $CaseStage->created_by=Auth::user()->id; 
+                                    $CaseStage->save();
+                                    
+                                    $CaseMaster->case_status=$CaseStage->id;
+                                    $caseStageId = $CaseStage->id;
+                                }
+                            }
+                            if($finalOperationVal['case_close']) { 
+                                $CaseMaster->case_close_date= date('Y-m-d', strtotime($finalOperationVal['case_close_date']));
+                            }
+
+                            $CaseMaster->case_unique_number=strtoupper(uniqid());
+                            $CaseMaster->created_by=Auth::User()->id; 
+                            $CaseMaster->is_entry_done="1"; 
+                            $CaseMaster->firm_id = auth()->user()->firm_name; 
+                            $CaseMaster->save();
+
+                            $data=[];
+                            $data['activity_title']='added case';
+                            $data['case_id']=$CaseMaster->id;
+                            $data['activity_type']='';
+                            $this->caseActivity($data);
+
+                            if($finalOperationVal['lead_attorney'] != ''){
+                                $leadName = explode(" ",$finalOperationVal['lead_attorney']);
+                                $leadAttorney = User::where('first_name','like','%'.$leadName[0].'%')->where('last_name','like','%'.$leadName[1].'%')->select('id')->first(); 
+                                if(!empty($leadAttorney)){
+                                    $CaseStaff = new CaseStaff;
+                                    $CaseStaff->case_id=$CaseMaster->id; 
+                                    $CaseStaff->user_id=Auth::user()->id; 
+                                    $CaseStaff->lead_attorney=$leadAttorney->id; 
+                                    $CaseStaff->created_by=Auth::user()->id;      
+
+                                    if($finalOperationVal['originating_attorney'] != ''){
+                                        $originatingName = explode(" ",$finalOperationVal['originating_attorney']);
+                                        $originatingAttorney = User::where('first_name','like','%'.$originatingName[0].'%')->where('last_name','like','%'.$originatingName[1].'%')->select('id')->first(); 
+                                        if(!empty($originatingAttorney)){
+                                            $CaseStaff->originating_attorney=$originatingAttorney->id; 
+                                        }else{
+                                            $waringCount = $waringCount + 1;
+                                            $errorString='<li>Invalid Originating Attorney: '.$finalOperationVal['originating_attorney'] .' </li>';
+                                        }
+                                    }
+                                    $CaseStaff->save();
+                                    //Activity tab
+                                    $datauser=[];
+                                    $datauser['activity_title']='linked staff';
+                                    $datauser['case_id']=$CaseMaster->id;
+                                    $datauser['staff_id']=Auth::user()->id;
+                                    $this->caseActivity($datauser);
+                                }else{
+                                    $CaseStaff = new CaseStaff;
+                                    $CaseStaff->case_id=$CaseMaster->id; 
+                                    $CaseStaff->user_id=Auth::user()->id; 
+                                    $CaseStaff->created_by=Auth::user()->id; 
+                                    $CaseStaff->save();
+                                    //Activity tab
+                                    $datauser=[];
+                                    $datauser['activity_title']='linked staff';
+                                    $datauser['case_id']=$CaseMaster->id;
+                                    $datauser['staff_id']=Auth::user()->id;
+                                    $this->caseActivity($datauser);  
+
+                                    $waringCount = $waringCount + 1;
+                                    $errorString='<li>Invalid Lead Attorney: '.$finalOperationVal['lead_attorney'] .' </li>';
+                                }
+                            }else{
+                                $CaseStaff = new CaseStaff;
+                                $CaseStaff->case_id=$CaseMaster->id; 
+                                $CaseStaff->user_id=Auth::user()->id; 
+                                $CaseStaff->created_by=Auth::user()->id; 
+                                $CaseStaff->save();
+                                //Activity tab
+                                $datauser=[];
+                                $datauser['activity_title']='linked staff';
+                                $datauser['case_id']=$CaseMaster->id;
+                                $datauser['staff_id']=Auth::user()->id;
+                                $this->caseActivity($datauser);  
+                            }                            
+
+                            $caseStageHistory = new CaseStageUpdate;
+                            $caseStageHistory->stage_id=$caseStageId;
+                            $caseStageHistory->case_id=$CaseMaster->id;
+                            $caseStageHistory->start_date = date('Y-m-d',strtotime($finalOperationVal['case_open_date']));
+                            $caseStageHistory->end_date = date('Y-m-d',strtotime($finalOperationVal['case_open_date']));
+                            $caseStageHistory->created_by=Auth::user()->id; 
+                            $caseStageHistory->created_at=$finalOperationVal['case_open_date']; 
+                            $caseStageHistory->save();
+
+                            if($finalOperationVal['case_note_1'] != ''){
+                                $LeadNotes = new ClientNotes; 
+                                $LeadNotes->case_id=$CaseMaster->id;
+                                $LeadNotes->note_date=date('Y-m-d');
+                                $LeadNotes->note_subject='Imported Note 1';
+                                $LeadNotes->notes=$finalOperationVal['case_note_1'];
+                                $LeadNotes->status="0";
+                                $LeadNotes->created_by=Auth::User()->id;
+                                $LeadNotes->created_at=date('Y-m-d H:i:s');            
+                                $LeadNotes->updated_by=Auth::User()->id;
+                                $LeadNotes->updated_at=date('Y-m-d H:i:s');
+                                $LeadNotes->save();
+                            }
+                            if($finalOperationVal['case_note_2'] != ''){
+                                $LeadNotes = new ClientNotes; 
+                                $LeadNotes->case_id=$CaseMaster->id;
+                                $LeadNotes->note_date=date('Y-m-d');
+                                $LeadNotes->note_subject='Imported Note 2';
+                                $LeadNotes->notes=$finalOperationVal['case_note_2'];
+                                $LeadNotes->status="0";
+                                $LeadNotes->created_by=Auth::User()->id;
+                                $LeadNotes->created_at=date('Y-m-d H:i:s');            
+                                $LeadNotes->updated_by=Auth::User()->id;
+                                $LeadNotes->updated_at=date('Y-m-d H:i:s');
+                                $LeadNotes->save();
+                            }
+                            $errorString.="</ul>";
+                            $ClientCasesImportHistory=new ClientCasesImportHistory;
+                            $ClientCasesImportHistory->client_company_import_id=$ClientCompanyImport->id;
+                            $ClientCasesImportHistory->case_title = $finalOperationVal['case_title'];
+                            $ClientCasesImportHistory->case_number = $finalOperationVal['case_number'];
+                            $ClientCasesImportHistory->case_open_date = $finalOperationVal['case_open_date'];
+                            $ClientCasesImportHistory->practice_area = $finalOperationVal['practice_area'];
+                            $ClientCasesImportHistory->case_description = $finalOperationVal['case_description'];
+                            $ClientCasesImportHistory->case_close = $finalOperationVal['case_close'];
+                            $ClientCasesImportHistory->case_close_date = $finalOperationVal['case_close_date'];
+                            $ClientCasesImportHistory->lead_attorney = $finalOperationVal['lead_attorney'];
+                            $ClientCasesImportHistory->originating_attorney = $finalOperationVal['originating_attorney'];
+                            $ClientCasesImportHistory->sol_date = $finalOperationVal['sol_date'];
+                            $ClientCasesImportHistory->outstanding_balance = $finalOperationVal['outstanding_balance'];
+                            $ClientCasesImportHistory->case_stage = $finalOperationVal['case_stage'];
+                            $ClientCasesImportHistory->conflict_check = $finalOperationVal['conflict_check'];
+                            $ClientCasesImportHistory->conflict_check_notes = $finalOperationVal['conflict_check_notes'];
+                            $ClientCasesImportHistory->case_note_1 = $finalOperationVal['case_note_1'];
+                            $ClientCasesImportHistory->case_note_2 = $finalOperationVal['case_note_2'];
+                            $ClientCasesImportHistory->status="1";
+                            $ClientCasesImportHistory->warning_list=$errorString;
+                            $ClientCasesImportHistory->created_by=Auth::User()->id;
+                            $ClientCasesImportHistory->save();
+                           
+
+                            $ic++;
+                        }
+                        $ClientCompanyImport->status="1";
+                        $ClientCompanyImport->total_imported=$ic;
+                        $ClientCompanyImport->total_warning=$waringCount;
+                        $ClientCompanyImport->save();
+
+
+                    }  catch (\Exception $e) {
+                        $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
+                        $ClientCompanyImport->error_code=$errorString;
+                        $ClientCompanyImport->status=2;
+                        $ClientCompanyImport->save();
+                    }
+                }else{
+                    return response()->json(['errors'=>'Wrong file use for imports. please select correct file... ',]);
+                    exit;
+                }
+                }
+            }
+            return response()->json(['errors'=>'']);
+            exit;
+        }
+    }
+
+    public function loadImportCasesHistory()
+    {   
+        $columns = array('id', 'file_name', 'case_desc', 'case_number', 'case_status','case_unique_number');
+        $requestData= $_REQUEST;
+        $hisotryImport = ClientCompanyImport::join("users","client_company_import.created_by","=","users.id")->select('client_company_import.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole");
+        $hisotryImport = $hisotryImport->where("client_company_import.firm_id",Auth::User()->firm_name);
+        $hisotryImport = $hisotryImport->where("client_company_import.import_for",'case');
+        $totalData=$hisotryImport->count();
+        $totalFiltered = $totalData; 
+        
+        $hisotryImport = $hisotryImport->offset($requestData['start'])->limit($requestData['length']);
+        $hisotryImport = $hisotryImport->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $hisotryImport = $hisotryImport->get();
+        $json_data = array(
+            "draw"            => intval( $requestData['draw'] ),   
+            "recordsTotal"    => intval( $totalData ),  
+            "recordsFiltered" => intval( $totalFiltered ), 
+            "data"            => $hisotryImport 
+        );
+        echo json_encode($json_data);  
+    }
+
+    public function imports_cases(Request $request)
+    {
+        return view('import.import_cases');
+    }    
+
+    public function viewCasesLog($id)
+    {
+        $uid=base64_decode($id);
+        $ClientCompanyImport=ClientCompanyImport::find($uid);
+        $ClientCompanyImportHistory=ClientCasesImportHistory::where("client_company_import_id",$uid)->get();
+        if($ClientCompanyImport['status']=="3"){
+            return view('import.view_cases_revert_log',compact('ClientCompanyImport','ClientCompanyImportHistory'));
+        }else{
+            return view('import.view_cases_log',compact('ClientCompanyImport','ClientCompanyImportHistory'));
+        }
+
+    }
+
+    public function revertImportCases(Request $request)
+    {
+        return response()->json(['errors'=>'Pending work','contact_id'=>'']);
+        exit;
     }
 }
   

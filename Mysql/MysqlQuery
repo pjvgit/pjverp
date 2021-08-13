@@ -1,3 +1,35 @@
+------------------------------------ 14-AUG-2021 ------------------------------
+ALTER TABLE `client_company_import`
+Add `import_for` enum('contact','cased') COLLATE 'utf8mb4_unicode_ci' DEFAULT 'contact' AFTER `error_code`;
+
+CREATE TABLE `client_cases_import_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `client_company_import_id` int(11) NULL,
+  `case_title` varchar(512) NULL,
+  `case_number` varchar(255) NULL,
+  `case_open_date` timestamp NULL,
+  `practice_area` varchar(255) NULL,
+  `case_description` longtext NULL,
+  `case_close` varchar(255) NULL,
+  `case_close_date` varchar(255) NULL,
+  `lead_attorney` varchar(255) NULL,
+  `originating_attorney` varchar(255) NULL,
+  `sol_date` timestamp NULL,
+  `outstanding_balance` double(10,2) NULL,
+  `case_stage` varchar(255) NULL,
+  `conflict_check` varchar(255) NULL,
+  `conflict_check_notes` varchar(255) NULL,
+  `case_note_1` varchar(255) NULL,
+  `case_note_2` varchar(255) NULL,
+  `status` enum('1','2','3') NULL DEFAULT '1',
+  `warning_list` text NULL,
+  `created_at` timestamp NULL,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL,
+  `updated_by` int(11) NULL,
+  `deleted_at` timestamp NULL
+);
+
 ------------------------------------ 11-AUG-2021 ------------------------------
 ALTER TABLE `invoices`
 ADD `bill_sent_status` enum('Sent','Unsent','Draft') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'Unsent' AFTER `status`;

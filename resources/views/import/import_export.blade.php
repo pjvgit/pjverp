@@ -82,47 +82,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 
                             </div>
                         </div>
-
-                        <div class="tab-pane fade   {{ request()->is('imports/court_cases') ? 'active show' : '' }}"
-                            id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
-                            <div class="m-2">
-                                <div class="d-flex align-items-center flex-row-reverse mb-2">
-                                    <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#importContacts"
-                                        data-placement="bottom" href="javascript:;">Import
-                                        Cases</a>
-
-                                    <a data-toggle="modal" data-target="#exportCourtCase" data-placement="bottom"
-                                        href="javascript:;">
-                                        <button class="btn btn-outline-secondary m-1" type="button">Export
-                                            Cases</button>
-                                    </a>
-                                </div>
-
-                                <div class="mb-2">
-                                    Import cases from other legal practice management software using our Case Import Spreadsheet
-                                    (<a href="javascript:void(0);" onclick="downloadFile('cases')">download template</a>).
-                                    Learn more about
-                                    <a href="#" target="_blank">importing contacts</a>.
-                                </div>
-                                <div id="import_page_list">
-                                </div>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="display table table-striped table-bordered" id="CaseImportExportHistorty" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>id</th>
-                                            <th>File</th>
-                                            <th>Uploaded</th>
-                                            <th>Status</th>
-                                            <th><span class="sr-only">Actions</span></th>
-                                          </tr>
-                                    </thead>
-                                </table>
-                                
-                            </div>
-                        </div>
                     </div>
                 </div>
                
@@ -130,75 +89,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div>
-<div id="exportContacts" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Export Contacts</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <form class="exportContactWithOptions" id="exportContactWithOptions"
-                            name="exportContactWithOptions" method="POST">
-                            <span id="response"></span>
-                            @csrf
-                            <div id="showError" class="showError" style="display:none"></div>
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Format</label>
-                                    <div class="col-sm-8">
-                                        <input type="radio" name="format" id="format_outlook_csv" value="outlook_csv"
-                                            checked="checked">
-                                        <label for="format_outlook_csv">Outlook CSV</label><br>
-                                        <input type="radio" name="format" id="format_vcard" value="vcard">
-                                        <label for="format_vcard">vCard</label><br>
-                                        <input type="radio" name="format" id="format_mycase_csv" value="mycase_csv">
-                                        <label for="format_mycase_csv">{{config('app.name')}} CSV</label>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Option</label>
-                                    <div class="col-sm-8">
-                                        <div style="line-height: 1.5em;">
-                                            <input type="checkbox" name="include_companies" id="include_companies"
-                                                value="1" checked="checked">
-                                            <label for="include_companies">Include company contacts</label><br>
-
-                                            <input type="checkbox" name="include_archived" id="include_archived"
-                                                value="1">
-                                            <label for="include_archived">Include archived contacts</label><br>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <div class="col-sm-8 text-right">
-                                        <div class="loader-bubble loader-bubble-primary innerLoader"></div>
-                                    </div>
-                                    <div class="col-sm-4 text-right">
-                                        <a href="#">
-                                            <button class="btn btn-secondary  m-1" type="button"
-                                                data-dismiss="modal">Cancel</button>
-                                        </a>
-                                        <button class="btn btn-primary ladda-button example-button m-1 submit"
-                                            id="submitButton" type="submit">Export Contacts</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </form>
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="importContacts" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -302,75 +192,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="exportCourtCase" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Export Cases</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <form class="exportCasesWithOptionForm" id="exportCasesWithOptionForm" name="exportCasesWithOptionForm" method="POST">
-                            <span id="response"></span>
-                            @csrf
-                            <div id="showError" class="showError" style="display:none"></div>
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Format</label>
-                                    <div class="col-sm-8">
-                                        <label for="format_mycase_csv">{{config('app.name')}} CSV</label>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
-                                    <div class="col-sm-8">
-                                        <div style="line-height: 1.5em;">
-                                            <input type="radio" name="export_cases"  value="0" checked="checked">
-                                            <label for="include_companies"> Only include cases I'm linked to</label><br>
-
-                                            <input type="radio" name="export_cases"  value="1">
-                                            <label for="include_archived">Include all firm cases</label><br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Options</label>
-                                    <div class="col-sm-8">
-                                        <div style="line-height: 1.5em;">
-                                        <input type="checkbox" name="include_archived" id="include_archived" value="1">
-                                        <label for="include_archived">Include closed cases</label><br>  
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-sm-8 text-right">
-                                        <div class="loader-bubble loader-bubble-primary innerLoader"></div>
-                                    </div>
-                                    <div class="col-sm-4 text-right">
-                                        <a href="#">
-                                            <button class="btn btn-secondary  m-1" type="button"
-                                                data-dismiss="modal">Cancel</button>
-                                        </a>
-                                        <button class="btn btn-primary ladda-button example-button m-1 submit"
-                                            type="submit">Export Contacts</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </form>
-                    </div>
-                </div><!-- end of main-content -->
             </div>
         </div>
     </div>
@@ -492,9 +313,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         if(aData.total_imported>0){
                             revert='<a title="" class="text-black-50 ml-1" data-placement="top" data-toggle="tooltip" href="#"  data-original-title="Undo Import" ><i class="fas fa-undo" data-toggle="modal" data-target="#confirmRevert" data-placement="bottom" href="javascript:;" onclick="openRevertBox('+aData.id+','+aData.total_imported+');"></i></a>';
                         }
-                        $('td:eq(3)', nRow).html('<a target="_blank" title="" class="text-black-50" data-placement="top" data-toggle="tooltip" href="{{BASE_URL}}imports/'+aData.decoder+'" data-original-title="View Log"><i class="far fa-file-alt"></i> <span class="sr-only">View Log</span></a> '+revert);
+                        $('td:eq(3)', nRow).html('<a target="_blank" title="" class="text-black-50" data-placement="top" data-toggle="tooltip" href="{{ url("imports")}}/'+aData.decoder+'" data-original-title="View Log"><i class="far fa-file-alt"></i> <span class="sr-only">View Log</span></a> '+revert);
                     }else{
-                        $('td:eq(3)', nRow).html('<a target="_blank" title="" class="text-black-50" data-placement="top" data-toggle="tooltip" href="{{BASE_URL}}imports/'+aData.decoder+'" data-original-title="View Log"><i class="far fa-file-alt"></i> <span class="sr-only">View Log</span></a>');
+                        $('td:eq(3)', nRow).html('<a target="_blank" title="" class="text-black-50" data-placement="top" data-toggle="tooltip" href="{{ url("imports")}}/'+aData.decoder+'" data-original-title="View Log"><i class="far fa-file-alt"></i> <span class="sr-only">View Log</span></a>');
                     }
 
                 },
@@ -683,54 +504,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#countSuccess").html(count);
     }
 
-    $('#exportCasesWithOptionForm').submit(function (e) {
-        $('.showError').html('');
-        beforeLoader();
-        e.preventDefault();
-        if (!$('#exportCasesWithOptionForm').valid()) {
-            afterLoader();
-            return false;
-        }
-        var dataString = '';
-        dataString = $("#exportCasesWithOptionForm").serialize();
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/imports/exportCases", // json datasource
-            data: dataString,
-            beforeSend: function (xhr, settings) {
-                settings.data += '&save=yes';
-            },
-            success: function (res) {
-                beforeLoader();
-                if (res.errors != '') {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                    errotHtml += '<li>' + res.errors + '</li>';
-                    errotHtml += '</ul></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                    return false;
-                } else {
-                    $("#exportContacts").modal("hide");
-                    swal('Success!', res.msg, 'success');
-                    window.open(res.url);
-                    setTimeout(function () {
-                        window.location.reload();
-                    }, 2000);
-                }
-            },
-            error: function (xhr, status, error) {
-                $('.showError').html('');
-                var errotHtml =
-                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                $('.showError').append(errotHtml);
-                $('.showError').show();
-                afterLoader();
-            }
-        });
-    });
 </script>
 @stop
 @endsection
