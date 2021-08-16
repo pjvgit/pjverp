@@ -46,50 +46,61 @@
 
 </style>
 
-<h2>Contacts Import Report</h2>
+<h2>Cases Import Report</h2>
 
 <p>
     Imported: {{date('F d Y, H:i A',strtotime($ClientCompanyImport['created_at']))}}<br />
     Filename: {{$ClientCompanyImport['file_name']}}
-    <?php 
-    if($ClientCompanyImport['file_type']==1){
-?> <span style='font-style: italic;'>vCard (.vcf)</span>
-
-    <?php
-    }else{
-?>
-    <span style='font-style: italic;'>Outlook (.csv)</span>
-    <?php
-    }
-    ?>
+    <span style='font-style: italic;'> {{config('app.name')}} CSV</span>
+    
 </p>
 
 <table class='import_results'>
     <tr>
         <th>Status</th>
-        <th>Name</th>
-        <th>Company</th>
-        <th>Email</th>
-        <th>Group</th>
+        <th>case_title</th>
+        <th>case_number</th>
+        <th>case_open_date</th>
+        <th>practice_area</th>
+        <th>case_description</th>
+        <th>case_close</th>
+        <th>case_close_date</th>
+        <th>lead_attorney</th>
+        <th>originating_attorney</th>
+        <th>sol_date</th>
+        <th>outstanding_balance</th>
+        <th>case_stage</th>
+        <th>conflict_check</th>
+        <th>conflict_check_notes</th>
         <th>Errors / Warnings</th>
     </tr>
     <?php 
     $counter=0;
+    // print_r($ClientCompanyImportHistory);
     foreach($ClientCompanyImportHistory as $key=>$val){?>
     <tr>
         <td style='color: green; white-space: nowrap;'>
             Success
-          
+            <br />
+            <?php if($val['warning_list']!=NULL && $val['warning_list'] != '<ul></ul>'){?>
+            <span style='color:orange'>(With warnings)</span>
+            <?php } ?>
         </td>
-        <td style='white-space:nowrap;'>
-            <?php echo $val['full_name'];?>
-        </td>
-        <td style='white-space:nowrap;'> <?php echo $val['company_name']; ?> </td>
-        <td style='white-space:nowrap;'> <?php echo $val['email']; ?></td>
-        <td style='white-space:nowrap;'> <?php echo $val['contact_group'];?> </td>
-        <td style='white-space:nowrap;'>
-            <?php echo $val['warning_list'];?>
-        </td>
+        <td style='white-space:nowrap;'><?php echo $val['case_title'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_number'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_open_date'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['practice_area'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_description'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_close'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_close_date'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['lead_attorney'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['originating_attorney'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['sol_date'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['outstanding_balance'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['case_stage'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['conflict_check'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['conflict_check_notes'];?></td>
+        <td style='white-space:nowrap;'><?php echo $val['warning_list'];?></td>
     </tr>
     <?php
 if($val['status']=="1"){

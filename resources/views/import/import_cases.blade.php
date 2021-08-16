@@ -381,8 +381,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     beforeLoader();
                     if (res.errors != '') {
                         $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        var errotHtml ='<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
                         $.each(res.errors, function (key, value) {
                             errotHtml += '<li>' + value + '</li>';
                         });
@@ -397,8 +396,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 },
                 error: function (xhr, status, error) {
                     $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    var errotHtml ='<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
                     $('.showError').append(errotHtml);
                     $('.showError').show();
                     afterLoader();

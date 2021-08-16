@@ -26,7 +26,7 @@ use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
-use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate;
+use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent;
 class ClientdashboardController extends BaseController
 {
     use CreditAccountTrait;
@@ -3711,6 +3711,7 @@ class ClientdashboardController extends BaseController
                     $ClientCompanyImport->created_by=Auth::User()->id;
                     $ClientCompanyImport->file_type="2";
                     $ClientCompanyImport->save();
+
                     $waringCount = 0;
                     $caseArray = [];
                     try{                        
@@ -3817,7 +3818,7 @@ class ClientdashboardController extends BaseController
                                             $CaseStaff->originating_attorney=$originatingAttorney->id; 
                                         }else{
                                             $waringCount = $waringCount + 1;
-                                            $errorString='<li>Invalid Originating Attorney: '.$finalOperationVal['originating_attorney'] .' </li>';
+                                            $errorString.='<li>Invalid Originating Attorney: '.$finalOperationVal['originating_attorney'] .' </li>';
                                         }
                                     }
                                     $CaseStaff->save();
@@ -3841,7 +3842,7 @@ class ClientdashboardController extends BaseController
                                     $this->caseActivity($datauser);  
 
                                     $waringCount = $waringCount + 1;
-                                    $errorString='<li>Invalid Lead Attorney: '.$finalOperationVal['lead_attorney'] .' </li>';
+                                    $errorString.='<li>Invalid Lead Attorney: '.$finalOperationVal['lead_attorney'] .' </li>';
                                 }
                             }else{
                                 $CaseStaff = new CaseStaff;
@@ -3893,6 +3894,7 @@ class ClientdashboardController extends BaseController
                                 $LeadNotes->save();
                             }
                             $errorString.="</ul>";
+
                             $ClientCasesImportHistory=new ClientCasesImportHistory;
                             $ClientCasesImportHistory->client_company_import_id=$ClientCompanyImport->id;
                             $ClientCasesImportHistory->case_title = $finalOperationVal['case_title'];
@@ -3913,6 +3915,7 @@ class ClientdashboardController extends BaseController
                             $ClientCasesImportHistory->case_note_2 = $finalOperationVal['case_note_2'];
                             $ClientCasesImportHistory->status="1";
                             $ClientCasesImportHistory->warning_list=$errorString;
+                            $ClientCasesImportHistory->case_id=$CaseMaster->id; 
                             $ClientCasesImportHistory->created_by=Auth::User()->id;
                             $ClientCasesImportHistory->save();
                            
@@ -3984,7 +3987,24 @@ class ClientdashboardController extends BaseController
 
     public function revertImportCases(Request $request)
     {
-        return response()->json(['errors'=>'Pending work','contact_id'=>'']);
+        $importID = $request->import_id;
+        $ClientCompanyImportHistory = ClientCasesImportHistory::where("client_company_import_id",$request->import_id)->get();
+        
+        foreach($ClientCompanyImportHistory as $key => $history){            
+            CaseStaff::where('case_id',$history->case_id)->delete();
+            ClientNotes::where('case_id',$history->case_id)->delete();
+            CaseStageUpdate::where('case_id',$history->case_id)->delete();
+            Task::where("case_id", $history->case_id)->delete();
+            TaskTimeEntry::where("case_id", $history->case_id)->delete();
+            ExpenseEntry::where("case_id", $history->case_id)->delete();
+            CaseNotes::where("case_id", $history->case_id)->delete();
+            Invoices::where("case_id", $history->case_id)->delete();
+            CaseEvent::where("case_id", $history->case_id)->delete();
+            Messages::where("case_id", $history->case_id)->delete();
+            CaseMaster::where("id", $history->case_id)->delete();
+        }
+        ClientCompanyImport::where('id',$request->import_id)->update(['status'=>"3"]);
+        return response()->json(['errors'=>'']);
         exit;
     }
 }
