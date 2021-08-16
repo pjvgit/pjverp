@@ -46,19 +46,19 @@
             <div class=" topnav rtl-ps-none" id="" data-perfect-scrollbar data-suppress-scroll-x="true">
                 <ul class="menu float-left">
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Home</span></a>
+                        <a class="nav-link" href="{{ route('client/home') }}"><span class="nav-item__label">Home</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Messages</span></a>
+                        <a class="nav-link" href="#"><span class="nav-item__label">Messages</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Documents</span></a>
+                        <a class="nav-link" href="#"><span class="nav-item__label">Documents</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Events</span></a>
+                        <a class="nav-link" href="#"><span class="nav-item__label">Events</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><span class="nav-item__label">Tasks</span></a>
+                        <a class="nav-link" href="#"><span class="nav-item__label">Tasks</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('client/bills') }}"><span class="nav-item__label">Billing</span></a>

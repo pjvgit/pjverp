@@ -20,15 +20,54 @@
 						<label for="view_bills" class="dashboard-actions__text" aria-hidden="true">View Bills</label>
 					</div>
 				</div>
-				<h1 class="primary-heading">Upcoming Events</h1>
-				<div class="text-center p-4"><i>No Upcoming Events</i></div>
-				<h1 class="primary-heading">Recent Activity </h1>
-				<ul class="list" id="notifications_list">
-					<li class="list-row"><a href="/documents/100306591"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">Dashboard-Reminder-Popup-MyCase.png</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:26 PM</span></div></a></li>
-					<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:25 PM</span></div></a></li>
-					<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">Mary Dyer commented document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:24 PM</span></div></a></li>
-					<li class="list__view-all"><a href="/notifications">View all recent activity</a></li>
-				</ul>
+
+				{{-- What's New Section --}}
+				@if($totalInvoice)
+				<div class="mb-3">
+					<h1 class="primary-heading">What's New</h1>
+					<ul class="list">
+						<li class="list-row">
+							<a href="{{ route('client/bills') }}"><i class="fas fa-dollar-sign list-row__icon u-color-dark-green"></i>
+								<div class="list-row__body"><span class="list-row__header mt-0">{{ $totalInvoice }} unpaid invoices</span></div>
+							</a>
+						</li>
+					</ul>
+				</div>
+				@endif
+
+				{{-- Upcoming events --}}
+				<div class="mb-3">
+					<h1 class="primary-heading">Upcoming Events</h1>
+					<ul class="list">
+						@forelse ($upcomingEvents as $key => $item)
+							<li class="list-row @if($item->event_read == 'no') is-unread @endif">
+								<a href="{{ route('client/events/detail', $item->decode_id) }}"><i class="fas fa-calendar-day list-row__icon"></i>
+									<div class="list-row__body">
+										<span class="list-row__header mt-0">{{ $item->event_title }}</span><br>
+										<span class="list-row__header-detail">{{date('M d, h:iA',strtotime($item->start_date_time))}} - {{date('M d, h:iA',strtotime($item->end_date_time))}}</span><br>
+										<span class="list-row__header-detail"></span>
+									</div>
+								</a>
+							</li>
+						@empty
+							<div class="text-center p-4"><i>No Upcoming Events</i></div>
+						@endforelse
+						@if(count($upcomingEvents))
+						<li class="list__view-all"><a href="{{ route('client/events') }}">View all events</a></li>
+						@endif
+					</ul>
+				</div>
+
+				{{-- Recent activity --}}
+				<div class="mb-3">
+					<h1 class="primary-heading">Recent Activity </h1>
+					<ul class="list" id="notifications_list">
+						<li class="list-row"><a href="/documents/100306591"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">Dashboard-Reminder-Popup-MyCase.png</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:26 PM</span></div></a></li>
+						<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:25 PM</span></div></a></li>
+						<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">Mary Dyer commented document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:24 PM</span></div></a></li>
+						<li class="list__view-all"><a href="/notifications">View all recent activity</a></li>
+					</ul>
+				</div>
 			</section>
 			<div></div>
 		</div>
