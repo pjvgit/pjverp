@@ -293,4 +293,14 @@ class Invoices extends Model
     {
         return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC");
     }
+
+    /**
+     * Get the invoiceLastPayment associated with the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function invoiceLastPayment()
+    {
+        return $this->hasOne(InvoicePayment::class, 'invoice_id');
+    }
 }

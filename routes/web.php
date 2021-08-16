@@ -1158,8 +1158,10 @@ Route::group(['middleware' => ['auth', 'role:client'], 'namespace' => "ClientPor
     Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
 
     // For events
-    Route::get('events', 'CalendarController@index')->name('client/events');
-    Route::get('events/{id}', 'CalendarController@show')->name('client/events/detail');
+    Route::get('events', 'EventController@index')->name('client/events');
+    Route::get('events/{id}', 'EventController@show')->name('client/events/detail');
+    Route::post('events/save/comment', 'EventController@saveComment')->name('client/events/save/comment');
+    Route::get('events/comment/history', 'EventController@eventCommentHistory')->name('client/events/comment/history');
 });
 
 //Without login 

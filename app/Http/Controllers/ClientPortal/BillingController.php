@@ -18,11 +18,12 @@ class BillingController extends Controller
     {
         $invoices = Invoices::whereHas('invoiceShared', function($query) {
                         $query->where("user_id", auth()->id());
-                    })->where('status', '!=', 'Forwarded')->orderBy('created_at', 'desc')->get();
+                    })->whereNotIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
+                    ->get();
         $forwardedInvoices = Invoices::whereHas('invoiceShared', function($query) {
                                 $query->where("user_id", auth()->id());
-                            })->where('status', 'Forwarded')->orderBy('created_at', 'desc')
-                            ->with("invoiceForwardedToInvoice")->get();
+                            })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
+                            ->with("invoiceForwardedToInvoice", "invoiceLastPayment")->get();
         return view("client_portal.billing.index", ['invoices' => $invoices, 'forwardedInvoices' => $forwardedInvoices]);
     }
 
@@ -35,6 +36,8 @@ class BillingController extends Controller
         $invoice = Invoices::where("id",$invoiceId)->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
                     'invoiceExpenseEntry', 'invoiceTimeEntry.taskActivity', 'invoiceExpenseEntry.expenseActivity', 'invoiceAdjustmentEntry', 
                     'forwardedInvoices', 'invoicePaymentHistory', 'invoiceInstallment', 'invoiceForwardedToInvoice', 'invoiceFirstInstallment')->first();
+        $invoice->fill(['is_viewed' => 'yes'])->save();
+        $invoice->refresh();
         return view("client_portal.billing.detail", ["invoice" => $invoice]);
     }
 

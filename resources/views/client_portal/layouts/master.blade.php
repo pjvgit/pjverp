@@ -81,9 +81,6 @@
 
     </script>                                        
     
-    @yield('page-js')
-    @yield('page-js-inner')
-    @yield('page-js-common')
 
     <script src="{{asset('assets/js/script.js')}}"></script>
     <script src="{{asset('assets/js/sidebar-horizontal.script.js')}}"></script>
@@ -112,6 +109,9 @@
     <script src="{{asset('public/assets/js/timer.jquery.min.js')}}" type="text/javascript"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
     <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
+
+    @yield('page-js')
+
     @if ($message = session('popup_success'))
     <script>
         $(window).on('load', function () {

@@ -72,7 +72,7 @@
 				{{-- For forwarded balances --}}
 				@if(!empty($invoice->forwardedInvoices) && count($invoice->forwardedInvoices))
 					@php
-						$forwardedBalance = $invoice->forwardedInvoices->sum('due_amount_new');
+						$forwardedBalance = $invoice->forwardedInvoices->sum('due_amount');
 					@endphp
 				<div>
 					<div class="payable-detail-header payable-detail-header--dark">
@@ -134,7 +134,7 @@
 				{{-- For flat fee --}}
 				@if(!empty($invoice->invoiceFlatFeeEntry) && count($invoice->invoiceFlatFeeEntry))
 					@php
-						$flatFeeTotal = $invoice->invoiceFlatFeeEntry->sum('cost');
+						$flatFeeTotal = $invoice->invoiceFlatFeeEntry->where('time_entry_billable', 'yes')->sum('cost');
 					@endphp
 				<div>
 					<div class="payable-detail-header">
@@ -144,9 +144,9 @@
 						<div class="payable-detail-line-header-price"></div>
 					</div>
 					@forelse ($invoice->invoiceFlatFeeEntry as $key => $item)
-					<div class="list-row  ">
+					<div class="list-row @if($item->time_entry_billable == 'no') payable-nonbillable @endif ">
 						<div class="payable-detail-item-entry"><i class="fas fa-receipt list-row__icon"></i>
-							<div>Flat Fee
+							<div>Flat Fee @if($item->time_entry_billable == 'no') (Non-billable) @endif
 								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
 							</div>
 						</div>
@@ -162,7 +162,7 @@
 				{{-- For time entry --}}
 				@if(!empty($invoice->invoiceTimeEntry) && count($invoice->invoiceTimeEntry))
 					@php
-						$timeEntryTotal = $invoice->invoiceTimeEntry->sum('calculated_amt');
+						$timeEntryTotal = $invoice->invoiceTimeEntry->where('time_entry_billable', 'yes')->sum('calculated_amt');
 					@endphp
 				<div>
 					<div class="payable-detail-header">
@@ -172,9 +172,9 @@
 						<div class="payable-detail-line-header-price"></div>
 					</div>
 					@forelse ($invoice->invoiceTimeEntry as $key => $item)
-					<div class="list-row  ">
+					<div class="list-row @if($item->time_entry_billable == 'no') payable-nonbillable @endif ">
 						<div class="payable-detail-item-entry"><i class="far fa-clock list-row__icon"></i>
-							<div>{{ @$item->taskActivity->title}}
+							<div>{{ @$item->taskActivity->title}} @if($item->time_entry_billable == 'no') (Non-billable) @endif
 								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
 							</div>
 						</div>
@@ -190,7 +190,7 @@
 				{{-- For expense entry --}}
 				@if(!empty($invoice->invoiceExpenseEntry) && count($invoice->invoiceExpenseEntry))
 					@php
-						$expenseTotal = $invoice->invoiceExpenseEntry->sum('calulated_cost');
+						$expenseTotal = $invoice->invoiceExpenseEntry->where('time_entry_billable', 'yes')->sum('calulated_cost');
 					@endphp
 				<div>
 					<div class="payable-detail-header">
@@ -200,16 +200,16 @@
 						<div class="payable-detail-line-header-price"></div>
 					</div>
 					@forelse ($invoice->invoiceExpenseEntry as $key => $item)
-					<div class="list-row  ">
-						<div class="payable-detail-item-entry"><i class="fas fa-receipt list-row__icon"></i>
-							<div>{{ @$item->expenseActivity->title}}
-								<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
+						<div class="list-row @if($item->time_entry_billable == 'no') payable-nonbillable @endif">
+							<div class="payable-detail-item-entry"><i class="fas fa-receipt list-row__icon"></i>
+								<div>{{ @$item->expenseActivity->title}} @if($item->time_entry_billable == 'no') (Non-billable) @endif
+									<div class="list-row__header-detail">{{ $item->date_format_new }}</div>
+								</div>
 							</div>
+							<div class="payable-detail-item-description">{{ $item->description }}</div>
+							<div class="payable-detail-item-status "></div>
+							<div class="payable-detail-item-price">${{ $item->calulated_cost }}</div>
 						</div>
-						<div class="payable-detail-item-description">{{ $item->description }}</div>
-						<div class="payable-detail-item-status "></div>
-						<div class="payable-detail-item-price">${{ $item->calulated_cost }}</div>
-					</div>
 					@empty
 					@endforelse
 				</div>

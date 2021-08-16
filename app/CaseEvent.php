@@ -95,14 +95,14 @@ class CaseEvent extends Authenticatable
     public function getStartDateTimeAttribute(){
         if($this->start_time!=''){
             $tm=$this->start_date.' '.$this->start_time;
-            return $currentConvertedDate= convertUTCToUserTime($tm, auth()->user()->user_timezone);
+            return $currentConvertedDate= convertUTCToUserTime($tm, auth()->user()->user_timezone ?? 'UTC');
             // return date('Y-m-d H:i:s',strtotime($currentConvertedDate));
         }
     }
     public function getEndDateTimeAttribute(){
         if($this->end_time!=''){
             $tm=$this->end_date.' '.$this->end_time;
-            return $currentConvertedDate= convertUTCToUserTime($tm,auth()->user()->user_timezone);
+            return $currentConvertedDate= convertUTCToUserTime($tm,auth()->user()->user_timezone ?? 'UTC');
             // return date('Y-M-d H:i:s',strtotime($currentConvertedDate));
         }
     }
@@ -228,5 +228,15 @@ class CaseEvent extends Authenticatable
     public function eventLinkedLead()
     {
         return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'lead_id');
+    }
+
+    /**
+     * Get all of the clientReminder for the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function clientReminder()
+    {
+        return $this->hasMany(CaseEventReminder::class, 'event_id')->where('reminder_user_type', 'client-lead');
     }
 }
