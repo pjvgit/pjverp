@@ -2301,7 +2301,7 @@ class LeadController extends BaseController
         $LeadData = $LeadData->leftJoin('lead_status','lead_additional_info.lead_status','=','lead_status.id');
         $LeadData = $LeadData->leftJoin('case_practice_area','lead_additional_info.practice_area','=','case_practice_area.id');
         $LeadData = $LeadData->leftJoin('countries','users.country','=','countries.id');
-        $LeadData = $LeadData->select('countries.name as country_name','lead_additional_info.id as lead_additional_info_id','users.created_by as user_created_by','lead_status.title as lead_status_title','referal_resource.title as referal_resource_title','lead_additional_info.lead_detail',"users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users.street,lead_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"lead_additional_info.*")
+        $LeadData = $LeadData->select('countries.name as country_name','lead_additional_info.id as lead_additional_info_id','users.created_by as user_created_by','lead_status.title as lead_status_title','referal_resource.title as referal_resource_title','lead_additional_info.lead_detail',"users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),"lead_additional_info.*")
         ->where("users.id",$user_id)
         ->first();
 
@@ -2338,7 +2338,7 @@ class LeadController extends BaseController
             $LeadData = $LeadData->leftJoin('lead_status','lead_additional_info.lead_status','=','lead_status.id');
             $LeadData = $LeadData->leftJoin('case_practice_area','lead_additional_info.practice_area','=','case_practice_area.id');
             $LeadData = $LeadData->leftJoin('countries','users.country','=','countries.id');
-            $LeadData = $LeadData->select('case_practice_area.title as case_practice_area_title','countries.name as country_name','lead_additional_info.id as lead_additional_info_id','users.created_by as user_created_by','lead_status.title as lead_status_title','referal_resource.title as referal_resource_title','lead_additional_info.lead_detail',"users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users.street,lead_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"lead_additional_info.*")
+            $LeadData = $LeadData->select('case_practice_area.title as case_practice_area_title','countries.name as country_name','lead_additional_info.id as lead_additional_info_id','users.created_by as user_created_by','lead_status.title as lead_status_title','referal_resource.title as referal_resource_title','lead_additional_info.lead_detail',"users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),"lead_additional_info.*")
             ->where("users.id",$user_id)
             ->first();
 
@@ -2429,7 +2429,7 @@ class LeadController extends BaseController
             $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
             $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->groupBy("call_for")->get();
         }
-
+        
         $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")->where("users.id",$user_id)->first();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
         return view('lead.details.index',compact('LeadData','createdByAndDate','user_id','referBy','notesData','LeadData','assignedToData','CaseNotesData','allEvents','CaseMaster','totalForm','totalInvoiceData','totalCalls','getAllFirmUser','firmAddress'));
