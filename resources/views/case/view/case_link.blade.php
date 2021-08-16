@@ -966,7 +966,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     function addStaff() {  
         $("#preloader").show();
-        
+        $('#smartwizard').smartWizard("reset");
         $(function () {
             $.ajax({
                 type: "POST",

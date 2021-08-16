@@ -4,7 +4,8 @@
 
 <form class="createStep3" id="createStep3" name="createStep3" method="POST">
     @csrf
-    <input type="hidden" name="user_id" value="{{$user->id}}"">
+    <input type="hidden" name="user_id" value="{{$user->id}}">
+    <input type="hidden" name="case_id" value="{{$case_id}}">
              
     <div class=" col-md-12">
  
@@ -185,15 +186,16 @@
     function loadStep4(res) {
 
         console.log(res);
-        $('#smartwizard').smartWizard("next");
-        $("#innerLoader3").css('display', 'none');
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/loadStep4", // json datasource
             data: {
-                "user_id": res.user_id
+                "user_id": res.user_id,
+                "case_id" : {{$case_id ?? 0}}
             },
             success: function (res) {
+                $('#smartwizard').smartWizard("next");
+                $("#innerLoader3").css('display', 'none');
                 $("#step-4").html(res);
                 $("#preloader").hide();
             }

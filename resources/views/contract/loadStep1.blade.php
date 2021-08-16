@@ -264,9 +264,7 @@ $userTitle = unserialize(USER_TITLE);
     });
 
     function loadStep2(res) {
-        console.log(res);
-        $('#smartwizard').smartWizard("next");
-        $("#innerLoader").css('display', 'none');
+        console.log(res);        
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/loadStep2", // json datasource
@@ -275,6 +273,8 @@ $userTitle = unserialize(USER_TITLE);
                 "case_id": {{ $case_id ?? 0 }}
             },
             success: function (res) {
+                $('#smartwizard').smartWizard("next");
+                $("#innerLoader").css('display', 'none');
                 $("#step-2").html(res);
                 $("#preloader").hide();
             }

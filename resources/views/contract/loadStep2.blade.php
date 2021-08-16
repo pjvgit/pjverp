@@ -171,8 +171,10 @@
                 }
             }
         });
+        <?php if($case_id == 0 || $case_id == NULL) { ?>
         $(".case_rate").attr('disabled', true);
         $("#sharing_setting_3").attr('disabled', true);
+        <?php } ?>
         $("input[name='link_to']").on("change", function () {
             var radioValue = $("input[name='link_to']:checked").val();
             if (radioValue == "3") {
@@ -226,15 +228,16 @@
     function loadStep3(res) {
 
         console.log(res);
-        $('#smartwizard').smartWizard("next");
-        $("#innerLoader1").css('display', 'none');
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/loadStep3", // json datasource
             data: {
-                "user_id": res.user_id
+                "user_id": res.user_id,
+                "case_id" : {{$case_id ?? 0}}
             },
             success: function (res) {
+                $('#smartwizard').smartWizard("next");
+                $("#innerLoader1").css('display', 'none');
                 $("#step-3").html(res);
                 $("#preloader").hide();
             }
