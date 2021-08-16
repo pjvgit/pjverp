@@ -4,7 +4,7 @@
 
 <form class="createStep3" id="createStep3" name="createStep3" method="POST">
     @csrf
-    <input type="hidden" name="user_id" value="{{$user[0]->id}}"">
+    <input type="hidden" name="user_id" value="{{$user->id}}"">
              
     <div class=" col-md-12">
  

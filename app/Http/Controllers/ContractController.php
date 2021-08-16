@@ -111,6 +111,7 @@ class ContractController extends BaseController
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->created_by =Auth::User()->id;
+            $user->deleted_at =date('Y-m-d H:i:s');
             // print_r($user);exit;
             $user->save();
 
@@ -163,16 +164,17 @@ class ContractController extends BaseController
     // Load step 2 when click from step 1
     public function loadStep2(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->withTrashed()->first();       
         $country = Countries::get();
-        $CaseMaster = CaseMaster::where("case_status","1")->get();
+        $CaseMaster = CaseMaster::all();
+        $case_id=$request->case_id ?? 0;
         
-        return view('contract.loadStep2',compact('user','country','CaseMaster'));
+        return view('contract.loadStep2',compact('user','country','CaseMaster','case_id'));
     }
     // Save step 2 data to database.
     public function saveStep2(Request $request)
     {
-        $user = User::find($request->user_id);
+        $user = User::where("id",$request->user_id)->withTrashed()->first();  
         $user->link_user_to=$request->link_to;
         if(isset($request->case_rate)) { $user->case_rate=$request->case_rate; }
         if($user->link_user_to=='3'){ 
@@ -204,7 +206,7 @@ class ContractController extends BaseController
     //Load step 3 when click next button in step 2
     public function loadStep3(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->withTrashed()->first();  
         $country = Countries::get();
         $CaseMaster = CaseMaster::where("case_status","1")->get();
         return view('contract.loadStep3',compact('user','country','CaseMaster'));
@@ -228,7 +230,7 @@ class ContractController extends BaseController
     }
     public function loadStep4(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->withTrashed()->first();  
         $country = Countries::get();
         $CaseMaster = CaseMaster::where("case_status","1")->get();
         return view('contract.loadStep4',compact('user','country','CaseMaster'));
@@ -253,6 +255,11 @@ class ContractController extends BaseController
         if(isset($request->restrictBilling)) { $userPermission->restrictBilling="1"; }else { $userPermission->restrictBilling="0"; }
         if(isset($request->financialInsightsPermission)) { $userPermission->financialInsightsPermission="1"; }else { $userPermission->financialInsightsPermission="0"; }
 
+        if(isset($request->user_id)) { 
+            $user = User::where("id",$request->user_id)->withTrashed()->first();
+            $user->deleted_at = NULL;
+            $user->save();   
+        }
         $userPermission->save();
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
         exit;

@@ -1,12 +1,13 @@
 <div id="showError" style="display:none"></div>
 <h4 class="border-bottom border-gray pb-2">Link to Cases</h4>
 
-<div class="alert alert-success"><b>You've added {{$user[0]->first_name}} to your firm.</b> We have sent a welcome email
+<div class="alert alert-success"><b>You've added {{$user->first_name}} to your firm.</b> We have sent a welcome email
     to
-    {{$user[0]->email}} .</div>
+    {{$user->email}} .</div>
 <form class="createStep2" id="createStep2" name="createStep2" method="POST">
     @csrf
-    <input type="hidden" name="user_id" value="{{$user[0]->id}}"">
+    <input type="hidden" name="user_id" value="{{$user->id}}">
+    <input type="hidden" name="case_id" value="{{$case_id}}">
              
     <div class=" col-md-12">
     <h6><b>Now, grant access to the cases you want this user to have access to.</b></h6>
@@ -15,7 +16,7 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label">Link user to</label>
         <div class="col-sm-10">
             <label class="radio radio-outline-success">
-                <input type="radio" name="link_to" checked="checked" value="1"><span>No cases</span><span
+                <input type="radio" name="link_to" <?php echo ($case_id == 0 || $case_id == NULL) ? 'checked' : ''; ?> value="1"><span>No cases</span><span
                     class="checkmark"></span>
             </label>
         </div>
@@ -34,7 +35,7 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <label class="radio radio-outline-success">
-                <input type="radio" name="link_to" id="specificcase" value="3"><span>A specific case</span><span
+                <input type="radio" name="link_to" id="specificcase" value="3" <?php echo ($case_id > 0) ? 'checked' : ''; ?>><span>A specific case</span><span
                     class="checkmark"></span>
             </label>
         </div>
@@ -44,10 +45,9 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <select class="form-control case_list" id="case_list" name="case_list" data-placeholder="Select Case">
-                <option value="">Select Case</option>
-                <?php 
-                    foreach($CaseMaster as $k=>$v){?>
-                <option value="{{$v->id}}">{{$v->case_title}}</option>
+                <option value="">Select Case</option>                
+                <?php foreach($CaseMaster as $k=>$v){?>
+                    <option value="{{$v->id}}" <?php echo ($case_id == $v->id) ? ' selected' : ''; ?> >{{$v->case_title}}-{{$v->id}}</option>
                 <?php } ?>
             </select>
             <small>You can link this user to additional cases later by clicking on "Firm Users" from the Settings
