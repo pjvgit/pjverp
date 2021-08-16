@@ -264,17 +264,17 @@ $userTitle = unserialize(USER_TITLE);
     });
 
     function loadStep2(res) {
-
-        console.log(res);
-        $('#smartwizard').smartWizard("next");
-        $("#innerLoader").css('display', 'none');
+        console.log(res);        
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/loadStep2", // json datasource
             data: {
-                "user_id": res.user_id
+                "user_id": res.user_id,
+                "case_id": {{ $case_id ?? 0 }}
             },
             success: function (res) {
+                $('#smartwizard').smartWizard("next");
+                $("#innerLoader").css('display', 'none');
                 $("#step-2").html(res);
                 $("#preloader").hide();
             }

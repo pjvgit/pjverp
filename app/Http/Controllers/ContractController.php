@@ -113,20 +113,7 @@ class ContractController extends BaseController
             $user->created_by =Auth::User()->id;
             // print_r($user);exit;
             $user->save();
-
-            //If case id is exist then only save in to staff table.
-            if(isset($request->case_id) && $request->case_id!=''){
-                $CaseStaff = new CaseStaff;
-                $CaseStaff->case_id=$request->case_id; 
-                $CaseStaff->user_id=$user->id; 
-                $CaseStaff->created_by=Auth::user()->id; 
-                $CaseStaff->lead_attorney=NULL;
-                $CaseStaff->originating_attorney=NULL;
-                $CaseStaff->rate_type="0";
-                $CaseStaff->rate_amount="0.00";
-                $CaseStaff->save();
-            }
-            
+        
             $getTemplateData = EmailTemplate::find(6);
             $fullName=$request->first_name. ' ' .$request->last_name;
             $email=$request->email;
@@ -163,17 +150,62 @@ class ContractController extends BaseController
     // Load step 2 when click from step 1
     public function loadStep2(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->first();       
         $country = Countries::get();
-        $CaseMaster = CaseMaster::where("case_status","1")->get();
+        $CaseMaster = CaseMaster::all();
+        $case_id=$request->case_id ?? 0;
         
-        return view('contract.loadStep2',compact('user','country','CaseMaster'));
+        return view('contract.loadStep2',compact('user','country','CaseMaster','case_id'));
     }
     // Save step 2 data to database.
     public function saveStep2(Request $request)
     {
-        $user = User::find($request->user_id);
-        $user->link_user_to=$request->link_to;
+        $user = User::where("id",$request->user_id)->first();  
+        $user->link_user_to=$request->link_to; 
+        
+        switch ($request->link_to) {
+            case '3':
+               //If case id is exist then only save in to staff table.
+                if(isset($request->case_list) && $request->case_list !=''){
+                    $CaseStaff = new CaseStaff;
+                    $CaseStaff->case_id=$request->case_list; 
+                    $CaseStaff->user_id=$user->id; 
+                    $CaseStaff->created_by=Auth::user()->id; 
+                    $CaseStaff->lead_attorney=NULL;
+                    $CaseStaff->originating_attorney=NULL;
+                    $CaseStaff->rate_type=$request->case_rate ?? "0";
+                    $CaseStaff->rate_amount=$request->default_rate ?? "0.00";
+                    $CaseStaff->save();
+                }
+                break; 
+            case '2':
+                if(Auth::user()->parent_user==0){
+                    $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+                    $getChildUsers[]=Auth::user()->id;
+                    $caseMaster = CaseMaster::whereIn('created_by', $getChildUsers)->get();
+                }else{
+                    $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
+                    $caseMaster = CaseMaster::where('created_by', $childUSersCase)->get();
+                }                
+                foreach ($caseMaster as $case){
+                    if(isset($request->case_list) && $request->case_list !=''){
+                        $CaseStaff = new CaseStaff;
+                        $CaseStaff->case_id=$case->id; 
+                        $CaseStaff->user_id=$user->id; 
+                        $CaseStaff->created_by=Auth::user()->id; 
+                        $CaseStaff->lead_attorney=NULL;
+                        $CaseStaff->originating_attorney=NULL;
+                        $CaseStaff->rate_type=$request->case_rate ?? "0";
+                        $CaseStaff->rate_amount=$request->default_rate ?? "0.00";
+                        $CaseStaff->save();
+                    }
+                }
+                break;             
+            default:
+                # code...
+                break;
+        }        
+
         if(isset($request->case_rate)) { $user->case_rate=$request->case_rate; }
         if($user->link_user_to=='3'){ 
             $ContractUserCase = new ContractUserCase;
@@ -204,10 +236,12 @@ class ContractController extends BaseController
     //Load step 3 when click next button in step 2
     public function loadStep3(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->first();  
         $country = Countries::get();
         $CaseMaster = CaseMaster::where("case_status","1")->get();
-        return view('contract.loadStep3',compact('user','country','CaseMaster'));
+        $case_id=$request->case_id ?? 0;
+
+        return view('contract.loadStep3',compact('user','country','CaseMaster','case_id'));
     }
     //Save step 3 data to database.
     public function saveStep3(Request $request)
@@ -222,16 +256,19 @@ class ContractController extends BaseController
         if(isset($request->import_export)) { $userPermission->import_export=$request->import_export; }
         if(isset($request->custome_fields)) { $userPermission->custome_fields=$request->custome_fields; }
         if(isset($request->manage_firm)) { $userPermission->manage_firm=$request->manage_firm; }
+        
         $userPermission->save();
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
         exit;
     }
     public function loadStep4(Request $request)
     {
-        $user = User::where("id",$request->user_id)->get();
+        $user = User::where("id",$request->user_id)->withTrashed()->first();  
         $country = Countries::get();
         $CaseMaster = CaseMaster::where("case_status","1")->get();
-        return view('contract.loadStep4',compact('user','country','CaseMaster'));
+        $case_id=$request->case_id ?? 0;
+
+        return view('contract.loadStep4',compact('user','country','CaseMaster','case_id'));
     }
 
     public function saveStep4(Request $request)

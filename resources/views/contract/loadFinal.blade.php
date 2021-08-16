@@ -9,7 +9,7 @@
         </label>
         <div class=" col-md-12">
             <div>
-                <div class="text-center"><img src="{{URL::asset('/public/images/info/info.png')}}"></div>
+                <div class="text-center"><img src="{{ asset('/images/info/info.png') }}"></div>
             </div>
         </div>
     </div>

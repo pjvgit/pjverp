@@ -55,12 +55,8 @@
              <div class="row ">
                  <div class="col-3"><label class="mr-2 field-label">Address</label></div>
                  <div class="col-9"><span class="field-value">
-                     {{$LeadData['full_address']}} 
-                     <?php
-                     if(isset($LeadData['country_name'])){
-                        echo ",".$LeadData['country_name'];
-                     }
-                     ?></span></div>
+                     {{$LeadData['street']}}, {{$LeadData['address2']}}, {{$LeadData['city']}}, {{$LeadData['state']}}, {{$LeadData['postal_code']}}, {{$LeadData['country_name']}}
+                    </span></div>
              </div>
              <div class="row ">
                  <div class="col-3"><label class="mr-2 field-label">Email</label></div>

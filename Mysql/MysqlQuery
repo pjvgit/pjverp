@@ -1,3 +1,12 @@
+------------------------------------ 16-AUG-2021 ------------------------------
+ALTER TABLE `client_cases_import_history`
+CHANGE `case_open_date` `case_open_date` varchar(55) COLLATE 'utf8mb4_general_ci' NULL AFTER `case_number`,
+CHANGE `case_close_date` `case_close_date` varchar(55) COLLATE 'utf8mb4_general_ci' NULL AFTER `case_close`,
+CHANGE `sol_date` `sol_date` varchar(55) COLLATE 'utf8mb4_general_ci' NULL AFTER `originating_attorney`;
+
+ALTER TABLE `client_cases_import_history`
+ADD `case_id` text(55) COLLATE 'utf8mb4_general_ci' NULL AFTER `warning_list`;
+
 ------------------------------------ 14-AUG-2021 ------------------------------
 ALTER TABLE `client_company_import`
 Add `import_for` enum('contact','cased') COLLATE 'utf8mb4_unicode_ci' DEFAULT 'contact' AFTER `error_code`;
