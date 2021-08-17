@@ -3462,6 +3462,7 @@ if(!isset($adjustment_token)){
         $("#final_total_text").val(final_total);
         $(".final_total").html(final_total);
         $('.final_total').number(true, 2);
+        $(".invoice-total-amount").html('$'+final_total.toFixed(2));
 
         $("#payment_plan_balance").html(final_total);
         $('#payment_plan_balance').number(true, 2);

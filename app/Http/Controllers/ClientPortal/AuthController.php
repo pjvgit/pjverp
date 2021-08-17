@@ -47,12 +47,40 @@ class AuthController extends Controller
      */
     public function saveClientProfile(Request $request)
     {
-        /* $request->validate([
-            'password' => 'required|min:6',
-            'confirm_password' => 'soemtimes|required|min:6',
-            'user_timezone' => 'soemtimes|required',
-        ]); */
+        $request->validate([
+            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
+            'confirm_password' => 'required|min:6',
+            'user_timezone' => 'required',
+        ]);
 
+        $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
+
+        if(isset($user) ) {
+            $user->fill([
+                'password' => Hash::make(trim($request->password)),
+                'user_timezone'=>$request->user_timezone,
+                'verified'=>"1",
+                'user_status'=>"1"
+            ])->save();
+ 
+            if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
+                $userStatus = Auth::User()->user_status;
+                if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
+                    session(['layout' => 'horizontal']);
+                    return redirect()->route('client/home')->with('success','Login Successfully');
+                } else {
+                    Auth::logout();
+                    session()->flush();
+                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+                }
+            }
+        }else{
+            session()->flush();
+            return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+        }
+    }
+    /* public function saveClientProfile(Request $request)
+    {
         $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
 
         if(isset($user) ) {
@@ -79,7 +107,7 @@ class AuthController extends Controller
             session()->flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
         }
-    }
+    } */
 
     /**
      * Get client portal terms and conditions
