@@ -51,7 +51,7 @@
             </div>
             <div class="event-detail__comments">
                 <i class="fas fa-comment-alt list-row__icon"></i>
-                <span>Comments (0)</span>
+                <span>Comments (<span id="total_comment">0</span>)</span>
             </div>
             <div id="event_comment_history">
             </div>
@@ -121,7 +121,10 @@ function loadCommentHistory() {
         type: "GET",
         data: {event_id: eventId},
         success: function( response ) {
-            $("#event_comment_history").html(response);
+            if(response.view != '') {
+                $("#event_comment_history").html(response.view);
+                $("#total_comment").html(response.totalComment);
+            }
         },
     });
 }

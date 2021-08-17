@@ -884,7 +884,8 @@ class ContractController extends BaseController
                     $getTemplateData = EmailTemplate::find(21);
                     $fullName=$request->first_name. ' ' .$request->last_name;
                     $email=$request->email;
-                    $token=url('firmclient/verify', $user->token);
+                    // $token=url('firmclient/verify', $user->token);
+                    $token=url('firmuser/verify', $user->token);
                     $mail_body = $getTemplateData->content;
                     $mail_body = str_replace('{name}', $fullName, $mail_body);
                     $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);

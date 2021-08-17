@@ -59,6 +59,7 @@ class EventController extends Controller
     public function eventCommentHistory(Request $request)
     {
         $commentData = CaseEventComment::where("event_id", $request->event_id)->orderBy('created_at')->with("createdByUser")->get();
-        return view('client_portal.events.load_comment_history',compact('commentData'));
+        $view = view('client_portal.events.load_comment_history',compact('commentData'))->render();
+        return response()->json(['totalComment' => $commentData->count(), 'view' => $view]);
     }  
 }
