@@ -13,40 +13,24 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <h5 class="form-text">Welcome to {{ @$user->firmDetail->firm_name }}</h5>
-                        <div class="form-text">Get 24/7 access to your case, share documents, and send confidential messages using our secure Client Portal, powered by LegalCase. Set your password below to create your account.</div>
-                    </div>                
+                        <div class="form-text">{{ @$user->firmDetail->firm_name }} uses LegalCase to communicate with clients. Log in to your existing LegalCase account to access {{ @$user->firmDetail->firm_name }}. You can easily switch between different firms in LegalCase.</div>
+                    </div>
+                
                 
                     <div class="form-group row ">
-                        <label class="col-12 col-sm-4 col-form-label">Set Password</label>
+                        <label class="col-12 col-sm-4 col-form-label">Email</label>
                         <div class="col-12 col-sm-7">
-                            <input autocomplete="off" class="form-control" type="password" name="password" id="activation_form_password">
+                            <div class="form-text">{{ $user->email }}</div>
                         </div>
                     </div>
                     <div class="form-group row ">
                         <div class="col-12 col-sm-4 col-form-label">
-                            <label for="activation_form_password_confirmation">Confirm Password</label>
+                            <label for="activation_form_password_confirmation">Password</label>
                         </div>
                         <div class="col-12 col-sm-7">
-                            <input autocomplete="off" class="form-control" type="password" name="confirm_password" id="activation_form_password_confirmation">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-12 col-sm-4 col-form-label">Time Zone</label>
-                        <div class="col-12 col-sm-7">
-                            <select name="user_timezone" class="form-control select2" placeholder="Select Timezone">
-                                @php
-                                    $timezoneData = unserialize(TIME_ZONE_DATA); //
-                                @endphp
-                                @forelse(array_flip($timezoneData) as $key=>$val)
-                                    <option value="{{$key}}">{{$val}}</option>
-                                @empty
-                                @endforelse
-                            </select>
-                            @if ($errors->has('user_timezone'))
-                              <span class="invalid-feedback" role="alert">
-                                  <strong>{{ $errors->first('user_timezone') }}</strong>
-                              </span>
-                            @endif
+                            <input autocomplete="off" class="form-control" type="password" name="password_confirmation" id="activation_form_password_confirmation">
+                            <div class="form-control-feedback invisible"></div>
+                            <a href="{{ route('client/activate/account', $user->token) }}?forgot_password=true">Forgot password?</a>
                         </div>
                     </div>
                     <div class="form-group row ">
@@ -69,7 +53,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="activation-form-submit" type="submit" class="btn btn-primary">Activate Account</button>
+                    <button id="activation-form-submit" type="submit" class="btn btn-primary">Log In</button>
                 </div>
                 </form>
         </div>
@@ -80,16 +64,15 @@
 <script type="text/javascript">
   
 $(document).ready(function () {
+    $('#password_update').submit(function () {
+        $('#preloader').show();
+    });
+
     $("#activation_form").validate({
         rules: {
-            password: {
+            password_confirmation: {
                 required: true,
                 maxlength: 20,
-            },
-            confirm_password: {
-                required: true,
-                maxlength: 20,
-                equalTo: "#activation_form_password",
             },
             client_terms_acknowledgement: {
                 required: true,

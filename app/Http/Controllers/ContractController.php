@@ -827,7 +827,8 @@ class ContractController extends BaseController
                 $ClientGroup=new ClientGroup;
                 $ClientGroup->group_name=$request->contact_group_text; 
                 $ClientGroup->status="1";
-                $ClientGroup->email="";
+                // $ClientGroup->email="";
+                $ClientGroup->firm_id=Auth::User()->firm_name;
                 $ClientGroup->created_by=Auth::User()->id;
                 $ClientGroup->save();
                 $UsersAdditionalInfo->contact_group_id=$ClientGroup->id;
