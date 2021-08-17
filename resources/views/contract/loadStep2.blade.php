@@ -47,7 +47,7 @@
             <select class="form-control case_list" id="case_list" name="case_list" data-placeholder="Select Case">
                 <option value="">Select Case</option>                
                 <?php foreach($CaseMaster as $k=>$v){?>
-                    <option value="{{$v->id}}" <?php echo ($case_id == $v->id) ? ' selected' : ''; ?> >{{$v->case_title}}-{{$v->id}}</option>
+                    <option value="{{$v->id}}" <?php echo ($case_id == $v->id) ? ' selected' : ''; ?> >{{$v->case_title}}</option>
                 <?php } ?>
             </select>
             <small>You can link this user to additional cases later by clicking on "Firm Users" from the Settings
