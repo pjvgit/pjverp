@@ -4278,6 +4278,15 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $error = [];
+            foreach($request->client as $k=>$v) { 
+                if($request['new_email-'.$v] == ''){
+                    $error[$k] = 'Email Address is required';
+                }
+            }
+            if(!empty($error)){
+                return response()->json(['errors'=>$error]);
+            }
             $FindInvoice=Invoices::find($request->invoice_id);
             if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
                 $FindInvoice->status="Sent";
@@ -4289,7 +4298,13 @@ class BillingController extends BaseController
             $invoice_id=$request->invoice_id;
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
-                $email=$findUSer['email'];
+                if($findUSer['email'] == '' || $findUSer['email'] == NULL){
+                    $findUSer->email = $request['new_email-'.$v];
+                    $findUSer->save();
+                    $email=$request['new_email-'.$v];
+                }else{
+                    $email=$findUSer['email'];
+                }
                 $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
                         
                 $firmData=Firm::find(Auth::User()->firm_name);
