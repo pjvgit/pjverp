@@ -1,15 +1,24 @@
 <div>
 	@php
+		$lableShow = 0;
 		$appliedTrustClient = $findInvoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
 		$appliedcreditClient = $findInvoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
+		foreach($appliedTrustClient as $k => $v){
+			$lableShow = ($v == 'dont show') ? 0 : 1;
+		}
+		foreach($appliedcreditClient as $k => $v){
+			$lableShow = ($v == 'dont show') ? 0 : 1;
+		}
 	@endphp
-	<div class="ledger-histories">
-		<h3> Account Summary
-            <a id="ledger-histories-refresh" class="ledger-histories-refresh" onclick="refreshAccountHistory()">
-                Refresh Account Histories
-            </a>
-        </h3>
+	<div class="ledger-histories">				
         @if(isset($caseMaster) && !empty($caseMaster->caseAllClient))
+			@if($lableShow == 1)
+			<h3> Account Summary
+				<a id="ledger-histories-refresh" class="ledger-histories-refresh" onclick="refreshAccountHistory()">
+					Refresh Account Histories
+				</a>
+			</h3>
+			@endif
             @forelse ($caseMaster->caseAllClient as $key => $item)
                 <div class="ledger_history_full mt-3">
 					@if ($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account summary")

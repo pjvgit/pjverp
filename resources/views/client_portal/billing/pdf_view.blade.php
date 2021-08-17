@@ -591,12 +591,19 @@
     @if($invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && !empty($invoice->applyTrustCreditFund))
     <div>
         @php
+            $lableShow = 0;
             $appliedTrustClient = $invoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
             $appliedcreditClient = $invoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
+            foreach($appliedTrustClient as $k => $v){
+			    $lableShow = ($v == 'dont show') ? 0 : 1;
+            }
+            foreach($appliedcreditClient as $k => $v){
+                $lableShow = ($v == 'dont show') ? 0 : 1;
+            }
         @endphp
         <div class="ledger-histories">
-            <h3> Account Summary</h3>
             @if(isset($invoice->case) && !empty($invoice->case->caseAllClient))
+            @if($lableShow == 1) <h3> Account Summary Refresh Account Histories</h3> @endif
                 @forelse ($invoice->case->caseAllClient as $key => $item)
                     <div class="ledger_history_full mt-3">
                         @if ($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account summary")
