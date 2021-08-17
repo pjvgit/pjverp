@@ -5688,6 +5688,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            
             $data = json_decode(stripslashes($request->invoice_id));
 
             $discount_type=$request->discount_type;
@@ -5717,74 +5718,89 @@ class BillingController extends BaseController
                 }
 
                 if($discount_applied_to=="flat_fees"){
-                    $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->first();
-                    $flatFees=($CaseClientSelection['billing_amount'])??0;
-                    if($flatFees>0){
-                        $InvoiceAdjustment->basis =str_replace(",","",$flatFees);
+                    $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->get();
+                    if(count($CaseClientSelection) > 0){
+                        $GrandTotalByInvoice=$TotalAmt=0;
+                        foreach($CaseClientSelection as $kk=>$vv){
+                            $GrandTotalByInvoice+=$vv->billing_amount;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
                         if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$flatFees;
+                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
+                        }else{
+                            $finalAmount=$amount;
+                        }
+                        $Applied=TRUE;                        
+                    }else{
+                        $Applied=FALSE;   
+                    }        
+                }
+                if($discount_applied_to=="time_entries"){
+                    $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("invoice_id",$v1)->get();
+                    if(count($TimeEntryForInvoice) > 0){
+                        $GrandTotalByInvoice=$TotalAmt=0;
+                        foreach($TimeEntryForInvoice as $kk=>$vv){
+                            if($vv->rate_type=="hr"){
+                                $TotalAmt=($vv->entry_rate*$vv->duration);
+                            }else{
+                                $TotalAmt=$vv->duration;
+                            }
+                            $GrandTotalByInvoice+=$TotalAmt;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
+                        if($amountType=="percentage"){
+                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
                         }else{
                             $finalAmount=$amount;
                         }
                         $Applied=TRUE;
                     }else{
-                        $Applied=FALSE;
-                    }
+                        $Applied=FALSE;   
+                    }                    
                 }
-                if($discount_applied_to=="time_entries"){
-                    $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("invoice_id",$v1)->get();
-                    $GrandTotalByInvoice=$TotalAmt=0;
-                    foreach($TimeEntryForInvoice as $kk=>$vv){
-                        if($vv->rate_type=="hr"){
-                            $TotalAmt=($vv->entry_rate*$vv->duration);
-                        }else{
-                            $TotalAmt=$vv->duration;
-                        }
-                        $GrandTotalByInvoice+=$TotalAmt;
-                    }
-                    $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
-                    if($amountType=="percentage"){
-                        $finalAmount=($amount/100)*$GrandTotalByInvoice;
-                    }else{
-                        $finalAmount=$amount;
-                    }
-                    $Applied=TRUE;
-                }
-
 
                 if($discount_applied_to=="expenses"){
                     $ExpenseForInvoice=ExpenseForInvoice::join("expense_entry","expense_entry.id","=","expense_for_invoice.expense_entry_id")->where("invoice_id",$v1)->get();
-                    $GrandTotalByInvoiceExp=$TotalAmtExp=0;
-                    foreach($ExpenseForInvoice as $kk1=>$vv1){
-                        $TotalAmtExp=($vv1->cost*$vv1->duration);
-                        $GrandTotalByInvoiceExp+=$TotalAmtExp;
-                    }
-                    $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoiceExp);
-                    if($amountType=="percentage"){
-                        $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
+                    if(count($ExpenseForInvoice) > 0){
+                        $GrandTotalByInvoiceExp=$TotalAmtExp=0;
+                        foreach($ExpenseForInvoice as $kk1=>$vv1){
+                            $TotalAmtExp=($vv1->cost*$vv1->duration);
+                            $GrandTotalByInvoiceExp+=$TotalAmtExp;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoiceExp);
+                        if($amountType=="percentage"){
+                            $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
+                        }else{
+                            $finalAmount=$amount;
+                        }
+                        $Applied=TRUE;
                     }else{
-                        $finalAmount=$amount;
-                    }
-                    $Applied=TRUE;
+                        $Applied=FALSE;   
+                    } 
                 }
-                if($discount_applied_to=="sub_total"){
-                    
+                if($discount_applied_to=="sub_total"){                    
                     if($subTotal>0){
                         $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
                         if($amountType=="percentage"){
                             $finalAmount=($amount/100)*$subTotal;
+                            $Applied=TRUE;
                         }else{
                             $finalAmount=$amount;
+                            $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
                         }
-                        $Applied=TRUE;
                     }else{
                         $Applied=FALSE;
                     }
                 }
                 
                 if($discount_applied_to=="balance_forward_total"){
-                    $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                    $Applied=TRUE;
+                    $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
+                    if(count($balanceForwardInvoice) > 0){
+                        $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
+                        $Applied=TRUE;
+                    }else{
+                        $Applied=FALSE;
+                    }
                 }
                 
                 $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
@@ -5807,7 +5823,7 @@ class BillingController extends BaseController
                     $Invoices->due_amount=$subTotalSave;
                     $Invoices->save();
                 }else{
-                    $notSavedInvoice[]='<li>'. sprintf('%06d', @$Invoices['id']).'('.@$CaseMaster['case_title'].')</li>';
+                    $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
                 }
             }
             return response()->json(['errors'=>'','list'=> $notSavedInvoice]);
