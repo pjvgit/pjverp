@@ -3695,7 +3695,7 @@ class ClientdashboardController extends BaseController
                     return response()->json(['errors'=>'We recommend importing less than 1000 records at a time or the import may error out. If you have more than 1000 records to import, we suggest breaking the import up into multiple spreadsheets and try again']);
                     exit;
                 }else{
-                if($csv_data[0][0]=="Case/Matter Name" ){                    
+                if(trim($csv_data[0][0])=="Case/Matter Name" && trim($csv_data[0][1]) =="Number" && trim($csv_data[0][2])=="Open Date" && trim($csv_data[0][3]) =="Practice Area" && trim($csv_data[0][4])=="Case Description" && trim($csv_data[0][5]) =="Case Closed" && trim($csv_data[0][6])=="Closed Date" && trim($csv_data[0][7]) =="Lead Attorney" && trim($csv_data[0][8])=="Originating Attorney" && trim($csv_data[0][9]) =="SOL Date" && trim($csv_data[0][10])=="Outstanding Balance" && trim($csv_data[0][11]) =="Case Stage" && trim($csv_data[0][12])=="Conflict Check?" && trim($csv_data[0][13]) =="Conflict Check Notes" && trim($csv_data[0][14])=="Note: <Imported Note 1>" && trim($csv_data[0][15]) =="Note: <Imported Note 2>"){                    
                     unset($csv_data[0]);
                     
                     $uploadFile = $request->upload_file;
@@ -3935,7 +3935,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->save();
                     }
                 }else{
-                    return response()->json(['errors'=>'Wrong file use for imports. please select correct file... ',]);
+                    return response()->json(['errors'=>'Wrong file use for imports because columns are not matched. Make sure that you are copying the data into the right columns. Please Use Legal Case Import Template Spreadsheet... ',]);
                     exit;
                 }
                 }

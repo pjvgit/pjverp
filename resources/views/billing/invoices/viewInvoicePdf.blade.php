@@ -1,8 +1,10 @@
 @extends('layouts.pdflayout')
 
 <?php
-$paid=$Invoice['amount_paid'];
-$invoice=$Invoice['invoice_amount'];
+// $paid=$Invoice['amount_paid'];
+// $invoice=$Invoice['invoice_amount'];
+$invoice=$Invoice['total_amount'];
+$paid=$Invoice['paid_amount'];
 $finalAmt=$invoice-$paid;
 $flatFeeEntryAmount=0;
 ?>

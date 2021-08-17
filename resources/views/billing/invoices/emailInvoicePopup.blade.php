@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" value="{{$Invoices->id}}" name="invoice_id">
     <div class="row">
-        <div class="col-md-12" id="confirmAccess">
+        <div class="col-md-12" id="confirmAccess" bladefile="resources/views/billing/invoices/emailInvoicePopup.blade.php">
             {{-- <div>
                 <div class="alert alert-info fade show" role="alert">
                     <div class="d-flex align-items-start">
@@ -18,26 +18,25 @@
                 <div class="col-2 px-3 text-left">Send To:</div>
                 <div class="col-10 pl-0">
                     <ul class="list-unstyled mb-0">
-                        <?php
-                       foreach($getAllClientForSharing as $k=>$v){?>
-                        <li class="court-case-users-row mb-2 pb-1">
-                            <table class="col-12">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <label class="mb-0">
-                                                <input type="checkbox" class="mr-2 mb-1" name="client[]"
-                                                    id="send-email-21715416" value="{{$v->user_id}}"></label></td>
-                                        <td class="pl-0 col-12">
-                                            {{substr($v->unm,0,100)}}
-                                            <?php if($v->user_level==2){ echo "(Client)"; }else{ echo "(Company)"; } ?>
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </li>
-                        <?php } ?>
+                        <?php foreach($getAllClientForSharing as $k=>$v){ 
+                            if($v->user_level==2){ ?>
+                            <li class="court-case-users-row mb-2 pb-1">
+                                <table class="col-12">
+                                    <tbody>                                    
+                                        <tr>
+                                            <td>
+                                                <label class="mb-0">
+                                                    <input type="checkbox" class="mr-2 mb-1 checkMail" name="client[]"
+                                                        id="send-email-{{$v->user_id}}" value="{{$v->user_id}}" data-email="{{$v->email}}"></label></td>
+                                            <td class="pl-0 col-12"> {{substr($v->unm,0,100)}} (Client) </td>
+                                        </tr>
+                                        <tr id="mailOpen_{{$v->user_id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id}}" class="col-12 form-control" name="new_email-{{$v->user_id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
+                                    
+                                    </tbody>
+                                </table>
+                            </li>
+                        <?php } 
+                        } ?>
                     </ul>
                 </div>
             </div>
@@ -175,6 +174,15 @@
                     afterLoader();
                 }
             });
+        });
+
+        $(".checkMail").on("change", function (e) {
+            var userID = $(this).val();
+            if ($(this).is(":checked") && $(this).attr("data-email") == '') {
+                $("#mailOpen_"+userID).show();
+            }else{
+                $("#mailOpen_"+userID).hide();
+            }
         });
     });
 

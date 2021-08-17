@@ -107,7 +107,7 @@
         <tr>
             <td style="vertical-align: top; width: 350px; word-wrap: break-word;" rowspan="2">
                 <span class="billing_user_name">
-                    <a href="{{BASE_URL}}contacts/clients/{{$userMaster->id}}">{{$userMaster->first_name}}
+                    <a href="{{route('contacts/clients/view', $userMaster->id) }}">{{$userMaster->first_name}}
                         {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
 
                         {{@$UsersAdditionalInfo['street']}}<br>

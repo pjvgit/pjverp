@@ -569,7 +569,7 @@ td,th{
                                                 <div class="col">
                                                     <div class="">
                                                         <div class="row">
-                                                            <div class="col-5 form-group"><input step="0.01" min="0.10" max="999999999999999"
+                                                            <div class="col-5 form-group"><input step="0.01" min="0.10" max="100"
                                                                     name="amount" type="number" class="form-control"
                                                                     value="0"></div>
                                                             <div class="col-3 form-check"><label
@@ -635,7 +635,7 @@ td,th{
                     <div class="adjustments-info-modal">
                         <div>Adjustments were not applied to the following invoices:</div>
                         <ul class="my-3">
-                            <li>00002 (CASE1)</li>
+                            <li id="caseID"></li>
                         </ul>
                     <div>The adjustment may have calculated to 0, the adjustment type may have been invalid for the selected invoice, the invoice has already been forwarded, or the invoice has a payment plan.</div>
                 </div>
@@ -1139,13 +1139,22 @@ td,th{
         
     });
   
+    $("input[name='amountType']").on('change', function (e) {
+        console.log($(this).val());
+        if($(this).val() == 'percentage'){
+            $("input[name='amount']").attr('max', '100');
+        }else{
+            $("input[name='amount']").attr('max', '999999999999999');
+        }
+    });
+
     $('#adjustmentBulkInvoiceForm').submit(function (e) {
             beforeLoader();
             e.preventDefault();
-            if($("input[name='amountType']").val() == 'percentage'){
+            if($("input[name='amountType']:checked").val() == 'percentage'){
                 $("input[name='amount']").attr('max', '100');
             }else{
-                $("input[name='amount']").attr('max', '100');
+                $("input[name='amount']").attr('max', '999999999999999');
             }
             if (!$('#adjustmentBulkInvoiceForm').valid()) {
                 afterLoader();
@@ -1182,8 +1191,9 @@ td,th{
                         afterLoader();
                         return false;
                     } else {
+                        $("#caseID").html(res.list);
                         $("#adjustmentBulkInvoice").modal("hide");
-                        // $("#adjustmentNotApplied").modal("show");
+                        $("#adjustmentNotApplied").modal("show");
                         $(".my-3").html(res.list);
                         window.location.reload();
                     }

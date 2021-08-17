@@ -1794,7 +1794,7 @@ if(!isset($adjustment_token)){
                                                         }
                                                     }
                                                     foreach($getAllClientForSharing as $k=>$v){
-                                                        if($v->user_level=="2" && $v->is_billing_contact == "yes")
+                                                        if($v->user_level=="2")
                                                         {
                                                             $multipleCompnays = explode(",",$v->multiple_compnay_id); 
                                                             foreach($multipleCompnays as $kv => $vv){                                                                  
@@ -1870,7 +1870,7 @@ if(!isset($adjustment_token)){
                                                                 $show = 1;
                                                             }                                                  
                                                         }      
-                                                        if($show == 0 && $v->user_level=="2" && $v->is_billing_contact == "yes"){ ?>    
+                                                        if($show == 0 && $v->user_level=="2"){ ?>    
                                                         <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
                                                         <td style="text-align: center;padding:10px;">
                                                             <div class="locked">   

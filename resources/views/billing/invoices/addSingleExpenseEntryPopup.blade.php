@@ -16,7 +16,7 @@
             <div class="col-10 form-group mb-3">
                 <select class="form-control staff_user select2" id="staff_user" name="staff_user">
                     <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
-                    <option value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
+                    <option value="{{$CasevloadFirmStaffvalal->id}}" <?php echo ($CasevloadFirmStaffvalal->id == Auth::user()->id) ? 'selected' : ''; ?>>{{$CasevloadFirmStaffvalal->first_name}}
                         {{$CasevloadFirmStaffvalal->last_name}}</option>
                     <?php } ?>
                 </select>
@@ -38,7 +38,7 @@
             <label for="inputEmail3" class="col-sm-4 col-form-label"> <a onclick="showText();" href="javascript:;">Add
                     new activity</a></label>
         </div>
-        <div class="form-group row" id="area_text">
+        <div class="form-group row" id="area_text" style="display: none;">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Activity</label>
             <div class="col-md-6 form-group mb-3">
                 <input class="form-control" id="activity_text" value="" maxlength="255" name="activity_text" type="text"

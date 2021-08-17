@@ -4170,9 +4170,15 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
 
+        //Get the flat fee Entry list
+        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+        ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+        ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->get();
         
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
         /* $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
             $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
@@ -4213,6 +4219,12 @@ class BillingController extends BaseController
         $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
         $firmData=Firm::find($userData['firm_name']);
 
+        //Get the flat fee Entry list
+        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+        ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+        ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->get();
 
         $TimeEntryForInvoice = TimeEntryForInvoice::join("task_time_entry",'task_time_entry.id',"=","time_entry_for_invoice.time_entry_id")->leftJoin("users","task_time_entry.user_id","=","users.id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select('users.*','task_time_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")->where("time_entry_for_invoice.invoice_id",$invoice_id)->get();
 
@@ -4226,7 +4238,7 @@ class BillingController extends BaseController
         ->where("invoice_installment.invoice_id",$invoice_id)
         ->get();
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment','FlatFeeEntryForInvoice'));
         $pdf = new Pdf;
         $pdf->setOptions(['javascript-delay' => 5000]);
         if($_SERVER['SERVER_NAME']=='localhost'){
@@ -4278,6 +4290,15 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $error = [];
+            foreach($request->client as $k=>$v) { 
+                if($request['new_email-'.$v] == ''){
+                    $error[$k] = 'Email Address is required';
+                }
+            }
+            if(!empty($error)){
+                return response()->json(['errors'=>$error]);
+            }
             $FindInvoice=Invoices::find($request->invoice_id);
             if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
                 $FindInvoice->status="Sent";
@@ -4289,7 +4310,13 @@ class BillingController extends BaseController
             $invoice_id=$request->invoice_id;
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
-                $email=$findUSer['email'];
+                if($findUSer['email'] == '' || $findUSer['email'] == NULL){
+                    $findUSer->email = $request['new_email-'.$v];
+                    $findUSer->save();
+                    $email=$request['new_email-'.$v];
+                }else{
+                    $email=$findUSer['email'];
+                }
                 $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
                         
                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -5661,6 +5688,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            
             $data = json_decode(stripslashes($request->invoice_id));
 
             $discount_type=$request->discount_type;
@@ -5690,74 +5718,89 @@ class BillingController extends BaseController
                 }
 
                 if($discount_applied_to=="flat_fees"){
-                    $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->first();
-                    $flatFees=($CaseClientSelection['billing_amount'])??0;
-                    if($flatFees>0){
-                        $InvoiceAdjustment->basis =str_replace(",","",$flatFees);
+                    $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->get();
+                    if(count($CaseClientSelection) > 0){
+                        $GrandTotalByInvoice=$TotalAmt=0;
+                        foreach($CaseClientSelection as $kk=>$vv){
+                            $GrandTotalByInvoice+=$vv->billing_amount;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
                         if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$flatFees;
+                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
+                        }else{
+                            $finalAmount=$amount;
+                        }
+                        $Applied=TRUE;                        
+                    }else{
+                        $Applied=FALSE;   
+                    }        
+                }
+                if($discount_applied_to=="time_entries"){
+                    $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("invoice_id",$v1)->get();
+                    if(count($TimeEntryForInvoice) > 0){
+                        $GrandTotalByInvoice=$TotalAmt=0;
+                        foreach($TimeEntryForInvoice as $kk=>$vv){
+                            if($vv->rate_type=="hr"){
+                                $TotalAmt=($vv->entry_rate*$vv->duration);
+                            }else{
+                                $TotalAmt=$vv->duration;
+                            }
+                            $GrandTotalByInvoice+=$TotalAmt;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
+                        if($amountType=="percentage"){
+                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
                         }else{
                             $finalAmount=$amount;
                         }
                         $Applied=TRUE;
                     }else{
-                        $Applied=FALSE;
-                    }
+                        $Applied=FALSE;   
+                    }                    
                 }
-                if($discount_applied_to=="time_entries"){
-                    $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("invoice_id",$v1)->get();
-                    $GrandTotalByInvoice=$TotalAmt=0;
-                    foreach($TimeEntryForInvoice as $kk=>$vv){
-                        if($vv->rate_type=="hr"){
-                            $TotalAmt=($vv->entry_rate*$vv->duration);
-                        }else{
-                            $TotalAmt=$vv->duration;
-                        }
-                        $GrandTotalByInvoice+=$TotalAmt;
-                    }
-                    $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
-                    if($amountType=="percentage"){
-                        $finalAmount=($amount/100)*$GrandTotalByInvoice;
-                    }else{
-                        $finalAmount=$amount;
-                    }
-                    $Applied=TRUE;
-                }
-
 
                 if($discount_applied_to=="expenses"){
                     $ExpenseForInvoice=ExpenseForInvoice::join("expense_entry","expense_entry.id","=","expense_for_invoice.expense_entry_id")->where("invoice_id",$v1)->get();
-                    $GrandTotalByInvoiceExp=$TotalAmtExp=0;
-                    foreach($ExpenseForInvoice as $kk1=>$vv1){
-                        $TotalAmtExp=($vv1->cost*$vv1->duration);
-                        $GrandTotalByInvoiceExp+=$TotalAmtExp;
-                    }
-                    $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoiceExp);
-                    if($amountType=="percentage"){
-                        $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
+                    if(count($ExpenseForInvoice) > 0){
+                        $GrandTotalByInvoiceExp=$TotalAmtExp=0;
+                        foreach($ExpenseForInvoice as $kk1=>$vv1){
+                            $TotalAmtExp=($vv1->cost*$vv1->duration);
+                            $GrandTotalByInvoiceExp+=$TotalAmtExp;
+                        }
+                        $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoiceExp);
+                        if($amountType=="percentage"){
+                            $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
+                        }else{
+                            $finalAmount=$amount;
+                        }
+                        $Applied=TRUE;
                     }else{
-                        $finalAmount=$amount;
-                    }
-                    $Applied=TRUE;
+                        $Applied=FALSE;   
+                    } 
                 }
-                if($discount_applied_to=="sub_total"){
-                    
+                if($discount_applied_to=="sub_total"){                    
                     if($subTotal>0){
                         $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
                         if($amountType=="percentage"){
                             $finalAmount=($amount/100)*$subTotal;
+                            $Applied=TRUE;
                         }else{
                             $finalAmount=$amount;
+                            $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
                         }
-                        $Applied=TRUE;
                     }else{
                         $Applied=FALSE;
                     }
                 }
                 
                 if($discount_applied_to=="balance_forward_total"){
-                    $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                    $Applied=TRUE;
+                    $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
+                    if(count($balanceForwardInvoice) > 0){
+                        $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
+                        $Applied=TRUE;
+                    }else{
+                        $Applied=FALSE;
+                    }
                 }
                 
                 $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
@@ -5780,7 +5823,7 @@ class BillingController extends BaseController
                     $Invoices->due_amount=$subTotalSave;
                     $Invoices->save();
                 }else{
-                    $notSavedInvoice[]='<li>'. sprintf('%06d', @$Invoices['id']).'('.@$CaseMaster['case_title'].')</li>';
+                    $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
                 }
             }
             return response()->json(['errors'=>'','list'=> $notSavedInvoice]);

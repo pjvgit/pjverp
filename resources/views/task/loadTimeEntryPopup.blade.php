@@ -177,7 +177,7 @@
                     <select class="form-control staff_user" id="staff_user" name="staff_user">
 
                         <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
-                        <option value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
+                        <option value="{{$CasevloadFirmStaffvalal->id}}"  <?php echo ($CasevloadFirmStaffvalal->id == Auth::user()->id) ? 'selected' : ''; ?>>{{$CasevloadFirmStaffvalal->first_name}}
                             {{$CasevloadFirmStaffvalal->last_name}}</option>
                         <?php } ?>
                     </select>
