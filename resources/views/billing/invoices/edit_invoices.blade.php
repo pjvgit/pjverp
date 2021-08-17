@@ -1691,7 +1691,7 @@
                                                         }
                                                     }
                                                     foreach($getAllClientForSharing as $k=>$v){
-                                                        if($v->user_level=="2" && $v->is_billing_contact == "yes")
+                                                        if($v->user_level=="2")
                                                         {
                                                             $multipleCompnays = explode(",",$v->multiple_compnay_id); 
                                                             foreach($multipleCompnays as $kv => $vv){                                                                  
@@ -1721,7 +1721,7 @@
                                                                 <tr class="invoice-sharing-row client-id-21672788" id="row_{{$kk}}">
                                                                     <td style="text-align: center;padding:10px;">
                                                                         <div class="locked">
-                                                                            <input type="checkbox" name="portalAccess[]"  value="{{$kk}}"  id="portalAccess_{{$kk}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$kk}}"  em="{{$explodeValues[1]}}" pe="{{$explodeValues[2]}}" onclick="checkPortalAccess({{$kk}})">
+                                                                            <input type="checkbox" name="portalAccess[]"  value="{{$kk}}"  id="portalAccess_{{$kk}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$kk}}"  em="{{$explodeValues[1]}}" pe="{{$explodeValues[2]}}" onclick="checkPortalAccess({{$kk}})" <?php if(in_array($kk,$SharedInvoice)) { echo "checked=checked"; } ?>>
                                                                         </div>                                                            
                                                                     </td>
                                                                     <td class="invoice-sharing-name">
@@ -1767,11 +1767,11 @@
                                                                 $show = 1;
                                                             }                                                  
                                                         }      
-                                                        if($show == 0 && $v->user_level=="2" && $v->is_billing_contact == "yes"){ ?>    
+                                                        if($show == 0 && $v->user_level=="2"){ ?>    
                                                         <tr class="invoice-sharing-row client-id-21672788" id="row_{{$v->user_id}}">
                                                         <td style="text-align: center;padding:10px;">
                                                             <div class="locked">   
-                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})">
+                                                                <input type="checkbox" name="portalAccess[]"  value="{{$v->user_id}}"  id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"  uid="{{$v->user_id}}"  em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$v->user_id}})" <?php if(in_array($v->user_id,$SharedInvoice)) { echo "checked=checked"; } ?>>
                                                             </div>                                                            
                                                         </td>
                                                         <td class="invoice-sharing-name">

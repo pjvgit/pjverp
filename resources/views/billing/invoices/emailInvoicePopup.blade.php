@@ -18,26 +18,25 @@
                 <div class="col-2 px-3 text-left">Send To:</div>
                 <div class="col-10 pl-0">
                     <ul class="list-unstyled mb-0">
-                        <?php
-                       foreach($getAllClientForSharing as $k=>$v){?>
-                        <li class="court-case-users-row mb-2 pb-1">
-                            <table class="col-12">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <label class="mb-0">
-                                                <input type="checkbox" class="mr-2 mb-1 checkMail" name="client[]"
-                                                    id="send-email-{{$v->user_id}}" value="{{$v->user_id}}" data-email="{{$v->email}}"></label></td>
-                                        <td class="pl-0 col-12">
-                                            {{substr($v->unm,0,100)}}
-                                            <?php if($v->user_level==2){ echo "(Client)"; }else{ echo "(Company)"; } ?>
-                                        </td>
-                                    </tr>
-                                    <tr id="mailOpen_{{$v->user_id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id}}" class="col-12 form-control" name="new_email-{{$v->user_id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
-                                </tbody>
-                            </table>
-                        </li>
-                        <?php } ?>
+                        <?php foreach($getAllClientForSharing as $k=>$v){ 
+                            if($v->user_level==2){ ?>
+                            <li class="court-case-users-row mb-2 pb-1">
+                                <table class="col-12">
+                                    <tbody>                                    
+                                        <tr>
+                                            <td>
+                                                <label class="mb-0">
+                                                    <input type="checkbox" class="mr-2 mb-1 checkMail" name="client[]"
+                                                        id="send-email-{{$v->user_id}}" value="{{$v->user_id}}" data-email="{{$v->email}}"></label></td>
+                                            <td class="pl-0 col-12"> {{substr($v->unm,0,100)}} (Client) </td>
+                                        </tr>
+                                        <tr id="mailOpen_{{$v->user_id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id}}" class="col-12 form-control" name="new_email-{{$v->user_id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
+                                    
+                                    </tbody>
+                                </table>
+                            </li>
+                        <?php } 
+                        } ?>
                     </ul>
                 </div>
             </div>

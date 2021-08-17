@@ -4170,9 +4170,15 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
 
+        //Get the flat fee Entry list
+        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+        ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+        ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->get();
         
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
         /* $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
             $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
@@ -4213,6 +4219,12 @@ class BillingController extends BaseController
         $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
         $firmData=Firm::find($userData['firm_name']);
 
+        //Get the flat fee Entry list
+        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+        ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+        ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+        ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+        ->get();
 
         $TimeEntryForInvoice = TimeEntryForInvoice::join("task_time_entry",'task_time_entry.id',"=","time_entry_for_invoice.time_entry_id")->leftJoin("users","task_time_entry.user_id","=","users.id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select('users.*','task_time_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")->where("time_entry_for_invoice.invoice_id",$invoice_id)->get();
 
@@ -4226,7 +4238,7 @@ class BillingController extends BaseController
         ->where("invoice_installment.invoice_id",$invoice_id)
         ->get();
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment','FlatFeeEntryForInvoice'));
         $pdf = new Pdf;
         $pdf->setOptions(['javascript-delay' => 5000]);
         if($_SERVER['SERVER_NAME']=='localhost'){
