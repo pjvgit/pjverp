@@ -107,8 +107,6 @@
     <script src="{{asset('public/assets/js/select2.min.js')}}"></script>
     <script src="{{asset('public/assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <script src="{{asset('public/assets/js/timer.jquery.min.js')}}" type="text/javascript"></script> 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
-    <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
 
     @yield('page-js')
 

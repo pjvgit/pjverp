@@ -53,12 +53,13 @@
                 <i class="fas fa-comment-alt list-row__icon"></i>
                 <span>Comments (0)</span>
             </div>
-            <ul class="detail-view__replies"></ul>
+            <div id="event_comment_history">
+            </div>
             <div class="comment">
                 <div>
                     <form method="POST" action="javascript:void(0);" data-action="{{ route('client/events/save/comment') }}" id="event_comment_form">
                         @csrf
-                        <input type="text" name="event_id" value="{{ $event->id }}" >
+                        <input type="hidden" name="event_id" value="{{ $event->id }}" id="event_id">
                         <div class="form-input is-required">
                             <textarea id="event_comment" name="message" class="form-control text-composer__textarea required" rows="2" placeholder="Add Comment"></textarea>
                         </div>
@@ -73,27 +74,32 @@
 
 @section('page-js')
 <script>
+$(document).ready(function() {
+    loadCommentHistory();
+});
+
+
 $("#event_comment_form").validate({
 	rules: {
 		"message": {
 			required: true,      
 		},
 	},
-	submitHandler: function(form) {  
-		var url = $("#event_comment_form").attr('data-action');  
-		$('.error').text(''); 
+	submitHandler: function() {  
+		var url = $("#event_comment_form").attr('data-action'); 
         var formData = new FormData($("#event_comment_form")[0]);
 		$.ajax({
 			url: url,
 			type: "POST",
-			data: formData,
+			data: $("#event_comment_form").serialize(),
 			success: function( response ) {
 				if(response.success) {
-					swal({
-						title: response.message,
-						text: "",
-						type: response.icon,
-					});
+                    $("#event_comment").val('');
+                    toastr.success(response.message, "", {
+                        positionClass: "toast-top-full-width",
+                        containerId: "toast-top-full-width"
+                    });
+					loadCommentHistory();
 				}
 			},
 			error: function(response) {
@@ -107,5 +113,17 @@ $("#event_comment_form").validate({
 		return false;
 	}
 });
+
+function loadCommentHistory() {
+    var eventId = $("#event_id").val();
+    $.ajax({
+        url: baseUrl+"/client/events/comment/history",
+        type: "GET",
+        data: {event_id: eventId},
+        success: function( response ) {
+            $("#event_comment_history").html(response);
+        },
+    });
+}
 </script>
 @endsection

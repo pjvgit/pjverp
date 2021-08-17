@@ -15,6 +15,8 @@ class CaseEventComment extends Model
         'id', 'event_id', 'comment','created_by', 'created_at'
     ];
 
+    protected $appends = ['comment_added_at'];
+
     /**
      * Get the createdByUser that owns the CaseEventComment
      *
@@ -23,5 +25,12 @@ class CaseEventComment extends Model
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get comment added date time
+     */
+    public function getCommentAddedAtAttribute() {
+        return convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
     }
 }

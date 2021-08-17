@@ -59,7 +59,7 @@
                         $content = str_replace('[USER_NAME]', $user->full_name, $template->content);
                         $content = str_replace('[CREATED_BY_USER_NAME]', @$commentAddedUser->full_name, $content);
                         $content = str_replace('[EVENT_NAME]', $event->event_title, $content);
-                        $content = str_replace('[CREATED_BY_USER_LEVEL]', @$commentAddedUser->user_level, $content);
+                        $content = str_replace('[CREATED_BY_USER_LEVEL]', @$commentAddedUser->user_type_text, $content);
                         $content = str_replace('[CLIENT_PORTAL_URL]', config('app.url'), $content);
                         $content = str_replace('[TABLE_BG_IMAGE_URL]', asset('images/mail/table_bg.jpg'), $content);
                         $content = str_replace('[TABLE_BANNER_IMAGE_URL]', asset('images/mail/table_banner.jpg'), $content);

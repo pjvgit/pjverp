@@ -1,7 +1,7 @@
     <div class="main-header">
         <div class="logo">
             <a href="{{BASE_URL}}dashboard">
-            <img src="{{asset('assets/images/logo.png')}}" alt="">
+            <img src="{{ @firmDetail(auth()->user()->firm_name)->firm_logo_url }}" alt="">
             </a>
         </div>
         <div class="d-flex align-items-center">

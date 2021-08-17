@@ -86,11 +86,11 @@
         <tbody>
             @if(!empty($creditHistory) && count($creditHistory))
             <tr>
-                <td style="padding:5px;">{{ date('m/d/Y') }}</td>
+                <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : date('m/d/Y') }}</td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
-                <td style="padding:5px;text-align: right;">${{ ($initialBalance) ? number_format($initialBalance->total_balance) : 0.00 }}</td>
+                <td style="padding:5px;text-align: right;">${{ ($initialBalance) ? number_format($initialBalance->total_balance) : "0.00" }}</td>
             </tr>
             @endif
             

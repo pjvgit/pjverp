@@ -199,7 +199,7 @@ function convertDateToUTCzone($timestamp,$timezone){
 function userTypeList()
 {
     return [
-        "1"=>"Attorney","2"=>"Paralegal","3"=>"Staff"
+        "1" => "Attorney", "2" => "Paralegal", "3" => "Staff", "4" => "None", "5" => "Lead"
     ];
 }
 

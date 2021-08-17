@@ -493,7 +493,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 if(file_exists($filePath) && $firmData->firm_logo != NULL){
                                                     ?>
                                                 <span id="imageArea">
-                                                    <img style="width:50px;height:50px;" src="{{BASE_URL}}/upload/firm/{{$firmData->firm_logo}}">
+                                                    <img style="width:50px;height:50px;" src="{{ $firmData->firm_logo_url }}">
                                                     <br>
                                                     <a href="javascript:void(0);" id="updateImage" onclick="updateImage()">Update</a> &nbsp;
                                                     <a href="javascript:void(0);" id="removeImage" onclick="removeImage()">Remove</a>

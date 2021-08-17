@@ -1,7 +1,7 @@
 <div class="main-header">
     <div class="logo">
         <a href="{{BASE_URL}}dashboard">
-        <img src="{{asset('assets/images/logo.png')}}" alt="">
+        <img src="{{ @firmDetail(auth()->user()->firm_name)->firm_logo_url }}" alt="">
         </a>
     </div>
 
@@ -55,7 +55,7 @@
                         <a class="nav-link" href="#"><span class="nav-item__label">Documents</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><span class="nav-item__label">Events</span></a>
+                        <a class="nav-link" href="{{ route('client/events') }}"><span class="nav-item__label">Events</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><span class="nav-item__label">Tasks</span></a>

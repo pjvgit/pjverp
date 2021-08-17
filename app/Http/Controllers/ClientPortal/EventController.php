@@ -50,7 +50,7 @@ class EventController extends Controller
 
         dispatch(new CommentEmail($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
 
-        return response()->json(['errors'=>'', 'message' => "Comment added"]);
+        return response()->json(['success'=> true, 'message' => "Comment added"]);
     }
 
     /**
@@ -58,22 +58,7 @@ class EventController extends Controller
      */
     public function eventCommentHistory(Request $request)
     {
-        $evnt_id=$request->event_id;
-        $evetData=CaseEvent::find($evnt_id);
-
-        
-        //Event created By user name
-        $eventCreatedBy = '';
-        if(!empty($evetData) && $evetData->created_by != NULL){
-            $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
-        }
-         
-
-        //Event comment data
-        $commentData = CaseEventComment::join('users','users.id','=','case_event_comment.created_by')
-        ->select("users.id","users.first_name","users.last_name","case_event_comment.comment","user_type","case_event_comment.created_at","case_event_comment.action_type")->where("case_event_comment.event_id",$evnt_id)->orderBy('case_event_comment.created_at','DESC')->get();
-            
-        return view('case.event.loadEventHistory',compact('evetData','eventCreatedBy','updatedEvenByUserData','commentData'));     
-        exit;    
+        $commentData = CaseEventComment::where("event_id", $request->event_id)->orderBy('created_at')->with("createdByUser")->get();
+        return view('client_portal.events.load_comment_history',compact('commentData'));
     }  
 }

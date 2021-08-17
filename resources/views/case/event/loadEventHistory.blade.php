@@ -18,7 +18,8 @@ $userTypes = unserialize(USER_TYPE);
                     <a class=""
                         href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->created_by)}}">{{substr($value->first_name,0,15)}}
                         {{substr($value->last_name,0,15)}}
-                        ({{$userTypes[$value->user_type]}})
+                        {{-- ({{$userTypes[$value->user_type]}}) --}}
+                        ({{ userTypeList()[$value->user_type] }})
                     </a>
                 </span>
             </div>
@@ -42,7 +43,8 @@ $userTypes = unserialize(USER_TYPE);
                 <a class=""
                     href="{{ route('contacts/attorneys/info', base64_encode($value->id)) }}">{{substr($value->first_name,0,15)}}
                     {{substr($value->last_name,0,15)}}
-                    ({{$userTypes[$value->user_type]}})
+                    {{-- ({{$userTypes[$value->user_type]}}) --}}
+                    ({{ userTypeList()[$value->user_type] }})
                 </a> commented</p>
             <div class="comment-message">
                 <?php print $value->comment; ?>
@@ -75,7 +77,8 @@ $userTypes = unserialize(USER_TYPE);
             <a class=""
                 href="{{ route('contacts/attorneys/info', base64_encode($eventCreatedBy->id)) }}">{{substr($eventCreatedBy->first_name,0,15)}}
                 {{substr($eventCreatedBy->last_name,0,15)}}
-                ({{$userTypes[$eventCreatedBy->user_type]}})
+                {{-- ({{$userTypes[$eventCreatedBy->user_type]}}) --}}
+                ({{ userTypeList()[$value->user_type] }})
             </a>
         </span>
     </div>
