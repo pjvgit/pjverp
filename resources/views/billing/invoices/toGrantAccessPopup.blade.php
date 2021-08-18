@@ -1,8 +1,8 @@
 <form class="grantAccessModalForm" id="grantAccessModalForm" name="grantAccessModalForm" method="POST">
     @csrf
-    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id">
+    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id"  id="client_id">
 
-    <div class="row">
+    <div class="row" bladefile="resources/views/billing/invoices/toGrantAccessPopup.blade.php">
         <div class="col-md-12" id="confirmAccess">
             <div>
                 In order to share this invoice, {{ucfirst($UsersAdditionalInfo['first_name'])}}
@@ -57,6 +57,7 @@
                 afterLoader();
                 return false;
             }
+            var clientID = $("#client_id").val();
             var dataString = '';
             dataString = $("#grantAccessModalForm").serialize();
             $.ajax({
@@ -81,11 +82,12 @@
                         afterLoader();
                         return false;
                     } else {
+                        afterLoader();
                         $('#grantAccessModal').modal("hide");
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).prop('checked', true);
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).attr('pe', 1);
-                        reloadRow({{$UsersAdditionalInfo['user_id']}});
-
+                        $("#portalAccess_"+clientID).prop('checked', true);
+                        $("#portalAccess_"+clientID).attr('pe', 1);
+                        reloadRow(clientID);
+                        
                         // window.location.reload();
                     }
                 },

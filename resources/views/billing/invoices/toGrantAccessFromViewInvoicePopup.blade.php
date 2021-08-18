@@ -1,6 +1,6 @@
 <form class="grantAccessModalForm" id="grantAccessModalForm" name="grantAccessModalForm" method="POST">
     @csrf
-    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id">
+    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id" id="client_id">
 
     <div class="row">
         <div class="col-md-12" id="confirmAccess">
@@ -59,6 +59,7 @@
             }
             var dataString = '';
             dataString = $("#grantAccessModalForm").serialize();
+            var clientID = $("#client_id").val();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/bills/invoices/graantAccess", // json datasource
@@ -81,10 +82,11 @@
                         afterLoader();
                         return false;
                     } else {
+                        afterLoader();
                         $('#grantAccessModal').modal("hide");
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).prop('checked', true);
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).attr('pe', 1);
-                        reloadRow({{$UsersAdditionalInfo['user_id']}});
+                        $("#portalAccess_"+clientID).prop('checked', true);
+                        $("#portalAccess_"+clientID).attr('pe', 1);
+                        reloadRow(clientID);
 
                     }
                 },

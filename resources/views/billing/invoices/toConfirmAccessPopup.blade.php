@@ -1,6 +1,6 @@
 <form class="ConfirmAccessFormPopup" id="ConfirmAccessFormPopup" name="ConfirmAccessFormPopup" method="POST">
     @csrf
-    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id">
+    <input type="hidden" value="{{$UsersAdditionalInfo['user_id']}}" name="client_id" id="client_id">
     <div class="row">
         <div class="col-md-12" id="confirmAccess">
             <div>
@@ -31,6 +31,7 @@
             beforeLoader();
             e.preventDefault();
             var dataString = $("#ConfirmAccessFormPopup").serialize();
+            var clientID = $("#client_id").val();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/bills/invoices/changeAccess", // json datasource
@@ -51,9 +52,9 @@
                         return false;
                     } else {
                         $('#grantAccessModal').modal("hide");
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).prop('checked', true);
-                        $("#portalAccess_"+{{$UsersAdditionalInfo['user_id']}}).attr('pe', 1);
-                        reloadRow({{$UsersAdditionalInfo['user_id']}});
+                        $("#portalAccess_"+clientID).prop('checked', true);
+                        $("#portalAccess_"+clientID).attr('pe', 1);
+                        reloadRow(clientID);
                     }
                 },
                 error: function (xhr, status, error) {
