@@ -3182,7 +3182,6 @@ class BillingController extends BaseController
             $InvoiceSave->due_amount=$request->final_total_text;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
             $InvoiceSave->notes=$request->bill['bill_notes'];
-            $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->created_by=Auth::User()->id; 
             $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;
@@ -3270,6 +3269,7 @@ class BillingController extends BaseController
             if(!empty($request->portalAccess)){
                 SharedInvoice::where("invoice_id",$InvoiceSave->id)->delete();
                 $InvoiceSave->status="Sent";
+                $InvoiceSave->bill_sent_status="Sent";
                 $InvoiceSave->save();
                 foreach($request->portalAccess as $k=>$v){
                     $SharedInvoice=new SharedInvoice;
@@ -4302,6 +4302,7 @@ class BillingController extends BaseController
             $FindInvoice=Invoices::find($request->invoice_id);
             if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
                 $FindInvoice->status="Sent";
+                $FindInvoice->bill_sent_status="Sent";
                 $FindInvoice->save();
             }
             if($FindInvoice) {
@@ -4338,7 +4339,22 @@ class BillingController extends BaseController
                 ];
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
-                $sendEmail = $this->sendMailWithAttachment($user,$files);
+                // $sendEmail = $this->sendMailWithAttachment($user,$files);
+                
+                $invoiceHistory=[];
+                $invoiceHistory['invoice_id']=$invoice_id;
+                $invoiceHistory['acrtivity_title']='Emailed Invoice';
+                $invoiceHistory['pay_method']=NULL;
+                $invoiceHistory['amount']=NULL;
+                $invoiceHistory['responsible_user']=Auth::User()->id;
+                $invoiceHistory['deposit_into']=NULL;
+                $invoiceHistory['deposit_into_id']=NULL;
+                $invoiceHistory['invoice_payment_id']=NULL;
+                $invoiceHistory['notes']="To ". $fullName." (Client)";
+                $invoiceHistory['status']="1";
+                $invoiceHistory['created_by']=Auth::User()->id;
+                $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                $this->invoiceHistory($invoiceHistory);
             }
             session(['popup_success' => 'Reminders have been sent']);
             return response()->json(['errors'=>'']);
@@ -4523,7 +4539,7 @@ class BillingController extends BaseController
             $oldStatus = $InvoiceSave->bill_sent_status;
             $newStatus = $request->bill_sent_status;
             $this->updateInvoiceBatchCount($request->invoice_id, $oldStatus, $newStatus);
-            $InvoiceSave->status = $request->bill_sent_status;
+            $InvoiceSave->bill_sent_status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
@@ -5912,7 +5928,7 @@ class BillingController extends BaseController
                     $msg="Thank you. Your payment of $".number_format($finalAmt,2)." has been sent to ".$firmData['firm_name']." ";
                     // all good
 
-
+                    dd('5915');
                     $invoiceHistory=[];
                     $invoiceHistory['invoice_id']=$invoice_id;
                     $invoiceHistory['acrtivity_title']='Payment Received';
@@ -6809,9 +6825,11 @@ class BillingController extends BaseController
                 $InvoiceSave->payment_plan_enabled="no";
                 if(isset($request->batch['draft'])){
                     $InvoiceSave->status='Draft';
+                    $InvoiceSave->bill_sent_status='Draft';
                     $totalDraft++;
                 }else{
                     $InvoiceSave->status='Unsent';
+                    $InvoiceSave->bill_sent_status='Unsent';
                     $totalUnsent++;
                 }
                 $InvoiceSave->notes=($request->bill['notes'])??'';

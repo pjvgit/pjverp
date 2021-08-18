@@ -70,6 +70,8 @@
                                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Refund Notes</a>';
                                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                                             $notes=$value->notes;
+                                        }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
+                                            $notes=$value->notes;
                                         }else{
                                             $notes="<i class='table-cell-placeholder'></i>";
                                         }  
@@ -200,6 +202,8 @@
                                             $notes=$value->notes;
                                         } else if($value->acrtivity_title=="Emailed Invoice"){
                                             $notes=$value->entered_by.' <br><a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message" data-content="'.$value->lead_message.'" data-original-title="Dismissible popover">View Message</a>';
+                                        }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
+                                            $notes=$value->notes;
                                         }else{
                                             $notes="<i class='table-cell-placeholder'></i>";
                                         }  
