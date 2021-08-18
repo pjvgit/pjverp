@@ -1909,7 +1909,7 @@ class CaseController extends BaseController
         $CaseStage = new CaseStage;
         $CaseStage->stage_order=$stage_order; 
         $CaseStage->title=substr($request->stage_name,0,255); 
-        $CaseStage->stage_color='#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        $CaseStage->stage_color=$request->stage_color;
         $CaseStage->created_by=Auth::user()->id; 
         $CaseStage->save();
         // session(['popup_success' => 'New stage name has been added.']);
@@ -1944,7 +1944,8 @@ class CaseController extends BaseController
     public function saveEditCaseStage(Request $request)
     {
         $CaseStage = CaseStage::find($request->id);
-        $CaseStage->title=substr($request->stage_name,0,255); 
+        $CaseStage->title=substr($request->stage_name,0,255);
+        $CaseStage->stage_color=$request->stage_color; 
         $CaseStage->save();
         // session(['popup_success' => 'Stage name has been updated.']);
         return response()->json(['errors'=>''   ]);

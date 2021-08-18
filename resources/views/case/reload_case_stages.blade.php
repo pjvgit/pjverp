@@ -2,7 +2,7 @@
     <?php 
     foreach($caseStage as $key=>$val){?>
     <li id="item-{{$val->id}}" class="mb-2 list-group-item">
-        <i class="fa fa-bars mr-2" style="cursor: grab;" aria-hidden="true"></i> {{$key+1}} . {{$val->title}}
+        <i class="fa fa-bars mr-2" style="cursor: grab;" aria-hidden="true"></i> {{$key+1}} . {{$val->title}} <button class="btn btn-xs" style="cursor:pointer;background-color:{{$val->stage_color}}"></button>
         <a data-toggle="modal" class="float-right " href="javascript:;" title="Edit"
             onclick="deleteStage({{$val->id}});"> <i class="nav-icon i-Remove font-weight-bold"></i></a> <a
             data-toggle="modal" title="Delete" class="float-right pr-3" data-target="#EditCaseStageModel"
@@ -11,7 +11,6 @@
     </li>
     <?php } ?>
 </ul>
-
 <script type="text/javascript">
     $(document).ready(function () {
         // $("#list-group").sortable();
