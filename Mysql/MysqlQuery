@@ -1,3 +1,7 @@
+------------------------------------ 18-AUG-2021 ------------------------------
+ALTER TABLE `case_event_linked_staff` ADD `comment_read_at` TIMESTAMP NULL AFTER `is_linked`;
+ALTER TABLE `case_event_linked_staff` CHANGE `comment_read_at` `comment_read_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+
 ------------------------------------ 16-AUG-2021 ------------------------------
 ALTER TABLE `client_cases_import_history`
 CHANGE `case_open_date` `case_open_date` varchar(55) COLLATE 'utf8mb4_general_ci' NULL AFTER `case_number`,

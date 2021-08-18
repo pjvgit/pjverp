@@ -103,7 +103,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 </div>
                             </td>
                             <td class="c-pointer">
-                                <?php 
+                                {{-- <?php 
                                 if($vv->etext!=''){
                                    ?>
                                 <div class="d-flex align-items-center mt-3">
@@ -115,35 +115,19 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 </div><?php 
                                 }else{?>
                                 <i class="table-cell-placeholder mt-3"></i>
-                                <?php } ?>
+                                <?php } ?> --}}
+                                
+                                @if($vv->eventType)
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="mr-1"
+                                        style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$vv->eventType->color_code }}">
+                                    </div><span>{{ $vv->eventType->title }}</span>
+                                </div>
+                                @else
+                                <i class="table-cell-placeholder mt-3"></i>
+                                @endif
                             </td>
                             <td class="event-users">
-
-                                {{-- <?php
-                                if(!$vv->caseuser->isEmpty()){
-                                    if(count($vv->caseuser)>1){
-                                        $userListHtml="";
-                                        foreach($vv->caseuser as $linkuserValue){
-                                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.$linkuserValue->decode_user_id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
-                                        }
-                                    ?>
-                                <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
-                                    data-content="{{$userListHtml}}" data-html="true" data-original-title="Staff"
-                                    style="float:left;">{{count($vv->caseuser)}} People</a>
-                                <?php 
-                                    }else{
-                                        ?>
-                                <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="{{BASE_URL}}/contacts/attorneys/{{$vv->caseuser[0]->decode_user_id}}">{{substr($vv->caseuser[0]->first_name,0,15)}}
-                                    {{substr($vv->caseuser[0]->last_name,0,15)}}</a>
-                                <?php
-                                    }
-                                }else{ 
-                                    ?> <i class="table-cell-placeholder mt-3"></i>
-                                <?php
-                                }
-                                ?> --}}
                                 @if(!empty($vv->eventLinkedStaff))
                                     @if(count($vv->eventLinkedStaff) > 1)
                                         @php

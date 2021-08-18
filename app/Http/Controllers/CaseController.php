@@ -924,7 +924,9 @@ class CaseController extends BaseController
                     $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
                     //Get all event by 
-                    $allEvents = CaseEvent::select("*")->where("case_id",$case_id)->where("start_date",">=",date('Y-m-d'))->orderBy('start_date','ASC')->orderBy('start_time','ASC')->get()
+                    $allEvents = CaseEvent::select("*")->where("case_id",$case_id)->where("start_date",">=",date('Y-m-d'))->orderBy('start_date','ASC')->orderBy('start_time','ASC')
+                    ->with("eventLinkedStaff", "eventType")
+                    ->get()
                     ->groupBy(function($val) {
                         return Carbon::parse($val->start_date)->format('Y');
                     });
@@ -7018,7 +7020,7 @@ class CaseController extends BaseController
        {
         $CaseMasterData=[];
         $evnt_id=$request->evnt_id;
-        $evetData=CaseEvent::find($evnt_id);
+        $evetData = CaseEvent::whereId($evnt_id)->with('eventType', 'eventLocation')->first();
         $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
         $eventLocation='';
         if($evetData->event_location_id!="0"){
@@ -7047,38 +7049,32 @@ class CaseController extends BaseController
       }
 
 
-      public function loadCommentHistory(Request $request)
-      {
+    public function loadCommentHistory(Request $request)
+    {
         $evnt_id=$request->event_id;
         $evetData=CaseEvent::find($evnt_id);
-
         
         //Event created By user name
         $eventCreatedBy = '';
         if(!empty($evetData) && $evetData->created_by != NULL){
             $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
-        }
-       
-        $updatedEvenByUserData ='';
-        // if($evetData->updated_by!=NULL){
-        //     //Event updated By user name
-        //     $updatedEvenByUserData = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->updated_by)->first();
-        // }
+        }       
 
-         //Event updated data
-        //  $updatedEvenByUserData = CaseEventComment::join('users','users.id','=','case_event_comment.created_by')
-        //  ->select("users.id","users.first_name","users.last_name","case_event_comment.comment","user_type","case_event_comment.created_at")
-        //  ->where("case_event_comment.event_id",$evnt_id)->where("case_event_comment.action_type","1")->orderBy('case_event_comment.created_at','DESC')->get();
+        $linkStaffPivot = $evetData->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
+        if($linkStaffPivot) {
+            $linkStaffPivot->pivot->comment_read_at = Carbon::now();
+            $linkStaffPivot->pivot->save();
+        }
             
-         
+        $commentData = CaseEventComment::where("event_id", $evnt_id)->orderBy('created_at', 'desc')->with("createdByUser")->get();
 
         //Event comment data
-        $commentData = CaseEventComment::join('users','users.id','=','case_event_comment.created_by')
-        ->select("users.id","users.first_name","users.last_name","case_event_comment.comment","user_type","case_event_comment.created_at","case_event_comment.action_type")->where("case_event_comment.event_id",$evnt_id)->orderBy('case_event_comment.created_at','DESC')->get();
+        // $commentData = CaseEventComment::join('users','users.id','=','case_event_comment.created_by')
+        // ->select("users.id","users.first_name","users.last_name","case_event_comment.comment","user_type","case_event_comment.created_at","case_event_comment.action_type")->where("case_event_comment.event_id",$evnt_id)->orderBy('case_event_comment.created_at','DESC')->get();
             
-        return view('case.event.loadEventHistory',compact('evetData','eventCreatedBy','updatedEvenByUserData','commentData'));     
+        return view('case.event.loadEventHistory',compact('evetData','eventCreatedBy','commentData'));     
         exit;    
-     }
+    }
       public function loadCaseLinkedStaff(Request $request)
       {
           $from=$request->from;
@@ -7132,6 +7128,8 @@ class CaseController extends BaseController
     }
     public function saveLinkedStaffToEvent($request,$event_id)
     {
+        $oldRecord = CaseEventLinkedStaff::where("event_id", $event_id)->where("created_by", Auth::user()->id)->where("is_linked","yes")->first();
+        $lastCommentReadAt = $oldRecord->comment_read_at ?? Carbon::now();
         CaseEventLinkedStaff::where("event_id", $event_id)->where("created_by", Auth::user()->id)->where("is_linked","yes")->forceDelete();
         if(isset($request['linked_staff_checked_share'])){
             $alreadyAdded=[];
@@ -7150,6 +7148,7 @@ class CaseController extends BaseController
                 // }
                 $CaseEventLinkedStaff->is_linked='yes';
                 $CaseEventLinkedStaff->attending=$attend;
+                $CaseEventLinkedStaff->comment_read_at = $lastCommentReadAt;
                 $CaseEventLinkedStaff->created_by=Auth::user()->id; 
                 if(!in_array($request['linked_staff_checked_share'][$i],$alreadyAdded)){
                     $CaseEventLinkedStaff->save();

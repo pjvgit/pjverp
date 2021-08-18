@@ -21,7 +21,7 @@ class CaseEvent extends Authenticatable
         'daily_weekname', 'no_end_date_checkbox', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'end_on', 'event_read', 
         'firm_id', 'created_by', 'updated_by',
     ];    
-    protected $appends  = ['caseuser','etext','decode_id','start_time_user','st','et','start_date_time','end_date_time']; //colorcode
+    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','st','et','start_date_time','end_date_time']; //colorcode
 
 
     public function getEventTyspeTexttAttribute(){
@@ -31,7 +31,7 @@ class CaseEvent extends Authenticatable
          
         return base64_encode($this->id);
     }  
-    public function getEtextAttribute(){
+    /* public function getEtextAttribute(){
         // return "";
         if($this->event_type!=''){
             $typeEventText =  EventType::select('title','color_code');
@@ -42,8 +42,8 @@ class CaseEvent extends Authenticatable
         }else{
             return "";
         }
-    } 
-    public function getCaseuserAttribute(){
+    }  */
+    // public function getCaseuserAttribute(){
      
         /* $ContractUserCase =  CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.id as user_id","users.user_type")
         ->where('case_event_linked_staff.event_id',$this->id)  
@@ -54,8 +54,8 @@ class CaseEvent extends Authenticatable
             }
         }
         return $ContractUserCase; */
-        return $this->eventLinkedStaff()->take(1)->get(); 
-    }
+        // return $this->eventLinkedStaff()->take(1)->get(); 
+    // }
     public function getStartTimeUserAttribute(){
         // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone;
@@ -146,7 +146,7 @@ class CaseEvent extends Authenticatable
      */
     public function eventLinkedStaff()
     {
-        return $this->belongsToMany(User::class, 'case_event_linked_staff', 'event_id', 'user_id')->withPivot("attending")->wherePivot("deleted_at", Null);
+        return $this->belongsToMany(User::class, 'case_event_linked_staff', 'event_id', 'user_id')->withPivot("attending", "comment_read_at")->wherePivot("deleted_at", Null);
     }
 
     /**
@@ -238,5 +238,15 @@ class CaseEvent extends Authenticatable
     public function clientReminder()
     {
         return $this->hasMany(CaseEventReminder::class, 'event_id')->where('reminder_user_type', 'client-lead');
+    }
+
+    /**
+     * Get all of the eventComments for the CaseEvent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function eventComments()
+    {
+        return $this->hasMany(CaseEventComment::class, 'event_id')->where("action_type", 0);
     }
 }

@@ -4523,7 +4523,7 @@ class BillingController extends BaseController
             $oldStatus = $InvoiceSave->bill_sent_status;
             $newStatus = $request->bill_sent_status;
             $this->updateInvoiceBatchCount($request->invoice_id, $oldStatus, $newStatus);
-            $InvoiceSave->status = $request->bill_sent_status;
+            $InvoiceSave->bill_sent_status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;

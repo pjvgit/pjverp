@@ -16,10 +16,10 @@ $userTypes = unserialize(USER_TYPE);
             <div class="history-info col-8">
                 <span>Event updated by
                     <a class=""
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->created_by)}}">{{substr($value->first_name,0,15)}}
-                        {{substr($value->last_name,0,15)}}
+                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->created_by)}}">
+                        {{ @$value->createdByUser->full_name }}
                         {{-- ({{$userTypes[$value->user_type]}}) --}}
-                        ({{ userTypeList()[$value->user_type] }})
+                        ({{ @$value->createdByUser->user_type_text }})
                     </a>
                 </span>
             </div>
@@ -41,12 +41,12 @@ $userTypes = unserialize(USER_TYPE);
         <div class="flex-grow-1">
             <p class="comment-user-link mt-1">
                 <a class=""
-                    href="{{ route('contacts/attorneys/info', base64_encode($value->id)) }}">{{substr($value->first_name,0,15)}}
-                    {{substr($value->last_name,0,15)}}
+                    href="{{ route('contacts/attorneys/info', base64_encode($value->id)) }}">
+                    {{ @$value->createdByUser->full_name }}
                     {{-- ({{$userTypes[$value->user_type]}}) --}}
-                    ({{ userTypeList()[$value->user_type] }})
+                    ({{ @$value->createdByUser->user_type_text }})
                 </a> commented</p>
-            <div class="comment-message">
+            <div class="comment-message mb-3">
                 <?php print $value->comment; ?>
 
             </div>
@@ -78,7 +78,7 @@ $userTypes = unserialize(USER_TYPE);
                 href="{{ route('contacts/attorneys/info', base64_encode($eventCreatedBy->id)) }}">{{substr($eventCreatedBy->first_name,0,15)}}
                 {{substr($eventCreatedBy->last_name,0,15)}}
                 {{-- ({{$userTypes[$eventCreatedBy->user_type]}}) --}}
-                ({{ userTypeList()[$value->user_type] }})
+                ({{ @userTypeList()[$value->user_type] }})
             </a>
         </span>
     </div>

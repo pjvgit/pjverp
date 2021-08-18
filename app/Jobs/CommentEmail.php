@@ -50,7 +50,9 @@ class CommentEmail implements ShouldQueue
         $caseEventComment = CaseEventComment::whereId($this->CaseEventComment)->with("createdByUser")->first();
         $caseEvent = CaseEvent::whereId($this->event_id)->with(["eventLinkedStaff" => function($query) use($caseEventComment) {
                         $query->wherePivot("user_id", "!=", $caseEventComment->created_by);
-                    }, "eventLinkedContact", "eventLinkedLead"])->first();
+                    }, "eventLinkedContact" => function($query) use($caseEventComment) {
+                        $query->wherePivot("contact_id", "!=", $caseEventComment->created_by)->orWherePivot("lead_id", "!=", $caseEventComment->created_by);
+                    }, "eventLinkedLead"])->first();
         if($caseEvent) {
             if($caseEvent->eventLinkedStaff) {
                 Log::info("event linked staff");
