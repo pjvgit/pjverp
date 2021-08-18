@@ -779,7 +779,9 @@
                 </td>
                 <td style="text-align: right; border-right: none; vertical-align: top; width: 140px; line-height: 1.8;"
                     rowspan="1">
+                    <?php if(!$FlatFeeEntryForInvoice->isEmpty()){?>
                     Flat Fee Sub-Total:<br>
+                    <?php } ?>
                     Time Entry Sub-Total:<br>
                     Expense Sub-Total:<br>
                     <span style="font-weight: bold;">Sub-Total:</span><br>
@@ -803,8 +805,9 @@
                 </td>
                 <td style="text-align: right; border-left: none; vertical-align: top; width: 85px; line-height: 1.8;"
                     rowspan="1">
-                    
+                    <?php if(!$FlatFeeEntryForInvoice->isEmpty()){?>
                     ${{number_format($flatFeeEntryAmount,2)}}<br>
+                    <?php } ?>
                     ${{number_format($timeEntryAmount,2)}}<br>
                     ${{number_format($expenseAmount,2)}}<br>
                     ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount,2)}}<br>

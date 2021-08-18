@@ -35,9 +35,6 @@
                                 data-target="#shareInvoicePopup" data-placement="bottom" href="javascript:;"
                                 onclick="shareInvoice({{$findInvoice->id}})">Share via Portal
                             </a>
-
-
-
                         </div>
                         @if($findInvoice->status != "Forwarded")
                         <?php
@@ -76,7 +73,6 @@
                         </a>
                         @endif
                     </div>
-
                 </div>
             </div>
             <div id="history_page" class="history-page">
@@ -99,8 +95,6 @@
                 </div>
                 <?php } ?>
                 <br>
-
-
             </div>
             @if (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['invoice_theme'] == "modern")
             <div class="invoice-modern-theme">
@@ -133,16 +127,13 @@
                             @include('billing.invoices.partials.load_invoice_payment_history')
                             </div>
                         </div>
-                        @endif
-
-                        
+                        @endif                        
                         @if(!empty($invoiceSetting) && @$invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" && !empty($findInvoice->applyTrustCreditFund))
                         <div style="padding: 20px;" id="invoice_account_summary">
                             @include('billing.invoices.partials.load_invoice_account_summary')
                         </div>
                         @endif
-                    </div>
-                
+                    </div>                
                 </div>
             </div>
             @endif
@@ -353,10 +344,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </form>
     </div>
 </div>
-
-
-
-
 <div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
@@ -374,7 +361,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-
 <link rel="stylesheet" href="{{asset('public/assets/styles/css/invoice_show.css')}}" />
 <style>
     
@@ -458,8 +444,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </style>
 @section('page-js-inner')
 <script type="text/javascript">
-    $(document).ready(function () {
-       
+    $(document).ready(function () {       
         $('[data-toggle="tooltip"]').tooltip();
 
         $(".show-history-btn").click(function () {
@@ -475,7 +460,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $(".show-history-btn").show();
             $(".single-bill-invoice-history").show();
         });
-
 
         $(".single-bill-invoice-history").show();
         $(".bill-invoice-history").hide();
@@ -721,7 +705,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-
 
     function printPDF(id) {
         $("#preloader").show();

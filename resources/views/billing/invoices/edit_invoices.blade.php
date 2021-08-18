@@ -250,6 +250,8 @@
                                 @endif
                             </h2>
                         </div>
+                        <?php $flateFeeTotal=0;
+                        if(!$FlatFeeEntryForInvoice->isEmpty()){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -322,9 +324,7 @@
                                         </td>
                                     </tr>
                                 <?php } ?>
-                                <?php 
-                                $flateFeeTotal=0;
-                                foreach($FlatFeeEntryForInvoice as $k=>$v){
+                                <?php  foreach($FlatFeeEntryForInvoice as $k=>$v){
                                     $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
@@ -409,7 +409,7 @@
                             </tbody>
                         </table>
                         <br>
-
+                        <?php } ?>
 
                         <div class="invoice_entry_header">
                             <table>
@@ -1116,11 +1116,12 @@
                                             <!-- This hidden span holds the case subtotal and updated via the recalculate_table function -->
                                             <!-- the value is used to calculate & display the final sub-total and total for the bill -->
                                             <span id="bill-subtotal-amount" style="display: none;">0.00</span>
-
+                                            <?php if(!$FlatFeeEntryForInvoice->isEmpty()){ ?>
                                             <div id="flat_fee_total_label" class="flat-fee-totals"
                                                 style="border: none; padding-bottom: 7px; ">
                                                 Flat Fee Sub-Total:
                                             </div>
+                                            <?php } ?>
                                             <div id="time_entry_total_label" class="time-entries-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Time Entry Sub-Total:
@@ -1136,10 +1137,12 @@
                                     </td>
                                     <td style="text-align: right; width: 105px;">
                                         <div class="locked" style="padding-bottom: 15px;">
+                                            <?php if(!$FlatFeeEntryForInvoice->isEmpty()){ ?>
                                             <div id="flat_fee_bottom_total" class="flat-fee-totals"
                                                 style="border: none; padding-bottom: 7px; ">
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
+                                            <?php } ?>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
                                                     class="time_entry_total_amount">{{number_format($timeEntryAmount,2)}}</span>

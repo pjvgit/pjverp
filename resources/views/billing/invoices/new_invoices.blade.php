@@ -244,6 +244,7 @@ if(!isset($adjustment_token)){
                                 @endif
                             </h2>
                         </div>
+                        <?php if(!$FlatFeeEntry->isEmpty()){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -251,13 +252,11 @@ if(!isset($adjustment_token)){
                                         <h3 class="entry-header">Flat Fees</h3>
                                     </td>
                                     <td width="1%">
-                                    <?php if(!$FlatFeeEntry->isEmpty()){?>
                                         <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
                                             <a data-toggle="modal" data-target="#removeAlllExistingFlatFeeEntry"
                                                 data-placement="bottom" href="javascript:;"> <i
                                                     class="fas fa-trash align-middle pr-2"></i></a>
                                         </span>
-                                        <?php  } ?>
                                     </td>
                                 </tr>
                             </table>
@@ -406,6 +405,7 @@ if(!isset($adjustment_token)){
                             </tbody>
                         </table>
                         <br>
+                        <?php  } ?>
                         <!-- start -->
                         <?php if($case_id != 'none') { ?>
                         <div class="invoice_entry_header">
@@ -1141,11 +1141,12 @@ if(!isset($adjustment_token)){
                                             <!-- This hidden span holds the case subtotal and updated via the recalculate_table function -->
                                             <!-- the value is used to calculate & display the final sub-total and total for the bill -->
                                             <span id="bill-subtotal-amount" style="display: none;">0.00</span>
-
+                                            <?php if(!$FlatFeeEntry->isEmpty()){?>
                                             <div id="flat_fee_total_label" class="flat-fee-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Flat Fee Sub-Total:
                                             </div>
+                                            <?php } ?>
                                             <div id="time_entry_total_label" class="time-entries-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Time Entry Sub-Total:
@@ -1161,10 +1162,11 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td style="text-align: right; width: 105px;">
                                         <div class="locked" style="padding-bottom: 15px;">
+                                            <?php if(!$FlatFeeEntry->isEmpty()){?>
                                             <div id="flat_fee_bottom_total" class="flat-fee-totals" style="border: none; padding-bottom: 7px;">
-                                           
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
+                                            <?php } ?>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
                                                     class="time_entry_total_amount">{{number_format($timeEntryAmount,2)}}</span>
