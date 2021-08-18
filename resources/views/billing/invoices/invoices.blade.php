@@ -1191,6 +1191,7 @@ td,th{
                         afterLoader();
                         return false;
                     } else {
+                        $("#adjustmentBulkInvoiceForm").trigger('reset');
                         $("#caseID").html(res.list);
                         $("#adjustmentBulkInvoice").modal("hide");
                         $("#adjustmentNotApplied").modal("show");

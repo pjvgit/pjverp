@@ -356,9 +356,10 @@ $(document).on("change", ".forwarded-invoices-check", function() {
     }
     $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
     $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+    $("#forwarded_total_text").val(lineTotal.toFixed(2));
     $("#final_total").text(finaltotal.toFixed(2));
     $("#final_total_text").val(finaltotal.toFixed(2));
-    $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
+    // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
 });
 
 // Apply trust/credit balance input validation

@@ -162,6 +162,8 @@
                 $("#basic").val($("#flat_fee_sub_total_text").val());
             } else if (curVal == "time_entries") {
                 $("#basic").val($("#time_entry_sub_total_text").val());
+            } else if (curVal == "balance_forward_total") {
+                $("#basic").val($("#forwarded_total_text").val());
             } else {
                 $("#basic").val("");
             }

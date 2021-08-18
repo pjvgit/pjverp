@@ -955,7 +955,7 @@
                                     foreach($InvoiceAdjustment as $k=>$v){
                                     ?>
 
-                                    <tr id="discount-new161114807394472" class="invoice_entry discount">
+                                    <tr id="entry_{{$v->id}}" class="invoice_entry discount">
                                         <td style="vertical-align: center; text-align: center; border-right: none;"
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
@@ -1042,8 +1042,12 @@
                                                     $addition+=$v->amount;
                                                 }
                                                 ?>
+                        </td>                        
+                        <td> 
+                            <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
+                            <a onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
+                            </span>
                         </td>
-                        <td>&nbsp;</td>
                         </tr>
                         <?php } ?>
 
@@ -1080,7 +1084,7 @@
                                     <?php if($discount!="0"){?>
                                     <div class="billing-discounts-area">
                                         ($<span id="discounts_section_total"
-                                            class="table_total amount">{{$discount}}</span>)
+                                            class="table_total amount discounts_section_total">{{$discount}}</span>)
                                     </div>
                                     <?php } ?>
                                     <?php if($addition!="0"){?>
@@ -1191,7 +1195,7 @@
                                             <?php if($discount!="0"){?>
                                             <div class="billing-discounts-area">
                                                 ($<span id="discounts_section_total"
-                                                    class="table_total amount">{{$discount}}</span>)
+                                                    class="table_total amount discounts_section_total">{{$discount}}</span>)
                                             </div>
                                             <?php } ?>
                                             <?php if($addition!="0"){?>
@@ -3321,22 +3325,31 @@
      
     }
     function recalculate() {
-        var total = 0;
+        $(".forwarded-invoices-check").trigger("change");
+        var total =  subtotal = 0;
+
         var expense_total_amount = parseFloat($("#expense_sub_total_text").val());
         var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
         var flat_fee_sub_total_text = parseFloat($("#flat_fee_sub_total_text").val());
-        total = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
+        console.log("time_entry_total_amount = " + time_entry_total_amount);
+        console.log("expense_total_amount = " + expense_total_amount);
+        console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
+        subtotal = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
         
         var discount_amount = parseFloat($("#discount_total_text").val());
-        var addition_amount = parseFloat($("#addition_total_text").val());
-        
+        var addition_amount = parseFloat($("#addition_total_text").val());        
         var forwarded_amount = parseFloat($("#forwarded_total_text").val());
-        var final_total=total+forwarded_amount-discount_amount+addition_amount;
+        console.log("forwarded_amount = " + forwarded_amount);
+        console.log("discount_amount = " + discount_amount);
+        console.log("addition_amount = " + addition_amount);  
+
+        total = subtotal + forwarded_amount + addition_amount;    
+        var final_total=total-discount_amount ;
         if(final_total <= 0 ){
             final_total=0;
         }
-        $(".sub_total_amount").html(total);
-        $("#sub_total_text").val(total);
+        $(".sub_total_amount").html(subtotal);
+        $("#sub_total_text").val(subtotal);
         $('.sub_total_amount').number(true, 2);
 
         $(".invoice_total").html(total);
@@ -4140,6 +4153,64 @@
         $('.edit_payment_plan_amount').number(true, 2);
         installmentCalculation();
         }
+    }
+
+    function removeAdjustmentEntry(id, amount) {
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this imaginary file!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0CC27E',
+            cancelButtonColor: '#FF586B',
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Close',
+            confirmButtonClass: 'btn btn-success ml-3',
+            cancelButtonClass: 'btn btn-danger',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then(function () {
+            beforeLoader();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/removeAdjustmentEntry", // json datasource
+                data: {id : id},
+                success: function (res) {
+                    if (res.errors != '') {
+                        $('.showError').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('.showError').append(errotHtml);
+                        $('.showError').show();
+                        $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
+                        afterLoader();
+                        return false;
+                    } else {
+                        $("#entry_"+id).remove(); 
+                        var discount = $("#discount_total_text").val();
+                        discount = discount - amount;
+                        discount = (discount<=0) ? 0 : discount;                        
+                        $("#discount_total_text").val(discount.toFixed(2));
+                        $(".discounts_section_total").text(discount.toFixed(2));
+                        recalculate();
+                        return false;
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    afterLoader();
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                },
+            });
+
+        });
     }
     
 

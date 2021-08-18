@@ -944,6 +944,7 @@ if(!isset($adjustment_token)){
                                     </tr>
                                     <?php } ?>
 
+                                    
                                     <?php 
                                     $discount=0;
                                     $addition=0;
@@ -1045,7 +1046,7 @@ if(!isset($adjustment_token)){
                         </td>
                         <td> 
                             <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
-                            <a onclick="removeAdjustmentEntry({{$v->id}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
+                            <a onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
                             </span>
                         </td>
                         </tr>
@@ -1084,7 +1085,7 @@ if(!isset($adjustment_token)){
                                     <?php if($discount!="0"){?>
                                     <div class="billing-discounts-area">
                                         ($<span id="discounts_section_total"
-                                            class="table_total amount">{{$discount}}</span>)
+                                            class="table_total amount discounts_section_total">{{$discount}}</span>)
                                     </div>
                                     <?php } ?>
                                     <?php if($addition!="0"){?>
@@ -1215,7 +1216,7 @@ if(!isset($adjustment_token)){
                                             <?php if($discount!="0"){?>
                                             <div class="billing-discounts-area">
                                                 ($<span id="discounts_section_total"
-                                                    class="table_total amount">{{$discount}}</span>)
+                                                    class="table_total amount discounts_section_total">{{$discount}}</span>)
                                             </div>
                                             <?php } ?>
                                             <?php if($addition!="0"){?>
@@ -3438,23 +3439,34 @@ if(!isset($adjustment_token)){
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-    function recalculate() {
-        var total = 0;
+    function recalculate() {          
+        $(".forwarded-invoices-check").trigger("change");
+        var total =  subtotal = 0;
+
         var flat_fee_total_amount = parseFloat($("#flat_fee_sub_total_text").val());
         var expense_total_amount = parseFloat($("#expense_sub_total_text").val());
         var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
-        total = expense_total_amount + time_entry_total_amount + flat_fee_total_amount;
-
-        var discount_amount = parseFloat($("#discount_total_text").val());
-        var addition_amount = parseFloat($("#addition_total_text").val());
-
+        console.log("time_entry_total_amount = " + time_entry_total_amount);
+        console.log("expense_total_amount = " + expense_total_amount);
+        console.log("flat_fee_total_amount = " + flat_fee_total_amount);
+        
+        subtotal = expense_total_amount + time_entry_total_amount + flat_fee_total_amount;
+        
         var forwarded_amount = parseFloat($("#forwarded_total_text").val());
-        var final_total=total+forwarded_amount-discount_amount+addition_amount;
+        var discount_amount = parseFloat($("#discount_total_text").val());
+        var addition_amount = parseFloat($("#addition_total_text").val());        
+        console.log("forwarded_amount = " + forwarded_amount);
+        console.log("discount_amount = " + discount_amount);
+        console.log("addition_amount = " + addition_amount);        
+
+        total = subtotal + forwarded_amount + addition_amount;        
+        var final_total = total-discount_amount;
         if(final_total <= 0 ){
             final_total=0;
         }
-        $(".sub_total_amount").html(total);
-        $("#sub_total_text").val(total);
+
+        $(".sub_total_amount").html(subtotal);
+        $("#sub_total_text").val(subtotal);
         $('.sub_total_amount').number(true, 2);
 
         $(".invoice_total").html(total);
@@ -4137,8 +4149,7 @@ if(!isset($adjustment_token)){
         }
     });
 
-    function removeAdjustmentEntry(id) {
-        $("#entry_"+id).remove();
+    function removeAdjustmentEntry(id, amount) {
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover this imaginary file!",
@@ -4173,7 +4184,14 @@ if(!isset($adjustment_token)){
                         afterLoader();
                         return false;
                     } else {
-                        afterLoader();
+                        $("#entry_"+id).remove(); 
+                        var discount = $("#discount_total_text").val();
+                        discount = discount - amount;
+                        discount = (discount<=0) ? 0 : discount;                        
+                        $("#discount_total_text").val(discount.toFixed(2));
+                        $(".discounts_section_total").text(discount.toFixed(2));
+                        recalculate();
+                        return false;
                     }
                 },
                 error: function (jqXHR, exception) {
