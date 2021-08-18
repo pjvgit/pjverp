@@ -106,21 +106,6 @@ $CommonController= new App\Http\Controllers\CommonController();
                                             
                                 </div>
                             </td>
-                            {{-- <td class="c-pointer">
-                                <?php 
-                                if($vv->etext!=''){
-                                   ?>
-                                <div class="d-flex align-items-center mt-3">
-                                    <div class="mr-1"
-                                        style="width: 15px; height: 15px; border-radius: 30%; background-color: {{$vv->etext['color_code']}}">
-                                    </div><span>{{$vv->etext['title']}}</span>
-
-                                    
-                                </div><?php 
-                                }else{?>
-                                <i class="table-cell-placeholder mt-3"></i>
-                                <?php } ?>
-                            </td> --}}
                             <td class="c-pointer">
                                 @if(!empty($vv->eventType))
                                 <div class="d-flex align-items-center mt-3">
@@ -168,6 +153,16 @@ $CommonController= new App\Http\Controllers\CommonController();
                                     data-placement="bottom" href="javascript:;"
                                     onclick="loadEventComment({{$vv->id}});">
                                     <i class="fas fa-comment pr-2 align-middle"></i>
+                                    @php
+                                        $commentCount = 0;
+                                        if(count($vv->eventLinkedStaff)) {
+                                            $lastReadAt = $vv->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
+                                            $commentCount = $vv->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
+                                        }
+                                    @endphp
+                                    @if($commentCount)
+                                    <span class="badge badge-danger" style="right: 4px; top: -11px;">{{ $commentCount }}</span>
+                                    @endif
                                     </a>
                                     <?php 
                                     if($vv->parent_evnt_id=="0"){

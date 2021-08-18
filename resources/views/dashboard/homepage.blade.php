@@ -436,7 +436,6 @@
                                     </div>
                                     <?php 
                                         $list='';
-                                        // $allUSer=json_decode($v->caseuser);
                                         $allUSer=json_decode($v->eventLinkedStaff);
                                         $USerArray=[];
                                         if(!empty($allUSer)){

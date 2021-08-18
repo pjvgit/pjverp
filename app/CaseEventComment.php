@@ -12,7 +12,7 @@ class CaseEventComment extends Model
     protected $table = "case_event_comment";
     public $primaryKey = 'id';
     protected $fillable = [
-        'id', 'event_id', 'comment','created_by', 'created_at'
+        'id', 'event_id', 'comment','created_by', 'created_at', 'action_type'
     ];
 
     protected $appends = ['comment_added_at'];

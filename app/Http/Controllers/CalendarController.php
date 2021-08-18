@@ -194,7 +194,7 @@ class CalendarController extends BaseController
     public function loadCommentPopupFromCalendar(Request $request)
     {
         $evnt_id=$request->evnt_id;
-        $evetData=CaseEvent::whereId($evnt_id)->with('case', 'leadUser', 'eventLinkedStaff', 'eventCreatedByUser', 'eventUpdatedByUser', 'eventLinkedContact', 'eventLinkedLead', 'eventLocation')->first();
+        $evetData=CaseEvent::whereId($evnt_id)->with('case', 'leadUser', 'eventLinkedStaff', 'eventCreatedByUser', 'eventUpdatedByUser', 'eventLinkedContact', 'eventLinkedLead', 'eventLocation', 'eventType')->first();
         // $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
         /* $eventLocation='';
         if($evetData->event_location_id!="0"){

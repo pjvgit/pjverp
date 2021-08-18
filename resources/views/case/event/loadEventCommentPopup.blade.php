@@ -21,10 +21,16 @@
                 <div class="event-detail-column col-6">
                     <div class="event-column-container">
                         <div class="mb-2 row ">
+                            <div class="col-3"><b>Event Type</b></div>
+                            <div class="detail-info  col-9">
+                                <span class="event-type-badge badge badge-secondary" style="background-color: {{ @$evetData->eventType->color_code }}; font-size: 12px; height: 20px;">{{ @$evetData->eventType->title}}</span>
+                            </div>
+                        </div>
+                        <div class="mb-2 row ">
                             <div class="col-3"><b>Location</b></div>
                             <div class="detail-info event-location-section col-9">
 
-                                <?php 
+                                {{-- <?php 
                                 if(empty($eventLocation)){?>
                                 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
                                 <?php }else{ ?>
@@ -35,7 +41,12 @@
                                 <?=$eventLocation->state?>&nbsp;
                                 <?=$eventLocation->postal_code?><br>
                                 <?=$eventLocation->name?>
-                                <?php } ?>
+                                <?php } ?> --}}
+                                @if($evetData->event_location_id)
+                                    {{ $evetData->eventLocation->full_address }}
+                                @else
+                                    <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                @endif
                             </div>
                         </div>
 
