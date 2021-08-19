@@ -2830,6 +2830,7 @@ if(!isset($adjustment_token)){
                 afterLoader();
                 return false;
             }else{
+                afterLoader();
                 return true;
             }
         });

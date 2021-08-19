@@ -626,14 +626,14 @@
                         </tr>
                     @empty                        
                     @endforelse
-                    <tr>
-                        <td colspan="4" class="total-summary-column">
+                    <tr >
+                        <td colspan="4" class="total-summary-column" style="text-align: right;">
                             Balance Forward:
                         </td>
                         @php
                             $totalFwdAmt = $findInvoice->forwardedInvoices->sum('due_amount');
                         @endphp
-                        <td class="total-data-column"> ${{ number_format($totalFwdAmt, 2) }}</td>
+                        <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> ${{ number_format($totalFwdAmt, 2) }}</td>
                     </tr>
                 </tbody>
             </table>

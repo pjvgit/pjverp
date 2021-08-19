@@ -3140,8 +3140,10 @@ class BillingController extends BaseController
             $rules['timeEntrySelectedArray'] = 'nullable|array';
             $rules['expenseEntrySelectedArray'] = 'nullable|array';
         } else {
-            $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
-            $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+            if(empty($request->forwarded_invoices)){
+                $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
+                $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+            }
         }
         $request->validate($rules,
         [
@@ -3178,6 +3180,7 @@ class BillingController extends BaseController
                 $InvoiceSave->payment_plan_enabled="no";
             }
             $InvoiceSave->status=$request->bill_sent_status;
+            $InvoiceSave->bill_sent_status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
             $InvoiceSave->due_amount=$request->final_total_text;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
@@ -3185,8 +3188,6 @@ class BillingController extends BaseController
             $InvoiceSave->created_by=Auth::User()->id; 
             $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;
-            $InvoiceSave->save();
-
             $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
             $InvoiceSave->invoice_token=Str::random(250);
             $InvoiceSave->save();
@@ -4017,7 +4018,8 @@ class BillingController extends BaseController
     public function downloaInvoivePdfView(Request $request)
     {
         $invoice_id=base64_decode($request->id);
-        $Invoice=Invoices::where("id",$invoice_id)->first();
+        // $Invoice=Invoices::where("id",$invoice_id)->first();
+        $Invoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustCreditFund")->first();
         $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
        
         $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
@@ -4338,8 +4340,9 @@ class BillingController extends BaseController
                     "mail_body" => $mail_body
                 ];
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
-                $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
-                // $sendEmail = $this->sendMailWithAttachment($user,$files);
+                // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
+                $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
+                $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
                 $invoiceHistory['invoice_id']=$invoice_id;
@@ -4502,8 +4505,10 @@ class BillingController extends BaseController
             $rules['timeEntrySelectedArray'] = 'nullable|array';
             $rules['expenseEntrySelectedArray'] = 'nullable|array';
         } else {
-            $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
-            $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+            if(empty($request->forwarded_invoices)){
+                $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
+                $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
+            }
         }
         $request->validate($rules,
         [

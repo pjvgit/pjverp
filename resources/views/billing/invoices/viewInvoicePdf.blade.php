@@ -6,7 +6,7 @@
 $invoice=$Invoice['total_amount'];
 $paid=$Invoice['paid_amount'];
 $finalAmt=$invoice-$paid;
-$flatFeeEntryAmount=0;
+$flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;
 ?>
 <table style="width:100%;">
     <tbody>
@@ -89,10 +89,7 @@ $flatFeeEntryAmount=0;
 <h3>
     <p>{{ucfirst(substr(@$caseMaster['case_title'],0,100))}}</p>
 </h3>
-<?php   $discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;?>
-
-<?php
-    if(isset($FlatFeeEntryForInvoice) && !$FlatFeeEntryForInvoice->isEmpty()){?>
+<?php if(isset($FlatFeeEntryForInvoice) && !$FlatFeeEntryForInvoice->isEmpty()){?>
 <b>Flat Fee</b>
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
     <tbody>
@@ -485,6 +482,41 @@ $flatFeeEntryAmount=0;
 </table>
 <br>
 <?php } ?>
+
+@if (count($Invoice->forwardedInvoices))
+<h3>Unpaid Invoice Balance Forward</h3>
+<table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+    <tbody>
+        <tr class="invoice_info_row">
+            <td class="invoice_info_bg">Invoice #</td>
+            <td class="invoice_info_bg">Invoice Total</td>
+            <td class="invoice_info_bg">Amount Paid</td>
+            <td class="invoice_info_bg">Due Date</td>
+            <td class="invoice_info_bg" style=" text-align: right;width:10%;">Balance Forward</td>
+        </tr>
+        @forelse ($Invoice->forwardedInvoices as $invkey => $invitem)
+            <tr class="invoice_info_row">
+                <td>{{ $invitem->invoice_id }}</td>
+                <td>${{ $invitem->total_amount_new }}</td>
+                <td>${{ $invitem->paid_amount_new }}</td>
+                <td>{{ ($invitem->due_date) ? date('m/d/Y', strtotime($invitem->due_date)) : "" }}</td>
+                <td style="vertical-align: top; text-align: right;">${{ $invitem->due_amount_new }}</td>
+            </tr>
+        @empty                        
+        @endforelse
+        <tr>
+            <td colspan="4" class="total-summary-column" style="text-align: right;">
+                Balance Forward:
+            </td>
+            @php
+                $totalFwdAmt = $Invoice->forwardedInvoices->sum('due_amount');
+            @endphp
+            <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> ${{ number_format($totalFwdAmt, 2) }}</td>
+        </tr>
+    </tbody>
+</table>
+<br>
+@endif
 <?php 
     if(!$InvoiceAdjustment->isEmpty()){?>
 <h3>Adjustments</h3>
@@ -621,9 +653,12 @@ $flatFeeEntryAmount=0;
                 Expense Sub-Total:<br>
                 <span style="font-weight: bold;">Sub-Total:</span><br>
                 <br>
-                <?php if($discount!="0"){?>
-                <span>Discounts:</span>
+                <?php  if (count($Invoice->forwardedInvoices)){ ?>
+                <span>Balance Forward:</span>
                 <br>
+                <?php } ?>
+                <?php if($discount!="0"){?>
+                <span>Discounts:</span><br>
                 <?php } ?>
 
                 <?php if($addition!="0"){?>
@@ -642,7 +677,11 @@ $flatFeeEntryAmount=0;
                 ${{number_format($expenseAmount,2)}}<br>
                 ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount,2)}}<br>
                 <br>
-
+                <?php  
+                if (count($Invoice->forwardedInvoices)){
+                    $forwardedInvoices = $Invoice->forwardedInvoices->sum('due_amount'); ?>
+                    ${{ number_format($forwardedInvoices,2) }} <br>
+                <?php } ?>
                 <?php if($discount!="0"){?>
                 ${{number_format($discount,2)}}<br>
                 <?php } ?>
@@ -651,8 +690,8 @@ $flatFeeEntryAmount=0;
                 ${{number_format($addition,2)}}<br>
                 <?php } ?>
                 <br>
-                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition,2)}}<br>
-               ${{number_format($Invoice['paid_amount'],2)}}
+                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition+$forwardedInvoices,2)}}<br>
+                ${{number_format($Invoice['paid_amount'],2)}}
             </td>
         </tr>
 
@@ -670,7 +709,7 @@ $flatFeeEntryAmount=0;
             </td>
             <td class="invoice_info_bg" id="invoice-balance-due"
                 style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
-                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition,2)}}
+                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition+$forwardedInvoices,2)}}
             </td>
         </tr>
 
