@@ -5731,10 +5731,10 @@ class BillingController extends BaseController
                 $Applied=FALSE;
                 $Invoices=Invoices::find($v1);
                 $CaseMaster=CaseMaster::find($Invoices['case_id']);
-                if($Invoices->status != 'Forwarded'){                    
+                $InvoiceAdjustment = new InvoiceAdjustment;
                 $subTotal=$Invoices['total_amount'];
                 $finalAmount=0;
-                $InvoiceAdjustment = new InvoiceAdjustment;
+                if($Invoices->status != 'Forwarded'){         
                 $InvoiceAdjustment->case_id =$Invoices['case_id'];
                 $InvoiceAdjustment->token =NULL;
                 $InvoiceAdjustment->invoice_id =$Invoices['id'];
@@ -5850,12 +5850,13 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
-                }                 
+
                 if($Invoices->payment_plan_enabled == 'no'){
                     $Applied=TRUE;
                 }else{
                     $Applied=FALSE;
                 }
+                }      
                 if($Applied==TRUE){
                     $InvoiceAdjustment->save();
                     if($discount_type=="discount"){
