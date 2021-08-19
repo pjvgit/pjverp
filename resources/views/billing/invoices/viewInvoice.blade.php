@@ -36,7 +36,7 @@
                                 onclick="shareInvoice({{$findInvoice->id}})">Share via Portal
                             </a>
                         </div>
-                        @if($findInvoice->status != "Forwarded")
+                        @if($findInvoice->status != "Forwarded" && $findInvoice->status != "Paid")
                         <?php
                         if($SharedInvoiceCount>0){?>
                         <div id="share-via-portal" class="pl-1">

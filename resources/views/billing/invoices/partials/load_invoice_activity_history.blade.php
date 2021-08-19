@@ -22,8 +22,12 @@
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
-                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', $findInvoice->decode_id).'">'.@$findInvoice->invoiceForwardedToInvoice[0]->invoice_id.'</a>';
+                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', @$findInvoice->invoiceForwardedToInvoice[0]->decode_id).'">'.@$findInvoice->invoiceForwardedToInvoice[0]->invoice_id.'</a>';
+                        }else if($value->acrtivity_title=="invoice reopened" && $value->notes!=NULL){
+                            $notes=$value->notes;
                         }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
+                            $notes=$value->notes;
+                        }else if($value->notes!=NULL){
                             $notes=$value->notes;
                         }else{
                             $notes="<i class='table-cell-placeholder'></i>";
@@ -49,15 +53,17 @@
                     ?>
                     <tr id="" class="invoice-history-row nowrap">
                         <td class="first_child invoice-history-row-type nowrap">
-                            <?php if($value->acrtivity_title=="Unshared w/Contacts"){?>
+                            @if($value->acrtivity_title=="Unshared w/Contacts")
                                 <span class="bill-history-indicator status_indicator_red"></span>
-                            <?php }else if($value->acrtivity_title=="Payment Received"){?>
+                            @elseif($value->acrtivity_title=="Payment Received")
                                 <span class="bill-history-indicator status_indicator_green"></span>
-                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                            @elseif($value->acrtivity_title=="Payment Refund")
                                 <span class="bill-history-indicator status_indicator_yellow"></span>
-                            <?php }else{
-                                ?> <span class="bill-history-indicator"></span>
-                            <?php } ?>
+                            @elseif($value->acrtivity_title == "Sent Reminder")
+                                <span class="bill-history-indicator status_indicator_light_blue"></span>
+                            @else
+                                <span class="bill-history-indicator"></span>
+                            @endif
                             {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">
@@ -153,8 +159,14 @@
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
+                            $afterToStr = trim(substr($value->notes, strpos($value->notes, 'to') + strlen('to')));
+                            $invId = substr(@$afterToStr, strrpos(@$afterToStr, '0') + 1);
+                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', base64_encode($invId)).'">#'.@$afterToStr.'</a>';
+                        }else if($value->acrtivity_title=="invoice reopened" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
+                            $notes=$value->notes;
+                        }else if($value->notes!=NULL){
                             $notes=$value->notes;
                         }else{
                             $notes="<i class='table-cell-placeholder'></i>";
@@ -180,15 +192,17 @@
                     ?>
                     <tr id="inv_{{$value->id}}" data-id="inv_{{$value->invoice_id}}" class="invoice-history-row nowrap">
                         <td class="first_child invoice-history-row-type">
-                            <?php if($value->acrtivity_title=="Unshared w/Contacts"){?>
+                            @if($value->acrtivity_title=="Unshared w/Contacts")
                                 <span class="bill-history-indicator status_indicator_red"></span>
-                            <?php }else if($value->acrtivity_title=="Payment Received"){?>
+                            @elseif($value->acrtivity_title=="Payment Received")
                                 <span class="bill-history-indicator status_indicator_green"></span>
-                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                            @elseif($value->acrtivity_title=="Payment Refund")
                                 <span class="bill-history-indicator status_indicator_yellow"></span>
-                            <?php }else{
-                                ?> <span class="bill-history-indicator"></span>
-                            <?php } ?>
+                            @elseif($value->acrtivity_title == "Sent Reminder")
+                                <span class="bill-history-indicator status_indicator_light_blue"></span>
+                            @else
+                                <span class="bill-history-indicator"></span>
+                            @endif
                             {{ ucfirst($value->acrtivity_title) }}
                         </td>
                         <td class="invoice-history-row-date">

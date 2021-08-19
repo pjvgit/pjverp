@@ -4,7 +4,9 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Firm;
 use App\Http\Controllers\Controller;
+use App\InvoiceHistory;
 use App\Invoices;
+use App\SharedInvoice;
 use App\User;
 use Illuminate\Http\Request;
 use mikehaertl\wkhtmlto\Pdf;
@@ -36,8 +38,20 @@ class BillingController extends Controller
         $invoice = Invoices::where("id",$invoiceId)->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
                     'invoiceExpenseEntry', 'invoiceTimeEntry.taskActivity', 'invoiceExpenseEntry.expenseActivity', 'invoiceAdjustmentEntry', 
                     'forwardedInvoices', 'invoicePaymentHistory', 'invoiceInstallment', 'invoiceForwardedToInvoice', 'invoiceFirstInstallment')->first();
-        $invoice->fill(['is_viewed' => 'yes'])->save();
-        $invoice->refresh();
+        $sharedInv = SharedInvoice::where("user_id", auth()->id())->where("invoice_id", $invoiceId)->first();
+        if($sharedInv && !$sharedInv->last_viewed_at) {
+            $sharedInv->fill([
+                'last_viewed_at' => date('Y-m-d h:i:s'),
+                'is_viewed' => 'yes',
+            ])->save();
+
+            InvoiceHistory::create([
+                "invoice_id" => $invoiceId,
+                "acrtivity_title" => "Invoice Viewed",
+                "responsible_user" => auth()->id(),
+                "created_by" => auth()->id()
+            ]);
+        }
         return view("client_portal.billing.detail", ["invoice" => $invoice]);
     }
 

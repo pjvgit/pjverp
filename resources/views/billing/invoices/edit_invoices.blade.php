@@ -1228,6 +1228,14 @@
                                     </td>
                                 </tr>
 
+                                @error('final_total_text')
+                                <tr class="footer no-border totals">
+                                    <td colspan="4"  style="text-align: right;">
+                                    <p class="error">{{ $message }}</p>
+                                    </td>
+                                </tr>
+                                @enderror
+
                                 <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
                                 <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text" id="expense_sub_total_text">

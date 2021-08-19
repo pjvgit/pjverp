@@ -3411,6 +3411,7 @@ class BillingController extends BaseController
                         $jsonData['reminder'][] = [
                             'remind_type' => $item->remind_type,
                             'days' => $item->days,
+                            'is_reminded' => "no",
                         ];
                     }
                 }
@@ -4004,6 +4005,14 @@ class BillingController extends BaseController
                 if($emailTemplate) {
                     dispatch(new InvoiceReminderEmailJob($FindInvoice, $findUSer, $emailTemplate));
                 }
+                // Invoice reminder sent
+                InvoiceHistory::create([
+                    "invoice_id" => $FindInvoice->id,
+                    "acrtivity_title" => "Sent Reminder",
+                    "responsible_user" => auth()->id(),
+                    "notes" => "Sent to ".$findUSer->full_name." (".$findUSer->user_type_text.")",
+                    "created_by" => auth()->id()
+                ]);
             }
             
             session(['popup_success' => 'Reminders have been sent']);
@@ -4503,13 +4512,12 @@ class BillingController extends BaseController
     public function updateInvoiceEntry(Request $request)
     {
         // return $request->all();
+        $InvoiceSave=Invoices::find($request->invoice_id);
         $rules = [
             'invoice_number_padded' => 'required|numeric',
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
             'total_text' => 'required',
-            // 'timeEntrySelectedArray'=>'required_without:expenseEntrySelectedArray|array',
-            // 'expenseEntrySelectedArray'=>'required_without:timeEntrySelectedArray|array',
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
@@ -4520,17 +4528,19 @@ class BillingController extends BaseController
                 $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
             }
         }
-        $request->validate($rules,
-        [
+        if($InvoiceSave->status == "Paid" && $request->final_total_text < $InvoiceSave->total_amount) {
+            $rules['final_total_text'] = 'gte:'.$InvoiceSave->total_amount;
+        }
+        $request->validate($rules, [
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
             "contact.required"=>"Billing user can't be blank",
             "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
-            "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity"
+            "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity",
+            "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount."
         ]);
-
+        
             // print_r($request->all());exit;
-            $InvoiceSave=Invoices::find($request->invoice_id);
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id=($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
@@ -4766,7 +4776,30 @@ class BillingController extends BaseController
                     }
                 }
             } else {
-                $InvoiceSave->forwardedInvoices()->sync([]);
+                $syncedInvoices = $InvoiceSave->forwardedInvoices()->pluck('id')->toArray();
+                $forwardInv = Invoices::whereIn("id", $syncedInvoices)->get();
+                if($forwardInv) {
+                    foreach($forwardInv as $key => $item) {
+                        if($item->paid_amount > 0 && Carbon::parse($item->due_date)->gt(Carbon::now()))
+                            $status = "Partial";
+                        else if(Carbon::parse($item->due_date)->lt(Carbon::now()))
+                            $status = "Overdue";
+                        else if($item->is_sent  == "yes")
+                            $status = "Sent";
+                        else 
+                            $status = "Unsent";
+                        $item->fill(["status" => $status])->save();
+                        InvoiceHistory::create([
+                            "invoice_id" => $item->id,
+                            "acrtivity_title" => "invoice reopened",
+                            "amount" => $item->due_amount,
+                            "responsible_user" => auth()->id(),
+                            "notes" => "Balance was unforwarded",
+                            "created_by" => auth()->id()
+                        ]);
+                    }
+                }
+                $syncedInvoices = $InvoiceSave->forwardedInvoices()->sync([]);
             }
 
             //Add Invoice history

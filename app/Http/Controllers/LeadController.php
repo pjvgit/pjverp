@@ -315,7 +315,7 @@ class LeadController extends BaseController
             $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
-            $UserMaster->user_title='';
+            $UserMaster->user_title='Lead';
             $UserMaster->user_timezone=Auth::User()->user_timezone;
             $UserMaster->parent_user =Auth::User()->id;
             $UserMaster->created_by =Auth::User()->id;

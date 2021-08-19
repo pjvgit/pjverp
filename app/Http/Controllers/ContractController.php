@@ -815,6 +815,7 @@ class ContractController extends BaseController
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "1";  // Default status is active for client.
             $user->user_level  = "2";  // Default status is inactive once verified account it will activated.
+            $user->user_title = "Client";
             $user->created_by =Auth::User()->id;
             $user->save();
             session(['clientId' => $user->id]);
@@ -1274,6 +1275,7 @@ class ContractController extends BaseController
             $user->user_status  = "2";  // Default status is inactive once verified account it will activated.
             $user->user_level  = "4"; //4-company  
             $user->user_type  = "4"; //4-none  
+            $user->user_title = "Client";
             $user->created_by =Auth::User()->id;
             $user->save();
 
