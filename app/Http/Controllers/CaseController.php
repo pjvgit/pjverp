@@ -1113,8 +1113,8 @@ class CaseController extends BaseController
             ]);
         } */
 
-           $CaseClientSelection =CaseClientSelection::where("case_id",$request->case_id)->get();
-           if(!$CaseClientSelection->isEmpty()){
+            $CaseClientSelection =CaseClientSelection::where("case_id",$request->case_id)->get();
+            if(!$CaseClientSelection->isEmpty()){
                 foreach($CaseClientSelection as $k=>$v){
                     $updateBilling=CaseClientSelection::find($v->id);
                     if($v->selected_user==$request->staff_user_id){
@@ -1122,10 +1122,11 @@ class CaseController extends BaseController
                     }else{
                         $updateBilling->is_billing_contact="no";
                     }
-                    $updateBilling->updated_by=Auth::User()->id;
+                    $updateBilling->billing_method=$request->billingMethod;
+                    $updateBilling->billing_amount=($request->default_rate)??0.00;
                     $updateBilling->save();
                 }
-           }
+            }
         
           return response()->json(['errors'=>'']);
           exit;

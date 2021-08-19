@@ -188,11 +188,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         </tr>
     </tbody>
 </table>
-<?php } ?>
 <br>
-<?php
-
-    if(!$TimeEntryForInvoice->isEmpty()){?>
+<?php } ?>
+<?php if(!$TimeEntryForInvoice->isEmpty()){?>
 <b>Time Entries</b>
 <table style="width: 100%; border-collapse: collapse;" border="1">
     <tbody>
@@ -331,11 +329,11 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 Totals:
             </td>
 
-            <td class="total-entries-total-hours total-data-column" style="text-align:right;">
+            <td class="total-entries-total-hours total-data-column" style="text-align:right; font-weight: bold;">
                 {{$timeEntryTime}}
             </td>
 
-            <td class="total-data-column">
+            <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
                 ${{number_format($timeEntryAmount,2)}}
             </td>
         </tr>
@@ -343,8 +341,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 </table>
 <br>
 <?php } ?>
-<?php 
-    if(!$ExpenseForInvoice->isEmpty()){?>
+<?php  if(!$ExpenseForInvoice->isEmpty()){?>
 <h3>Expenses</h3>
 <table style="width: 100%; border-collapse: collapse;" border="1">
 <tbody>
@@ -404,7 +401,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         </td>
         <td style="vertical-align: top; text-align: right;" class="">
             <?php
-                    echo "$".$Total= ($v->duration * $v->cost);
+                    echo "$".$Total= number_format(($v->duration * $v->cost),2);
                     $expenseAmount=$expenseAmount+$Total;
                 ?>
         </td>

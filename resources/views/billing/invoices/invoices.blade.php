@@ -1192,11 +1192,14 @@ td,th{
                         return false;
                     } else {
                         $("#adjustmentBulkInvoiceForm").trigger('reset');
-                        $("#caseID").html(res.list);
-                        $("#adjustmentBulkInvoice").modal("hide");
-                        $("#adjustmentNotApplied").modal("show");
-                        $(".my-3").html(res.list);
-                        window.location.reload();
+                        $("#adjustmentBulkInvoice").modal("hide");                            
+                        if(res.list != ''){
+                            $("#caseID").html(res.list);
+                            $("#adjustmentNotApplied").modal("show");
+                            $(".my-3").html(res.list);
+                        }else{
+                            window.location.reload();
+                        }                        
                     }
                 },
                 error: function (xhr, status, error) {

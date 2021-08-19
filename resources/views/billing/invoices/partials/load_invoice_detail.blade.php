@@ -243,11 +243,11 @@
 
                         }?>
                         <tr>
-                            <td colspan="4" class="total-summary-column">
+                            <td colspan="4" class="total-summary-column" style="text-align: right;">
                                 Flat Fee Total:
                             </td>
 
-                            <td class="total-data-column"> ${{number_format($flatFeeEntryAmount,2)}}
+                            <td class="total-data-column"  style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> ${{number_format($flatFeeEntryAmount,2)}}
                             </td>
                         </tr>
                     </tbody>
@@ -417,15 +417,15 @@
 
                     }?>
                     <tr>
-                        <td colspan="5" class="total-summary-column">
+                        <td colspan="5" class="total-summary-column" style="text-align: right;">
                             Totals:
                         </td>
 
-                        <td class="total-entries-total-hours total-data-column">
+                        <td class="total-entries-total-hours total-data-column" style="text-align: right; font-weight: bold;">
                             {{$timeEntryTime}}
                         </td>
 
-                        <td class="total-data-column">
+                        <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
                             ${{number_format($timeEntryAmount,2)}}
                         </td>
                     </tr>
@@ -433,12 +433,9 @@
             </table>
         </div>
     <?php } ?>
-    <?php 
-        if(!$ExpenseForInvoice->isEmpty()){?>
-
+    <?php if(!$ExpenseForInvoice->isEmpty()){?>
     <div class="line-items-table">
         <h3>Expenses</h3>
-
         <table style="width: 100%; border-collapse: collapse;">
             <tbody>
                 <tr class="invoice_info_row">
@@ -524,7 +521,7 @@
                     @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
                         <?php
-                                echo "$".$Total= ($v->duration * $v->cost);
+                                echo "$".$Total= number_format(($v->duration * $v->cost),2);
                                 $expenseAmount=$expenseAmount+$Total;
                             ?>
                     </td>
@@ -594,8 +591,7 @@
                     <td colspan="6" style="text-align: right; padding-top: 5px;">
                         Expense Total:
                     </td>
-                    <td
-                        style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
+                    <td style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
                         ${{number_format($expenseAmount,2)}}
                     </td>
                 </tr>

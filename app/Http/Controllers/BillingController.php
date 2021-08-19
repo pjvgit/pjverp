@@ -5717,13 +5717,13 @@ class BillingController extends BaseController
             $amount	=$request->amount;
             $amountType=$request->amountType;
             $notes=$request->notes;
-            $notSavedInvoice=[];
+            $notSavedInvoice='';
             foreach($data as $k1=>$v1){
                 $Applied=FALSE;
                 $Invoices=Invoices::find($v1);
                 $CaseMaster=CaseMaster::find($Invoices['case_id']);
+                if($Invoices->status != 'Forwarded'){                    
                 $subTotal=$Invoices['total_amount'];
-
                 $finalAmount=0;
                 $InvoiceAdjustment = new InvoiceAdjustment;
                 $InvoiceAdjustment->case_id =$Invoices['case_id'];
@@ -5738,20 +5738,27 @@ class BillingController extends BaseController
                     $InvoiceAdjustment->percentages=NULL;
                 }
 
-                if($discount_applied_to=="flat_fees"){
-                    $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->get();
-                    if(count($CaseClientSelection) > 0){
+                if($discount_applied_to=="flat_fees"){                    
+                    $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+                    ->select("flat_fee_entry.*")
+                    ->where("flat_fee_entry_for_invoice.invoice_id",$v1)
+                    ->get();
+                    // $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$Invoices['case_id'])->get();
+                    // dd($FlatFeeEntryForInvoice);
+                    if(count($FlatFeeEntryForInvoice) > 0){
                         $GrandTotalByInvoice=$TotalAmt=0;
-                        foreach($CaseClientSelection as $kk=>$vv){
-                            $GrandTotalByInvoice+=$vv->billing_amount;
+                        foreach($FlatFeeEntryForInvoice as $kk=>$vv){
+                            $GrandTotalByInvoice+=$vv->cost;
                         }
                         $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
-                        if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
-                        }else{
-                            $finalAmount=$amount;
-                        }
-                        $Applied=TRUE;                        
+                        if($GrandTotalByInvoice >= $amount){
+                            if($amountType=="percentage"){
+                                $finalAmount=($amount/100)*$GrandTotalByInvoice;
+                            }else{
+                                $finalAmount=$amount;
+                            }
+                            $Applied=TRUE;        
+                        }                
                     }else{
                         $Applied=FALSE;   
                     }        
@@ -5769,12 +5776,14 @@ class BillingController extends BaseController
                             $GrandTotalByInvoice+=$TotalAmt;
                         }
                         $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoice);
-                        if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$GrandTotalByInvoice;
-                        }else{
-                            $finalAmount=$amount;
+                        if($GrandTotalByInvoice >= $amount){
+                            if($amountType=="percentage"){
+                                $finalAmount=($amount/100)*$GrandTotalByInvoice;
+                            }else{
+                                $finalAmount=$amount;
+                            }
+                            $Applied=TRUE;
                         }
-                        $Applied=TRUE;
                     }else{
                         $Applied=FALSE;   
                     }                    
@@ -5789,12 +5798,14 @@ class BillingController extends BaseController
                             $GrandTotalByInvoiceExp+=$TotalAmtExp;
                         }
                         $InvoiceAdjustment->basis =str_replace(",","",$GrandTotalByInvoiceExp);
-                        if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
-                        }else{
-                            $finalAmount=$amount;
+                        if($GrandTotalByInvoiceExp >= $amount){
+                            if($amountType=="percentage"){
+                                $finalAmount=($amount/100)*$GrandTotalByInvoiceExp;
+                            }else{
+                                $finalAmount=$amount;
+                            }
+                            $Applied=TRUE;
                         }
-                        $Applied=TRUE;
                     }else{
                         $Applied=FALSE;   
                     } 
@@ -5817,8 +5828,10 @@ class BillingController extends BaseController
                 if($discount_applied_to=="balance_forward_total"){
                     $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
                     if(count($balanceForwardInvoice) > 0){
-                        $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                        $Applied=TRUE;
+                        if($request->basic >= $amount){
+                            $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
+                            $Applied=TRUE;
+                        }
                     }else{
                         $Applied=FALSE;
                     }
@@ -5828,7 +5841,12 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
-
+                }                 
+                if($Invoices->payment_plan_enabled == 'no'){
+                    $Applied=TRUE;
+                }else{
+                    $Applied=FALSE;
+                }
                 if($Applied==TRUE){
                     $InvoiceAdjustment->save();
                     if($discount_type=="discount"){
@@ -5848,7 +5866,7 @@ class BillingController extends BaseController
                 }
             }
             return response()->json(['errors'=>'','list'=> $notSavedInvoice]);
-            exit;  
+            exit;             
         } 
     }
 
