@@ -15,7 +15,44 @@
                 </div>
                 <div class="event-detail__info-row">
                     <i class="far fa-clock list-row__icon"></i>
-                    <div>{{date('h:i A',strtotime($event->start_date_time))}} - {{date('h:i A',strtotime($event->end_date_time))}}</div>
+                    <div>{{date('h:i A',strtotime($event->start_date_time))}} - {{date('h:i A',strtotime($event->end_date_time))}}
+                    <br>
+                    @php
+                        $startDate = strtotime($event->start_date);
+                        $day = date("l", $startDate);
+                    @endphp
+                    @if($event->event_frequency=='DAILY')
+                        <div><b>Repeats:</b> Daily</div>
+                    @elseif($event->event_frequency=='EVERY_BUSINESS_DAY')
+                        <div><b>Repeats:</b> Weekly on Weekdays</div>
+                    @elseif($event->event_frequency=='CUSTOM')
+                        <div><b>Repeats:</b> Weekly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on {{ $day }}</div>
+                    @elseif($event->event_frequency=='WEEKLY')
+                        <div><b>Repeats:</b> Weekly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on {{ $day }}</div>
+                    @elseif($event->event_frequency=='MONTHLY')
+                        <div><b>Repeats:</b> Monthly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} on the 
+                            @if($event->monthly_frequency == "MONTHLY_ON_THE")
+                            {{ date("w", $startDate).date("S", mktime(0, 0, 0, 0, date("w", $startDate), 0)) }} {{ $day }}
+                            @elseif($event->monthly_frequency == "MONTHLY_ON_THE_LAST")
+                                last {{ $day }}
+                            @else
+                                {{ date('jS', $startDate) }} day of month
+                            @endif
+                        </div>
+                    @elseif($event->event_frequency=='YEARLY')
+                        <div><b>Repeats:</b> Yearly {{ ($event->end_on) ? 'until '. date('F d, Y', strtotime($event->end_on)) : '' }} 
+                            @if($event->yearly_frequency == "YEARLY_ON_THE")
+                                on the {{ date("w", $startDate).date("S", mktime(0, 0, 0, 0, date("w", $startDate), 0)) }} {{ $day }} in {{ date('F', $startDate)}}
+                            @elseif($event->yearly_frequency == "YEARLY_ON_THE_LAST")
+                                on the last {{ $day }} in {{ date('F', $startDate)}}
+                            @else
+                                in {{ date('F', $startDate)}} on the {{ date('jS', $startDate) }} day of the month
+                            @endif
+                        </div>
+                    @else
+                        <div><b>Repeats:</b> Never</div>
+                    @endif
+                    </div>
                 </div>
                 <div class="event-detail__info-row">
                     <i class="fas fa-map-marker-alt list-row__icon"></i>

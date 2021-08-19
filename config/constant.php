@@ -131,7 +131,7 @@ define('REASON_TITLE', serialize($deactivateReasons));
 //user type
 // 1:Attorney 2: Paralegal 3:Staff 4: None 
 
-$userType=array("1"=>"Attorney","2"=>"Paralegal","3"=>"Staff");
+$userType=array("1"=>"Attorney","2"=>"Paralegal","3"=>"Staff", "4" => "None", "5" => "Lead");
 define('USER_TYPE', serialize($userType));
 
 define('LOADER', BASE_URL.'public/images/ajax_arrows.gif');
