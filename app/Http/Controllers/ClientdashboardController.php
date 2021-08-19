@@ -36,28 +36,6 @@ class ClientdashboardController extends BaseController
     }
     public function clientDashboardView(Request $request,$id)
     {
-        // $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
-        // foreach($creditHistory as $key => $item) {
-        //     $previous = $creditHistory->get(--$key);  
-        //     $currentBal = 0;
-        //     if($previous) {
-        //         echo "<pre>";
-        //         print_r($previous);
-        //         echo "</pre>";
-        //         $currentBal = $previous->total_balance;
-        //     }
-        //     if($item->payment_type == "deposit") {
-        //         $currentBal = $currentBal + $item->deposit_amount;
-        //     } else if($item->payment_type == "withdraw") {
-        //         $currentBal = $currentBal - $item->deposit_amount;
-        //     } else if($item->payment_type == "payment") {
-        //         $currentBal = $currentBal - $item->deposit_amount;
-        //     }
-        //     $item->total_balance = $currentBal;
-        //     $item->save();
-        // }
-        // return $creditHistory = DepositIntoCreditHistory::where("user_id", 11375)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
-        // return "ahvhdaf";
         Session::forget('caseLinkToClient');
         Session::forget('clientId');
         $contractUserID=$client_id=$id;

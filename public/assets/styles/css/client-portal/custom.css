@@ -316,3 +316,7 @@
     white-space: pre-line;
     word-wrap: break-word;
 }
+.payable-detail__settled {
+    color: #218739;
+    padding-right: 5px;
+}

@@ -1,6 +1,8 @@
+------------------------------------ 19-AUG-2021 ------------------------------
+ALTER TABLE `shared_invoice` ADD `last_viewed_at` TIMESTAMP NULL AFTER `is_viewed`;
+
 ------------------------------------ 18-AUG-2021 ------------------------------
-ALTER TABLE `case_event_linked_staff` ADD `comment_read_at` TIMESTAMP NULL AFTER `is_linked`;
-ALTER TABLE `case_event_linked_staff` CHANGE `comment_read_at` `comment_read_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `case_event_linked_staff` ADD `comment_read_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER `is_linked`;
 
 ------------------------------------ 16-AUG-2021 ------------------------------
 ALTER TABLE `client_cases_import_history`

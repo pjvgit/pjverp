@@ -21,6 +21,12 @@
 			</div>
 			<div class="mb-3 mb-md-0">
 				<div class="p-3">
+					@if($invoice->status == "Paid")
+					<div class="text-center">
+						<div class="detail-view__label mb-2">Paid</div>
+						<h2><i class="fas fa-check-circle payable-detail__settled"></i>${{ $invoice->total_amount_new }}</h2>
+					</div>
+					@endif
 					<div class="payable-detail__summary">
 						<div class="payable-detail__summary__left-panel"><b>{{ @$invoice->case->caseBillingClient[0]->full_name }}</b>
 							<div class="payable-detail__address-text">{{ @$invoice->case->caseBillingClient[0]->full_address}}</div>
