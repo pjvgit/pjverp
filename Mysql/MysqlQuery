@@ -1,4 +1,8 @@
 ------------------------------------ 18-AUG-2021 ------------------------------
+ALTER TABLE `invoices`
+ADD `bill_address_text` longtext COLLATE 'utf8mb4_bin' NULL AFTER `invoice_setting`;
+
+------------------------------------ 18-AUG-2021 ------------------------------
 ALTER TABLE `case_event_linked_staff` ADD `comment_read_at` TIMESTAMP NULL AFTER `is_linked`;
 ALTER TABLE `case_event_linked_staff` CHANGE `comment_read_at` `comment_read_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
 

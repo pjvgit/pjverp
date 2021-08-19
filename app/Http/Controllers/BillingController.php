@@ -3171,6 +3171,7 @@ class BillingController extends BaseController
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id= ($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
+            $InvoiceSave->bill_address_text=$request->bill_address_text;
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";
             }else{
@@ -4533,6 +4534,7 @@ class BillingController extends BaseController
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id=($request->court_case_id == "none") ? 0 : $request->court_case_id;
             $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
+            $InvoiceSave->bill_address_text=$request->bill_address_text;            
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";
             }else{

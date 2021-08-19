@@ -32,10 +32,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                     {{ucfirst(substr($userData['middle_name'],0,50))}}
                     {{ucfirst(substr($userData['last_name'],0,50))}}</b><br>
 
-                    {{$UsersAdditionalInfo['street']}} <br>
-                    {{$UsersAdditionalInfo['address2']}} <br>
-                    {{$UsersAdditionalInfo['city']}}, {{$UsersAdditionalInfo['state']}}  <br>
-                    {{$UsersAdditionalInfo['county_name']}}, {{$UsersAdditionalInfo['postal_code']}}
+                    {!! nl2br($Invoice->bill_address_text) !!}
             </td>
             <td style="width: 40%;">
 

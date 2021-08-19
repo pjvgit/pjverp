@@ -109,11 +109,8 @@
                 <span class="billing_user_name">
                     <a href="{{route('contacts/clients/view', $userMaster->id) }}">{{$userMaster->first_name}}
                         {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
-
-                        {{@$UsersAdditionalInfo['street']}}<br>
-                        {{@$UsersAdditionalInfo['address2']}}<br>
-                        {{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} <br>
-                        {{@$UsersAdditionalInfo['county_name']}}, {{@$UsersAdditionalInfo['postal_code']}}
+                        
+                        {!! nl2br($findInvoice->bill_address_text) !!}
                 </span>
                 <p></p>
             </td>
