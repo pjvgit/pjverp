@@ -3134,17 +3134,24 @@ class BillingController extends BaseController
             'invoice_number_padded' => 'required|numeric|unique:invoices,id',
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
-            'total_text' => 'required',
+            'total_text' => 'required'
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
-            $rules['expenseEntrySelectedArray'] = 'nullable|array';
+            $rules['expenseEntrySelectedArray'] = 'nullable|array';            
         } else {
             if(empty($request->forwarded_invoices)){
                 $rules['timeEntrySelectedArray'] = 'required_without:expenseEntrySelectedArray|array';
                 $rules['expenseEntrySelectedArray'] = 'required_without:timeEntrySelectedArray|array';
             }
         }
+        $paymentPlanAmount = 0;
+        foreach($request->new_payment_plans as $k=>$v){
+            $paymentPlanAmount += $v['amount'];
+        }
+        if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
+            $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
+        }        
         $request->validate($rules,
         [
             "invoice_number_padded.unique"=>"Invoice number is already taken",
@@ -3152,9 +3159,11 @@ class BillingController extends BaseController
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
             "contact.required"=>"Billing user can't be blank",
             "timeEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add time entries activity.",
-            "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity"
-        ]);          
-        dbStart();
+            "expenseEntrySelectedArray.required_without"=>"You are attempting to save a blank invoice, please add expenses activity",
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
+        ]);      
+        // dd($request->all());    
+        dbStart();        
         // try {
             DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number_padded)->delete();
             $InvoiceSave=new Invoices;
