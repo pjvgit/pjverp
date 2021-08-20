@@ -157,7 +157,8 @@ $CommonController= new App\Http\Controllers\CommonController();
                                         $commentCount = 0;
                                         if(count($vv->eventLinkedStaff)) {
                                             $lastReadAt = $vv->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
-                                            $commentCount = $vv->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
+                                            if($lastReadAt)
+                                                $commentCount = $vv->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
                                         }
                                     @endphp
                                     @if($commentCount)
