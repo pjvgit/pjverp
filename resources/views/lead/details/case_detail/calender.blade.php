@@ -328,8 +328,8 @@ $CommonController= new App\Http\Controllers\CommonController();
     </div>
 </div>
 
-<div id="loadGrantAccessModal" class="modal fade modal-overlay" tabindex="-1" role="dialog"
-aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+@include('calendar.partials.load_grant_access_modal')
+{{-- <div id="loadGrantAccessModal" class="modal fade modal-overlay" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
             <div class="modal-header">
@@ -345,11 +345,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <style> .modal { overflow: auto !important; }</style>
 
 @section('page-js-inner')
-
+<script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
@@ -495,7 +495,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function loadGrantAccessModal(id) {
+    /* function loadGrantAccessModal(id) {
         if($("#cleintUSER_"+id).prop('checked')==true && $("#cleintUSER_"+id).attr("data-client_portal_enable") == 0){
             $("#cleintUSER_"+id).prop('checked',false);
             $("#loadGrantAccessModal").modal();
@@ -528,7 +528,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         
 
        
-    }
+    } */
    
 </script>
 @stop

@@ -318,6 +318,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('court_cases/loadCaseNoneLinkedStaff', 'CaseController@loadCaseNoneLinkedStaff')->name('court_cases/loadCaseNoneLinkedStaff');
     Route::post('court_cases/deleteEventPopup', 'CaseController@deleteEventPopup')->name('court_cases/deleteEventPopup');
     Route::post('court_cases/deleteEventFromCommentPopup', 'CaseController@deleteEventFromCommentPopup')->name('court_cases/deleteEventFromCommentPopup');
+    Route::post('court_cases/load/firm/defaultReminder', 'CaseController@loadFirmDefaultReminder')->name('court_cases/load/firm/defaultReminder');
 
     Route::post('court_cases/deleteEvent', 'CaseController@deleteEvent')->name('court_cases/deleteEvent');
     Route::post('court_cases/loadAfterFirstCase', 'CaseController@loadAfterFirstCase')->name('court_cases/loadAfterFirstCase');

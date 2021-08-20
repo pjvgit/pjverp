@@ -828,6 +828,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @include('commonPopup.popup_without_param_code')
 @endsection
 @section('page-js')
+<script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('[data-toggle="popover"]').popover();

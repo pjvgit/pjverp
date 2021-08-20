@@ -350,20 +350,14 @@
                 </div>
             </div>  
         
-            
-            <div class="fieldGroupCopy copy hide" style="display: none;">
+            @include('case.event.add_more_reminder_div')
+            {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
                 <div class="">
                     <div class="d-flex col-10 pl-0 align-items-center">
                         <div class="pl-0 col-3">
                             <div>
                                 <div class="">
-                                    <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]"
-                                        class="reminder_user_type form-control custom-select  ">
-                                        {{-- <option value="me">Me</option>
-                                        <option value="attorney">Attorneys</option>
-                                        <option value="paralegal">Paralegals</option>
-                                        <option value="staff">Staff</option>
-                                        <option value="client_lead">Client/Lead</option> --}}
+                                    <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
                                         @forelse (reminderUserType() as $key => $item)
                                         <option value="{{ $key }}">{{ $item }}</option>
                                         @empty
@@ -383,7 +377,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
+                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1" id="reminder_number">
                         <div class="col-4">
                             <div>
                                 <div class="">
@@ -402,7 +396,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="form-group row pt-">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
@@ -548,9 +542,9 @@
         $(document).on("click", ".add-more", function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
-            $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
-            $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
-            $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
+            // $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
         });
         $('#createEvent').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
@@ -990,7 +984,7 @@
             }
         })
     }
-    function chngeTy(sel){
+    /* function chngeTy(sel){
         if(sel.value=='client-lead'){
             $("#reminder_type_"+sel.id+" option[value='text-sms']").show();
             $("#reminder_type_"+sel.id+" option[value='popup']").hide();
@@ -998,7 +992,7 @@
             $("#reminder_type_"+sel.id+" option[value='text-sms']").hide();
             $("#reminder_type_"+sel.id+" option[value='popup']").show();
         }
-    }
+    } */
     $("input:checkbox#no_case_link").click(function () {
         if ($(this).is(":checked")) {
             
@@ -1041,4 +1035,41 @@
         // for week
         $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }
+
+    // Get default firm reminder for client
+    var reminderAdded = false;
+    $(document).on("change", ".load-default-reminder", function() {
+        if($(this).is(":checked") && !reminderAdded) {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/court_cases/load/firm/defaultReminder",
+                dataType: "JSON",
+                success: function (res) {
+                    if(res.default_reminder) {
+                        if(res.default_reminder.length > 0) {
+                            $.each(res.default_reminder, function(ind, item) {
+                                console.log(item.reminder_user_type);
+                                console.log(item.reminder_type);
+                                $(".add-more").trigger("click");
+                                var lastNo = $(".fieldGroup").length;
+                                $('body').find("#"+lastNo+" option[value='client-lead']").show();
+                                $('body').find('#'+lastNo).val(item.reminder_user_type);
+                                $('#'+lastNo).trigger("change");
+                                $('body').find('#reminder_number_'+lastNo).val(item.reminer_number);
+                                $('body').find('#reminder_time_unit_'+lastNo).val(item.reminder_frequncy);
+                                $('body').find('#reminder_type_'+lastNo).val(item.reminder_type);
+                            });
+                            reminderAdded = true;
+                        }
+                    }
+                }
+            });
+        } else {
+            var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
+            if(checkedLen <= 0) {
+                $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroup').remove();
+                reminderAdded = false;
+            }
+        }
+    });
 </script>

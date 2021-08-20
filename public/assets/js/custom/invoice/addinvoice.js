@@ -414,21 +414,3 @@ $(".apply-credit-amt").on("focusout", function() {
     $(".total-to-apply").text(applied.toFixed(2));
     $(".invoice-total-amount").text('$'+$(".final_total").text());
 });
-
-$('#form').validate({
-    errorPlacement: function(error, element) {
-        //Custom position: first name
-        if (element.attr("name") == "first" ) {
-            $("#errNm1").text(error);
-        }
-        //Custom position: second name
-        else if (element.attr("name") == "second" ) {
-            $("#errNm2").text(error);
-        }
-        // Default position: if no match is met (other fields)
-        else {
-             error.append($('.errorTxt span'));
-        }
-    },
-    rules
-});

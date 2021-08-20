@@ -19,6 +19,7 @@ use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
+use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages;
 use Illuminate\Support\Str;
 use App\Jobs\CommentEmail;
@@ -8301,6 +8302,15 @@ class CaseController extends BaseController
             "data"            => $messages 
         );
         echo json_encode($json_data);  
+    }
+
+    /**
+     * load default firm reminders for client
+     */
+    public function loadFirmDefaultReminder()
+    {
+        $defaultReminder = FirmEventReminder::where("firm_id", auth()->user()->firm_name)->get();
+        return response()->json(['default_reminder' => $defaultReminder]);
     }
 }
   

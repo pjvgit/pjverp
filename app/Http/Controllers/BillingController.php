@@ -3462,7 +3462,7 @@ class BillingController extends BaseController
                             'entry_type' => "0",
                             'payment_from_id' => $item['client_id'],
                             'deposit_into' => "Operating Account",
-                            'total' => ($currentBalance['total'] + $item['applied_amount']),
+                            'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
                             'firm_id' => $authUser->firm_name,
                             'created_by' => $authUser->id 
                         ]);
@@ -3550,7 +3550,7 @@ class BillingController extends BaseController
                             'entry_type' => "0",
                             'payment_from_id' => $item['client_id'],
                             'deposit_into' => "Operating Account",
-                            'total' => (@$currentBalance['total'] ?? 0 + $item['applied_amount']),
+                            'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
                             'firm_id' => $authUser->firm_name,
                             'created_by' => $authUser->id,
                         ]);

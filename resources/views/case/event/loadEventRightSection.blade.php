@@ -10,7 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
                 <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
@@ -33,7 +33,7 @@
                     <label class="mb-0 loadEventRightSection">
                         <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                         onclick="loadGrantAccessModal({{$val->id}});" data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
-                        class="lead_client_share_all_users client-login-not-enabled handler-attached">
+                        class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
                     </label>
                 </td>
                 <td>
@@ -338,5 +338,4 @@
         }
         return array;
     }
-
 </script>

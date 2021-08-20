@@ -275,10 +275,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                                             name="reminder_type[]"
                                                                                             class="form-control custom-select valid"
                                                                                             aria-invalid="false">
-                                                                                            <option
+                                                                                            {{-- <option
                                                                                                 <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?>
                                                                                                 value="popup">popup
-                                                                                            </option>
+                                                                                            </option> --}}
                                                                                             <option
                                                                                                 <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?>
                                                                                                 value="email">email
@@ -340,12 +340,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                 <div class="pl-0 col-3">
                                                                     <div>
                                                                         <div class="">
-                                                                            <select id="reminder_user_type"
-                                                                                name="reminder_user_type[]"
-                                                                                class="reminder_user_type form-control custom-select  ">
-                                                                                <option value="me">Clients/Leads
-                                                                                </option>
-
+                                                                            <select id="reminder_user_type" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
+                                                                                <option value="client-lead">Clients/Leads</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -356,7 +352,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="reminder_type"
                                                                                 name="reminder_type[]"
                                                                                 class="reminder_type form-control custom-select  ">
-                                                                                <option value="popup">popup</option>
+                                                                                {{-- <option value="popup">popup</option> --}}
                                                                                 <option value="email">email</option>
                                                                                 <option value="text-sms">Text(SMS)
                                                                                 </option>

@@ -399,6 +399,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 
+@include('calendar.partials.load_grant_access_modal')
+
 @if(!isset($evetData))
 <span id="dp"><input type="text" class="form-control" style="width: 100px;margin-right: 1px;height: 28px;" name="datefilter" value="{{date('m/d/Y')}}" id="datepicker"></span>
 @endif
@@ -423,6 +425,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 </style>
 @section('page-js')
 {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script> --}}
+<script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 
 <script type="text/javascript">

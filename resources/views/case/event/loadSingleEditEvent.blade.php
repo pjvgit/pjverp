@@ -392,12 +392,7 @@
                                                     <div class="pl-0 col-3">
                                                         <div>
                                                             <div class="">
-                                                                <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
-                                                                    {{-- <option <?php if($rval->reminder_user_type=="me"){ echo "selected=selected"; } ?>  value="me">Me</option>
-                                                                    <option <?php if($rval->reminder_user_type=="attorney"){ echo "selected=selected"; } ?> value="attorney">Attorneys</option>
-                                                                    <option <?php if($rval->reminder_user_type=="paralegal"){ echo "selected=selected"; } ?>  value="paralegal">Paralegals</option>
-                                                                    <option <?php if($rval->reminder_user_type=="staff"){ echo "selected=selected"; } ?>  value="staff">Staff</option>
-                                                                    <option <?php if($rval->reminder_user_type=="client_lead"){ echo "selected=selected"; } ?>  value="client_lead">Client/Lead</option> --}}
+                                                                <select id="{{ $rkey + 1 }}" name="reminder_user_type[]" class="form-control custom-select reminder_user_type">
                                                                     @forelse (reminderUserType() as $key => $item)
                                                                     <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? "selected" : "" }}>{{ $item }}</option>
                                                                     @empty
@@ -409,17 +404,17 @@
                                                     <div class="pl-0 col-3">
                                                         <div>
                                                             <div class="">
-                                                                <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
+                                                                <select id="reminder_type_{{ $rkey + 1 }}" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
                                                                     <option <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?> value="popup">popup</option>
                                                                     <option <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?> value="email">email</option>
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                    </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                                    </div><input name="reminder_number[]" id="reminder_number_{{ $rkey + 1 }}" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                                     <div class="col-4">
                                                         <div>
                                                             <div class="">
-                                                                <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
+                                                                <select id="reminder_time_unit_{{ $rkey + 1 }}" name="reminder_time_unit[]" class="form-control custom-select  ">
                                                                     <option <?php if($rval->reminder_frequncy=="minute"){ echo "selected=selected"; } ?> value="minute">minutes</option>
                                                                     <option <?php if($rval->reminder_frequncy=="hour"){ echo "selected=selected"; } ?> value="hour">hours</option>
                                                                     <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
@@ -442,20 +437,14 @@
                             </div>
                         </div>  
                     
-                        
-                        <div class="fieldGroupCopy copy hide" style="display: none;">
+                        @include('case.event.add_more_reminder_div')
+                        {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
                             <div class="">
                                 <div class="d-flex col-10 pl-0 align-items-center">
                                     <div class="pl-0 col-3">
                                         <div>
                                             <div class="">
-                                                <select id="reminder_user_type" name="reminder_user_type[]"
-                                                    class="form-control custom-select  ">
-                                                    {{-- <option value="me">Me</option>
-                                                    <option value="attorney">Attorneys</option>
-                                                    <option value="paralegal">Paralegals</option>
-                                                    <option value="staff">Staff</option>
-                                                    <option value="client_lead">Client/Lead</option> --}}
+                                                <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
                                                     @forelse (reminderUserType() as $key => $item)
                                                     <option value="{{ $key }}">{{ $item }}</option>
                                                     @empty
@@ -467,8 +456,7 @@
                                     <div class="pl-0 col-3">
                                         <div>
                                             <div class="">
-                                                <select id="reminder_type" name="reminder_type[]"
-                                                    class="form-control custom-select  ">
+                                                <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                                     <option value="popup">popup</option>
                                                     <option value="email">email</option>
                                                 </select>
@@ -493,7 +481,7 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="form-group row pt-">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>

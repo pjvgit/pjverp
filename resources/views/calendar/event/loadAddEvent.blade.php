@@ -348,8 +348,8 @@
                 </div>
             </div>  
         
-            
-            <div class="fieldGroupCopy copy hide" style="display: none;">
+            @include('case.event.add_more_reminder_div')
+            {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
                 <div class="">
                     <div class="d-flex col-10 pl-0 align-items-center">
                         <div class="pl-0 col-3">
@@ -395,7 +395,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="form-group row pt-">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
@@ -532,9 +532,9 @@
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
-            $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
-            $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
-            $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
+            // $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
         });
         $('#createEvent').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

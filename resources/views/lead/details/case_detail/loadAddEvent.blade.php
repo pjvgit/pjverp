@@ -347,8 +347,8 @@
                 </div>
             </div>  
         
-            
-            <div class="fieldGroupCopy copy hide" style="display: none;">
+            @include('case.event.add_more_reminder_div')
+            {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
                 <div class="">
                     <div class="d-flex col-10 pl-0 align-items-center">
                         <div class="pl-0 col-3">
@@ -356,11 +356,6 @@
                                 <div class="">
                                     <select id="reminder_user_type" onchange="chngeTy(this)" name="reminder_user_type[]"
                                         class="reminder_user_type form-control custom-select  ">
-                                        {{-- <option value="me">Me</option>
-                                        <option value="attorney">Attorneys</option>
-                                        <option value="paralegal">Paralegals</option>
-                                        <option value="staff">Staff</option>
-                                        <option value="client_lead">Client/Lead</option> --}}
                                         @forelse (reminderUserType() as $key => $item)
                                         <option value="{{ $key }}">{{ $item }}</option>
                                         @empty
@@ -399,7 +394,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="form-group row pt-">
                 <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
@@ -453,9 +448,9 @@
 <script type="text/javascript">
     $(document).ready(function () {
       
-        loadCaseClient({{$case_id}});
-        loadCaseNoneLinkedStaff({{$case_id}});
-        loadCaseLinkedStaff({{$case_id}});
+        // loadCaseClient({{$case_id}});
+        // loadCaseNoneLinkedStaff({{$case_id}});
+        // loadCaseLinkedStaff({{$case_id}});
 
         
         $('#dateInputPanel .input-time').timepicker({
@@ -519,9 +514,9 @@
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
-            $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
-            $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
-            $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
+            // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
+            // $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
         });
         $('#createEvent').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
