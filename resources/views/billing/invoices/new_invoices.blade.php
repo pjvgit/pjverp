@@ -1333,7 +1333,7 @@ if(!isset($adjustment_token)){
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->trust_account_balance ?? 0.00 }}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
@@ -1344,7 +1344,7 @@ if(!isset($adjustment_token)){
                                                                         <div class="col-12 col-sm-12">
                                                                             <select class="form-control" name="trust[deposite_into]">
                                                                                 <option value="">Select the deposit into account</option>
-                                                                                <option value="operating account">Operating Account</option>
+                                                                                <option value="operating account" {{ (old('trust.''.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -1426,7 +1426,7 @@ if(!isset($adjustment_token)){
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-credit-amt" value="" name="credit[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}">
+                                                                        <input class="form-control apply-credit-amt" value="{{ old('credit.'.$citem->id.'.applied_amount') ?? '' }}" name="credit[{{$citem->id}}][applied_amount]" maxlength="17" max="{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
