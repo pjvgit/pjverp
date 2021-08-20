@@ -1125,6 +1125,9 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('imports/cases/{id}', 'ClientdashboardController@viewCasesLog')->name('imports/cases/{id}');
     Route::post('imports/revertImportCases', 'ClientdashboardController@revertImportCases')->name('imports/revertImportCases');
     
+    Route::get('exports', 'ClientdashboardController@exportFullBackup')->name('exports');
+    Route::post('imports/backupCases', 'ClientdashboardController@backupCases')->name('imports/backupCases');
+    Route::post('imports/loadFullBackupHistory', 'ClientdashboardController@loadFullBackupHistory')->name('imports/loadFullBackupHistory');
     //Scripts
     Route::get('assignTokenToInvoice','CustomScriptController@assignTokenToInvoice')->name('assignTokenToInvoice');
 
