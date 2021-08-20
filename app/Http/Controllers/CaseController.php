@@ -294,6 +294,20 @@ class CaseController extends BaseController
                     }   
                     $CaseClientSelection->save();
                     
+                    // Flat fees entry
+                    if(isset($request->billingMethod)) {
+                        if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
+                            FlatFeeEntry::create([
+                                'case_id' => $CaseMaster->id,
+                                'user_id' => Auth::user()->id,
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $request->default_rate ?? 0,
+                                'time_entry_billable' => 'yes',
+                                'created_by' => Auth::user()->id, 
+                            ]);
+                        }
+                    }
+
                     //Activity tab
                     $datauser=[];
                     $datauser['activity_title']='linked client';
@@ -988,8 +1002,9 @@ class CaseController extends BaseController
                
             } 
             $caseBiller=[];
-            $timeEntryData=$expenseEntryData=$trustUSers=$InvoicesTotal=$InvoicesCollectedTotal=$InvoicesPendingTotal='';
+            $flatFeeEntryData=$timeEntryData=$expenseEntryData=$trustUSers=$InvoicesTotal=$InvoicesCollectedTotal=$InvoicesPendingTotal='';
             if(\Route::current()->getName()=="overview"){
+                $flatFeeEntryData=$this->getFlatfeeEntryTotalByCase($case_id);    
                 $timeEntryData=$this->getTimeEntryTotalByCase($case_id);    
                 $expenseEntryData=$this->getExpenseEntryTotalByCase($case_id);    
                 $trustUSers=$this->getTrustBalance($case_id);    
@@ -1054,7 +1069,7 @@ class CaseController extends BaseController
 
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
-            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
+            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
         }
     }
 
@@ -1129,8 +1144,23 @@ class CaseController extends BaseController
                 }
             }
         
-          return response()->json(['errors'=>'']);
-          exit;
+            // //Get Flat fees entry
+            if($request->billingMethod == "flat" || $caseMaster->billing_method == "mixed") {
+                $totalFlatFee = FlatFeeEntry::where('case_id', $request->case_id)->sum('cost');
+                $remainFlatFee = $request->default_rate - $totalFlatFee;
+                if($remainFlatFee > 0) {
+                    FlatFeeEntry::create([
+                        'case_id' => $caseMaster->id,
+                        'user_id' => auth()->id(),
+                        'entry_date' => Carbon::now(),
+                        'cost' =>  $remainFlatFee,
+                        'time_entry_billable' => 'yes',
+                        'created_by' => auth()->id(), 
+                    ]);
+                }                                
+            }
+            return response()->json(['errors'=>'']);
+            exit;
        }
     }
     public function loadTimeEntryBlocks(Request $request)

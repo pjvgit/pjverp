@@ -29,8 +29,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 aria-selected="true">Cases</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#tab3" role="tab"
-                                aria-controls="tba2" aria-selected="true">Full Backup</a>
+                            <a class="nav-link {{ request()->is('exports') ? 'active show' : '' }}" 
+                                id="profile-basic-tab"  href="{{ route('exports') }}" aria-controls="tba2" 
+                                aria-selected="true">Full Backup</a>
                         </li>
                     </ul>
                     <div class="tab-content w-100" id="myTabContent">
