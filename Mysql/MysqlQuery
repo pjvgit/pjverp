@@ -1,6 +1,24 @@
 ------------------------------------ 20-AUG-2021 ------------------------------
 ALTER TABLE `firm_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client-lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 
+CREATE TABLE `client_fullbackup` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `export_for` int(11) NULL,
+  `file_name` varchar(255) NULL,
+  `options` varchar(255) NULL,
+  `status` enum('1','2','3') NOT NULL DEFAULT '1',
+  `download_link` text NULL,
+  `created_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+ALTER TABLE `client_fullbackup`
+ADD `request_json` text COLLATE 'utf8mb4_general_ci' NULL AFTER `download_link`,
+CHANGE `created_at` `created_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `request_json`,
+CHANGE `updated_at` `updated_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `created_at`,
+CHANGE `deleted_at` `deleted_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `updated_at`;
+
 ------------------------------------ 19-AUG-2021 ------------------------------
 ALTER TABLE `shared_invoice` ADD `last_viewed_at` TIMESTAMP NULL AFTER `is_viewed`;
 

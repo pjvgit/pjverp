@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Validator, Response, Mail,Storage,DB;
 use App\User,App\CaseActivity,App\AccountActivity;
 use App\CaseClientSelection,App\ClientActivity,App\UsersAdditionalInfo;
-use App\TaskTimeEntry,App\ExpenseEntry,App\ViewCaseState,App\CaseStaff;
+use App\TaskTimeEntry,App\ExpenseEntry,App\ViewCaseState,App\CaseStaff,App\FlatFeeEntry;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class BaseController extends Controller
@@ -193,6 +193,17 @@ class BaseController extends Controller
     public function generateUniqueToken()
     {
         return Str::random(250)."-".time(); 
+    }
+    public function getFlatfeeEntryTotalByCase($case_id){
+        $timeTotalBillable=$timeTotalNonBillable=0;
+        $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $case_id)->where("time_entry_billable","yes")->get();
+        foreach($flatFeeData as $TK=>$TE){
+            $timeTotalBillable+=$TE['cost'];
+        }
+        $FlatFeeEntry['case_id']=$case_id;
+        $FlatFeeEntry['billable_entry']=$timeTotalBillable;
+        $FlatFeeEntry['non_billable_entry']=$timeTotalNonBillable;
+        return $FlatFeeEntry;
     }
     public function getTimeEntryTotalByCase($case_id){
         $timeTotalBillable=$timeTotalNonBillable=0;

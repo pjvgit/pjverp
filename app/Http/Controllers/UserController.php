@@ -133,7 +133,6 @@ class UserController extends BaseController
         // $userPlan->status='1';
         // $userPlan->save();
 
-
         $getTemplateData = EmailTemplate::find(5);
         $fullName=$request->first_name. ' ' .$request->last_name;
         $email=$request->email;
@@ -177,10 +176,10 @@ class UserController extends BaseController
             }else{
                 //Insert default case stage 
                 $data = array(
-                    array("stage_order"=>"1","title"=>"Discovery","created_by"=>$verifyUser->id,'stage_color'=>'#661051'),
-                    array("stage_order"=>"2","title"=>"In Trial","created_by"=>$verifyUser->id,'stage_color'=>'#BFD8E1'),
-                    array("stage_order"=>"3","title"=>"On Hold","created_by"=>$verifyUser->id,'stage_color'=>'#69B6D6')
-                );
+                    array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                    array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                    array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                );        
                 CaseStage::insert($data);
 
                 // $case_practice_area = array(
