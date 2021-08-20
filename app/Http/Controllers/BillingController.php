@@ -2193,7 +2193,8 @@ class BillingController extends BaseController
 
             // //Get Flat fees entry
             if($caseMaster) {
-                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
+                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
+                // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
                     if($remainFlatFee > 0) {
@@ -5885,27 +5886,26 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
-
-                if($Invoices->payment_plan_enabled == 'no'){
-                    $Applied=TRUE;
-                }else{
-                    $Applied=FALSE;
-                }
                 }      
+                
                 if($Applied==TRUE){
-                    $InvoiceAdjustment->save();
-                    if($discount_type=="discount"){
-                        $subTotalSave=$subTotal-$finalAmount;
-                        if($subTotalSave<0){
-                            $subTotalSave=0;
+                    if($Invoices->payment_plan_enabled == 'no'){
+                        $InvoiceAdjustment->save();
+                        if($discount_type=="discount"){
+                            $subTotalSave=$subTotal-$finalAmount;
+                            if($subTotalSave<0){
+                                $subTotalSave=0;
+                            }
+                        }else{
+                            $subTotalSave=$subTotal+$finalAmount;
                         }
+                        $Invoices->total_amount=$subTotalSave;
+                        // $Invoices->token=base64_decode($v1);
+                        $Invoices->due_amount=$subTotalSave;
+                        $Invoices->save();
                     }else{
-                         $subTotalSave=$subTotal+$finalAmount;
+                        $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';    
                     }
-                    $Invoices->total_amount=$subTotalSave;
-                    // $Invoices->token=base64_decode($v1);
-                    $Invoices->due_amount=$subTotalSave;
-                    $Invoices->save();
                 }else{
                     $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
                 }

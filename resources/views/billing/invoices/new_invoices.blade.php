@@ -244,7 +244,7 @@ if(!isset($adjustment_token)){
                                 @endif
                             </h2>
                         </div>
-                        <?php if(!$FlatFeeEntry->isEmpty()){?>
+                        <?php if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed"){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -541,7 +541,7 @@ if(!isset($adjustment_token)){
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0"> {{$v->description}}</a>
                                     </td>
-                                    <td style="text-align: right;" class="billable_toggle time-entry-rate <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?> ">
+                                    <td style="text-align: right;" class="billable_toggle time-entry-rate timeentry_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?> ">
                                         <a data-toggle="modal" data-target="#editNewTimeEntry"
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0">
@@ -549,7 +549,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <?php
                                     if($v->rate_type=="flat"){?>
-                                    <td style="text-align: right;" class="billable_toggle time-entry-hours <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                    <td style="text-align: right;" class="billable_toggle time-entry-hours timeentry_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
                                         <a data-toggle="modal" data-target="#editNewTimeEntry"
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0">
@@ -558,7 +558,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <?php }else{
                                         ?>
-                                    <td style="text-align: right;" class="billable_toggle time-entry-hours {{-- row_total --}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                    <td style="text-align: right;" class="billable_toggle time-entry-hours timeentry_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
                                         <a data-toggle="modal" data-target="#editNewTimeEntry"
                                             onclick="editSingleTimeEntry({{$v->itd}})" data-placement="bottom"
                                             href="javascript:;" class="ml-0">
@@ -568,7 +568,7 @@ if(!isset($adjustment_token)){
                                     <?php } ?>
                                     <td class="billable_toggle pr-2">
                                         
-                                        <div class="locked row_total <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
+                                        <div class="locked row_total timeentry_amount_{{$v->itd}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                             <?php 
                                                 if($v->rate_type=="flat"){
                                                     echo $Total=$v->entry_rate;
@@ -592,7 +592,7 @@ if(!isset($adjustment_token)){
                                         </div>
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-check-type="time"
+                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}"  data-check-type="time"
                                             id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
@@ -785,12 +785,12 @@ if(!isset($adjustment_token)){
                                                 onclick="editNewExpenseEntry({{$v->eid}})" data-placement="bottom"
                                                 href="javascript:;" class="ml-0"> {{$v->description}}</a>
                                         </td>
-                                        <td style="text-align: right;" class="billable_toggle time-entry-rate <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                        <td style="text-align: right;" class="billable_toggle time-entry-rate expenseentry_amount_{{$v->eid}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
                                             <a data-toggle="modal" data-target="#editNewExpenseEntry"
                                                 onclick="editNewExpenseEntry({{$v->eid}})" data-placement="bottom"
                                                 href="javascript:;" class="ml-0">{{$v->cost}}</a>
                                         </td>
-                                        <td style="text-align: right;" class="billable_toggle time-entry-hours <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
+                                        <td style="text-align: right;" class="billable_toggle time-entry-hours expenseentry_amount_{{$v->eid}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
                                             <a data-toggle="modal" data-target="#editNewExpenseEntry"
                                                 onclick="editNewExpenseEntry({{$v->eid}})" data-placement="bottom"
                                                 href="javascript:;" class="ml-0">
@@ -803,7 +803,7 @@ if(!isset($adjustment_token)){
                                             </a>
                                         </td>
                                         <td class="billable_toggle pr-2">
-                                            <div class="locked row_total <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
+                                            <div class="locked row_total expenseentry_amount_{{$v->eid}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                                 <?php 
                                                 echo $Total= (str_replace(",","",$v->duration) * $v->cost);
                                                 if($v->time_entry_billable=="yes"){
@@ -813,7 +813,7 @@ if(!isset($adjustment_token)){
                                             </div>
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
-                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check" data-check-type="expense"
+                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->itd}}" data-check-type="expense"
                                                 id="invoice_expense_entry_nonbillable_time{{$v->eid}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td> 
@@ -2552,6 +2552,7 @@ if(!isset($adjustment_token)){
             var id = $(this).attr('id');
             var val = $(this).val;
             var sum = 0;
+            var primaryid = $(this).data('primaryid');
             $('input[name="linked_staff_checked_share[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
@@ -2560,7 +2561,9 @@ if(!isset($adjustment_token)){
                     $(this).parent().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().prev().css('text-decoration', '');
+                    $(".timeentry_amount_"+primaryid).removeClass("strike");
                 } else {
+                    $(".timeentry_amount_"+primaryid).addClass("strike");
                     $(this).parent().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().prev().css('text-decoration','line-through');
@@ -2696,6 +2699,7 @@ if(!isset($adjustment_token)){
             var id = $(this).attr('id');
             var val = $(this).val;
             var sum = 0;
+            var primaryid = $(this).data('primaryid');
             $('input[name="expense_entry[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
@@ -2704,7 +2708,9 @@ if(!isset($adjustment_token)){
                     $(this).parent().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().prev().css('text-decoration', '');
+                    $(".expenseentry_amount_"+primaryid).removeClass("strike");
                 } else {
+                    $(".expenseentry_amount_"+primaryid).addClass("strike");
                     $(this).parent().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().prev().css('text-decoration','line-through');
