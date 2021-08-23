@@ -4783,7 +4783,7 @@ class BillingController extends BaseController
                     foreach($forwardInv as $key => $item) {
                         if($item->paid_amount > 0 && Carbon::parse($item->due_date)->gt(Carbon::now()))
                             $status = "Partial";
-                        else if(Carbon::parse($item->due_date)->lt(Carbon::now()))
+                        else if($item->due_date && Carbon::parse($item->due_date)->lt(Carbon::now()))
                             $status = "Overdue";
                         else if($item->is_sent  == "yes")
                             $status = "Sent";
