@@ -488,11 +488,11 @@ trait CaseEventTrait {
      */
     public function saveEventHistory($request, $authUser)
     {
-        Log::info("Trait Auth user: ".$authUser);
+        Log::info("Trait Auth user: ".@$authUser);
         $CaseEventComment =new CaseEventComment();
         $CaseEventComment->event_id=$request;
         $CaseEventComment->comment=NULL;
-        $CaseEventComment->created_by = $authUser['id']; 
+        $CaseEventComment->created_by = @$authUser->id; 
         $CaseEventComment->action_type="1";
         $CaseEventComment->save();
     }
