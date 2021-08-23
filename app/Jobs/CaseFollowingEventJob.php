@@ -78,7 +78,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);   
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                        $this->saveEventHistory($CaseEvent->id);
+                        $this->saveEventHistory($CaseEvent->id, $authUser);
 
                         $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
                         $i++;
@@ -121,7 +121,7 @@ class CaseFollowingEventJob implements ShouldQueue
                             $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                             $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                             $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                            $this->saveEventHistory($CaseEvent->id);
+                            $this->saveEventHistory($CaseEvent->id, $authUser);
                         }
                         $i++;
                         $startDate = strtotime('+1 day',$startDate); 
@@ -158,7 +158,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                        $this->saveEventHistory($CaseEvent->id);
+                        $this->saveEventHistory($CaseEvent->id, $authUser);
                         $i++;
                         $startDate = strtotime('+7 day',$startDate); 
                     } while ($startDate <= $endDate);
@@ -216,7 +216,7 @@ class CaseFollowingEventJob implements ShouldQueue
                             $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                             $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                             $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                            $this->saveEventHistory($CaseEvent->id);
+                            $this->saveEventHistory($CaseEvent->id, $authUser);
                         }
                     }
                 } else {
@@ -260,7 +260,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                        $this->saveEventHistory($CaseEvent->id);
+                        $this->saveEventHistory($CaseEvent->id, $authUser);
 
                         $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
                         $i++;
@@ -305,7 +305,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                        $this->saveEventHistory($CaseEvent->id);
+                        $this->saveEventHistory($CaseEvent->id, $authUser);
 
                         $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
                         $i++;
