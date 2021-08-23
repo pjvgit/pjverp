@@ -1,9 +1,9 @@
 <?php
-$upcoming_events=""; 
-if(isset($_GET['upcoming_events'])){
-    $upcoming_events=$_GET['upcoming_events'];
-}
-$CommonController= new App\Http\Controllers\CommonController();
+// $upcoming_events=""; 
+// if(isset($_GET['upcoming_events'])){
+//     $upcoming_events=$_GET['upcoming_events'];
+// }
+// $CommonController= new App\Http\Controllers\CommonController();
 
 ?>
 <div class="col-md-12">
@@ -15,8 +15,8 @@ $CommonController= new App\Http\Controllers\CommonController();
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
                                 <label class="switch pr-3 switch-success"><span>Only show upcoming events</span>
-                                    <input type="checkbox" id="mc"
-                                        <?php if(isset($upcoming_events) && $upcoming_events!=''){ echo "checked=checked";}?>
+                                    <input type="checkbox" id="mc" value="true" checked
+                                        {{-- <?php if(isset($upcoming_events) && $upcoming_events!=''){ echo "checked=checked";}?> --}}
                                         name="upcoming_events"><span class="slider"></span>
                                     <i id="event-toggle-note" aria-hidden="true"
                                         class="fa fa-question-circle icon-question-circle icon ml-1"></i>
@@ -30,16 +30,16 @@ $CommonController= new App\Http\Controllers\CommonController();
 
                     </div>
                 </div>
-                <?php
-                if($allEvents->isEmpty()){?>
+                
+                @if(count($allEvents) == 0)
                 <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">There are no upcoming events scheduled.</div></div></div>
-                <?php } ?>
-                <table class="mt-3 border-light event-list-view table table-sm table-hover">
+                @else
+                <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
-                        <?php foreach($allEvents as $key=>$val){?>
+                        {{-- <?php foreach($allEvents as $key=>$val){?> --}}
                         <tr>
                             <th colspan="6">
-                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ $key}}</h2>
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->start_date)) }}</h2>
                             </th>
                         </tr>
                         <tr>
@@ -50,7 +50,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                             <th width="15%">Users</th>
                             <th width="13%"></th>
                         </tr>
-                        <?php foreach ($val as $kk=>$vv){?>
+                        {{-- <?php foreach ($val as $kk=>$vv){?>
                         <tr class="event-row false ">
                             <td class="event-date-and-time  c-pointer" style="width: 50px;">
                                 <?php  
@@ -199,9 +199,10 @@ $CommonController= new App\Http\Controllers\CommonController();
                         </tr>
                         <?php 
                         } 
-                            } ?>
+                            } ?> --}}
                     </tbody>
                 </table>
+                @endif
             </div>
         </div>
     </div>
@@ -356,8 +357,13 @@ $CommonController= new App\Http\Controllers\CommonController();
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
-            $('#submit').click();
+            // $('#submit').click();
+            tab1Page = 1;
+            loadMoreEvent(tab1Page, filter = 'true');
         });
+
+        // For load more events
+        loadMoreEvent(1, filter = null);
     });
     $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
         $("#preloader").show();
@@ -534,6 +540,44 @@ $CommonController= new App\Http\Controllers\CommonController();
 
        
     } */
+
+    
+    var tab1Page = 1;
+    $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+            tab1Page++;
+            var totalPage = $('#event_list_table tbody tr .event-last-page').val();
+            if(tab1Page <= totalPage)
+                loadMoreEvent(tab1Page, filter = null);
+        }
+    });
    
+    // Load more events
+    function loadMoreEvent(page, filter = null) {
+        var divId = 'event_list_table tbody';
+        var upcoming = $("input:checkbox#mc:checked").val();
+        $.ajax({
+            url : '?page=' + page,
+            data: {upcoming: upcoming},
+            beforeSend: function() {
+                $(".load-more-loader").show();
+            }
+        }).done(function (data) {
+            $(".load-more-loader").parents('tr').hide();
+            if(data != "") {
+                if(filter) {
+                    $('#'+divId).html(data);
+                } else {
+                    $('#'+divId).append(data);
+                }
+                $('#'+divId+' .pagination').hide();
+            } else {
+                $('#'+divId).html('<tr><td colspan="6"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+            }
+        }).fail(function () {
+            $(".load-more-loader").hide();
+            $('#'+divId).append('<tr><td colspan="6"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+        });
+    }
 </script>
 @stop
