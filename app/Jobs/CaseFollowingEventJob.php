@@ -78,6 +78,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);   
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
+                        Log::info("Job Auth user: ".$authUser);
                         $this->saveEventHistory($CaseEvent->id, $authUser);
 
                         $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
