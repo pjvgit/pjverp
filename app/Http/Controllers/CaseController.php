@@ -6985,10 +6985,10 @@ class CaseController extends BaseController
                             $CaseEvent->parent_evnt_id =  $parentCaseID;
                             $CaseEvent->save();
                         }
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                        $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
+                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser);
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
             
                         // $this->saveEventHistory($CaseEvent->id);
                         
@@ -7015,10 +7015,10 @@ class CaseController extends BaseController
                                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                                 $CaseEvent->save();
                             }
-                            $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                            $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
+                            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
+                            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
+                            $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
 
                             // $this->saveEventHistory($CaseEvent->id);
                         }
@@ -7953,8 +7953,7 @@ class CaseController extends BaseController
         
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
-
-        session(['popup_success' => 'Event was updated.']);
+        sleep(3);
         return response()->json(['errors'=>'']);
         exit;
     }
