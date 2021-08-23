@@ -253,7 +253,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     } else {
                         $("#exportContacts").modal("hide");
                         swal('Success!', res.msg, 'success');
-                        window.open(res.url);
                         setTimeout(function () {
                             window.location.reload();
                         }, 2000);
