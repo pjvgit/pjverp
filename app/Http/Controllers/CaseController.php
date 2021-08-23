@@ -7953,7 +7953,7 @@ class CaseController extends BaseController
         
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
-        sleep(3);
+        sleep(5);
         return response()->json(['errors'=>'']);
         exit;
     }
