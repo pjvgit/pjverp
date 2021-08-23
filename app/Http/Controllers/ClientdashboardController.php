@@ -4031,7 +4031,8 @@ class ClientdashboardController extends BaseController
         $clientFullBackup->download_link = asset($zipFileName);
         $clientFullBackup->save();
         
-        
+        \App\Jobs\FullBackUpOfApplication::dispatch($clientFullBackup, $zipPath, $zipFileName, $request->all());
+
         return response()->json(['errors'=>'','url'=>$zipPath, 'msg'=>" Building File... it will downloading automaticaly"]);
         exit;
         File::deleteDirectory(public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name));
@@ -4079,101 +4080,6 @@ class ClientdashboardController extends BaseController
         }
         return response()->json(['errors'=>'','url'=>$Path,'msg'=>" Building File... it will downloading automaticaly"]);
         exit;
-    }
-
-    public function generateBackupCasesCSV($request){
-        $casesCsvData=[];
-        $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
-        $casesCsvData[]=$casesHeader;
-
-        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-
-        if($request['export_cases'] == 0){
-            $case = $case->where("case_master.is_entry_done","1");
-            if(Auth::user()->parent_user==0){
-                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                $getChildUsers[]=Auth::user()->id;
-                $case = $case->whereIn("case_master.created_by",$getChildUsers);
-            }else{
-                $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
-                $case = $case->whereIn("case_master.id",$childUSersCase);
-            }
-            if(!isset($request['include_archived'])){   
-                $case = $case->where("case_master.case_close_date", NULL);
-            }
-        }else{
-            if(!isset($request['include_archived'])){
-                $case = $case->where("case_master.case_close_date", NULL);
-            }
-        }
-        $case = $case->get();        
-        foreach($case as $k=>$v){
-            $practiceArea = '';
-            if($v->practice_area > 0){
-                $practiceAreaList = CasePracticeArea::where("status","1")->where("id",$v->practice_area)->first();  
-                $practiceArea = $practiceAreaList->title;
-            }
-
-            $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
-            ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
-            ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
-            ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
-            ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
-            ->where("case_client_selection.case_id",$v->id)
-            ->get();
-            
-            $contactList = '';
-            $is_billing_contact = '';
-            if(count($caseCllientSelection) > 0){
-                foreach($caseCllientSelection as $key=>$val){
-                    if($val->is_billing_contact == 'yes'){
-                        $is_billing_contact = $val->first_name.' '.$val->last_name;
-                    }
-                    if($val->user_level==4){
-                        $contactList .= $val->first_name.' '.$val->last_name.'(Attorney)'.PHP_EOL;
-                    }else{
-                        $contactList .= $val->first_name.' '.$val->last_name.'(Client)'.PHP_EOL;
-                    }
-                }                
-            }
-            
-            $caseStage = 'Not Specified';
-            if($v->case_status > 0){
-                $caseStageList = CaseStage::select("*")->where("status","1")->where("id",$v->case_status)->first();
-                $caseStage = $caseStageList->title ?? 'Not Specified';
-            }
-
-            $flatFee = 0;
-            if($v->billing_method =='flat' || $v->billing_method =='mixed'){ 
-                $flatFee = $v->billing_amount;
-            }
-
-            $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
-            $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
-          
-
-            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == 0) ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
-            
-            $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
-            if(count($ClientNotesData) > 0){
-                foreach($ClientNotesData as $key=>$notes)
-                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
-            }
-        }
-        // echo json_encode($casesCsvData);
-        // exit;
-        
-        $folderPath = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name);
-        if(!File::isDirectory($folderPath)){
-            File::makeDirectory($folderPath, 0777, true, true);    
-        }
-        $file_path =  $folderPath.'/cases.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
-        return true; 
     }
 }
   

@@ -37,7 +37,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <div class="tab-pane fade   {{ request()->is('exports') ? 'active show' : '' }}"
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
                             <div class="m-2">
-                                @if(!empty($ClientFullBackup))
+                                @if(empty($ClientFullBackup))
                                 <div class="d-flex align-items-center flex-row-reverse mb-2">
                                     <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#exportCourtCase"
                                         data-placement="bottom" href="javascript:;">Create Backup</a>

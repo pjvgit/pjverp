@@ -1344,7 +1344,7 @@ if(!isset($adjustment_token)){
                                                                         <div class="col-12 col-sm-12">
                                                                             <select class="form-control" name="trust[deposite_into]">
                                                                                 <option value="">Select the deposit into account</option>
-                                                                                <option value="operating account" {{ (old('trust.''.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
+                                                                                <option value="operating account" {{ (old('trust.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
