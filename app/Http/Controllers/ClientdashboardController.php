@@ -26,7 +26,7 @@ use App\Traits\CreditAccountTrait;
 use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
-use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup;
+use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup,App\AccountActivity;
 class ClientdashboardController extends BaseController
 {
     use CreditAccountTrait;
@@ -3626,7 +3626,7 @@ class ClientdashboardController extends BaseController
             $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
           
 
-            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == 0) ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
             
             $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
             if(count($ClientNotesData) > 0){
@@ -3887,7 +3887,7 @@ class ClientdashboardController extends BaseController
                             $ClientCasesImportHistory->sol_date = $finalOperationVal['sol_date'];
                             $ClientCasesImportHistory->outstanding_balance = $finalOperationVal['outstanding_balance'];
                             $ClientCasesImportHistory->case_stage = $finalOperationVal['case_stage'];
-                            $ClientCasesImportHistory->conflict_check = $finalOperationVal['conflict_check'];
+                            $ClientCasesImportHistory->conflict_check = ($finalOperationVal['conflict_check'] == 'TRUE') ? '1' : '0';
                             $ClientCasesImportHistory->conflict_check_notes = $finalOperationVal['conflict_check_notes'];
                             $ClientCasesImportHistory->case_note_1 = $finalOperationVal['case_note_1'];
                             $ClientCasesImportHistory->case_note_2 = $finalOperationVal['case_note_2'];
@@ -4031,55 +4031,10 @@ class ClientdashboardController extends BaseController
         $clientFullBackup->download_link = asset($zipFileName);
         $clientFullBackup->save();
         
-        \App\Jobs\FullBackUpOfApplication::dispatch($clientFullBackup, $zipPath, $zipFileName, $request->all());
+        \App\Jobs\FullBackUpOfApplication::dispatch($clientFullBackup, $zipPath, $zipFileName, $request->all(), Auth::user());
 
-        return response()->json(['errors'=>'','url'=>$zipPath, 'msg'=>" Building File... it will downloading automaticaly"]);
-        exit;
-        File::deleteDirectory(public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name));
-        if(!is_dir(public_path("backup/".date('Y-m-d').'/'.Auth::User()->firm_name))) {
-            File::makeDirectory(public_path("backup/".date('Y-m-d').'/'.Auth::User()->firm_name), $mode = 0777, true, true);
-        }
-        
-        
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/account_activities.csv");
-        $this->generateBackupCasesCSV($request->all());
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/cases.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/clients.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/documents.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/emails.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/events.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/expenses.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/flat_fees.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/invoice_discounts.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/invoices.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/lawyers.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/locations.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/messages.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/notes.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/tasks.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/time_entries.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/trust_activities.csv");
-
-        $zip = new ZipArchive;
-        $storage_path = '/backup/'.date('Y-m-d').'/'.Auth::User()->firm_name;
-        $firmData=Firm::find(Auth::User()->firm_name);
-        $zipFileName = $storage_path . '/' . $timeName . '.zip';
-        
-        $zipPath = asset($zipFileName);
-        if ($zip->open((public_path($zipFileName)), ZipArchive::CREATE) === true) {
-            foreach ($CSV as $relativName) {
-                $zip->addFile($relativName,basename($relativName));
-            }
-            $zip->close();
-            if ($zip->open(public_path($zipFileName)) === true) {
-                $Path= $zipPath;
-            } else {
-                $Path="";
-            }
-        }
-        return response()->json(['errors'=>'','url'=>$Path,'msg'=>" Building File... it will downloading automaticaly"]);
-        exit;
+        return response()->json(['errors'=>'','url'=>'', 'msg'=>"Your backup is being created. Building File in backgourd..."]);
+        exit;        
     }
 }
   
