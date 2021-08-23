@@ -21,6 +21,7 @@ use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages;
+use App\Jobs\CaseAllEventJob;
 use App\Jobs\CaseFollowingEventJob;
 use App\Jobs\CaseSingleEventJob;
 use Illuminate\Support\Str;
@@ -7506,7 +7507,8 @@ class CaseController extends BaseController
                 $this->saveEventHistory($CaseEvent->id);
 
             } else {
-                if($request->event_frequency=='DAILY')
+                $this->dispatch(new CaseAllEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser));
+                /* if($request->event_frequency=='DAILY')
                 {
                     $OldCaseEvent=CaseEvent::find($request->event_id);
                     $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
@@ -7929,7 +7931,7 @@ class CaseController extends BaseController
                             $i++;
                         } while ($startDate < $endDate);
                     }
-                }
+                } */
             }
         }
 
