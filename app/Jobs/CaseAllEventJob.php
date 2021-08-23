@@ -21,6 +21,8 @@ class CaseAllEventJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CaseEventTrait;
     protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser;
+    public $tries = 5;
+    public $timeout = 240;
     /**
      * Create a new job instance.
      *
