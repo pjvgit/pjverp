@@ -21,6 +21,7 @@ use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use App\FirmEventReminder;
 use App\FlatFeeEntry,App\Messages;
+use App\Jobs\CaseAddEventJob;
 use App\Jobs\CaseAllEventJob;
 use App\Jobs\CaseFollowingEventJob;
 use App\Jobs\CaseSingleEventJob;
@@ -2941,6 +2942,320 @@ class CaseController extends BaseController
         session(['popup_success' => 'Event was added.']);
         return response()->json(['errors'=>''   ]);
     }
+
+    /**
+     * Add new single/recurring event
+     */
+    public function saveAddEventPage2(Request $request)
+    {
+        // return $request->all();
+        $validator = \Validator::make($request->all(), [
+            'linked_staff_checked_share' => 'required'
+        ]);
+        if($validator->fails())
+        {
+            return response()->json(['errors'=>['You must share with at least one firm user<br>You must share with at least one user'],]);
+        }
+
+        $authUser = auth()->user();
+
+        //If new location is creating.
+        if($request->location_name!=''){
+            $locationID= $this->saveLocationOnce($request);
+        }
+
+        //Single event
+        if(!isset($request->recuring_event)){
+            $startDate = strtotime(date("Y-m-d", strtotime($request->start_date)));
+            $endDate = strtotime(date("Y-m-d",strtotime($request->end_date)));
+        }else{
+            //recurring event
+            $startDate = strtotime(date("Y-m-d",  strtotime($request->start_date)));
+            $endDate =  strtotime(date('Y-m-d',strtotime('+365 days')));
+            if($request->end_on!=''){
+                $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
+            }
+        }
+
+        // Start-End time for all events convert into UTC
+        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser ->user_timezone)));
+        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser ->user_timezone)));
+
+        if(!isset($request->recuring_event)){        
+            $start_date = date("Y-m-d", $startDate);
+            $end_date = date("Y-m-d", $endDate);
+
+            $CaseEvent = CaseEvent::create([
+                "event_title" => $request->event_name,
+                "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                "event_type" => $request->event_type ?? NULL,
+                "start_date" => $start_date,
+                "end_date" => $end_date,
+                "start_time" => $start_time,
+                "end_time" => $end_time,
+                "all_day" => (isset($request->all_day)) ? "yes" : "no",
+                "event_description" => $request->description,
+                "recuring_event" => "no",
+                "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                "parent_evnt_id" => '0',
+                "firm_id" => $authUser->firm_name,
+                "created_by" => $authUser->id,
+            ]);
+
+            $this->saveEventReminder($request->all(),$CaseEvent->id); 
+            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+            $this->saveContactLeadData($request->all(),$CaseEvent->id);                 
+        } else {
+            $this->dispatch(new CaseAddEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser));
+            /* if($request->event_frequency=='DAILY')
+            {
+                $i=0;
+                $event_interval_day=$request->event_interval_day;
+                do {
+                    $start_date = date("Y-m-d", $startDate);
+                    $end_date = date("Y-m-d", $startDate);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    if($i==0) { 
+                        $parentCaseID=$CaseEvent->id;
+                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                        $CaseEvent->save();
+                    }else{
+                        $CaseEvent->parent_evnt_id =  $parentCaseID;
+                        $CaseEvent->save();
+                    }
+                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+        
+                    // $this->saveEventHistory($CaseEvent->id);
+                    
+                    $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
+                    $i++;
+                } while ($startDate <= $endDate);
+            }
+            else if($request->event_frequency=='EVERY_BUSINESS_DAY')
+            { 
+                $i=0; $elseFist = true; $currentI = 0;   
+                do {
+                    $timestamp = $startDate;
+                    $weekday= date("l", $timestamp );            
+                    if ($weekday =="Saturday" OR $weekday =="Sunday") { 
+                    }else {
+                        if($elseFist) {
+                            $elseFist = false;
+                            $currentI = $i;
+                        }
+                        $start_date = date("Y-m-d", $startDate);
+                        $end_date = date("Y-m-d", $startDate);
+                        $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                        if($i==$currentI) { 
+                            $parentCaseID=$CaseEvent->id;
+                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                            $CaseEvent->save();
+                        }else{
+                            $CaseEvent->parent_evnt_id =  $parentCaseID;
+                            $CaseEvent->save();
+                        }
+                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                        // $this->saveEventHistory($CaseEvent->id);
+                    }
+                    $i++;
+                    $startDate = strtotime('+1 day',$startDate); 
+                    } while ($startDate <= $endDate);
+            }
+            else if($request->event_frequency=='WEEKLY')
+            {
+                $i=0;
+                do {
+                    // $timestamp = $startDate;
+                    // $weekday= date("l", $timestamp ); 
+                    $start_date = date("Y-m-d", $startDate);
+                    $end_date = date("Y-m-d", $startDate);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    if($i==0) { 
+                        $parentCaseID=$CaseEvent->id;
+                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                        $CaseEvent->save();
+                    }else{
+                        $CaseEvent->parent_evnt_id =  $parentCaseID;
+                        $CaseEvent->save();
+                    }
+                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                    // $this->saveEventHistory($CaseEvent->id);
+
+                    $i++;
+                    $startDate = strtotime('+7 day',$startDate); 
+                } while ($startDate < $endDate);
+            }
+            else if($request->event_frequency=='CUSTOM')
+            { 
+                $i=0;
+                // $weekFirstDay=date("Y-m-d", strtotime('monday this week'));
+                // $start = new DateTime($weekFirstDay);
+                // $startClone = new DateTime($weekFirstDay);
+                $start = new DateTime(date("Y-m-d", $startDate));
+                $startClone = new DateTime(date("Y-m-d", $startDate));
+                if($request->end_on!=''){
+                    $end=new DateTime($request->end_on);
+                }else{
+                    $end=$startClone->add(new DateInterval('P365D'));
+                }
+                //$end = new DateTime( '2021-09-28 23:59:59');
+                $interval = new DateInterval('P1D');
+                $period = new DatePeriod($start, $interval, $end);
+                
+                $weekInterval = $request->daily_weekname;
+                $fakeWeek = 0;
+                $currentWeek = $start->format('W');
+                
+                foreach ($period as $date) {
+                    if ($date->format('W') !== $currentWeek) {
+                        $currentWeek = $date->format('W');
+                        $fakeWeek++;
+                    }
+                
+                    if ($fakeWeek % $weekInterval !== 0) {
+                        continue;
+                    }
+                
+                    $dayOfWeek = $date->format('l');
+                    if(in_array($dayOfWeek,$request->custom)){
+
+                        $start_date = $date->format('Y-m-d');
+                        $end_date =$date->format('Y-m-d');
+                        $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                        if($i==0) { 
+                            $parentCaseID=$CaseEvent->id;
+                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                            $CaseEvent->save();
+                        }else{
+                            $CaseEvent->parent_evnt_id =  $parentCaseID;
+                            $CaseEvent->save();
+                        }
+                        $i++;
+                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                        // $this->saveEventHistory($CaseEvent->id);
+                    }
+                }
+               
+            }
+            else if($request->event_frequency=='MONTHLY')
+            { 
+                $Currentweekday= date("l", $startDate ); 
+                $i=0;
+                do {
+                    $monthly_frequency=$request->monthly_frequency;
+                    $event_interval_month=$request->event_interval_month;
+                    if($monthly_frequency=='MONTHLY_ON_DAY'){
+                        $startDate=$startDate;
+                    }else if($monthly_frequency=='MONTHLY_ON_THE'){
+                        $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                    }else if($monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                        $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                    }
+                    $start_date = date("Y-m-d", $startDate);
+                    $end_date = date("Y-m-d", $startDate);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    if($i==0) { 
+                        $parentCaseID=$CaseEvent->id;
+                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                        $CaseEvent->save();
+                    }else{
+                        $CaseEvent->parent_evnt_id =  $parentCaseID;
+                        $CaseEvent->save();
+                    }
+                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                    //  $this->saveEventHistory($CaseEvent->id);
+                    $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
+                    $i++;
+                    } while ($startDate < $endDate);
+            }
+            else if($request->event_frequency=='YEARLY')
+            { 
+                $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+                if($request->end_on!=''){
+                    $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
+                }
+                $yearly_frequency=$request->yearly_frequency;
+                $Currentweekday= date("l", $startDate ); 
+                $i=0;
+                do {
+                    $event_interval_year=$request->event_interval_year;
+                    if($yearly_frequency=='YEARLY_ON_DAY'){
+                        $startDate=$startDate;
+                    }else if($yearly_frequency=='YEARLY_ON_THE'){
+                    $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                    }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
+                        $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                    }
+                    $start_date = date("Y-m-d", $startDate);
+                    $end_date = date("Y-m-d", $startDate);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    if($i==0) { 
+                        $parentCaseID=$CaseEvent->id;
+                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
+                        $CaseEvent->save();
+                    }else{
+                        $CaseEvent->parent_evnt_id =  $parentCaseID;
+                        $CaseEvent->save();
+                    }
+                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+
+                    // $this->saveEventHistory($CaseEvent->id);
+
+                    
+                    $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
+                    $i++;
+                } while ($startDate < $endDate);
+            } */
+        }
+        /* $data=[];
+        if(!isset($request->no_case_link)){
+            if(isset($request->case_or_lead)) { 
+                if($request->text_case_id!=''){
+                    $data['event_for_case']=$request->text_case_id;
+                }    
+                if($request->text_lead_id!=''){
+                    $data['event_for_lead']=$request->text_lead_id; ;
+                }    
+            } 
+        }
+        $data['event_id']=$CaseEvent->id;
+        $data['event_name']=$CaseEvent->event_title;
+        $data['user_id']=Auth::User()->id;
+        $data['activity']='added event';
+        $data['type']='event';
+        $data['action']='add';
+        
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data); */
+        session(['popup_success' => 'Event was added.']);
+        sleep(5);
+        return response()->json(['errors'=>''   ]);
+    }
     
       public function saveEditEventPageOld(Request $request)
       {
@@ -5776,7 +6091,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage2(Request $request)
+    public function saveEditEventPage(Request $request)
     {
         // return $request->delete_event_type;
         // return $request->all();
@@ -6868,7 +7183,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage(Request $request)
+    public function saveEditEventPage2(Request $request)
     {
         // return $request->delete_event_type;
         // return $request->all();
