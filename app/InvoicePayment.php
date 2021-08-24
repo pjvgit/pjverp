@@ -31,7 +31,11 @@ class InvoicePayment extends Authenticatable
     public function getCaseAttribute(){
         if(isset($this->invoice_id)){
             $caseId=Invoices::find($this->invoice_id); 
+            if(!empty($caseId)){
             return json_encode(CaseMaster::select("*")->where("id",$caseId['case_id'])->first());
+            }else{
+                return NULL;
+            }
         }else{
             return NULL;
         }
@@ -40,17 +44,24 @@ class InvoicePayment extends Authenticatable
      public function getContactAttribute(){
         if(isset($this->invoice_id)){
             $caseId=Invoices::find($this->invoice_id); 
-            $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT(first_name, " ",last_name) as name'),"users.id")->where("case_client_selection.case_id",$caseId['case_id'])->where("is_billing_contact","yes")->first();
-            return json_encode($caseCllientSelection);
+            if(!empty($caseId)){
+                $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT(first_name, " ",last_name) as name'),"users.id")->where("case_client_selection.case_id",$caseId['case_id'])->where("is_billing_contact","yes")->first();
+                return json_encode($caseCllientSelection);
+            }else{
+                return NULL;
+            }
         }else{
             return NULL;
         }
        
      }
      public function getRefundTitleAttribute(){
-        if(isset($this->refund_ref_id)){
+        if(isset($this->refund_ref_id) && $this->refund_ref_id != NULL){
+            $stringText= '';
             $RefundMasterData=InvoicePayment::find($this->refund_ref_id); 
-            $stringText="Refund of ".$RefundMasterData['payment_method']. " on ".date("m/d/Y",strtotime($RefundMasterData['payment_date']))." (original amount: $".number_format($RefundMasterData['amount_paid'],2).")";
+            if(!empty($RefundMasterData)){
+                $stringText.="Refund of ".$RefundMasterData['payment_method']. " on ".date("m/d/Y",strtotime($RefundMasterData['payment_date']))." (original amount: $".number_format($RefundMasterData['amount_paid'],2).")";
+            }
             return $stringText;
         }else{
             return NULL;

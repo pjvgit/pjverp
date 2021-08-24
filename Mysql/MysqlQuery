@@ -1,3 +1,8 @@
+------------------------------------ 24-AUG-2021 ------------------------------
+ALTER TABLE `account_activity`
+ADD `payment_method` varchar(55) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `from_pay`,
+ADD `refund_ref_id` int(11) NULL AFTER `payment_method`;
+
 ------------------------------------ 20-AUG-2021 ------------------------------
 ALTER TABLE `firm_event_reminder` CHANGE `reminder_user_type` `reminder_user_type` ENUM('me','attorney','paralegal','staff','client-lead') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 

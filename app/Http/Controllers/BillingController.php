@@ -5996,7 +5996,6 @@ class BillingController extends BaseController
                     $msg="Thank you. Your payment of $".number_format($finalAmt,2)." has been sent to ".$firmData['firm_name']." ";
                     // all good
 
-                    dd('5915');
                     $invoiceHistory=[];
                     $invoiceHistory['invoice_id']=$invoice_id;
                     $invoiceHistory['acrtivity_title']='Payment Received';
