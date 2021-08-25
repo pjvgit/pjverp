@@ -44,6 +44,8 @@ class FullBackUpOfApplication implements ShouldQueue
         Log::info("FullBackUp job handle");
         try {
         $authUser = $this->authUser;
+        Log::info("Job Auth user : ".@$authUser);
+        Log::info("Job Auth user : ".$authUser);
 
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
         $clientFullBackup->status = 2;
@@ -260,6 +262,10 @@ class FullBackUpOfApplication implements ShouldQueue
     }
     
     public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
+        Log::info("Job Auth user - generateAccountActivitiesCSV : ".@$authUser);
+        Log::info("Job Auth user - generateAccountActivitiesCSV : ".$authUser);
+        Log::info("Job Auth user - generateAccountActivitiesCSV : ".var_dump($authUser));
+
         $casesCsvData=[];
         $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
         $casesCsvData[]=$casesHeader; 
