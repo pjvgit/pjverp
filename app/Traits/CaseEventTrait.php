@@ -13,6 +13,7 @@ use DatePeriod;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\CommonController;
 
 trait CaseEventTrait {
     /**
@@ -535,6 +536,29 @@ trait CaseEventTrait {
             "parent_evnt_id" => $oldCaseEvent->parent_evnt_id,
         ]);
         return $caseEvent;
+    }
+
+    public function addActivity($request, $CaseEvent, $authUser){
+        $data=[];
+        if(!isset($request->no_case_link)){
+            if(isset($request->case_or_lead)) { 
+                if($request->text_case_id!=''){
+                    $data['event_for_case']=$request->text_case_id;
+                }    
+                if($request->text_lead_id!=''){
+                    $data['event_for_lead']=$request->text_lead_id; ;
+                }    
+            } 
+        }
+        $data['event_id']=$CaseEvent->id;
+        $data['event_name']=$CaseEvent->event_title;
+        $data['user_id']=$authUser->id;
+        $data['activity']='added event';
+        $data['type']='event';
+        $data['action']='add';
+        
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
     }
 }
  

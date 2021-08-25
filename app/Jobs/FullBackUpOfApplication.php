@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Mail;
 use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\CaseStaff,App\AccountActivity,App\ClientNotes,App\CaseStage,App\ClientFullBackup,App\ExpenseEntry,App\TaskTimeEntry,App\Countries,App\InvoicePayment,App\FlatFeeEntry,App\InvoiceAdjustment;
 use ZipArchive,File,DB,Validator,Session,Storage,Image;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class FullBackUpOfApplication implements ShouldQueue
 {
@@ -41,11 +39,9 @@ class FullBackUpOfApplication implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("FullBackUp job handle");
+        Log::info("Full Back Up Job started :". date('Y-m-d H:i:s'));
         try {
         $authUser = $this->authUser;
-        Log::info("Job Auth user : ".@$authUser);
-        Log::info("Job Auth user : ".$authUser);
 
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
         $clientFullBackup->status = 2;
@@ -62,8 +58,6 @@ class FullBackUpOfApplication implements ShouldQueue
             File::makeDirectory($folderPath, 0777, true, true);    
         }
         
-        $this->generateAccountActivitiesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/account_activities.csv");
         $this->generateBackupCasesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/cases.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/notes.csv");
@@ -72,6 +66,8 @@ class FullBackUpOfApplication implements ShouldQueue
         $this->generateClientsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/clients.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/companies.csv");
+        $this->generateAccountActivitiesCSV($this->request, $folderPath, $this->authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/account_activities.csv");
         $this->generateDocumentsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/documents.csv");
         $this->generateEmailsCSV($this->request, $folderPath, $this->authUser);
@@ -115,7 +111,7 @@ class FullBackUpOfApplication implements ShouldQueue
         } catch (\Throwable $e) {
             Log::info("FullBackUp job handle error :".$e->getMessage()." on line number ".$e->getLine());
         }
-        Log::info("FullBackUp job handle done");
+        Log::info("Full Back Up Job ended :". date('Y-m-d H:i:s'));
     }
 
     public function generateBackupCasesCSV($request, $folderPath, $authUser){        
@@ -262,10 +258,6 @@ class FullBackUpOfApplication implements ShouldQueue
     }
     
     public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
-        Log::info("Job Auth user - generateAccountActivitiesCSV : ".@$authUser);
-        Log::info("Job Auth user - generateAccountActivitiesCSV : ".$authUser);
-        Log::info("Job Auth user - generateAccountActivitiesCSV : ".var_dump($authUser));
-
         $casesCsvData=[];
         $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
         $casesCsvData[]=$casesHeader; 

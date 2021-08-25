@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\CommonController;
 
 class CaseAddEventJob implements ShouldQueue
 {
@@ -275,26 +274,7 @@ class CaseAddEventJob implements ShouldQueue
             } while ($startDate < $endDate);
         }
 
-        $data=[];
-        if(!isset($request->no_case_link)){
-            if(isset($request->case_or_lead)) { 
-                if($request->text_case_id!=''){
-                    $data['event_for_case']=$request->text_case_id;
-                }    
-                if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id; ;
-                }    
-            } 
-        }
-        $data['event_id']=$CaseEvent->id;
-        $data['event_name']=$CaseEvent->event_title;
-        $data['user_id']=$this->authUser->id;
-        $data['activity']='added event';
-        $data['type']='event';
-        $data['action']='add';
-        
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
+        $this->addActivity((array)$request, $CaseEvent, $authUser);
         Log::info("Case Add Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }
