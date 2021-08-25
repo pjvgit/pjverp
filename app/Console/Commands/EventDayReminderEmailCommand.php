@@ -60,7 +60,7 @@ class EventDayReminderEmailCommand extends Command
                         $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 05) { 
-                            Log::info("day time true");
+                            Log::info("EventDayReminderEmailCommand : day time true");
                             dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"))->onConnection('database');
                         }
                     }

@@ -63,13 +63,13 @@ class EventMinuteReminderEmailCommand extends Command
                     $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($item->remind_at)->format('Y-m-d H:i'));
                     // Log::info("remind at:". $date2);
                     if($date1->eq($date2)) {
-                        Log::info("minute time true");
+                        Log::info("EventMinuteReminderEmailCommand : minute time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
                     } else {
-                        Log::info("event minute time not match");
+                        Log::info("EventMinuteReminderEmailCommand : event minute time not match");
                     }
                 } else {
-                    Log::info("user not found");
+                    Log::info("EventMinuteReminderEmailCommand : user not found");
                 }
             }
         }
