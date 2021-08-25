@@ -2634,7 +2634,7 @@ class CaseController extends BaseController
     /**
      * Add new single/recurring event
      */
-    public function saveAddEventPage(Request $request)
+    public function saveAddEventPage2(Request $request)
     {
         // return $request->all();
         $validator = \Validator::make($request->all(), [
@@ -2946,7 +2946,7 @@ class CaseController extends BaseController
     /**
      * Add new single/recurring event
      */
-    public function saveAddEventPage2(Request $request)
+    public function saveAddEventPage(Request $request)
     {
         // return $request->all();
         $validator = \Validator::make($request->all(), [
@@ -6091,7 +6091,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage(Request $request)
+    public function saveEditEventPage2(Request $request)
     {
         // return $request->delete_event_type;
         // return $request->all();
@@ -7183,7 +7183,7 @@ class CaseController extends BaseController
     /**
      * Update events
      */
-    public function saveEditEventPage2(Request $request)
+    public function saveEditEventPage(Request $request)
     {
         // return $request->delete_event_type;
         // return $request->all();

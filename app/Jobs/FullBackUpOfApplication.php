@@ -108,7 +108,6 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $clientFullBackup->status = 3;
         $clientFullBackup->save();
-            //code...
         } catch (\Throwable $e) {
             Log::info("FullBackUp job handle error :".$e->getMessage()." on line number ".$e->getLine());
         }
