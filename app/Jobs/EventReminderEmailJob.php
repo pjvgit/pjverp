@@ -36,7 +36,8 @@ class EventReminderEmailJob implements ShouldQueue
      * @return void
      */
     public function handle()
-    {
+    {        
+        Log::info("Event Reminder Email Job Started :". date('Y-m-d H:i:s'));
         Log::info("enter event job handle");
         $firmDetail = firmDetail($this->eventReminder->event->case->firm_id);
         if(!empty($this->user)) {
@@ -53,5 +54,6 @@ class EventReminderEmailJob implements ShouldQueue
             }
             CaseEventReminder::where("id", $this->eventReminder->id)->update(["reminded_at" => Carbon::now()]);
         }
+        Log::info("Event Reminder Email Job Endned :". date('Y-m-d H:i:s'));
     }
 }

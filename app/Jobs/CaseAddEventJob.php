@@ -45,6 +45,7 @@ class CaseAddEventJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("Case Add Event Job Started :". date('Y-m-d H:i:s'));
         $request = (object) $this->requestData;
         $startDate = $this->startDate;
         $endDate = $this->endDate;
@@ -286,12 +287,13 @@ class CaseAddEventJob implements ShouldQueue
         }
         $data['event_id']=$CaseEvent->id;
         $data['event_name']=$CaseEvent->event_title;
-        $data['user_id']=Auth::User()->id;
+        $data['user_id']=$authUser->id;
         $data['activity']='added event';
         $data['type']='event';
         $data['action']='add';
         
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
+        Log::info("Case Add Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }

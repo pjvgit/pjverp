@@ -45,6 +45,7 @@ class CaseFollowingEventJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("Case Following Event Job Started :". date('Y-m-d H:i:s'));
         $request = (object) $this->requestData;
         $startDate = $this->startDate;
         $endDate = $this->endDate;
@@ -318,5 +319,6 @@ class CaseFollowingEventJob implements ShouldQueue
                 }
             }
         }
+        Log::info("Case Following Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }

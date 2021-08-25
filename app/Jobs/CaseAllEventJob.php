@@ -45,6 +45,7 @@ class CaseAllEventJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("Case ALL Event Job Started :". date('Y-m-d H:i:s'));
         $request = (object) $this->requestData;
         $startDate = $this->startDate;
         $endDate = $this->endDate;
@@ -475,5 +476,7 @@ class CaseAllEventJob implements ShouldQueue
                 } while ($startDate < $endDate);
             }
         }
+
+        Log::info("Case ALL Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }
