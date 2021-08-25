@@ -60,37 +60,37 @@ class FullBackUpOfApplication implements ShouldQueue
             File::makeDirectory($folderPath, 0777, true, true);    
         }
         
-        $this->generateAccountActivitiesCSV($this->request, $folderPath, $authUser);
+        $this->generateAccountActivitiesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/account_activities.csv");
-        $this->generateBackupCasesCSV($this->request, $folderPath, $authUser);
+        $this->generateBackupCasesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/cases.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/notes.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/expenses.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/time_entries.csv");
-        $this->generateClientsCSV($this->request, $folderPath, $authUser);
+        $this->generateClientsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/clients.csv");
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/companies.csv");
-        $this->generateDocumentsCSV($this->request, $folderPath, $authUser);
+        $this->generateDocumentsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/documents.csv");
-        $this->generateEmailsCSV($this->request, $folderPath, $authUser);
+        $this->generateEmailsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/emails.csv");
-        $this->generateEventsCSV($this->request, $folderPath, $authUser);
+        $this->generateEventsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/events.csv");
-        $this->generateFlatFeesCSV($this->request, $folderPath, $authUser);
+        $this->generateFlatFeesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/flat_fees.csv");
-        $this->generateInvoiceDiscountsCSV($this->request, $folderPath, $authUser);
+        $this->generateInvoiceDiscountsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoice_discounts.csv");
-        $this->generateInvoicesCSV($this->request, $folderPath, $authUser);
+        $this->generateInvoicesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoices.csv");
-        $this->generateLawyersCSV($this->request, $folderPath, $authUser);
+        $this->generateLawyersCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/lawyers.csv");
-        $this->generateLocationsCSV($this->request, $folderPath, $authUser);
+        $this->generateLocationsCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/locations.csv");
-        $this->generateMessagesCSV($this->request, $folderPath, $authUser);
+        $this->generateMessagesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/messages.csv");
-        $this->generateTasksCSV($this->request, $folderPath, $authUser);
+        $this->generateTasksCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/tasks.csv");
-        $this->generateTrustActivitiesCSV($this->request, $folderPath, $authUser);
+        $this->generateTrustActivitiesCSV($this->request, $folderPath, $this->authUser);
         $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/trust_activities.csv");
 
         $zip = new ZipArchive;
@@ -108,6 +108,8 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $clientFullBackup->status = 3;
         $clientFullBackup->save();
+
+            //code...
         } catch (\Throwable $e) {
             Log::info("FullBackUp job handle error :".$e->getMessage()." on line number ".$e->getLine());
         }

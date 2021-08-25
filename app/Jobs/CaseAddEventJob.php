@@ -288,7 +288,7 @@ class CaseAddEventJob implements ShouldQueue
         }
         $data['event_id']=$CaseEvent->id;
         $data['event_name']=$CaseEvent->event_title;
-        $data['user_id']=$authUser->id;
+        $data['user_id']=$this->authUser->id;
         $data['activity']='added event';
         $data['type']='event';
         $data['action']='add';
