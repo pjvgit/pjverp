@@ -42,6 +42,7 @@ class FullBackUpOfApplication implements ShouldQueue
     public function handle()
     {
         Log::info("FullBackUp job handle");
+        try {
         $authUser = $this->authUser;
 
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
@@ -107,7 +108,11 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $clientFullBackup->status = 3;
         $clientFullBackup->save();
-        
+            //code...
+        } catch (\Throwable $e) {
+            Log::info("FullBackUp job handle error :".$e->getMessage()." on line number ".$e->getLine());
+        }
+        Log::info("FullBackUp job handle done");
     }
 
     public function generateBackupCasesCSV($request, $folderPath, $authUser){        
