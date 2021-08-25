@@ -19,18 +19,19 @@ use Illuminate\Support\Facades\Hash;
 class FullBackUpOfApplication implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $ClientFullBackup, $zipPath, $zipFileName, $request;
+    protected $ClientFullBackup, $zipPath, $zipFileName, $request, $authUser;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($ClientFullBackup, $zipPath, $zipFileName, $request)
+    public function __construct($ClientFullBackup, $zipPath, $zipFileName, $request, $authUser)
     {        
         $this->ClientFullBackup = $ClientFullBackup;
         $this->zipPath = $zipPath;
         $this->zipFileName = $zipFileName;
         $this->request = $request;
+        $this->authUser = $authUser;
     }
 
     /**
@@ -41,11 +42,13 @@ class FullBackUpOfApplication implements ShouldQueue
     public function handle()
     {
         Log::info("FullBackUp job handle");
+        $authUser = $this->authUser;
+
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
         $clientFullBackup->status = 2;
         $clientFullBackup->save();
 
-        $folderPath = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name);
+        $folderPath = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name);
 
         File::deleteDirectory($folderPath);
         if(!is_dir($folderPath)) {
@@ -56,38 +59,38 @@ class FullBackUpOfApplication implements ShouldQueue
             File::makeDirectory($folderPath, 0777, true, true);    
         }
         
-        $this->generateAccountActivitiesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/account_activities.csv");
-        $this->generateBackupCasesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/cases.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/notes.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/expenses.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/time_entries.csv");
-        $this->generateClientsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/clients.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/companies.csv");
-        $this->generateDocumentsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/documents.csv");
-        $this->generateEmailsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/emails.csv");
-        $this->generateEventsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/events.csv");
-        $this->generateFlatFeesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/flat_fees.csv");
-        $this->generateInvoiceDiscountsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/invoice_discounts.csv");
-        $this->generateInvoicesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/invoices.csv");
-        $this->generateLawyersCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/lawyers.csv");
-        $this->generateLocationsCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/locations.csv");
-        $this->generateMessagesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/messages.csv");
-        $this->generateTasksCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/tasks.csv");
-        $this->generateTrustActivitiesCSV($this->request, $folderPath);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.Auth::User()->firm_name."/trust_activities.csv");
+        $this->generateAccountActivitiesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/account_activities.csv");
+        $this->generateBackupCasesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/cases.csv");
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/notes.csv");
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/expenses.csv");
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/time_entries.csv");
+        $this->generateClientsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/clients.csv");
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/companies.csv");
+        $this->generateDocumentsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/documents.csv");
+        $this->generateEmailsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/emails.csv");
+        $this->generateEventsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/events.csv");
+        $this->generateFlatFeesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/flat_fees.csv");
+        $this->generateInvoiceDiscountsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoice_discounts.csv");
+        $this->generateInvoicesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoices.csv");
+        $this->generateLawyersCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/lawyers.csv");
+        $this->generateLocationsCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/locations.csv");
+        $this->generateMessagesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/messages.csv");
+        $this->generateTasksCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/tasks.csv");
+        $this->generateTrustActivitiesCSV($this->request, $folderPath, $authUser);
+        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/trust_activities.csv");
 
         $zip = new ZipArchive;
         if ($zip->open((public_path($this->zipFileName)), ZipArchive::CREATE) === true) {
@@ -107,7 +110,7 @@ class FullBackUpOfApplication implements ShouldQueue
         
     }
 
-    public function generateBackupCasesCSV($request, $folderPath){        
+    public function generateBackupCasesCSV($request, $folderPath, $authUser){        
         $casesCsvData = $caseNotesCsvData = $casesExpensesCsvData = $casesTimeEntriesCsvData=[];
         $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
         $casesCsvData[]=$casesHeader;
@@ -125,12 +128,12 @@ class FullBackUpOfApplication implements ShouldQueue
 
         if($request['export_cases'] == 0){
             $case = $case->where("case_master.is_entry_done","1");
-            if(Auth::user()->parent_user==0){
-                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                $getChildUsers[]=Auth::user()->id;
+            if($authUser->parent_user==0){
+                $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
+                $getChildUsers[]=$authUser->id;
                 $case = $case->whereIn("case_master.created_by",$getChildUsers);
             }else{
-                $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
+                $childUSersCase = CaseStaff::select("case_id")->where('user_id',$authUser->id)->get()->pluck('case_id');
                 $case = $case->whereIn("case_master.id",$childUSersCase);
             }
             if(!isset($request['include_archived'])){   
@@ -250,7 +253,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateAccountActivitiesCSV($request, $folderPath){
+    public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
         $casesCsvData[]=$casesHeader; 
@@ -260,7 +263,7 @@ class FullBackUpOfApplication implements ShouldQueue
         ->leftJoin("users as invoiceUser","invoiceUser.id","=","invoices.user_id")
         ->leftJoin("case_master","case_master.id","=","invoices.case_id");    
         $FetchQuery = $FetchQuery->select('invoice_payment.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by'),'case_master.case_title');
-        $FetchQuery = $FetchQuery->where("invoice_payment.firm_id",Auth::User()->firm_name);
+        $FetchQuery = $FetchQuery->where("invoice_payment.firm_id",$authUser->firm_name);
         $FetchQuery = $FetchQuery->where("entry_type","1");
         $FetchQuery = $FetchQuery->orderBy("id", 'desc');
         $FetchQuery = $FetchQuery->get();
@@ -278,7 +281,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateClientsCSV($request, $folderPath){
+    public function generateClientsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="LegalCase ID|First Name|Middle Name|Last Name|Company|Job Title|Home Street|Home Street 2|Home City|Home State|Home Postal Code|Home Country/Region|Home Fax|Work Phone|Home Phone|Mobile Phone|Contact Group|E-mail Address|Web Page|Outstanding Trust Balance|Login Enabled|Archived|Birthday|Private Notes|License Number|License State|Welcome Message|Non-Trust Credit Balance|:Notes|Cases|Case Link IDs|Created Date";
         $casesCsvData[]=$casesHeader;
@@ -289,12 +292,12 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*','users_additional_info.*','client_group.group_name',"users.id as id");
         $user = $user->whereIn("user_level",["2","4"]);
-        if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
+        if($authUser->parent_user==0){
+            $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
+            $getChildUsers[]=$authUser->id;
             $user = $user->whereIn("parent_user",$getChildUsers);
         }else{
-            $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
+            $user = $user->where("parent_user",$authUser->id); //Logged in user not visible in grid
         }
         if(isset($request['include_archived'])){  
             $user = $user->whereIn("users.user_status",[1,2,4]);
@@ -357,7 +360,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateDocumentsCSV($request, $folderPath){
+    public function generateDocumentsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Name|Description|Case Name|Archived|Template|LegalCase ID|Tags|Versions|Comments|Shared With";
         $casesCsvData[]=$casesHeader;
@@ -371,7 +374,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateEmailsCSV($request, $folderPath){
+    public function generateEmailsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="";
         $casesCsvData[]=$casesHeader;
@@ -385,7 +388,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateEventsCSV($request, $folderPath){
+    public function generateEventsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
         $casesCsvData[]=$casesHeader;
@@ -399,14 +402,14 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateFlatFeesCSV($request, $folderPath){
+    public function generateFlatFeesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Date|Amount|Description|Entered By|Case Name|Invoice|Nonbillable|LegalCase ID";
         $casesCsvData[]=$casesHeader;
 
         $FlatFeeEntry = FlatFeeEntry::leftJoin("users","flat_fee_entry.created_by","=","users.id")->leftJoin("case_master","case_master.id","=","flat_fee_entry.case_id");   
         $FlatFeeEntry = $FlatFeeEntry->select('flat_fee_entry.*', DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),'case_master.case_title');
-        $FlatFeeEntry = $FlatFeeEntry->where('flat_fee_entry.created_by',Auth::User()->id)->where('status','paid')->get();
+        $FlatFeeEntry = $FlatFeeEntry->where('flat_fee_entry.created_by',$authUser->id)->where('status','paid')->get();
 
         foreach ($FlatFeeEntry as $k=>$v){
             $casesCsvData[]= date('m/d/Y', strtotime($v->entry_date))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
@@ -421,14 +424,14 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateInvoiceDiscountsCSV($request, $folderPath){
+    public function generateInvoiceDiscountsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Item|Applied To|Type|Description|Basis|Percent|Amount|Case Name|Invoice|LegalCase ID";
         $casesCsvData[]=$casesHeader;
 
         $InvoiceAdjustment=InvoiceAdjustment::leftJoin("users","invoice_adjustment.created_by","=","users.id")->leftJoin("case_master","case_master.id","=","invoice_adjustment.case_id");   
         $InvoiceAdjustment = $InvoiceAdjustment->select('invoice_adjustment.*', DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),'case_master.case_title');
-        $InvoiceAdjustment = $InvoiceAdjustment->where('invoice_adjustment.created_by',Auth::User()->id)->get();
+        $InvoiceAdjustment = $InvoiceAdjustment->where('invoice_adjustment.created_by',$authUser->id)->get();
 
         $AppliedTo=array("flat_fees"=>"Flat Fees","time_entries"=>"Time Entries","expenses"=>"Expenses","balance_forward_total"=>"Balance Forward Total","sub_total"=>"Sub Total");
         $adType=array("percentage"=>"% - Percentage","amount"=>"$ - Amount");      
@@ -447,7 +450,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateInvoicesCSV($request, $folderPath){
+    public function generateInvoicesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Invoice Number|Case Name|Invoice date|Due date|Billing User|Address|From date|To date|Payment terms|Terms and conditions|Notes|Status|Archived|Created By|Allow online payments|Deposit account|Sent|Draft|Time entry total|Expense total|Flat fee total|Subtotal|Discount total|Write off total|Addition total|Balance forward total|Total amount|Paid|Paid amount|Paid date|Balance due|Forwarded|Forwarded To|Shared With|Has payment plan|Payment Plan|LegalCase ID";
         $casesCsvData[]=$casesHeader;
@@ -461,13 +464,13 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateLawyersCSV($request, $folderPath){
+    public function generateLawyersCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="First name|Middle Name|Last name|Email|User Type|Street|Street 2|City|State|Postal Code|Country/Region|Home phone|Cell phone|Work phone|Fax phone|LegalCase ID|Archived|Default rate|Cases";
         $casesCsvData[]=$casesHeader;
 
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select('users.*','users_additional_info.*',"users.id as id");
-        $user = $user->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
+        $user = $user->where("firm_name",$authUser->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
         $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $user = $user->get();
@@ -500,7 +503,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateLocationsCSV($request, $folderPath){
+    public function generateLocationsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="";
         $casesCsvData[]=$casesHeader;
@@ -514,7 +517,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateMessagesCSV($request, $folderPath){
+    public function generateMessagesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="";
         $casesCsvData[]=$casesHeader;
@@ -528,7 +531,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateTasksCSV($request, $folderPath){
+    public function generateTasksCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";
         $casesCsvData[]=$casesHeader;
@@ -542,7 +545,7 @@ class FullBackUpOfApplication implements ShouldQueue
         return true; 
     }
     
-    public function generateTrustActivitiesCSV($request, $folderPath){
+    public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
         $casesCsvData[]=$casesHeader;
@@ -551,7 +554,7 @@ class FullBackUpOfApplication implements ShouldQueue
         ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id")
         ->leftJoin("case_master","case_master.id","=","account_activity.case_id");    
         $FetchQuery = $FetchQuery->select('account_activity.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by'),'case_master.case_title', "users.id as uid");
-        $FetchQuery = $FetchQuery->where("account_activity.firm_id",Auth::User()->firm_name);
+        $FetchQuery = $FetchQuery->where("account_activity.firm_id",$authUser->firm_name);
         $FetchQuery = $FetchQuery->where("pay_type","trust");
         $FetchQuery = $FetchQuery->get();
 

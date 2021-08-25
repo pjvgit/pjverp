@@ -4012,6 +4012,7 @@ class ClientdashboardController extends BaseController
     }
     
     public function backupCases(Request $request){
+
         $options = '.csv files, ';
         $options .= ($request->export_cases == 0) ? 'My cases, ' : 'All cases, ';
         $options .= ($request->include_archived == 1) ? 'Includes archived items, ' : '';
@@ -4031,7 +4032,9 @@ class ClientdashboardController extends BaseController
         $clientFullBackup->download_link = asset($zipFileName);
         $clientFullBackup->save();
         
-        \App\Jobs\FullBackUpOfApplication::dispatch($clientFullBackup, $zipPath, $zipFileName, $request->all(), Auth::user());
+        $authUser = auth()->user();
+
+        \App\Jobs\FullBackUpOfApplication::dispatch($clientFullBackup, $zipPath, $zipFileName, $request->all(), $authUser);
 
         return response()->json(['errors'=>'','url'=>'', 'msg'=>"Your backup is being created. Building File in backgourd..."]);
         exit;        
