@@ -58,6 +58,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $event_interval_day = $request->event_interval_day;
             $OldCaseEvent=CaseEvent::find($request->event_id);
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
+                Log::info("saveDailyEvent ");
                 $this->saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);                        
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
@@ -73,6 +74,7 @@ class CaseFollowingEventJob implements ShouldQueue
                 if($startDate == strtotime($OldCaseEvent->start_date)) {
                     Log::info("Daily date matched");
                     do {
+                        Log::info("start_date : ".$startDate." <=  End date :".$endDate. " with request :". json_encode($request));
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
                         $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
@@ -81,7 +83,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);   
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
-                        Log::info("Job Auth user: ".@$authUser);
+                        // Log::info("Job Auth user: ".@$authUser);
                         // $this->saveEventHistory($CaseEvent->id, $authUser);
 
                         $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 

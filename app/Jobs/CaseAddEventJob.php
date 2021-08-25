@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\CommonController;
 
 class CaseAddEventJob implements ShouldQueue
 {
