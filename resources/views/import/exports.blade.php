@@ -121,10 +121,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     <div class="col-sm-8">
                                         <div style="line-height: 1.5em;">
                                             <input type="radio" name="export_cases"  value="0" checked="checked">
-                                            <label for="include_companies"> Only include cases I'm linked to</label><br>
+                                            <label for="export_cases"> Only include cases I'm linked to</label><br>
 
                                             <input type="radio" name="export_cases"  value="1">
-                                            <label for="include_archived">Include all firm cases</label><br>
+                                            <label for="export_cases">Include all firm cases</label><br>
                                         </div>
                                     </div>
                                 </div>
@@ -137,7 +137,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         </div>
                                         <div style="line-height: 1.5em;">
                                         <input type="checkbox" name="include_mail" id="include_mail" value="1">
-                                        <label for="include_archived">Send me an email when the backup is finished</label><br>  
+                                        <label for="include_mail">Send me an email when the backup is finished</label><br>  
                                         </div>
                                     </div>
                                 </div>
@@ -201,19 +201,25 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         $('td:eq(0)', nRow).html('<a title="" data-toggle="tooltip" data-placement="top" href="'+aData.download_link+'" data-original-title="Download">'+aData.file_name+'</a>');
                     }
                     $('td:eq(1)', nRow).html('<div class="text-left">'+aData.options+'</div>');
-                    if(aData.status=="2"){
-                        var status='<div> Processing </div>';
+                    if(aData.status=="3"){
+                        var status='<div> Completed </div>';
                     }else if(aData.status=="1"){
                         var status='<div> Pending  </div>';
+                    }else if(aData.status=="4"){
+                        var status='<div> Failed  </div>';
                     }else {
-                        var status='<div> Completed  </div>';
+                        var status='<div> Processing  </div>';
                     }
                     $('td:eq(2)', nRow).html('<div class="text-left">'+status+'</div>');
 
                     if(aData.status=="3"){
                         $('td:eq(3)', nRow).html('<a title="" class="text-black-50" data-toggle="tooltip" data-placement="top" href="'+aData.download_link+'" data-original-title="Download"><i class="fas fa-cloud-download-alt"></i></a>');
-                    }else{
+                    }else if(aData.status=="4"){
+                        $('td:eq(3)', nRow).html('');
+                    }else if(aData.status=="2"){
                         $('td:eq(3)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div></div>');
+                    }else{
+                        $('td:eq(3)', nRow).html('<div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 10%"></div></div>');
                     }
                 },
                 "initComplete": function(settings, json) {

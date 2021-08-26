@@ -274,7 +274,7 @@ class CaseAddEventJob implements ShouldQueue
             } while ($startDate < $endDate);
         }
 
-        $this->addActivity((array)$request, $CaseEvent, $authUser);
+        $this->addCaseEventActivity((array)$request, $CaseEvent, $authUser);
         Log::info("Case Add Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }

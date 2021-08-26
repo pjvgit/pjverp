@@ -14,6 +14,7 @@ use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\CommonController;
+use App\AllHistory;
 
 trait CaseEventTrait {
     /**
@@ -538,7 +539,7 @@ trait CaseEventTrait {
         return $caseEvent;
     }
 
-    public function addActivity($request, $CaseEvent, $authUser){
+    public function addCaseEventActivity($request, $CaseEvent, $authUser){
         $data=[];
         if(!isset($request->no_case_link)){
             if(isset($request->case_or_lead)) { 
@@ -555,10 +556,35 @@ trait CaseEventTrait {
         $data['user_id']=$authUser->id;
         $data['activity']='added event';
         $data['type']='event';
-        $data['action']='add';
-        
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
+        $data['action']='add';        
+
+        $AllHistory=new AllHistory;
+        $AllHistory->case_id=($data['case_id'])??NULL;
+        $AllHistory->user_id=($data['user_id'])??NULL;
+        $AllHistory->expense_id=($data['expense_id'])??NULL;
+        $AllHistory->time_entry_id=($data['time_entry_id'])??NULL;
+        $AllHistory->activity=($data['activity'])??NULL;
+        $AllHistory->activity_for=($data['activity_for'])??NULL;
+        $AllHistory->notes_for_client=($data['notes_for_client'])??NULL;
+        $AllHistory->notes_for_company=($data['notes_for_company'])??NULL;
+        $AllHistory->notes_for_case=($data['notes_for_case'])??NULL;
+        $AllHistory->event_for_case=($data['event_for_case'])??NULL;
+        $AllHistory->event_for_lead=($data['event_for_lead'])??NULL;
+        $AllHistory->event_id=($data['event_id'])??NULL;
+        $AllHistory->event_name=($data['event_name'])??NULL;
+        $AllHistory->task_for_case=($data['task_for_case'])??NULL;
+        $AllHistory->task_for_lead=($data['task_for_lead'])??NULL;
+        $AllHistory->task_id=($data['task_id'])??NULL;
+        $AllHistory->task_name=($data['task_name'])??NULL;
+        $AllHistory->deposit_id=($data['deposit_id'])??NULL;
+        $AllHistory->deposit_for=($data['deposit_for'])??NULL;
+        $AllHistory->type=($data['type'])??NULL;
+        $AllHistory->action=($data['action'])??NULL;
+        $AllHistory->client_id=($data['client_id'])??NULL;
+        $AllHistory->firm_id=$authUser->firm_name;
+        $AllHistory->created_by=$authUser->id;
+        $AllHistory->created_at=date('Y-m-d H:i:s');  
+        $AllHistory->save();
     }
 }
  

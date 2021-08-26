@@ -83,7 +83,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                         ?>
                                         <div class="client-detail-wrap-up">
                                         <?php foreach($case as $kk=>$vv){ ?>
-                                                <a href="{{BASE_URL}}court_cases/{{$vv->case_unique_number}}/info">{{$vv->case_title}}</a><br>
+                                                <a href="{{ route('info', $vv->case_unique_number) }}">{{$vv->case_title}}</a><br>
                                         <?php } ?>
                                         </div>
                             <?php }else{
@@ -98,7 +98,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                         ?>
                                         <div class="client-detail-wrap-up">
                                         <?php foreach($closed_case as $kk=>$vv){ ?>
-                                                <a href="{{BASE_URL}}court_cases/{{$vv->case_unique_number}}/info">{{$vv->case_title}}</a><br>
+                                                <a href="{{ route('info', $vv->case_unique_number) }}">{{$vv->case_title}}</a><br>
                                         <?php } ?>
                                         </div>
                             <?php }else{
