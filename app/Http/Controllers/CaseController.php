@@ -1154,11 +1154,11 @@ class CaseController extends BaseController
                 if($remainFlatFee > 0) {
                     FlatFeeEntry::create([
                         'case_id' => $caseMaster->id,
-                        'user_id' => auth()->id(),
+                        'user_id' => auth()->user()->id(),
                         'entry_date' => Carbon::now(),
                         'cost' =>  $remainFlatFee,
                         'time_entry_billable' => 'yes',
-                        'created_by' => auth()->id(), 
+                        'created_by' => auth()->user()->id(), 
                     ]);
                 }                                
             }
@@ -8466,7 +8466,7 @@ class CaseController extends BaseController
             $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
         }       
 
-        $linkStaffPivot = $evetData->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
+        $linkStaffPivot = $evetData->eventLinkedStaff()->wherePivot('user_id', auth()->user()->id())->first();
         if($linkStaffPivot) {
             $linkStaffPivot->pivot->comment_read_at = Carbon::now();
             $linkStaffPivot->pivot->save();
@@ -8729,7 +8729,7 @@ class CaseController extends BaseController
         // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
         // if(!$CaseEventLinkedContactLead->isEmpty()){
             Log::info("comment email job dispatched");
-            dispatch(new CommentEmail($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, auth()->id()));
+            dispatch(new CommentEmail($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, auth()->user()->id()));
             // CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
 
             // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));

@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\CaseStaff,App\AccountActivity,App\ClientNotes,App\CaseStage,App\ClientFullBackup,App\ExpenseEntry,App\TaskTimeEntry,App\Countries,App\InvoicePayment,App\FlatFeeEntry,App\InvoiceAdjustment;
+use App\CaseMaster,App\User,App\CasePracticeArea,App\CaseClientSelection,App\CaseStaff,App\AccountActivity,App\ClientNotes,App\CaseStage,App\ClientFullBackup,App\ExpenseEntry,App\TaskTimeEntry,App\Countries,App\InvoicePayment,App\FlatFeeEntry,App\InvoiceAdjustment,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\CaseEventLocation;
 use ZipArchive,File,DB,Validator,Session,Storage,Image;
 use Illuminate\Support\Facades\Input;
@@ -423,7 +423,46 @@ class FullBackUpOfApplication implements ShouldQueue
     public function generateEventsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
-        $casesCsvData[]="";
+        $casesCsvData[]=$casesHeader;
+        
+        if(isset($request['include_archived'])){  
+            $deleted_at = '' ;
+        }else{
+            $deleted_at = ' AND case_events.deleted_at is null' ;
+        }
+
+        //If Parent user logged in then show all child case to parent
+        if($request['export_cases'] == 1 && $authUser->parent_user=="0"){
+            $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
+            $getChildUsers[]=$authUser->id;
+            $where = " case_events.created_by in (".str_replace(['[',']'],'',$getChildUsers).")";
+        }else{
+            $where = " case_events.created_by = ".$authUser->id;
+        }
+
+        $query = "select case_events.id,case_events.event_title,case_events.all_day,case_events.start_date,case_events.start_time,case_events.end_date,case_events.end_time,case_events.case_id,case_events.lead_id,case_events.event_location_id,case_events.event_description,case_events.is_event_private,case_events.created_by,case_events.firm_id,case_events.deleted_at,case_events.event_type,case_master.case_title,CONCAT(case_event_location.location_name,', ',case_event_location.address1,', ',case_event_location.address2,', ',case_event_location.city,', ',case_event_location.state,', ',case_event_location.postal_code) as location,
+        (SELECT group_concat(user_id) FROM case_event_linked_staff WHERE event_id = case_events.id) as sharedWith from case_events 
+        left join case_master on case_master.id =  case_events.case_id left join case_event_location on case_event_location.id =  case_events.event_location_id
+        where".$where." and (case_events.case_id is not null or case_events.lead_id is not null) and (case_events.parent_evnt_id = 0 or case_events.id = case_events.parent_evnt_id)".$deleted_at.";";
+        $allEvents = DB::select($query);
+
+        foreach ($allEvents as $k=>$v){
+            $sharedWithResult = '';
+            if($v->sharedWith != NULL){
+                $sharedWith = DB::select("SELECT group_concat(concat(users.first_name,' ',users.last_name)) as us FROM `users` WHERE `id` IN (".$v->sharedWith.")");
+                $sharedWithResult .= $sharedWith[0]->us;
+            }
+            $comments = [];
+            $commentsData = CaseEventComment::select("comment")->where("event_id",$v->id)->get();
+            if(count($commentsData) > 0){
+                foreach($commentsData as $kk=>$vv){
+                    if($vv->comment != null){
+                        $comments[] = $vv->comment;
+                    }
+                }
+            }
+            $casesCsvData[]=$v->event_title."|".$v->event_description."|".$v->start_date.' '.$v->start_time."|".$v->end_date.' '.$v->end_time."|".(($v->all_day == 'yes') ? 'true' : 'false')."|".$v->case_title."|".$v->location."|".(($v->is_event_private == 'yes') ? 'true' : 'false')."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".implode(PHP_EOL, $comments)."|".str_replace(",",PHP_EOL,$sharedWithResult)."|".$v->event_type;
+        }
 
         $file_path =  $folderPath.'/events.csv';  
         $file = fopen($file_path,"w+");
