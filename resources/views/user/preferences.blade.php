@@ -70,7 +70,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <label>Time Zone</label>
                             </div>
                             <div class="col form-control-plaintext time-zone-preference">
-                                {{Auth::User()->user_timezone}}
+                                {{ (!(empty(Auth::User()->user_timezone))) ? Auth::User()->user_timezone : 'UTC'}} &nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;   {{\Carbon\Carbon::now((!(empty(Auth::User()->user_timezone))) ? Auth::User()->user_timezone : 'UTC')->format('Y-m-d H:i:s')}}
+                                <div style="display: none">
+                                UTC Time : {{ date('Y-m-d H:i:s') }}
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row">
