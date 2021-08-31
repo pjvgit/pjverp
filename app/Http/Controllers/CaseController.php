@@ -8465,11 +8465,13 @@ class CaseController extends BaseController
         if(!empty($evetData) && $evetData->created_by != NULL){
             $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$evetData->created_by)->first();
         }       
-
-        $linkStaffPivot = $evetData->eventLinkedStaff()->wherePivot('user_id', auth()->user()->id())->first();
-        if($linkStaffPivot) {
-            $linkStaffPivot->pivot->comment_read_at = Carbon::now();
-            $linkStaffPivot->pivot->save();
+        if(!empty($evetData)){
+            $linkStaffPivot = $evetData->eventLinkedStaff()->wherePivot('user_id', Auth::User()->id)->first();
+            
+            if($linkStaffPivot) {
+                $linkStaffPivot->pivot->comment_read_at = Carbon::now();
+                $linkStaffPivot->pivot->save();
+            }
         }
             
         $commentData = CaseEventComment::where("event_id", $evnt_id)->orderBy('created_at', 'desc')->with("createdByUser")->get();
