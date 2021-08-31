@@ -41,9 +41,6 @@ class FullBackUpOfApplication implements ShouldQueue
     public function handle()
     {
         Log::info("Full Back Up Job started :". date('Y-m-d H:i:s'));
-
-        
-        
         try {
         $authUser = $this->authUser;
 

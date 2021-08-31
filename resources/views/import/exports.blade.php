@@ -37,11 +37,17 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <div class="tab-pane fade   {{ request()->is('exports') ? 'active show' : '' }}"
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
                             <div class="m-2">
-                                @if(empty($ClientFullBackup))
+                                @if(isset($ClientFullBackup[0]['created_at']) && date("Y-m-d",strtotime($ClientFullBackup[0]['created_at'])) <= date('Y-m-d'))
+                                <div class="font-italic text-muted text-center pb-2">
+                                    You cannot request a new backup at this time.  LegalCase allows you to request one full backup per day.
+                                </div>                           
+                                @else
                                 <div class="d-flex align-items-center flex-row-reverse mb-2">
                                     <a class="btn btn-primary ml-1" data-toggle="modal" data-target="#exportCourtCase"
                                         data-placement="bottom" href="javascript:;">Create Backup</a>
-                                </div>
+                                </div> 
+                                @endif
+
                                 <div class="alert alert-primary alert-dismissible fade show" role="alert">
                                     <p>
                                     When you create a full backup, we'll build a .zip file containing all of your
@@ -55,14 +61,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                @else
-                                <div class="font-italic text-muted text-center pb-2">
-                                    You cannot request a new backup at this time.  LegalCase allows you to request one full backup per day.
-                                </div>
-                                @endif
                             </div>
 
-                            @if(!empty($ClientFullBackup))
+                            @if(count($ClientFullBackup) == 0)
                                 <div class="no_items text-center">
                                     You have not created any recent backups.<br><br>
                                     Backups that you create in LegalCase will be<br>
@@ -96,7 +97,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Export Cases</h5>
+                <h5 class="modal-title" id="exampleModalCenterTitle">Create Backup</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -115,7 +116,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         <label for="format_mycase_csv">{{config('app.name')}} CSV</label>
                                     </div>
                                 </div>
-                                <br>
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Cases</label>
                                     <div class="col-sm-8">

@@ -3988,7 +3988,7 @@ class ClientdashboardController extends BaseController
 
     public function exportFullBackup(Request $request)
     {
-        $ClientFullBackup = ClientFullBackup::where('export_for', Auth::user()->id)->where('created_at', date('Y-m-d'))->first();
+        $ClientFullBackup = ClientFullBackup::where('export_for', Auth::user()->id)->get();
         return view('import.exports', compact('ClientFullBackup'));
     }
     public function loadFullBackupHistory()
