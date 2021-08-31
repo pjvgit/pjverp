@@ -280,8 +280,6 @@ class FullBackUpOfApplication implements ShouldQueue
     
     public function generateAccountActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
-        $casesCsvData[]=$casesHeader; 
 
         $FetchQuery = InvoicePayment::leftJoin("users","invoice_payment.created_by","=","users.id")
         ->leftJoin("invoices","invoices.id","=","invoice_payment.invoice_id")
@@ -300,16 +298,19 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         $FetchQuery = $FetchQuery->get();
 
-        foreach($FetchQuery as $k=>$v){
-            $casesCsvData[] = date('m/d/Y', strtotime($v->payment_date))."|".$v->invoice_id."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
-        }
+        if(count($FetchQuery) > 0){
+            $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
+            foreach($FetchQuery as $k=>$v){
+                $casesCsvData[] = date('m/d/Y', strtotime($v->payment_date))."|".$v->invoice_id."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
+            }
 
-        $file_path =  $folderPath.'/account_activities.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+            $file_path =  $folderPath.'/account_activities.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+        }
         return true; 
     }
     
@@ -394,33 +395,31 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesHeader="Name|Description|Case Name|Archived|Template|LegalCase ID|Tags|Versions|Comments|Shared With";
         $casesCsvData[]="";
 
-        $file_path =  $folderPath.'/documents.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        // $file_path =  $folderPath.'/documents.csv';  
+        // $file = fopen($file_path,"w+");
+        // foreach ($casesCsvData as $exp_data){
+        //   fputcsv($file,explode('|',$exp_data));
+        // }   
+        // fclose($file); 
         return true; 
     }
     
     public function generateEmailsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
         $casesHeader="";
-        $casesCsvData[]=$casesHeader;
+        $casesCsvData[]="";
 
-        $file_path =  $folderPath.'/emails.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        // $file_path =  $folderPath.'/emails.csv';  
+        // $file = fopen($file_path,"w+");
+        // foreach ($casesCsvData as $exp_data){
+        //   fputcsv($file,explode('|',$exp_data));
+        // }   
+        // fclose($file); 
         return true; 
     }
     
     public function generateEventsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
-        $casesCsvData[]=$casesHeader;
         
         if(isset($request['include_archived'])){  
             $deleted_at = '' ;
@@ -443,38 +442,40 @@ class FullBackUpOfApplication implements ShouldQueue
         where".$where." and (case_events.case_id is not null or case_events.lead_id is not null) and (case_events.parent_evnt_id = 0 or case_events.id = case_events.parent_evnt_id)".$deleted_at.";";
         $allEvents = DB::select($query);
 
-        foreach ($allEvents as $k=>$v){
-            $sharedWithResult = '';
-            if($v->sharedWith != NULL){
-                $sharedWith = DB::select("SELECT group_concat(concat(users.first_name,' ',users.last_name)) as us FROM `users` WHERE `id` IN (".$v->sharedWith.")");
-                $sharedWithResult .= $sharedWith[0]->us;
-            }
-            $comments = [];
-            $commentsData = CaseEventComment::select("comment")->where("event_id",$v->id)->get();
-            if(count($commentsData) > 0){
-                foreach($commentsData as $kk=>$vv){
-                    if($vv->comment != null){
-                        $comments[] = $vv->comment;
+        if(count($allEvents) > 0){
+            $casesCsvData[]="Name|Description|Start Time|End Time|All day|Case Name|Location|Private?|Archived|LegalCase ID|Comments|Shared With|Event Type";
+            
+            foreach ($allEvents as $k=>$v){
+                $sharedWithResult = '';
+                if($v->sharedWith != NULL){
+                    $sharedWith = DB::select("SELECT group_concat(concat(users.first_name,' ',users.last_name)) as us FROM `users` WHERE `id` IN (".$v->sharedWith.")");
+                    $sharedWithResult .= $sharedWith[0]->us;
+                }
+                $comments = [];
+                $commentsData = CaseEventComment::select("comment")->where("event_id",$v->id)->get();
+                if(count($commentsData) > 0){
+                    foreach($commentsData as $kk=>$vv){
+                        if($vv->comment != null){
+                            $comments[] = $vv->comment;
+                        }
                     }
                 }
+                $casesCsvData[]=$v->event_title."|".$v->event_description."|".$v->start_date.' '.$v->start_time."|".$v->end_date.' '.$v->end_time."|".(($v->all_day == 'yes') ? 'true' : 'false')."|".$v->case_title."|".$v->location."|".(($v->is_event_private == 'yes') ? 'true' : 'false')."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".implode(PHP_EOL, $comments)."|".str_replace(",",PHP_EOL,$sharedWithResult)."|".$v->event_type;
             }
-            $casesCsvData[]=$v->event_title."|".$v->event_description."|".$v->start_date.' '.$v->start_time."|".$v->end_date.' '.$v->end_time."|".(($v->all_day == 'yes') ? 'true' : 'false')."|".$v->case_title."|".$v->location."|".(($v->is_event_private == 'yes') ? 'true' : 'false')."|".(($v->deleted_at != NULL) ? 'true' : 'false')."|".$v->id."|".implode(PHP_EOL, $comments)."|".str_replace(",",PHP_EOL,$sharedWithResult)."|".$v->event_type;
-        }
 
-        $file_path =  $folderPath.'/events.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+            $file_path =  $folderPath.'/events.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+        }
         return true; 
     }
     
     public function generateFlatFeesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Date|Amount|Description|Entered By|Case Name|Invoice|Nonbillable|LegalCase ID";
-        $casesCsvData[]=$casesHeader;
-
+       
         $FlatFeeEntry = FlatFeeEntry::leftJoin("users","flat_fee_entry.created_by","=","users.id")->leftJoin("case_master","case_master.id","=","flat_fee_entry.case_id");   
         $FlatFeeEntry = $FlatFeeEntry->select('flat_fee_entry.*', DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),'case_master.case_title');
         $FlatFeeEntry = $FlatFeeEntry->where('status','paid');
@@ -492,23 +493,26 @@ class FullBackUpOfApplication implements ShouldQueue
             $FlatFeeEntry = $FlatFeeEntry->withTrashed();
         }
         $FlatFeeEntry = $FlatFeeEntry->get();
-        foreach ($FlatFeeEntry as $k=>$v){
-            $casesCsvData[]= date('m/d/Y', strtotime($v->entry_date))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
-        }
 
-        $file_path =  $folderPath.'/flat_fees.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        if(count($FlatFeeEntry) > 0){
+            $casesCsvData[]="Date|Amount|Description|Entered By|Case Name|Invoice|Nonbillable|LegalCase ID";
+            
+            foreach ($FlatFeeEntry as $k=>$v){
+                $casesCsvData[]= date('m/d/Y', strtotime($v->entry_date))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
+            }
+
+            $file_path =  $folderPath.'/flat_fees.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+        }
         return true; 
     }
     
     public function generateInvoiceDiscountsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Item|Applied To|Type|Description|Basis|Percent|Amount|Case Name|Invoice|LegalCase ID";
-        $casesCsvData[]=$casesHeader;
 
         $InvoiceAdjustment = InvoiceAdjustment::leftJoin("users","invoice_adjustment.created_by","=","users.id")->leftJoin("case_master","case_master.id","=","invoice_adjustment.case_id");   
         $InvoiceAdjustment = $InvoiceAdjustment->select('invoice_adjustment.*', DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),'case_master.case_title');
@@ -525,19 +529,24 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         $InvoiceAdjustment = $InvoiceAdjustment->get();
         $AppliedTo=array("flat_fees"=>"Flat Fees","time_entries"=>"Time Entries","expenses"=>"Expenses","balance_forward_total"=>"Balance Forward Total","sub_total"=>"Sub Total");
-        $adType=array("percentage"=>"% - Percentage","amount"=>"$ - Amount");      
-        foreach ($InvoiceAdjustment as $k=>$v){
-            $appliedTo =  ($v->applied_to != '') ? $AppliedTo[$v->applied_to] : "";
-            $appliedType = ($v->ad_type != '') ? $adType[$v->ad_type] : "";
-            $casesCsvData[]= ucwords($v->item)."|".$appliedTo."|".$appliedType."|".$v->notes."|".$v->basis."|".$v->percentages."|".(($v->item == 'discount') ? '-':'').$v->amount."|".$v->case_title."|".$v->invoice_id."|".$v->id;
-        }
+        $adType=array("percentage"=>"% - Percentage","amount"=>"$ - Amount");  
+        
+        if(count($InvoiceAdjustment) > 0){ 
+            $casesCsvData[]="Item|Applied To|Type|Description|Basis|Percent|Amount|Case Name|Invoice|LegalCase ID";
+            
+            foreach ($InvoiceAdjustment as $k=>$v){
+                $appliedTo =  ($v->applied_to != '') ? $AppliedTo[$v->applied_to] : "";
+                $appliedType = ($v->ad_type != '') ? $adType[$v->ad_type] : "";
+                $casesCsvData[]= ucwords($v->item)."|".$appliedTo."|".$appliedType."|".$v->notes."|".$v->basis."|".$v->percentages."|".(($v->item == 'discount') ? '-':'').$v->amount."|".$v->case_title."|".$v->invoice_id."|".$v->id;
+            }
 
-        $file_path =  $folderPath.'/invoice_discounts.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+            $file_path =  $folderPath.'/invoice_discounts.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+        }
         return true; 
     }
     
@@ -546,19 +555,17 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesHeader="Invoice Number|Case Name|Invoice date|Due date|Billing User|Address|From date|To date|Payment terms|Terms and conditions|Notes|Status|Archived|Created By|Allow online payments|Deposit account|Sent|Draft|Time entry total|Expense total|Flat fee total|Subtotal|Discount total|Write off total|Addition total|Balance forward total|Total amount|Paid|Paid amount|Paid date|Balance due|Forwarded|Forwarded To|Shared With|Has payment plan|Payment Plan|LegalCase ID";
         $casesCsvData[]=$casesHeader;
 
-        $file_path =  $folderPath.'/invoices.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        // $file_path =  $folderPath.'/invoices.csv';  
+        // $file = fopen($file_path,"w+");
+        // foreach ($casesCsvData as $exp_data){
+        //   fputcsv($file,explode('|',$exp_data));
+        // }   
+        // fclose($file); 
         return true; 
     }
     
     public function generateLawyersCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="First name|Middle Name|Last name|Email|User Type|Street|Street 2|City|State|Postal Code|Country/Region|Home phone|Cell phone|Work phone|Fax phone|LegalCase ID|Archived|Default rate|Cases";
-        $casesCsvData[]=$casesHeader;
 
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select('users.*','users_additional_info.*',"users.id as id");
         $user = $user->where("firm_name",$authUser->firm_name); //Logged in user not visible in grid
@@ -566,38 +573,40 @@ class FullBackUpOfApplication implements ShouldQueue
         $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $user = $user->get();
 
-        foreach ($user as $k => $v){
-            $countries = Countries::select('id','name')->get();            
-            $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
-
-            $cases = $casesID = [];            
+        if(count($user) > 0){
+            $casesCsvData[]="First name|Middle Name|Last name|Email|User Type|Street|Street 2|City|State|Postal Code|Country/Region|Home phone|Cell phone|Work phone|Fax phone|LegalCase ID|Archived|Default rate|Cases";
             
-            $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")
-            ->select('case_master.case_title');
-            $case = $case->where("case_staff.user_id",$v->id);
-            $case = $case->where("case_master.is_entry_done","1");
-            $case = $case->get();
+            foreach ($user as $k => $v){
+                $countries = Countries::select('id','name')->get();            
+                $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
 
-            foreach($case as $kk=>$vv){
-                $cases[] = $vv->case_title;
+                $cases = $casesID = [];            
+                
+                $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")
+                ->select('case_master.case_title');
+                $case = $case->where("case_staff.user_id",$v->id);
+                $case = $case->where("case_master.is_entry_done","1");
+                $case = $case->get();
+
+                foreach($case as $kk=>$vv){
+                    $cases[] = $vv->case_title;
+                }
+
+                $casesCsvData[]=$v->first_name."|".$v->middle_name."|".$v->last_name."|".$v->email."|".$v->user_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->home_phone."|".$v->mobile_number."|".$v->work_phone."|".$v->fax_number."|".$v->id."|".(($v->user_status == '4') ? 'true' : 'false')."|".$v->default_rate."|".implode(PHP_EOL, $cases);
             }
 
-            $casesCsvData[]=$v->first_name."|".$v->middle_name."|".$v->last_name."|".$v->email."|".$v->user_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->home_phone."|".$v->mobile_number."|".$v->work_phone."|".$v->fax_number."|".$v->id."|".(($v->user_status == '4') ? 'true' : 'false')."|".$v->default_rate."|".implode(PHP_EOL, $cases);
+            $file_path =  $folderPath.'/lawyers.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
         }
-
-        $file_path =  $folderPath.'/lawyers.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
         return true; 
     }
     
     public function generateLocationsCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Name|Street|Street2|City|State|Postal Code|Country name|LegalCase ID";
-        $casesCsvData[]=$casesHeader;
 
         $CaseEventLocation = CaseEventLocation::leftJoin('countries','case_event_location.country',"=","countries.id")
         ->select('case_event_location.*','countries.name');
@@ -615,15 +624,19 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         $CaseEventLocation = $CaseEventLocation->get();
 
-        foreach ($CaseEventLocation as $k => $v) {     
-            $casesCsvData[]=$v->location_name."|".$v->address1."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$v->name."|".$v->id;
+        if(count($CaseEventLocation) > 0){
+            $casesCsvData[]="Name|Street|Street2|City|State|Postal Code|Country name|LegalCase ID";
+            
+            foreach ($CaseEventLocation as $k => $v) {     
+                $casesCsvData[]=$v->location_name."|".$v->address1."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$v->name."|".$v->id;
+            }
+            $file_path =  $folderPath.'/locations.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
         }
-        $file_path =  $folderPath.'/locations.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
         return true; 
     }
     
@@ -632,19 +645,17 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesHeader="";
         $casesCsvData[]=$casesHeader;
 
-        $file_path =  $folderPath.'/messages.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        // $file_path =  $folderPath.'/messages.csv';  
+        // $file = fopen($file_path,"w+");
+        // foreach ($casesCsvData as $exp_data){
+        //   fputcsv($file,explode('|',$exp_data));
+        // }   
+        // fclose($file); 
         return true; 
     }
     
     public function generateTasksCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";
-        $casesCsvData[]=$casesHeader;
 
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
@@ -664,27 +675,29 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         $task = $task->get();
 
-        foreach ($task as $k => $v) {                
-            $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')
-                ->select(DB::raw('group_concat(CONCAT_WS(" ",users.first_name,users.last_name)) as assigned_to_name'))
-                ->where('task_id',$v->id)  
-                ->get();
+        if(count($task) > 0){
+            $casesCsvData[]="Name|Notes|Due date|Complete|Priority|Case Name|Assigned By|Completed By|Completed at|Archived|LegalCase ID|Assigned To";
+            
+            foreach ($task as $k => $v) {                
+                $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')
+                    ->select(DB::raw('group_concat(CONCAT_WS(" ",users.first_name,users.last_name)) as assigned_to_name'))
+                    ->where('task_id',$v->id)  
+                    ->get();
 
-            $casesCsvData[]=$v->task_title."|".$v->description."|".date("m/d/Y",strtotime($v->task_due_on))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->task_priority."|".$v->case_title."|LegalCase System|".$v->task_completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'false' : 'true')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
+                $casesCsvData[]=$v->task_title."|".$v->description."|".date("m/d/Y",strtotime($v->task_due_on))."|".(($v->status == '0') ? 'false' : 'true')."|".$v->task_priority."|".$v->case_title."|LegalCase System|".$v->task_completed_by."|".(($v->task_completed_date == NULL) ? '' : date("m/d/Y",strtotime($v->task_completed_date)))."|".(($v->deleted_at != NULL) ? 'false' : 'true')."|".$v->id."|".($tasklinkedstaff[0]['assigned_to_name'] ?? '');
+            }
+            $file_path =  $folderPath.'/tasks.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
         }
-        $file_path =  $folderPath.'/tasks.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
         return true; 
     }
     
     public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-        $casesHeader="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
-        $casesCsvData[]=$casesHeader;
 
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
         ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id")
@@ -697,16 +710,20 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         $FetchQuery = $FetchQuery->get();
 
-        foreach ($FetchQuery as $k => $v){
-            $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".$v->related_to."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|false|false|false|false|false|".(($v->debit_amount > 0) ? "-".$v->debit_amount : $v->credit_amount)."|".(($v->pay_type == 'trust') ? 'true' : 'false')."|false|false|false|".$v->total_amount."|".$v->id;
-        }
+        if(count($FetchQuery) > 0){
+            $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
+            
+            foreach ($FetchQuery as $k => $v){
+                $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".$v->related_to."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|false|false|false|false|false|".(($v->debit_amount > 0) ? "-".$v->debit_amount : $v->credit_amount)."|".(($v->pay_type == 'trust') ? 'true' : 'false')."|false|false|false|".$v->total_amount."|".$v->id;
+            }
 
-        $file_path =  $folderPath.'/trust_activities.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+            $file_path =  $folderPath.'/trust_activities.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+        }
         return true; 
     }
 }

@@ -37,7 +37,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <div class="tab-pane fade   {{ request()->is('exports') ? 'active show' : '' }}"
                             id="tab1" role="tabpanel" aria-labelledby="profile-basic-tab2">
                             <div class="m-2">
-                                @if(isset($ClientFullBackup[0]['created_at']) && date("Y-m-d",strtotime($ClientFullBackup[0]['created_at'])) <= date('Y-m-d'))
+                                @if(isset($ClientFullBackup[0]['created_at']) && date("Y-m-d",strtotime($ClientFullBackup[0]['created_at'])) == date('Y-m-d'))
                                 <div class="font-italic text-muted text-center pb-2">
                                     You cannot request a new backup at this time.  LegalCase allows you to request one full backup per day.
                                 </div>                           
