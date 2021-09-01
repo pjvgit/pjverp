@@ -965,6 +965,7 @@ class CaseController extends BaseController
                         return Carbon::parse($val->start_date)->format('Y');
                     }) */;
                     if($request->ajax()) {
+                        Log::info("ajax event listing");
                         return view('case.view.load_event_list', compact('allEvents'));
                     }
                 // }
