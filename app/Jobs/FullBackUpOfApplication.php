@@ -159,122 +159,125 @@ class FullBackUpOfApplication implements ShouldQueue
                 $case = $case->withTrashed();
             }
         }
-        $case = $case->get();        
-        foreach($case as $k=>$v){
-            $practiceArea = '';
-            if($v->practice_area > 0){
-                $practiceAreaList = CasePracticeArea::where("status","1")->where("id",$v->practice_area)->first();  
-                $practiceArea = $practiceAreaList->title;
-            }
-
-            $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
-            ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
-            ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
-            ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
-            ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
-            ->where("case_client_selection.case_id",$v->id);
-            if(!isset($request['include_archived'])){
-                $caseCllientSelection = $caseCllientSelection->withTrashed();
-            }
-            $caseCllientSelection =$caseCllientSelection->get();
-            
-            $contactList = '';
-            $is_billing_contact = '';
-            if(count($caseCllientSelection) > 0){
-                foreach($caseCllientSelection as $key=>$val){
-                    if($val->is_billing_contact == 'yes'){
-                        $is_billing_contact = $val->first_name.' '.$val->last_name;
-                    }
-                    if($val->user_level==4){
-                        $contactList .= $val->first_name.' '.$val->last_name.'(Attorney)'.PHP_EOL;
-                    }else{
-                        $contactList .= $val->first_name.' '.$val->last_name.'(Client)'.PHP_EOL;
-                    }
-                }                
-            }
-            
-            $caseStage = 'Not Specified';
-            if($v->case_status > 0){
-                $caseStageList = CaseStage::select("*")->where("status","1")->where("id",$v->case_status)->first();
-                $caseStage = $caseStageList->title ?? 'Not Specified';
-            }
-
-            $flatFee = 0;
-            if($v->billing_method =='flat' || $v->billing_method =='mixed'){ 
-                $flatFee = $v->billing_amount;
-            }
-
-            $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
-            $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
-          
-            $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
-            
-            // Notes Entry
-            $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
-            if(count($ClientNotesData) > 0){
-                foreach($ClientNotesData as $key=>$notes)
-                $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
-            }
-            
-            // Expenses Entry
-            $ExpenseEntryCase = ExpenseEntry::leftJoin("users","expense_entry.user_id","=","users.id")
-            ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
-            ->select('expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
-            ->where("expense_entry.case_id",$v->id);
-            if(!isset($request['include_archived'])){
-                $ExpenseEntryCase = $ExpenseEntryCase->withTrashed();
-            }
-            $ExpenseEntryCase =$ExpenseEntryCase->get();
-
-            foreach($ExpenseEntryCase as $kk =>$vv){
-                $casesExpensesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->duration."|".(int)$vv->cost."|".((int)$vv->cost * (int)$vv->duration)."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
-            }
-
-            // TaskTimeEntry
-            $TaskTimeEntryCase = TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
-            ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
-            ->select('task_time_entry.*','task_time_entry.duration as tasktimeEntryDuration',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
-            ->where("task_time_entry.case_id",$v->id);
-            if(!isset($request['include_archived'])){
-                $TaskTimeEntryCase = $TaskTimeEntryCase->withTrashed();
-            }
-            $TaskTimeEntryCase =$TaskTimeEntryCase->get();
-
-            foreach($TaskTimeEntryCase as $kk =>$vv){
-                $total = ($vv->rate_type == 'flat') ? (int)$vv->entry_rate : ( str_replace(",","",(int)$vv->entry_rate)  * (int)$vv->tasktimeEntryDuration);
-                $casesTimeEntriesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->tasktimeEntryDuration."|".str_replace(",","",(int)$vv->entry_rate)."|".$vv->rate_type."|".$total."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
-            }
-        }
-        // echo json_encode($casesCsvData);
-        // exit;
+        $case = $case->get();  
         
-        $file_path =  $folderPath.'/cases.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
+        if(count($case) > 0) {
+            foreach($case as $k=>$v){
+                $practiceArea = '';
+                if($v->practice_area > 0){
+                    $practiceAreaList = CasePracticeArea::where("status","1")->where("id",$v->practice_area)->first();  
+                    $practiceArea = $practiceAreaList->title;
+                }
 
-        $file_path_notes =  $folderPath.'/notes.csv';  
-        $file_notes = fopen($file_path_notes,"w+");
-        foreach ($caseNotesCsvData as $exp_data_notes){
-          fputcsv($file_notes,explode('|',$exp_data_notes));
-        }   
-        fclose($file_notes); 
+                $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                ->leftJoin('user_role','user_role.id','case_client_selection.user_role')
+                ->leftJoin('client_group','client_group.id','users_additional_info.contact_group_id')
+                ->select("users.first_name","users.last_name","case_client_selection.is_billing_contact")
+                ->where("case_client_selection.case_id",$v->id);
+                if(!isset($request['include_archived'])){
+                    $caseCllientSelection = $caseCllientSelection->withTrashed();
+                }
+                $caseCllientSelection =$caseCllientSelection->get();
+                
+                $contactList = '';
+                $is_billing_contact = '';
+                if(count($caseCllientSelection) > 0){
+                    foreach($caseCllientSelection as $key=>$val){
+                        if($val->is_billing_contact == 'yes'){
+                            $is_billing_contact = $val->first_name.' '.$val->last_name;
+                        }
+                        if($val->user_level==4){
+                            $contactList .= $val->first_name.' '.$val->last_name.'(Attorney)'.PHP_EOL;
+                        }else{
+                            $contactList .= $val->first_name.' '.$val->last_name.'(Client)'.PHP_EOL;
+                        }
+                    }                
+                }
+                
+                $caseStage = 'Not Specified';
+                if($v->case_status > 0){
+                    $caseStageList = CaseStage::select("*")->where("status","1")->where("id",$v->case_status)->first();
+                    $caseStage = $caseStageList->title ?? 'Not Specified';
+                }
 
-        $file_path_expenses =  $folderPath.'/expenses.csv';  
-        $file_expenses = fopen($file_path_expenses,"w+");
-        foreach ($casesExpensesCsvData as $exp_data){
-          fputcsv($file_expenses,explode('|',$exp_data));
-        }   
-        fclose($file_expenses);          
+                $flatFee = 0;
+                if($v->billing_method =='flat' || $v->billing_method =='mixed'){ 
+                    $flatFee = $v->billing_amount;
+                }
 
-        $file_path_time_entries =  $folderPath.'/time_entries.csv';  
-        $file_time_entries = fopen($file_path_time_entries,"w+");
-        foreach ($casesTimeEntriesCsvData as $exp_data){
-          fputcsv($file_time_entries,explode('|',$exp_data));
-        }   
-        fclose($file_time_entries); 
+                $leadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("lead_attorney","!=",null)->first();
+                $originatingAttorney = CaseStaff::join('users','users.id','=','case_staff.originating_attorney')->select("users.first_name","users.last_name")->where("case_id",$v->id)->where("originating_attorney","!=",null)->first();
+            
+                $casesCsvData[]=$v->case_title."|".$v->case_number."|".date("m/d/Y",strtotime($v->case_open_date))."|".$practiceArea."|".$v->case_description."|".(($v->case_close_date != NUll) ? 'true' : 'false')."|".(($v->case_close_date != NUll) ? date("m/d/Y",strtotime($v->case_close_date)) : '')."|".( (!empty($leadAttorney)) ?  $leadAttorney->first_name.' '.$leadAttorney->last_name : '')."|".( (!empty($originatingAttorney)) ?  $originatingAttorney->first_name.' '.$originatingAttorney->last_name : '')."||0|".$v->id."|".$contactList."|".$v->billing_method."|".$is_billing_contact."|".$flatFee."|".$caseStage."|0|".(($v->conflict_check == '0') ? 'false' : 'true')."|".(($v->conflict_check_description == NULL) ? 'No Conflict Check Notes' : $v->conflict_check_description);
+                
+                // Notes Entry
+                $ClientNotesData = ClientNotes::where("case_id",$v->id)->get();
+                if(count($ClientNotesData) > 0){
+                    foreach($ClientNotesData as $key=>$notes)
+                    $caseNotesCsvData[]=$v->case_title."|".$v->created_by_name."|".date("m/d/Y",strtotime($v->case_open_date))."|".$notes->created_at."|".$notes->updated_at."|".$notes->note_subject."|". strip_tags($notes->notes);
+                }
+                
+                // Expenses Entry
+                $ExpenseEntryCase = ExpenseEntry::leftJoin("users","expense_entry.user_id","=","users.id")
+                ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
+                ->select('expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
+                ->where("expense_entry.case_id",$v->id);
+                if(!isset($request['include_archived'])){
+                    $ExpenseEntryCase = $ExpenseEntryCase->withTrashed();
+                }
+                $ExpenseEntryCase =$ExpenseEntryCase->get();
+
+                foreach($ExpenseEntryCase as $kk =>$vv){
+                    $casesExpensesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->duration."|".(int)$vv->cost."|".((int)$vv->cost * (int)$vv->duration)."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
+                }
+
+                // TaskTimeEntry
+                $TaskTimeEntryCase = TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
+                ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+                ->select('task_time_entry.*','task_time_entry.duration as tasktimeEntryDuration',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'))
+                ->where("task_time_entry.case_id",$v->id);
+                if(!isset($request['include_archived'])){
+                    $TaskTimeEntryCase = $TaskTimeEntryCase->withTrashed();
+                }
+                $TaskTimeEntryCase =$TaskTimeEntryCase->get();
+
+                foreach($TaskTimeEntryCase as $kk =>$vv){
+                    $total = ($vv->rate_type == 'flat') ? (int)$vv->entry_rate : ( str_replace(",","",(int)$vv->entry_rate)  * (int)$vv->tasktimeEntryDuration);
+                    $casesTimeEntriesCsvData[]=date("m/d/Y",strtotime($vv->entry_date))."|".$vv->activity_title."|".(int)$vv->tasktimeEntryDuration."|".str_replace(",","",(int)$vv->entry_rate)."|".$vv->rate_type."|".$total."|".$vv->description."|".$vv->user_name."|".$v->case_title."|".$vv->invoice_link."|".(($vv->time_entry_billable == 'yes') ? 'false' : 'true')."|".$vv->id;
+                }
+            }
+            // echo json_encode($casesCsvData);
+            // exit;
+            
+            $file_path =  $folderPath.'/cases.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+
+            $file_path_notes =  $folderPath.'/notes.csv';  
+            $file_notes = fopen($file_path_notes,"w+");
+            foreach ($caseNotesCsvData as $exp_data_notes){
+            fputcsv($file_notes,explode('|',$exp_data_notes));
+            }   
+            fclose($file_notes); 
+
+            $file_path_expenses =  $folderPath.'/expenses.csv';  
+            $file_expenses = fopen($file_path_expenses,"w+");
+            foreach ($casesExpensesCsvData as $exp_data){
+            fputcsv($file_expenses,explode('|',$exp_data));
+            }   
+            fclose($file_expenses);          
+
+            $file_path_time_entries =  $folderPath.'/time_entries.csv';  
+            $file_time_entries = fopen($file_path_time_entries,"w+");
+            foreach ($casesTimeEntriesCsvData as $exp_data){
+            fputcsv($file_time_entries,explode('|',$exp_data));
+            }   
+            fclose($file_time_entries); 
+        }
         return true; 
     }
     
@@ -341,52 +344,55 @@ class FullBackUpOfApplication implements ShouldQueue
         $user = $user->orderBy("users.id",'asc');
         $user = $user->with("clientCases");
         $userData = $user->get();
-        foreach ($userData as $k=>$v){
-            $countries = Countries::select('id','name')->get();            
-            $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
 
-            $contacts = $company = $cases = $casesID = [];            
-            foreach($v['clientCases'] as $kk=>$vv){
-                $cases[] = $vv->case_title;
-                $casesID[] = $vv->id;
-            }
-            $companyList = User::select("users.first_name","users.id")->whereIn("users.id",explode(",",$v['multiple_compnay_id']))->get();
+        if(count($userData) > 0){
+            foreach ($userData as $k=>$v){
+                $countries = Countries::select('id','name')->get();            
+                $countryName = ($v->country !=NULL) ? $countries[$v->country]['name'] : '';
 
-            foreach($companyList as $kk=>$vv){
-                $company[] = $vv->first_name;
-            }
+                $contacts = $company = $cases = $casesID = [];            
+                foreach($v['clientCases'] as $kk=>$vv){
+                    $cases[] = $vv->case_title;
+                    $casesID[] = $vv->id;
+                }
+                $companyList = User::select("users.first_name","users.id")->whereIn("users.id",explode(",",$v['multiple_compnay_id']))->get();
 
-            if($v->user_level == '2'){
-                $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(PHP_EOL, $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".(($v->user_status == 4) ? 'true' : 'false')."|".date("m/d/Y", strtotime($v->dob))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->trust_account_balance."||".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
-            }
-            if($v->user_level == '4'){
-                $companyID = $v['id'];
-                $contactlist = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
-                    ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
-                    ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
-                    ->get();
-
-                foreach ($contactlist as $kk => $vv){
-                    $contacts[] = $vv->fullname;
+                foreach($companyList as $kk=>$vv){
+                    $company[] = $vv->first_name;
                 }
 
-                $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                if($v->user_level == '2'){
+                    $casesCsvData[]=$v->id."|".$v->first_name."|".$v->middle_name."|".$v->last_name."|".implode(PHP_EOL, $company)."|".$v->job_title."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->work_phone."|".$v->home_phone."|".$v->mobile_number."|".$v->group_name."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->last_login != NULL) ? 'true' : 'false')."|".(($v->user_status == 4) ? 'true' : 'false')."|".date("m/d/Y", strtotime($v->dob))."|".$v->notes."|".$v->driver_license."|".$v->license_state."||".$v->trust_account_balance."||".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                }
+                if($v->user_level == '4'){
+                    $companyID = $v['id'];
+                    $contactlist = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+                        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
+                        ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
+                        ->get();
+
+                    foreach ($contactlist as $kk => $vv){
+                        $contacts[] = $vv->fullname;
+                    }
+
+                    $companyCsvData[]=$v->id."|".$v->first_name."|".$v->street."|".$v->address2."|".$v->city."|".$v->state."|".$v->postal_code."|".$countryName."|".$v->fax_number."|".$v->mobile_number."|".$v->email."|".$v->website."|".$v->trust_account_balance."|".(($v->user_status == 4) ? 'true' : 'false')."|".$v->notes."|".$v->trust_account_balance."|".implode(PHP_EOL, $contacts)."|".implode(PHP_EOL, $cases)."|".implode(PHP_EOL, $casesID)."|".date("m/d/Y", strtotime($v->created_at));
+                }
             }
+
+            $file_path =  $folderPath.'/clients.csv';  
+            $file = fopen($file_path,"w+");
+            foreach ($casesCsvData as $exp_data){
+            fputcsv($file,explode('|',$exp_data));
+            }   
+            fclose($file); 
+
+            $company_file_path =  $folderPath.'/companies.csv';  
+            $company_file = fopen($company_file_path,"w+");
+            foreach ($companyCsvData as $exp_data){
+            fputcsv($company_file,explode('|',$exp_data));
+            }   
+            fclose($company_file);
         }
-
-        $file_path =  $folderPath.'/clients.csv';  
-        $file = fopen($file_path,"w+");
-        foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
-        }   
-        fclose($file); 
-
-        $company_file_path =  $folderPath.'/companies.csv';  
-        $company_file = fopen($company_file_path,"w+");
-        foreach ($companyCsvData as $exp_data){
-          fputcsv($company_file,explode('|',$exp_data));
-        }   
-        fclose($company_file);
         return true; 
     }
     

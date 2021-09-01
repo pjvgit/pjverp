@@ -133,7 +133,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     <div class="col-sm-8">
                                         <div style="line-height: 1.5em;">
                                         <input type="checkbox" name="include_archived" id="include_archived" value="1">
-                                        <label for="include_archived">Include archieved items</label><br>  
+                                        <label for="include_archived">Include archived items</label><br>  
                                         </div>
                                         <div style="line-height: 1.5em;">
                                         <input type="checkbox" name="include_mail" id="include_mail" value="1">
