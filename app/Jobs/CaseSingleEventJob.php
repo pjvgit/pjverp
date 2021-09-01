@@ -16,18 +16,19 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class CaseSingleEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CaseEventTrait;
-    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser;
+    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $this->requestData = $requestData;
         $this->startDate = $startDate;
@@ -35,6 +36,7 @@ class CaseSingleEventJob implements ShouldQueue
         $this->start_time = $start_time;
         $this->end_time = $end_time;
         $this->authUser = $authUser;
+        $this->locationID = $locationID;
     }
 
     /**
@@ -52,6 +54,7 @@ class CaseSingleEventJob implements ShouldQueue
         $start_time = $this->start_time;
         $end_time = $this->end_time;
         $authUser = $this->authUser;
+        $locationID = $this->locationID;
         if($request->event_frequency=='DAILY')
         {
             dbStart();
@@ -60,7 +63,7 @@ class CaseSingleEventJob implements ShouldQueue
             do {
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -91,7 +94,7 @@ class CaseSingleEventJob implements ShouldQueue
                 }else {
                     $start_date = date("Y-m-d", $startDate);
                     $end_date = date("Y-m-d", $startDate);
-                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
                         $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -100,10 +103,10 @@ class CaseSingleEventJob implements ShouldQueue
                         $CaseEvent->parent_evnt_id =  $parentCaseID;
                         $CaseEvent->save();
                     }
-                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                    $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
 
                     // $this->saveEventHistory($CaseEvent->id);
                 }
@@ -119,7 +122,7 @@ class CaseSingleEventJob implements ShouldQueue
                 // $weekday= date("l", $timestamp ); 
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -128,10 +131,10 @@ class CaseSingleEventJob implements ShouldQueue
                     $CaseEvent->parent_evnt_id =  $parentCaseID;
                     $CaseEvent->save();
                 }
-                $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
 
                 // $this->saveEventHistory($CaseEvent->id);
 
@@ -173,7 +176,7 @@ class CaseSingleEventJob implements ShouldQueue
 
                     $start_date = $date->format('Y-m-d');
                     $end_date =$date->format('Y-m-d');
-                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
                         $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -183,10 +186,10 @@ class CaseSingleEventJob implements ShouldQueue
                         $CaseEvent->save();
                     }
                     $i++;
-                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                    $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                    $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
 
                     // $this->saveEventHistory($CaseEvent->id);
                 }
@@ -209,7 +212,7 @@ class CaseSingleEventJob implements ShouldQueue
                 }
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -218,10 +221,10 @@ class CaseSingleEventJob implements ShouldQueue
                     $CaseEvent->parent_evnt_id =  $parentCaseID;
                     $CaseEvent->save();
                 }
-                $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
 
                 //  $this->saveEventHistory($CaseEvent->id);
                 $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
@@ -248,7 +251,7 @@ class CaseSingleEventJob implements ShouldQueue
                 }
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -257,10 +260,10 @@ class CaseSingleEventJob implements ShouldQueue
                     $CaseEvent->parent_evnt_id =  $parentCaseID;
                     $CaseEvent->save();
                 }
-                $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                $this->saveContactLeadData($request->all(),$CaseEvent->id); 
+                $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
 
                 // $this->saveEventHistory($CaseEvent->id);
 

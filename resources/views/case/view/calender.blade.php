@@ -32,7 +32,7 @@
                 </div>
                 
                 @if(count($allEvents) == 0)
-                <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">There are no upcoming events scheduled.</div></div></div>
+                <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">{{ count($allEvents) }}There are no upcoming events scheduled.</div></div></div>
                 @else
                 <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
@@ -564,6 +564,7 @@
             }
         }).done(function (data) {
             $(".load-more-loader").parents('tr').hide();
+            console.log(data);;
             if(data != "") {
                 if(filter) {
                     $('#'+divId).html(data);
@@ -572,11 +573,11 @@
                 }
                 $('#'+divId+' .pagination').hide();
             } else {
-                $('#'+divId).html('<tr><td colspan="6"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+                $('#'+divId).html('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
             }
         }).fail(function () {
             $(".load-more-loader").hide();
-            $('#'+divId).append('<tr><td colspan="6"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+            $('#'+divId).append('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
         });
     }
 </script>

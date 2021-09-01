@@ -20,7 +20,7 @@ class CaseFollowingEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CaseEventTrait;
-    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser;
+    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID;
     public $tries = 5;
     public $timeout = 240;
     /**
@@ -28,7 +28,7 @@ class CaseFollowingEventJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $this->requestData = $requestData;
         $this->startDate = $startDate;
@@ -36,6 +36,7 @@ class CaseFollowingEventJob implements ShouldQueue
         $this->start_time = $start_time;
         $this->end_time = $end_time;
         $this->authUser = $authUser;
+        $this->locationID = $locationID;
     }
 
     /**
@@ -52,6 +53,7 @@ class CaseFollowingEventJob implements ShouldQueue
         $start_time = $this->start_time;
         $end_time = $this->end_time;
         $authUser = $this->authUser;
+        $locationID = $this->locationID;
         if($request->event_frequency=='DAILY')
         {
             $i=0;
@@ -59,7 +61,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
                 Log::info("saveDailyEvent ");
-                $this->saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);                        
+                $this->saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);                        
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
@@ -77,7 +79,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         Log::info("start_date : ".$startDate." <=  End date :".$endDate. " with request :". json_encode($request));
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
 
                         $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser);   
@@ -91,7 +93,7 @@ class CaseFollowingEventJob implements ShouldQueue
                     } while ($startDate <= $endDate);
                 } else {
                     Log::info("daily date not matched");
-                    $this->saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);
+                    $this->saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);
                 }
             }
             
@@ -100,7 +102,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
 
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
-                $this->saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);
+                $this->saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);
             } else {
                 // Update existing event with trashed and same event frequency
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
@@ -121,7 +123,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         }else {
                             $start_date = date("Y-m-d", $startDate);
                             $end_date = date("Y-m-d", $startDate);
-                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
                         
                             $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
                             $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
@@ -133,7 +135,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $startDate = strtotime('+1 day',$startDate); 
                     } while ($startDate <= $endDate);
                 } else {
-                    $this->saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);
+                    $this->saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);
                 }
             }
                 
@@ -142,7 +144,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
-                $this->saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);
+                $this->saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id', $OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
@@ -158,7 +160,7 @@ class CaseFollowingEventJob implements ShouldQueue
                     do {
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
                         
                         $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
@@ -169,7 +171,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $startDate = strtotime('+7 day',$startDate); 
                     } while ($startDate <= $endDate);
                 } else {
-                    $this->saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser);
+                    $this->saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID);
                 }
             }
         }else if($request->event_frequency=='CUSTOM') { 
@@ -179,7 +181,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
-                $this->saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone);
+                $this->saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone, $locationID);
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 if($request->end_on!=''){
@@ -215,7 +217,7 @@ class CaseFollowingEventJob implements ShouldQueue
 
                             $start_date = $date->format('Y-m-d');
                             $end_date =$date->format('Y-m-d');
-                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                            $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
                         
                             $i++;
                             $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
@@ -226,7 +228,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         }
                     }
                 } else {
-                    $this->saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone);
+                    $this->saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone, $locationID);
                 }
             }
         } else if($request->event_frequency=='MONTHLY') { 
@@ -235,7 +237,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
-                $this->saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday);
+                $this->saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID);
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
@@ -260,7 +262,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         }
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
                         
                         $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
@@ -272,7 +274,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $i++;
                     } while ($startDate < $endDate);
                 } else {
-                    $this->saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday);
+                    $this->saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID);
                 }
             }
         } else if($request->event_frequency=='YEARLY') { 
@@ -281,7 +283,7 @@ class CaseFollowingEventJob implements ShouldQueue
             $i=0;
             $OldCaseEvent=CaseEvent::find($request->event_id);
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
-                $this->saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday);             
+                $this->saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID);             
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
@@ -305,7 +307,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         }
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
-                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent);
+                        $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
                     
                         $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
@@ -317,7 +319,7 @@ class CaseFollowingEventJob implements ShouldQueue
                         $i++;
                     } while ($startDate < $endDate);
                 } else {
-                    $this->saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday);
+                    $this->saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID);
                 }
             }
         }

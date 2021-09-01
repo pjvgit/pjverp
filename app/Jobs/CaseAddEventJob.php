@@ -20,7 +20,7 @@ class CaseAddEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CaseEventTrait;
-    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser;
+    protected $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID;
     public $tries = 5;
     public $timeout = 240;
     /**
@@ -28,7 +28,7 @@ class CaseAddEventJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function __construct(array $requestData, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $this->requestData = $requestData;
         $this->startDate = $startDate;
@@ -36,6 +36,7 @@ class CaseAddEventJob implements ShouldQueue
         $this->start_time = $start_time;
         $this->end_time = $end_time;
         $this->authUser = $authUser;
+        $this->locationID = $locationID;
     }
 
     /**
@@ -52,6 +53,7 @@ class CaseAddEventJob implements ShouldQueue
         $start_time = $this->start_time;
         $end_time = $this->end_time;
         $authUser = $this->authUser;
+        $locationID = $this->locationID;
         if($request->event_frequency=='DAILY')
         {
             $i=0;
@@ -59,7 +61,7 @@ class CaseAddEventJob implements ShouldQueue
             do {
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -93,7 +95,7 @@ class CaseAddEventJob implements ShouldQueue
                     }
                     $start_date = date("Y-m-d", $startDate);
                     $end_date = date("Y-m-d", $startDate);
-                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                     if($i==$currentI) { 
                         $parentCaseID=$CaseEvent->id;
                         $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -121,7 +123,7 @@ class CaseAddEventJob implements ShouldQueue
                 // $weekday= date("l", $timestamp ); 
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -177,7 +179,7 @@ class CaseAddEventJob implements ShouldQueue
 
                     $start_date = $date->format('Y-m-d');
                     $end_date =$date->format('Y-m-d');
-                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                    $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                     if($i==0) { 
                         $parentCaseID=$CaseEvent->id;
                         $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -213,7 +215,7 @@ class CaseAddEventJob implements ShouldQueue
                 }
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -252,7 +254,7 @@ class CaseAddEventJob implements ShouldQueue
                 }
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 

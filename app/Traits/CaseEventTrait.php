@@ -20,7 +20,7 @@ trait CaseEventTrait {
     /**
      * Save recurring event data
      */
-    public function saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser)
+    public function saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID)
     {
         $caseEvent = CaseEvent::create([
             "event_title" => $request->event_name,
@@ -54,7 +54,7 @@ trait CaseEventTrait {
     /**
      * Save daily event data
      */
-    public function saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function saveDailyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $i = 0;
         /* // Update previous record's (from current event) end date
@@ -72,7 +72,7 @@ trait CaseEventTrait {
         do {
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $startDate);
-            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
             if($i==0) { 
                 $parentCaseID=$CaseEvent->id;
                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -94,7 +94,7 @@ trait CaseEventTrait {
     /**
      * Save business day events
      */
-    public function saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function saveBusinessDayEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $i = 0;
         /* // Update previous record's (from current event) end date
@@ -119,7 +119,7 @@ trait CaseEventTrait {
                 }
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==$currentI) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -143,7 +143,7 @@ trait CaseEventTrait {
     /**
      * Save weekly events
      */
-    public function saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser)
+    public function saveWeeklyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $locationID)
     {
         $i = 0;
         /* // Update previous record's (from current event) end date
@@ -159,7 +159,7 @@ trait CaseEventTrait {
         do {
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $startDate);
-            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
             if($i==0) { 
                 $parentCaseID=$CaseEvent->id;
                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -181,7 +181,7 @@ trait CaseEventTrait {
     /**
      * Save custom event
      */
-    public function saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone)
+    public function saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone, $locationID)
     {
         $i = 0;
         /* // Update previous record's (from current event) end date
@@ -222,7 +222,7 @@ trait CaseEventTrait {
 
                 $start_date = $date->format('Y-m-d');
                 $end_date =$date->format('Y-m-d');
-                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+                $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
                 if($i==0) { 
                     $parentCaseID=$CaseEvent->id;
                     $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -243,7 +243,7 @@ trait CaseEventTrait {
     /**
      * Save monthly event
      */
-    public function saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday)
+    public function saveMonthlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID)
     {
         $i = 0;
         /* // Update previous record's (from current event) end date
@@ -268,7 +268,7 @@ trait CaseEventTrait {
             }
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $startDate);
-            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
             if($i==0) { 
                 $parentCaseID=$CaseEvent->id;
                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -291,7 +291,7 @@ trait CaseEventTrait {
     /**
      * Save yearly events
      */
-    public function saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday)
+    public function saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID)
     {
         $i = 0;
         $yearly_frequency = $request->yearly_frequency;
@@ -320,7 +320,7 @@ trait CaseEventTrait {
             }
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $startDate);
-            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser);
+            $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
             if($i==0) { 
                 $parentCaseID=$CaseEvent->id;
                 $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
@@ -502,7 +502,7 @@ trait CaseEventTrait {
     /**
      * Update/create recurring event
      */
-    public function updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $oldCaseEvent, $currentEventId = null)
+    public function updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $oldCaseEvent, $currentEventId = null, $locationID)
     {
         $caseEvent = CaseEvent::withTrashed()->updateOrCreate([
             "start_date" => $start_date,

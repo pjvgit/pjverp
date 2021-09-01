@@ -1,4 +1,4 @@
-@if ($allEvents)
+@if (count($allEvents))
     @forelse ($allEvents as $key => $vv)
         @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($vv->start_date)))
         <tr>
@@ -162,9 +162,10 @@
         </tr>
     @empty
     @endforelse
+    
+    <tr><td colspan="6" style="text-align: center;">
+        <input type="hidden" class="event-last-page" value="{{ $allEvents->lastPage() }}">
+        {!! $allEvents->render() !!}
+        <div class="loader-bubble loader-bubble-primary load-more-loader" style="display: none; margin-bottom: 30px;"></div>
+    </td></tr>
 @endif
-<tr><td colspan="6" style="text-align: center;">
-    <input type="hidden" class="event-last-page" value="{{ $allEvents->lastPage() }}">
-    {!! $allEvents->render() !!}
-    <div class="loader-bubble loader-bubble-primary load-more-loader" style="display: none; margin-bottom: 30px;"></div>
-</td></tr>
