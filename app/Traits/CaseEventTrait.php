@@ -81,10 +81,10 @@ trait CaseEventTrait {
                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                 $CaseEvent->save();
             }
-            $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser);
-            $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
+            $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser);
+            $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
             
             $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
             $i++;
@@ -128,10 +128,10 @@ trait CaseEventTrait {
                     $CaseEvent->parent_evnt_id =  $parentCaseID;
                     $CaseEvent->save();
                 }
-                $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
+                $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
 
                 // $this->saveEventHistory($CaseEvent->id);
             }
@@ -168,10 +168,10 @@ trait CaseEventTrait {
                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                 $CaseEvent->save();
             }
-            $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
+            $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
 
             $i++;
             $startDate = strtotime('+7 day',$startDate); 
@@ -232,10 +232,10 @@ trait CaseEventTrait {
                     $CaseEvent->save();
                 }
                 $i++;
-                $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-                $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
+                $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+                $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
             }
         }
     }
@@ -277,10 +277,10 @@ trait CaseEventTrait {
                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                 $CaseEvent->save();
             }
-            $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser); 
+            $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
 
             //  $this->saveEventHistory($CaseEvent->id);
             $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
@@ -329,10 +329,10 @@ trait CaseEventTrait {
                 $CaseEvent->parent_evnt_id =  $parentCaseID;
                 $CaseEvent->save();
             }
-            $this->saveEventReminder($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id, $authUser); 
-            $this->saveContactLeadData($request->all(),$CaseEvent->id, $authUser);
+            $this->saveEventReminder((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveNonLinkedStaffToEvent((array)$request,$CaseEvent->id, $authUser); 
+            $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser);
             
             $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
             $i++;

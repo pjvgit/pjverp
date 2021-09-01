@@ -32,7 +32,7 @@
                 </div>
                 
                 @if(count($allEvents) == 0)
-                <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">{{ count($allEvents) }}There are no upcoming events scheduled.</div></div></div>
+                <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">There are no upcoming events scheduled.</div></div></div>
                 @else
                 <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
