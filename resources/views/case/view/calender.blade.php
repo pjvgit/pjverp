@@ -564,7 +564,6 @@
             }
         }).done(function (data) {
             $(".load-more-loader").parents('tr').hide();
-            console.log(data);;
             if(data != "") {
                 if(filter) {
                     $('#'+divId).html(data);

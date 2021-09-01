@@ -39,18 +39,18 @@
                                 <ul>
 
                                     <li class="nav-item">
-                                        <a href="{{BASE_URL}}events?view=day" class="">
+                                        <a href="{{route('events/')}}?view=day" class="">
                                             <span class="item-name">Day</span>
                                         </a>
                                     </li>
 
                                     <li class="nav-item">
-                                        <a href="{{BASE_URL}}events?view=week" class="">
+                                        <a href="{{route('events/')}}?view=week" class="">
                                             <span class="item-name">Week</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="{{BASE_URL}}events?view=month" class="">
+                                        <a href="{{route('events/')}}?view=month" class="">
                                             <span class="item-name">Month</span>
                                         </a>
                                     </li>

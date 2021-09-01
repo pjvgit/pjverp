@@ -67,7 +67,7 @@ class InvoiceReminderEmailCommand extends Command
                 if($dueDate) {
                     $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $currentDate);
                     $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);
-                    $remindSetting = collect($item->invoice_setting['reminder']);
+                    $remindSetting = collect($item->invoice_setting['reminder'] ?? []);
 
                     if($dueDate->eq($currentDate)) { // For present
                         $onDue = $remindSetting->where("remind_type", "on the due date")->where('is_reminded', 'no');

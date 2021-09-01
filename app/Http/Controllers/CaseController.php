@@ -938,37 +938,23 @@ class CaseController extends BaseController
                
             } 
             if(\Route::current()->getName()=="calendars"){
-               
-                //Load only upcoming events
-                /* if(isset($_GET['upcoming_events'])){
-                    $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
+                
+                $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
-                    //Get all event by 
-                    $allEvents = CaseEvent::select("*")->where("case_id",$case_id)->where("start_date",">=",date('Y-m-d'))->orderBy('start_date','ASC')->orderBy('start_time','ASC')
-                    ->with("eventLinkedStaff", "eventType")
-                    ->get()
-                    ->groupBy(function($val) {
-                        return Carbon::parse($val->start_date)->format('Y');
-                    });
-                }else{ */
-                    $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
-
-                    //Get all event by 
-                    $allEvents = CaseEvent::select("*")->where("case_id",$case_id);
-                    if($request->upcoming) {
-                        $allEvents = $allEvents->whereDate("start_date", ">=", date('Y-m-d'));
-                    }
-                    $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
-                    ->with("eventLinkedStaff", "eventType")
-                    ->paginate(15)
-                    /* ->groupBy(function($val) {
-                        return Carbon::parse($val->start_date)->format('Y');
-                    }) */;
-                    if($request->ajax()) {
-                        Log::info("ajax event listing". count($allEvents));
-                        return view('case.view.load_event_list', compact('allEvents'));
-                    }
-                // }
+                //Get all event by 
+                $allEvents = CaseEvent::select("*")->where("case_id",$case_id);
+                if($request->upcoming) {
+                    $allEvents = $allEvents->whereDate("start_date", ">=", date('Y-m-d'));
+                }
+                $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
+                ->with("eventLinkedStaff", "eventType")
+                ->paginate(15)
+                /* ->groupBy(function($val) {
+                    return Carbon::parse($val->start_date)->format('Y');
+                }) */;
+                if($request->ajax()) {
+                    return view('case.view.load_event_list', compact('allEvents'));
+                }
             } 
             if(\Route::current()->getName()=="recent_activity"){
                 $mainArray=[];
