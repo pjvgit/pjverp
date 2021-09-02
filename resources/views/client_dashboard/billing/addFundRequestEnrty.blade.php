@@ -46,7 +46,7 @@
                         <div class="date-input-wrapper col-8">
                             <div class="">
                                 <div>
-                                    <input class="form-control input-date" value="{{date('m/d/Y')}}" id="due_date"
+                                    <input class="form-control input-date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="due_date"
                                         maxlength="250" name="due_date" type="text">
                                 </div>
                             </div>

@@ -27,7 +27,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Date and time</label>
                     <div class="col-sm-4">
-                        <input class="form-control input-date" value="{{date('m/d/Y')}}" id="dateadded" maxlength="250"
+                        <input class="form-control input-date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="dateadded" maxlength="250"
                             name="call_date" type="text">
                     </div>
                     <div class="col-sm-2">
@@ -134,7 +134,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Date and time</label>
                     <div class="col-sm-4">
-                        <input class="form-control input-date" value="{{date('m/d/Y')}}" id="dateadded" maxlength="250"
+                        <input class="form-control input-date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="dateadded" maxlength="250"
                             name="call_date" type="text">
                     </div>
                     <div class="col-sm-2">

@@ -127,6 +127,17 @@ function convertUTCToUserTime($str, $timezone){
     return $NewDate= $date->format("Y-m-d H:i:s");
 }
 
+function convertUTCToUserTimeZone($type){
+    if ($type == 'dateOnly'){
+        $returnDate = \Carbon\Carbon::now((!(empty(Auth::User()->user_timezone))) ? Auth::User()->user_timezone : 'UTC')->format('m/d/Y');
+    }else if ($type == 'timeOnly'){
+        $returnDate = \Carbon\Carbon::now((!(empty(Auth::User()->user_timezone))) ? Auth::User()->user_timezone : 'UTC')->format('H:i');
+    }else{
+        $returnDate = \Carbon\Carbon::now((!(empty(Auth::User()->user_timezone))) ? Auth::User()->user_timezone : 'UTC')->format('m/d/Y H:i:s');
+    }
+    return $returnDate; 
+}
+
 /**
  * Reminder user type
  */

@@ -83,14 +83,14 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->start_date ?? date('m/d/Y')))}}"></p>
+                <input type="text"  class="form-control" disabled value="{{date('m/d/Y',strtotime($CaseStageHistory->start_date ?? convertUTCToUserTimeZone('dateOnly')))}}"></p>
             </div>
             <div class="col-3">
-                <input type="text"  class="form-control" disabled value="{{date('m/d/Y')}}"></p>
+                <input type="text"  class="form-control" disabled value="{{ convertUTCToUserTimeZone('dateOnly') }}"></p>
             </div>
             <div class="col-3">
             <?php 
-                $start = strtotime($CaseStageHistory->start_date ?? date('m/d/Y'));
+                $start = strtotime($CaseStageHistory->start_date ?? convertUTCToUserTimeZone('dateOnly'));
                 $end = strtotime(date('Y-m-d'));
                 $days_between = ceil(abs($end - $start) / 86400);
                 if($days_between>0.99){

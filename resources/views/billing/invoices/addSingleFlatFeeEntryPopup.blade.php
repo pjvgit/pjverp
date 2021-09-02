@@ -36,7 +36,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Date</label>
             <div class="col-md-10 form-group mb-3">
                 <div class="input-group">
-                <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y')}}" name="start_date"
+                <input class="form-control datepicker" id="datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="start_date"
                         type="text" placeholder="mm/dd/yyyy">
                 </div>
             </div>

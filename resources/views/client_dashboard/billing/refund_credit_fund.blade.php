@@ -37,7 +37,7 @@
                     <div>
                         <div class="">
                             <div class="input-group">
-                                <input class="form-control input-date" value="{{date('m/d/Y')}}" id="payment_date" maxlength="250" name="payment_date" type="text">
+                                <input class="form-control input-date" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="payment_date" maxlength="250" name="payment_date" type="text">
                             </div>
                         </div>
                     </div>

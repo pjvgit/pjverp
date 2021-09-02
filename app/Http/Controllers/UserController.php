@@ -414,7 +414,7 @@ class UserController extends BaseController
     {
         $id=Auth::user()->id;
         $user = User::find($id);
-        $user->user_timezone=trim($request->timeZone); 
+        $user->user_timezone=(trim($request->timeZone) != '') ? trim($request->timeZone) : 'UTC'; 
         if(isset($request->auto_logout_enabled) && $request->auto_logout_enabled=="true"){
             $user->auto_logout="on"; 
             $user->sessionTime=$request->logout_minutes;
@@ -784,7 +784,7 @@ class UserController extends BaseController
         $mail_body = $getTemplateData->content;
         $mail_body = str_replace('{message}', "Legalcase is all-in-one legal practice management software for case and matter management. ", $mail_body);
         $mail_body = str_replace('{amount}', "11.00", $mail_body);
-        $mail_body = str_replace('{duedate}', date('m/d/Y'), $mail_body);
+        $mail_body = str_replace('{duedate}', convertUTCToUserTimeZone('dateOnly'), $mail_body);
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);

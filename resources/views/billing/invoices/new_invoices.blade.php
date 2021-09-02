@@ -137,7 +137,7 @@ if(!isset($adjustment_token)){
                                     </td>
                                     <td>
                                         <input id="bill_invoice_date" class="form-control date datepicker"
-                                            name="bill_invoice_date" value="{{ old('bill_invoice_date', $arrSetting['bill_invoice_date']  ?? date('m/d/Y'))  }}">
+                                            name="bill_invoice_date" value="{{ old('bill_invoice_date', $arrSetting['bill_invoice_date']  ?? convertUTCToUserTimeZone('dateOnly'))  }}">
                                     </td>
                                 </tr>
                                 <tr>

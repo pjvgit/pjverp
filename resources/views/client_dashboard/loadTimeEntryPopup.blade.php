@@ -124,7 +124,7 @@
                 </div>
                 <div class="row ">
                     <div class="col-4">
-                        <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y')}}"
+                        <input class="form-control datepicker" id="datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}"
                             name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                     </div>
@@ -180,7 +180,7 @@
 
                 <div class="col-md-3 form-group mb-3">
                     <label for="firstName1">Date</label>
-                    <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y')}}" name="start_date"
+                    <input class="form-control datepicker" id="datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="start_date"
                         type="text" placeholder="mm/dd/yyyy">
 
                 </div>

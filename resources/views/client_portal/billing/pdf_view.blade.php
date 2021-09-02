@@ -608,10 +608,10 @@
                     <div class="ledger_history_full mt-3">
                         @if ($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account summary")
                             <h4>{{ $item->full_name }}'s Trust Balance</h4>
-                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: <br>${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
                         @elseif($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account history")
                             <h4>{{ $item->full_name }}'s Trust History</h4>
-                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                            <div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
                             <br>
                             <table  style="width: 100%; border-collapse: collapse;" border="1">
                                 <tbody>
@@ -646,10 +646,10 @@
                     <div class="ledger_history_full mt-3">
                         @if ($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account summary")
                             <h4>{{ $item->full_name }}'s Credit Balance</h4>
-                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: <br>${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
                         @elseif($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account history")
                             <h4>{{ $item->full_name }}'s Credit History</h4>
-                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                            <div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
                             <br>
                             <table  style="width: 100%; border-collapse: collapse;" border="1">
                                 <tbody>

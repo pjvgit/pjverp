@@ -823,7 +823,7 @@
                                                     opened</label>
                                                 <div class="col-md-10 form-group mb-3">
                                                     <input class="form-control datepicker" id="case_open_date"
-                                                        value="{{date('m/d/Y')}}" name="case_open_date" type="text"
+                                                        value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="case_open_date" type="text"
                                                         placeholder="mm/dd/yyyy">
 
                                                 </div>

@@ -52,7 +52,7 @@
                     <b>Trust Account Summary for {{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
                         {{ucfirst(substr($userData['last_name'],0,50))}}</b>
-                    <br>Trust Balance on {{date('m/d/Y')}}:
+                    <br>Trust Balance on {{ convertUTCToUserTimeZone('dateOnly') }}:
                     ${{number_format($UsersAdditionalInfo['trust_account_balance'],2)}}
                 </td>
             </tr>
