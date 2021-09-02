@@ -4018,13 +4018,13 @@ class ClientdashboardController extends BaseController
         $options .= ($request->include_archived == 1) ? 'Includes archived items, ' : '';
         $options .= ($request->include_mail == 1) ? 'Send me an email when the backup is finished' : '';
 
-        $storage_path = '/backup/'.date('Y-m-d').'/'.Auth::User()->firm_name;
+        $storage_path = '/backup/'.convertUTCToUserDate(date("Y-m-d"), auth()->user()->user_timezone)->format('Y-m-d').'/'.Auth::User()->firm_name;
         $firmData=Firm::find(Auth::User()->firm_name);
-        $zipFileName = $storage_path . '/' . str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-full-backup-".date("m-d-Y") . '.zip';
+        $zipFileName = $storage_path . '/' . str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-full-backup-".convertUTCToUserDate(date("Y-m-d"), auth()->user()->user_timezone)->format('m-d-Y') . '.zip';
         $zipPath = asset($zipFileName);
 
         $clientFullBackup = New ClientFullBackup();
-        $clientFullBackup->file_name = str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-full-backup-".date("m-d-Y");
+        $clientFullBackup->file_name = str_replace(" ","_",$firmData->firm_name)."-".Auth::User()->id."-full-backup-".convertUTCToUserDate(date("Y-m-d"), auth()->user()->user_timezone)->format('m-d-Y');
         $clientFullBackup->export_for = Auth::User()->id;
         $clientFullBackup->options = $options;
         $clientFullBackup->request_json = json_encode($request->all());

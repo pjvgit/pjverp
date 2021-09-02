@@ -58,7 +58,7 @@ function chngeTy(sel){
  */
 function loadGrantAccessModal(id) {   
     if($("#cleintUSER_"+id).prop('checked')==true && $("#cleintUSER_"+id).attr("data-client_portal_enable") == 0){
-        alert(id);
+        // alert(id);
         $("#cleintUSER_"+id).prop('checked',false);
         $("#loadGrantAccessModal").modal();
         $("#innerLoader").css('display', 'none');
