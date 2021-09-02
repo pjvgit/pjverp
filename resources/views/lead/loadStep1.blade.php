@@ -134,7 +134,7 @@
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Birthday</label>
                     <div class="col-md-9 form-group mb-3">
                         <input class="form-control datepicker" id="dob" readonly
-                            value="{{($LeadAdditionalInfo->dob) ? date('m/d/Y',strtotime($LeadAdditionalInfo->dob)) : date('m/d/Y')}}"
+                            value="{{($LeadAdditionalInfo->dob) ? date('m/d/Y',strtotime(convertUTCToUserDate($LeadAdditionalInfo->dob, auth()->user()->user_timezone))) : convertUTCToUserTimeZone('dateOnly')}}"
                             name="dob" type="text" placeholder="mm/dd/yyyy">
 
                     </div>

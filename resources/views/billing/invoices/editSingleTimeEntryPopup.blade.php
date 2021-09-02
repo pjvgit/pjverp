@@ -81,7 +81,7 @@
             <div class="row ">
                 <div class="col-4">
                     <input class="form-control datepicker" id="datepicker"
-                        value="{{date('m/d/Y',strtotime($TaskTimeEntry['entry_date']))}}" name="start_date" type="text"
+                        value="{{date('m/d/Y',strtotime(convertUTCToUserDate($TaskTimeEntry['entry_date'], auth()->user()->user_timezone)))}}" name="start_date" type="text"
                         placeholder="mm/dd/yyyy">
 
                 </div>

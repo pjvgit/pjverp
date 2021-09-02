@@ -325,7 +325,7 @@
                                             <a class="pendo-overdue-invoice-court-case"
                                                 href="{{BASE_URL}}court_cases/{{$v->case_unique_number}}/info">{{substr($v->case_title,0,100)}}</a>
                                             <span class="font-weight-bold">${{number_format($v->due_amount,2)}}</span>
-                                            <small>(due {{date('m/d/Y',strtotime($v->due_date))}})</small>
+                                            <small>(due {{date('m/d/Y',strtotime(convertUTCToUserDate($v->due_date, auth()->user()->user_timezone)))}})</small>
                                         </td>
 
                                         <td>
@@ -580,13 +580,13 @@
                                         if($kv->task_due_on <= date('Y-m-d')){?>
                                         <small><i class="fas fa-circle fa-xs text-danger mr-1"></i></small>
                                         <div class="task-item-due-date error">
-                                            {{date('m/d/Y',strtotime($kv->task_due_on))}}
+                                            {{date('m/d/Y',strtotime(convertUTCToUserDate($kv->task_due_on, auth()->user()->user_timezone)))}}
                                         </div>
                                         <?php }else{ 
                                             ?>
                                             
                                             <div class="task-item-due-date ">
-                                                {{date('m/d/Y',strtotime($kv->task_due_on))}}
+                                                {{date('m/d/Y',strtotime(convertUTCToUserDate($kv->task_due_on, auth()->user()->user_timezone)))}}
                                             </div>
                                             <?php
                                         } ?>
@@ -823,7 +823,7 @@
                                                     opened</label>
                                                 <div class="col-md-10 form-group mb-3">
                                                     <input class="form-control datepicker" id="case_open_date"
-                                                        value="{{date('m/d/Y')}}" name="case_open_date" type="text"
+                                                        value="{{convertUTCToUserTimeZone('dateOnly')}}" name="case_open_date" type="text"
                                                         placeholder="mm/dd/yyyy">
 
                                                 </div>

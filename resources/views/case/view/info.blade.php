@@ -54,7 +54,7 @@
                             <div class="d-flex flex-column">
                                 <span class="font-weight-light selenium-date-opened"> Opened : <?php 
                                     if(isset($CaseMaster->case_open_date)){
-                                    echo date('m/d/Y',strtotime($CaseMaster->case_open_date));
+                                    echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_open_date, auth()->user()->user_timezone)));
                                     }?>
                                 </span>
                             </div>
@@ -83,10 +83,10 @@
                             ?>
                             <?php 
                             if($stage[$k]==0){?>                            
-                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(@$startDate[$k]))}}<br>Ended :{{date('m/d/Y',strtotime(@$endDate[$k]))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
+                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> No Stage </span> <br> {{array_sum($v)}}<br>Started :{{date('m/d/Y',strtotime(convertUTCToUserDate(@$startDate[$k], auth()->user()->user_timezone)))}}<br>Ended :{{date('m/d/Y',strtotime(convertUTCToUserDate(@$endDate[$k], auth()->user()->user_timezone)))}}</strong>" data-html="true" data-original-title="" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar" data-placement="top"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php }else{ ?>
-                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ @$caseStageListArray[$stage[$k]] }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(@$startDate[$k])) }}<br>Ended :{{ date('m/d/Y',strtotime(@$endDate[$k])) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
+                            <div data-toggle="popover" data-trigger="hover" title="" data-content="<strong><span> {{ @$caseStageListArray[$stage[$k]] }} </span><br> {{array_sum($v)}}<br>Started :{{ date('m/d/Y',strtotime(convertUTCToUserDate(@$startDate[$k], auth()->user()->user_timezone))) }}<br>Ended :{{ date('m/d/Y',strtotime(convertUTCToUserDate(@$endDate[$k], auth()->user()->user_timezone))) }}</strong>" data-placement="top" data-html="true" data-original-title="" data-original-title="" title="" aria-describedby="popover751901" class="progress-bar progress-bar-striped bar-no-stag"  role="progressbar"
                             style="width:{{$p}}%;background-color:{{$color[$k]}}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                             <?php  } ?>
                     <?php } ?>
@@ -355,7 +355,7 @@
                                 Opened</div>
                             <div class="pl-0 pr-1 col-9 col-md-9 col-lg-7"><span> <?php 
                                 if(isset($CaseMaster->case_open_date)){
-                                  echo date('m/d/Y',strtotime($CaseMaster->case_open_date));
+                                  echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_open_date, auth()->user()->user_timezone)));
 
                                 }else{
                                   echo "Not Specified";
@@ -367,7 +367,7 @@
                                 Closed</div>
                             <div class="pl-0 pr-1 col-9 col-md-9 col-lg-7"><span> <?php 
                                 if(isset($CaseMaster->case_close_date)){
-                                  echo date('m/d/Y',strtotime($CaseMaster->case_close_date));
+                                  echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_close_date, auth()->user()->user_timezone)));
 
                                 }else{
                                   echo "Not Specified";
@@ -439,7 +439,7 @@
                                     <div class="highlight-item-list">
                                         <div class="d-flex justify-content-between mt-1"><button type="button"
                                                 class="p-0 pendo-case-info-task-link btn btn-link">{{$v->task_title}}</button>
-                                            <div>{{date('m/d/y',strtotime($v->task_due_on))}}</div>
+                                            <div>{{date('m/d/Y',strtotime(convertUTCToUserDate($v->task_due_on, auth()->user()->user_timezone)))}}</div>
                                         </div>
                                     </div>
                                     <?php } }else{
@@ -457,7 +457,7 @@
                             foreach($upcomingTaskList as $k=>$v){?>
                                         <div class="d-flex justify-content-between mt-1"><button type="button"
                                                 class="p-0 pendo-case-info-task-link btn btn-link">{{$v->task_title}}</button>
-                                            <div>{{date('m/d/y',strtotime($v->task_due_on))}}</div>
+                                            <div>{{date('m/d/Y',strtotime(convertUTCToUserDate($v->task_due_on, auth()->user()->user_timezone)))}}</div>
                                         </div>
                                         <?php } }else{
                                 ?>
@@ -503,7 +503,7 @@
                                                             <a href="{{route('events/')}}" class="p-0 pendo-case-info-task-link btn btn-link">
                                                                 {{$v->event_title}}
                                                             </a>
-                                                            <div>{{date('m/d/y',strtotime($v->start_date))}}</div>
+                                                            <div>{{date('m/d/Y',strtotime(convertUTCToUserDate($v->start_date, auth()->user()->user_timezone)))}}</div>
                                                         </div>
                                                         <?php } } }else{
                                                 ?>

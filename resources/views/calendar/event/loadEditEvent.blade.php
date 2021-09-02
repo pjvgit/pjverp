@@ -123,8 +123,8 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" --}}
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->start_date_time))}}" name="start_date" type="text"
+                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($convertedStartDateTime, auth()->user()->user_timezone)))}}" name="start_date" type="text" --}}
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($evetData->start_date_time, auth()->user()->user_timezone)))}}" name="start_date" type="text"
                                         placeholder="mm/dd/yyyy">
     
                                 </div>
@@ -153,8 +153,8 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" --}}
-                                    <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($evetData->end_date_time))}}" name="end_date" type="text"
+                                    {{-- <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($convertedEndDateTime, auth()->user()->user_timezone)))}}" name="end_date" type="text" --}}
+                                    <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($evetData->end_date_time, auth()->user()->user_timezone)))}}" name="end_date" type="text"
                                         placeholder="mm/dd/yyyy">
     
                                 </div>

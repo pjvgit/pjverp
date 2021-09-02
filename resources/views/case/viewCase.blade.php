@@ -32,8 +32,8 @@ $adjustment_token=round(microtime(true) * 1000);
                     <?php if(isset($CaseMaster->case_statute_date)){?>
                         <label class="switch pr-0 switch-success mr-3">
                             
-                            <span class="text-success" id="IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Satisfied </span>
-                            <span class="error" id="InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Unsatisfied </span>
+                            <span class="text-success" id="IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_statute_date, auth()->user()->user_timezone)))}} Satisfied </span>
+                            <span class="error" id="InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_statute_date, auth()->user()->user_timezone)))}} Unsatisfied </span>
                             <input type="checkbox" <?php if($CaseMaster->conflict_check=="1"){ echo "checked=checked"; }?> name="conflict_check" id="Icall_resolved"><span class="slider"></span>
                         </label>
                         <div><a  data-toggle="modal" data-target="#addCaseReminderPopup" data-placement="bottom" href="javascript:;" onclick="addCaseReminder({{$CaseMaster->case_id}});"> <span aria-hidden="true" class="fas fa-bell text-black-50 pb-2 mb-1 c-pointer pendo-sol-reminder-icon"  data-toggle="tooltip" data-placement="right" title="" data-original-title="<strong><span> Edit Statute of Limitations Reminders</span> </strong>" data-html="true" data-original-title="" id="editSolReminders" data-testid="sol-reminders" ></span></a></div>
@@ -48,7 +48,7 @@ $adjustment_token=round(microtime(true) * 1000);
             <span class="case-generated-info">
                 Case details generated <?php 
                 if(isset($CaseMaster->case_created_date)){
-                  echo date('m/d/Y',strtotime($CaseMaster->case_created_date));
+                  echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_created_date, auth()->user()->user_timezone)));
 
                 }else{
                   echo "Not Specified";
@@ -127,7 +127,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="font-weight-bold">Opened:</div>
                                     <?php 
                                     if(isset($CaseMaster->case_open_date)){
-                                      echo date('m/d/Y',strtotime($CaseMaster->case_open_date));
+                                      echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_open_date, auth()->user()->user_timezone)));
                                     }else{
                                       echo "Not Specified";
                                     }?>
@@ -135,7 +135,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                 <?php if(isset($CaseMaster->case_close_date)){ ?>
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Closed:</div>
-                                    <?php echo date('m/d/Y',strtotime($CaseMaster->case_close_date)); ?>
+                                    <?php echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_close_date, auth()->user()->user_timezone))); ?>
                                 </div>
                                 <?php } ?>
                                 <div class="mb-4">
@@ -258,7 +258,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="font-weight-bold">Created:</div>
                                     <?php 
                                     if(isset($CaseMaster->case_created_date)){
-                                      echo date('m/d/Y',strtotime($CaseMaster->case_created_date));
+                                      echo date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_created_date, auth()->user()->user_timezone)));
                     
                                     }else{
                                       echo "-";

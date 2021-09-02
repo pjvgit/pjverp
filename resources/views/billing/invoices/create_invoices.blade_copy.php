@@ -277,7 +277,7 @@ $practice_area_id=($_GET['practice_area_id'])??'';
                                 <label>
                                     Invoice Date
                                     <input type="text" name="batch[invoice_date]" id="batch-invoice-date"
-                                        value="{{date('m/d/Y')}}" class="form-control date py-0 hasDatepicker">
+                                        value="{{convertUTCToUserTimeZone('dateOnly')}}" class="form-control date py-0 hasDatepicker">
                                 </label>
                             </div>
 

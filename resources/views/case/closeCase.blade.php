@@ -25,7 +25,7 @@ if($toalClientCount==$nonLinkCase){
     <div class="row">
         <div class="col-md-4 form-group mb-3">
             <label for="firstName1">Date To Close</label>
-            <input class="form-control datepicker dateopen" id="case_close_date" value="{{date('m/d/Y')}}"
+            <input class="form-control datepicker dateopen" id="case_close_date" value="{{convertUTCToUserTimeZone('dateOnly')}}"
                 name="case_close_date" type="text" placeholder="mm/dd/yyyy">
         </div>
         <?php  if($caseStat->case_event_counter > 0){?>

@@ -11,7 +11,7 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Invoice Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y')}}" id="invoiceDate" maxlength="250"
+            <input class="form-control datepicker" value="{{convertUTCToUserTimeZone('dateOnly')}}" id="invoiceDate" maxlength="250"
                 name="invoice_date" type="text">
         </div>
         <div class="col-md-6 form-group mb-3">
@@ -20,7 +20,7 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Due Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y')}}" id="dueDate" maxlength="250"
+            <input class="form-control datepicker" value="{{convertUTCToUserTimeZone('dateOnly')}}" id="dueDate" maxlength="250"
                 name="due_date" type="text">
         </div>
         <div class="col-6 mb-3">

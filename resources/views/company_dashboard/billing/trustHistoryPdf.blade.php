@@ -52,7 +52,7 @@
                     <b>Trust Account Summary for {{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
                         {{ucfirst(substr($userData['last_name'],0,50))}}</b>
-                    <br>Trust Balance on {{date('m/d/Y')}}:
+                    <br>Trust Balance on {{convertUTCToUserTimeZone('dateOnly')}}:
                     ${{number_format($UsersAdditionalInfo['trust_account_balance'],2)}}
                 </td>
             </tr>
@@ -78,7 +78,7 @@
             <?php 
             if(!$allHistory->isEmpty()){?>
             <tr>
-                <td style="padding:5px;">{{date('m/d/Y',strtotime($allHistory[0]->created_at))}}</td>
+                <td style="padding:5px;">{{date('m/d/Y',strtotime(convertUTCToUserDate($allHistory[0]->created_at, auth()->user()->user_timezone)))}}</td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
@@ -129,7 +129,7 @@
                 }
                 ?>
             <tr>
-                <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
+                <td style="padding:5px;">{{date('m/d/Y',strtotime(convertUTCToUserDate($v->payment_date, auth()->user()->user_timezone)))}}</td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">{{$ftype}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionAmount}}</td>

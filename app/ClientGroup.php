@@ -20,7 +20,7 @@ class ClientGroup extends Authenticatable
     protected $appends  = ['createdatnewformate','count_attach_contact','createdby'];
 
     public function getCreatedatnewformateAttribute(){
-        return date('M j, Y h:i A',strtotime($this->created_at));
+        return date('M j, Y h:i A',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
     }
     public function getCountAttachContactAttribute(){
 

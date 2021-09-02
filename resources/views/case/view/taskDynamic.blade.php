@@ -95,7 +95,7 @@ foreach ($task as $element) {
                  ?>
                 <br><small class="text-muted">Completed by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($subrow->uid)}}"> {{$subrow->task_completed['first_name']}}
                     {{$subrow->task_completed['last_name']}}   ({{$CommonController->getUserLevelText($subrow->user_type)}}) </a> on
-                    {{date('m/d/Y',strtotime($OwnDate))}}</small>
+                    {{date('m/d/Y',strtotime(convertUTCToUserDate($OwnDate, auth()->user()->user_timezone)))}}</small>
                 <?php } ?>
 
                

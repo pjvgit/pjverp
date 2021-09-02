@@ -227,8 +227,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <div class="chart-filter d-flex ml-2 mt-2">
                                     <div class="date-range form-group d-flex mb-0" style="width: 200px;">
                                         <?php
-                                        $startDate=date('m/d/Y',strtotime("first day of this month"));
-                                        $endDate=date('m/d/Y');
+                                        $startDate=date('m/01/Y');
+                                        $endDate=convertUTCToUserTimeZone('dateOnly');
                                         ?>
                                         <input type="text" class="form-control" id="daterange" name="date_range"
                                             value="{{$startDate}} - {{$endDate}}" placeholder="" />

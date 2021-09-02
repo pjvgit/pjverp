@@ -207,7 +207,7 @@
             <label for="inputEmail3" class="col-sm-3 col-form-label">Date Added
             </label>
             <div class="col-md-4 form-group mb-3">
-                <input class="form-control datepicker" id="dateadded" value="{{date('m/d/Y')}}" name="date_added" type="text"
+                <input class="form-control datepicker" id="dateadded" value="{{convertUTCToUserTimeZone('dateOnly')}}" name="date_added" type="text"
                     placeholder="mm/dd/yyyy">
 
             </div>

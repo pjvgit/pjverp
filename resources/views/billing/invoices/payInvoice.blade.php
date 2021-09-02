@@ -118,7 +118,7 @@ $finalAmt=$invoice-$paid;
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Date</label>
-                    <input class="form-control input-date" value="{{date('m/d/Y')}}" id="payment_date" maxlength="250"
+                    <input class="form-control input-date" value="{{convertUTCToUserTimeZone('dateOnly')}}" id="payment_date" maxlength="250"
                         name="payment_date" type="text">
                 </div>
             </div>
@@ -228,7 +228,7 @@ $finalAmt=$invoice-$paid;
 
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Date</label>
-                    <input class="form-control input-date" value="{{date('m/d/Y')}}" id="payment_date" maxlength="250"
+                    <input class="form-control input-date" value="{{convertUTCToUserTimeZone('dateOnly')}}" id="payment_date" maxlength="250"
                         name="payment_date" type="text">
                 </div>
             </div>
@@ -292,7 +292,7 @@ $finalAmt=$invoice-$paid;
 
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Date</label>
-                    <input class="form-control input-date" value="{{date('m/d/Y')}}" maxlength="15" name="payment_date" type="text">
+                    <input class="form-control input-date" value="{{convertUTCToUserTimeZone('dateOnly')}}" maxlength="15" name="payment_date" type="text">
                 </div>
             </div>
 

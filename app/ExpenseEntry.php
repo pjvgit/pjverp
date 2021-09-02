@@ -29,16 +29,16 @@ class ExpenseEntry extends Authenticatable
     }  
 
     public function getDateFormatNewAttribute(){
-        return date('M j, Y',strtotime($this->entry_date));
+        return date('M j, Y',strtotime(convertUTCToUserDate($this->entry_date, auth()->user()->user_timezone)));
     }
     public function getCostValueAttribute(){
-        return number_format($this->cost,2);
+        return number_format((int)$this->cost,2);
     }
     public function getQtyAttribute(){
-        return number_format($this->duration,1);
+        return number_format((int)$this->duration,1);
     }
     public function getCalulatedCostAttribute(){
-        return number_format($this->duration * $this->cost,2);
+        return number_format((int)$this->duration * (int)$this->cost,2);
     }
 
     /**

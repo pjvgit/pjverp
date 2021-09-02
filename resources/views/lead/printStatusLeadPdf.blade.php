@@ -612,7 +612,7 @@
                                 <div class="pb-1">
                                     <div class="opportunity-status-timestamp align-items-center text-muted">
                                         <span class="text-nowrap">{{$v->title}} as of
-                                            {{date('m/d/Y',strtotime($vv->date_added))}}
+                                            {{date('m/d/Y',strtotime(convertUTCToUserDate($vv->date_added, auth()->user()->user_timezone)))}}
                                         </span>
                                     </div>
                                 </div>

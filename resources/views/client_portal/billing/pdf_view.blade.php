@@ -101,7 +101,7 @@
         @forelse($billableFlatFees as $key => $item)
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime($item->entry_date))}}
+                    {{date('m/d/Y',strtotime(convertUTCToUserDate($item->entry_date, auth()->user()->user_timezone)))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{ @$item->user->first_name[0] }}{{ @$item->user->last_name[0] }}
@@ -128,7 +128,7 @@
             @forelse($nonBillDataFlateFee as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime($v->entry_date))}}
+                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -182,7 +182,7 @@
         @forelse($billableTimeEntry as $k=>$v)
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime($v->entry_date))}}
+                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{ $v->user->full_name }}
@@ -220,7 +220,7 @@
             @forelse($nonBillableTimeEntry as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime($v->entry_date))}}
+                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -288,7 +288,7 @@
         @forelse($billableExpense as $k=>$v)        
         <tr class="invoice_info_row ">
             <td class="time-entry-date" style="vertical-align: top;">
-                {{date('m/d/Y',strtotime($v->entry_date))}}
+                {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
             </td>
             <td class="time-entry-ee" style="vertical-align: top;">
                 {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -323,7 +323,7 @@
             @forelse($nonBillableExpense as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime($v->entry_date))}}
+                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] ??''}}{{ @$v->user->last_name[0] ??''}}
@@ -608,10 +608,10 @@
                     <div class="ledger_history_full mt-3">
                         @if ($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account summary")
                             <h4>{{ $item->full_name }}'s Trust Balance</h4>
-                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: <br>${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
                         @elseif($appliedTrustClient && array_key_exists($item->id, $appliedTrustClient) && $appliedTrustClient[$item->id] == "trust account history")
                             <h4>{{ $item->full_name }}'s Trust History</h4>
-                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
+                            <div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ @$item->userAdditionalInfo->trust_account_balance }} </div>
                             <br>
                             <table  style="width: 100%; border-collapse: collapse;" border="1">
                                 <tbody>
@@ -646,10 +646,10 @@
                     <div class="ledger_history_full mt-3">
                         @if ($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account summary")
                             <h4>{{ $item->full_name }}'s Credit Balance</h4>
-                            <div class="balance_data invoice-table-row"> Balance As Of {{ date('m/d/Y') }}: <br>${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                            <div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: <br>${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
                         @elseif($appliedcreditClient && array_key_exists($item->id, $appliedcreditClient) && $appliedcreditClient[$item->id] == "credit account history")
                             <h4>{{ $item->full_name }}'s Credit History</h4>
-                            <div class="balance_data"> Balance As Of {{ date('m/d/Y') }}: ${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
+                            <div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ @$item->userAdditionalInfo->credit_account_balance }} </div>
                             <br>
                             <table  style="width: 100%; border-collapse: collapse;" border="1">
                                 <tbody>

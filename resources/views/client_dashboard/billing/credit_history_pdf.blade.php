@@ -86,7 +86,7 @@
         <tbody>
             @if(!empty($creditHistory) && count($creditHistory))
             <tr>
-                <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : date('m/d/Y') }}</td>
+                <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : convertUTCToUserTimeZone('dateOnly') }}</td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
@@ -118,7 +118,7 @@
                     }
                 @endphp
                 <tr>
-                    <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
+                    <td style="padding:5px;">{{date('m/d/Y',strtotime(convertUTCToUserDate($v->payment_date, auth()->user()->user_timezone)))}}</td>
                     <td style="padding:5px;">{{ ($v->related_to_invoice_id) ? $v->invoice->invoice_id : "--" }}</td>
                     <td style="padding:5px;">{{ $dText }}</td>
                     <td style="padding:5px;text-align: right;">{{ $amt }}</td>

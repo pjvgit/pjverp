@@ -6132,7 +6132,7 @@ class LeadController extends BaseController
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
         $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
-        $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
+        $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime(convertUTCToUserDate($caseIntakeForm['submited_at'], auth()->user()->user_timezone)))]);
         $pdf->saveAs(public_path("download_intakeform/pdf/".$filename));
         $path = public_path("download_intakeform/pdf/".$filename);
         // return response()->download($path);
@@ -6288,7 +6288,7 @@ class LeadController extends BaseController
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
         $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
-        $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
+        $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime(convertUTCToUserDate($caseIntakeForm['submited_at'], auth()->user()->user_timezone)))]);
         $pdf->saveAs(public_path("download_intakeform/pdf/".$filename));
         $path = public_path("download_intakeform/pdf/".$filename);
         // return response()->download($path);
