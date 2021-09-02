@@ -2971,8 +2971,10 @@ class CaseController extends BaseController
         $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
 
         if(!isset($request->recuring_event)){        
-            $start_date = date("Y-m-d", $startDate);
-            $end_date = date("Y-m-d", $endDate);
+            // $start_date = date("Y-m-d", $startDate);
+            // $end_date = date("Y-m-d", $endDate);
+            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
 
             $CaseEvent = CaseEvent::create([
                 "event_title" => $request->event_name,
@@ -4929,8 +4931,10 @@ class CaseController extends BaseController
 
         if($request->delete_event_type=='SINGLE_EVENT') {
             $CaseEvent = CaseEvent::find($request->event_id);
-            $start_date = date("Y-m-d",  strtotime($request->start_date));
-            $end_date = date("Y-m-d",  strtotime($request->end_date));
+            // $start_date = date("Y-m-d",  strtotime($request->start_date));
+            // $end_date = date("Y-m-d",  strtotime($request->end_date));
+            $start_date = convertDateToUTCzone(date("Y-m-d",  strtotime($request->start_date)), auth()->user()->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d",  strtotime($request->end_date)), auth()->user()->user_timezone);
             if(!isset($request->recuring_event)) {
                 $CaseEvent->fill([
                     "event_title" => $request->event_name,

@@ -20,8 +20,8 @@
                 @if(isset($oDate) && $vv->start_date==$oDate)
                 @else
                     @php
-                        $dateandMonth= date('d',strtotime($vv->start_date));
-                        $dateOfEvent=date('M',strtotime($vv->start_date)); 
+                        $dateandMonth= date('d',strtotime($vv->start_date_time));
+                        $dateOfEvent=date('M',strtotime($vv->start_date_time)); 
                         $oDate=$vv->start_date;
                     @endphp
                     <div class="d-flex">
@@ -46,13 +46,13 @@
                     echo "All Day";
                 }else{
 
-                    $start_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->start_date.' '.$vv->start_time)),Auth::User()->user_timezone)));
+                    // $start_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->start_date.' '.$vv->start_time)),Auth::User()->user_timezone)));
 
-                    $end_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->end_date.' '.$vv->end_time)),Auth::User()->user_timezone)));
+                    // $end_time = date("H:i:s", strtotime(convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($vv->end_date.' '.$vv->end_time)),Auth::User()->user_timezone)));
 
-                    echo date('h:i A',strtotime($start_time));
+                    echo date('h:i A',strtotime($vv->start_date_time));
                     echo "-";
-                    echo date('h:i A',strtotime($end_time));
+                    echo date('h:i A',strtotime($vv->end_date_time));
 
                     // echo date('h:i A',strtotime($vv['start_time']));
                     // echo "-";

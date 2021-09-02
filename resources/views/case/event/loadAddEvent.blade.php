@@ -466,7 +466,8 @@
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
-            'forceRoundTime': true 
+            'forceRoundTime': true,
+            // 'maxTime': '23:30pm',
         });
 
         // Initialize Date Pickers
@@ -486,10 +487,6 @@
             'startClass': 'input-start',
             'endClass': 'input-end'
         });
-        /* var defaultDeltaDatepair = new Datepair(dateContainer, {
-            'defaultDateDelta': 1,      // days
-            'defaultTimeDelta': 7200000 // milliseconds
-        }); */
 
         $("#start_date").datepicker().on('change',function(e){
             $(this).removeClass('error');
