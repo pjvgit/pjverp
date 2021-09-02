@@ -2,9 +2,6 @@
 
 namespace App\Jobs;
 
-use App\CaseEventLinkedContactLead;
-use App\CaseEventLinkedStaff;
-use App\CaseEventReminder;
 use App\Traits\CaseEventTrait;
 use Carbon\Carbon;
 use DateInterval;
@@ -48,9 +45,10 @@ class CaseSingleEventJob implements ShouldQueue
     {
         Log::info("Case Single Event Job Started :". date('Y-m-d H:i:s'));
         $request = (object) $this->requestData;
-        // dd($request->event_id);
-        $startDate = $this->startDate;
-        $endDate = $this->endDate;
+        // $startDate = $this->startDate;
+        // $endDate = $this->endDate;
+        $startDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->startDate), $this->authUser->user_timezone));
+        $endDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->endDate), $this->authUser->user_timezone));
         $start_time = $this->start_time;
         $end_time = $this->end_time;
         $authUser = $this->authUser;
@@ -118,8 +116,6 @@ class CaseSingleEventJob implements ShouldQueue
         {
             $i=0;
             do {
-                // $timestamp = $startDate;
-                // $weekday= date("l", $timestamp ); 
                 $start_date = date("Y-m-d", $startDate);
                 $end_date = date("Y-m-d", $startDate);
                 $CaseEvent = $this->saveRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $locationID);
