@@ -121,7 +121,7 @@
                 <div class="row ">
                     <div class="col-4">
                         <?php  if(isset($curDate) && $curDate!=""){?>
-                            <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime($curDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                            <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($curDate, auth()->user()->user_timezone)))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
                         <?php  }else{  ?>
                             <input class="form-control datepicker" id="datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text" placeholder="mm/dd/yyyy"><?php
                         }?>
@@ -185,7 +185,7 @@
                 <div class="col-md-3 form-group mb-3">
                     <label for="firstName1">Date</label>
                     <?php  if(isset($curDate) && $curDate!=""){?>
-                        <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime($curDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                        <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($curDate, auth()->user()->user_timezone)))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
                     <?php  }else{  ?>
                         <input class="form-control datepicker" id="datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}" name="start_date" type="text" placeholder="mm/dd/yyyy"><?php
                     }?>

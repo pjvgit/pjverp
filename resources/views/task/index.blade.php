@@ -324,7 +324,7 @@ if(isset($_GET['task_read'])){
                                             ?>
                                 <small class="text-muted">Completed by {{$subrow->task_completed['first_name']}}
                                     {{$subrow->task_completed['last_name']}} on
-                                    {{date('m/d/Y',strtotime($OwnDate))}}</small>
+                                    {{date('m/d/Y',strtotime(convertUTCToUserDate($OwnDate, auth()->user()->user_timezone)))}}</small>
                                 <?php } ?>
                             </td>
                             <td class="task-subtasks-cell align-middle">
@@ -634,7 +634,7 @@ if(isset($_GET['task_read'])){
                                             ?>
                                 <small class="text-muted">Completed by {{$subrow->task_completed['first_name']}}
                                     {{$subrow->task_completed['last_name']}} on
-                                    {{date('m/d/Y',strtotime($OwnDate))}}</small>
+                                    {{date('m/d/Y',strtotime(convertUTCToUserDate($OwnDate, auth()->user()->user_timezone)))}}</small>
                                 <?php } ?>
                             </td>
                             <td class="task-subtasks-cell align-middle">

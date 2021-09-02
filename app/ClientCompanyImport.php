@@ -24,6 +24,6 @@ class ClientCompanyImport extends Authenticatable
     } 
     public function getCreatedNewDateAttribute(){
 
-        return date('M d,Y',strtotime($this->created_at));
+        return date('M d,Y',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
     }   
 }

@@ -33,7 +33,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Date</label>
             <div class="col-md-10 form-group mb-3">
                 <div class="input-group">
-                <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime($FlatFeeEntry['entry_date']))}}" name="start_date"
+                <input class="form-control datepicker" id="datepicker" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($FlatFeeEntry['entry_date'], auth()->user()->user_timezone)))}}" name="start_date"
                         type="text" placeholder="mm/dd/yyyy">
                 </div>
             </div>

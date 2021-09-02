@@ -1638,7 +1638,7 @@ if(!isset($adjustment_token)){
                                                                     <div class="col-md-3"><label for="date-field"
                                                                             class="col-form-label ">Start Date</label></div>
                                                                     <div class="col-md-9">
-                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime('+1 day'))}}">
+                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime(convertUTCToUserDate('+1 day', auth()->user()->user_timezone)))}}">
 
                                                                     </div>
                                                                 </div>

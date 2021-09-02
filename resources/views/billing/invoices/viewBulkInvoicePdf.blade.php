@@ -120,7 +120,7 @@ $finalAmt=$invoice-$paid;
                     ?>
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;width: 10%;">
-                    {{date('m/d/Y',strtotime($v->entry_date))}}
+                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;width: 10%;">
                     {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -216,7 +216,7 @@ $finalAmt=$invoice-$paid;
                 foreach($valueData['ExpenseForInvoice'] as $k=>$v){?>
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;width: 10%;">
-                    {{date('m/d/Y',strtotime($v->entry_date))}}
+                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;width: 10%;">
                     {{$v->first_name[0]}}{{$v->last_name[0]}}

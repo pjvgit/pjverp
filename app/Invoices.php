@@ -36,14 +36,14 @@ class Invoices extends Model
     }
     public function getDueDateNewAttribute(){
         if($this->due_date!=NULL){
-            return date('M j, Y',strtotime($this->due_date));
+            return date('M j, Y',strtotime(convertUTCToUserDate($this->due_date, auth()->user()->user_timezone)));
         }else{
             return '--';
         }
     }
     public function getCreatedDateNewAttribute(){
         if($this->created_at!=NULL){
-            return date('M j, Y',strtotime($this->created_at));
+            return date('M j, Y',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
         }else{
             return '--';
         }

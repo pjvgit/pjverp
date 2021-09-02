@@ -24,7 +24,7 @@ class PotentialCaseInvoice extends Authenticatable
         return sprintf('%06d', $this->id);
     }
     public function getCreatedatnewformateAttribute(){
-        return date('M j, Y h:i A',strtotime($this->created_at));
+        return date('M j, Y h:i A',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
     }
     public function getAddedDateAttribute(){
         $CommonController= new CommonController();

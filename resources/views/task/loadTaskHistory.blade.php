@@ -9,7 +9,7 @@
             <div class="w-100 no-gutters row ">
                 <?php $OwnDate=$CommonController->convertUTCToUserTime($value->created_at,Auth::User()->user_timezone);?>
                 <div class="text-nowrap col-12 col-sm-4 col-md-3">
-                    <span> {{date('m/d/y',strtotime($OwnDate))}} {{date('h:ia',strtotime($OwnDate))}}</span>
+                    <span> {{date('m/d/y',strtotime(convertUTCToUserDate($OwnDate, auth()->user()->user_timezone)))}} {{date('h:ia',strtotime($OwnDate))}}</span>
                 </div>&nbsp;&nbsp;
                 <div class="col">
                     <div>

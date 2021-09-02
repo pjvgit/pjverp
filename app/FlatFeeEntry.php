@@ -24,13 +24,13 @@ class FlatFeeEntry extends Authenticatable
         return base64_encode($this->invoice_link);
     } 
     public function getDateFormatNewAttribute(){
-        return date('M d, Y',strtotime($this->entry_date));
+        return date('M d, Y',strtotime(convertUTCToUserDate($this->entry_date, auth()->user()->user_timezone)));
     }
     public function getCalculatedAmtAttribute(){
         if($this->rate_type=="flat"){
-            return number_format($this->entry_rate,2);
+            return number_format((int)$this->entry_rate,2);
         }else{
-            return number_format($this->duration * $this->entry_rate,2);
+            return number_format((int)$this->duration * (int)$this->entry_rate,2);
         }
     }
     
