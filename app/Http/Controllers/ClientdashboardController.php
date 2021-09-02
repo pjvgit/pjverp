@@ -1319,7 +1319,7 @@ class ClientdashboardController extends BaseController
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', $request->message, $mail_body);
             $mail_body = str_replace('{amount}', number_format($request->amount,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime(convertUTCToUserDate($request->due_date, auth()->user()->user_timezone))), $mail_body);
+            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($request->due_date)), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -1492,7 +1492,7 @@ class ClientdashboardController extends BaseController
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', date('F d, Y',strtotime($RequestedFund->due_date)), $mail_body);
             $mail_body = str_replace('{amount}', number_format($RequestedFund->amount_due,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone))), $mail_body);
+            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($RequestedFund->due_date)), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -2430,7 +2430,7 @@ class ClientdashboardController extends BaseController
                 $casesLinkId='';
             }
             $webpage=$clientVal->website;
-            $createdAt=date('m/d/Y',strtotime(convertUTCToUserDate($clientVal->created_at, auth()->user()->user_timezone)));
+            $createdAt=date('m/d/Y',strtotime($clientVal->created_at));
             $clientCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->middle_name."|".$clientVal->last_name."|".$getCompanyName."|".$clientVal->job_title."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->work_phone."|".$clientVal->home_phone."|".$clientVal->mobile_number."|".$contactGroup."|".$clientVal->email."|".$webpage."|0"."|".$Portal."|".$Archive."|".$DOB."|".$clientVal->notes."|".$clientVal->driver_license."|".$clientVal->license_state."|".$welcomeMsg."|".$notes."|".$cases."|".$casesLinkId."|".$createdAt;
         }
         // print_r($clientCsvData);
@@ -2503,7 +2503,7 @@ class ClientdashboardController extends BaseController
             }else{
                 $contacts='';
             }
-            $createdAt=date('m/d/Y',strtotime(convertUTCToUserDate($clientVal->uct, auth()->user()->user_timezone)));
+            $createdAt=date('m/d/Y',strtotime($clientVal->uct));
             $CompanyCsvData[]=$clientVal->uid."|".$clientVal->first_name."|".$clientVal->street." " .$clientVal->apt_unit."|".$clientVal->address2."|".$clientVal->city."|".$clientVal->state."|".$clientVal->postal_code."|".$countryName."|".$clientVal->fax_number."|".$clientVal->mobile_number."|".$clientVal->email."|".$clientVal->website."|0"."|".$Archive."|".$clientVal->notes."|".$contacts."|".$cases."|".$casesLinkId."|".$notes."|".$createdAt;
         }
        

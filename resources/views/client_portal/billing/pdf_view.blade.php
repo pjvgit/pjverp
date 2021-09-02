@@ -101,7 +101,7 @@
         @forelse($billableFlatFees as $key => $item)
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime(convertUTCToUserDate($item->entry_date, auth()->user()->user_timezone)))}}
+                    {{date('m/d/Y',strtotime($item->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{ @$item->user->first_name[0] }}{{ @$item->user->last_name[0] }}
@@ -128,7 +128,7 @@
             @forelse($nonBillDataFlateFee as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -182,7 +182,7 @@
         @forelse($billableTimeEntry as $k=>$v)
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                    {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{ $v->user->full_name }}
@@ -220,7 +220,7 @@
             @forelse($nonBillableTimeEntry as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -288,7 +288,7 @@
         @forelse($billableExpense as $k=>$v)        
         <tr class="invoice_info_row ">
             <td class="time-entry-date" style="vertical-align: top;">
-                {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                {{date('m/d/Y',strtotime($v->entry_date))}}
             </td>
             <td class="time-entry-ee" style="vertical-align: top;">
                 {{ @$v->user->first_name[0] }}{{ @$v->user->last_name[0] }}
@@ -323,7 +323,7 @@
             @forelse($nonBillableExpense as $k=>$v)
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{ @$v->user->first_name[0] ??''}}{{ @$v->user->last_name[0] ??''}}

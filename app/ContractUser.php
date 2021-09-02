@@ -20,7 +20,7 @@ class ContractUser extends Authenticatable
     protected $appends  = ['last_login_date'];
 
     public function getLastLoginDateAttribute(){
-        return date('m-d-Y h:i A',strtotime(convertUTCToUserDate($this->last_login, auth()->user()->user_timezone)));
+        return date('m-d-Y h:i A',strtotime($this->last_login));
     }  
    
 }

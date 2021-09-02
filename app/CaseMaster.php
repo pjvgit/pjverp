@@ -34,7 +34,7 @@ class CaseMaster extends Authenticatable
     }
 
     public function getCreatedNewDateAttribute(){
-        return date('M j, Y',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
+        return date('M j, Y',strtotime($this->created_at));
     }   
     public function getCaseUpdateAttribute(){
         $ContractCaseUpdate =  CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","case_update.update_status","case_update.created_at")
@@ -44,7 +44,7 @@ class CaseMaster extends Authenticatable
         ->get();
 
         if(!$ContractCaseUpdate->isEmpty()){
-            $ContractCaseUpdate[0]->newFormateCreatedAt=date('M j, Y h:i A',strtotime(convertUTCToUserDate($ContractCaseUpdate[0]->created_at, auth()->user()->user_timezone)));
+            $ContractCaseUpdate[0]->newFormateCreatedAt=date('M j, Y h:i A',strtotime($ContractCaseUpdate[0]->created_at));
             // $ContractCaseUpdate[0]->update_status_small=substr($ContractCaseUpdate[0]->update_status,0,40);
 
         }

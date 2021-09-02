@@ -64,7 +64,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Date opened</label>
             <div class="col-md-10 form-group mb-3">
-                <input class="form-control datepicker dateopen" id="case_open_date" value="{{ ($CaseMaster->case_open_date) ? date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_open_date, auth()->user()->user_timezone))) : old('case_open_date') }}" name="case_open_date" type="text"
+                <input class="form-control datepicker dateopen" id="case_open_date" value="{{ ($CaseMaster->case_open_date) ? date('m/d/Y',strtotime($CaseMaster->case_open_date)) : old('case_open_date') }}" name="case_open_date" type="text"
                 placeholder="mm/dd/yyyy">
 
             </div>
@@ -91,7 +91,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of Limitations</label>
             <div class="col-md-10 form-group mb-3">
-                <input class="form-control datepicker soldate" id="case_statute_date" value="{{  ($CaseMaster->case_statute_date)?date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_statute_date, auth()->user()->user_timezone))): old('case_statute') }}" name="case_statute" type="text"
+                <input class="form-control datepicker soldate" id="case_statute_date" value="{{  ($CaseMaster->case_statute_date)?date('m/d/Y',strtotime($CaseMaster->case_statute_date)): old('case_statute') }}" name="case_statute" type="text"
                 placeholder="mm/dd/yyyy">
 
             </div>

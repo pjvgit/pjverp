@@ -126,7 +126,7 @@ if(isset($_GET['at'])){
                                                 <div class="opportunity-status-timestamp d-flex align-items-center text-muted">
                                                     <span class="text-truncate"> {{$v->title}}
                                                     </span>
-                                                    <span class="text-nowrap">&nbsp;as of {{date('m/d/Y',strtotime(convertUTCToUserDate($vv->date_added, auth()->user()->user_timezone)))}}
+                                                    <span class="text-nowrap">&nbsp;as of {{date('m/d/Y',strtotime($vv->date_added))}}
                                                     </span>
                                                 </div>
                                             </div>

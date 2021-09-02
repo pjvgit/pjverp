@@ -65,7 +65,7 @@
                     <?php 
                     $dueDate='';
                     if($Task->task_due_on!=NULL && $Task->task_due_on!='9999-12-30'){
-                        $dueDate=date('m/d/Y',strtotime(convertUTCToUserDate($Task->task_due_on, auth()->user()->user_timezone)));
+                        $dueDate=date('m/d/Y',strtotime($Task->task_due_on));
                     }
                     ?>
                     <input class="form-control datepicker" autocomplete="off" id="due_date" value="{{$dueDate}}" name="due_date" type="text"

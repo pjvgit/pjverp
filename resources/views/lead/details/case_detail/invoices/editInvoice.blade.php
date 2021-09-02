@@ -13,7 +13,7 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Invoice Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($PotentialCaseInvoice->invoice_date, auth()->user()->user_timezone)))}}" id="invoiceDate" maxlength="250"
+            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($PotentialCaseInvoice->invoice_date))}}" id="invoiceDate" maxlength="250"
                 name="invoice_date" type="text">
         </div>
         <div class="col-md-6 form-group mb-3">
@@ -22,7 +22,7 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Due Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($PotentialCaseInvoice->due_date, auth()->user()->user_timezone)))}}" id="dueDate" maxlength="250"
+            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($PotentialCaseInvoice->due_date))}}" id="dueDate" maxlength="250"
                 name="due_date" type="text">
         </div>
         <div class="col-6 mb-3">

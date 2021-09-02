@@ -304,7 +304,7 @@ class FullBackUpOfApplication implements ShouldQueue
         if(count($FetchQuery) > 0){
             $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
             foreach($FetchQuery as $k=>$v){
-                $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate($v->payment_date, $authUser->user_timezone)))."|".$v->invoice_id."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
+                $casesCsvData[] = date('m/d/Y', strtotime($v->payment_date))."|".$v->invoice_id."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->amount_refund > 0) ? "-".$v->amount_refund : $v->amount_paid)."|".(($v->payment_from == 'trust') ? 'true' : 'false')."|".(($v->deposit_into == 'Trust Account') ? 'true' : 'false')."|".(($v->payment_from == 'client') ? 'true' : 'false')."|".(($v->deposit_into == 'Operating Account') ? 'true' : 'false')."|".$v->total."|".$v->id;
             }
 
             $file_path =  $folderPath.'/account_activities.csv';  
@@ -504,7 +504,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $casesCsvData[]="Date|Amount|Description|Entered By|Case Name|Invoice|Nonbillable|LegalCase ID";
             
             foreach ($FlatFeeEntry as $k=>$v){
-                $casesCsvData[]= date('m/d/Y', strtotime(convertUTCToUserDate($v->entry_date, $authUser->user_timezone)))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
+                $casesCsvData[]= date('m/d/Y', strtotime($v->entry_date))."|".$v->cost."|".$v->description."|".$v->entered_by."|".$v->case_title."|".$v->invoice_link."|".(($v->time_entry_billable == 'no') ? 'true' : 'false')."|".$v->id;
             }
 
             $file_path =  $folderPath.'/flat_fees.csv';  
@@ -720,7 +720,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Credit|Operating Credit|Total|LegalCase ID";
             
             foreach ($FetchQuery as $k => $v){
-                $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate($v->entry_date, $authUser->user_timezone)))."|".$v->related_to."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|false|false|false|false|false|".(($v->debit_amount > 0) ? "-".$v->debit_amount : $v->credit_amount)."|".(($v->pay_type == 'trust') ? 'true' : 'false')."|false|false|false|".$v->total_amount."|".$v->id;
+                $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".$v->related_to."|".$v->contact_by."|".$v->case_title."|".$v->entered_by."|".$v->notes."|false|false|false|false|false|".(($v->debit_amount > 0) ? "-".$v->debit_amount : $v->credit_amount)."|".(($v->pay_type == 'trust') ? 'true' : 'false')."|false|false|false|".$v->total_amount."|".$v->id;
             }
 
             $file_path =  $folderPath.'/trust_activities.csv';  

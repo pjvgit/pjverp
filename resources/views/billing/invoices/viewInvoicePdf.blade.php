@@ -115,7 +115,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ?>
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                    {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -153,7 +153,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ?>
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -221,7 +221,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ?>
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                    {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -279,7 +279,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ?>
                 <tr class="invoice_info_row ">
                     <td class="time-entry-date" style="vertical-align: top;">
-                        {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
                     </td>
                     <td class="time-entry-ee" style="vertical-align: top;">
                         {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -375,7 +375,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         
     <tr class="invoice_info_row ">
         <td class="time-entry-date" style="vertical-align: top;">
-            {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+            {{date('m/d/Y',strtotime($v->entry_date))}}
         </td>
         <td class="time-entry-ee" style="vertical-align: top;">
             {{$v->first_name[0]}}{{$v->last_name[0]}}
@@ -421,7 +421,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             ?>
             <tr class="invoice_info_row ">
                 <td class="time-entry-date" style="vertical-align: top;">
-                    {{date('m/d/Y',strtotime(convertUTCToUserDate($v->entry_date, auth()->user()->user_timezone)))}}
+                    {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
                     {{($v->first_name[0])??''}}{{($v->last_name[0])??''}}
@@ -493,7 +493,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 <td>{{ $invitem->invoice_id }}</td>
                 <td>${{ $invitem->total_amount_new }}</td>
                 <td>${{ $invitem->paid_amount_new }}</td>
-                <td>{{ ($invitem->due_date) ? date('m/d/Y', strtotime(convertUTCToUserDate($invitem->due_date, auth()->user()->user_timezone))) : "" }}</td>
+                <td>{{ ($invitem->due_date) ? date('m/d/Y', strtotime($invitem->due_date)) : "" }}</td>
                 <td style="vertical-align: top; text-align: right;">${{ $invitem->due_amount_new }}</td>
             </tr>
         @empty                        

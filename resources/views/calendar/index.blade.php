@@ -402,7 +402,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 @include('calendar.partials.load_grant_access_modal')
 
 @if(!isset($evetData))
-<span id="dp"><input type="text" class="form-control" style="width: 100px;margin-right: 1px;height: 28px;" name="datefilter" value="{{convertUTCToUserTimeZone('dateOnly')}}" id="datepicker"></span>
+<span id="dp"><input type="text" class="form-control" style="width: 100px;margin-right: 1px;height: 28px;" name="datefilter" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="datepicker"></span>
 @endif
 <?php 
 $defaultView="month";

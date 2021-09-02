@@ -27,11 +27,11 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Date and time</label>
                     <div class="col-sm-4">
-                        <input class="form-control input-date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($callDateTime, auth()->user()->user_timezone)))}}" id="dateadded" maxlength="250"
+                        <input class="form-control input-date" value="{{date('m/d/Y',strtotime($callDateTime))}}" id="dateadded" maxlength="250"
                             name="call_date" type="text">
                     </div>
                     <div class="col-sm-2">
-                        <input class="form-control input-time" value="{{date('h:i A',strtotime(convertUTCToUserDate($callDateTime, auth()->user()->user_timezone)))}}" id="dateadded" maxlength="250" name="call_time" type="text">
+                        <input class="form-control input-time" value="{{date('h:i A',strtotime($callDateTime))}}" id="dateadded" maxlength="250" name="call_time" type="text">
                     </div>
                   
                 </div>
@@ -137,11 +137,11 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Date and time</label>
                     <div class="col-sm-4">
-                        <input class="form-control input-date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($callDateTime, auth()->user()->user_timezone)))}}" id="dateadded" maxlength="250"
+                        <input class="form-control input-date" value="{{date('m/d/Y',strtotime($callDateTime))}}" id="dateadded" maxlength="250"
                             name="call_date" type="text">
                     </div>
                     <div class="col-sm-2">
-                        <input class="form-control input-time" value="{{date('h:i A',strtotime(convertUTCToUserDate($callDateTime, auth()->user()->user_timezone)))}}" id="dateadded" maxlength="250" name="call_time" type="text">
+                        <input class="form-control input-time" value="{{date('h:i A',strtotime($callDateTime))}}" id="dateadded" maxlength="250" name="call_time" type="text">
                     </div>
                   
                 </div>

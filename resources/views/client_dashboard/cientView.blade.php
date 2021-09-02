@@ -328,7 +328,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                                         <th>Birthday</th>
                                                         <td id="client-birthday">
                                                             <?php if($UsersAdditionalInfo['dob']!=NULL){
-                                                            echo date('m/d/Y',strtotime(convertUTCToUserDate($UsersAdditionalInfo['dob'], auth()->user()->user_timezone)));
+                                                            echo date('m/d/Y',strtotime($UsersAdditionalInfo['dob']));
                                                              } ?>
                                                         </td>
                                                     </tr>

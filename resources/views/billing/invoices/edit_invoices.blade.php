@@ -130,7 +130,7 @@
                                     </td>
                                     <td>
                                         <input id="bill_invoice_date" class="form-control date datepicker"
-                                            name="bill_invoice_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($findInvoice->invoice_date, auth()->user()->user_timezone)))}}">
+                                            name="bill_invoice_date" value="{{date('m/d/Y',strtotime($findInvoice->invoice_date))}}">
                                     </td>
                                 </tr>
                                 <tr>
@@ -166,7 +166,7 @@
                                     <td>
                                         <?php
                                         if($findInvoice->due_date!=NULL){
-                                            $dt=date('m/d/Y',strtotime(convertUTCToUserDate($findInvoice->due_date, auth()->user()->user_timezone)));
+                                            $dt=date('m/d/Y',strtotime($findInvoice->due_date));
                                         }else{
                                             $dt="";
                                         }?>
@@ -1486,7 +1486,7 @@
                                                         </td>
                                                         <td style="border-left: none;" class="">
                                                             <div id="invoice_entry_date_plan" class="invoice-entry-date" data-entry-id="plan161122040617875"> 
-                                                                <input value="{{date('m/d/Y',strtotime(convertUTCToUserDate($value->due_date, auth()->user()->user_timezone)))}}" id="invoice_entry_date_text_plan161122040617875" style="width: 100%;border:none;" class="invoice-entry-date-text boxsizingBorder datepicker" type="text" name="new_payment_plans[{{$key}}][due_date]" placeholder="Choose Date">
+                                                                <input value="{{date('m/d/Y',strtotime($value->due_date))}}" id="invoice_entry_date_text_plan161122040617875" style="width: 100%;border:none;" class="invoice-entry-date-text boxsizingBorder datepicker" type="text" name="new_payment_plans[{{$key}}][due_date]" placeholder="Choose Date">
                                                             </div>
                                                         </td>
                                                         <td style="text-align: right; border-right: none;" class=""> 
@@ -1546,7 +1546,7 @@
                                                                     <div class="col-md-3"><label for="date-field"
                                                                             class="col-form-label ">Start Date</label></div>
                                                                     <div class="col-md-9">
-                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime(convertUTCToUserDate('+1 day', auth()->user()->user_timezone)))}}">
+                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime('+1 day'))}}">
                                                                         <div class="d-flex invalid-feedback start_date_error"></div>
                                                                     </div>
                                                                 </div>

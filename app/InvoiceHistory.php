@@ -20,7 +20,7 @@ class InvoiceHistory extends Authenticatable
 
     protected $appends  = ['added_date','responsible','refund_amount'];
     public function getCreatedatnewformateAttribute(){
-        return date('M j, Y h:i A',strtotime(convertUTCToUserDate($this->created_at, auth()->user()->user_timezone)));
+        return date('M j, Y h:i A',strtotime($this->created_at));
     }
     public function getAddedDateAttribute(){
         $CommonController= new CommonController();

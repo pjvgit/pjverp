@@ -5,7 +5,7 @@
         <input type="hidden" name="case_id" value="{{$case_id}}">
         <div class="showError"></div>
         <span id="response"></span>
-        <h5 class="mb-4">Case Status: Opened since {{date('m/d/Y',strtotime(convertUTCToUserDate($CaseMaster->case_open_date, auth()->user()->user_timezone)))}}</h5>
+        <h5 class="mb-4">Case Status: Opened since {{date('m/d/Y',strtotime($CaseMaster->case_open_date))}}</h5>
         <div class="row ">
             <div class="col-3">
                 <p class="ml-4">Case Stage</p>
@@ -39,10 +39,10 @@
             </select>
             </div>
             <div class="col-3">
-                <input type="text" id="start_date_{{$key+1}}"   name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime(convertUTCToUserDate($stage['start_date'], auth()->user()->user_timezone) ?? convertUTCToUserTimeZone('dateOnly')))}}" onchange="getEndDate({{$key+1}})"></p>
+                <input type="text" id="start_date_{{$key+1}}"   name="start_date[{{$key}}]" class="form-control dp"  value="{{date('m/d/Y',strtotime($stage['start_date'] ?? date('Y-m-d')))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <div class="col-3">
-                <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($stage['end_date'], auth()->user()->user_timezone) ?? convertUTCToUserTimeZone('dateOnly')))}}" onchange="getEndDate({{$key+1}})"></p>
+                <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date'] ?? date('Y-m-d')))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
             <input type="hidden" name="state_id[{{$key}}]" value="{{$stage['id']}}">
 

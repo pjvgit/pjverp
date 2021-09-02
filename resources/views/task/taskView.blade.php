@@ -103,10 +103,10 @@
                                 <?php
                                 }elseif($TaskData->task_due_on >= date('Y-m-d') && $TaskData->task_due_on!='9999-12-30'){?>
                                 <div class="h4 font-weight-bold mb-1 ">
-                                    {{date('m/d/Y',strtotime(convertUTCToUserDate($TaskData->task_due_on, auth()->user()->user_timezone)))}}</div>
+                                    {{date('m/d/Y',strtotime($TaskData->task_due_on))}}</div>
                                 <?php }else{ ?>
                                 <div class="h4 font-weight-bold mb-1 text-danger">
-                                    {{date('m/d/Y',strtotime(convertUTCToUserDate($TaskData->task_due_on, auth()->user()->user_timezone)))}}
+                                    {{date('m/d/Y',strtotime($TaskData->task_due_on))}}
                                 </div>
                                 <?php }
                             

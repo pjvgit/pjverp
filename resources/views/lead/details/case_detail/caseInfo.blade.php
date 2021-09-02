@@ -30,7 +30,7 @@
              </div>
              <div class="row ">
                  <div class="col-3"><label class="mr-2 field-label">Date Added</label></div>
-                 <div class="col-9"><span class="field-value">{{date('m/d/Y',strtotime(convertUTCToUserDate($LeadData['date_added'], auth()->user()->user_timezone)))}}</span></div>
+                 <div class="col-9"><span class="field-value">{{date('m/d/Y',strtotime($LeadData['date_added']))}}</span></div>
              </div>
              <div class="row ">
                  <div class="col-3"><label class="mr-2 field-label">Conflict Check

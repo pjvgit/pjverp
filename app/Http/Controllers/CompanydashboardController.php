@@ -1104,7 +1104,7 @@ class CompanydashboardController extends BaseController
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', $request->message, $mail_body);
             $mail_body = str_replace('{amount}', number_format($request->amount,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime(convertUTCToUserDate($request->due_date, auth()->user()->user_timezone))), $mail_body);
+            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($request->due_date)), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -1256,7 +1256,7 @@ class CompanydashboardController extends BaseController
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', date('F d, Y',strtotime($RequestedFund->due_date)), $mail_body);
             $mail_body = str_replace('{amount}', number_format($RequestedFund->amount_due,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone))), $mail_body);
+            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($RequestedFund->due_date)), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);

@@ -7,7 +7,7 @@
         <div class="modal-body retainer-requests-popup-content">
             <div class="row">
                 <div class="col-12">
-                    <p class="helper-text">Edit the request for #R-00{{$RequestedFund->id}} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_due,2)}} due on {{date('m/d/Y',strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone)))}}.</p>
+                    <p class="helper-text">Edit the request for #R-00{{$RequestedFund->id}} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_due,2)}} due on {{date('m/d/Y',strtotime($RequestedFund->due_date))}}.</p>
                 </div>
                 <div class="col-md-6 form-group mb-3">
                     <label for="firstName1">Amount</label>
@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-md-6 form-group mb-3">
                     <label for="firstName1">Due Date</label>
-                    <input class="form-control input-date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone)))}}" id="due_date" maxlength="250" name="due_date" type="text">
+                    <input class="form-control input-date" value="{{date('m/d/Y',strtotime($RequestedFund->due_date))}}" id="due_date" maxlength="250" name="due_date" type="text">
                 </div>
                 
               </div>

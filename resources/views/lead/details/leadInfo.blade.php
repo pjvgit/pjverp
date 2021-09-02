@@ -35,7 +35,7 @@
                      <?php
                      if($LeadData['dob']!=NULL){ 
                      ?>
-                     <span class="field-value">{{date('m/d/Y',strtotime(convertUTCToUserDate($LeadData['dob'], auth()->user()->user_timezone)))}}</span>
+                     <span class="field-value">{{date('m/d/Y',strtotime($LeadData['dob']))}}</span>
                      <?php } ?> 
                     </div>
              </div>

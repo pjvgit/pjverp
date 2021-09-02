@@ -98,7 +98,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                     <div class="col-md-2 form-group mb-3">
-                        <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($currentDate, auth()->user()->user_timezone)))}}" name="start_date" type="text"
+                        <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($currentDate))}}" name="start_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
@@ -121,7 +121,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                     <div class="col-md-2 form-group mb-3 ">
-                        <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime(convertUTCToUserDate($currentDate, auth()->user()->user_timezone)))}}" name="end_date" type="text"
+                        <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($currentDate))}}" name="end_date" type="text"
                             placeholder="mm/dd/yyyy">
 
                     </div>
