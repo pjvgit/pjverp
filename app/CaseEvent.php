@@ -21,7 +21,7 @@ class CaseEvent extends Authenticatable
         'daily_weekname', 'no_end_date_checkbox', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'end_on', 'event_read', 
         'firm_id', 'created_by', 'updated_by',
     ];    
-    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','st','et','start_date_time','end_date_time']; //colorcode
+    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','st','et','start_date_time','end_date_time', 'user_start_date']; //colorcode
 
 
     public function getEventTyspeTexttAttribute(){
@@ -248,5 +248,12 @@ class CaseEvent extends Authenticatable
     public function eventComments()
     {
         return $this->hasMany(CaseEventComment::class, 'event_id')->where("action_type", 0);
+    }
+
+    /**
+     * Get start date in user timezone
+     */
+    public function getUserStartDateAttribute(){
+        return convertUTCToUserDate($this->start_date, auth()->user()->user_timezone);
     }
 }

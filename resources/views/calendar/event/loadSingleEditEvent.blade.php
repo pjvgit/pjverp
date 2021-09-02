@@ -205,43 +205,43 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                         <div class="filter-options d-flex">
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Sun-option" name="Sun" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Sunday') { echo "checked=checked";} ?>>
+                                                    <input id="Sun-option" name="custom[]" value="Sunday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Sunday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Sun</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Mon-option" name="Mon" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Monday') { echo "checked=checked";} ?>>
+                                                    <input id="Mon-option" name="custom[]" value="Monday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Monday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Mon</span>
                                                     </label>
                                                 </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Tues-option" name="Tues" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Tuesday') { echo "checked=checked";} ?>>
+                                                    <input id="Tues-option" name="custom[]"  value="Tuesday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Tuesday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Tues</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Wed-option" name="Wed" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Wednesday') { echo "checked=checked";} ?>>
+                                                    <input id="Wed-option" name="custom[]" value="Wednesday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Wednesday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Wed</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Thurs-option" name="Thurs" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Thursday') { echo "checked=checked";} ?>>
+                                                    <input id="Thurs-option" name="custom[]"  value="Thursday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Thursday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Thurs</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Fri-option" name="Fri" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Friday') { echo "checked=checked";} ?>>
+                                                    <input id="Fri-option" name="custom[]" value="Friday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Friday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Fri</span>
                                                 </label>
                                             </div>
                                             <div class="mr-3">
                                                 <label class="d-inline-flex align-items-center">
-                                                    <input id="Sat-option" name="Sat" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Saturday') { echo "checked=checked";} ?>>
+                                                    <input id="Sat-option" name="custom[]" value="Saturday" type="checkbox" <?php if(date("l",strtotime($evetData->start_date))=='Saturday') { echo "checked=checked";} ?>>
                                                     <span class="ml-2 ">Sat</span>
                                                 </label>
                                             </div>
@@ -731,12 +731,12 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
       
             $("input:checkbox.all_day").click(function () {
             if ($(this).is(":checked")) {
-                $("#start_time").attr("disabled", true);
-                $("#end_time").attr("disabled", true);
+                $("#start_time").attr("readonly", true);
+                $("#end_time").attr("readonly", true);
 
             } else {
-                $('#start_time').removeAttr("disabled");
-                $('#end_time').removeAttr("disabled");
+                $('#start_time').removeAttr("readonly");
+                $('#end_time').removeAttr("readonly");
 
             }
         });

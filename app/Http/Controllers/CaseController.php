@@ -4995,6 +4995,7 @@ class CaseController extends BaseController
                 $this->saveContactLeadData($request->all(),$CaseEvent->id); 
                 $this->saveEventHistory($CaseEvent->id);
             } else {
+                // return $request->all();
                 $this->dispatch(new CaseSingleEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser, $locationID));
 
                 // Delete old/current edit event

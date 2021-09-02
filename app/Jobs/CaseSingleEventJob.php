@@ -144,7 +144,7 @@ class CaseSingleEventJob implements ShouldQueue
             $weekFirstDay=date("Y-m-d", strtotime('monday this week'));
             $start = new DateTime($weekFirstDay);
             $startClone = new DateTime($weekFirstDay);
-            if($request->end_on!=''){
+            if(isset($request->end_on)){
                 $end=new DateTime($request->end_on);
             }else{
                 $end=$startClone->add(new DateInterval('P365D'));

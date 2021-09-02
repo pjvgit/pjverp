@@ -30,16 +30,15 @@ $CommonController= new App\Http\Controllers\CommonController();
 
                     </div>
                 </div>
-                <?php
-                if($allEvents->isEmpty()){?>
+                @if(count($allEvents) == 0)
                 <div class="mt-3 empty-events alert alert-info fade show" role="alert"><div class="d-flex align-items-start"><div class="w-100">There are no upcoming events scheduled.</div></div></div>
-                <?php } ?>
-                <table class="mt-3 border-light event-list-view table table-sm table-hover">
+                @else
+                <table class="mt-3 border-light event-list-view table table-sm table-hover" id="event_list_table">
                     <tbody>
-                        <?php foreach($allEvents as $key=>$val){?>
+                        {{-- <?php foreach($allEvents as $key=>$val){?> --}}
                         <tr>
                             <th colspan="6">
-                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ $key}}</h2>
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->user_start_date)) }}</h2>
                             </th>
                         </tr>
                         <tr>
@@ -50,7 +49,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                             <th width="15%">Users</th>
                             <th width="13%"></th>
                         </tr>
-                        <?php foreach ($val as $kk=>$vv){?>
+                        {{-- <?php foreach ($val as $kk=>$vv){?>
                         <tr class="event-row false ">
                             <td class="event-date-and-time  c-pointer" style="width: 50px;">
                                 <?php  
@@ -102,21 +101,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                             
                                 </div>
                             </td>
-                            <td class="c-pointer">
-                                {{-- <?php 
-                                if($vv->etext!=''){
-                                   ?>
-                                <div class="d-flex align-items-center mt-3">
-                                    <div class="mr-1"
-                                        style="width: 15px; height: 15px; border-radius: 30%; background-color: {{$vv->etext['color_code']}}">
-                                    </div><span>{{$vv->etext['title']}}</span>
-
-                                    
-                                </div><?php 
-                                }else{?>
-                                <i class="table-cell-placeholder mt-3"></i>
-                                <?php } ?> --}}
-                                
+                            <td class="c-pointer">                                
                                 @if($vv->eventType)
                                 <div class="d-flex align-items-center mt-3">
                                     <div class="mr-1"
@@ -196,9 +181,10 @@ $CommonController= new App\Http\Controllers\CommonController();
                         </tr>
                         <?php 
                         } 
-                            } ?>
+                            } ?> --}}
                     </tbody>
                 </table>
+                @endif
             </div>
         </div>
     </div>
@@ -350,11 +336,17 @@ $CommonController= new App\Http\Controllers\CommonController();
 
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
-            $('#submit').click();
+            // $('#submit').click();
+            tab1Page = 1;
+            loadMoreEvent(tab1Page, filter = 'true');
         });
+
+        // For load more events
+        loadMoreEvent(1, filter = null);
     });
     $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
         $("#preloader").show();
@@ -529,6 +521,7 @@ $CommonController= new App\Http\Controllers\CommonController();
 
        
     } */
-   
+    
+
 </script>
 @stop

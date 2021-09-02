@@ -20,8 +20,8 @@
                 @if(isset($oDate) && $vv->start_date==$oDate)
                 @else
                     @php
-                        $dateandMonth= date('d',strtotime($vv->start_date_time));
-                        $dateOfEvent=date('M',strtotime($vv->start_date_time)); 
+                        $dateandMonth= date('d',strtotime($vv->user_start_date));
+                        $dateOfEvent=date('M',strtotime($vv->user_start_date)); 
                         $oDate=$vv->start_date;
                     @endphp
                     <div class="d-flex">

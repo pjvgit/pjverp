@@ -39,7 +39,7 @@
                         {{-- <?php foreach($allEvents as $key=>$val){?> --}}
                         <tr>
                             <th colspan="6">
-                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->start_date)) }}</h2>
+                                <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y', strtotime(@$allEvents->first()->user_start_date)) }}</h2>
                             </th>
                         </tr>
                         <tr>
@@ -353,7 +353,7 @@
 <style> .modal { overflow: auto !important; }</style>
 
 @section('page-js-inner')
-
+<script src="{{ asset('assets\js\custom\calendar\listevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
@@ -542,7 +542,7 @@
     } */
 
     
-    var tab1Page = 1;
+    /* var tab1Page = 1;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() >= $(document).height()) {
             tab1Page++;
@@ -578,6 +578,6 @@
             $(".load-more-loader").hide();
             $('#'+divId).append('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
         });
-    }
+    } */
 </script>
 @stop

@@ -454,7 +454,7 @@ class CaseAllEventJob implements ShouldQueue
 
                     $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
                     $i++;
-                } while ($startDate < $endDate);
+                } while ($startDate <= $endDate);
             } else {
                 do {
                     $event_interval_year=$request->event_interval_year;

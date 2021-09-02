@@ -439,12 +439,12 @@
         });
         $("input:checkbox.all_day").click(function () {
             if ($(this).is(":checked")) {
-                $("#start_time").attr("disabled", true);
-                $("#end_time").attr("disabled", true);
+                $("#start_time").attr("readonly", true);
+                $("#end_time").attr("readonly", true);
 
             } else {
-                $('#start_time').removeAttr("disabled");
-                $('#end_time').removeAttr("disabled");
+                $('#start_time').removeAttr("readonly");
+                $('#end_time').removeAttr("readonly");
 
             }
         });

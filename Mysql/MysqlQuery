@@ -1,3 +1,6 @@
+------------------------------------ 02-SEP-2021 ------------------------------
+ALTER TABLE `lead_additional_info` CHANGE `office` `office` INT NULL;
+
 ------------------------------------ 26-AUG-2021 ------------------------------
 ALTER TABLE `client_fullbackup`
 CHANGE `status` `status` enum('1','2','3','4') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT '1';
