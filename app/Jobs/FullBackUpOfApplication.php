@@ -48,7 +48,7 @@ class FullBackUpOfApplication implements ShouldQueue
         $clientFullBackup->status = 2;
         $clientFullBackup->save();
 
-        $folderPath = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name);
+        $folderPath = public_path('backup/'.convertUTCToUserDate(date("Y-m-d"), $this->authUser->user_timezone)->format('Y-m-d').'/'.$authUser->firm_name);
 
         File::deleteDirectory($folderPath);
         if(!is_dir($folderPath)) {
@@ -60,37 +60,37 @@ class FullBackUpOfApplication implements ShouldQueue
         }
         
         $this->generateBackupCasesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/cases.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/notes.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/expenses.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/time_entries.csv");
+        $CSV[] = $folderPath."/cases.csv";
+        $CSV[] = $folderPath."/notes.csv";
+        $CSV[] = $folderPath."/expenses.csv";
+        $CSV[] = $folderPath."/time_entries.csv";
         $this->generateClientsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/clients.csv");
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/companies.csv");
+        $CSV[] = $folderPath."/clients.csv";
+        $CSV[] = $folderPath."/companies.csv";
         $this->generateAccountActivitiesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/account_activities.csv");
+        $CSV[] = $folderPath."/account_activities.csv";
         $this->generateDocumentsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/documents.csv");
+        $CSV[] = $folderPath."/documents.csv";
         $this->generateEmailsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/emails.csv");
+        $CSV[] = $folderPath."/emails.csv";
         $this->generateEventsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/events.csv");
+        $CSV[] = $folderPath."/events.csv";
         $this->generateFlatFeesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/flat_fees.csv");
+        $CSV[] = $folderPath."/flat_fees.csv";
         $this->generateInvoiceDiscountsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoice_discounts.csv");
+        $CSV[] = $folderPath."/invoice_discounts.csv";
         $this->generateInvoicesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/invoices.csv");
+        $CSV[] = $folderPath."/invoices.csv";
         $this->generateLawyersCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/lawyers.csv");
+        $CSV[] = $folderPath."/lawyers.csv";
         $this->generateLocationsCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/locations.csv");
+        $CSV[] = $folderPath."/locations.csv";
         $this->generateMessagesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/messages.csv");
+        $CSV[] = $folderPath."/messages.csv";
         $this->generateTasksCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/tasks.csv");
+        $CSV[] = $folderPath."/tasks.csv";
         $this->generateTrustActivitiesCSV($this->request, $folderPath, $this->authUser);
-        $CSV[] = public_path('backup/'.date('Y-m-d').'/'.$authUser->firm_name."/trust_activities.csv");
+        $CSV[] = $folderPath."/trust_activities.csv";
 
         $zip = new ZipArchive;
         if ($zip->open((public_path($this->zipFileName)), ZipArchive::CREATE) === true) {
@@ -139,25 +139,19 @@ class FullBackUpOfApplication implements ShouldQueue
 
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
 
-        if($request['export_cases'] == 0){
+        if($request['export_cases'] == 1 && $authUser->parent_user==0){
             $case = $case->where("case_master.is_entry_done","1");
-            if($authUser->parent_user==0){
-                $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
-                $getChildUsers[]=$authUser->id;
-                $case = $case->whereIn("case_master.created_by",$getChildUsers);
-            }else{
-                $childUSersCase = CaseStaff::select("case_id")->where('user_id',$authUser->id)->get()->pluck('case_id');
-                $case = $case->whereIn("case_master.id",$childUSersCase);
-            }
-            if(!isset($request['include_archived'])){   
-                $case = $case->where("case_master.case_close_date", NULL);
-                $case = $case->withTrashed();
-            }
+            $getChildUsers = User::select("id")->where('parent_user',$authUser->id)->get()->pluck('id');
+            $getChildUsers[]=$authUser->id;
+            $case = $case->whereIn("case_master.created_by",$getChildUsers);
         }else{
-            if(!isset($request['include_archived'])){
-                $case = $case->where("case_master.case_close_date", NULL);
-                $case = $case->withTrashed();
-            }
+            $case = $case->where("case_master.is_entry_done","1");
+            $childUSersCase = CaseStaff::select("case_id")->where('user_id',$authUser->id)->get()->pluck('case_id');
+            $case = $case->whereIn("case_master.id",$childUSersCase);
+        }
+        if(!isset($request['include_archived'])){   
+            $case = $case->where("case_master.case_close_date", NULL);
+            $case = $case->withTrashed();
         }
         $case = $case->get();  
         

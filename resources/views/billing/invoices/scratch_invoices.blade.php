@@ -1527,7 +1527,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         
         var setDate='';
         var selectdValue = $("#bill_payment_terms option:selected").val();
-        alert(selectdValue);
+        // alert(selectdValue);
         var bill_invoice_date=$("#bill_invoice_date").val();
         if(selectdValue==0 || selectdValue==1){
             var minDate =  $('#bill_invoice_date').datepicker('getDate');

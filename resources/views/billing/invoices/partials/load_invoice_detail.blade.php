@@ -56,7 +56,7 @@
                         <tr class="invoice_info_row">
                             <td class="invoice_info_bg" style="white-space: nowrap;">Invoice Date</td>
                             <td style="text-align: right;">
-                                {{date('M j, Y',strtotime($findInvoice->created_at))}}</td>
+                                {{date('M j, Y',strtotime($findInvoice->invoice_date))}}</td>
                         </tr>
                         <tr class="invoice_info_row">
                             <td class="invoice_info_bg" style="white-space: nowrap;">Due Date</td>
