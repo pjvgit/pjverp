@@ -27,7 +27,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                     {{$ckval->title}}
                                 </a>
                                 <div>
-                                <small id="checklist_details_completed_by_18768388">Completed on {{date('M d,Y',strtotime($ckval->updated_at))}}  by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($ckval->uid)}}">{{$ckval->first_name}} {{$ckval->last_name}} ({{$controllerLoad->getUserLevelText($ckval->user_type)}})</a></small>
+                                <small id="checklist_details_completed_by_18768388">Completed on {{date('M d,Y',strtotime(convertUTCToUserTime($ckval->updated_at, auth()->user()->user_timezone))))}}  by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($ckval->uid)}}">{{$ckval->first_name}} {{$ckval->last_name}} ({{$controllerLoad->getUserLevelText($ckval->user_type)}})</a></small>
                                 </div>
                             </td>
                         </tr>

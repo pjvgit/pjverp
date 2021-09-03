@@ -813,7 +813,7 @@ if(!isset($adjustment_token)){
                                             </div>
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
-                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->itd}}" data-check-type="expense"
+                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-check-type="expense"
                                                 id="invoice_expense_entry_nonbillable_time{{$v->eid}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td> 
@@ -2725,7 +2725,9 @@ if(!isset($adjustment_token)){
                     $(this).parent().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().css('text-decoration', '');
                     $(this).parent().prev().prev().prev().css('text-decoration', '');
+                    $(".expenseentry_amount_"+primaryid).removeClass("strike");
                 } else {
+                    $(".expenseentry_amount_"+primaryid).addClass("strike");
                     $(this).parent().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().css('text-decoration', 'line-through');
                     $(this).parent().prev().prev().prev().css('text-decoration','line-through');

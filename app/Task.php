@@ -79,6 +79,10 @@ class Task extends Authenticatable
         }
         return json_encode($assignToUser); 
     }
+    // public function setTaskDueOnAttribute($value)
+    // {
+    //     $this->attributes['task_due_on'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone)->setTimezone(config('app.timezone'))->format('Y-m-d');
+    // }
 
     /**
      * The taskLinkedStaff that belong to the Task

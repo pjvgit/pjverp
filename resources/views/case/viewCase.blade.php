@@ -47,8 +47,8 @@ $adjustment_token=round(microtime(true) * 1000);
         <div class="case-date-generated only-print">
             <span class="case-generated-info">
                 Case details generated <?php 
-                if(isset($CaseMaster->case_created_date)){
-                  echo date('m/d/Y',strtotime($CaseMaster->case_created_date));
+                if(isset($CaseMaster->created_new_date)){
+                  echo date('m/d/Y',strtotime($CaseMaster->created_new_date));
 
                 }else{
                   echo "Not Specified";
@@ -257,8 +257,8 @@ $adjustment_token=round(microtime(true) * 1000);
                                 <div class="mb-2">
                                     <div class="font-weight-bold">Created:</div>
                                     <?php 
-                                    if(isset($CaseMaster->case_created_date)){
-                                      echo date('m/d/Y',strtotime($CaseMaster->case_created_date));
+                                    if(isset($CaseMaster->created_new_date)){
+                                      echo date('m/d/Y',strtotime($CaseMaster->created_new_date));
                     
                                     }else{
                                       echo "-";

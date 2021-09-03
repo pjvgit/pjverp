@@ -4362,7 +4362,7 @@ class BillingController extends BaseController
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
-                $sendEmail = $this->sendMailWithAttachment($user,$files);
+                // $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
                 $invoiceHistory['invoice_id']=$invoice_id;

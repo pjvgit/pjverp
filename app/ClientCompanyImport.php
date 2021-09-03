@@ -22,8 +22,12 @@ class ClientCompanyImport extends Authenticatable
     public function getDecoderAttribute(){
         return base64_encode($this->id);
     } 
-    public function getCreatedNewDateAttribute(){
-
-        return date('M d,Y',strtotime($this->created_at));
-    }   
+    public function getCreatedDateNewAttribute(){
+        if($this->created_at!=NULL){
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            return date('M j, Y',strtotime($userTime));
+        }else{
+            return '';
+        }
+    }  
 }

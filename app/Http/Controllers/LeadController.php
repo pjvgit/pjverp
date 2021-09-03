@@ -6696,11 +6696,12 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $CommonController= new CommonController();
+            $callDate = date("Y-m-d", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->call_date.' '.$request->call_time)),Auth::User()->user_timezone)));
             $startDateTime = date("H:i:s", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->call_date.' '.$request->call_time)),Auth::User()->user_timezone)));
 
-            $callSave = new Calls;
-            $callSave->call_date=date("Y-m-d",strtotime($request->call_date)) ; 
-            $callSave->call_time=date("H:i:s",strtotime($startDateTime)); 
+            $callSave = new Calls;            
+            $callSave->call_date=$callDate; 
+            $callSave->call_time=$startDateTime; 
             $ClientAndLeadExist = User::select("first_name","last_name","id","user_level","user_title")->where("id",$request->caller_name)->first();
             if(empty($ClientAndLeadExist)){
                 $callSave->caller_name=NULL;
@@ -6822,11 +6823,12 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $CommonController= new CommonController();
+            $callDate = date("Y-m-d", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->call_date.' '.$request->call_time)),Auth::User()->user_timezone)));
             $startDateTime = date("H:i:s", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->call_date.' '.$request->call_time)),Auth::User()->user_timezone)));
 
             $callSave = Calls::find($request->call_id);
-            $callSave->call_date=date("Y-m-d",strtotime($request->call_date)) ; 
-            $callSave->call_time=date("H:i:s",strtotime($startDateTime)); 
+            $callSave->call_date=$callDate; 
+            $callSave->call_time=$startDateTim; 
             $ClientAndLeadExist = User::select("first_name","last_name","id","user_level","user_title")->where("id",$request->caller_name)->first();
             if(empty($ClientAndLeadExist)){
                 $callSave->caller_name=NULL;

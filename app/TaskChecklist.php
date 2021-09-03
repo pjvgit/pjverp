@@ -33,4 +33,17 @@ class TaskChecklist extends Authenticatable
         }
         return $ContractUserCase; 
     }
+         
+    public function getEtextAttribute(){
+        // return "";
+        if($this->event_type!=''){
+            $typeEventText =  EventType::select('title','color_code');
+            $typeEventText=$typeEventText->where('status',"1");
+            $typeEventText=$typeEventText->where('id',$this->event_type);
+            $typeEventText=$typeEventText->first();
+            return $typeEventText;
+        }else{
+            return "";
+        }
+    } 
 }

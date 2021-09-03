@@ -128,7 +128,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Created:</div>
                                     <div class="small_details">
-                                        Created <?php echo date('M j, Y', strtotime($userProfile->created_at));?><br>
+                                        Created <?php echo $userProfile->created_date_new;?><br>
                                         by <a title="<?php echo $userProfileCreatedBy[0]->ptitle;?>"
                                             href="#"><?php echo $userProfileCreatedBy[0]->name;?></a>
                                     </div>

@@ -237,14 +237,7 @@
         $("#HideShowNonlink").hide();
         loadDefaultContent();
        //$(".datepicker" ).datepicker();
-      
-       $('.datepicker').datepicker({
-            'format': 'm/d/yyyy',
-            'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true
-             'todayHighlight': true
-        });
+
         //  $('.datepicker').datepicker({
             
         //     onSelect: function(dateText, inst) { 

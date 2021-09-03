@@ -3450,12 +3450,12 @@ class ClientdashboardController extends BaseController
     public function loadMessagesEntryPopup(Request $request){
         
         $messagesData = Messages::leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),"case_master.case_title","case_master.case_unique_number")
+        ->select('messages.*',"messages.updated_at as last_post","case_master.case_title","case_master.case_unique_number")
         ->where('messages.id', $request->message_id)
         ->first();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"))
+        ->select('reply_messages.*',"messages.updated_at as last_post")
         ->where('reply_messages.message_id', $request->message_id)
         ->get();
     

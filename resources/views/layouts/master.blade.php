@@ -263,7 +263,7 @@
   
           // Initialize Date Pickers
         $('.datepicker').datepicker({
-            'format': 'm/d/yyyy',
+            'format': 'mm/dd/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,

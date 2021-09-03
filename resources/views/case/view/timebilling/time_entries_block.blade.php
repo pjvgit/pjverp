@@ -130,7 +130,7 @@
                         $('td:eq(6)', nRow).html('<div class="text-left nowrap">Open</div>');
 
                     }else{
-                        $('td:eq(6)', nRow).html('<div class="text-left nowrap"><i class="fa fa-circle fa-sm text-success mr-1"></i><a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_invoice_id+'">Invoiced</a></div>');
+                        $('td:eq(6)', nRow).html('<div class="text-left nowrap"><i class="fa fa-circle fa-sm text-success mr-1"></i><a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_invoice_id+'">Invoiced</a></div>');
 
                     }
                     

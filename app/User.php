@@ -30,7 +30,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name', 'full_address'];
+    protected $appends  = ['decode_id','created_date_new','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name', 'full_address'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -102,6 +102,15 @@ class User extends Authenticatable
 
         }else{
             return null;
+        }
+    }
+     
+    public function getCreatedDateNewAttribute(){
+        if($this->created_at!=NULL){
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            return date('M j, Y',strtotime($userTime));
+        }else{
+            return '';
         }
     }
     /* public function getClientWiseCaselistAttribute(){

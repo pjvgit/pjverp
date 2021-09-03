@@ -11,7 +11,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
 
                     <td class="border-bottom-0 border-left-0">
                     <?php if($TaskData->status=="1"){?>
-                        <div id="task_details_complete" class="align-middle lead">Completed on {{date('M d,Y',strtotime($TaskCompletedBy['task_completed_date']))}} by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($TaskCompletedBy['uid'])}}"> {{$TaskCompletedBy['completed_by_name']}} ({{$controllerLoad->getUserLevelText($TaskCompletedBy['user_type'])}})</a></div>
+                        <div id="task_details_complete" class="align-middle lead">Completed on {{date('M d,Y',strtotime(convertUTCToUserTime($TaskCompletedBy['task_completed_date'], auth()->user()->user_timezone)))}} by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($TaskCompletedBy['uid'])}}"> {{$TaskCompletedBy['completed_by_name']}} ({{$controllerLoad->getUserLevelText($TaskCompletedBy['user_type'])}})</a></div>
                     <?php }else{ ?>
                         <div id="task_details_complete"  class="align-middle lead">Mark As Complete</div>
                     <?php } ?>
@@ -44,7 +44,7 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                     {{$ckval->title}}
                                 </a>
                                 <div>
-                                <small id="checklist_details_completed_by_18768388">Completed on {{date('M d,Y',strtotime($ckval->updated_at))}}  by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($ckval->uid)}}">{{$ckval->first_name}} {{$ckval->last_name}} ({{$controllerLoad->getUserLevelText($ckval->user_type)}})</a></small>
+                                <small id="checklist_details_completed_by_18768388">Completed on {{date('M d,Y',strtotime(convertUTCToUserTime($ckval->updated_at, auth()->user()->user_timezone)))}}  by <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($ckval->uid)}}">{{$ckval->first_name}} {{$ckval->last_name}} ({{$controllerLoad->getUserLevelText($ckval->user_type)}})</a></small>
                                 </div>
                             </td>
                         </tr>

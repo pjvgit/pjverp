@@ -14,8 +14,16 @@ class ReplyMessages extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = ['message_id', 'reply_message'];    
-    protected $appends  = ['decode_id'];
+    protected $appends  = ['decode_id','created_date_new'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
+    public function getCreatedDateNewAttribute(){
+        if($this->created_at!=NULL){
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            return date('M d,H:ia',strtotime($userTime));
+        }else{
+            return '--';
+        }
+    }
 }

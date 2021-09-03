@@ -77,7 +77,7 @@
                                             <a href="{{ route('contacts/attorneys/info', base64_encode(Auth::user()->id)) }}">{{Auth::user()->first_name .' '.Auth::user()->last_name}} (Attorney)</a>
                                         </div>
                                         <div style="float: right;">
-                                        {{ date("M d,H:ia", strtotime($msg->created_at))}}
+                                        {{ $msg->created_date_new }}
                                         </div>
                                         </div>
                                         <div class="comment_body wrap-long-words">
