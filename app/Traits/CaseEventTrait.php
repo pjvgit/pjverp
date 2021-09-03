@@ -29,8 +29,8 @@ trait CaseEventTrait {
             "event_type" => $request->event_type ?? NULL,
             // "start_date" => $start_date,
             // "end_date" => $end_date,
-            "start_date" => convertDateToUTCzone($start_date, $this->authUser->user_timezone),
-            "end_date" => convertDateToUTCzone($end_date, $this->authUser->user_timezone),
+            "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
+            "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
             "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
             "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
             "all_day" => (isset($request->all_day)) ? "yes" : "no",
@@ -508,15 +508,17 @@ trait CaseEventTrait {
     public function updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $oldCaseEvent, $currentEventId = null, $locationID)
     {
         $caseEvent = CaseEvent::withTrashed()->updateOrCreate([
-            "start_date" => $start_date,
+            "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
             "parent_evnt_id" => $oldCaseEvent->parent_evnt_id,
         ], [
             "event_title" => $request->event_name,
             "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
             "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
             "event_type" => $request->event_type ?? NULL,
-            "start_date" => $start_date,
-            "end_date" => $end_date,
+            // "start_date" => $start_date,
+            // "end_date" => $end_date,
+            "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
+            "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
             "start_time" => (isset($request->start_time) && !isset($request->all_day)) ? $start_time : NULL,
             "end_time" => (isset($request->end_time) && !isset($request->all_day)) ? $end_time : NULL,
             "all_day" => (isset($request->all_day)) ? "yes" : "no",

@@ -45,10 +45,10 @@ class CaseSingleEventJob implements ShouldQueue
     {
         Log::info("Case Single Event Job Started :". date('Y-m-d H:i:s'));
         $request = (object) $this->requestData;
-        // $startDate = $this->startDate;
-        // $endDate = $this->endDate;
-        $startDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->startDate), $this->authUser->user_timezone));
-        $endDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->endDate), $this->authUser->user_timezone));
+        $startDate = $this->startDate;
+        $endDate = $this->endDate;
+        // $startDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->startDate), $this->authUser->user_timezone));
+        // $endDate = strtotime(convertDateToUTCzone(date("Y-m-d", $this->endDate), $this->authUser->user_timezone));
         $start_time = $this->start_time;
         $end_time = $this->end_time;
         $authUser = $this->authUser;
