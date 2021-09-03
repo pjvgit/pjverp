@@ -1116,7 +1116,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadLeadRightSection",
-            data: {"lead_id": lead_id,"from":"edit"},
+            data: {"lead_id": lead_id,"from":"edit", "event_id":"{{ $evetData->id}}"},
             success: function (res) {
                 $("#loadTaskSection").html(res);
               

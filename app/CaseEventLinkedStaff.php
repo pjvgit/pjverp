@@ -14,7 +14,7 @@ class CaseEventLinkedStaff extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'event_id', 'reminder_type', 'reminer_number', 'reminder_frequncy'   
+        'event_id', 'reminder_type', 'reminer_number', 'reminder_frequncy', 'attending'   
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){

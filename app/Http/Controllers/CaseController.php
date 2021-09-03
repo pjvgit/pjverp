@@ -5385,14 +5385,9 @@ class CaseController extends BaseController
                 $CaseEventLinkedStaff->event_id=$event_id; 
                 $CaseEventLinkedStaff->user_id=$request['linked_staff_checked_share'][$i];
                 $attend = "no";
-                if(isset($request->linked_staff_checked_attend) && in_array($request['linked_staff_checked_share'][$i], $request->linked_staff_checked_attend)){
+                if(isset($request['linked_staff_checked_attend']) && in_array($request['linked_staff_checked_share'][$i], $request['linked_staff_checked_attend'])){
                     $attend = "yes";
                 }
-                // if(isset($request['linked_staff_checked_attend'][$i])){
-                //     $attend="yes";
-                // }else{
-                //     $attend="no";
-                // }
                 $CaseEventLinkedStaff->is_linked='yes';
                 $CaseEventLinkedStaff->attending=$attend;
                 $CaseEventLinkedStaff->comment_read_at = $lastCommentReadAt;
