@@ -229,8 +229,9 @@ class CaseSingleEventJob implements ShouldQueue
         }
         else if($request->event_frequency=='YEARLY')
         { 
-            $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
-            if($request->end_on!=''){
+            // $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+            $endDate =  strtotime(date('Y-m-d',strtotime('+1 years')));
+            if(isset($request->end_on)) {
                 $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
             $yearly_frequency=$request->yearly_frequency;
