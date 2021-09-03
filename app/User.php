@@ -182,12 +182,11 @@ class User extends Authenticatable
 
 
     public function getActiveCaseCounterAttribute(){
-        $g=CaseMaster::leftJoin('case_staff','case_master.id','=','case_staff.case_id')
-        ->where("case_staff.user_id",$this->id)
-        ->where("case_master.case_close_date",NULL)
-        ->where("case_staff.lead_attorney",'!=','')
-        ->get();
-        return count($g);
+        $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id");
+        $case = $case->where("case_staff.user_id",$this->id);
+        $case = $case->where("case_master.is_entry_done","1");
+        $totalData=$case->count();
+        return $totalData;
     }
 
     /**

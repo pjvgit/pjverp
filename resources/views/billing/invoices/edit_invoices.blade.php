@@ -800,8 +800,8 @@
                                                 } ?>
                                             </a>
                                         </td>
-                                        <td class="billable_toggle pr-2 <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>">
-                                            <div class="locked row_total expenseentry_amount_{{$v->eid}}" style="text-align: right;">
+                                        <td class="billable_toggle pr-2">
+                                            <div class="locked row_total expenseentry_amount_{{$v->eid}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                                 <?php 
                                                 echo $Total= (str_replace(",","",$v->duration) * $v->cost);
                                                 if($v->time_entry_billable=="yes"){
