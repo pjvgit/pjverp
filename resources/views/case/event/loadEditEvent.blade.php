@@ -876,6 +876,8 @@
         if (selectdValue == 'DAILY') {
             $("#repeat_daily").show();
             $("#repeat_custom").hide();
+            $(".repeat_yearly").hide();
+            $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
         } else if (selectdValue == 'MONTHLY') {
@@ -890,6 +892,10 @@
             updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'WEEKLY') {
             updateMonthlyWeeklyOptions();
+            $("#repeat_daily").hide();
+            $("#repeat_custom").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();

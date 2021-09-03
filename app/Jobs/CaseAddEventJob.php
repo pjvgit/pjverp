@@ -81,7 +81,7 @@ class CaseAddEventJob implements ShouldQueue
                 
                 $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
                 $i++;
-            } while ($startDate <= $endDate);
+            } while ($startDate < $endDate);
         }
         else if($request->event_frequency=='EVERY_BUSINESS_DAY')
         { 
@@ -153,7 +153,7 @@ class CaseAddEventJob implements ShouldQueue
             // $startClone = new DateTime($weekFirstDay);
             $start = new DateTime(date("Y-m-d", $startDate));
             $startClone = new DateTime(date("Y-m-d", $startDate));
-            if($request->end_on!=''){
+            if(isset($request->end_on)) {
                 $end=new DateTime($request->end_on);
             }else{
                 $end=$startClone->add(new DateInterval('P365D'));
@@ -238,8 +238,9 @@ class CaseAddEventJob implements ShouldQueue
         }
         else if($request->event_frequency=='YEARLY')
         { 
-            $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
-            if($request->end_on!=''){
+            // $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+            $endDate =  strtotime(date('Y-m-d',strtotime('+1 years')));
+            if(isset($request->end_on)) {
                 $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
             $yearly_frequency=$request->yearly_frequency;

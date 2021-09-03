@@ -195,8 +195,8 @@ trait CaseEventTrait {
         $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id);
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
-
-        if($request->end_on!=''){
+        // dd($request);
+        if(isset($request->end_on)) {
             $end=new DateTime($request->end_on);
         }else{
             $end=$startClone->add(new DateInterval('P365D'));
@@ -307,7 +307,8 @@ trait CaseEventTrait {
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
         // Create new events for new frequency
-        $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+        // $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
+        $endDate =  strtotime(date("Y-m-d", strtotime($startDate)) . " + 1 year");
         if($request->end_on!=''){
             $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
         }

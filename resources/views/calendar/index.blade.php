@@ -850,7 +850,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadCommentPopup,#loadEditEventPopup,#loadCommentPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
+        $('#loadCommentPopup,#loadEditEventPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');
         });
 

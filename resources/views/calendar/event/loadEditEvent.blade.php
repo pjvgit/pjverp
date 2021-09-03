@@ -595,6 +595,12 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        if($("input:checkbox#no_end_date_checkbox").is(":checked")) {
+            $('#end_on').val('');
+            $("#end_on").attr("disabled", true);
+        } else {
+            $('#end_on').removeAttr("disabled");
+        }
         
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
@@ -884,6 +890,8 @@
         if (selectdValue == 'DAILY') {
             $("#repeat_daily").show();
             $("#repeat_custom").hide();
+            $(".repeat_yearly").hide();
+            $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
         } else if (selectdValue == 'MONTHLY') {
@@ -898,6 +906,10 @@
             updateMonthlyWeeklyOptions();
         } else if (selectdValue == 'WEEKLY') {
             updateMonthlyWeeklyOptions();
+            $("#repeat_daily").hide();
+            $("#repeat_custom").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else {
             $("#repeat_daily").hide();
             $("#repeat_custom").hide();
@@ -1078,6 +1090,7 @@
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: {"case_id": case_id, "event_id": "{{ $evetData->id }}" },
             success: function (res) {
+                console.log($("#loadTaskSection").length);
                 $("#loadTaskSection").html(res);
             }
         })
