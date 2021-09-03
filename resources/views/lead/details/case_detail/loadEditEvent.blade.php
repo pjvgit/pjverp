@@ -1,9 +1,9 @@
 
 
  <?php
- $CommonController= new App\Http\Controllers\CommonController();
- $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($evetData->start_date .$evetData->start_time)),Auth::User()->user_timezone);
- $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($evetData->end_date .$evetData->end_time)),Auth::User()->user_timezone);
+//  $CommonController= new App\Http\Controllers\CommonController();
+//  $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($evetData->start_date .$evetData->start_time)),Auth::User()->user_timezone);
+//  $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s',strtotime($evetData->end_date .$evetData->end_time)),Auth::User()->user_timezone);
  ?>
  
  <div class="modal-header">
@@ -115,15 +115,15 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text"
-                                        placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php 
                                     $time=date('H:i',strtotime($currentDateTime));
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-start" id="start_time"
-                                        value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder="">
+                                    {{-- <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder=""> --}}
+                                    <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->start_date_time))}}" name="start_time" type="text" placeholder="">
                                 </div>
                                 <div class="col-md-2 form-group mb-3 pt-2">
                                     <label class="form-check-label"><input class="mr-2 all-day all_day" type="checkbox" id="all_day" name="all_day">
@@ -139,13 +139,13 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text"
-                                        placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-end" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}"
-                                        name="end_time" type="text" placeholder="">
+                                    {{-- <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}" name="end_time" type="text" placeholder=""> --}}
+                                    <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->end_date_time))}}" name="end_time" type="text" placeholder="">
                                 </div>
                             </div>
                         </span>
@@ -1116,7 +1116,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadLeadRightSection",
-            data: {"lead_id": lead_id,"from":"edit"},
+            data: {"lead_id": lead_id,"from":"edit", "event_id":"{{ $evetData->id}}"},
             success: function (res) {
                 $("#loadTaskSection").html(res);
               

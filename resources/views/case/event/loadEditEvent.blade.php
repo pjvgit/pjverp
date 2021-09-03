@@ -124,7 +124,7 @@
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
                                     {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->start_date_time))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -149,7 +149,7 @@
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
                                     {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->end_date_time))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
@@ -1051,7 +1051,7 @@
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadEventRightSection",
-            data: {"case_id": case_id, "event_id":"{{ $evetData->id}}}"},
+            data: { "case_id": case_id, "event_id":"{{ $evetData->id}}" },
             success: function (res) {
                 $("#loadTaskSection").html(res);
             }
