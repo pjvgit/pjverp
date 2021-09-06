@@ -527,3 +527,7 @@ p {
         margin-top:235px !important;
     }
 }
+.sharing-user .no-border {
+    display: flex;
+    align-items: center;
+}

@@ -174,9 +174,9 @@
                             </div>
                             <div class="col-md-5 form-group mb-3 repeat_yearly ">
                                 <select id="yearly-frequency" name="yearly_frequency" class="form-control custom-select  ">
-                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d')}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the fourth {{date('l')}} of {{date('F')}}</option>
-                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l')}} of {{date('F')}}</option>
+                                    <option <?php if($evetData->yearly_frequency=='YEARLY_ON_DAY'){?> selected=selected <?php } ?>  value="YEARLY_ON_DAY">On day {{date('d',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE">On the fourth {{date('l',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
+                                    <option  <?php if($evetData->yearly_frequency=='YEARLY_ON_THE_LAST'){?> selected=selected <?php } ?>  value="YEARLY_ON_THE_LAST">On the last {{date('l',strtotime($evetData->user_start_date))}} of {{date('F')}}</option>
                                 </select>
                             </div>
                             <div class="col-md-5 form-group mb-3 repeat_monthly">
@@ -880,6 +880,9 @@
             $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
+            $("#repeat_daily").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();

@@ -27,6 +27,7 @@ function loadMoreEvent(page, filter = null) {
                 $('#'+divId).append(data);
             }
             $('#'+divId+' .pagination').hide();
+            $('[data-toggle="popover"]').popover();
         } else {
             $('#'+divId).html('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
         }

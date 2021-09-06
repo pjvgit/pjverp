@@ -239,7 +239,7 @@ class CaseAddEventJob implements ShouldQueue
         else if($request->event_frequency=='YEARLY')
         { 
             // $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
-            $endDate =  strtotime(date('Y-m-d',strtotime('+1 years')));
+            $endDate =  strtotime('+ 1 year', $startDate);
             if(isset($request->end_on)) {
                 $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
             }
@@ -276,7 +276,7 @@ class CaseAddEventJob implements ShouldQueue
                 
                 $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
                 $i++;
-            } while ($startDate < $endDate);
+            } while ($startDate <= $endDate);
         }
 
         $this->addCaseEventActivity((array)$request, $CaseEvent, $authUser);

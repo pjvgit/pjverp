@@ -51,7 +51,11 @@ $abbreviation = $dt->format('T');
 <td style="padding: 10px;">	{{ @$event->eventLocation->full_address }}</td>
 </tr>
 </table>
+@if($user->user_level == 3)
+<a href="{{ route('events/detail', @$event->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
+@else
 <a href="{{ route('client/events/detail', @$event->decode_id) }}" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Event</a>
+@endif
 <br>
 <p style="color: #000;    font-family: sans-serif;font-size: 15px;font-weight: 500;padding-top: 10px;">For additional details about the event, please log in to your <a href="">Account</a>.
 </p>
