@@ -789,6 +789,9 @@
             $("#repeat_custom").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
+            $("#repeat_daily").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();

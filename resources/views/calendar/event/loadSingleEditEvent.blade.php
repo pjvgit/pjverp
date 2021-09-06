@@ -840,6 +840,9 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             $(".repeat_monthly").hide();
         } else if (selectdValue == 'CUSTOM') {
             $("#repeat_custom").show();
+            $("#repeat_daily").hide();
+            $(".repeat_monthly").hide();
+            $(".repeat_yearly").hide();
         } else if (selectdValue == 'MONTHLY') {
             $(".repeat_yearly").hide();
             $(".repeat_monthly").show();

@@ -322,6 +322,29 @@ class CaseFollowingEventJob implements ShouldQueue
                         $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
                         $i++;
                     } while ($startDate < $endDate);
+                } else if($yearly_frequency != $OldCaseEvent->yearly_frequency) {
+                    $oldEventIds = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id)->orderBy('start_date','asc')->pluck('id')->toArray();
+                    do {
+                        if($yearly_frequency=='YEARLY_ON_DAY'){
+                            $startDate=$startDate;
+                        }else if($yearly_frequency=='YEARLY_ON_THE'){
+                            $startDate = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startDate);
+                        }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
+                            $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
+                        }
+                        $start_date = date("Y-m-d", $startDate);
+                        $end_date = date("Y-m-d", $startDate);
+                        $CaseEvent = $this->updateMonthlyYearlyRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, $locationID, $oldEventIds[$i]);
+
+                        $this->saveEventReminder((array)$request, $CaseEvent->id, $authUser); 
+                        $this->saveLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                        $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
+                        $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
+                        // $this->saveEventHistory($CaseEvent->id, $authUser);
+                        
+                        $startDate = strtotime('+'.$request->event_interval_year.' years',$startDate);
+                        $i++;
+                    } while ($startDate <= $endDate);
                 } else {
                     $this->saveYearlyEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $Currentweekday, $locationID);
                 }
