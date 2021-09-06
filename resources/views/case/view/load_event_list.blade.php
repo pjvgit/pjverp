@@ -82,17 +82,64 @@
             </td>
             <td class="event-users">
                     @if(!empty($vv->eventLinkedStaff))
-                    @if(count($vv->eventLinkedStaff) > 1)
+                    @php
+                        $totalUser = count($vv->eventLinkedStaff) + count($vv->eventLinkedContact) + count($vv->eventLinkedLead);    
+                    @endphp
+                    @if($totalUser > 1)
                         @php
-                        $userListHtml="";
+                        $userListHtml = "<table><tbody>";
+                        $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
                         foreach($vv->eventLinkedStaff as $linkuserValue){
-                            $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                            $userListHtml.="<tr><td>
+                            <span> 
+                                <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                <a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".$linkuserValue->full_name."</a>
+                            </span>
+                            </td>";
+                            if($linkuserValue->pivot->attending == "yes") {
+                                $userListHtml .= "<td>Attending</td></tr>";
+                            } else {
+                                $userListHtml .= "<td></td></tr>";
+                            }
                         }
+                        if(count($vv->eventLinkedContact)) {
+                            $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                            foreach($vv->eventLinkedContact as $linkuserValue){
+                                $userListHtml.="<tr><td>
+                                <span> 
+                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                    <a href=".(($linkuserValue->user_level == 4) ? route('contacts/companies/view', $linkuserValue->id) : route('contacts/clients/view', $linkuserValue->id))."> ".$linkuserValue->full_name."</a>
+                                </span>
+                                </td>";
+                                if($linkuserValue->pivot->attending == "yes") {
+                                    $userListHtml .= "<td>Attending</td></tr>";
+                                } else {
+                                    $userListHtml .= "<td></td></tr>";
+                                }
+                            }
+                        }
+                        if(count($vv->eventLinkedLead)) {
+                            $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                            foreach($vv->eventLinkedLead as $linkuserValue){
+                                $userListHtml.="<tr><td>
+                                <span> 
+                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                    <a href=".route('case_details/info', $linkuserValue->id)."> ".$linkuserValue->full_name."</a>
+                                </span>
+                                </td>";
+                                if($linkuserValue->pivot->attending == "yes") {
+                                    $userListHtml .= "<td>Attending</td></tr>";
+                                } else {
+                                    $userListHtml .= "<td></td></tr>";
+                                }
+                            }
+                        }
+                        $userListHtml .= "</tbody></table>";
                         @endphp
                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
                         href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
-                        data-content="{{$userListHtml}}" data-html="true" data-original-title="Staff"
-                        style="float:left;">{{count($vv->eventLinkedStaff)}} People</a>
+                        data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
+                        style="float:left;">{{ $totalUser ?? 0 }} People</a>
                     @else
                         <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
                         href="{{ route('contacts/attorneys/info', base64_encode(@$vv->eventLinkedStaff[0]->id)) }}">{{ @$vv->eventLinkedStaff[0]->full_name}}</a>

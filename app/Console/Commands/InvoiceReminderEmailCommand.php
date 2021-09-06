@@ -55,9 +55,11 @@ class InvoiceReminderEmailCommand extends Command
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
+                Log::info("invoice id: ". $item->id);
                 $currentDate = \Carbon\Carbon::now()->format('Y-m-d');
                 if (!empty($item->invoiceFirstInstallment)) {
                     $dueDate = $item->invoiceFirstInstallment->due_date;
+                    Log::info("installment due date:". $dueDate);
                 } else if($item->due_date) {
                     $dueDate = $item->due_date;
                 } else {
@@ -98,6 +100,7 @@ class InvoiceReminderEmailCommand extends Command
                         $remindDate = "";
                     }
                 }
+                Log::info("remind date: ".$remindDate.', emailTemplateId: '.$emailTemplateId);
                 // return $remindDate;
                 $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
                 if($emailTemplate && $remindDate) {
@@ -107,7 +110,7 @@ class InvoiceReminderEmailCommand extends Command
                             foreach($item->case->caseBillingClient as $userkey => $useritem) {
                                 $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                 Log::info($useritem->user_timezone."=".$date);
-                                if ($date->hour === 05) { 
+                                if ($date->hour === 10) { 
                                     if($emailTemplate) {
                                         Log::info("invoice day time true");
                                         dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
@@ -121,7 +124,7 @@ class InvoiceReminderEmailCommand extends Command
                         Log::info("remind date: ".$remindDate);
                     }
                 } else {
-                    Log::info("template: ".$emailTemplate);
+                    Log::info("template: ".$emailTemplateId);
                 }
             }
         }

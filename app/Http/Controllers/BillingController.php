@@ -1345,7 +1345,8 @@ class BillingController extends BaseController
 
             $firmData=Firm::find(Auth::User()->firm_name);
             $getTemplateData = EmailTemplate::find(12);
-            $token=url('activate_account/bills=&web_token='.$Invoices->invoice_unique_token);
+            // $token=url('activate_account/bills=&web_token='.$Invoices->invoice_unique_token);
+            $token = route("client/bills/detail", $Invoices->decode_id);
 
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{message}', $request->message, $mail_body);

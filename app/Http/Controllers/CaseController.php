@@ -947,7 +947,7 @@ class CaseController extends BaseController
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
                 $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
-                ->with("eventLinkedStaff", "eventType")
+                ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 ->paginate(15)
                 /* ->groupBy(function($val) {
                     return Carbon::parse($val->start_date)->format('Y');

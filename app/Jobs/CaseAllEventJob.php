@@ -529,4 +529,43 @@ class CaseAllEventJob implements ShouldQueue
 
         Log::info("Case ALL Event Job Ended :". date('Y-m-d H:i:s'));
     }
+
+    /**
+     * Update recurring event
+     */
+    public function updateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $oldCaseEvent)
+    {
+        $caseEvent = CaseEvent::create([
+            "event_title" => $request->event_name,
+            "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+            "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+            "event_type" => $request->event_type ?? NULL,
+            "start_date" => $start_date,
+            "end_date" => $end_date,
+            "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
+            "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
+            "all_day" => (isset($request->all_day)) ? "yes" : "no",
+            "event_description" => $request->description,
+            "recuring_event" => "yes",
+            "event_frequency" => $request->event_frequency,
+            "event_interval_day" => $request->event_interval_day,
+            "daily_weekname" => $request->daily_weekname,
+            "event_interval_month" => $request->event_interval_month,
+            "monthly_frequency" => $request->monthly_frequency,
+            "event_interval_year" => $request->event_interval_year,
+            "yearly_frequency" => $request->yearly_frequency,
+            "no_end_date_checkbox" => (isset($request->no_end_date_checkbox)) ? "yes" : "no",
+            "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+            "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+            "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+            "firm_id" => $authUser->firm_name,
+            "updated_by" => $authUser->id,
+            "created_by" => $oldCaseEvent->created_by,
+            "created_at" => $oldCaseEvent->created_at,
+            "parent_evnt_id" => $oldCaseEvent->parent_evnt_id,
+        ]);
+        return $caseEvent;
+    }
 }
+
+

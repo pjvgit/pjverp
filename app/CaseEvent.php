@@ -217,7 +217,7 @@ class CaseEvent extends Authenticatable
      */
     public function eventLinkedContact()
     {
-        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'contact_id');
+        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'contact_id')->withPivot("attending");
     }
 
     /**
@@ -227,7 +227,7 @@ class CaseEvent extends Authenticatable
      */
     public function eventLinkedLead()
     {
-        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'lead_id');
+        return $this->belongsToMany(User::class, 'case_event_linked_contact_lead', 'event_id', 'lead_id')->withPivot("attending");
     }
 
     /**
