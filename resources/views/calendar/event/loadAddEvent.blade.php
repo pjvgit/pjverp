@@ -531,7 +531,7 @@
         // $(".hide").hide();
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('#loadAddEventPopup .fieldGroup:last').before(fieldHTML);
             // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
             // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
             // $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);

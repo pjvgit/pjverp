@@ -14,13 +14,12 @@
                     <div class="d-flex ml-auto align-items-center">
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
-                                <label class="switch pr-3 switch-success"><span>Only show upcoming events</span>
+                                <label class="switch pr-3 switch-success" style="margin-top: 10px;"><span>Only show upcoming events</span>
                                     <input type="checkbox" id="mc" value="true" checked
                                         {{-- <?php if(isset($upcoming_events) && $upcoming_events!=''){ echo "checked=checked";}?> --}}
                                         name="upcoming_events"><span class="slider"></span>
-                                    <i id="event-toggle-note" aria-hidden="true"
-                                        class="fa fa-question-circle icon-question-circle icon ml-1"></i>
                                 </label>
+                                <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="Recurring events are limited to 1 year from today"></i>
                             </div>
                             <input type="submit" style="display: none;" id="submit" name="search" value="true">
                         </form>

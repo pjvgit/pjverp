@@ -365,8 +365,6 @@ class CaseAllEventJob implements ShouldQueue
             $Currentweekday= date("l", $startDate ); 
             $i=0;
             $OldCaseEvent=CaseEvent::find($request->event_id);
-            $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
-            $startDate = strtotime($oldFirstEvent->start_date);
             $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
             if(isset($request->end_on)) {
@@ -420,6 +418,8 @@ class CaseAllEventJob implements ShouldQueue
                     $i++;
                 } while ($startDate < $endDate);
             } else {
+                $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
+                $startDate = strtotime($oldFirstEvent->start_date);
                 do {
                     $monthly_frequency=$request->monthly_frequency;
                     $event_interval_month=$request->event_interval_month;

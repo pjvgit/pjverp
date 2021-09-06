@@ -1061,7 +1061,7 @@
 
         $("#confirmSave").css('display','block');
         $("#firstStep").css('display','none');
-        $(".modal-dialog").removeClass("modal-xl");
+        $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
         $("#exampleModalCenterTitle").html("Edit Recurring Event");
         $("#editEtitle").hide();
         $("#editRtitle").show();
