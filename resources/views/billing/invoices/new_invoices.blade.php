@@ -2553,20 +2553,22 @@ if(!isset($adjustment_token)){
             var val = $(this).val;
             var sum = 0;
             var primaryid = $(this).data('primaryid');
+            if (!$(this).is(":checked")) {
+                $(this).parent().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().prev().css('text-decoration', '');
+                $(".timeentry_amount_"+primaryid).removeClass("strike");
+            } else {
+                $(".timeentry_amount_"+primaryid).addClass("strike");
+                $(this).parent().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+            }
             $('input[name="linked_staff_checked_share[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
                     var g = parseFloat($(this).attr("priceattr"));
                     sum += g;
-                    $(this).parent().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().prev().css('text-decoration', '');
-                    $(".timeentry_amount_"+primaryid).removeClass("strike");
-                } else {
-                    $(".timeentry_amount_"+primaryid).addClass("strike");
-                    $(this).parent().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
                 }
             });
             $(".table_total").html(sum);
@@ -2587,20 +2589,22 @@ if(!isset($adjustment_token)){
             var val = $(this).val;
             var sum = 0;
             var primaryid = $(this).data('primaryid');
+            if (!$(this).is(":checked")) {
+                $(this).parent().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().prev().css('text-decoration', '');
+                $(".flat_amount_"+primaryid).removeClass("strike");
+            } else {
+                $(".flat_amount_"+primaryid).addClass("strike");
+                $(this).parent().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+            }
             $('input[name="flat_fee_entry[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
                     var g = parseFloat($(this).attr("priceattr"));
                     sum += g;
-                    $(this).parent().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().prev().css('text-decoration', '');
-                    $(".flat_amount_"+primaryid).removeClass("strike");
-                } else {
-                    $(".flat_amount_"+primaryid).addClass("strike");
-                    $(this).parent().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
                 }
             });
             $(".flat_fee_table_total").html(sum);
@@ -2700,20 +2704,22 @@ if(!isset($adjustment_token)){
             var val = $(this).val;
             var sum = 0;
             var primaryid = $(this).data('primaryid');
+            if (!$(this).is(":checked")) {
+                $(this).parent().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().css('text-decoration', '');
+                $(this).parent().prev().prev().prev().css('text-decoration', '');
+                $(".expenseentry_amount_"+primaryid).removeClass("strike");
+            } else {
+                $(".expenseentry_amount_"+primaryid).addClass("strike");
+                $(this).parent().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().css('text-decoration', 'line-through');
+                $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+            }
             $('input[name="expense_entry[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
                     // do something if the checkbox is NOT checked
                     var g = parseFloat($(this).attr("priceattr"));
                     sum += g;
-                    $(this).parent().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().prev().css('text-decoration', '');
-                    $(".expenseentry_amount_"+primaryid).removeClass("strike");
-                } else {
-                    $(".expenseentry_amount_"+primaryid).addClass("strike");
-                    $(this).parent().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
                 }
             });
 
@@ -2722,19 +2728,8 @@ if(!isset($adjustment_token)){
                     // do something if the checkbox is NOT checked
                     var g = parseFloat($(this).attr("priceattr"));
                     sum += g;
-                    $(this).parent().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().css('text-decoration', '');
-                    $(this).parent().prev().prev().prev().css('text-decoration', '');
-                    $(".expenseentry_amount_"+primaryid).removeClass("strike");
-                } else {
-                    $(".expenseentry_amount_"+primaryid).addClass("strike");
-                    $(this).parent().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().css('text-decoration', 'line-through');
-                    $(this).parent().prev().prev().prev().css('text-decoration','line-through');
-                }
-            });
-
-            
+                } 
+            });           
 
             $(".table_expense_total").html(sum);
             $("#expense_sub_total_text").val(sum);

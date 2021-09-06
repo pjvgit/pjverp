@@ -1288,7 +1288,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-       
+            
             $RequestedFund=new RequestedFund;
             $RequestedFund->client_id=$request->contact;
             $RequestedFund->deposit_into=$request->contact;
@@ -1297,7 +1297,7 @@ class ClientdashboardController extends BaseController
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_paid="0.00";
             $RequestedFund->email_message=$request->message;
-            $RequestedFund->due_date=date('Y-m-d',strtotime($request->due_date));
+            $RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone);
             $RequestedFund->status='sent';
             $RequestedFund->created_by=Auth::user()->id; 
             $RequestedFund->save();
@@ -1395,7 +1395,7 @@ class ClientdashboardController extends BaseController
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_requested=$request->amount;
             if(isset($request->due_date)){
-                $RequestedFund->due_date=date('Y-m-d',strtotime($request->due_date));
+                $RequestedFund->due_date=$RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone);
             }
             $RequestedFund->save();
 
@@ -1486,13 +1486,13 @@ class ClientdashboardController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
-
+            $RequestedFundDueDate = convertUTCToUserTime($RequestedFund->due_date.' 00:00:00', auth()->user()->user_timezone);
             $firmData=Firm::find(Auth::User()->firm_name);
             $getTemplateData = EmailTemplate::find(17);
             $mail_body = $getTemplateData->content;
-            $mail_body = str_replace('{message}', date('F d, Y',strtotime($RequestedFund->due_date)), $mail_body);
+            $mail_body = str_replace('{message}', date('F d, Y',strtotime($RequestedFundDueDate)), $mail_body);
             $mail_body = str_replace('{amount}', number_format($RequestedFund->amount_due,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($RequestedFund->due_date)), $mail_body);
+            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($RequestedFundDueDate)), $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
@@ -1502,7 +1502,7 @@ class ClientdashboardController extends BaseController
             $user = [
                 "from" => FROM_EMAIL,
                 "from_title" => FROM_EMAIL_TITLE,
-                "subject" => "Reminder: Request #R-".sprintf('%06d', $RequestedFund->id)." is due ".date('F d, Y',strtotime($RequestedFund->due_date))." for ".$firmData->firm_name,
+                "subject" => "Reminder: Request #R-".sprintf('%06d', $RequestedFund->id)." is due ".date('F d, Y',strtotime($RequestedFundDueDate))." for ".$firmData->firm_name,
                 "to" => $clientData->email,
                 "full_name" => "",
                 "mail_body" => $mail_body

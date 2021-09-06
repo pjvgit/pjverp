@@ -107,7 +107,7 @@ if(isset($_GET['type'])){
                     </div>
                 </div>
                 <hr>
-                <div>Created at {{date('M d, Y',strtotime($createdByAndDate['created_at']))}}</div>by 
+                <div>Created at {{date('M d, Y',strtotime($LeadData['created_date_new']))}}</div>by 
                 <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($createdByAndDate['id'])}}" class=" align-items-center user-link" title="{{$createdByAndDate['user_title']}}">{{$createdByAndDate['first_name']}} {{$createdByAndDate['last_name']}}</a>
                 <hr>
                 <div class="opportunity-details-buttons">

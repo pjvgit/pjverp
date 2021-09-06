@@ -125,7 +125,7 @@ if(!$commentData->isEmpty()){ ?>
                     <a class="name"
                         href="{{ route('contacts/attorneys/info', base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for client <a class="name"
-                        href="{{route('info', $v->notes_for['case_unique_number'])}}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                        href="{{ route('contacts/clients/view', base64_encode($v->notes_for['id'])) }}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
                         (Client)</a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about
                         {{$v->time_ago}}</abbr> via web
                     <?php } ?>

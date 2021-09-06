@@ -1429,11 +1429,11 @@ class BillingController extends BaseController
                 $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
                 
                 //Insert invoice payment record.
-               $entryDone= DB::table('invoice_payment')->insert([
+                $entryDone=  InvoicePayment::create([
                     'invoice_id'=>$request->invoice_id,
                     'payment_from'=>'trust',
                     'amount_paid'=>$request->amount,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"0",
                     'entry_type'=>"0",
@@ -1444,7 +1444,7 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
-                $lastInvoicePaymentId= DB::getPdo()->lastInsertId();
+                $lastInvoicePaymentId= $entryDone->id;
                 $InvoicePayment=InvoicePayment::find($lastInvoicePaymentId);
                 $InvoicePayment->ip_unique_id=Hash::make($lastInvoicePaymentId);
                 $InvoicePayment->save();
@@ -1601,7 +1601,7 @@ class BillingController extends BaseController
                 }else{
                     $s=$request->amount;
                 }
-               $entryDone= DB::table('invoice_payment')->insert([
+                $entryDone=InvoicePayment::create([
                     'invoice_id'=>$request->invoice_id,
                     'payment_from'=>'client',
                     'amount_paid'=>$request->amount,
@@ -1609,7 +1609,7 @@ class BillingController extends BaseController
                     'deposit_into'=>$request->deposit_into,
                     'notes'=>$request->notes,
                     'deposit_into_id'=>($request->trust_account)??NULL,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"0",
                     'entry_type'=>"1",
@@ -1619,7 +1619,7 @@ class BillingController extends BaseController
                     'created_by'=>Auth::user()->id 
                 ]);
 
-                $lastInvoicePaymentId= DB::getPdo()->lastInsertId();
+                $lastInvoicePaymentId=$entryDone->id;
                 $InvoicePayment=InvoicePayment::find($lastInvoicePaymentId);
                 $InvoicePayment->ip_unique_id=Hash::make($lastInvoicePaymentId);
                 $InvoicePayment->save();
@@ -4956,11 +4956,11 @@ class BillingController extends BaseController
                 $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
                 
                 //Insert invoice payment record.
-               $entryDone= DB::table('invoice_payment')->insert([
+               $entryDone=  InvoicePayment::create([
                     'invoice_id'=>$invoiceId['id'],
                     'payment_from'=>'trust',
                     'amount_paid'=>$request->amount,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"0",
                     'entry_type'=>"0",
@@ -4971,7 +4971,7 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
-                $lastInvoicePaymentId= DB::getPdo()->lastInsertId();
+                $lastInvoicePaymentId= $entryDone->id;
                 $InvoicePayment=InvoicePayment::find($lastInvoicePaymentId);
                 $InvoicePayment->ip_unique_id=Hash::make($lastInvoicePaymentId);
                 $InvoicePayment->save();
@@ -5127,7 +5127,7 @@ class BillingController extends BaseController
                   }else{
                       $s=$request->amount;
                   }
-               $entryDone= DB::table('invoice_payment')->insert([
+               $entryDone=InvoicePayment::create([
                     'invoice_id'=>$invoiceId['id'],
                     'payment_from'=>'client',
                     'amount_paid'=>$request->amount,
@@ -5135,7 +5135,7 @@ class BillingController extends BaseController
                     'deposit_into'=>$request->deposit_into,
                     'deposit_into_id'=>($request->trust_account)??NULL,
                     'notes'=>$request->notes,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"0",
                     'entry_type'=>"1",
@@ -5145,7 +5145,7 @@ class BillingController extends BaseController
                     'created_by'=>Auth::user()->id 
                 ]);
 
-                $lastInvoicePaymentId= DB::getPdo()->lastInsertId();
+                $lastInvoicePaymentId= $entryDone->id;
                 $InvoicePayment=InvoicePayment::find($lastInvoicePaymentId);
                 $InvoicePayment->ip_unique_id=Hash::make($lastInvoicePaymentId);
                 $InvoicePayment->save();
@@ -5345,7 +5345,7 @@ class BillingController extends BaseController
                     $finalAmt=$currentBalance['total']-$request->amount;
                 }
                 // $entryDone= DB::table('invoice_payment')->insert([
-                $entryDone= DB::table('invoice_payment')->insertGetId([
+                $entryDone=  InvoicePayment::create([
                     'invoice_id'=>$findInvoice['id'],
                     'payment_from'=>'client',
                     'amount_refund'=>$request->amount,
@@ -5354,8 +5354,7 @@ class BillingController extends BaseController
                     'deposit_into'=>NULL,
                     'notes'=>$request->notes,
                     // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
-                    'refund_ref_id'=>$GetAmount->invoice_payment_id,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'refund_ref_id'=>$GetAmount->invoice_payment_id,'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"1",
                     'entry_type'=>"1",
@@ -5365,6 +5364,7 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
+                $invoiceHistory['invoice_payment_id']=$entryDone->id;
                 $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $GetAmount->invoice_payment_id)->first();
                 if($creditHistory) {
                     $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
@@ -5388,7 +5388,7 @@ class BillingController extends BaseController
                         "created_by" => auth()->id(),
                         "firm_id" => auth()->user()->firm_name,
                         "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
-                        "related_to_invoice_payment_id" => $entryDone,
+                        "related_to_invoice_payment_id" => $entryDone->id,
                     ]);
 
                     $this->updateNextPreviousCreditBalance($creditHistory->user_id);
@@ -5402,7 +5402,7 @@ class BillingController extends BaseController
                     $finalAmt=$currentBalance['total']-$request->amount;
                 }
                 // $entryDone= DB::table('invoice_payment')->insert([
-                $entryDone= DB::table('invoice_payment')->insertGetId([
+                $entryDone=  InvoicePayment::create([
                     'invoice_id'=>$findInvoice['id'],
                     'payment_from'=>'trust',
                     'amount_refund'=>$request->amount,
@@ -5412,8 +5412,7 @@ class BillingController extends BaseController
                     'deposit_into_id' => $GetAmount['deposit_into_id'],
                     'notes'=>$request->notes,
                     // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
-                    'refund_ref_id'=>$GetAmount->invoice_payment_id,
-                    'payment_date'=>date('Y-m-d',strtotime($request->payment_date)),
+                    'refund_ref_id'=>$GetAmount->invoice_payment_id,'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'notes'=>$request->notes,
                     'status'=>"1",
                     'entry_type'=>"0",
@@ -5423,13 +5422,15 @@ class BillingController extends BaseController
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
                 ]);
+                $invoiceHistory['invoice_payment_id']=$entryDone->id;
 
                 $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $GetAmount['deposit_into_id'])->first();
                 if($UsersAdditionalInfo) {
                     $UsersAdditionalInfo->fill(['trust_account_balance' => ($UsersAdditionalInfo->trust_account_balance + $request->amount)])->save();
                 }
+
             }
-            $invoiceHistory['invoice_payment_id']=$entryDone;
+            
             $this->invoiceHistory($invoiceHistory);
 
             // Update invoice status and paid/due amount

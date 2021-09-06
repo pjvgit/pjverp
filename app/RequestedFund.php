@@ -49,7 +49,8 @@ class RequestedFund extends Authenticatable
     }
     public function getDueDateFormatAttribute(){
         if($this->due_date!=NULL){
-            return date("M d,Y",strtotime($this->due_date));
+            $userTime = convertUTCToUserTime($this->due_date.' 00:00:00', auth()->user()->user_timezone);
+            return date("M d,Y",strtotime($userTime));
         }else{
             return NULL;
         }
@@ -57,7 +58,8 @@ class RequestedFund extends Authenticatable
     }  
     public function getSendDateFormatAttribute(){
         if($this->created_at!=NULL){
-            return date("M d,Y",strtotime($this->created_at));
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            return date("M d,Y",strtotime($userTime));
         }else{
             return NULL;
         }
@@ -86,9 +88,11 @@ class RequestedFund extends Authenticatable
     }
     public function getLastSendAttribute(){
         if($this->last_reminder_sent_on!=NULL){
-            return date("M d,Y",strtotime($this->last_reminder_sent_on));
+            $userTime = convertUTCToUserTime($this->last_reminder_sent_on, auth()->user()->user_timezone);
+            return date("M d,Y",strtotime($userTime));
         }else{
-            return date("M d,Y",strtotime($this->created_at));
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            return date("M d,Y",strtotime($userTime));
         }
         
     }

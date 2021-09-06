@@ -126,4 +126,10 @@ class LeadAdditionalInfo extends Authenticatable
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
+
+  public function getDateAddedAttribute(){
+    dd($this->date_added);
+  }
+
+
 }
