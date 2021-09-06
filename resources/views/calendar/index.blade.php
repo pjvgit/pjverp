@@ -850,7 +850,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
             });
 
 
-        $('#loadCommentPopup,#loadEditEventPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
+        $('#loadEditEventPopup,#deleteFromCommentBox,#loadAddEventPopupFromCalendar,#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
             $('#calendarq').fullCalendar('refetchEvents');
         });
 
@@ -1024,6 +1024,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
     }
     function editEventFunction(evnt_id) {
         $("#preloader").show();
+        $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
         $(function () {
             $.ajax({
                 type: "POST",
