@@ -32,8 +32,12 @@ class FlatFeeEntry extends Authenticatable
         }else{
             return number_format($this->duration * $this->entry_rate,2);
         }
+    }    
+
+    public function setEntryDateAttribute($value)
+    {
+        $this->attributes['entry_date'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone  ?? 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d');
     }
-    
     /**
      * Get the user that owns the TaskTimeEntry
      *

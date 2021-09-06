@@ -49,7 +49,7 @@ class RequestedFund extends Authenticatable
     }
     public function getDueDateFormatAttribute(){
         if($this->due_date!=NULL){
-            $userTime = convertUTCToUserTime($this->due_date.' 00:00:00', auth()->user()->user_timezone);
+            $userTime = convertUTCToUserDate($this->due_date, auth()->user()->user_timezone ?? 'UTC');
             return date("M d,Y",strtotime($userTime));
         }else{
             return NULL;
@@ -58,7 +58,7 @@ class RequestedFund extends Authenticatable
     }  
     public function getSendDateFormatAttribute(){
         if($this->created_at!=NULL){
-            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
             return date("M d,Y",strtotime($userTime));
         }else{
             return NULL;
@@ -88,10 +88,10 @@ class RequestedFund extends Authenticatable
     }
     public function getLastSendAttribute(){
         if($this->last_reminder_sent_on!=NULL){
-            $userTime = convertUTCToUserTime($this->last_reminder_sent_on, auth()->user()->user_timezone);
+            $userTime = convertUTCToUserTime($this->last_reminder_sent_on, auth()->user()->user_timezone ?? 'UTC');
             return date("M d,Y",strtotime($userTime));
         }else{
-            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
             return date("M d,Y",strtotime($userTime));
         }
         

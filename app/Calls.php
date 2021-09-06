@@ -24,12 +24,10 @@ class Calls extends Authenticatable
         return base64_encode($this->call_for);
     } 
     public function getUtcTimeAttribute(){
-        $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
         if($this->call_time!=''){
             $tm=$this->call_date . $this->call_time;
-            $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
-            return date('M d Y,h:i A',strtotime($currentConvertedDate));
+            $userTime = convertUTCToUserTime($tm,  auth()->user()->user_timezone ?? 'UTC');
+            return date('M j, Y h:i a',strtotime($userTime));
         }else{
             return "";
         }

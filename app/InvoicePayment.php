@@ -25,7 +25,7 @@ class InvoicePayment extends Authenticatable
     }  
 
     public function getAddedDateAttribute(){
-        $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+        $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
         return date('M j, Y',strtotime($userTime));
     }
 
@@ -69,8 +69,9 @@ class InvoicePayment extends Authenticatable
         }
        
      }
-    public function getPaymentDateAttribute($value)
+    public function getPaymentDateAttribute()
     {    
-        return date("Y-m-d" ,strtotime(convertUTCToUserTime($value.' 00:00:00', auth()->user()->user_timezone)));
+        $userTime = convertUTCToUserDate($this->attributes['payment_date'], auth()->user()->user_timezone ?? 'UTC');            
+        return  date('Y-m-d', strtotime($userTime));   
     }
 }

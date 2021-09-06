@@ -35,7 +35,7 @@ class CaseMaster extends Authenticatable
 
     public function getCreatedNewDateAttribute(){
         if($this->created_at!=NULL){
-            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone);
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
             return date('M j, Y',strtotime($userTime));
         }else{
             return '--';
@@ -49,7 +49,7 @@ class CaseMaster extends Authenticatable
         ->get();
 
         if(!$ContractCaseUpdate->isEmpty()){
-            $ContractCaseUpdate[0]->newFormateCreatedAt=date('M j, Y h:i A',strtotime(convertUTCToUserTime($ContractCaseUpdate[0]->created_at, auth()->user()->user_timezone)));
+            $ContractCaseUpdate[0]->newFormateCreatedAt=date('M j, Y h:i A',strtotime(convertUTCToUserTime($ContractCaseUpdate[0]->created_at, auth()->user()->user_timezone ?? 'UTC')));
             // $ContractCaseUpdate[0]->update_status_small=substr($ContractCaseUpdate[0]->update_status,0,40);
 
         }

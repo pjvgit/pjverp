@@ -33,6 +33,17 @@ class TaskTimeEntry extends Authenticatable
             return number_format($this->duration * $this->entry_rate,2);
         }
     }
+
+    public function setEntryDateAttribute($value)
+    {
+        $this->attributes['entry_date'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone ?? 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d');
+    }
+    
+    // public function getEntryDateAttribute()
+    // {
+    //     $userTime = convertUTCToUserDate($this->entry_date, auth()->user()->user_timezone ?? 'UTC');            
+    //     echo date('Y-m-d', strtotime($userTime));            
+    // }
     
     /**
      * Get duration decimal point as per settings

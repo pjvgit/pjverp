@@ -1486,7 +1486,7 @@ class ClientdashboardController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
-            $RequestedFundDueDate = convertUTCToUserTime($RequestedFund->due_date.' 00:00:00', auth()->user()->user_timezone);
+            $RequestedFundDueDate = date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone)));            
             $firmData=Firm::find(Auth::User()->firm_name);
             $getTemplateData = EmailTemplate::find(17);
             $mail_body = $getTemplateData->content;

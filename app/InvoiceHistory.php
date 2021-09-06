@@ -23,13 +23,10 @@ class InvoiceHistory extends Authenticatable
         return date('M j, Y h:i A',strtotime($this->created_at));
     }
     public function getAddedDateAttribute(){
-        $CommonController= new CommonController();
-        if(isset(Auth::User()->user_timezone) && $this->created_at!=null) 
+        if(isset(auth()->user()->user_timezone) && $this->created_at!=null) 
         {
-            $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
-            return date('M j, Y h:i a',strtotime($convertedDate));
-
+            $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
+            return date('M j, Y h:i a',strtotime($userTime));
         }else{
             return null;
         }

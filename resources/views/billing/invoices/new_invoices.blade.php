@@ -6,6 +6,13 @@
 if(!isset($adjustment_token)){
     $adjustment_token=round(microtime(true) * 1000);
 } 
+
+if(!isset($flateFeeTotal)){ $flateFeeTotal=0;}
+if(!isset($timeEntryAmount)){ $timeEntryAmount=0;}
+if(!isset($expenseAmount)){ $expenseAmount=0;}
+if(!isset($discount)){ $discount=0;}
+if(!isset($addition)){ $addition=0;}
+
 ?>
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
@@ -320,6 +327,7 @@ if(!isset($adjustment_token)){
                                 <?php 
                                 $flateFeeTotal=0;
                                 foreach($FlatFeeEntry as $k=>$v){
+
                                     $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
@@ -1121,13 +1129,6 @@ if(!isset($adjustment_token)){
                         </div>
                      <?php } ?>
 
-                     <?php 
-                    if(!isset($flateFeeTotal)){ $flateFeeTotal=0;}
-                    if(!isset($timeEntryAmount)){ $timeEntryAmount=0;}
-                    if(!isset($expenseAmount)){ $expenseAmount=0;}
-                    if(!isset($discount)){ $discount=0;}
-                    if(!isset($addition)){ $addition=0;}
-                    ?>
                     <div id="invoice_totals" style="margin: 5px; margin-top: 20px; border: 1px solid #DBDBDB;">
                         <table class="data invoice_entries">
                             <tbody>
@@ -1248,7 +1249,6 @@ if(!isset($adjustment_token)){
                                         &nbsp;
                                     </td>
                                 </tr>
-
                                 <input type="hidden" value="{{$flateFeeTotal}}" name="flat_fee_sub_total_text" id="flat_fee_sub_total_text">
                                 <input type="hidden" value="{{$timeEntryAmount}}" name="time_entry_sub_total_text" id="time_entry_sub_total_text">
                                 <input type="hidden" value="{{$expenseAmount}}" name="expense_sub_total_text"  id="expense_sub_total_text">
@@ -2488,10 +2488,10 @@ if(!isset($adjustment_token)){
         $("#with_first_payment").attr("checked",false);
        
         
-        $("#time_entry_sub_total_text").val({{$timeEntryAmount}});
-        $("#expense_sub_total_text").val({{$expenseAmount}});
-        $("#discount_total_text").val({{$discount}});
-        $("#addition_total_text").val({{$addition}});
+        // $("#time_entry_sub_total_text").val({{$timeEntryAmount}});
+        // $("#expense_sub_total_text").val({{$expenseAmount}});
+        // $("#discount_total_text").val({{$discount}});
+        // $("#addition_total_text").val({{$addition}});
 
         recalculate();
         $("#contact").select2({
@@ -3447,18 +3447,17 @@ if(!isset($adjustment_token)){
         $(".forwarded-invoices-check").trigger("change");
         var total =  subtotal = 0;
 
-        var flat_fee_total_amount = parseFloat($("#flat_fee_sub_total_text").val());
-        var expense_total_amount = parseFloat($("#expense_sub_total_text").val());
-        var time_entry_total_amount = parseFloat($("#time_entry_sub_total_text").val());
+        var expense_total_amount = parseFloat($(".expense_total_amount").html());
+        var time_entry_total_amount = parseFloat($(".time_entry_total_amount").html());
+        var flat_fee_sub_total_text = parseFloat($(".flat_fee_total_amount").html());
         console.log("time_entry_total_amount = " + time_entry_total_amount);
         console.log("expense_total_amount = " + expense_total_amount);
-        console.log("flat_fee_total_amount = " + flat_fee_total_amount);
+        console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
+        subtotal = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
         
-        subtotal = expense_total_amount + time_entry_total_amount + flat_fee_total_amount;
-        
-        var forwarded_amount = parseFloat($("#forwarded_total_text").val());
-        var discount_amount = parseFloat($("#discount_total_text").val());
-        var addition_amount = parseFloat($("#addition_total_text").val());        
+        var discount_amount = parseFloat($(".discounts_section_total").html());
+        var addition_amount = parseFloat($("#additions_section_total").html());        
+        var forwarded_amount = parseFloat($("#forwarded_total_amount").html());       
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
         console.log("addition_amount = " + addition_amount);        

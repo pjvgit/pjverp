@@ -81,14 +81,15 @@ class Task extends Authenticatable
     }
     public function setTaskDueOnAttribute($value)
     {
-        $this->attributes['task_due_on'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone)->setTimezone(config('app.timezone'))->format('Y-m-d');
+        $this->attributes['task_due_on'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone ?? 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d');
     }
-    public function getTaskDueOnAttribute($value)
+    public function getTaskDueOnAttribute()
     {
-        if($value != '9999-12-30'){
-            return date("Y-m-d" ,strtotime(convertUTCToUserTime($value.' 00:00:00', auth()->user()->user_timezone)));
+        if($this->attributes['task_due_on'] != '9999-12-30'){
+            $userTime = convertUTCToUserDate($this->attributes['task_due_on'], auth()->user()->user_timezone ?? 'UTC');            
+            return  date('Y-m-d', strtotime($userTime));            
         }else{
-            return $value;
+            return $this->attributes['task_due_on'];
         }
     }
 
