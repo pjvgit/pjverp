@@ -4570,7 +4570,7 @@ class BillingController extends BaseController
             $InvoiceSave->bill_sent_status = $request->bill_sent_status;
             // $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->total_amount=$request->final_total_text;
-            $InvoiceSave->due_amount = $request->final_total_text - $InvoiceSave->paid_amount;
+            $InvoiceSave->due_amount = (int)$request->final_total_text - (int)$InvoiceSave->paid_amount;
             $InvoiceSave->terms_condition=$request->bill['terms_and_conditions'];
             $InvoiceSave->notes=$request->bill['bill_notes'];
             if(!in_array($InvoiceSave->status, ['Partial','Paid','Forwarded','Overdue'])) {
