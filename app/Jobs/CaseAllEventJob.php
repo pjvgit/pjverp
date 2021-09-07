@@ -418,9 +418,10 @@ class CaseAllEventJob implements ShouldQueue
             } else {
                 $oldFirstEvent = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->first();
                 $startDate = strtotime($oldFirstEvent->start_date);
-
+                $endDate = strtotime(date("Y-m-t", $endDate ));
                 if($monthly_frequency != $OldCaseEvent->monthly_frequency) {
                     $oldEventIds = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->pluck('id')->toArray();
+                    $editedId = [];
                     do {
                         if($monthly_frequency=='MONTHLY_ON_DAY'){
                             $startDate=$startDate;
@@ -439,10 +440,16 @@ class CaseAllEventJob implements ShouldQueue
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
                         // $this->saveEventHistory($CaseEvent->id, $authUser);
-                        
+                        array_push($editedId, $oldEventIds[$i]);
                         $startDate = strtotime('+'.$request->event_interval_month.' months',$startDate);
                         $i++;
                     } while ($startDate <= $endDate);
+                    $remainEventIds = array_diff($oldEventIds, $editedId);
+                    if(count($remainEventIds)) {
+                        $oldEvents = CaseEvent::whereIn('id', $remainEventIds);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                    }
                 } else {
                     do {
                         if($monthly_frequency=='MONTHLY_ON_DAY'){
@@ -528,9 +535,12 @@ class CaseAllEventJob implements ShouldQueue
                 if($yearly_frequency != $OldCaseEvent->yearly_frequency) {
                     $oldEventIds = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('start_date','asc')->pluck('id')->toArray();
                     $endDate =  strtotime('+ 1 year', $startDate);
+                    $endDate = strtotime(date("Y-m-t", $endDate ));
+                    Log::info("last date of month: ". date('Y-m-d', $endDate));
                     if(isset($request->end_on)) {
                         $endDate = strtotime($request->end_on);
                     }
+                    $editedId = [];
                     do {
                         if($yearly_frequency=='YEARLY_ON_DAY'){
                             $startDate=$startDate;
@@ -548,10 +558,16 @@ class CaseAllEventJob implements ShouldQueue
                         $this->saveNonLinkedStaffToEvent((array)$request, $CaseEvent->id, $authUser); 
                         $this->saveContactLeadData((array)$request, $CaseEvent->id, $authUser); 
                         // $this->saveEventHistory($CaseEvent->id, $authUser);
-                        
+                        array_push($editedId, $oldEventIds[$i]);
                         $startDate = strtotime('+'.$request->event_interval_year.' years',$startDate);
                         $i++;
                     } while ($startDate <= $endDate);
+                    $remainEventIds = array_diff($oldEventIds, $editedId);
+                    if(count($remainEventIds)) {
+                        $oldEvents = CaseEvent::whereIn('id', $remainEventIds);
+                        $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
+                        $oldEvents->forceDelete();
+                    }
                 } else {
                     do {
                         if($yearly_frequency=='YEARLY_ON_DAY'){
