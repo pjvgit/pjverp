@@ -190,8 +190,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 // $('td:eq(7)', nRow).html('<div class="text-center"><a data-toggle="tooltip" data-placement="bottom" title="View" class="btn btn-primary btn-sm" href="'+baseUrl+'/user/'+ aData.id +'"> <i class="fas fa-eye"></i></a>&nbsp;<a data-toggle="tooltip" data-placement="bottom" title="Edit" class="btn btn-info btn-sm" href="'+baseUrl+'/user/'+ aData.id + '/edit"><i class="fas fa-pencil-alt"></i></a>&nbsp;<a data-toggle="modal" onclick="deleteData(' + aData.id + ')" data-target="#DeleteModal" data-placement="bottom" title="Delete" href="javascript:;" class="btn btn-danger btn-sm"><i data-toggle="tooltip" data-placement="bottom" title="Delete" class="fa fa-trash"></i> </a></div>');
                 
-                $('td:eq(0)', nRow).html('<div class="text-center"><img class="rounded-circle m-0 avatar-sm-table" src="../public/assets/images/faces/1.jpg" alt=""></div>');
-                
+                if (aData.profile_image == null) {
+                    $('td:eq(0)', nRow).html('<div class="text-center"><i class="fas fa-user-circle fa-2x text-black-50"></i></div>');
+                } else {
+                    $('td:eq(0)', nRow).html('<div class="text-center"><img class="rounded-circle m-0 avatar-sm-table" style="width: 25px !important;height: 25px !important;" src="{{URL::asset("/images/users/")}}/'+aData.profile_image+'" alt=""></div>');
+                }
                 $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/contacts/attorneys/'+ aData.decode_id +'" >'+aData.name+'</a>');  
 
                 $('td:eq(3)', nRow).html('All firm cases  <a data-toggle="modal"  data-target="#loadPermission" data-placement="bottom" href="javascript:;"  onclick="loadPermission('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>');    
