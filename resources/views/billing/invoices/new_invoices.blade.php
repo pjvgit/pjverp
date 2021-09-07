@@ -3447,17 +3447,17 @@ if(!isset($addition)){ $addition=0;}
         $(".forwarded-invoices-check").trigger("change");
         var total =  subtotal = 0;
 
-        var expense_total_amount = parseFloat($(".expense_total_amount").html());
-        var time_entry_total_amount = parseFloat($(".time_entry_total_amount").html());
-        var flat_fee_sub_total_text = parseFloat($(".flat_fee_total_amount").html());
+        var expense_total_amount = parseFloat($(".expense_total_amount").html()  ?? 0);
+        var time_entry_total_amount = parseFloat($(".time_entry_total_amount").html() ?? 0);
+        var flat_fee_sub_total_text = parseFloat($(".flat_fee_total_amount").html() ?? 0);
         console.log("time_entry_total_amount = " + time_entry_total_amount);
         console.log("expense_total_amount = " + expense_total_amount);
         console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
         subtotal = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
         
-        var discount_amount = parseFloat($(".discounts_section_total").html());
-        var addition_amount = parseFloat($("#additions_section_total").html());        
-        var forwarded_amount = parseFloat($("#forwarded_total_amount").html());       
+        var discount_amount = parseFloat($(".discounts_section_total").html() ?? 0);
+        var addition_amount = parseFloat($("#additions_section_total").html() ?? 0);        
+        var forwarded_amount = parseFloat($("#forwarded_total_amount").html() ?? 0);       
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
         console.log("addition_amount = " + addition_amount);        
