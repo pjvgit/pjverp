@@ -28,9 +28,9 @@ class TaskTimeEntry extends Authenticatable
     }
     public function getCalculatedAmtAttribute(){
         if($this->rate_type=="flat"){
-            return number_format(str_replace(",","",$this->entry_rate),2);
+            return str_replace(",","",number_format($this->entry_rate,2));
         }else{
-            return number_format(str_replace(",","",$this->duration) * str_replace(",","",$this->entry_rate),2);
+            return str_replace(",","",number_format($this->duration * $this->entry_rate,2));
         }
     }
 
@@ -55,7 +55,17 @@ class TaskTimeEntry extends Authenticatable
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;
         }        
-        return number_format($this->attributes['duration'], $decimalPoint);
+        return str_replace(",","",number_format($this->attributes['duration'], $decimalPoint));
+    }
+
+    public function getEntryRateAttribute()
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return str_replace(",","",number_format($this->attributes['entry_rate'], $decimalPoint));
     }
 
     /**

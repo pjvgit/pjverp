@@ -32,13 +32,33 @@ class ExpenseEntry extends Authenticatable
         return date('M j, Y',strtotime($this->entry_date));
     }
     public function getCostValueAttribute(){
-        return number_format($this->cost,2);
+        return str_replace(",","",number_format($this->cost,2));
     }
     public function getQtyAttribute(){
-        return number_format(str_replace(",","",$this->duration),1);
+        return str_replace(",","",number_format($this->duration,2));
     }
     public function getCalulatedCostAttribute(){
-        return number_format(str_replace(",","",$this->duration) * str_replace(",","",$this->cost),2);
+        return  str_replace(",","",number_format($this->duration * $this->cost,2));
+    }
+
+    public function getDurationAttribute()
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return str_replace(",","",number_format($this->attributes['duration'], $decimalPoint));
+    }
+
+    public function getCostAttribute()
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return str_replace(",","",number_format($this->attributes['cost'], $decimalPoint));
     }
 
     public function setEntryDateAttribute($value)

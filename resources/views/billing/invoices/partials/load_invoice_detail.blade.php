@@ -518,7 +518,7 @@
                     @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
                         <?php
-                                echo "$".$Total= number_format(($v->duration * $v->cost),2);
+                                echo "$".$Total= str_replace(",","",number_format($v->duration * $v->cost,2));
                                 $expenseAmount=$expenseAmount+$Total;
                             ?>
                     </td>
@@ -528,7 +528,6 @@
                     $expenseNonBill[]=$v;
                     }
                     } ?>
-
                 <?php
                 if(!empty($expenseNonBill) && isset($invoiceSetting) && $invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
                     ?>
@@ -556,7 +555,7 @@
                                 </p>
                             </td>
                             <td style="vertical-align: top; text-align: right;" class="nonbillableRow" >
-                                ${{number_format($v->entry_rate,2)}}
+                                ${{number_format($v->cost,2)}}
                             </td>
                             <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
                                 <?php 
@@ -569,10 +568,10 @@
                             <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
                                 <?php
                                     if($v->rate_type=="flat"){
-                                        $Total=$v->entry_rate;
+                                        $Total=$v->cost;
                                         
                                     }else{
-                                        $Total= ($v->duration * $v->entry_rate);
+                                        $Total= str_replace(",","",number_format($v->duration * $v->cost,2));
                                         
                                     }
                                     echo "$".number_format($Total,2);

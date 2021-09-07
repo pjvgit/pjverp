@@ -21,12 +21,12 @@ class InvoiceAdjustment extends Authenticatable
         return date('M j, Y',strtotime($this->entry_date));
     }
     public function getCostValueAttribute(){
-        return number_format($this->cost,2);
+        return str_replace(",","",number_format($this->cost,2));
     }
     public function getQtyAttribute(){
-        return number_format(str_replace(",","",$this->duration),1);
+        return str_replace(",","",number_format($this->duration,1));
     }
     public function getCalulatedCostAttribute(){
-        return number_format(str_replace(",","",$this->duration) * str_replace(",","",$this->cost),2);
+        return str_replace(",","",number_format($this->duration * $this->cost,2));
     }
 }

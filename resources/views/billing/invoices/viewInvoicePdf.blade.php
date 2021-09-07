@@ -306,10 +306,10 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                     <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
                         <?php
                             if($v->rate_type=="flat"){
-                                $Total=$v->entry_rate;
+                                $Total= $v->entry_rate;
                                 
                             }else{
-                                $Total= ((int)$v->duration * (int)$v->entry_rate);
+                                $Total=  str_replace(",","",number_format($v->duration * $v->entry_rate,2));
                                 
                             }
                             echo "$".number_format($Total,2);
@@ -398,7 +398,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         </td>
         <td style="vertical-align: top; text-align: right;" class="">
             <?php
-                    echo "$".$Total= number_format(((int)$v->duration * (int)$v->cost),2);
+                    echo "$".$Total=  str_replace(",","",number_format($v->duration * $v->cost,2));
                     $expenseAmount=$expenseAmount+$Total;
                 ?>
         </td>
@@ -442,7 +442,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                         if($v->rate_type=="flat"){
                             echo "flat";
                         }else{
-                            echo number_format((int)$v->duration,1);
+                            echo str_replace(",","",number_format($v->duration,1));
                         } ?>
                 </td>
                 <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
@@ -451,7 +451,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                             $Total=$v->entry_rate;
                             
                         }else{
-                            $Total= ((int)$v->duration * (int)$v->entry_rate);
+                            $Total=  str_replace(",","",number_format($v->duration * $v->entry_rate,2));
                             
                         }
                         echo "$".number_format($Total,2);

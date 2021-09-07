@@ -28,11 +28,31 @@ class FlatFeeEntry extends Authenticatable
     }
     public function getCalculatedAmtAttribute(){
         if($this->rate_type=="flat"){
-            return number_format(str_replace(",","",$this->entry_rate),2);
+            return str_replace(",","",number_format($this->entry_rate,2));
         }else{
-            return number_format(str_replace(",","",$this->duration) * str_replace(",","",$this->entry_rate),2);
+            return str_replace(",","",number_format($this->duration * $this->entry_rate,2));
         }
     }    
+
+    public function getDurationAttribute($value)
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return str_replace(",","",number_format($value, $decimalPoint));
+    }
+
+    public function getEntryRateAttribute($value)
+    {
+        $setting = getInvoiceSetting();
+        $decimalPoint = 1;
+        if($setting) {
+            $decimalPoint = $setting->time_entry_hours_decimal_point;
+        }        
+        return str_replace(",","",number_format($value, $decimalPoint));
+    }
 
     public function setEntryDateAttribute($value)
     {
