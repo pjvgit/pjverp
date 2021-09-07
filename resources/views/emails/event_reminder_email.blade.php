@@ -24,7 +24,7 @@
 <td style="padding: 10px;font-weight:600;">Case/Lead Name:</td>
 <td style="padding: 10px;">
 @if($event->case_id)
-<a href="{{ url('court_cases', $event->case->case_unique_number) }}">{{ @$event->case->case_title }}</a>
+<a href="{{ route('info', $event->case->case_unique_number) }}">{{ @$event->case->case_title }}</a>
 @elseif($event->lead_id)
 <a href="{{ url('leads/case_details/info', $event->lead_id) }}">{{ @$event->leadUser->full_name }}</a>
 @else
