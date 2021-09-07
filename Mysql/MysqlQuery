@@ -1,3 +1,6 @@
+------------------------------------ 07-SEP-2021 ------------------------------
+ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none';
+
 ------------------------------------ 02-SEP-2021 ------------------------------
 ALTER TABLE `lead_additional_info` CHANGE `office` `office` INT NULL;
 

@@ -1156,10 +1156,13 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 Route::group(['middleware' => ['auth', 'role:client'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
 
-    // For billing
+    // For billing > invoice
     Route::get('bills', 'BillingController@index')->name('client/bills');
     Route::get('bills/{id}', 'BillingController@show')->name('client/bills/detail');
     Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
+
+    // For billing > fund request
+    Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');
 
     // For events
     Route::get('events', 'EventController@index')->name('client/events');

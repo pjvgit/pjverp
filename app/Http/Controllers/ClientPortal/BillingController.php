@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Firm;
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\InvoiceHistory;
 use App\Invoices;
+use App\RequestedFund;
 use App\SharedInvoice;
 use App\User;
 use Illuminate\Http\Request;
@@ -26,7 +28,10 @@ class BillingController extends Controller
                                 $query->where("user_id", auth()->id());
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                             ->with("invoiceForwardedToInvoice", "invoiceLastPayment")->get();
-        return view("client_portal.billing.index", ['invoices' => $invoices, 'forwardedInvoices' => $forwardedInvoices]);
+        
+        $requestFunds = RequestedFund::where('client_id', auth()->id())->where('status', '!=', 'paid')->get();
+        $requestFundsHistory = RequestedFund::where('client_id', auth()->id())->where('status', 'paid')->get();
+        return view("client_portal.billing.index", compact('invoices', 'forwardedInvoices', 'requestFunds', 'requestFundsHistory'));
     }
 
     /**
@@ -52,7 +57,7 @@ class BillingController extends Controller
                 "created_by" => auth()->id()
             ]);
         }
-        return view("client_portal.billing.detail", ["invoice" => $invoice]);
+        return view("client_portal.billing.invoice_detail", ["invoice" => $invoice]);
     }
 
     /**
@@ -83,5 +88,31 @@ class BillingController extends Controller
         if (!$pdf->send($filename)) {
             return redirect()->back()->with('error', $pdf->getError());
         }
+    }
+
+    /**
+     * Show fund request detail
+     */
+    public function showFundRequest($id)
+    {
+        $fundId = base64_decode($id);
+        $fundRequest = RequestedFund::where("id",$fundId)->first();
+        if($fundRequest) {
+            $fundRequest->fill([
+                'is_viewed' => 'yes',
+            ])->save();
+
+            $data=[];
+            $data['deposit_id']=$fundRequest->id;
+            $data['deposit_for']=$fundRequest->client_id;
+            $data['user_id']=$fundRequest->client_id;
+            $data['client_id']=$fundRequest->client_id;
+            $data['activity']='has viewed deposit request';
+            $data['type']='deposit';
+            $data['action']='view';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+        }
+        return view("client_portal.billing.fund_request_detail", compact("fundRequest"));
     }
 }
