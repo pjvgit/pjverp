@@ -1246,11 +1246,23 @@ class ClientdashboardController extends BaseController
     public function addRequestFundPopup(Request $request)
     {
         $client_id=$request->user_id;
+        $authUser = auth()->user();
         //Get all client related to firm
-        $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where("firm_name", $authUser->firm_name)
+            ->where('user_level', 2)->whereIn("user_status", [1,2]);
+            if($authUser->parent_user != 0) {
+                $ClientList = $ClientList->where("parent_user", $authUser->id);
+            }
+        $ClientList = $ClientList->get();
 
         //Get all company related to firm
-        $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $CompanyList = User::select("email","first_name","last_name","id","user_level")->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4);
+        if($authUser->parent_user != 0) {
+            $CompanyList = $CompanyList->where("parent_user", $authUser->id);
+        }
+        $CompanyList->get();
         
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
@@ -1324,7 +1336,7 @@ class ClientdashboardController extends BaseController
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-            $mail_body = str_replace('{request_url}', "#", $mail_body);        
+            $mail_body = str_replace('{request_url}', route('client/bills/request/detail', base64_encode($RequestedFund->id)), $mail_body);        
 
             $clientData=User::find($request->contact);
             $message="";
@@ -1341,7 +1353,8 @@ class ClientdashboardController extends BaseController
                 // print_r($user);
                 $sendEmail = $this->sendMail($user);
                 $message.="<p>You successfully requested funds from ".$nameIs." .</p>";
-                $url="<a href='".BASE_URL."/contacts/clients/".$clientData->id."?load_funds=true'>Contact Billing Page</a>";
+                // $url="<a href='".BASE_URL."/contacts/clients/".$clientData->id."?load_funds=true'>Contact Billing Page</a>";
+                $url="<a href='".route('contacts_clients_billing_trust_request_fund', $clientData->id) ."'>Contact Billing Page</a>";
                 $message.="<p>You can manage this contact's requests by going to their ".$url."</p>";
                 return response()->json(['errors'=>'','msg'=>$message]);
             }else{
@@ -1496,7 +1509,8 @@ class ClientdashboardController extends BaseController
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
-            $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+            $mail_body = str_replace('{year}', date('Y'), $mail_body);             
+            $mail_body = str_replace('{request_url}', route('client/bills/request/detail', base64_encode($RequestedFund->id)), $mail_body);   
 
             $clientData=User::find($RequestedFund->client_id);
             $user = [

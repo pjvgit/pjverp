@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -67,6 +68,8 @@ class AuthController extends Controller
                 $userStatus = Auth::User()->user_status;
                 if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
                     session(['layout' => 'horizontal']);
+                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $user->save();
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {
                     Auth::logout();
