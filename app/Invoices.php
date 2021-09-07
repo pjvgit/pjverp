@@ -139,7 +139,7 @@ class Invoices extends Model
      */
     public function invoiceFirstInstallment()
     {
-        return $this->hasOne(InvoiceInstallment::class, 'invoice_id')->orderBy("created_by", "asc")->whereStatus("unpaid");
+        return $this->hasOne(InvoiceInstallment::class, 'invoice_id')->orderBy("due_date", "asc")->whereStatus("unpaid");
     }
 
     /**

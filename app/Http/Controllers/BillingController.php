@@ -4600,12 +4600,17 @@ class BillingController extends BaseController
             session(['invoiceUpdate' => true]);
 
             $InvoiceSave->refresh();
-            if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0) {
+            $dueDate = ($InvoiceSave->invoiceFirstInstallment) ? $InvoiceSave->invoiceFirstInstallment->due_date : $InvoiceSave->due_date;
+            if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0 && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
                 $InvoiceSave->status = "Partial";
                 $InvoiceSave->save();
             } else if($InvoiceSave->due_amount == 0 && $InvoiceSave->paid_amount == $InvoiceSave->total_amount) {
                 $InvoiceSave->status = "Paid";
                 $InvoiceSave->save();
+            } else if(strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                $InvoiceSave->status = "Overdue";
+                $InvoiceSave->save();
+            } else {
             }
 
 
@@ -4872,7 +4877,8 @@ class BillingController extends BaseController
 
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $getTemplateData = EmailTemplate::find(16);
-                $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
+                // $token=url('activate_account/bills='.base64_encode($email).'&web_token='.$FindInvoice['invoice_unique_token']);
+                $token = route("client/bills/detail", $FindInvoice->decode_id);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{name}', $fullName,$mail_body);
                 $mail_body = str_replace('{loginurl}', BASE_URL.'login',$mail_body);
@@ -5623,8 +5629,8 @@ class BillingController extends BaseController
 
                             $firmData=Firm::find(Auth::User()->firm_name);
                             $getTemplateData = EmailTemplate::find(12);
-                            $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
-
+                            // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
+                            $token = route("client/bills/detail", $Invoice->decode_id);
                             $mail_body = $getTemplateData->content;
                             $mail_body = str_replace('{message}', $request->message, $mail_body);
                             $mail_body = str_replace('{token}', $token, $mail_body);
@@ -7031,8 +7037,8 @@ class BillingController extends BaseController
                             
                             $firmData=Firm::find(Auth::User()->firm_name);
                             $getTemplateData = EmailTemplate::find(12);
-                            $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
-
+                            // $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
+                            $token = route("client/bills/detail", $InvoiceSave->decode_id);
                             $mail_body = $getTemplateData->content;
                             $mail_body = str_replace('{message}', $request->message, $mail_body);
                             $mail_body = str_replace('{token}', $token, $mail_body);

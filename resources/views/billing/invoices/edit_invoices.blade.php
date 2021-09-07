@@ -3348,23 +3348,22 @@
     function recalculate() {
         $(".forwarded-invoices-check").trigger("change");
         var total =  subtotal = 0;
-
-        var expense_total_amount = parseFloat($(".expense_total_amount").html() ?? 0);
-        var time_entry_total_amount = parseFloat($(".time_entry_total_amount").html() ?? 0);
-        var flat_fee_sub_total_text = parseFloat($(".flat_fee_total_amount").html() ?? 0);
+        var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
+        var time_entry_total_amount = ($(".time_entry_total_amount").html() != undefined) ? $(".time_entry_total_amount").html().replace(/,/g, '') : 0.00;
+        var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
         console.log("time_entry_total_amount = " + time_entry_total_amount);
         console.log("expense_total_amount = " + expense_total_amount);
         console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
-        subtotal = expense_total_amount + time_entry_total_amount + flat_fee_sub_total_text;
+        subtotal = parseFloat(expense_total_amount) + parseFloat(time_entry_total_amount) + parseFloat(flat_fee_sub_total_text);
         
-        var discount_amount = parseFloat($(".discounts_section_total").html() ?? 0);
-        var addition_amount = parseFloat($("#additions_section_total").html() ?? 0);        
-        var forwarded_amount = parseFloat($("#forwarded_total_amount").html() ?? 0);
+        var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0;
+        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0;        
+        var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0;
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
         console.log("addition_amount = " + addition_amount);  
 
-        total = subtotal + forwarded_amount + addition_amount;    
+        total = parseFloat(subtotal) + parseFloat(forwarded_amount) + parseFloat(addition_amount);    
         var final_total=total-discount_amount ;
         if(final_total <= 0 ){
             final_total=0;
