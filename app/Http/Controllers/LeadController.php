@@ -977,13 +977,13 @@ class LeadController extends BaseController
                 if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
                 if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
                 if(isset($request->case_open_date)) {
-                    $var = $request->case_open_date;
+                    $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');                
                     $CaseMaster->case_open_date= date('Y-m-d', strtotime($var));
                 }
 
                 if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
                 if(isset($request->case_statute)) {
-                    $var = $request->case_statute;
+                    $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_statute)))), auth()->user()->user_timezone ?? 'UTC');
                     $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
                 }
                 if(isset($request->conflict_check)) { 
@@ -1923,9 +1923,11 @@ class LeadController extends BaseController
                 $TaskMaster->no_case_link="yes";
             }else{
                 $TaskMaster->no_case_link="no";
-            }
+            }            
             if(isset($request->task_name)) { $TaskMaster->task_title=$request->task_name; }else{ $TaskMaster->task_title=NULL; }
-            if(isset($request->due_date) && $request->due_date!="") { $TaskMaster->task_due_on=date('Y-m-d',strtotime($request->due_date)); }else { $TaskMaster->task_due_on= "9999-12-30";}
+            if(isset($request->due_date) && $request->due_date!="") {
+                $TaskMaster->task_due_on=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            }else { $TaskMaster->task_due_on= "9999-12-30";}
             if(isset($request->status)) { $TaskMaster->case_status=$request->case_status; }
             if(isset($request->event_frequency)) { $TaskMaster->task_priority=$request->event_frequency; }else{$TaskMaster->task_priority=NULL;}
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
@@ -2129,7 +2131,9 @@ class LeadController extends BaseController
             }
             
             if(isset($request->task_name)) { $TaskMaster->task_title=$request->task_name; }else{ $TaskMaster->task_title=NULL; }
-            if(isset($request->due_date) && $request->due_date!="") { $TaskMaster->task_due_on=date('Y-m-d',strtotime($request->due_date)); }else { $TaskMaster->task_due_on= "9999-12-30";}
+            if(isset($request->due_date) && $request->due_date!="") { 
+                $TaskMaster->task_due_on=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            }else { $TaskMaster->task_due_on= "9999-12-30";}
             if(isset($request->status)) { $TaskMaster->case_status=$request->case_status; }
             if(isset($request->event_frequency)) { $TaskMaster->task_priority=$request->event_frequency; }else{$TaskMaster->task_priority=NULL;}
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
@@ -2513,7 +2517,7 @@ class LeadController extends BaseController
          
             $LeadNotes = new LeadNotes; 
             $LeadNotes->notes_for=$request->user_id;
-            $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $LeadNotes->note_subject=$request->note_subject;
             $LeadNotes->note_activity=$request->note_activity;
             $LeadNotes->notes=$request->notes;
@@ -2558,7 +2562,7 @@ class LeadController extends BaseController
         }else{
          
             $LeadNotes = LeadNotes::find($request->lead_id); 
-            $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $LeadNotes->note_subject=$request->note_subject;
             $LeadNotes->notes=$request->notes;
             $LeadNotes->note_activity=$request->note_activity;
@@ -2813,11 +2817,10 @@ class LeadController extends BaseController
         if($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-         
+        }else{      
             $CaseNotes = new CaseNotes; 
             $CaseNotes->notes_for=$request->user_id;
-            $CaseNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $CaseNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $CaseNotes->note_subject=$request->note_subject;
             $CaseNotes->note_activity=$request->note_activity;
             $CaseNotes->notes=$request->notes;
@@ -2844,6 +2847,7 @@ class LeadController extends BaseController
 
     public function updateCaseNotePopup(Request $request)
     {
+        dd($request->all());
         $validator = \Validator::make($request->all(), [
             'note_date' => 'required',
             'notes' => 'required'
@@ -2857,7 +2861,7 @@ class LeadController extends BaseController
         }else{
          
             $LeadNotes = CaseNotes::find($request->id); 
-            $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $LeadNotes->note_subject=$request->note_subject;
             $LeadNotes->notes=$request->notes;
             $LeadNotes->note_activity=$request->note_activity;

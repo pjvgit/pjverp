@@ -181,7 +181,7 @@ if(isset($_GET['status'])){
 @section('page-js')
 
 <script type="text/javascript">
-
+    alert("184");
     $(document).ready(function () {
         $(".dropdownArea").select2({
             placeholder: "Select...",

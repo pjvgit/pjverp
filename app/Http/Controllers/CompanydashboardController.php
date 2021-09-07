@@ -434,7 +434,7 @@ class CompanydashboardController extends BaseController
          
             $LeadNotes = ClientNotes::find($request->note_id); 
             $LeadNotes->client_id=$request->client_id;
-            $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $LeadNotes->note_subject=($request->note_subject)??NULL;
             $LeadNotes->notes=$request->delta;
             $LeadNotes->status="0";
@@ -541,7 +541,7 @@ class CompanydashboardController extends BaseController
          
             $LeadNotes = ClientNotes::find($request->note_id); 
             $LeadNotes->client_id=$request->client_id;
-            $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+            $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
             $LeadNotes->note_subject=($request->note_subject)??NULL;
             $LeadNotes->notes=$request->delta;
             $LeadNotes->status="0";
@@ -1082,7 +1082,7 @@ class CompanydashboardController extends BaseController
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_paid="0.00";
             $RequestedFund->email_message=$request->message;
-            $RequestedFund->due_date=date('Y-m-d',strtotime($request->due_date));
+            $RequestedFund->due_date==convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             $RequestedFund->status='sent';
             $RequestedFund->created_by=Auth::user()->id; 
             $RequestedFund->save();
@@ -1172,7 +1172,7 @@ class CompanydashboardController extends BaseController
             $RequestedFund->amount_due=$request->amount;
             $RequestedFund->amount_requested=$request->amount;
             if(isset($request->due_date)){
-                $RequestedFund->due_date=date('Y-m-d',strtotime($request->due_date));
+                $RequestedFund->due_date==convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             }
             $RequestedFund->save();
 

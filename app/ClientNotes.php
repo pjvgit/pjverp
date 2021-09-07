@@ -45,4 +45,10 @@ class ClientNotes extends Authenticatable
             return null;
         }
     }
+    public function getNoteDateAttribute(){
+        if(isset($this->attributes['note_date'])){
+            $userTime = convertUTCToUserDate($this->attributes['note_date'], auth()->user()->user_timezone ?? 'UTC');
+            return date('Y-m-d', strtotime($userTime));  
+        }
+    }
 }

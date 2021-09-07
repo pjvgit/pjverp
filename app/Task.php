@@ -56,12 +56,10 @@ class Task extends Authenticatable
         return $taskCompletedby; 
     }
     public function getTaskDueDateAttribute(){
-        $CommonController= new CommonController();
         if(isset(Auth::User()->user_timezone) && $this->task_due_on!=null && $this->task_due_on!='9999-12-30') 
         {
-            $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->task_due_on)),$timezone);
-            return date('M j, Y',strtotime($convertedDate));
+            $userTime = convertUTCToUserDate($this->attributes['task_due_on'], auth()->user()->user_timezone ?? 'UTC');            
+            return date('M j, Y',strtotime($userTime));
 
         }else{
             return "N/A";
@@ -79,10 +77,10 @@ class Task extends Authenticatable
         }
         return json_encode($assignToUser); 
     }
-    public function setTaskDueOnAttribute($value)
-    {
-        $this->attributes['task_due_on'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone ?? 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d');
-    }
+    // public function setTaskDueOnAttribute($value)
+    // {
+    //     $this->attributes['task_due_on'] =  \Carbon\Carbon::parse($value, auth()->user()->user_timezone ?? 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d');
+    // }
     public function getTaskDueOnAttribute()
     {
         if($this->attributes['task_due_on'] != '9999-12-30'){

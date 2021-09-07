@@ -342,7 +342,9 @@ class TaskController extends BaseController
                 $TaskMaster->no_case_link="no";
             }
             if(isset($request->task_name)) { $TaskMaster->task_title=$request->task_name; }else{ $TaskMaster->task_title=NULL; }
-            if(isset($request->due_date) && $request->due_date!="") { $TaskMaster->task_due_on=date('Y-m-d',strtotime($request->due_date)); }else { $TaskMaster->task_due_on= "9999-12-30";}
+            if(isset($request->due_date) && $request->due_date!="") { 
+                $TaskMaster->task_due_on=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            }else { $TaskMaster->task_due_on= "9999-12-30";}
             if(isset($request->status)) { $TaskMaster->case_status=$request->case_status; }
             if(isset($request->event_frequency)) { $TaskMaster->task_priority=$request->event_frequency; }else{$TaskMaster->task_priority=NULL;}
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }
@@ -700,7 +702,9 @@ class TaskController extends BaseController
             }
                 
             if(isset($request->task_name)) { $TaskMaster->task_title=$request->task_name; }else{ $TaskMaster->task_title=NULL; }
-            if(isset($request->due_date) && $request->due_date!="") { $TaskMaster->task_due_on=date('Y-m-d',strtotime($request->due_date)); }else { $TaskMaster->task_due_on= "9999-12-30";}
+            if(isset($request->due_date) && $request->due_date!="") { 
+                $TaskMaster->task_due_on=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            }else { $TaskMaster->task_due_on= "9999-12-30";}
             if(isset($request->status)) { $TaskMaster->case_status=$request->case_status; }
             if(isset($request->event_frequency)) { $TaskMaster->task_priority=$request->event_frequency; }else{$TaskMaster->task_priority=NULL;}
             if(isset($request->description)) { $TaskMaster->description=$request->description; }else{ $TaskMaster->description=NULL; }

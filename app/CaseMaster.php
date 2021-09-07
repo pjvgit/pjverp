@@ -18,7 +18,7 @@ class CaseMaster extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'case_title','case_status','created_at'
+        'case_title','case_status','created_at','case_statute_date','case_open_date'
     ];
     protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name"];
     public function getCaseuserAttribute(){
@@ -54,6 +54,20 @@ class CaseMaster extends Authenticatable
 
         }
         return json_encode($ContractCaseUpdate); 
+    }
+
+    public function getCaseOpenDateAttribute(){
+        if(isset($this->attributes['case_open_date'])){
+            $userTime = convertUTCToUserTime($this->attributes['case_open_date'], auth()->user()->user_timezone ?? 'UTC');
+            return date('Y-m-d', strtotime($userTime));  
+        }
+    } 
+
+    public function getCaseStatuteDateAttribute(){
+        if(isset($this->attributes['case_statute_date'])){
+            $userTime = convertUTCToUserTime($this->attributes['case_statute_date'], auth()->user()->user_timezone ?? 'UTC');
+            return date('Y-m-d', strtotime($userTime));  
+        }
     }
 
     public function getCreatedbyAttribute(){

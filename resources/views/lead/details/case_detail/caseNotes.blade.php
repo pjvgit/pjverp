@@ -47,7 +47,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                 </div>
             </div>
             <div class="note-date col-2">
-                <p>{{$v->note_date}}</p>
+                <p> {{ $v->note_date }} </p>
             </div>
             <div class="col-1">
                 <div>

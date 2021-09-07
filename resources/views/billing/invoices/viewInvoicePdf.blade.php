@@ -251,10 +251,10 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                             $Total=$v->entry_rate;
                             $timeEntryAmount=$timeEntryAmount+$v->entry_rate;
                         }else{
-                            $Total= ($v->duration * $v->entry_rate);
+                            $Total= ((int)$v->duration * (int)$v->entry_rate);
                             $timeEntryAmount=$timeEntryAmount+$Total;
                             
-                            $timeEntryTime=$timeEntryTime+$v->duration;
+                            $timeEntryTime=(int)$timeEntryTime+(int)$v->duration;
                         }
                         echo "$".number_format($Total,2);
 
@@ -309,7 +309,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                                 $Total=$v->entry_rate;
                                 
                             }else{
-                                $Total= ($v->duration * $v->entry_rate);
+                                $Total= ((int)$v->duration * (int)$v->entry_rate);
                                 
                             }
                             echo "$".number_format($Total,2);
@@ -398,7 +398,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
         </td>
         <td style="vertical-align: top; text-align: right;" class="">
             <?php
-                    echo "$".$Total= number_format(($v->duration * $v->cost),2);
+                    echo "$".$Total= number_format(((int)$v->duration * (int)$v->cost),2);
                     $expenseAmount=$expenseAmount+$Total;
                 ?>
         </td>
@@ -442,7 +442,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                         if($v->rate_type=="flat"){
                             echo "flat";
                         }else{
-                            echo number_format($v->duration,1);
+                            echo number_format((int)$v->duration,1);
                         } ?>
                 </td>
                 <td style="vertical-align: top; text-align: right;" class="nonbillableRow">
@@ -451,7 +451,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                             $Total=$v->entry_rate;
                             
                         }else{
-                            $Total= ($v->duration * $v->entry_rate);
+                            $Total= ((int)$v->duration * (int)$v->entry_rate);
                             
                         }
                         echo "$".number_format($Total,2);

@@ -210,8 +210,7 @@ class CaseController extends BaseController
 
     public function saveAllStep(Request $request)
     {
-
-        // return response()->json(['errors'=>'','user_id'=>'','case_unique_number'=>'6045FB829C823']);
+        // return response()->json(['errors'=>'','user_id'=>'',case_unique_number'=>'6045FB829C823']);
         
         if(isset($request->default_rate)) {$request['default_rate']=str_replace(",","",$request->default_rate); }
       
@@ -231,14 +230,14 @@ class CaseController extends BaseController
             if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
             if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
             if(isset($request->case_open_date)) {
-                $var = $request->case_open_date;
-                $CaseMaster->case_open_date= date('Y-m-d', strtotime($var));
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');
+                $CaseMaster->case_open_date=$var;
             }
 
             if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
             if(isset($request->case_statute)) {
-                $var = $request->case_statute;
-                $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_statute)))), auth()->user()->user_timezone ?? 'UTC');
+                $CaseMaster->case_statute_date= $var;
                 $CaseMaster->sol_satisfied="yes";
             }
              if(isset($request->conflict_check)) { 
@@ -300,18 +299,18 @@ class CaseController extends BaseController
                     $CaseClientSelection->save();
                     
                     // Flat fees entry
-                    if(isset($request->billingMethod)) {
-                        if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
-                            FlatFeeEntry::create([
-                                'case_id' => $CaseMaster->id,
-                                'user_id' => Auth::user()->id,
-                                'entry_date' => Carbon::now(),
-                                'cost' =>  $request->default_rate ?? 0,
-                                'time_entry_billable' => 'yes',
-                                'created_by' => Auth::user()->id, 
-                            ]);
-                        }
-                    }
+                    // if(isset($request->billingMethod)) {
+                    //     if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
+                    //         FlatFeeEntry::create([
+                    //             'case_id' => $CaseMaster->id,
+                    //             'user_id' => Auth::user()->id,
+                    //             'entry_date' => Carbon::now(),
+                    //             'cost' =>  $request->default_rate ?? 0,
+                    //             'time_entry_billable' => 'yes',
+                    //             'created_by' => Auth::user()->id, 
+                    //         ]);
+                    //     }
+                    // }
 
                     //Activity tab
                     $datauser=[];
@@ -510,14 +509,14 @@ class CaseController extends BaseController
             if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
             if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
             if(isset($request->case_open_date)) {
-                $var = $request->case_open_date;
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');
                 // $date = str_replace('/', '-', $var);
                 $CaseMaster->case_open_date= date('Y-m-d', strtotime($var));
             }
 
             if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
             if(isset($request->case_statute)) {
-                $var = $request->case_statute;
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_statute)))), auth()->user()->user_timezone ?? 'UTC');
                 // $date = str_replace('/', '-', $var);
                 $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
             }
@@ -828,10 +827,16 @@ class CaseController extends BaseController
             if(isset($request->case_number)) { $CaseMaster->case_number =$request->case_number; }
             if(isset($request->case_status)) { $CaseMaster->case_status=$request->case_status; }
             if(isset($request->case_description)) { $CaseMaster->case_description=$request->case_description; }
-            if(isset($request->case_open_date)) { $CaseMaster->case_open_date=date('Y-m-d',strtotime($request->case_open_date)); }
+            if(isset($request->case_open_date)) { 
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');
+                $CaseMaster->case_open_date=date('Y-m-d',strtotime($var)); 
+            }
 
             if(isset($request->case_office)) { $CaseMaster->case_office=$request->case_office; }
-            if(isset($request->case_statute)) { $CaseMaster->case_statute_date=date('Y-m-d',strtotime($request->case_statute)); }else{ $CaseMaster->case_statute_date=NULL;}
+            if(isset($request->case_statute)) { 
+                $var =convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_statute)))), auth()->user()->user_timezone ?? 'UTC');
+                $CaseMaster->case_statute_date=date('Y-m-d',strtotime($var)); 
+                }else{ $CaseMaster->case_statute_date=NULL;}
             if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
                 if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
@@ -5619,10 +5624,10 @@ class CaseController extends BaseController
        {
            return response()->json(['errors'=>$validator->errors()->all()]);
        }else{
-        
+
            $LeadNotes = ClientNotes::find($request->note_id); 
            $LeadNotes->case_id=$request->case_id;
-           $LeadNotes->note_date=date('Y-m-d',strtotime($request->note_date));
+           $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
            $LeadNotes->note_subject=($request->note_subject)??NULL;
            $LeadNotes->notes=$request->delta;
            $LeadNotes->status="0";

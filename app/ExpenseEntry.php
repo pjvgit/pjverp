@@ -35,10 +35,10 @@ class ExpenseEntry extends Authenticatable
         return number_format($this->cost,2);
     }
     public function getQtyAttribute(){
-        return number_format($this->duration,1);
+        return number_format(str_replace(",","",$this->duration),1);
     }
     public function getCalulatedCostAttribute(){
-        return number_format($this->duration * $this->cost,2);
+        return number_format(str_replace(",","",$this->duration) * str_replace(",","",$this->cost),2);
     }
 
     public function setEntryDateAttribute($value)
