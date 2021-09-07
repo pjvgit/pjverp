@@ -8,6 +8,7 @@ use App\InvoicePayment;
 use App\Invoices;
 use App\User;
 use App\UsersAdditionalInfo;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 trait CreditAccountTrait {
@@ -128,17 +129,22 @@ trait CreditAccountTrait {
      */
     public function updateInvoiceAmount($invoiceId)
     {
-        $invoice = Invoices::whereId($invoiceId)->first();
+        $invoice = Invoices::whereId($invoiceId)->with('invoiceFirstInstallment')->first();
         $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
+        $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
         if($remainPaidAmt == 0) {
             $status="Unsent";
         } elseif($invoice->total_amount == $remainPaidAmt) {
             $status = "Paid";
-        } else {
+        } else if($remainPaidAmt < $invoice->total_amount && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
             $status="Partial";
+        } else if(strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+            $status="Overdue";
+        } else {
+            $status = 'Unsent';
         }
         $invoice->fill([
             'paid_amount'=> $remainPaidAmt,

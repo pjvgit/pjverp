@@ -57,4 +57,12 @@ class UsersAdditionalInfo extends Authenticatable
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    /**
+     * Get credit account balance in format
+     */
+    public function getCreditAccountBalanceAttribute()
+    {
+        return number_format($this->attributes['credit_account_balance'], 2);
+    }
 }
