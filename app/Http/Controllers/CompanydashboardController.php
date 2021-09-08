@@ -719,6 +719,7 @@ class CompanydashboardController extends BaseController
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
         $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
         $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
+        $allLeads = $allLeads->with('invoice', 'fundRequest');  
         $totalData=$allLeads->count();
         $totalFiltered = $totalData; 
      
@@ -775,6 +776,8 @@ class CompanydashboardController extends BaseController
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);                
                 $refundRequest->amount_paid=($refundRequest->amount_paid+$request->amount);
+                $refundRequest->payment_date=date('Y-m-d');
+                $refundRequest->status='partial';
                 $refundRequest->save();
             }
         
@@ -790,6 +793,7 @@ class CompanydashboardController extends BaseController
             $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
+            $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
 
@@ -1035,15 +1039,15 @@ class CompanydashboardController extends BaseController
     {
         $client_id=$request->user_id;
         //Get all client related to firm
-        $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
         //Get all company related to firm
-        $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
         
-        return view('company_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','client_id','userData','UsersAdditionalInfo'));     
+        return view('company_dashboard.billing.addFundRequestEnrty',compact(/* 'ClientList','CompanyList', */'client_id','userData','UsersAdditionalInfo'));     
         exit;    
     } 
 
@@ -1169,11 +1173,12 @@ class CompanydashboardController extends BaseController
         }else{
        
             $RequestedFund=RequestedFund::find($request->id);
-            $RequestedFund->amount_due=$request->amount;
+            $RequestedFund->amount_due=$request->amount - $RequestedFund->amount_paid;
             $RequestedFund->amount_requested=$request->amount;
             if(isset($request->due_date)){
                 $RequestedFund->due_date==convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             }
+            $RequestedFund->status='sent';
             $RequestedFund->save();
 
             

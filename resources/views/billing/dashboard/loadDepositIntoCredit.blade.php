@@ -8,7 +8,7 @@
                 <label for="inputEmail3" class="col-form-label">Select Contact</label>
                 <select class="form-control contact select2" id="NonTrustContact" name="contact">
                     <option></option>
-                    <?php  if(!$CaseMasterClient->isEmpty()){?>
+                    {{-- <?php  if(!$CaseMasterClient->isEmpty()){?>
                     <optgroup label="Client">
                         <?php foreach($CaseMasterClient as $k=>$v){?>
                             <option value="{{$v->id}}">{{$v->contact_name}} 
@@ -16,8 +16,16 @@
                              </option>
                         <?php } ?>
                     </optgroup>    
-                    <?php } ?> 
-                    <?php  if(!$CaseMasterCompany->isEmpty()){?>
+                    <?php } ?>  --}}
+                    <optgroup label="Client">
+                        @forelse (firmClientList() as $key => $item)
+                            <option value="{{$item->id}}">{{$item->name}} 
+                                ({{ getUserTypeText()[$item->user_level] }})
+                            </option>
+                        @empty
+                        @endforelse
+                    </optgroup>
+                    {{-- <?php  if(!$CaseMasterCompany->isEmpty()){?>
                     <optgroup label="Company">
                         <?php foreach($CaseMasterCompany as $k=>$v){?>
                             <option value="{{$v->id}}">{{$v->contact_name}} 
@@ -25,7 +33,15 @@
                              </option>
                         <?php } ?>
                     </optgroup>
-                    <?php } ?>
+                    <?php } ?> --}}
+                    <optgroup label="Comapny">
+                        @forelse (firmCompanyList() as $key => $item)
+                            <option value="{{$item->id}}">{{$item->name}} 
+                                ({{ getUserTypeText()[$item->user_level] }})
+                            </option>
+                        @empty
+                        @endforelse
+                    </optgroup>
                 </select>
             </div>
         </div>

@@ -25,12 +25,10 @@
                     <div class="payable-detail__summary">
                         <div class="payable-detail__summary__left-panel"></div>
                         <div class="payable-detail__summary__right-panel">
-                            @if ($fundRequest->status == "paid")
                             <div class="payable-detail__datapair">
                                 <div class="detail-view__label">Status</div>
                                 <div>{{ ucfirst($fundRequest->status) }}</div>
                             </div>
-                            @endif
                             <div class="payable-detail__datapair">
                                 <div class="detail-view__label">Balance Due</div>
                                 <div>${{ $fundRequest->amt_due }}</div>

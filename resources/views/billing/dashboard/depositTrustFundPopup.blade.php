@@ -201,11 +201,11 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         afterLoader();
                         return false;
                     } else {
-                        swal('Deposit Successful!', res.msg, 'success');
                         afterLoader();
                         setTimeout(function () {
                             $("#depositIntoTrustAccount").modal("hide")
-                        }, 1000);
+                        }, 100);
+                        swal('Deposit Successful!', res.msg, 'success');
                     }
                 },
                 error: function (jqXHR, exception) {
