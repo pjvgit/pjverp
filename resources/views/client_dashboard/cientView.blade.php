@@ -1072,7 +1072,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 
 
-<div id="addEmailToClient" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="addEmailToClient" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="addEmailtouser" id="addEmailtouser" name="addEmailtouser" method="POST">
@@ -1116,7 +1116,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </form>
     </div>
-</div>
+</div> --}}
+
+@include('client_dashboard.billing.modal')
 
 <div id="editFundRequest" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -2105,7 +2107,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     
                     $('td:eq(0)', nRow).html('<div class="text-left">'+aData.added_date+'</div>');
-                    $('td:eq(1)', nRow).html('<div class="text-left">-</div>');
+                    if(aData.related_to_fund_request_id != '')
+                        $('td:eq(1)', nRow).html('<div class="text-left">'+aData.fund_request.padding_id+'</div>');
+                    else if(aData.related_to_invoice_id != '')
+                        $('td:eq(1)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'" >#'+aData.invoice.invoice_id+'</a></div>');
+                    else
+                        $('td:eq(1)', nRow).html('<div class="text-left">-</div>');
                     
                     var isRefender="";
                     if(aData.is_refunded=="yes"){
@@ -2216,7 +2223,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(0)', nRow).html('<div class="text-left">#R-00'+aData.id+'</div>');
                     var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' (Client)</a>';
                     $('td:eq(1)', nRow).html('<div class="text-left">'+clientLink+'</div>');
-                    $('td:eq(2)', nRow).html('<div class="text-left">Trust(Trust Account)</div>');
+                    if(aData.deposit_into_type == 'credit')
+                        $('td:eq(2)', nRow).html('<div class="text-left">Credit (Operating Account)</div>');
+                    else
+                        $('td:eq(2)', nRow).html('<div class="text-left">Trust(Trust Account)</div>');
 
                     $('td:eq(3)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>')

@@ -1,3 +1,8 @@
+------------------------------------ 08-SEP-2021 ------------------------------
+ALTER TABLE `requested_fund` CHANGE `status` `status` ENUM('sent','unsent','paid','partial','overdue') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'sent';
+ALTER TABLE `deposit_into_credit_history` ADD `related_to_fund_request_id` INT(11) NULL AFTER `related_to_invoice_payment_id`;
+ALTER TABLE `trust_history` ADD `related_to_fund_request_id` INT(11) NULL AFTER `related_to_invoice_id`;
+
 ------------------------------------ 07-SEP-2021 ------------------------------
 ALTER TABLE `all_history` CHANGE `action` `action` ENUM('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'none';
 

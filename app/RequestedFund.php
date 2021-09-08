@@ -18,7 +18,7 @@ class RequestedFund extends Authenticatable
     protected $fillable = ['client_id', 'deposit_into', 'deposit_into_type', 'amount_requested', 'amount_due', 'amount_paid', 'payment_date', 'due_date', 
                 'email_message', 'status', 'is_viewed', 'reminder_sent_counter', 'last_reminder_sent_on', 'created_by', 'updated_by'];
 
-    protected $appends  = ['padding_id','amt_requested','amt_paid','amt_due','due_date_format','send_date_format','is_due','last_send','current_status'];
+    protected $appends  = ['padding_id','amt_requested','amt_paid','amt_due','due_date_format','send_date_format','is_due','last_send','current_status', 'payment_at'];
     public function getPaddingIdAttribute(){
        return "#R-".sprintf('%06d', $this->id);
 
@@ -97,5 +97,29 @@ class RequestedFund extends Authenticatable
         
     }
 
-    
+    /**
+     * Set status attribute
+     */
+    public function setStatusAttribute($value)
+    {
+        if($this->attributes['amount_due'] =="0.00"){
+            $status = "paid";
+        }else if($this->attributes['amount_due'] != "0.00" && $this->attributes['amount_paid'] != "0.00" ){
+            $status = "partial";
+        }else if(strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d')) && $this->attributes['amount_paid'] < $this->attributes['amount_requested'] ){
+            $status = "overdue";
+        }else{
+            $status = "sent";
+        }
+        $this->attributes['status'] = $status;
+    }
+
+    public function getPaymentAtAttribute(){
+        if($this->payment_date!=NULL){
+            $userTime = convertUTCToUserDate($this->payment_date, auth()->user()->user_timezone ?? 'UTC');
+            return date("M d,Y",strtotime($userTime));
+        }else{
+            return NULL;
+        }
+    }
 }

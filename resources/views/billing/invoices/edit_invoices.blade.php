@@ -71,7 +71,7 @@
                                                         <option uType="client" <?php if($val->id==$findInvoice->user_id){ echo "selected=selected";} ?> value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client) </option>
                                                         <?php } ?> --}}
                                                         @forelse ($ClientList as $key => $item)
-                                                        <option uType="client"  value="{{ $key }}" {{ (isset($findInvoice) && $key == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Client)</option>
+                                                        <option uType="client"  value="{{ $item->id }}" {{ (isset($findInvoice) && $item->id == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item->name,0,200) }} (Client)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>
@@ -79,7 +79,7 @@
                                                         {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
                                                         <option uType="company" <?php if($CompanyListVal->id==$findInvoice->user_id){ echo "selected=selected";} ?> value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
                                                         @forelse ($CompanyList as $key => $item)
-                                                        <option uType="company"  value="{{ $key }}" {{ (isset($findInvoice) && $key == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Company)</option>
+                                                        <option uType="company"  value="{{ $item->id }}" {{ (isset($findInvoice) && $item->id == $findInvoice->user_id) ? "selected" : "" }}> {{ substr($item->name,0,200) }} (Company)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>

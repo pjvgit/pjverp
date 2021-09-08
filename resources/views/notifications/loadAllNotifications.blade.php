@@ -106,6 +106,7 @@ if(!$commentData->isEmpty()){
                                 $imageLink["delete"]="activity_task_deleted.png";
                                 $imageLink["incomplete"]="activity_task_incomplete.png";
                                 $imageLink["complete"]="activity_task_completed.png";
+                                $imageLink["view"]="activity_bill_viewed.png";
                                 $image=$imageLink[$v->action];
                             ?>
                             <img src="{{ asset('icon/'.$image) }}" width="27" height="21">

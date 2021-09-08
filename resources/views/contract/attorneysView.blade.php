@@ -492,7 +492,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                                 {{substr($Clientval->last_name,0,30)}}</option>
                                                             <?php } ?> --}}
                                                             @forelse ($CaseMasterClient as $key => $item)
-                                                            <option uType="client"  value="{{ $key }}" > {{ substr($item,0,200) }}</option>
+                                                            <option uType="client"  value="{{ $item->id }}" > {{ substr($item->name,0,200) }}</option>
                                                             @empty
                                                             @endforelse
                                                         </optgroup>
@@ -501,7 +501,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                             <option value="{{$Companyval->id}}">{{substr($Companyval->first_name,0,50)}}</option>
                                                             <?php } ?> --}}
                                                             @forelse ($CaseMasterCompany as $key => $item)
-                                                            <option uType="company"  value="{{ $key }}"> {{ substr($item,0,200) }}</option>
+                                                            <option uType="company"  value="{{ $item->id }}"> {{ substr($item->name,0,200) }}</option>
                                                             @empty
                                                             @endforelse
                                                         </optgroup>

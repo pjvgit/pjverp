@@ -34,12 +34,13 @@ function userLeadList()
 function userClientList()
 {
     $authUser = auth()->user();
-    $clients = User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where("firm_name", $authUser->firm_name)
+    $clients = User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level')->where("firm_name", $authUser->firm_name)
                 ->where('user_level', 2)->whereIn("user_status", [1,2]);
     if($authUser->parent_user != 0) {
         $clients = $clients->where("parent_user", $authUser->id);
     }
-    return $clients->pluck("name", "id");
+    // return $clients->pluck("name", "id");
+    return $clients->get();
     // User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
 }
 
@@ -49,11 +50,12 @@ function userClientList()
 function userCompanyList()
 {
     $authUser = auth()->user();
-    $company = User::where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4);
+    $company = User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4);
     if($authUser->parent_user != 0) {
         $company = $company->where("parent_user", $authUser->id);
     }
-    return $company->get()->pluck("full_name", "id");
+    // return $company->get()->pluck("full_name", "id");
+    return $company->get();
     // User::select("email","first_name","last_name","id","user_level")->whereIn("user_status",[1,2])->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 }
 
@@ -356,4 +358,36 @@ function creditAccountHistoryList()
         "credit account summary" => "Show Credit Account Summary",
         "credit account history" => "Show Credit Account History",
     ];
+}
+
+/**
+ * Get user type text using user level
+ */
+function getUserTypeText() {
+    return [
+        "1" => "Admin",
+        "2" => "Client",
+        "3" => "User",
+        "4" => "Company",
+        "5" => "Lead",
+    ];
+}
+
+/**
+ * Get firm all clients
+ */
+function firmClientList()
+{
+    $authUser = auth()->user();
+    return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
+                ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
+}
+
+/**
+ * Get firm all company
+ */
+function firmCompanyList()
+{
+    $authUser = auth()->user();
+    return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
 }

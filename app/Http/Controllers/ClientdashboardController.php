@@ -915,6 +915,7 @@ class ClientdashboardController extends BaseController
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
         $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
         $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
+        $allLeads = $allLeads->with('invoice', 'fundRequest');   
         $totalData=$allLeads->count();
         $totalFiltered = $totalData; 
      
@@ -970,6 +971,8 @@ class ClientdashboardController extends BaseController
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);                
                 $refundRequest->amount_paid=($refundRequest->amount_paid+$request->amount);
+                $refundRequest->payment_date=date('Y-m-d');
+                $refundRequest->status='partial';
                 $refundRequest->save();
             }
                 
@@ -985,6 +988,7 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
+            $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
 
@@ -996,6 +1000,9 @@ class ClientdashboardController extends BaseController
             $data['user_id']=$request->client_id;
             $data['client_id']=$request->client_id;
             $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
+            if(isset($request->applied_to) && $request->applied_to != 0) {
+                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request ".@$refundRequest->padding_id;
+            }
             $data['type']='deposit';
             $data['action']='add';
             $CommonController= new CommonController();
@@ -1249,25 +1256,14 @@ class ClientdashboardController extends BaseController
         $authUser = auth()->user();
         //Get all client related to firm
         // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where("firm_name", $authUser->firm_name)
-            ->where('user_level', 2)->whereIn("user_status", [1,2]);
-            if($authUser->parent_user != 0) {
-                $ClientList = $ClientList->where("parent_user", $authUser->id);
-            }
-        $ClientList = $ClientList->get();
 
         //Get all company related to firm
         // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
-        $CompanyList = User::select("email","first_name","last_name","id","user_level")->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4);
-        if($authUser->parent_user != 0) {
-            $CompanyList = $CompanyList->where("parent_user", $authUser->id);
-        }
-        $CompanyList->get();
-        
+       
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
         
-        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','client_id','userData','UsersAdditionalInfo'));     
+        return view('client_dashboard.billing.addFundRequestEnrty',compact(/* 'ClientList','CompanyList', */'client_id','userData','UsersAdditionalInfo'));     
         exit;    
     } 
 
@@ -1405,11 +1401,12 @@ class ClientdashboardController extends BaseController
         }else{
        
             $RequestedFund=RequestedFund::find($request->id);
-            $RequestedFund->amount_due=$request->amount;
+            $RequestedFund->amount_due=$request->amount - $RequestedFund->amount_paid;
             $RequestedFund->amount_requested=$request->amount;
             if(isset($request->due_date)){
                 $RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             }
+            $RequestedFund->status='sent';
             $RequestedFund->save();
 
             $data=[];
@@ -3168,7 +3165,12 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->editColumn('related_to_invoice_id', function ($data) {
-                return ($data->related_to_invoice_id) ? '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>' : "--";
+                if($data->related_to_invoice_id)
+                    return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
+                else if($data->related_to_fund_request_id)
+                    return $data->fundRequest->padding_id;
+                else
+                    return '--';
             })
             ->editColumn('payment_method', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
