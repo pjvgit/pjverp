@@ -1638,7 +1638,7 @@ if(!isset($addition)){ $addition=0;}
                                                                     <div class="col-md-3"><label for="date-field"
                                                                             class="col-form-label ">Start Date</label></div>
                                                                     <div class="col-md-9">
-                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime('+1 day'))}}">
+                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}">
 
                                                                     </div>
                                                                 </div>
@@ -2777,14 +2777,14 @@ if(!isset($addition)){ $addition=0;}
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalInstalment += 1;
             }
-            $("#number_installment_field").val(Math.ceil(totalInstalment));
+            $("#number_installment_field").val(Math.floor(totalInstalment));
 
         }); 
         $("#number_installment_field").blur(function(){
-            var installmentNumber=$(this).val();
+            var installmentNumber=Math.floor($(this).val());
             var totalAmount= parseFloat($("#final_total_text").val());
             var totalInstalment=totalAmount/installmentNumber;
-            $("#amount_per_installment_field").val(Math.ceil(totalInstalment));
+            $("#amount_per_installment_field").val(totalInstalment.toFixed(2));
         }); 
 
         $("#first_payment_amount").blur(function(){
@@ -2793,7 +2793,7 @@ if(!isset($addition)){ $addition=0;}
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
              var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
+            $("#number_installment_field").val(Math.floor(totalInstalment) + 1);
 
         });
         $("#SaveInvoiceButton").on("click",function(){
@@ -2879,7 +2879,7 @@ if(!isset($addition)){ $addition=0;}
             var dataString=firstInstallment = '';
             dataString = $("#paymentPlansForm").serialize();
            
-            var number_installment_field=$("#number_installment_field").val();
+            var number_installment_field=Math.floor($("#number_installment_field").val());
             var amount_per_installment_field=$("#amount_per_installment_field").val();
             var installment_frequency_field=$("#installment_frequency_field").val();
             var start_date=$("#start_date").val();
@@ -2980,7 +2980,7 @@ if(!isset($addition)){ $addition=0;}
                 var dataString=firstInstallment = '';
                 dataString = $("#paymentPlansForm").serialize();
             
-                var number_installment_field=$("#number_installment_field").val();
+                var number_installment_field=Math.floor($("#number_installment_field").val());
                 var amount_per_installment_field=$("#amount_per_installment_field").val();
                 var installment_frequency_field=$("#installment_frequency_field").val();
                 var start_date=$("#start_date").val();

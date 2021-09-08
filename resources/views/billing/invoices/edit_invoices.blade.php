@@ -1546,7 +1546,7 @@
                                                                     <div class="col-md-3"><label for="date-field"
                                                                             class="col-form-label ">Start Date</label></div>
                                                                     <div class="col-md-9">
-                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{date('m/d/Y', strtotime('+1 day'))}}">
+                                                                        <input id="start_date" name="start_date" class="form-control datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}">
                                                                         <div class="d-flex invalid-feedback start_date_error"></div>
                                                                     </div>
                                                                 </div>
@@ -1568,7 +1568,7 @@
                                                                     <div class="pr-1 col-md-3 offset-md-3">
                                                                         <div class="input-group">
                                                                             <input id="number_installment_field"
-                                                                                data-testid="number-installment-field" min="2" type="number"
+                                                                                data-testid="number-installment-field"  min="2" type="number"
                                                                                 class="form-control" value="" name="number_installment_field"></div>
                                                                         <div class="d-flex invalid-feedback number_installment_field_error"></div>
                                                                     </div>
@@ -2859,15 +2859,15 @@
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalInstalment += 1;
             }
-            $("#number_installment_field").val(Math.ceil(totalInstalment));
+            $("#number_installment_field").val(Math.floor(totalInstalment));
 
 
         }); 
         $("#number_installment_field").blur(function(){
-            var installmentNumber=$(this).val();
+            var installmentNumber=Math.floor($(this).val());
             var totalAmount= parseFloat($("#final_total_text").val());
             var totalInstalment=totalAmount/installmentNumber;
-            $("#amount_per_installment_field").val(Math.ceil(totalInstalment));
+            $("#amount_per_installment_field").val(totalInstalment.toFixed(2));
         }); 
 
         $("#first_payment_amount").blur(function(){
@@ -2876,7 +2876,7 @@
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
             var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
+            $("#number_installment_field").val(Math.floor(totalInstalment) + 1);
 
         });
         $("#SaveInvoiceButton").on("click",function(){
@@ -2961,7 +2961,7 @@
             var dataString=firstInstallment = '';
             dataString = $("#paymentPlansForm").serialize();
            
-            var number_installment_field=$("#number_installment_field").val();
+            var number_installment_field=Math.floor($("#number_installment_field").val());
             var amount_per_installment_field=$("#amount_per_installment_field").val();
             var installment_frequency_field=$("#installment_frequency_field").val();
             var start_date=$("#start_date").val();
@@ -4020,9 +4020,9 @@
             }
         })
     }
-    $("#number_installment_field").on("change", function(){
-        calculatePaymentPlansForm();
-    });
+    // $("#number_installment_field").on("change", function(){
+    //     calculatePaymentPlansForm();
+    // });
 
     $('#number_installment_field').keypress(function (e) {
         var key = e.which;
@@ -4084,7 +4084,7 @@
         var dataString=firstInstallment = '';
         dataString = $("#paymentPlansForm").serialize();
     
-        var number_installment_field=$("#number_installment_field").val();
+        var number_installment_field=Math.floor(("#number_installment_field").val());
         var amount_per_installment_field=$("#amount_per_installment_field").val();
         var installment_frequency_field=$("#installment_frequency_field").val();
         var start_date=$("#start_date").val();
