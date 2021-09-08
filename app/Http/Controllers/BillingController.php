@@ -3151,6 +3151,7 @@ class BillingController extends BaseController
         foreach($request->new_payment_plans as $k=>$v){
             $paymentPlanAmount += $v['amount'];
         }
+        $paymentPlanAmount = (int) str_replace(',', '', $paymentPlanAmount);
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
         }        
@@ -5865,28 +5866,57 @@ class BillingController extends BaseController
                 }
                 if($discount_applied_to=="sub_total"){                    
                     if($subTotal>0){
-                        $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
+                        //forwarded invoices applied or not
+                        $forwardedInvoices =Invoices::whereId($v1)->with("forwardedInvoices")->first();
+                        $forwardedInvoicesTotal = 0;
+                        foreach($forwardedInvoices->forwardedInvoices as $inv){
+                            $forwardedInvoicesTotal+= $inv['total_amount'];
+                        }
+                        $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','sub_total')->get();
+                        if($forwardedInvoicesTotal > 0 && (count($balanceForwardInvoice) > 0 || $forwardedInvoicesTotal >= $subTotal) ) {
+                            $Applied=FALSE;
+                        }else{                            
+                            $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
+                            if($amountType=="percentage"){
+                                $finalAmount=($amount/100)*$subTotal;
+                                $Applied=TRUE;
+                            }else{
+                                $finalAmount=$amount;
+                                $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
+                            }
+                        }
+                    }else{
+                        $Applied=FALSE;
+                    }                    
+                }
+                
+                if($discount_applied_to=="balance_forward_total"){
+                    //forwarded invoices applied or not
+                    $forwardedInvoices =Invoices::whereId($v1)->with("forwardedInvoices")->first();
+                    $forwardedInvoicesTotal = 0;
+                    foreach($forwardedInvoices->forwardedInvoices as $inv){
+                        $forwardedInvoicesTotal+= $inv['total_amount'];
+                    }
+                    if($forwardedInvoicesTotal > 0.1) {
+                        $InvoiceAdjustment->basis =str_replace(",","",$forwardedInvoicesTotal);
+                        $subTotal = $forwardedInvoicesTotal;
                         if($amountType=="percentage"){
                             $finalAmount=($amount/100)*$subTotal;
                             $Applied=TRUE;
                         }else{
                             $finalAmount=$amount;
                             $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
-                        }
+                        }        
                     }else{
-                        $Applied=FALSE;
-                    }
-                }
-                
-                if($discount_applied_to=="balance_forward_total"){
-                    $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
-                    if(count($balanceForwardInvoice) > 0){
-                        if($request->basic >= $amount){
-                            $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                            $Applied=TRUE;
+                        $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
+                        if(count($balanceForwardInvoice) > 0){
+                            if($request->basic >= $amount){
+                                $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
+                                $Applied=TRUE;
+                            }
+                        }else{
+                            $Applied=FALSE;
                         }
-                    }else{
-                        $Applied=FALSE;
                     }
                 }
                 
