@@ -859,7 +859,7 @@ class ClientdashboardController extends BaseController
                 $TaskTimeEntry->time_entry_billable="no";
             }
             $TaskTimeEntry->description=$request->case_description;
-            $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+            $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
@@ -892,7 +892,7 @@ class ClientdashboardController extends BaseController
                     $TaskTimeEntry->time_entry_billable="no";
                 }
                 $TaskTimeEntry->description=$request->description[$i];
-                $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+                $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
                 $TaskTimeEntry->entry_rate=Auth::User()->default_rate;
                 $TaskTimeEntry->rate_type='hr';
                 $TaskTimeEntry->duration =$request->duration[$i];

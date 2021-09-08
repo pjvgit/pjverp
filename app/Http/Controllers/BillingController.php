@@ -258,7 +258,7 @@ class BillingController extends BaseController
             $TaskTimeEntry->time_entry_billable="no";
         }
         $TaskTimeEntry->description=$request->case_description;
-        $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+        $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
         $TaskTimeEntry->rate_type=$request->rate_type_field_id;
         $TaskTimeEntry->duration =$request->duration_field;
@@ -519,7 +519,7 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
@@ -577,7 +577,7 @@ class BillingController extends BaseController
                         $TaskTimeEntry->time_entry_billable="no";
                     }
                     $TaskTimeEntry->description=$request->description[$i];
-                    $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+                    $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
                     $TaskTimeEntry->cost=$request->cost[$i];
                     $TaskTimeEntry->duration =$request->duration[$i];
                     $TaskTimeEntry->created_at=date('Y-m-d h:i:s'); 
@@ -756,7 +756,7 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 
@@ -2398,7 +2398,7 @@ class BillingController extends BaseController
                 $FlatFeeEntry->invoice_link =$request->invoice_id;
             }
             $FlatFeeEntry->description=$request->case_description;
-            $FlatFeeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+            $FlatFeeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
             $FlatFeeEntry->created_by=Auth::User()->id; 
@@ -2457,7 +2457,7 @@ class BillingController extends BaseController
             $FlatFeeEntry = FlatFeeEntry::find($request->activity_id);
             $FlatFeeEntry->user_id =$request->staff_user;
             $FlatFeeEntry->description=$request->case_description;
-            $FlatFeeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+            $FlatFeeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
             $FlatFeeEntry->updated_by=Auth::User()->id; 
@@ -2527,7 +2527,7 @@ class BillingController extends BaseController
                 $TaskTimeEntry->time_entry_billable="no";
             }
             $TaskTimeEntry->description=$request->case_description;
-            $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+            $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
@@ -2623,7 +2623,7 @@ class BillingController extends BaseController
                 $TaskTimeEntry->time_entry_billable="no";
             }
             $TaskTimeEntry->description=$request->case_description;
-            $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+            $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
@@ -2762,7 +2762,7 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
@@ -2867,7 +2867,7 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date));
+        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 
@@ -3172,7 +3172,7 @@ class BillingController extends BaseController
             $InvoiceSave->id=$request->invoice_number_padded;
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id= ($request->court_case_id == "none") ? 0 : $request->court_case_id;
-            $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
+            $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->bill_invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
             $InvoiceSave->bill_address_text=$request->bill_address_text;
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";
@@ -4545,7 +4545,7 @@ class BillingController extends BaseController
             // print_r($request->all());exit;
             $InvoiceSave->user_id=$request->contact;
             $InvoiceSave->case_id=($request->court_case_id == "none") ? 0 : $request->court_case_id;
-            $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->bill_invoice_date));
+            $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->bill_invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
             $InvoiceSave->bill_address_text=$request->bill_address_text;            
             if($request->payment_terms==""){
                 $InvoiceSave->payment_term="5";
@@ -6889,7 +6889,7 @@ class BillingController extends BaseController
                 $InvoiceSave->id=$request->invoice_number_padded;
                 $InvoiceSave->user_id=$caseClient['selected_user'];
                 $InvoiceSave->case_id=$caseVal;
-                $InvoiceSave->invoice_date=date('Y-m-d',strtotime($request->batch['invoice_date']));
+                $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->batch['invoice_date'])))), auth()->user()->user_timezone ?? 'UTC');
                 if($request->batch['payment_terms']==""){
                     $InvoiceSave->payment_term="5";
                 }else{

@@ -49,6 +49,12 @@ class Invoices extends Model
             return '--';
         }
     }
+
+    public function getInvoiceDateAttribute()
+    {
+        $userTime = convertUTCToUserDate($this->attributes['invoice_date'], auth()->user()->user_timezone  ?? 'UTC');            
+        return date('Y-m-d', strtotime($userTime));            
+    } 
     // public function getCurrentStatusAttribute(){
 
     //     if($this->is_sent=="yes"){

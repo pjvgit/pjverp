@@ -451,10 +451,16 @@ if(isset($_GET['task_read'])){
                             $result = array();
                             $yestedayDate=date('Y-m-d', strtotime('-1 day'));
                             foreach ($task as $element) {
-                                if($element->task_due_on < $yestedayDate){
-                                    $result[$yestedayDate][] = $element;
-                                }else{
+                                if($element->task_due_on <= $yestedayDate){
+                                    if($element->task_due_on == $yestedayDate){
+                                        $result['today'][] = $element;
+                                    }else{
+                                        $result['overdue'][] = $element;
+                                    }
+                                }else if($element->task_due_on > $yestedayDate){
                                     $result[$element->task_due_on][] = $element;
+                                }else{        
+                                    $result[$yestedayDate][] = $element;
                                 }
                             }
                             ?>
@@ -550,7 +556,6 @@ if(isset($_GET['task_read'])){
                                     style="cursor: initial;"></th>
                             </tr>
                         </thead>
-                       
                         @foreach($result as $key=>$row)
 
                         <?php if($key=='9999-12-30'){?>
@@ -562,7 +567,7 @@ if(isset($_GET['task_read'])){
                                 <i class="fas fa-sort-down align-text-top"></i></a>
                             </td>
                         </tr>
-                        <?php }else if($key < date('Y-m-d')){
+                        <?php }else if($key == 'overdue'){
                                     ?>
                         <tr class="row-group-header table-danger" role="button">
                             <td class="text-center"></td>
@@ -571,6 +576,11 @@ if(isset($_GET['task_read'])){
                                 <a class="" id="{{$key}}"  onclick="hideShow('{{$key}}')"  data-toggle="collapse" href="javascript:void(0);" data-target="#accordion-item-icons-{{$key}}" aria-expanded="true">
                                     <i class="fas fa-sort-down align-text-top"></i></a>
                                 </td>
+                        </tr>
+                        <?php }else if($key == 'today' ){?>
+                        <tr class="row-group-header table-secondary-task" role="button">
+                            <td class="text-center"></td>
+                            <td colspan="7"><strong>Due Today</strong></td>
                         </tr>
                         <?php } else {?>
                         <tr class="row-group-header table-secondary-task" role="button">

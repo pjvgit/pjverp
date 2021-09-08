@@ -3,10 +3,16 @@ $CommonController= new App\Http\Controllers\CommonController();
 $result = array();
 $yestedayDate=date('Y-m-d', strtotime('-1 day'));
 foreach ($task as $element) {
-    if($element->task_due_on < $yestedayDate){
-        $result[$yestedayDate][] = $element;
-    }else{
+    if($element->task_due_on <= $yestedayDate){
+        if($element->task_due_on == $yestedayDate){
+            $result['today'][] = $element;
+        }else{
+            $result['overdue'][] = $element;
+        }
+    }else if($element->task_due_on > $yestedayDate){
         $result[$element->task_due_on][] = $element;
+    }else{        
+        $result[$yestedayDate][] = $element;
     }
 }
 ?>
@@ -35,11 +41,16 @@ foreach ($task as $element) {
             <td class="text-center"></td>
             <td colspan="7"><strong>No due date</strong></td>
         </tr>
-        <?php }else if($key < date('Y-m-d')){?>
+        <?php }else if($key == 'overdue' ){?>
         <tr class="row-group-header table-danger" role="button">
             <td class="text-center"></td>
             <td colspan="7"><strong>Overdue</strong></td>
 
+        </tr>
+        <?php }else if($key == 'today' ){?>
+        <tr class="row-group-header table-secondary-task" role="button">
+            <td class="text-center"></td>
+            <td colspan="7"><strong>Due Today</strong></td>
         </tr>
         <?php } else {?>
         <tr class="row-group-header table-secondary-task" role="button">
