@@ -19,7 +19,21 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <span id="response"></span>
             @csrf
             <input type="hidden" id="trust_account_id" name="non_trust_account" value="{{$userData['uid']}}">
-            
+            @if($fundRequestList)
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label for="firstName1">Apply to Request</label>
+                    <select class="form-control caller_name select2" id="applied_to" name="applied_to" style="width: 100%;" placeholder="Applied To">
+                        <option value="0"> Do not apply to a retainer request</option>
+                        @forelse($fundRequestList as $key=>$val){?>
+                            <option value="{{$val->id}}">R-{{ sprintf('%06d', $val->id)}} (${{number_format($val->amount_due,2)}})</option>
+                        @empty
+                        @endforelse
+                    </select>
+                    <span id="papply"></span>
+                </div>
+            </div>
+            @endif
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Payment Method</label>

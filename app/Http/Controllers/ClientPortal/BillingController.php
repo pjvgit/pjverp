@@ -29,8 +29,8 @@ class BillingController extends Controller
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                             ->with("invoiceForwardedToInvoice", "invoiceLastPayment")->get();
         
-        $requestFunds = RequestedFund::where('client_id', auth()->id())->where('status', '!=', 'paid')->get();
-        $requestFundsHistory = RequestedFund::where('client_id', auth()->id())->where('status', 'paid')->get();
+        $requestFunds = RequestedFund::where('client_id', auth()->id())->where('amount_due', '>', '0.00')->orderBy('created_at', 'desc')->get();
+        $requestFundsHistory = RequestedFund::where('client_id', auth()->id())->where('amount_due', '0.00')->orderBy('created_at', 'desc')->get();
         return view("client_portal.billing.index", compact('invoices', 'forwardedInvoices', 'requestFunds', 'requestFundsHistory'));
     }
 

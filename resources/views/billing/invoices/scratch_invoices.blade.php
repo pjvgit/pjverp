@@ -55,7 +55,7 @@ if(!isset($adjustment_token)){
                                                         <option uType="client"  value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client)</option>
                                                         <?php } ?> --}}
                                                         @forelse ($ClientList as $key => $item)
-                                                        <option uType="client"  value="{{ $key }}" {{ (isset($client_id) && $key == $client_id) ? "selected" : "" }}> {{ substr($item,0,200) }} (Client)</option>
+                                                        <option uType="client"  value="{{ $item->id }}" {{ (isset($client_id) && $item->id == $client_id) ? "selected" : "" }}> {{ substr($item->name,0,200) }} (Client)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>
@@ -63,7 +63,7 @@ if(!isset($adjustment_token)){
                                                         {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
                                                         <option uType="company" value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
                                                         @forelse ($CompanyList as $key => $item)
-                                                        <option uType="company"  value="{{ $key }}"> {{ substr($item,0,200) }} (Company)</option>
+                                                        <option uType="company"  value="{{ $item->id }}"> {{ substr($item->name,0,200) }} (Company)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>

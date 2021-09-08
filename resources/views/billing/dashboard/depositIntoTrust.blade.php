@@ -17,7 +17,7 @@ foreach($Invoices as $k=>$v){
                 <label for="inputEmail3" class="col-form-label">Select Contact</label>
                 <select class="form-control contact select2" id="contact" name="contact">
                     <option></option>
-                    <?php if(!empty($clientArray)){?>
+                    {{-- <?php if(!empty($clientArray)){?>
                     <optgroup label="Client">
                         <?php foreach($clientArray as $k=>$v){
                             ?>
@@ -27,8 +27,16 @@ foreach($Invoices as $k=>$v){
                             <?php 
                         }?>
                     </optgroup>
-                    <?php } ?>
-                    <?php if(!empty($companyArray)){?>
+                    <?php } ?> --}}
+                    <optgroup label="Client">
+                        @forelse (firmClientList() as $key => $item)
+                            <option value="{{$item->id}}">{{$item->name}} 
+                                ({{ getUserTypeText()[$item->user_level] }})
+                            </option>
+                        @empty
+                        @endforelse
+                    </optgroup>
+                    {{-- <?php if(!empty($companyArray)){?>
                     <optgroup label="Company">
                         <?php foreach($companyArray as $k=>$v){
                            ?>
@@ -38,7 +46,15 @@ foreach($Invoices as $k=>$v){
                         <?php 
                         } ?>
                     </optgroup>
-                    <?php } ?>
+                    <?php } ?> --}}
+                    <optgroup label="Comapny">
+                        @forelse (firmCompanyList() as $key => $item)
+                            <option value="{{$item->id}}">{{$item->name}} 
+                                ({{ getUserTypeText()[$item->user_level] }})
+                            </option>
+                        @empty
+                        @endforelse
+                    </optgroup>
                 </select>
             </div>
         </div>

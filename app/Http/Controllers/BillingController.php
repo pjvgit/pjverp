@@ -7219,11 +7219,11 @@ class BillingController extends BaseController
             $userData = User::find($user_id);
             if(!empty($userData)){
                 
-                $CaseMasterClient = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+                // $CaseMasterClient = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
-                $CaseMasterCompany = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+                // $CaseMasterCompany = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 
-                return view('billing.dashboard.loadDepositIntoCredit',compact('CaseMasterClient','CaseMasterCompany'));
+                return view('billing.dashboard.loadDepositIntoCredit'/* ,compact('CaseMasterClient','CaseMasterCompany') */);
                 exit;  
             }else{
                 return response()->json(['errors'=>'error']);
@@ -7245,8 +7245,8 @@ class BillingController extends BaseController
 
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
-                $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id)->where("amount_due",">",0)->get();
-                return view('billing.dashboard.depositNonTrustFundPopup',compact('userData','clientList'));
+                $fundRequestList = RequestedFund::where("client_id", $user_id)->where('deposit_into_type', 'credit')->where("amount_due",">",0)->get();
+                return view('billing.dashboard.depositNonTrustFundPopup',compact('userData','fundRequestList'));
                 exit;  
             }else{
                 return response()->json(['errors'=>'error']);
@@ -7258,19 +7258,41 @@ class BillingController extends BaseController
     {
         // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
-        $validator = \Validator::make($request->all(), [
-            'payment_method' => 'required',
-            'amount' => 'required|numeric|min:1',
-            'non_trust_account' => 'required'
-        ],[
-            'amount.min'=>"Amount must be greater than $0.00"
-        ]);
+        if(isset($request->applied_to) && $request->applied_to != 0) {
+            $requestData = RequestedFund::find($request->applied_to);
+            $finalAmt = $requestData->amount_requested - $requestData->amount_paid;
+    
+            $validator = \Validator::make($request->all(), [
+                'payment_method' => 'required',
+               'amount' => 'required|numeric|min:1|max:'.$finalAmt,
+            ],[
+                'amount.min'=>"Amount must be greater than $0.00",
+                'amount.max' => 'Amount exceeds requested balance of $'.number_format($finalAmt,2),
+            ]);
+        } else {
+            $validator = \Validator::make($request->all(), [
+                'payment_method' => 'required',
+                'amount' => 'required|numeric|min:1',
+                'non_trust_account' => 'required'
+            ],[
+                'amount.min'=>"Amount must be greater than $0.00"
+            ]);
+        }
 
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             dbStart();
+            if(isset($request->applied_to) && $request->applied_to!=0){
+                $refundRequest = RequestedFund::find($request->applied_to);
+                $refundRequest->fill([
+                    'amount_due' => ($refundRequest->amount_due - $request->amount),
+                    'amount_paid' => ($refundRequest->amount_paid + $request->amount),
+                    'payment_date' => date('Y-m-d'),
+                    'status' => 'partial',
+                ])->save();
+            }
             $userAddInfo = UsersAdditionalInfo::where("user_id", $request->non_trust_account)->first();
 
             $DepositIntoCreditHistory=new DepositIntoCreditHistory;
@@ -7282,6 +7304,7 @@ class BillingController extends BaseController
             $DepositIntoCreditHistory->total_balance = ($userAddInfo->credit_account_balance + $request->amount);
             $DepositIntoCreditHistory->payment_type = "deposit";
             $DepositIntoCreditHistory->firm_id=Auth::User()->firm_name;                
+            $DepositIntoCreditHistory->related_to_fund_request_id = @$refundRequest->id;                
             $DepositIntoCreditHistory->created_by=Auth::User()->id;                
             $DepositIntoCreditHistory->created_at=date('Y-m-d H:i:s');                
             $DepositIntoCreditHistory->save();
@@ -7301,6 +7324,9 @@ class BillingController extends BaseController
             $data['user_id']=$DepositIntoCreditHistory->created_by;
             $data['client_id']=$DepositIntoCreditHistory->user_id;
             $data['activity']='accepted a deposit into credit of $'.$DepositIntoCreditHistory->deposit_amount.' ('.ucfirst($DepositIntoCreditHistory->payment_method).') for';
+            if(isset($request->applied_to) && $request->applied_to != 0) {
+                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request ".@$refundRequest->padding_id;
+            }
             $data['type']='credit';
             $data['action']='add';
             $CommonController= new CommonController();
@@ -7438,6 +7464,8 @@ class BillingController extends BaseController
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);
                 $refundRequest->amount_paid=($refundRequest->amount_paid+$request->amount);
+                $refundRequest->payment_date=date('Y-m-d');
+                $refundRequest->status='partial';
                 $refundRequest->save();
             }
             // $deposit_into_trust=new DepositIntoTrust;
@@ -7471,6 +7499,7 @@ class BillingController extends BaseController
             $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
+            $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
 

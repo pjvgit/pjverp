@@ -16,7 +16,7 @@ class TrustHistory extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = ['client_id', 'payment_method', 'amount_paid', 'withdraw_amount', 'withdraw_from_account', 'payment_date', 'notes', 'fund_type', 
-                'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by'];
+                'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by', 'related_to_fund_request_id'];
 
     protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund'];
     public function getCreatedatnewformateAttribute(){
@@ -92,5 +92,25 @@ class TrustHistory extends Authenticatable
          }
           
       }
+
+    /**
+     * Get the invoice that owns the TrustHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'related_to_invoice_id');
+    }
+
+    /**
+     * Get the fundRequest that owns the TrustHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function fundRequest()
+    {
+        return $this->belongsTo(RequestedFund::class, 'related_to_fund_request_id');
+    }
       
 }

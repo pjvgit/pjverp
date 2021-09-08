@@ -11,7 +11,7 @@
                             <select class="form-control caller_name select2" id="contact" onchange="reloadClientAmount()" name="contact"
                                 style="width: 100%;" placeholder="Search for an existing contact or company">
                                 <option></option>
-                                <optgroup label="Client">
+                                {{-- <optgroup label="Client">
                                     <?php foreach($ClientList as $key=>$val){ 
                                         if($val->email==NULL){
                                             $isEmail="no";
@@ -21,12 +21,28 @@
                                     <option uType="client" <?php if($val->id==$client_id){ echo "selected=selected";} ?> isemail="{{$isEmail}}" value="{{$val->id}}" <?php if($val->id==$client_id){ echo "selected=selected";} ?> >{{substr($val->name,0,200)}} (Client)
                                     </option>
                                     <?php } ?>
+                                </optgroup> --}}
+                                <optgroup label="Client">
+                                    @forelse (firmClientList() as $key => $item)
+                                        <option uType="client" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}">{{$item->name}} 
+                                            ({{ getUserTypeText()[$item->user_level] }})
+                                        </option>
+                                    @empty
+                                    @endforelse
                                 </optgroup>
-                                <optgroup label="Company">
+                                {{-- <optgroup label="Company">
                                     <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
                                     <option uType="company"  <?php if($CompanyListVal->id==$client_id){ echo "selected=selected";} ?> isemail={{$val->email}} value="{{$CompanyListVal->id}}">
                                         {{substr($CompanyListVal->first_name,0,200)}} (Company)</option>
                                     <?php } ?>
+                                </optgroup> --}}
+                                <optgroup label="Comapny">
+                                    @forelse (firmCompanyList() as $key => $item)
+                                        <option uType="company" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}" >{{$item->name}} 
+                                            ({{ getUserTypeText()[$item->user_level] }})
+                                        </option>
+                                    @empty
+                                    @endforelse
                                 </optgroup>
                             </select>
                             <span id="ContactError"></span>
@@ -182,6 +198,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
+        reloadClientAmount();
         $('.input-date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -203,7 +220,8 @@
             dropdownParent: $("#addRequestFund"),
         });
         $('#addEmailToClient').on('hidden.bs.modal', function () {
-            $("#contact").select2("val", "");
+            // $("#contact").select2("val", "");
+            $("#contact").val("").trigger('change');
         });
         afterLoader();
         $("#addRequestForm").validate({
