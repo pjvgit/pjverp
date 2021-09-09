@@ -109,7 +109,7 @@ usort($timezones, function($a, $b) {
 
 $timezoneData = [];
 foreach ($timezones as $key => $timezone) {
-    $timezoneData['(UTC ' . $timezone['offset'] . ') - ' . $timezone['timezone']] = $timezone['timezone'];
+    $timezoneData['(GMT ' . $timezone['offset'] . ') - ' . $timezone['timezone']] = $timezone['timezone'];
 }
 define('TIME_ZONE_DATA', serialize($timezoneData));
 

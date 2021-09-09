@@ -3,7 +3,7 @@
         @csrf
         <input type="hidden" value="{{$TaskTimeEntry['id']}}" name="activity_id" id="activity_id">
 
-        <div class="form-group row">
+        <div class="form-group row" bladeName="resources/views/billing/invoices/editSingleTimeEntryPopup.blade.php">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case</label>
             <div class="col-10 form-group mb-3">
                 {{ (isset($CaseMasterData)) ? $CaseMasterData['case_title'] : "None" }}

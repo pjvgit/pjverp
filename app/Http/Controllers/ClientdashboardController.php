@@ -2785,6 +2785,7 @@ class ClientdashboardController extends BaseController
                         }
                         
                     }else{
+                        if($csv_data[0][0]=="Company" || $csv_data[0][0]=="company" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="4";
                         unset($csv_data[0]);
                         $ClientCompanyImport->total_record=count($csv_data);
@@ -2873,6 +2874,15 @@ class ClientdashboardController extends BaseController
                             $ClientCompanyImport->status=2;
                             $ClientCompanyImport->save();
                         }
+                    }else{
+                            $errorString='<ul><li>Wrong file use for imports because columns are not matched. Make sure that you are copying the data into the right columns. Please Use Legal Case Import Template Spreadsheet...</li></ui>';
+                            $ClientCompanyImport->error_code=$errorString;
+                            $ClientCompanyImport->status=2;
+                            $ClientCompanyImport->save();
+    
+                            return response()->json(['errors'=>$errorString,'contact_id'=>'']);
+                            exit;
+                        } 
                     }
                   
                 }else{

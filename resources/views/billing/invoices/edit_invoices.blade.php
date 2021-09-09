@@ -575,12 +575,12 @@
                                             if($v->rate_type=="flat"){
                                                 echo $Total=$v->entry_rate;
                                                 if($v->time_entry_billable=="yes"){
-                                                    $timeEntryAmount=$timeEntryAmount+$v->entry_rate;
+                                                    $timeEntryAmount+=$v->entry_rate;
                                                 }
                                             }else{
                                                 echo $Total= (str_replace(",","",$v->duration) * $v->entry_rate);
                                                 if($v->time_entry_billable=="yes"){
-                                                    $timeEntryAmount=$timeEntryAmount+$Total;
+                                                    $timeEntryAmount+=$Total;
                                                     $timeEntryTime=$timeEntryTime+str_replace(",","",$v->duration);
                                                 }
                                             }
@@ -805,7 +805,7 @@
                                                 <?php 
                                                 echo $Total= (str_replace(",","",$v->duration) * $v->cost);
                                                 if($v->time_entry_billable=="yes"){
-                                                    $expenseAmount=$expenseAmount+$Total;
+                                                    $expenseAmount+=$Total;
                                                 }
                                                 ?>
                                             </div>
@@ -2961,7 +2961,7 @@
             var dataString=firstInstallment = '';
             dataString = $("#paymentPlansForm").serialize();
            
-            var number_installment_field=Math.floor($("#number_installment_field").val());
+            var number_installment_field=$("#number_installment_field").val();
             var amount_per_installment_field=$("#amount_per_installment_field").val();
             var installment_frequency_field=$("#installment_frequency_field").val();
             var start_date=$("#start_date").val();
@@ -2977,7 +2977,7 @@
             var date = new Date(tt);
             var newdate = new Date(date);
             var countSum=0;
-            for(var loopVar=1;loopVar<=number_installment_field;loopVar++){
+            for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
                
                 var dd = newdate.getDate();
                 var mm = newdate.getMonth()+1;
@@ -2996,7 +2996,7 @@
                     countSum+=parseFloat(firstInstallment);
                 }else{
                     firstInstallment=amount_per_installment_field;
-                    if(loopVar==number_installment_field){
+                    if(loopVar==Math.floor(number_installment_field)){
                         totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                         firstInstallment=totalAMT-countSum;
                     }else{
@@ -4084,7 +4084,7 @@
         var dataString=firstInstallment = '';
         dataString = $("#paymentPlansForm").serialize();
     
-        var number_installment_field=Math.floor(("#number_installment_field").val());
+        var number_installment_field=$("#number_installment_field").val();
         var amount_per_installment_field=$("#amount_per_installment_field").val();
         var installment_frequency_field=$("#installment_frequency_field").val();
         var start_date=$("#start_date").val();
@@ -4100,7 +4100,7 @@
         var date = new Date(tt);
         var newdate = new Date(date);
         var countSum=0;
-        for(var loopVar=1;loopVar<=number_installment_field;loopVar++){
+        for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
         
             var dd = newdate.getDate();
             var mm = newdate.getMonth()+1;
@@ -4119,7 +4119,7 @@
                 countSum+=parseFloat(firstInstallment);
             }else{
                 firstInstallment=amount_per_installment_field;
-                if(loopVar==number_installment_field){
+                if(loopVar==Math.floor(number_installment_field)){
                     totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                     firstInstallment=totalAMT-countSum;
                 }else{

@@ -357,7 +357,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     // setPrintHtml(json)
                 }
         });
-        $('#importContacts').on('hidden.bs.modal', function () {
+        $('#importCourtCase').on('hidden.bs.modal', function () {
+            document.getElementById('importCasesWithOptionForm').reset();
+            window.location.reload();
             CaseImportExportHistorty.ajax.reload(null, false);
         });
 
@@ -392,6 +394,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         afterLoader();
                         return false;
                     } else {
+                        document.getElementById('importCasesWithOptionForm').reset();
                         window.location.reload();
                     }
                 },

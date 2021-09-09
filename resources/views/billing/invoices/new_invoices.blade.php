@@ -251,7 +251,7 @@ if(!isset($addition)){ $addition=0;}
                                 @endif
                             </h2>
                         </div>
-                        <?php if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed"){?>
+                        <?php // if($caseMaster &&  ($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed")){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -413,7 +413,7 @@ if(!isset($addition)){ $addition=0;}
                             </tbody>
                         </table>
                         <br>
-                        <?php  } ?>
+                        <?php  // } ?>
                         <!-- start -->
                         <?php if($case_id != 'none') { ?>
                         <div class="invoice_entry_header">
@@ -906,9 +906,9 @@ if(!isset($addition)){ $addition=0;}
                         </div>
                         @endif
 
+                    <!-- end -->
+                    <?php } ?>
                         <div style="margin-top: 15px;">
-
-
                             <div class="invoice_entry_header">
                                 <h3>Adjustments</h3>
                             </div>
@@ -1115,13 +1115,6 @@ if(!isset($addition)){ $addition=0;}
 
 
                     </div>
-                    <!-- end -->
-                        <?php }else{ ?>
-                            <div id="entries" style="margin: 5px;">
-                                <div style="text-align: center; font-style: italic; border-bottom: 1px solid #8f4a4a; padding-bottom: 20px; padding-top: 15px;">Please select a client and a matter for this invoice
-                                </div>
-                            </div>
-                        <?php } ?>
                     <?php }else{ ?>
                         <div id="entries" style="margin: 5px;">
                              <div style="text-align: center; font-style: italic; border-bottom: 1px solid #8f4a4a; padding-bottom: 20px; padding-top: 15px;">Please select a client and a matter for this invoice
@@ -2879,7 +2872,7 @@ if(!isset($addition)){ $addition=0;}
             var dataString=firstInstallment = '';
             dataString = $("#paymentPlansForm").serialize();
            
-            var number_installment_field=Math.floor($("#number_installment_field").val());
+            var number_installment_field=$("#number_installment_field").val();
             var amount_per_installment_field=$("#amount_per_installment_field").val();
             var installment_frequency_field=$("#installment_frequency_field").val();
             var start_date=$("#start_date").val();
@@ -2895,7 +2888,7 @@ if(!isset($addition)){ $addition=0;}
             var date = new Date(tt);
             var newdate = new Date(date);
             var countSum=0;
-            for(var loopVar=1;loopVar<=number_installment_field;loopVar++){
+            for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
                
                 var dd = newdate.getDate();
                 var mm = newdate.getMonth()+1;
@@ -2914,7 +2907,7 @@ if(!isset($addition)){ $addition=0;}
                     countSum+=parseFloat(firstInstallment);
                 }else{
                     firstInstallment=amount_per_installment_field;
-                    if(loopVar==number_installment_field){
+                    if(loopVar==Math.floor(number_installment_field)){
                         totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                         firstInstallment=totalAMT-countSum;
                     }else{
@@ -2980,7 +2973,7 @@ if(!isset($addition)){ $addition=0;}
                 var dataString=firstInstallment = '';
                 dataString = $("#paymentPlansForm").serialize();
             
-                var number_installment_field=Math.floor($("#number_installment_field").val());
+                var number_installment_field=$("#number_installment_field").val();
                 var amount_per_installment_field=$("#amount_per_installment_field").val();
                 var installment_frequency_field=$("#installment_frequency_field").val();
                 var start_date=$("#start_date").val();
@@ -2996,7 +2989,7 @@ if(!isset($addition)){ $addition=0;}
                 var date = new Date(tt);
                 var newdate = new Date(date);
                 var countSum=0;
-                for(var loopVar=1;loopVar<=number_installment_field;loopVar++){
+                for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
                 
                     var dd = newdate.getDate();
                     var mm = newdate.getMonth()+1;
@@ -3015,7 +3008,7 @@ if(!isset($addition)){ $addition=0;}
                         countSum = parseFloat(countSum) + parseFloat(firstInstallment.replace(',', ''));
                     }else{
                         firstInstallment=amount_per_installment_field;
-                        if(loopVar==number_installment_field){
+                        if(loopVar==Math.floor(number_installment_field)){
                             totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                             firstInstallment=totalAMT-countSum;
                         }else{

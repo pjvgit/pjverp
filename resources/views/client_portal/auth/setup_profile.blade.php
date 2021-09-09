@@ -35,7 +35,7 @@
                         <div class="col-12 col-sm-7">
                             <select name="user_timezone" class="form-control select2" placeholder="Select Timezone">
                                 @php
-                                    $timezoneData = unserialize(TIME_ZONE_DATA); //
+                                    $timezoneData = unserialize(getMyCaseTimezone()); //
                                 @endphp
                                 @forelse(array_flip($timezoneData) as $key=>$val)
                                     <option value="{{$key}}">{{$val}}</option>

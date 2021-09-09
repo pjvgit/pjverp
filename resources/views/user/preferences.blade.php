@@ -364,9 +364,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 <select class="form-control timeZone" id="timeZone" name="timeZone"
                                                     data-placeholder="Select User Type">
                                                     <?php  foreach($timezoneData as $k=>$v){?>
-                                                    <option
-                                                        <?php if($v==Auth::User()->user_timezone){ echo "Selected=selected";} ?>
-                                                        value="{{$v}}">{{$k}}</option>
+                                                    <option <?php echo ($v==Auth::User()->user_timezone) ? "selected" : ""; ?> value="{{$v}}">{{$k}}</option>
                                                     <?php } ?>
                                                 </select>
                                             </div>

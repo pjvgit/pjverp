@@ -391,3 +391,29 @@ function firmCompanyList()
     $authUser = auth()->user();
     return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
 }
+
+function getTimezoneList() {
+    /* * get dynamically timezone data* */
+    $timezones = [];
+
+    foreach (timezone_identifiers_list() as $timezone) {
+        $datetime = new \DateTime('now', new DateTimeZone($timezone));
+        $timezones[] = [
+            'sort' => str_replace(':', '', $datetime->format('P')),
+            'offset' => $datetime->format('P'),
+            'name' => str_replace('_', ' ', implode(', ', explode('/', $timezone))),
+            'timezone' => $timezone,
+        ];
+    }
+
+    usort($timezones, function($a, $b) {
+        return $a['sort'] - $b['sort'] ?: strcmp($a['name'], $b['name']);
+    });
+
+    $timezoneData = [];
+    foreach ($timezones as $key => $timezone) {
+        $timezoneData['(GMT ' . $timezone['offset'] . ') - ' . $timezone['timezone']] = $timezone['timezone'];
+    }
+
+    return serialize($timezoneData);
+}

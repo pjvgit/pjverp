@@ -112,10 +112,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Format</label>
                                     <div class="col-sm-8">
-                                        <input type="radio" value="vcf" name="import_format"
+                                        <input autocomplete="off" type="radio" value="vcf" name="import_format"
                                             id="import_import_format_vcard_vcf">
                                         vCard (Google, Mac Address Book)<br>
-                                        <input id="outlook_csv" type="radio" value="csv"
+                                        <input autocomplete="off" id="outlook_csv" type="radio" value="csv"
                                             name="import_format">
                                         CSV (including Outlook)
                                         <br>
@@ -127,7 +127,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Option</label>
                                     <div class="col-sm-8">
                                         <div style="line-height: 1.5em;" id="fileupload-dropzone">
-                                            <input type="file" name="upload_file" id="upload_file">
+                                            <input autocomplete="off" type="file" name="upload_file" id="upload_file">
                                         </div>
                                         <span id="UserTypeError"></span>
                                         <br>
@@ -326,6 +326,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 }
         });
         $('#importContacts').on('hidden.bs.modal', function () {
+            document.getElementById('importContactWithOptions').reset();
+            window.location.reload();
             importExportHistorty.ajax.reload(null, false);
         });
         $('#exportContactWithOptions').submit(function (e) {
@@ -359,6 +361,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         return false;
                     } else {
                         $("#exportContacts").modal("hide");
+                        document.getElementById('importContactWithOptions').reset();
+                        $('.showError').html('');
                         swal('Success!', res.msg, 'success');
                         window.open(res.url);
                         setTimeout(function () {
