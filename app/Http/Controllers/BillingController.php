@@ -3637,6 +3637,7 @@ class BillingController extends BaseController
             // Apply trust and credit funds
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
+                    $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     InvoiceApplyTrustCreditFund::create([
                         'invoice_id' => $InvoiceSave->id,
                         'client_id' => @$item['client_id'] ?? NUll,
@@ -3646,6 +3647,8 @@ class BillingController extends BaseController
                         'deposite_into' => @$item['deposite_into'] ?? NULL,
                         'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
+                        'trust_history_last_id' => @$trustHistoryLast->id,
+                        'total_balance' => $trustHistoryLast->current_trust_balance
                     ]);
                     if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
                         $authUser = auth()->user();
@@ -3724,6 +3727,7 @@ class BillingController extends BaseController
             }
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
+                    $creditHistoryLast = DepositIntoCreditHistory::where("user_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     InvoiceApplyTrustCreditFund::create([
                         'invoice_id' => $InvoiceSave->id,
                         'client_id' => @$item['client_id'] ?? NUll,
@@ -3733,6 +3737,8 @@ class BillingController extends BaseController
                         'deposite_into' => @$item['deposite_into'] ?? NULL,
                         'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
+                        'credit_history_last_id' => @$creditHistoryLast->id,
+                        'total_balance' => $creditHistoryLast->total_balance
                     ]);
 
                     if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
@@ -3811,6 +3817,7 @@ class BillingController extends BaseController
                     }
                 }
             }
+
             dbCommit();
             $decodedId=base64_encode($InvoiceSave->id);
             return redirect('bills/invoices/view/'.$decodedId);
@@ -5021,30 +5028,70 @@ class BillingController extends BaseController
             // Apply trust and credit funds
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
-                    InvoiceApplyTrustCreditFund::updateOrCreate([
-                        'id' => @$item['id'],
-                    ],[
-                        'invoice_id' => $InvoiceSave->id,
-                        'client_id' => @$item['client_id'] ?? NUll,
-                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
-                        'account_type' => 'trust',
-                        'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
-                        'updated_by' => auth()->id(),
-                    ]);
+                    $appliedTrust = InvoiceApplyTrustCreditFund::whereId($item['id'])->first();
+                    $trustHistoryLast = TrustHistory::where("client_id", $item['client_id'])->orderBy('created_at', 'desc')->first();
+                    if($appliedTrust) {
+                        $data = [
+                            'invoice_id' => $InvoiceSave->id,
+                            'client_id' => @$item['client_id'] ?? NUll,
+                            'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
+                            'account_type' => 'trust',
+                            'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
+                        ];
+                        if($appliedTrust->show_trust_account_history != 'trust account history' && $item['show_trust_account_history'] == 'trust account history') {
+                            $data['trust_history_last_id'] = @$trustHistoryLast->id;
+                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        } else if($appliedTrust->show_trust_account_history != 'trust account summary' && $item['show_trust_account_history'] == 'trust account summary') {
+                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        }
+                        $appliedTrust->fill($data + [
+                            'updated_by' => auth()->id(),
+                        ])->save();
+                    } else {
+                        if($item['show_trust_account_history'] == 'trust account history') {
+                            $data['trust_history_last_id'] = @$trustHistoryLast->id;
+                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        } else if($item['show_trust_account_history'] == 'trust account summary') {
+                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        }
+                        InvoiceApplyTrustCreditFund::create($data + [
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
                 }
             }
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
-                    InvoiceApplyTrustCreditFund::updateOrCreate([
-                        'id' => @$item['id'],
-                        ],[
-                        'invoice_id' => $InvoiceSave->id,
-                        'client_id' => @$item['client_id'] ?? NUll,
-                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
-                        'account_type' => 'credit',
-                        'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
-                        'updated_by' => auth()->id(),
-                    ]);
+                    $appliedCredit = InvoiceApplyTrustCreditFund::whereId($item['id'])->first();
+                    $creditHistoryLast = DepositIntoCreditHistory::where("user_id", $item['client_id'])->orderBy('created_at', 'desc')->first();
+                    if($appliedCredit) {
+                        $data = [
+                            'invoice_id' => $InvoiceSave->id,
+                            'client_id' => @$item['client_id'] ?? NUll,
+                            'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
+                            'account_type' => 'credit',
+                            'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
+                        ];
+                        if($appliedCredit->show_credit_account_history != 'credit account history' && $item['show_credit_account_history'] == 'credit account history') {
+                            $data['credit_history_last_id'] = @$creditHistoryLast->id;
+                            $data['total_balance'] = @$creditHistoryLast->total_balance;
+                        } else if($appliedCredit->show_credit_account_history != 'credit account summary' && $item['show_credit_account_history'] == 'credit account summary') {
+                            $data['total_balance'] = @$creditHistoryLast->total_balance;
+                        }
+                        $appliedCredit->fill($data + [
+                            'updated_by' => auth()->id(),
+                        ])->save();
+                    } else {
+                        if($item['show_credit_account_history'] == 'credit account history') {
+                            $data['credit_history_last_id'] = @$creditHistoryLast->id;
+                            $data['total_balance'] = @$creditHistoryLast->total_balance;
+                        } else if($item['show_credit_account_history'] == 'credit account summary') {
+                            $data['total_balance'] = @$creditHistoryLast->total_balance;
+                        }
+                        InvoiceApplyTrustCreditFund::create($data + [
+                            'updated_by' => auth()->id(),
+                        ]);
+                    }
                 }
             }
 
@@ -5356,17 +5403,13 @@ class BillingController extends BaseController
                 $InvoicePayment->save();
 
                 //Deduct invoice amount when payment done
+                $this->updateInvoiceAmount($invoiceId['id']);
                 // $totalPaid=InvoicePayment::where("invoice_id",$invoiceId['id'])->get()->sum("amount_paid");
-                $allPayment = InvoicePayment::where("invoice_id", $invoiceId['id'])->get();
+                /* $allPayment = InvoicePayment::where("invoice_id", $invoiceId['id'])->get();
                 $totalPaid = $allPayment->sum("amount_paid");
                 $totalRefund = $allPayment->sum("amount_refund");
                 $remainPaidAmt = ($totalPaid - $totalRefund);
                 $dueAmount = ($InvoiceData['total_amount'] - $remainPaidAmt);
-                /* if(($totalPaid-$InvoiceData['total_amount'])==0){
-                    $status="Paid";
-                }else{
-                    $status="Partial";
-                } */
                 if($remainPaidAmt == 0) {
                     $status="Unsent";
                 } else if($dueAmount == 0) {
@@ -5379,7 +5422,7 @@ class BillingController extends BaseController
                     // 'due_amount'=>($InvoiceData['total_amount'] - $totalPaid),
                     'due_amount'=> $dueAmount,
                     'status'=>$status,
-                ]);
+                ]); */
 
                 //Deposit into trust account
                 if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){

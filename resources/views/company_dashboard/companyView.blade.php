@@ -1907,7 +1907,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             });
         });
 
-        $('#addEmailtouser').submit(function (e) {
+        /* $('#addEmailtouser').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -1952,7 +1952,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
         $('#deleteRequestedFundEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
@@ -2430,4 +2430,5 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

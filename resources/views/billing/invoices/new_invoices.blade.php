@@ -1360,7 +1360,7 @@ if(!isset($addition)){ $addition=0;}
                                             </thead>
                                             <tbody>
                                                 @if(!empty($caseMaster->caseAllClient))
-                                                    @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                     <tr class="account-history-config-row">
                                                         <td class="account-history-display-setting">
                                                             <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
