@@ -206,6 +206,9 @@
             allowClear: true,
             dropdownParent: $("#addRequestFund"),
         });
+        $('#addEmailToClient .close, .close-modal').on('click', function () {
+            $("#contact").val("").trigger('change');
+        });
         afterLoader();
         $("#addRequestForm").validate({
             rules: {

@@ -383,6 +383,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 </div>
 
 @include('commonPopup.popup_without_param_code')
+@include('client_dashboard.billing.modal')
 <style>
     .progress-bar {
         padding: auto;
@@ -1031,5 +1032,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
    
 </script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

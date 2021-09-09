@@ -33,7 +33,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="col-md-12  text-center">
                         <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
                         <div class="form-group row float-right">
-                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-secondary m-1 close-modal" type="button" data-dismiss="modal">Cancel</button>
                             <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit"
                                 type="submit">Save Email</button>
                         </div>

@@ -281,7 +281,7 @@ class User extends Authenticatable
      */
     public function userCreditAccountHistory()
     {
-        return $this->hasMany(DepositIntoCreditHistory::class, 'user_id')->orderBy("created_at", "desc");
+        return $this->hasMany(DepositIntoCreditHistory::class, 'user_id')->orderBy("payment_date", "desc")->orderBy("created_at", "desc");
     }
 
     /**

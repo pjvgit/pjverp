@@ -2107,9 +2107,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     
                     $('td:eq(0)', nRow).html('<div class="text-left">'+aData.added_date+'</div>');
-                    if(aData.related_to_fund_request_id != '')
+                    if(aData.related_to_fund_request_id != null)
                         $('td:eq(1)', nRow).html('<div class="text-left">'+aData.fund_request.padding_id+'</div>');
-                    else if(aData.related_to_invoice_id != '')
+                    else if(aData.related_to_invoice_id != null)
                         $('td:eq(1)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'" >#'+aData.invoice.invoice_id+'</a></div>');
                     else
                         $('td:eq(1)', nRow).html('<div class="text-left">-</div>');
@@ -2353,7 +2353,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             });
         });
 
-        $('#addEmailtouser').submit(function (e) {
+        /* $('#addEmailtouser').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -2398,7 +2398,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
 
         
         $('#deleteRequestedFundEntry').submit(function (e) {
@@ -3131,5 +3131,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 // <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

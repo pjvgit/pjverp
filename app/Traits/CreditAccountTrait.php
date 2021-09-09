@@ -10,6 +10,7 @@ use App\User;
 use App\UsersAdditionalInfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 trait CreditAccountTrait {
  
@@ -135,6 +136,7 @@ trait CreditAccountTrait {
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
+        Log::info("invoice due date: ".$dueDate);
         if($remainPaidAmt == 0) {
             $status="Unsent";
         } elseif($invoice->total_amount == $remainPaidAmt) {

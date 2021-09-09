@@ -1147,7 +1147,7 @@ class CompanydashboardController extends BaseController
             $clientData=User::find($request->client_id);
             $clientData->email=$request->email;
             $clientData->save();
-            return response()->json(['errors'=>'']);
+            return response()->json(['errors'=>'', 'user_id' => $clientData->id]);
             exit;   
         }
     }
