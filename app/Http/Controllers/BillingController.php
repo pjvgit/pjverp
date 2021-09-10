@@ -5029,7 +5029,7 @@ class BillingController extends BaseController
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
                     $appliedTrust = InvoiceApplyTrustCreditFund::whereId($item['id'])->first();
-                    $trustHistoryLast = TrustHistory::where("client_id", $item['client_id'])->orderBy('created_at', 'desc')->first();
+                    $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     if($appliedTrust) {
                         $data = [
                             'invoice_id' => $InvoiceSave->id,

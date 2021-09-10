@@ -386,7 +386,7 @@
                         if(res.is_non_trust_retainer == "yes") {
                             $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
                         }
-                        $(".text-muted").show();
+                        $(".text-muted").show(); alert();
                         $('#disabledArea').removeClass('retainer-request-opaque');
                         $('.submit').removeAttr("disabled");  
                     }
@@ -404,7 +404,7 @@
             url: baseUrl + "/contacts/clients/reloadAmount", 
             data: {"user_id": contactSelectd},
             success: function (res) {
-                $("#contact").val(contactSelectd);
+                // $("#contact").val(contactSelectd);
                 $("#contact option:selected").attr('isemail','yes');
                 $("#current-balance").html(res.trust_account_balance);
                 $("#minimum-trust-balance").html(res.minimum_trust_balance);
@@ -415,6 +415,7 @@
                     $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
                 }
                 $("#preloader").hide();
+                $('.submit').removeAttr("disabled");  
             }
         })
     }

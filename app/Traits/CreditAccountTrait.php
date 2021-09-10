@@ -135,15 +135,17 @@ trait CreditAccountTrait {
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
+        // Log::info("total paid amount: ".$remainPaidAmt);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-        Log::info("invoice due date: ".$dueDate);
+        // Log::info("invoice due date: ".$dueDate);
+        // Log::info("compare date: ".strtotime($dueDate).' <= '.strtotime(date('Y-m-d')));
         if($remainPaidAmt == 0) {
             $status="Unsent";
         } elseif($invoice->total_amount == $remainPaidAmt) {
             $status = "Paid";
         } else if($remainPaidAmt < $invoice->total_amount && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
             $status="Partial";
-        } else if(strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+        } else if(strtotime($dueDate) <= strtotime(date('Y-m-d'))) {
             $status="Overdue";
         } else {
             $status = 'Unsent';

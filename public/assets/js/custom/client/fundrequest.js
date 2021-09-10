@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $('#addEmailtouser').submit(function (e) {
-        // beforeLoader();
+        beforeLoader();
         e.preventDefault();
 
         // if (!$('#addEmailtouser').valid()) {
@@ -31,10 +31,10 @@ $(document).ready(function() {
                     afterLoader();
                     return false;
                 } else {
-                    console.log('user id: '+res.user_id);
-                    $("#addRequestFund #contact").val(res.user_id);
-                    refreshDetail();
+                    // $("#addRequestFund #contact").val(res.user_id);
                     $("#addEmailToClient").modal("hide");
+                    refreshDetail();
+                    afterLoader();
                 }
             },
             error: function (xhr, status, error) {
