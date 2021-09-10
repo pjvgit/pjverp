@@ -3648,7 +3648,7 @@ class BillingController extends BaseController
                         'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
                         'trust_history_last_id' => @$trustHistoryLast->id,
-                        'total_balance' => $trustHistoryLast->current_trust_balance
+                        'total_balance' => @$trustHistoryLast->current_trust_balance
                     ]);
                     if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
                         $authUser = auth()->user();
@@ -4993,15 +4993,16 @@ class BillingController extends BaseController
                 $forwardInv = Invoices::whereIn("id", $syncedInvoices)->get();
                 if($forwardInv) {
                     foreach($forwardInv as $key => $item) {
-                        if($item->paid_amount > 0 && Carbon::parse($item->due_date)->gt(Carbon::now()))
-                            $status = "Partial";
-                        else if($item->due_date && Carbon::parse($item->due_date)->lt(Carbon::now()))
-                            $status = "Overdue";
-                        else if($item->is_sent  == "yes")
-                            $status = "Sent";
-                        else 
-                            $status = "Unsent";
-                        $item->fill(["status" => $status])->save();
+                        // if($item->paid_amount > 0 && Carbon::parse($item->due_date)->gt(Carbon::now()))
+                        //     $status = "Partial";
+                        // else if($item->due_date && Carbon::parse($item->due_date)->lt(Carbon::now()))
+                        //     $status = "Overdue";
+                        // else if($item->is_sent  == "yes")
+                        //     $status = "Sent";
+                        // else 
+                        //     $status = "Unsent";
+                        // $item->fill(["status" => $status])->save();
+                        $this->updateInvoiceAmount($item->id);
                         InvoiceHistory::create([
                             "invoice_id" => $item->id,
                             "acrtivity_title" => "invoice reopened",

@@ -844,7 +844,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <br>
 
 @if(!empty($Invoice->invoice_setting))
-    @if($Invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && !empty($Invoice->applyTrustCreditFund))
+    @if(/* $Invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && */ !empty($Invoice->applyTrustCreditFund))
     <div>
         @include('billing.invoices.partials.load_pdf_invoice_account_summary')
     </div>
