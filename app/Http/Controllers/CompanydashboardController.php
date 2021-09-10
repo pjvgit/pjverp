@@ -873,7 +873,7 @@ class CompanydashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                
+            dbStart();
             if($GetAmount->fund_type=="withdraw"){
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
                 $GetAmount->is_refunded="yes";
@@ -904,8 +904,15 @@ class CompanydashboardController extends BaseController
             
             }
             $TrustInvoice->refund_ref_id=$request->transaction_id;
+            $TrustInvoice->related_to_fund_request_id = $GetAmount->related_to_fund_request_id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
+
+            // For request refund
+            if($TrustInvoice->related_to_fund_request_id) {
+                $this->refundTrustRequest($TrustInvoice->id);
+            }
+            dbCommit();
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -921,6 +928,7 @@ class CompanydashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            dbStart();
             $TrustInvoice=TrustHistory::find($request->payment_id);
             if($TrustInvoice->fund_type=="refund_deposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->refund_amount);
@@ -944,7 +952,21 @@ class CompanydashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
 
+            if($TrustInvoice->related_to_fund_request_id) {
+                $this->deletePaymentTrustRequest($TrustInvoice->id);
+            }
+
+            $data=[];
+            $data['user_id']=$TrustInvoice->client_id;
+            $data['client_id']=$TrustInvoice->client_id;
+            $data['activity']="deleted a payment";
+            $data['type']='deposit';
+            $data['action']='delete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             TrustHistory::where('id',$request->payment_id)->delete();
+            dbCommit();
             session(['popup_success' => 'Trust entry was deleted']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -1025,6 +1047,7 @@ class CompanydashboardController extends BaseController
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
+        $allLeads = $allLeads->withCount('fundPaymentHistory');
         $allLeads = $allLeads->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   

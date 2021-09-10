@@ -27,9 +27,11 @@ use Illuminate\Support\Str;
 // use Datatables;
 use Yajra\Datatables\Datatables;
 use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup,App\AccountActivity;
+use App\Traits\FundRequestTrait;
+
 class ClientdashboardController extends BaseController
 {
-    use CreditAccountTrait;
+    use CreditAccountTrait, FundRequestTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -1085,7 +1087,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                
+            dbStart(); 
             if($GetAmount->fund_type=="withdraw"){
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
                 $GetAmount->is_refunded="yes";
@@ -1116,8 +1118,15 @@ class ClientdashboardController extends BaseController
             
             }
             $TrustInvoice->refund_ref_id=$request->transaction_id;
+            $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
+
+            // For request refund
+            if($TrustInvoice->related_to_fund_request_id) {
+                $this->refundTrustRequest($TrustInvoice->id);
+            }
+            dbCommit();
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -1134,6 +1143,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            dbStart();
             $TrustInvoice=TrustHistory::find($request->payment_id);
             if($TrustInvoice->fund_type=="refund_deposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->refund_amount);
@@ -1157,7 +1167,21 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
 
+            if($TrustInvoice->related_to_fund_request_id) {
+                $this->deletePaymentTrustRequest($TrustInvoice->id);
+            }
+
+            $data=[];
+            $data['user_id']=$TrustInvoice->client_id;
+            $data['client_id']=$TrustInvoice->client_id;
+            $data['activity']="deleted a payment";
+            $data['type']='deposit';
+            $data['action']='delete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             TrustHistory::where('id',$request->payment_id)->delete();
+            dbCommit();
             session(['popup_success' => 'Trust entry was deleted']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -1240,6 +1264,7 @@ class ClientdashboardController extends BaseController
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
+        $allLeads = $allLeads->withCount('fundPaymentHistory');
         $allLeads = $allLeads->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -3334,11 +3359,17 @@ class ClientdashboardController extends BaseController
                 "created_by" => auth()->id(),
                 "firm_id" => auth()->user()->firm_name,
                 "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
+                "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
             ]);
 
             if($fund_type == "refund payment") {
                 $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);
                 $depCredHis->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
+            }
+
+            // For request refund
+            if($creditHistory->related_to_fund_request_id) {
+                $this->refundCreditRequest($creditHistory->id);
             }
 
             $this->updateNextPreviousCreditBalance($request->client_id);
@@ -3390,6 +3421,20 @@ class ClientdashboardController extends BaseController
             if($creditHistory->payment_type == "refund payment") {
                 $this->deleteInvoicePaymentHistory($creditHistory->id);
             }
+
+            if($creditHistory->related_to_fund_request_id) {
+                $this->deletePaymentCreditRequest($creditHistory->id);
+            }
+
+            $data=[];
+            $data['user_id']=$creditHistory->client_id;
+            $data['client_id']=$creditHistory->client_id;
+            $data['activity']="deleted a payment";
+            $data['type']='deposit';
+            $data['action']='delete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             $clientId = $creditHistory->user_id;
             $creditHistory->delete();
             $this->updateNextPreviousCreditBalance($clientId);

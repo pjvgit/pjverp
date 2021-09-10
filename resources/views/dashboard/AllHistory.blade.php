@@ -20,7 +20,9 @@
                         <a class="name"
                             href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                             {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
-                        #R-{{sprintf('%06d', $v->deposit_id)}}</a>  
+                        @if($v->deposit_id)
+                            #R-{{sprintf('%06d', $v->deposit_id)}}
+                        @endif 
                         <?php if($v->ulevel=="2"){?>
                             to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>

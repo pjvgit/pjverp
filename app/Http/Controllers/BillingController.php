@@ -990,6 +990,7 @@ class BillingController extends BaseController
  
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+         $case = $case->withCount('fundPaymentHistory');
          $case = $case->get();
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   

@@ -43,10 +43,13 @@ if(!$commentData->isEmpty()){ ?>
                         $image=$ImageArray[$v->action];
                         ?>
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                        <a class="name"
-                            href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
-                            {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
-                        #R-{{sprintf('%06d', $v->deposit_id)}}</a>  
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
+                            {{$v->last_name}} ({{$v->user_title}})
+                        </a> 
+                            {{$v->activity}} 
+                        @if($v->deposit_id)
+                            #R-{{sprintf('%06d', $v->deposit_id)}}
+                        @endif
                         <?php if($v->ulevel=="2"){?>
                             to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>
