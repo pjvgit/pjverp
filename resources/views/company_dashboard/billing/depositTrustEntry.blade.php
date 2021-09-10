@@ -199,9 +199,9 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                     } else {
                         swal('Deposit Successful!', res.msg, 'success');
                         afterLoader();
-                        setTimeout(function () {
+                        // setTimeout(function () {
                             $("#depositAmountPopup").modal("hide")
-                        }, 3000);
+                        // }, 3000);
                     }
                 },
                 error: function (jqXHR, exception) {

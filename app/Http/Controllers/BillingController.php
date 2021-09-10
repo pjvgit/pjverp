@@ -948,6 +948,7 @@ class BillingController extends BaseController
  
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+         $case = $case->withCount('fundPaymentHistory');
          $case = $case->get();
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
@@ -3738,7 +3739,7 @@ class BillingController extends BaseController
                         'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
                         'credit_history_last_id' => @$creditHistoryLast->id,
-                        'total_balance' => $creditHistoryLast->total_balance
+                        'total_balance' => @$creditHistoryLast->total_balance
                     ]);
 
                     if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {

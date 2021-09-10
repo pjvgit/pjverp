@@ -104,9 +104,9 @@ class RequestedFund extends Authenticatable
     {
         if($this->attributes['amount_due'] =="0.00"){
             $status = "paid";
-        }else if($this->attributes['amount_due'] != "0.00" && $this->attributes['amount_paid'] != "0.00" ){
+        }else if($this->attributes['amount_paid'] < $this->attributes['amount_requested'] && strtotime($this->attributes['due_date']) >= strtotime(date('Y-m-d'))){
             $status = "partial";
-        }else if(strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d')) && $this->attributes['amount_paid'] < $this->attributes['amount_requested'] ){
+        }else if(strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d'))){
             $status = "overdue";
         }else{
             $status = "sent";
@@ -121,5 +121,15 @@ class RequestedFund extends Authenticatable
         }else{
             return NULL;
         }
+    }
+
+    /**
+     * Get all of the fundPaymentHistory for the RequestedFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function fundPaymentHistory()
+    {
+        return $this->hasMany(TrustHistory::class, 'related_to_fund_request_id');
     }
 }

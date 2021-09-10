@@ -25,7 +25,7 @@
                     </div>
                     <br>
                     <label class="checkbox checkbox-outline-primary">
-                        <input type="checkbox" id="full_refund" checked="checked" name="payfull"><span>Refund entire payment</span><span class="checkmark"></span>
+                        <input type="checkbox" id="full_refund" checked="checked" name="payfull" data-total-amount="{{ $creditHistory->deposit_amount }}"><span>Refund entire payment</span><span class="checkmark"></span>
                     </label>
 
                 </div>
@@ -149,9 +149,11 @@
     });
     $('#full_refund').change(function () {
         if ($(this).is(":checked")) {
+            $("#amount").val($(this).attr("data-total-amount"));
             $("#amount").attr('readonly', true);
         } else {
-            $("#amount").removeAttr('readonly')
+            // $("#amount").removeAttr('readonly');
+            $("#amount").attr('readonly', false);
         }
     });
 

@@ -1316,7 +1316,10 @@ if(!isset($addition)){ $addition=0;}
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                         @if($citem->userAdditionalInfo->trust_account_balance > 0)
                                                             <tr class="apply-funds-row">
-                                                                <td class="apply-funds-client"><span>{{ $citem->full_name ?? "" }}</span></td>
+                                                                <td class="apply-funds-client">
+                                                                    <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                                    <span>{{ $citem->full_name ?? "" }}</span>
+                                                                </td>
                                                                 <td class="apply-funds-account">
                                                                     <div>Trust (Trust Account)</div>
                                                                 </td>
@@ -1409,7 +1412,10 @@ if(!isset($addition)){ $addition=0;}
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                         @if($citem->userAdditionalInfo->credit_account_balance > 0)
                                                             <tr class="apply-funds-row">
-                                                                <td class="apply-funds-client"><span>{{ $citem->full_name ?? "" }}</span></td>
+                                                                <td class="apply-funds-client">
+                                                                    <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
+                                                                    <span>{{ $citem->full_name ?? "" }}</span>
+                                                                </td>
                                                                 <td class="apply-funds-account">
                                                                     <div>Credit (Operating Account)</div>
                                                                 </td>

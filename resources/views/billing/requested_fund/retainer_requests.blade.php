@@ -380,8 +380,22 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     
                     $('td:eq(9)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
                     // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
-                    $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');"><i class="fas fa-pen align-middle pr-3"></i></a> <a data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('+aData.id+');"><i class="fas fa-bell pr-3 align-middle"></i></a> <a data-toggle="modal"  data-target="#deleteRequestFund" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+');"><i class="fas fa-trash align-middle "></i></a></div>');
+                    // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');"><i class="fas fa-pen align-middle pr-3"></i></a> <a data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('+aData.id+');"><i class="fas fa-bell pr-3 align-middle"></i></a> <a data-toggle="modal"  data-target="#deleteRequestFund" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+');"><i class="fas fa-trash align-middle "></i></a></div>');
+                    var action = '<div class="text-center">\
+                        <a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');">\
+                            <i class="fas fa-pen align-middle pr-3"></i>\
+                        </a>';
+                    if(aData.status != 'paid') {
+                        action += '<a data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('+aData.id+');">\
+                            <i class="fas fa-bell pr-3 align-middle"></i>\
+                        </a>';
+                    }
+                    action += '<a data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+', this);" data-payment-count="'+aData.fund_payment_history_count+'">\
+                            <i class="fas fa-trash align-middle "></i>\
+                        </a>\
+                    </div>';
 
+                    $('td:eq(10)', nRow).html(action);
                 },
                 "initComplete": function(settings, json) {
                     $('[data-toggle="tooltip"]').tooltip();
@@ -520,9 +534,17 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function deleteRequestFund(id) {
-        $("#deleteRequestFund").modal("show");
-        $("#delete_fund_id").val(id);
+    function deleteRequestFund(id, ele) {
+        var paymentCount = $(ele).attr("data-payment-count");
+        if(paymentCount > 0) {
+            swal({
+                title: 'Cannot Delete',
+                text: 'This request cannot be deleted because there are payments associated with it.'
+            });
+        } else {
+            $("#deleteRequestFund").modal("show");
+            $("#delete_fund_id").val(id);
+        }
     }
     function sendFundReminder(id) {
         $("#preloader").show();

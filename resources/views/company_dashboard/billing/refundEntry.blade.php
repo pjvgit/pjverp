@@ -23,7 +23,7 @@
                                 } 
                                 ?>
                                 <input class="form-control number" style="width:50%; " maxlength="20" name="amount"
-                                    id="amount" value="{{$mt}}" readonly type="text"
+                                    id="amount" value="{{$mt}}" readonly type="text" max="{{ $mt }}"
                                     aria-label="Amount (to the nearest dollar)">
                                 <small>&nbsp;</small>
                                 <div class="input-group col-sm-9" id="TypeError"></div>
@@ -33,7 +33,7 @@
                     </div>
                     <br>
                     <label class="checkbox checkbox-outline-primary">
-                        <input type="checkbox" id="full_refund" checked="checked" name="payfull"><span>Refund entire
+                        <input type="checkbox" id="full_refund" checked="checked" name="payfull" data-total-amount="{{ $mt }}"><span>Refund entire
                             payment</span><span class="checkmark"></span>
                     </label>
 
@@ -166,9 +166,11 @@
     });
     $('#full_refund').change(function () {
         if ($(this).is(":checked")) {
+            $("#amount").val($(this).attr("data-total-amount"));
             $("#amount").attr('readonly', true);
         } else {
-            $("#amount").removeAttr('readonly')
+            // $("#amount").removeAttr('readonly');
+            $("#amount").attr('readonly', false);
         }
     });
 
