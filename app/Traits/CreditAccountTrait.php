@@ -143,9 +143,9 @@ trait CreditAccountTrait {
             $status="Unsent";
         } elseif($invoice->total_amount == $remainPaidAmt) {
             $status = "Paid";
-        } else if($remainPaidAmt < $invoice->total_amount && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
+        } else if($remainPaidAmt < $invoice->total_amount && strtotime($dueDate) >= strtotime(date('Y-m-d'))) {
             $status="Partial";
-        } else if(strtotime($dueDate) <= strtotime(date('Y-m-d'))) {
+        } else if(strtotime($dueDate) < strtotime(date('Y-m-d'))) {
             $status="Overdue";
         } else {
             $status = 'Unsent';

@@ -22,7 +22,13 @@
                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
-                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', @$findInvoice->invoiceForwardedToInvoice[0]->decode_id).'">'.@$findInvoice->invoiceForwardedToInvoice[0]->invoice_id.'</a>';
+                            // $notes = 'Forwarded to <a href="'.route('bills/invoices/view', @$findInvoice->invoiceForwardedToInvoice[0]->decode_id).'">'.@$findInvoice->invoiceForwardedToInvoice[0]->invoice_id.'</a>';
+                            $afterToStr = trim(substr($value->notes, strpos($value->notes, 'to') + strlen('to')));
+                            $invId = substr(@$afterToStr, strrpos(@$afterToStr, '0') + 1);
+                            if($invId)
+                                $notes = 'Forwarded to <a href="'.route('bills/invoices/view', base64_encode($invId)).'">#'.@$afterToStr.'</a>';
+                            else
+                                $notes = 'Forwarded to <a href="#">#'.@$afterToStr.'</a>';
                         }else if($value->acrtivity_title=="invoice reopened" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
@@ -161,7 +167,10 @@
                         }else if($value->acrtivity_title=="balance forwarded" && $value->notes!=NULL){
                             $afterToStr = trim(substr($value->notes, strpos($value->notes, 'to') + strlen('to')));
                             $invId = substr(@$afterToStr, strrpos(@$afterToStr, '0') + 1);
-                            $notes = 'Forwarded to <a href="'.route('bills/invoices/view', base64_encode($invId)).'">#'.@$afterToStr.'</a>';
+                            if($invId)
+                                $notes = 'Forwarded to <a href="'.route('bills/invoices/view', base64_encode($invId)).'">#'.@$afterToStr.'</a>';
+                            else
+                                $notes = 'Forwarded to <a href="#">#'.@$afterToStr.'</a>';
                         }else if($value->acrtivity_title=="invoice reopened" && $value->notes!=NULL){
                             $notes=$value->notes;
                         }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){

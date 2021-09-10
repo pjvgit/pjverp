@@ -4805,7 +4805,8 @@ class BillingController extends BaseController
             session(['invoiceUpdate' => true]);
 
             $InvoiceSave->refresh();
-            $dueDate = ($InvoiceSave->invoiceFirstInstallment) ? $InvoiceSave->invoiceFirstInstallment->due_date : $InvoiceSave->due_date;
+            $this->updateInvoiceAmount($InvoiceSave->id);
+            /* $dueDate = ($InvoiceSave->invoiceFirstInstallment) ? $InvoiceSave->invoiceFirstInstallment->due_date : $InvoiceSave->due_date;
             if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0 && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
                 $InvoiceSave->status = "Partial";
                 $InvoiceSave->save();
@@ -4816,7 +4817,7 @@ class BillingController extends BaseController
                 $InvoiceSave->status = "Overdue";
                 $InvoiceSave->save();
             } else {
-            }
+            } */
 
 
             $invoiceHistory=[];

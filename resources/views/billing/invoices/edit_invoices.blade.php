@@ -1277,7 +1277,7 @@
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(!empty($invoiceSetting) && array_key_exists('trust_credit_activity_on_invoice', $invoiceSetting) && $invoiceSetting['trust_credit_activity_on_invoice'] != "dont show")
+                    @if(!empty($invoiceSetting) && array_key_exists('trust_credit_activity_on_invoice', $invoiceSetting) /* && $invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" */)
                     <div class="apply-funds-container p-3" id="apply-trust-and-credit-funds">
                         <h3 class="section-header p-2 apply-trust-credit-funds">Apply Trust &amp; Credit Funds</h3>
                         <div class="mt-3">

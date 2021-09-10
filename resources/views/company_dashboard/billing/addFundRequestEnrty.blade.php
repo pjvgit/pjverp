@@ -398,13 +398,11 @@
     function refreshDetail() {
         $("#preloader").show();
         var contactSelectd=$("#contact option:selected").val();
-        console.log('selected: '+contactSelectd);
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/clients/reloadAmount", 
             data: {"user_id": contactSelectd},
             success: function (res) {
-                // $("#contact").val(contactSelectd);
                 $("#contact option:selected").attr('isemail','yes');
                 $("#current-balance").html(res.trust_account_balance);
                 $("#minimum-trust-balance").html(res.minimum_trust_balance);
