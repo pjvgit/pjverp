@@ -16,9 +16,12 @@
                 <div class="modal-body">
                     <div class="showError" style="display:none"></div>
                     <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
+                        <div class="col-md-12 confirmAccess" id="confirmAccess">
                             Would you like to <strong>remove</strong> the selected entry from this invoice or
                             permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                        <div class="col-md-12 confirmAccessRemove">
+                            Are you sure you want to <strong>delete</strong> the selected entry?
                         </div>
                     </div>
                 </div>
@@ -33,7 +36,7 @@
                             <input class="btn btn-primary ladda-button example-button m-1 submit"
                                 onclick="actionFlatFeeEntry('delete')" name="action" value="Delete" id="submit"
                                 type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                            <input class="btn btn-primary ladda-button example-button m-1 submit actionFlatFeeEntryRemove" name="action"
                                 value="Remove" id="submit" onclick="actionFlatFeeEntry('remove')" type="submit">
                         </div>
                     </div>
@@ -61,9 +64,12 @@
                 <div class="modal-body">
                     <div class="showError" style="display:none"></div>
                     <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
+                        <div class="col-md-12 confirmAccess" id="confirmAccess">
                             Would you like to <strong>remove</strong> the selected entry from this invoice or
                             permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                        <div class="col-md-12 confirmAccessRemove">
+                            Are you sure you want to <strong>delete</strong> the selected entry?
                         </div>
                     </div>
                 </div>
@@ -107,9 +113,12 @@
                 <div class="modal-body">
                     <div class="showError" style="display:none"></div>
                     <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
+                        <div class="col-md-12 confirmAccess" id="confirmAccess">
                             Would you like to <strong>remove</strong> the selected entry from this invoice or
                             permanently <strong>delete</strong> it from {{config('app.name')}}?
+                        </div>
+                        <div class="col-md-12 confirmAccessRemove">
+                            Are you sure you want to <strong>delete</strong> the selected entry?
                         </div>
                     </div>
                 </div>

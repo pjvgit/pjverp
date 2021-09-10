@@ -2,9 +2,18 @@
  * Open flat fee delete modal
  * @param {*} id 
  */
-function openFlatFeeDelete(id) {
+function openFlatFeeDelete(id,action) {
     $("#flat_fee_delete_existing_dialog").modal("show");
     $("#flat_fee_delete_entry_id").val(id);
+    $(".actionFlatFeeEntryRemove").show();
+    if(action == 'deleteonly'){
+        $(".actionFlatFeeEntryRemove").hide();
+        $(".confirmAccessRemove").show();
+        $(".confirmAccess").hide();
+    }else{
+        $(".confirmAccess").show();
+        $(".confirmAccessRemove").hide();
+    }
 }
 
 /**

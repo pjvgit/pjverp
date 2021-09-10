@@ -642,7 +642,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 <script type="text/javascript">
 var start = 0;
     $(document).ready(function () {       
-        loadMoreData();
+        loadMoreData(0);
 
         $('#batchSaved').on('hidden.bs.modal', function () {
             window.location.reload();
@@ -1129,18 +1129,19 @@ var start = 0;
 
     });
 
-    var scrollStop = true;
-
+    var lazyLoadingActive = 1;
+    var pageLength =  {{USER_PER_PAGE_LIMIT}};
+    var roundPage = 1;
     $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() >= $(document).height() && scrollStop == true) {
-            loadMoreData();
+        if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+            if(lazyLoadingActive == 1)
+                loadMoreData(roundPage);
         }
     });
 
-    function loadMoreData(){
-        // $("#preloader").show();
-        beforeLoader();
-        var pageLength =  {{USER_PER_PAGE_LIMIT}};
+    function loadMoreData(round){
+        // $("#preloader").show(); 
+        beforeLoader();       
         $.ajax(
         {
             url: baseUrl + "/bills/invoices/loadUpcomingInvoicesWithLoader",
@@ -1153,8 +1154,8 @@ var start = 0;
                 firm_office_id : $("#office_id").val(),
                 billing_method : $("#fee_structure_filter").val(),
                 balance_filter : $("#balance_filter").val(),
-                pageLength : (start == 0) ? pageLength : start,
-                start : 0,
+                pageLength : pageLength,
+                start : (round == 0) ?  0 : ((round * pageLength) + 1)
             },
             error: function () {
                 $("#invoiceGrid_processing").css("display", "none");
@@ -1162,13 +1163,14 @@ var start = 0;
         })
         .done(function(result)
         {
+            roundPage = round + 1;
             var res = JSON.parse(result);
             var resultHtml = '';
             var last = null;
-
-            console.log(res.data);
+            if(!$.trim(res.data)){
+                lazyLoadingActive = 999;
+            }
             $.each(res.data, function(i, v){
-                
                 var contactGroup = i.split('_');
 
                 resultHtml +='<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
@@ -1209,7 +1211,7 @@ var start = 0;
                     }
                     resultHtml +='<td><div class="text-left">' + aData.last_invoice +
                         '</div></td>';
-                    console.log("client: "+aData.selected_user);
+                    // console.log("client: "+aData.selected_user);
                     if(aData.selected_user && aData.deleted_at == null) {
                         resultHtml +='<td><div class="text-left"><a class="name" href="' + baseUrl +
                             '/bills/invoices/new?page=open&court_case_id=' + aData.ccid + '&token=' + aData
@@ -1223,9 +1225,10 @@ var start = 0;
                
             });
             afterLoader();
-            // $(".lazy-load-data").append(resultHtml);
-            $(".lazy-load-data").html('');
-            $(".lazy-load-data").html(resultHtml);
+            // $("#preloader").hide();
+            $(".lazy-load-data").append(resultHtml);
+            // $(".lazy-load-data").html('');
+            // $(".lazy-load-data").html(resultHtml);
             // $("#preloader").hide();
             reloadBilling();
         })

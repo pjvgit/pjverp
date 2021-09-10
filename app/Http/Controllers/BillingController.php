@@ -309,7 +309,30 @@ class BillingController extends BaseController
         }else{
             $id=$request->entry_id;
             $TaskTimeEntry=TaskTimeEntry::find($id);
-            TaskTimeEntry::where("id", $id)->delete();
+            if(!empty($TaskTimeEntry)){
+                if($TaskTimeEntry->rate_type == 'flat'){
+                    $totalTime = str_replace(",","",$TaskTimeEntry->duration);
+                }else{
+                    $totalTime = str_replace(",","",$TaskTimeEntry->entry_rate) * $TaskTimeEntry->duration;
+                }              
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();  
+                if(count($InvoiceAdjustment) >0){
+                foreach($InvoiceAdjustment as $k=>$v){
+                    if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
+                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        if($v->ad_type == 'percentage'){
+                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                        }else{
+                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                        }
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
+                }}
+            }
+            $TaskTimeEntry->delete();
             
             
             //Add time entory history
@@ -637,6 +660,25 @@ class BillingController extends BaseController
         }else{
             $id=$request->entry_id;
             $ExpenseEntry=ExpenseEntry::find($id);
+            if(!empty($ExpenseEntry)){                
+                $totalTime = str_replace(",","",$ExpenseEntry->cost) * str_replace(",","",$ExpenseEntry->duration);
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
+                if(count($InvoiceAdjustment) >0){
+                foreach($InvoiceAdjustment as $k=>$v){
+                    if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
+                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        if($v->ad_type == 'percentage'){
+                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                        }else{
+                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                        }
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
+                }}
+            }
             
             //Add Expense history
             $data=[];
@@ -660,7 +702,7 @@ class BillingController extends BaseController
             $this->caseActivity($data);
 
 
-            ExpenseEntry::where("id", $id)->delete();
+            $ExpenseEntry->delete();
             session(['popup_success' => 'Expense has been deleted.']);
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
@@ -2290,7 +2332,8 @@ class BillingController extends BaseController
                 }else{
                     $totalTime = str_replace(",","",$TaskTimeEntry->entry_rate) * $TaskTimeEntry->duration;
                 }              
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get(); 
+                if(count($InvoiceAdjustment) >0){ 
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAjustTotal = $v->basis - $totalTime;
@@ -2304,7 +2347,7 @@ class BillingController extends BaseController
                             'amount'=> $invoiceAmount
                         ]);
                     }
-                }
+                }}
             }
             TimeEntryForInvoice::where("time_entry_id", $id)->delete();
             if($request->action=="delete"){               
@@ -2331,7 +2374,8 @@ class BillingController extends BaseController
             $FlatFeeEntry = FlatFeeEntry::where("id", $id)->first();
             if(!empty($FlatFeeEntry)){                
                 $totalTime = str_replace(",","",$FlatFeeEntry->cost);
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$FlatFeeEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$FlatFeeEntry->case_id)->get(); 
+                if(count($InvoiceAdjustment) >0){ 
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
                         $invoiceAjustTotal = $v->basis - $totalTime;
@@ -2345,7 +2389,7 @@ class BillingController extends BaseController
                             'amount'=> $invoiceAmount
                         ]);
                     }
-                }
+                }}
             }
             FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
             if($request->action=="delete"){                
@@ -2441,7 +2485,7 @@ class BillingController extends BaseController
             $FlatFeeEntry->time_entry_billable='yes';
             $FlatFeeEntry->cost=str_replace(",","",$request->rate_field_id);
             $FlatFeeEntry->created_by=Auth::User()->id; 
-            // $FlatFeeEntry->token_id=$request->token_id; 
+            $FlatFeeEntry->token_id=9999999; 
             $FlatFeeEntry->save();
 
             if(isset($request->invoice_id)){
@@ -2521,6 +2565,7 @@ class BillingController extends BaseController
                 $totalTime = str_replace(",","",$FlatFeeEntry->cost);
                 $totalNewTime = str_replace(",","",$request->rate_field_id);                
                 $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$FlatFeeEntry->case_id)->get();  
+                if(count($InvoiceAdjustment) >0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
                         $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
@@ -2534,7 +2579,7 @@ class BillingController extends BaseController
                             'amount'=> $invoiceAmount
                         ]);
                     }
-                }
+                }}
             }
             $FlatFeeEntry->user_id =$request->staff_user;
             $FlatFeeEntry->description=$request->case_description;
@@ -2611,6 +2656,7 @@ class BillingController extends BaseController
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
+            $TaskTimeEntry->token_id=9999999; 
             $TaskTimeEntry->created_by=Auth::User()->id; 
             $TaskTimeEntry->save();
 
@@ -2724,7 +2770,8 @@ class BillingController extends BaseController
                     $totalNewTime = str_replace(",","",$request->rate_field_id) * $request->duration_field;
                 }
 
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();
+                if(count($InvoiceAdjustment) >0){  
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
@@ -2738,7 +2785,7 @@ class BillingController extends BaseController
                             'amount'=> $invoiceAmount
                         ]);
                     }
-                }
+                }}
             }
             $TaskTimeEntry->user_id =$request->staff_user;
             if(isset($request->activity_text)){
@@ -2810,6 +2857,7 @@ class BillingController extends BaseController
             if(!empty($ExpenseEntry)){                
                 $totalTime = str_replace(",","",$ExpenseEntry->cost) * str_replace(",","",$ExpenseEntry->duration);
                 $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
+                if(count($InvoiceAdjustment) >0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                         $invoiceAjustTotal = $v->basis - $totalTime;
@@ -2823,7 +2871,7 @@ class BillingController extends BaseController
                             'amount'=> $invoiceAmount
                         ]);
                     }
-                }
+                }}
             }
 
             ExpenseForInvoice::where("expense_entry_id", $id)->delete();
@@ -2919,6 +2967,7 @@ class BillingController extends BaseController
         $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
+        $ExpenseEntry->token_id=9999999; 
         $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
         $ExpenseEntry->created_by=Auth::User()->id; 
         $ExpenseEntry->save();
@@ -3031,6 +3080,7 @@ class BillingController extends BaseController
             $totalNewTime = str_replace(",","",$request->rate_field_id) * $request->duration_field;
             
             $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
+            if(count($InvoiceAdjustment) >0){
             foreach($InvoiceAdjustment as $k=>$v){
                 if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                     $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
@@ -3044,7 +3094,7 @@ class BillingController extends BaseController
                         'amount'=> $invoiceAmount
                     ]);
                 }
-            }
+            }}
         }
         $ExpenseEntry->user_id =$request->staff_user;
         if(isset($request->activity_text)){
@@ -3328,7 +3378,7 @@ class BillingController extends BaseController
 
     public function addInvoiceEntry(Request $request)
     { 
-        // return $request->all();
+        
         $rules = [
             // 'invoice_number_padded' => 'required|numeric|unique:invoices,id,NULL,id,deleted_at,NULL',
             'invoice_number_padded' => 'required|numeric|unique:invoices,id',
@@ -3445,13 +3495,13 @@ class BillingController extends BaseController
                     $TimeEntryForInvoice->time_entry_id=$v;
                     $TimeEntryForInvoice->created_by=Auth::User()->id; 
                     $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                    if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
-                        $TimeEntryForInvoice->save();
+                    $TimeEntryForInvoice->save();
+                    // if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
                         DB::table('task_time_entry')->where("id",$v)->update([
                             'status'=>'paid',
                             'invoice_link'=>$InvoiceSave->id
                         ]);
-                    }
+                    // }
 
                    
                 }
@@ -3466,13 +3516,13 @@ class BillingController extends BaseController
                     $ExpenseEntryForInvoice->expense_entry_id =$v;
                     $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
                     $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                    if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
-                        $ExpenseEntryForInvoice->save();
+                    $ExpenseEntryForInvoice->save();
+                    // if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
                         DB::table('expense_entry')->where("id",$v)->update([
                             'status'=>'paid',
                             'invoice_link'=>$InvoiceSave->id
                         ]);
-                    }
+                    // }
                    
                 }
             }
@@ -3738,7 +3788,7 @@ class BillingController extends BaseController
                         'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
                         'created_by' => auth()->id(),
                         'credit_history_last_id' => @$creditHistoryLast->id,
-                        'total_balance' => $creditHistoryLast->total_balance
+                        'total_balance' => @$creditHistoryLast->total_balance
                     ]);
 
                     if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
@@ -4864,13 +4914,13 @@ class BillingController extends BaseController
                     $TimeEntryForInvoice->created_by=Auth::User()->id; 
                     $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $TimeEntryForInvoice->save();
-                    if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
+                    // if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
                         DB::table('task_time_entry')->where("id",$v)->update([
                             'status'=>'paid',
                             'invoice_link'=>$InvoiceSave->id
                         ]);
                       
-                    }
+                    // }
 
                 }
             }
@@ -4884,13 +4934,13 @@ class BillingController extends BaseController
                     $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
                     $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $ExpenseEntryForInvoice->save();
-                    if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
+                    // if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
                        
                         DB::table('expense_entry')->where("id",$v)->update([
                             'status'=>'paid',
                             'invoice_link'=>$InvoiceSave->id
                         ]);
-                    }
+                    // }
                 }
             }
 
@@ -5040,10 +5090,10 @@ class BillingController extends BaseController
                             'account_type' => 'trust',
                             'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
                         ];
-                        if($appliedTrust->show_trust_account_history != 'trust account history' && $item['show_trust_account_history'] == 'trust account history') {
+                        if($appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
                             $data['trust_history_last_id'] = @$trustHistoryLast->id;
                             $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if($appliedTrust->show_trust_account_history != 'trust account summary' && $item['show_trust_account_history'] == 'trust account summary') {
+                        } else if($appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
                             $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
                         }
                         $appliedTrust->fill($data + [

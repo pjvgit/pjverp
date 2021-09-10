@@ -335,7 +335,8 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">
-                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openFlatFeeDelete({{$v->itd}});">
+                                            <?php $action = ($v->token_id == '9999999') ? 'deleteonly' : 'fulldelete'; ?>
+                                            <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openFlatFeeDelete({{$v->itd}},'{{$action}}');">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         </div>
@@ -511,8 +512,9 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="vertical-align: center; text-align: center; border-right: none;"
                                         class="tdTime">
                                         <div class="invoice_entry_actions">
+                                            <?php $action = ($v->token_id == '9999999') ? 'deleteonly' : 'fulldelete'; ?>
                                             <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);"
-                                                onclick="openTimeDelete({{$v->itd}});"><i class="fas fa-times"></i></a>
+                                                onclick="openTimeDelete({{$v->itd}},'{{$action}}');"><i class="fas fa-times"></i></a>
                                         </div>
                                         <input type="hidden" value="{{$v->itd}}" name="timeEntrySelectedArray[]">
                                     </td>
@@ -751,8 +753,9 @@ if(!isset($addition)){ $addition=0;}
                                         <td style="vertical-align: center; text-align: center; border-right: none;"
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
+                                                <?php $action = ($v->token_id == '9999999') ? 'deleteonly' : 'fulldelete'; ?>
                                                 <a class="image_link_sprite image_link_sprite_cancel"
-                                                    href="javascript:void(0);" onclick="openExpenseDelete({{$v->eid}});"><i
+                                                    href="javascript:void(0);" onclick="openExpenseDelete({{$v->eid}},'{{$action}}');"><i
                                                         class="fas fa-times"></i></a>
                                             </div>
                                             <input type="hidden" value="{{$v->eid}}" name="expenseEntrySelectedArray[]">
@@ -3480,112 +3483,6 @@ if(!isset($addition)){ $addition=0;}
 
     }
 
-    /* function actionTimeEntry(action) {
-        $('#removeExistingEntryForm').submit(function (e) {
-
-            beforeLoader();
-            e.preventDefault();
-
-            if (!$('#removeExistingEntryForm').valid()) {
-                beforeLoader();
-                return false;
-            }
-            var dataString = '';
-            dataString = $("#removeExistingEntryForm").serialize();
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/bills/invoices/deleteTimeEntry", // json datasource
-                data: dataString,
-                beforeSend: function (xhr, settings) {
-                    settings.data += '&delete=yes&action=' + action;
-                },
-                success: function (res) {
-                    beforeLoader();
-                    if (res.errors != '') {
-                        $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                        $.each(res.errors, function (key, value) {
-                            errotHtml += '<li>' + value + '</li>';
-                        });
-                        errotHtml += '</ul></div>';
-                        $('.showError').append(errotHtml);
-                        $('.showError').show();
-                        afterLoader();
-                        return false;
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                }
-            });
-        });
-    } */
-
-    /* function actionFlatFeeEntry(action) {
-        $('#removeExistingFlatFeeEntryForm').submit(function (e) {
-
-            beforeLoader();
-            e.preventDefault();
-
-            if (!$('#removeExistingFlatFeeEntryForm').valid()) {
-                beforeLoader();
-                return false;
-            }
-            var dataString = '';
-            dataString = $("#removeExistingFlatFeeEntryForm").serialize();
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/bills/invoices/deleteFlatFeeEntry", // json datasource
-                data: dataString,
-                beforeSend: function (xhr, settings) {
-                    settings.data += '&delete=yes&action=' + action;
-                },
-                success: function (res) {
-                    beforeLoader();
-                    if (res.errors != '') {
-                        $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                        $.each(res.errors, function (key, value) {
-                            errotHtml += '<li>' + value + '</li>';
-                        });
-                        errotHtml += '</ul></div>';
-                        $('.showError').append(errotHtml);
-                        $('.showError').show();
-                        afterLoader();
-                        return false;
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                }
-            });
-        });
-    } */
-
-    /* function openTimeDelete(id) {
-        $("#delete_existing_dialog").modal("show");
-        $("#delete_time_entry_id").val(id);
-    } */
-    /* function openFlatFeeDelete(id) {
-        $("#flat_fee_delete_existing_dialog").modal("show");
-        $("#flat_fee_delete_entry_id").val(id);
-    } */
     function addSingleTimeEntry() {
         $('.showError').html('');
         beforeLoader();
@@ -3782,58 +3679,6 @@ if(!isset($addition)){ $addition=0;}
             }
         })
     }
-
-    /* function openExpenseDelete(id) {
-        $("#delete_expense_existing_dialog").modal("show");
-        $("#delete_expense_entry_id").val(id);
-    } */
-
-    /* function actionExpenseEntry(action) {
-        $('#removeExistingExpenseEntryForm').submit(function (e) {
-            beforeLoader();
-            e.preventDefault();
-            if (!$('#removeExistingExpenseEntryForm').valid()) {
-                beforeLoader();
-                return false;
-            }
-            var dataString = '';
-            dataString = $("#removeExistingExpenseEntryForm").serialize();
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/bills/invoices/deleteExpenseEntry", // json datasource
-                data: dataString,
-                beforeSend: function (xhr, settings) {
-                    settings.data += '&delete=yes&action=' + action;
-                },
-                success: function (res) {
-                    beforeLoader();
-                    if (res.errors != '') {
-                        $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                        $.each(res.errors, function (key, value) {
-                            errotHtml += '<li>' + value + '</li>';
-                        });
-                        errotHtml += '</ul></div>';
-                        $('.showError').append(errotHtml);
-                        $('.showError').show();
-                        afterLoader();
-                        return false;
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                }
-            });
-        });
-    } */
 
     $('#removeAlllExistingExpenseEntry').submit(function (e) {
         beforeLoader();
