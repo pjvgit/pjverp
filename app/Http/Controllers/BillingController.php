@@ -315,18 +315,18 @@ class BillingController extends BaseController
                 }else{
                     $totalTime = str_replace(",","",$TaskTimeEntry->entry_rate) * $TaskTimeEntry->duration;
                 }              
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTimeEntry->case_id)->where('invoice_id',$TaskTimeEntry->invoice_link)->get();  
                 if(count($InvoiceAdjustment) >0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
-                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -662,18 +662,18 @@ class BillingController extends BaseController
             $ExpenseEntry=ExpenseEntry::find($id);
             if(!empty($ExpenseEntry)){                
                 $totalTime = str_replace(",","",$ExpenseEntry->cost) * str_replace(",","",$ExpenseEntry->duration);
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $ExpenseEntry->case_id)->where('invoice_id',$ExpenseEntry->invoice_link)->get();  
                 if(count($InvoiceAdjustment) >0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
-                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2332,19 +2332,23 @@ class BillingController extends BaseController
                     $totalTime = str_replace(",","",$TaskTimeEntry->duration);
                 }else{
                     $totalTime = str_replace(",","",$TaskTimeEntry->entry_rate) * $TaskTimeEntry->duration;
-                }              
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get(); 
+                }             
+                if($TaskTimeEntry->invoice_link == null){ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTimeEntry->case_id)->where('token',$request->token_id)->get(); 
+                }else{ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTimeEntry->case_id)->where('invoice_id',$TaskTimeEntry->invoice_link)->get(); 
+                }
                 if(count($InvoiceAdjustment) >0){ 
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
-                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2375,18 +2379,22 @@ class BillingController extends BaseController
             $FlatFeeEntry = FlatFeeEntry::where("id", $id)->first();
             if(!empty($FlatFeeEntry)){                
                 $totalTime = str_replace(",","",$FlatFeeEntry->cost);
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$FlatFeeEntry->case_id)->get(); 
+                if($FlatFeeEntry->invoice_link == null){ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $FlatFeeEntry->case_id)->where('token',$request->token_id)->get(); 
+                }else{ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $FlatFeeEntry->case_id)->where('invoice_id',$FlatFeeEntry->invoice_link)->get(); 
+                }
                 if(count($InvoiceAdjustment) >0){ 
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
-                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2413,8 +2421,38 @@ class BillingController extends BaseController
         }else{
         
             $id=base64_decode($request->case_id);
-            // TaskTimeEntry::where("case_id", $id)->delete();
-            TaskTimeEntry::where('case_id',$id)->where('status','unpaid')->update(['token_id'=>$request->token_id]);
+            // TaskTimeEntry::where('case_id',$id)->where('status','unpaid')->update(['token_id'=>$request->token_id]);
+            $TaskTimeEntry = TaskTimeEntry::where('case_id',$id)->where('status','unpaid')->get();
+            if(count($TaskTimeEntry) > 0){                
+                foreach($TaskTimeEntry as $key => $TaskTime)
+                if($TaskTimeEntry->rate_type == 'flat'){
+                    $totalTime = str_replace(",","",$TaskTime->duration);
+                }else{
+                    $totalTime = str_replace(",","",$TaskTime->entry_rate) * $TaskTime->duration;
+                }  
+                if($TaskTime->invoice_link == null){ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTime->case_id)->where('token',$request->token_id)->get(); 
+                }else{ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTime->case_id)->where('invoice_id',$TaskTime->invoice_link)->get(); 
+                }
+                if(count($InvoiceAdjustment) >0){ 
+                foreach($InvoiceAdjustment as $k=>$v){
+                    if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
+                        if($v->ad_type == 'percentage'){
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                        }else{
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                        }
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
+                }}
+                $TaskTime->token_id = $request->token_id;
+                $TaskTime->save();
+            }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
         }  
@@ -2430,7 +2468,34 @@ class BillingController extends BaseController
         }else{
         
             $id=base64_decode($request->case_id);
-            FlatFeeEntry::where('case_id',$id)->where('status','unpaid')->update(['token_id'=>$request->token_id]);
+            $FlatFeeEntry = FlatFeeEntry::where('case_id',$id)->where('status','unpaid')->get();
+            if(count($FlatFeeEntry) > 0){
+                foreach($FlatFeeEntry as $key => $FlatFee){                
+                $totalTime = str_replace(",","",$FlatFee->cost);
+                if($FlatFee->invoice_link == null){ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $FlatFee->case_id)->where('token',$request->token_id)->get(); 
+                }else{ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $FlatFee->case_id)->where('invoice_id',$FlatFee->invoice_link)->get(); 
+                }
+                if(count($InvoiceAdjustment) >0){ 
+                foreach($InvoiceAdjustment as $k=>$v){
+                    if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
+                        if($v->ad_type == 'percentage'){
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                        }else{
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                        }
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
+                }}
+                $FlatFee->token_id = $request->token_id;
+                $FlatFee->save();
+                }
+            }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
         }  
@@ -2449,6 +2514,7 @@ class BillingController extends BaseController
             $user = User::find($id);
             if(!empty($user)){
                 $invoice_id=$request->invoice_id;
+                $adjustment_token = $request->adjustment_token;
                 if($request->id=="0"){
                     $case_id=0;
                 }else{
@@ -2457,7 +2523,7 @@ class BillingController extends BaseController
                 $CaseMasterData = CaseMaster::find($case_id);
                 $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 // $invoice_token = $request->invoice_token;
-                return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id'/* , 'invoice_token' */));     
+                return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id','adjustment_token'/* , 'invoice_token' */));     
                 exit; 
             }else{
                 return view('pages.404');
@@ -2501,20 +2567,20 @@ class BillingController extends BaseController
             if($request->invoice_id){
                 $InvoiceAdjustment = InvoiceAdjustment::where("invoice_id",$request->invoice_id)->get();
             }else{
-                $InvoiceAdjustment = InvoiceAdjustment::where("case_id",$request->case_id)->get();
+                $InvoiceAdjustment = InvoiceAdjustment::where("token",$request->adjustment_token)->get();
             }
             if(count($InvoiceAdjustment) > 0){                
                 $totalTime = str_replace(",","",$request->rate_field_id);
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
-                        $invoiceAjustTotal = $totalTime + $v->basis;
+                        $invoiceAdjustTotal = $totalTime + $v->basis;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2565,18 +2631,18 @@ class BillingController extends BaseController
             if(!empty($FlatFeeEntry)){
                 $totalTime = str_replace(",","",$FlatFeeEntry->cost);
                 $totalNewTime = str_replace(",","",$request->rate_field_id);                
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$FlatFeeEntry->case_id)->get();  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $FlatFeeEntry->case_id)->where('invoice_id',$FlatFeeEntry->invoice_link)->get();  
                 if(count($InvoiceAdjustment) >0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
-                        $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
+                        $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2608,6 +2674,7 @@ class BillingController extends BaseController
             if(!empty($user)){
                 $invoice_id=$request->invoice_id;
                 $case_id=base64_decode($request->id);
+                $adjustment_token = $request->adjustment_token;
 
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
@@ -2615,7 +2682,7 @@ class BillingController extends BaseController
                 $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
-                return view('billing.invoices.addSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id'));     
+                return view('billing.invoices.addSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token'));     
                 exit; 
             
             }else{
@@ -2669,13 +2736,13 @@ class BillingController extends BaseController
                 $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                 $TimeEntryForInvoice->save();
             }
-           
+            
             // update adjustment entry
-            if($request->invoice_id){
+            if(isset($request->invoice_id) && $request->invoice_id!=""){
                 $InvoiceAdjustment = InvoiceAdjustment::where("invoice_id",$request->invoice_id)->get();
             }else{
-                $InvoiceAdjustment = InvoiceAdjustment::where("case_id",$request->case_id)->get();
-            }
+                $InvoiceAdjustment = InvoiceAdjustment::where("token",$request->adjustment_token)->get();
+            }            
             if(count($InvoiceAdjustment) > 0){
                 if($request->rate_type_field_id == 'flat'){
                     $totalTime = str_replace(",","",$request->duration_field);
@@ -2684,14 +2751,14 @@ class BillingController extends BaseController
                 }
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
-                        $invoiceAjustTotal = $totalTime + $v->basis;
+                        $invoiceAdjustTotal = $totalTime + $v->basis;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2771,18 +2838,18 @@ class BillingController extends BaseController
                     $totalNewTime = str_replace(",","",$request->rate_field_id) * $request->duration_field;
                 }
 
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$TaskTimeEntry->case_id)->get();
-                if(count($InvoiceAdjustment) >0){  
+                $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $TaskTimeEntry->case_id)->where('invoice_id',$TaskTimeEntry->invoice_link)->get();
+                if(count($InvoiceAdjustment) > 0){  
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
-                        $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
+                        $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2857,18 +2924,22 @@ class BillingController extends BaseController
             $ExpenseEntry = ExpenseEntry::where("id", $id)->first();
             if(!empty($ExpenseEntry)){                
                 $totalTime = str_replace(",","",$ExpenseEntry->cost) * str_replace(",","",$ExpenseEntry->duration);
-                $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
-                if(count($InvoiceAdjustment) >0){
+                if($ExpenseEntry->invoice_link == null){
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $ExpenseEntry->case_id)->where('token',$request->token_id)->get();  
+                }else{
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $ExpenseEntry->case_id)->where('invoice_id',$ExpenseEntry->invoice_link)->get();  
+                }    
+                if(count($InvoiceAdjustment) > 0){
                 foreach($InvoiceAdjustment as $k=>$v){
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
-                        $invoiceAjustTotal = $v->basis - $totalTime;
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
                         if($v->ad_type == 'percentage'){
-                            $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         }else{
-                            $invoiceAmount = number_format(invoiceAjustTotal,2);
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
                         }
                         InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAjustTotal,
+                            'basis' => $invoiceAdjustTotal,
                             'amount'=> $invoiceAmount
                         ]);
                     }
@@ -2896,8 +2967,35 @@ class BillingController extends BaseController
         }else{
             $id=base64_decode($request->case_id);
             // ExpenseEntry::where("case_id", $id)->delete();
-            ExpenseEntry::where('case_id',$id)->where('status','unpaid')->update(['token_id'=>$request->token_id]);
-
+            // ExpenseEntry::where('case_id',$id)->where('status','unpaid')->update(['token_id'=>$request->token_id]);
+            $ExpenseEntry = ExpenseEntry::where('case_id',$id)->where('status','unpaid')->get();
+            if(count($ExpenseEntry) > 0){                
+                foreach($ExpenseEntry as $key => $Expense){
+                $totalTime = str_replace(",","",$Expense->cost) * str_replace(",","",$Expense->duration);
+                if($Expense->invoice_link == null){ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $Expense->case_id)->where('token',$request->token_id)->get(); 
+                }else{ 
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $Expense->case_id)->where('invoice_id',$Expense->invoice_link)->get(); 
+                }
+                if(count($InvoiceAdjustment) >0){ 
+                foreach($InvoiceAdjustment as $k=>$v){
+                    if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
+                        if($v->ad_type == 'percentage'){
+                            $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                        }else{
+                            $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                        }
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
+                }}
+                $Expense->token_id = $request->token_id;
+                $Expense->save();
+            }
+            }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
         }  
@@ -2917,6 +3015,7 @@ class BillingController extends BaseController
             if(!empty($user)){
                 $invoice_id=$request->invoice_id;
                 $case_id=base64_decode($request->id);
+                $adjustment_token = $request->adjustment_token;
 
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
@@ -2924,7 +3023,7 @@ class BillingController extends BaseController
                 $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
-                return view('billing.invoices.addSingleExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id'));     
+                return view('billing.invoices.addSingleExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token'));     
                 exit; 
             }else{
                 return view('pages.404');
@@ -2934,7 +3033,7 @@ class BillingController extends BaseController
 
     public function saveSingleExpenseEntry(Request $request)
     {
-      $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->all(), [
         //   'case_id' => 'required',
           'case_id' => 'nullable',
           'staff_user' => 'required',
@@ -2986,20 +3085,20 @@ class BillingController extends BaseController
         if($request->invoice_id){
             $InvoiceAdjustment = InvoiceAdjustment::where("invoice_id",$request->invoice_id)->get();
         }else{
-            $InvoiceAdjustment = InvoiceAdjustment::where("case_id",$request->case_id)->get();
+            $InvoiceAdjustment = InvoiceAdjustment::where("token",$request->adjustment_token)->get();
         }
         if(count($InvoiceAdjustment) > 0){
             $totalExpense = str_replace(",","",$request->rate_field_id) * str_replace(",","",$request->duration_field);
             foreach($InvoiceAdjustment as $k=>$v){
                 if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
-                    $invoiceAjustTotal = $totalExpense + $v->basis;
+                    $invoiceAdjustTotal = $totalExpense + $v->basis;
                     if($v->ad_type == 'percentage'){
-                        $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                        $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                     }else{
-                        $invoiceAmount = number_format(invoiceAjustTotal,2);
+                        $invoiceAmount = number_format($invoiceAdjustTotal,2);
                     }
                     InvoiceAdjustment::where("id",$v->id)->update([
-                        'basis' => $invoiceAjustTotal,
+                        'basis' => $invoiceAdjustTotal,
                         'amount'=> $invoiceAmount
                     ]);
                 }
@@ -3080,18 +3179,18 @@ class BillingController extends BaseController
             $totalTime = str_replace(",","",$ExpenseEntry->cost) * $ExpenseEntry->duration;
             $totalNewTime = str_replace(",","",$request->rate_field_id) * $request->duration_field;
             
-            $InvoiceAdjustment = InvoiceAdjustment::where('case_id',$ExpenseEntry->case_id)->get();  
+            $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $ExpenseEntry->case_id)->where('invoice_id',$ExpenseEntry->invoice_link)->get();  
             if(count($InvoiceAdjustment) >0){
             foreach($InvoiceAdjustment as $k=>$v){
                 if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
-                    $invoiceAjustTotal = $v->basis + $totalNewTime - $totalTime;
+                    $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                     if($v->ad_type == 'percentage'){
-                        $invoiceAmount = ($invoiceAjustTotal * $v->percentages ) / 100; 
+                        $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                     }else{
-                        $invoiceAmount = number_format(invoiceAjustTotal,2);
+                        $invoiceAmount = number_format($invoiceAdjustTotal,2);
                     }
                     InvoiceAdjustment::where("id",$v->id)->update([
-                        'basis' => $invoiceAjustTotal,
+                        'basis' => $invoiceAdjustTotal,
                         'amount'=> $invoiceAmount
                     ]);
                 }
@@ -3479,11 +3578,17 @@ class BillingController extends BaseController
                     $FlatFeeEntryForInvoice->flat_fee_entry_id=$v;
                     $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
                     $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                    $FlatFeeEntryForInvoice->save();
-                    DB::table('flat_fee_entry')->where("id",$v)->update([
-                        'status'=>'paid',
-                        'invoice_link'=>$InvoiceSave->id
-                    ]);
+                    $FlatFeeEntryForInvoice->save();                    
+
+                    $FlatFeeEntry = FlatFeeEntry::where("id", $v)->first();
+                    if(!empty($FlatFeeEntry)){
+                        $FlatFeeEntry->status='paid';
+                        $FlatFeeEntry->invoice_link = $InvoiceSave->id;
+                        if($FlatFeeEntry->token_id == '9999999'){
+                            $FlatFeeEntry->token_id = null;
+                        }
+                        $FlatFeeEntry->save();
+                    }
                 
                 }
             }
@@ -3497,14 +3602,16 @@ class BillingController extends BaseController
                     $TimeEntryForInvoice->created_by=Auth::User()->id; 
                     $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $TimeEntryForInvoice->save();
-                    // if(empty($request->linked_staff_checked_share) || !in_array($v,$request->linked_staff_checked_share)){
-                        DB::table('task_time_entry')->where("id",$v)->update([
-                            'status'=>'paid',
-                            'invoice_link'=>$InvoiceSave->id
-                        ]);
-                    // }
-
-                   
+                    
+                    $TaskTimeEntry = TaskTimeEntry::where("id", $v)->first();                    
+                    if(!empty($TaskTimeEntry)){
+                        $TaskTimeEntry->status='paid';
+                        $TaskTimeEntry->invoice_link = $InvoiceSave->id;
+                        if($TaskTimeEntry->token_id == '9999999'){
+                            $TaskTimeEntry->token_id = null;
+                        }
+                        $TaskTimeEntry->save();
+                    }                   
                 }
             }
             //Expense entry referance
@@ -3518,12 +3625,16 @@ class BillingController extends BaseController
                     $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
                     $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $ExpenseEntryForInvoice->save();
-                    // if(empty($request->invoice_expense_entry_nonbillable_time) || !in_array($v,$request->invoice_expense_entry_nonbillable_time)){
-                        DB::table('expense_entry')->where("id",$v)->update([
-                            'status'=>'paid',
-                            'invoice_link'=>$InvoiceSave->id
-                        ]);
-                    // }
+                    
+                    $ExpenseEntry = ExpenseEntry::where("id", $v)->first();                    
+                    if(!empty($ExpenseEntry)){
+                        $ExpenseEntry->status='paid';
+                        $ExpenseEntry->invoice_link = $InvoiceSave->id;
+                        if($ExpenseEntry->token_id == '9999999'){
+                            $ExpenseEntry->token_id = null;
+                        }
+                        $ExpenseEntry->save();
+                    }  
                    
                 }
             }

@@ -155,15 +155,20 @@
         $('#applied_to1').on("select2:select", function (e) {
             var curVal = $(this).val();
             if (curVal == "expenses") {
-                $("#basic").val($("#expense_sub_total_text").val());
+                var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
+                $("#basic").val(expense_total_amount);
             } else if (curVal == "sub_total") {
+                var sub_total_amount = ($(".sub_total_amount").html() != undefined) ? $(".sub_total_amount").html().replace(/,/g, '') : 0.00;
                 $("#basic").val($("#sub_total_text").val());
             } else if (curVal == "flat_fees") {
-                $("#basic").val($("#flat_fee_sub_total_text").val());
+                var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
+                $("#basic").val(flat_fee_sub_total_text);
             } else if (curVal == "time_entries") {
-                $("#basic").val($("#time_entry_sub_total_text").val());
+                var  time_entry_total_amount = ($(".time_entry_total_amount").html() != undefined) ? $(".time_entry_total_amount").html().replace(/,/g, '') : 0.00;
+                $("#basic").val(time_entry_total_amount);
             } else if (curVal == "balance_forward_total") {
-                $("#basic").val($("#forwarded_total_text").val());
+                var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0;
+                $("#basic").val(forwarded_amount);
             } else {
                 $("#basic").val("");
             }
@@ -190,13 +195,20 @@
             } else {
                 var applied_to1Val = $('#applied_to1').val();
                 if (applied_to1Val == "expenses") {
-                    $("#basic").val($("#expense_sub_total_text").val());
+                    var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
+                    $("#basic").val(expense_total_amount);
                 } else if (applied_to1Val == "sub_total") {
+                    var sub_total_amount = ($(".sub_total_amount").html() != undefined) ? $(".sub_total_amount").html().replace(/,/g, '') : 0.00;
                     $("#basic").val($("#sub_total_text").val());
                 } else if (applied_to1Val == "flat_fees") {
-                    $("#basic").val($("#flat_fee_sub_total_text").val());
+                    var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
+                    $("#basic").val(flat_fee_sub_total_text);
                 } else if (applied_to1Val == "time_entries") {
-                    $("#basic").val($("#time_entry_sub_total_text").val());
+                    var  time_entry_total_amount = ($(".time_entry_total_amount").html() != undefined) ? $(".time_entry_total_amount").html().replace(/,/g, '') : 0.00;
+                    $("#basic").val(time_entry_total_amount);
+                } else if (applied_to1Val == "balance_forward_total") {
+                    var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0;
+                    $("#basic").val(forwarded_amount);
                 } else {
                     $("#basic").val("");
                 }

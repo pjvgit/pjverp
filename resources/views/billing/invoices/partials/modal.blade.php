@@ -84,7 +84,7 @@
                             <input class="btn btn-primary ladda-button example-button m-1 submit"
                                 onclick="actionTimeEntry('delete')" name="action" value="Delete" id="submit"
                                 type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                            <input class="btn btn-primary ladda-button example-button m-1 submit actionFlatFeeEntryRemove" name="action"
                                 value="Remove" id="submit" onclick="actionTimeEntry('remove')" type="submit">
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                             <input class="btn btn-primary ladda-button example-button m-1 submit"
                                 onclick="actionExpenseEntry('delete')" name="action" value="Delete" id="submit"
                                 type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                            <input class="btn btn-primary ladda-button example-button m-1 submit actionFlatFeeEntryRemove" name="action"
                                 value="Remove" id="submit" onclick="actionExpenseEntry('remove')" type="submit">
                         </div>
                     </div>
@@ -164,6 +164,9 @@
                             Would you like to <strong>remove</strong> the selected entry from this invoice or
                             permanently <strong>delete</strong> it from {{config('app.name')}}?
                         </div>
+                        <div class="col-md-12 confirmAccessRemove">
+                            Are you sure you want to <strong>delete</strong> the selected entry?
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -177,7 +180,7 @@
                             <input class="btn btn-primary ladda-button example-button m-1 submit"
                                 onclick="actionAdjustmentEntry('delete')" name="action" value="Delete" id="submit"
                                 type="submit">
-                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                            <input class="btn btn-primary ladda-button example-button m-1 submit actionFlatFeeEntryRemove" name="action"
                                 value="Remove" id="submit" onclick="actionAdjustmentEntry('remove')" type="submit">
                         </div>
                     </div>

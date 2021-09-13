@@ -5,12 +5,13 @@
 function openFlatFeeDelete(id,action) {
     $("#flat_fee_delete_existing_dialog").modal("show");
     $("#flat_fee_delete_entry_id").val(id);
-    $(".actionFlatFeeEntryRemove").show();
+    $(".confirmAccessRemove").hide();
     if(action == 'deleteonly'){
         $(".actionFlatFeeEntryRemove").hide();
         $(".confirmAccessRemove").show();
         $(".confirmAccess").hide();
     }else{
+        $(".actionFlatFeeEntryRemove").show();
         $(".confirmAccess").show();
         $(".confirmAccessRemove").hide();
     }
@@ -94,9 +95,20 @@ function invoice_entry_nonbillable_flat(){
 /**
  * Open time entry delete modal
  */
-function openTimeDelete(id) {
+function openTimeDelete(id, action) {
     $("#delete_existing_dialog").modal("show");
     $("#delete_time_entry_id").val(id);
+    $(".confirmAccessRemove").hide();    
+    console.log(action);
+    if(action == 'deleteonly'){
+        $(".actionFlatFeeEntryRemove").hide();
+        $(".confirmAccessRemove").show();
+        $(".confirmAccess").hide();
+    }else{
+        $(".actionFlatFeeEntryRemove").show();
+        $(".confirmAccess").show();
+        $(".confirmAccessRemove").hide();
+    }
 }
 
 /**
@@ -155,9 +167,19 @@ function actionTimeEntry(action) {
 /**
  * Open expense entry delete modal
  */
-function openExpenseDelete(id) {
+function openExpenseDelete(id, action) {
     $("#delete_expense_existing_dialog").modal("show");
     $("#delete_expense_entry_id").val(id);
+    $(".confirmAccessRemove").hide();
+    if(action == 'deleteonly'){
+        $(".actionFlatFeeEntryRemove").hide();
+        $(".confirmAccessRemove").show();
+        $(".confirmAccess").hide();
+    }else{
+        $(".actionFlatFeeEntryRemove").show();
+        $(".confirmAccess").show();
+        $(".confirmAccessRemove").hide();
+    }
 }
 
 /**
@@ -231,9 +253,19 @@ $(document).on("change", ".nonbillable-check", function() {
 });
 
 // For delete/remove adjustment entry
-function openAdjustmentDelete(id) {
+function openAdjustmentDelete(id,action) {
     $("#delete_flatfee_existing_dialog_bbox").modal("show");
     $("#delete_flatefees_existing_dialog").val(id);
+    $(".confirmAccessRemove").hide();
+    if(action == 'deleteonly'){
+        $(".actionFlatFeeEntryRemove").hide();
+        $(".confirmAccessRemove").show();
+        $(".confirmAccess").hide();
+    }else{
+        $(".actionFlatFeeEntryRemove").show();
+        $(".confirmAccess").show();
+        $(".confirmAccessRemove").hide();
+    }
 }
 
 // For delete/remove adjustment entry

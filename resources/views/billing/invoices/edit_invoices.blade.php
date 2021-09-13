@@ -962,8 +962,9 @@
                                         <td style="vertical-align: center; text-align: center; border-right: none;"
                                             class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
+                                                <?php $action = ($v->invoice_id == '' && $v->invoice_id == null) ? 'deleteonly' : 'fulldelete'; ?>
                                                 <a class="image_link_sprite image_link_sprite_cancel"
-                                                    href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}});"><i
+                                                    href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}},'{{$action}}');"><i
                                                         class="fas fa-times"></i></a>
                                             </div>
                                         </td>
@@ -3359,9 +3360,9 @@
         console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
         subtotal = parseFloat(expense_total_amount) + parseFloat(time_entry_total_amount) + parseFloat(flat_fee_sub_total_text);
         
-        var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0;
-        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0;        
-        var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0;
+        var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
+        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;      
+        var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0.00;
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
         console.log("addition_amount = " + addition_amount);  

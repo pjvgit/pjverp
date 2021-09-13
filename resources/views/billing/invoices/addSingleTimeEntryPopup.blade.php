@@ -3,6 +3,7 @@
         @csrf
         <input type="hidden" value="{{$case_id}}" name="case_id" id="case_id">
         <input type="hidden" value="{{$invoice_id}}" name="invoice_id" id="invoice_id">
+        <input type="hidden" value="{{$adjustment_token}}" name="adjustment_token" class="adjustment_token">
 
         <div class="form-group row" bladefilename="resources/views/billing/invoices/addSingleTimeEntryPopup.blade.php">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case*</label>

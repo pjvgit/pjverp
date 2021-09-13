@@ -973,7 +973,8 @@ if(!isset($addition)){ $addition=0;}
                                         </td> --}}
                                         <td style="vertical-align: center; text-align: center; border-right: none;" class="tdTimeExpense">
                                             <div class="invoice_entry_actions">
-                                                <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}});"><i class="fas fa-times"></i></a>
+                                                <?php $action = ($v->invoice_id == '' && $v->invoice_id == null) ? 'deleteonly' : 'fulldelete'; ?>
+                                                <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" onclick="openAdjustmentDelete({{$v->id}},'{{$action}}');"><i class="fas fa-times"></i></a>
                                             </div>
                                         </td>
 
@@ -3457,9 +3458,9 @@ if(!isset($addition)){ $addition=0;}
         console.log("flat_fee_sub_total_text = " + flat_fee_sub_total_text);
         subtotal = parseFloat(expense_total_amount) + parseFloat(time_entry_total_amount) + parseFloat(flat_fee_sub_total_text);
         
-        var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0;
-        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0;        
-        var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0;
+        var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
+        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
+        var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0.00;
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
         console.log("addition_amount = " + addition_amount);        
@@ -3499,7 +3500,8 @@ if(!isset($addition)){ $addition=0;}
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleTimeEntry",
             data: {
-                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}"
+                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}",
+                "adjustment_token" : "{{ $adjustment_token }}"
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {
@@ -3647,6 +3649,7 @@ if(!isset($addition)){ $addition=0;}
             url: baseUrl + "/bills/invoices/addSingleFlatFeeEntry",
             data: {
                 "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}",
+                "adjustment_token" : "{{ $adjustment_token }}"
                 // "invoice_token": "{{ @$adjustment_token }}"
             },
             success: function (res) {
@@ -3742,7 +3745,8 @@ if(!isset($addition)){ $addition=0;}
             type: "POST",
             url: baseUrl + "/bills/invoices/addSingleExpenseEntry",
             data: {
-                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}"
+                "id": "{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}",
+                "adjustment_token" : "{{ $adjustment_token }}"
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {
