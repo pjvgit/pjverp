@@ -32,8 +32,12 @@ class Invoices extends Model
     public function getPaidAmountNewAttribute(){
         return number_format($this->paid_amount,2);
     }
+    public function getDueAmountAttribute(){
+        return str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+    }
     public function getDueAmountNewAttribute(){
-        return number_format($this->due_amount,2);
+        return str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+        // return number_format($this->due_amount,2);
     }
     public function getDueDateNewAttribute(){
         if($this->due_date!=NULL){
@@ -82,11 +86,11 @@ class Invoices extends Model
         
     // }
     public function getCurrentStatusAttribute(){
-
+        $due_amount =  str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
         if($this->is_sent=="yes"){
-            if($this->due_amount =="0.00"){
+            if($due_amount =="0.00"){
                 return "Paid";
-            }else if($this->due_amount!="0.00" && $this->paid_amount!="0.00" ){
+            }else if($due_amount!="0.00" && $this->paid_amount!="0.00" ){
                  return "Partial";
             }else if($this->due_date!=NULL && strtotime($this->due_date) < strtotime(date('Y-m-d')) && $this->paid_amount=="0.00" ){
                 return "Overdue";
@@ -94,9 +98,9 @@ class Invoices extends Model
                 return "Sent";
             }
         }else{
-            if($this->due_amount =="0.00"){
+            if($due_amount =="0.00"){
                 return "Paid";
-            }else if($this->due_amount!="0.00" && $this->paid_amount!="0.00" ){
+            }else if($due_amount!="0.00" && $this->paid_amount!="0.00" ){
                  return "Partial";
             }else if($this->due_date!=NULL && strtotime($this->due_date) < strtotime(date('Y-m-d')) && $this->paid_amount=="0.00" ){
                 return "Overdue";

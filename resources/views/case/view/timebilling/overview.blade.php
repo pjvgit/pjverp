@@ -12,7 +12,11 @@
                                 <p class="">Un-Invoiced</p>
                                 <h4 class="font-weight-bold">
                                     <?php 
-                                    $totalBills=$timeEntryData['billable_entry']+$expenseEntryData['billable_entry']+($CaseMaster->billing_amount - $flatFeeEntryData['billable_entry']);?>
+                                    $flatFeeTotal = 0;
+                                    if(in_array($CaseMaster['billing_method'],["flat","mixed"])){
+                                        $flatFeeTotal = ($CaseMaster->billing_amount - $flatFeeEntryData['billable_entry']);
+                                    }
+                                    $totalBills=$timeEntryData['billable_entry']+$expenseEntryData['billable_entry']+$flatFeeTotal;?>
                                     ${{number_format($totalBills,2)}}
                                 </h4>
                             </div>

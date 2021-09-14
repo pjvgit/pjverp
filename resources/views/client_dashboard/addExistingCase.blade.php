@@ -18,14 +18,6 @@
                     onclick="showAllCourtCasesAutocomplete(); ">Browse All</a></div>
         </div>
         <hr>
-        @if(Auth::user()->id != $client_id)
-        <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-2 col-form-label"><b>Sharing </b></label>
-            <label for="inputEmail3" class="col-sm-10 col-form-label"><b>Sharing is disabled since this contact is not
-                    allowed to log in.</b>
-            </label>
-        </div>
-        @endif
         <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
         <div class="form-group row float-right">
             <a href="#">

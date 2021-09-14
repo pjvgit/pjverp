@@ -222,8 +222,7 @@
                         <table style="color: black;">
                             <tbody>
                                 <tr>
-                                    <td
-                                        style="width: 100%; color: black; text-align: right; padding-right: 10px; padding-top: 9px;vertical-align: middle;">
+                                    <td style="width: 100%; color: black; text-align: right; padding-right: 10px; padding-top: 9px;vertical-align: middle;">
                                         <input type="checkbox" name="range_check_box" id="range_check_box" value="1">
                                         <label for="range_check_box">Filter by date range</label>
                                     </td>
@@ -612,7 +611,7 @@
                                     </td>
                                     <td colspan="3" style="text-align: right;">
                                         <div class="locked">
-                                            {{@$caseMaster['case_title']}} totals:
+                                            {{@$caseMaster['case_title']}} time entry totals:
                                         </div>
                                     </td>
                                     <td>

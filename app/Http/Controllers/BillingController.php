@@ -1373,8 +1373,8 @@ class BillingController extends BaseController
         $validator = \Validator::make($request->all(), [
             'client' => 'required|array|min:1'
         ],
-        ['min'=>'No users selected',
-        'required'=>'No users selected']);
+        ['min'=>'Please choose at least one contact',
+        'required'=>'Please choose at least one contact']);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -2238,6 +2238,9 @@ class BillingController extends BaseController
             // //Get Flat fees entry
             if($caseMaster) {
                 $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
+                if($totalFlatFee == 0){
+                    $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->where("flat_fee_entry.token_id","=",$request->token)->withTrashed()->sum('cost');
+                }
                 // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
@@ -3619,9 +3622,10 @@ class BillingController extends BaseController
                 ExpenseForInvoice::where("invoice_id",$InvoiceSave->id)->delete();
 
                 foreach($request->expenseEntrySelectedArray as $k=>$v){
+                    if($v > 0){
                     $ExpenseEntryForInvoice=new ExpenseForInvoice;
                     $ExpenseEntryForInvoice->invoice_id=$InvoiceSave->id;                    
-                    $ExpenseEntryForInvoice->expense_entry_id =$v;
+                    $ExpenseEntryForInvoice->expense_entry_id=$v;
                     $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
                     $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
                     $ExpenseEntryForInvoice->save();
@@ -3634,7 +3638,7 @@ class BillingController extends BaseController
                             $ExpenseEntry->token_id = null;
                         }
                         $ExpenseEntry->save();
-                    }  
+                    }  }
                    
                 }
             }
@@ -4318,8 +4322,8 @@ class BillingController extends BaseController
         $validator = \Validator::make($request->all(), [
             'client' => 'required|array|min:1'
         ],
-        ['min'=>'No users selected',
-        'required'=>'No users selected']);
+        ['min'=>'Please choose at least one contact',
+        'required'=>'Please choose at least one contact']);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -4675,8 +4679,8 @@ class BillingController extends BaseController
         $validator = \Validator::make($request->all(), [
             'client' => 'required|array|min:1'
         ],
-        ['min'=>'No users selected',
-        'required'=>'No users selected']);
+        ['min'=>'Please choose at least one contact.',
+        'required'=>'Please choose at least one contact']);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
@@ -5192,7 +5196,7 @@ class BillingController extends BaseController
             // Apply trust and credit funds
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
-                    $appliedTrust = InvoiceApplyTrustCreditFund::whereId($item['id'])->first();
+                    $appliedTrust = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     if($appliedTrust) {
                         $data = [
@@ -5226,7 +5230,7 @@ class BillingController extends BaseController
             }
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
-                    $appliedCredit = InvoiceApplyTrustCreditFund::whereId($item['id'])->first();
+                    $appliedCredit = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $creditHistoryLast = DepositIntoCreditHistory::where("user_id", $item['client_id'])->orderBy('created_at', 'desc')->first();
                     if($appliedCredit) {
                         $data = [
@@ -6182,39 +6186,45 @@ class BillingController extends BaseController
                 $CaseMaster=CaseMaster::find($Invoices['case_id']);
                 $InvoiceAdjustment = new InvoiceAdjustment;
                 
-                $FlatFeeEntryForInvoiceTotal = $TimeEntryForInvoiceTotal = $GrandTotalByInvoiceExp = 0;
+                $FlatFeeEntryForInvoiceTotal = $TimeEntryForInvoiceTotal = $GrandTotalByInvoiceExp = $InvoiceAdjustmentTotal = 0;
+
+                $InvoiceAdjustmentData=InvoiceAdjustment::where("invoice_id",$v1)->get(); 
+                foreach($InvoiceAdjustmentData as $k => $v){
+                    $InvoiceAdjustmentTotal = ($v->item == 'discount') ? ($InvoiceAdjustmentTotal - str_replace(",","",$v->amount)) : ($InvoiceAdjustmentTotal + str_replace(",","",$v->amount));
+                }
 
                 $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
-                ->where("flat_fee_entry_for_invoice.invoice_id",$v1)
+                ->where("invoice_id",$v1)
+                ->where("flat_fee_entry.time_entry_billable","yes")
                 ->sum('cost');               
                 
                 $FlatFeeEntryForInvoiceTotal= number_format($FlatFeeEntryForInvoice, 2);
-                $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("invoice_id",$v1)->get();
+                $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("task_time_entry.time_entry_billable","yes")->where("invoice_id",$v1)->get();
                 if(count($TimeEntryForInvoice) > 0){
                     $TotalAmt=0;
                     foreach($TimeEntryForInvoice as $kk=>$vv){
                         if($vv->rate_type=="hr"){
-                            $TotalAmt=($vv->entry_rate*$vv->duration);
+                            $TotalAmt=(str_replace(",","",$vv->entry_rate)*str_replace(",","",$vv->duration));
                         }else{
-                            $TotalAmt=$vv->duration;
+                            $TotalAmt=str_replace(",","",$vv->duration);
                         }
-                        $TimeEntryForInvoiceTotal+=$TotalAmt;
+                        $TimeEntryForInvoiceTotal+=str_replace(",","",$TotalAmt);
                     }
                     $TimeEntryForInvoiceTotal = str_replace(",", '',number_format($TimeEntryForInvoiceTotal,2));
                 }
 
-                $ExpenseForInvoice=ExpenseForInvoice::join("expense_entry","expense_entry.id","=","expense_for_invoice.expense_entry_id")->where("invoice_id",$v1)->get();
+                $ExpenseForInvoice=ExpenseForInvoice::join("expense_entry","expense_entry.id","=","expense_for_invoice.expense_entry_id")->where("expense_entry.time_entry_billable","yes")->where("invoice_id",$v1)->get();
                 if(count($ExpenseForInvoice) > 0){
                     $TotalAmtExp=0;
                     foreach($ExpenseForInvoice as $kk1=>$vv1){
-                        $TotalAmtExp=($vv1->cost*$vv1->duration);
-                        $GrandTotalByInvoiceExp+=$TotalAmtExp;
+                        $TotalAmtExp=(str_replace(",","",$vv1->cost)*str_replace(",","",$vv1->duration));
+                        $GrandTotalByInvoiceExp+=str_replace(",","",$TotalAmtExp);
                     }
                     $GrandTotalByInvoiceExp = str_replace(",", '', number_format($GrandTotalByInvoiceExp,2));
                 }
                 
                 $subTotal= ($FlatFeeEntryForInvoiceTotal + $TimeEntryForInvoiceTotal+ $GrandTotalByInvoiceExp); 
-                
+
                 $finalAmount=0;
                 if($Invoices->status != 'Forwarded'){         
                 $InvoiceAdjustment->case_id =$Invoices['case_id'];
@@ -6302,10 +6312,10 @@ class BillingController extends BaseController
                 }
                 if($discount_applied_to=="balance_forward_total"){
                     //forwarded invoices applied or not
-                    $forwardedInvoices =Invoices::whereId($v1)->with("forwardedInvoices")->first();
+                    $forwardedInvoices = Invoices::whereId($v1)->with("forwardedInvoices")->first();
                     $forwardedInvoicesTotal = 0;
                     foreach($forwardedInvoices->forwardedInvoices as $inv){
-                        $forwardedInvoicesTotal+= $inv['total_amount'];
+                        $forwardedInvoicesTotal+= ($inv['total_amount'] - $inv['paid_amount']);
                     }
                     if($forwardedInvoicesTotal > 0.1) {
                         $InvoiceAdjustment->basis =str_replace(",","",$forwardedInvoicesTotal);
@@ -6334,18 +6344,18 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
-                }      
-                
+                }
+
                 if($Applied==TRUE){
                     if($Invoices->payment_plan_enabled == 'no'){
                         $InvoiceAdjustment->save();
                         if($discount_type=="discount"){
-                            $subTotalSave=$subTotal-$finalAmount;
+                            $subTotalSave=$InvoiceAdjustmentTotal + ($subTotal-$finalAmount);
                             if($subTotalSave<0){
                                 $subTotalSave=0;
                             }
                         }else{
-                            $subTotalSave=$subTotal+$finalAmount;
+                            $subTotalSave=$InvoiceAdjustmentTotal + ($subTotal + $finalAmount);
                         }
                         $Invoices->total_amount=$subTotalSave;
                         // $Invoices->token=base64_decode($v1);

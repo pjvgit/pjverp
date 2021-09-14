@@ -386,7 +386,7 @@
                         if(res.is_non_trust_retainer == "yes") {
                             $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
                         }
-                        $(".text-muted").show(); alert();
+                        $(".text-muted").show();
                         $('#disabledArea').removeClass('retainer-request-opaque');
                         $('.submit').removeAttr("disabled");  
                     }

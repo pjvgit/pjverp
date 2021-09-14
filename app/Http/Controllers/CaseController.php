@@ -1146,11 +1146,11 @@ class CaseController extends BaseController
                 if($remainFlatFee > 0) {
                     FlatFeeEntry::create([
                         'case_id' => $caseMaster->id,
-                        'user_id' => auth()->user()->id(),
+                        'user_id' => auth()->id(),
                         'entry_date' => Carbon::now(),
                         'cost' =>  $remainFlatFee,
                         'time_entry_billable' => 'yes',
-                        'created_by' => auth()->user()->id(), 
+                        'created_by' => auth()->id(),
                     ]);
                 }                                
             }

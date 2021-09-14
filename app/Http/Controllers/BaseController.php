@@ -198,7 +198,7 @@ class BaseController extends Controller
         $timeTotalBillable=$timeTotalNonBillable=0;
         $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $case_id)->where("time_entry_billable","yes")->get();
         foreach($flatFeeData as $TK=>$TE){
-            $timeTotalBillable+=$TE['cost'];
+            $timeTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
         }
         $FlatFeeEntry['case_id']=$case_id;
         $FlatFeeEntry['billable_entry']=$timeTotalBillable;
@@ -211,15 +211,15 @@ class BaseController extends Controller
         foreach($TimeEntry as $TK=>$TE){
             if($TE['rate_type']=="flat"){
                 if($TE['time_entry_billable']=="yes"){
-                        $timeTotalBillable+=$TE['entry_rate'];
+                        $timeTotalBillable+=str_replace(",","",number_format($TE['entry_rate'], 2));
                 }else{
-                        $timeTotalNonBillable+=$TE['entry_rate'];
+                        $timeTotalNonBillable+=str_replace(",","",number_format($TE['entry_rate'], 2));
                 }
             }else{
                 if($TE['time_entry_billable']=="yes"){
-                    $timeTotalBillable+=($TE['entry_rate']*$TE['duration']);
+                    $timeTotalBillable+=(str_replace(",","",number_format($TE['entry_rate'], 2)) * str_replace(",","",number_format($TE['duration'], 2)));
                 }else{
-                    $timeTotalNonBillable+=($TE['entry_rate']*$TE['duration']);
+                    $timeTotalNonBillable+=(str_replace(",","",number_format($TE['entry_rate'], 2)) * str_replace(",","",number_format($TE['duration'], 2)));
                 }
             }
         }
@@ -233,9 +233,9 @@ class BaseController extends Controller
         $ExpenseEntry=ExpenseEntry::select("*")->where("case_id",$case_id)->where('status','unpaid')->get();
         foreach($ExpenseEntry as $kE=>$vE){
             if($vE['time_entry_billable']=="yes"){
-                $expenseTotalBillable+=($vE->cost*$vE->duration);
+                $expenseTotalBillable+=(str_replace(",","",number_format($vE->cost, 2)) * str_replace(",","",number_format($vE->duration, 2)));
             }else{
-                $expenseTotalNonBillable+=($vE->cost*$vE->duration);
+                $expenseTotalNonBillable+=(str_replace(",","",number_format($vE->cost, 2)) * str_replace(",","",number_format($vE->duration, 2)));
             }
         }
         $TimeEntry['case_id']=$case_id;
