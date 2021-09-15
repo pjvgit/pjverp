@@ -9,7 +9,7 @@
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Flat Fee Entry</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">×</span></button>
                 </div>
@@ -57,7 +57,7 @@
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Time Entry</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">×</span></button>
                 </div>
@@ -106,7 +106,7 @@
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Expense Entry</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">×</span></button>
                 </div>
@@ -153,14 +153,14 @@
             <input type="hidden" value="" name="adjustment_entry_id" id="delete_flatefees_existing_dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove Adjustment Entry</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body">
                     <div class="showError" style="display:none"></div>
                     <div class="row">
-                        <div class="col-md-12" id="confirmAccess">
+                        <div class="col-md-12 confirmAccess" id="confirmAccess">
                             Would you like to <strong>remove</strong> the selected entry from this invoice or
                             permanently <strong>delete</strong> it from {{config('app.name')}}?
                         </div>

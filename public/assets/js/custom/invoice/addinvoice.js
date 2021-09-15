@@ -239,15 +239,17 @@ $(document).on("change", ".nonbillable-check", function() {
     var id = $(this).val();
     var checkType = $(this).attr("data-check-type");
     var isCheck = "yes";
+    var token_id = $(this).attr("data-token_id");
     if($(this).is(":checked")) {
         isCheck = "no";
     }
+    // $("#preloader").show();
     $.ajax({
         url: baseUrl+"/bills/invoices/save/nonbillable/check",
         type: "GET",
-        data: {id: id, check_type: checkType, is_check: isCheck},
+        data: {id: id, check_type: checkType, is_check: isCheck, token_id:token_id},
         success: function(data) {
-            console.log(data);
+            // window.location.reload();
         }
     });
 });

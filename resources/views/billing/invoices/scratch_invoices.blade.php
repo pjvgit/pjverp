@@ -51,19 +51,14 @@ if(!isset($adjustment_token)){
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
-                                                        {{-- <?php foreach($ClientList as $key=>$val){ ?>
-                                                        <option uType="client"  value="{{$val->id}}"> {{substr($val->name,0,200)}} (Client)</option>
-                                                        <?php } ?> --}}
                                                         @forelse ($ClientList as $key => $item)
                                                         <option uType="client"  value="{{ $item->id }}" {{ (isset($client_id) && $item->id == $client_id) ? "selected" : "" }}> {{ substr($item->name,0,200) }} (Client)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>
                                                     <optgroup label="Company">
-                                                        {{-- <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                                        <option uType="company" value="{{$CompanyListVal->id}}"> {{substr($CompanyListVal->first_name,0,200)}} (Company)</option><?php } ?> --}}
                                                         @forelse ($CompanyList as $key => $item)
-                                                        <option uType="company"  value="{{ $item->id }}"> {{ substr($item->name,0,200) }} (Company)</option>
+                                                        <option uType="company"  value="{{ $item->id }}"  {{ (isset($client_id) && $item->id == $client_id) ? "selected" : "" }}> {{ substr($item->name,0,200) }} (Company)</option>
                                                         @empty
                                                         @endforelse
                                                     </optgroup>

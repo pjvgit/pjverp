@@ -40,7 +40,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Flat fee Amount</label>
             <div class="input-group mb-3 col-sm-5">
                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                <input class="form-control case_rate number" name="default_rate" maxlength="10" type="text"
+                <input class="form-control case_rate number" name="default_rate" maxlength="10" min="0" type="text"
                     aria-label="Amount (to the nearest dollar)">
             </div>
         </div>

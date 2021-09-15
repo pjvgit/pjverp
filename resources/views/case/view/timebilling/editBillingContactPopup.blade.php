@@ -53,7 +53,7 @@
             <div class="input-group mb-3 col-sm-5">
                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                 <input class="form-control case_rate" name="default_rate" maxlength="10" id="default_rate" type="text"
-                    aria-label="Amount (to the nearest dollar)" value="{{$default_rate}}">
+                    aria-label="Amount (to the nearest dollar)" min="0" value="{{$default_rate}}">
             </div>
             <span id="TypeError"></span>
         </div>

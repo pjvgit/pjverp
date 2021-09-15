@@ -621,7 +621,7 @@
                                     <td>
                                         <div class="locked" style="text-align: right;">
                                             $<span id="time_entry_table_total"
-                                                class="table_total">{{number_format($timeEntryAmount,2)}}</span>
+                                                class="table_total time_entry_table_total">{{number_format($timeEntryAmount,2)}}</span>
 
                                         </div>
                                     </td>
@@ -2667,9 +2667,9 @@
                     sum += g;
                 }
             });
-            $(".table_total").html(sum);
+            $(".time_entry_table_total").html(sum);
             $("#time_entry_sub_total_text").val(sum);
-            $('.table_total').number(true, 2);
+            $('.time_entry_table_total').number(true, 2);
 
             $(".time_entry_total_amount").html(sum);
             $('.time_entry_total_amount').number(true, 2);
@@ -3812,59 +3812,6 @@
         // })
     }
     // $('input[name=client_portal_enable]').attr("checked",false);
-
-
-    /* function openAdjustmentDelete(id) {
-        $("#delete_flatfee_existing_dialog_bbox").modal("show");
-        $("#delete_flatefees_existing_dialog").val(id);
-    } */
-
-    /* function actionAdjustmentEntry(action) {
-        $('#removeExistingFlateFeesForm').submit(function (e) {
-            beforeLoader();
-            e.preventDefault();
-            if (!$('#removeExistingFlateFeesForm').valid()) {
-                beforeLoader();
-                return false;
-            }
-            var dataString = '';
-            dataString = $("#removeExistingFlateFeesForm").serialize();
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/bills/invoices/deleteAdustmentEntry", // json datasource
-                data: dataString,
-                beforeSend: function (xhr, settings) {
-                    settings.data += '&delete=yes&action=' + action;
-                },
-                success: function (res) {
-                    beforeLoader();
-                    if (res.errors != '') {
-                        $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                        $.each(res.errors, function (key, value) {
-                            errotHtml += '<li>' + value + '</li>';
-                        });
-                        errotHtml += '</ul></div>';
-                        $('.showError').append(errotHtml);
-                        $('.showError').show();
-                        afterLoader();
-                        return false;
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                }
-            });
-        });
-    } */
 
     setTimeout(function(){  
         $("#payment_plan_balance").html($(".final_total").html());

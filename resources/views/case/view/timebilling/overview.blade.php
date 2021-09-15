@@ -15,6 +15,7 @@
                                     $flatFeeTotal = 0;
                                     if(in_array($CaseMaster['billing_method'],["flat","mixed"])){
                                         $flatFeeTotal = ($CaseMaster->billing_amount - $flatFeeEntryData['billable_entry']);
+                                        $flatFeeTotal = ($flatFeeTotal > 0 ) ?  $flatFeeTotal : 0;
                                     }
                                     $totalBills=$timeEntryData['billable_entry']+$expenseEntryData['billable_entry']+$flatFeeTotal;?>
                                     ${{number_format($totalBills,2)}}
@@ -23,7 +24,7 @@
                            
                             <div class="pl-1 col-8">
                                 @if(!empty($caseBiller))
-                                <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}">Add Invoice</a>
+                                <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid']}}">Add Invoice</a>
                                 @else
                                 <a class="btn btn-primary btn-rounded m-1" data-toggle="modal" data-target="#editBillingContactPopup" data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">Setup Case Billing Information</a>
                                 @endif
@@ -40,7 +41,7 @@
                                             ?>
                                             <tr>
                                                 <td class="pl-1" style="width: 33%;">Case Fee</td>
-                                                <td class="pl-1" style="width: 33%;">${{number_format(($CaseMaster->billing_amount - $flatFeeEntryData['billable_entry']),2)}}</td>
+                                                <td class="pl-1" style="width: 33%;">${{number_format($flatFeeTotal,2)}}</td>
                                                 <td class="pl-1" style="width: 33%;"></td>
                                             </tr>
                                             <?php

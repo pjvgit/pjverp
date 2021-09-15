@@ -173,6 +173,8 @@
                 $("#basic").val("");
             }
             $('#ad_type1').val("percentage").trigger('change');
+            $("#percentage").val("").attr('readonly', false);
+            $("#amount").attr('readonly', true);
             // $('#basic').number(true, 2);
         });
 

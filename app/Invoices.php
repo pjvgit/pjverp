@@ -33,10 +33,12 @@ class Invoices extends Model
         return number_format($this->paid_amount,2);
     }
     public function getDueAmountAttribute(){
-        return str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+        $due_amount = str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+        return ($due_amount >= 0 ) ? $due_amount : 0;
     }
     public function getDueAmountNewAttribute(){
-        return str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+        $due_amount = str_replace(",","",number_format($this->total_amount,2)) - str_replace(",","",number_format($this->paid_amount,2));
+        return ($due_amount >= 0 ) ? $due_amount : 0;
         // return number_format($this->due_amount,2);
     }
     public function getDueDateNewAttribute(){

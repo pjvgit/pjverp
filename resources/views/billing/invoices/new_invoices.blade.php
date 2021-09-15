@@ -250,7 +250,7 @@ if(!isset($addition)){ $addition=0;}
                                 @endif
                             </h2>
                         </div>
-                        <?php // if($caseMaster &&  ($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed")){?>
+                        <?php if($caseMaster &&  ($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed")){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -379,7 +379,7 @@ if(!isset($addition)){ $addition=0;}
                                     </td>   
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -413,7 +413,7 @@ if(!isset($addition)){ $addition=0;}
                             </tbody>
                         </table>
                         <br>
-                        <?php  // } ?>
+                        <?php } ?>
                         <!-- start -->
                         <?php if($case_id != 'none') { ?>
                         <div class="invoice_entry_header">
@@ -601,7 +601,7 @@ if(!isset($addition)){ $addition=0;}
                                         </div>
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}"  data-check-type="time"
+                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="time"
                                             id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
@@ -630,7 +630,7 @@ if(!isset($addition)){ $addition=0;}
                                     <td>
                                         <div class="locked" style="text-align: right;">
                                             $<span id="time_entry_table_total"
-                                                class="table_total">{{number_format($timeEntryAmount,2)}}</span>
+                                                class="table_total time_entry_table_total">{{number_format($timeEntryAmount,2)}}</span>
 
                                         </div>
                                     </td>
@@ -823,7 +823,7 @@ if(!isset($addition)){ $addition=0;}
                                             </div>
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
-                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-check-type="expense"
+                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-token_id="{{$adjustment_token}}" data-check-type="expense"
                                                 id="invoice_expense_entry_nonbillable_time{{$v->eid}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td> 
@@ -2573,9 +2573,9 @@ if(!isset($addition)){ $addition=0;}
                     sum += g;
                 }
             });
-            $(".table_total").html(sum);
-            $("#time_entry_sub_total_text").val(sum);
-            $('.table_total').number(true, 2);
+            $(".time_entry_table_total").html(sum);
+            $("#time_entry_sub_total_text").val(sum);            
+            $('.time_entry_table_total').number(true, 2);
 
             $(".time_entry_total_amount").html(sum);
             $('.time_entry_total_amount').number(true, 2);

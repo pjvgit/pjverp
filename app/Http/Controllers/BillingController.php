@@ -2083,6 +2083,9 @@ class BillingController extends BaseController
                     $client_id = $case->selected_user;
                 }
             }
+            if($request->contact){
+                $client_id = $request->contact;
+            }
             $userData=User::find($client_id);
             // $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();
 
@@ -2238,23 +2241,32 @@ class BillingController extends BaseController
             // //Get Flat fees entry
             if($caseMaster) {
                 $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
-                if($totalFlatFee == 0){
-                    $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->where("flat_fee_entry.token_id","=",$request->token)->withTrashed()->sum('cost');
-                }
                 // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
-                    $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
-                    if($remainFlatFee > 0) {
-                        FlatFeeEntry::create([
-                            'case_id' => $caseMaster->id,
-                            'user_id' => auth()->id(),
-                            'entry_date' => Carbon::now(),
-                            'cost' =>  $remainFlatFee,
-                            'time_entry_billable' => 'yes',
-                            'created_by' => auth()->id(), 
-                        ]);
+                    if($totalFlatFee == 0){
+                        $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->withTrashed()->sum('cost');
+                    }else{
+                        $totalFlatFeeDeleted = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->where("flat_fee_entry.token_id",$request->token)->withTrashed()->sum('cost');
+                        if($totalFlatFeeDeleted > 0){
+                            $totalFlatFee = $totalFlatFee + $totalFlatFeeDeleted;
+                        }
                     }
-                }                
+                    $FlatFeeUnpaidNonBillableSum = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("time_entry_billable","no")->sum('cost');
+                    if ($FlatFeeUnpaidNonBillableSum == 0) {
+                        $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
+                        if($remainFlatFee > 0) {
+                            FlatFeeEntry::create([
+                                'case_id' => $caseMaster->id,
+                                'user_id' => auth()->id(),
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $remainFlatFee,
+                                'time_entry_billable' => 'yes',
+                                'token_id' => $request->token,
+                                'created_by' => auth()->id(), 
+                            ]);
+                        }
+                    }  
+                }       
             }
             if($case_id == "none"){
                 $totalFlatFee = FlatFeeEntry::where('case_id', 0)->where('user_id', auth()->id())->where("status","unpaid")->first();
@@ -2265,6 +2277,7 @@ class BillingController extends BaseController
                         'entry_date' => Carbon::now(),
                         'cost' =>  0,
                         'time_entry_billable' => 'yes',
+                        'token_id' => $request->token,
                         'created_by' => auth()->id(), 
                     ]);
                 }
@@ -2405,7 +2418,9 @@ class BillingController extends BaseController
             }
             FlatFeeEntryForInvoice::where("flat_fee_entry_id", $id)->delete();
             if($request->action=="delete"){                
-                $FlatFeeEntry->delete();
+                $FlatFeeEntry->token_id = $request->token_id;
+                $FlatFeeEntry->deleted_at = date('Y-m-d h:i:s');
+                $FlatFeeEntry->save();
             }else{
                 FlatFeeEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
             }
@@ -5168,11 +5183,11 @@ class BillingController extends BaseController
                         // else 
                         //     $status = "Unsent";
                         // $item->fill(["status" => $status])->save();
-                        $this->updateInvoiceAmount($item->id);
+                        $this->updateInvoiceAmount(@$item->id);
                         InvoiceHistory::create([
-                            "invoice_id" => $item->id,
+                            "invoice_id" => @$item->id,
                             "acrtivity_title" => "invoice reopened",
-                            "amount" => $item->due_amount,
+                            "amount" => @$item->due_amount,
                             "responsible_user" => auth()->id(),
                             "notes" => "Balance was unforwarded",
                             "created_by" => auth()->id()
@@ -6198,7 +6213,7 @@ class BillingController extends BaseController
                 ->where("flat_fee_entry.time_entry_billable","yes")
                 ->sum('cost');               
                 
-                $FlatFeeEntryForInvoiceTotal= number_format($FlatFeeEntryForInvoice, 2);
+                $FlatFeeEntryForInvoiceTotal= str_replace(',', '',number_format(str_replace(',', '',$FlatFeeEntryForInvoice), 2));
                 $TimeEntryForInvoice=TimeEntryForInvoice::join("task_time_entry","task_time_entry.id","=","time_entry_for_invoice.time_entry_id")->where("task_time_entry.time_entry_billable","yes")->where("invoice_id",$v1)->get();
                 if(count($TimeEntryForInvoice) > 0){
                     $TotalAmt=0;
@@ -9013,10 +9028,97 @@ class BillingController extends BaseController
         // return $request->all();
         if($request->check_type == "time") {
             $checkEntry = TaskTimeEntry::whereId($request->id)->first();
+            if(!empty($checkEntry)){                              
+                if($checkEntry->rate_type == 'flat'){
+                    $totalTime = str_replace(",","",$checkEntry->duration);                    
+                }else{
+                    $totalTime = str_replace(",","",$checkEntry->entry_rate) * str_replace(",","",$checkEntry->duration);
+                } 
+                if($checkEntry->invoice_link == null){
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('token',$request->token_id)->get();  
+                }else{
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('invoice_id',$checkEntry->invoice_link)->get();  
+                }    
+                if(count($InvoiceAdjustment) > 0){
+                    foreach($InvoiceAdjustment as $k=>$v){
+                        if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
+                            if($request->is_check == 'no'){ 
+                                $invoiceAdjustTotal = $v->basis - $totalTime;
+                            }else{
+                                $invoiceAdjustTotal = $v->basis + $totalTime;
+                            }
+                            if($v->ad_type == 'percentage'){
+                                $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                            }else{
+                                $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                            }
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
+                    }
+                }                
+            }
         } else if($request->check_type == "flat") {
             $checkEntry = FlatFeeEntry::whereId($request->id)->first();
+            if(!empty($checkEntry)){                              
+                $totalTime = str_replace(",","",$checkEntry->cost); 
+                if($checkEntry->invoice_link == null){
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('token',$request->token_id)->get();  
+                }else{
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('invoice_id',$checkEntry->invoice_link)->get();  
+                }    
+                if(count($InvoiceAdjustment) > 0){
+                    foreach($InvoiceAdjustment as $k=>$v){
+                        if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
+                            if($request->is_check == 'no'){ 
+                                $invoiceAdjustTotal = $v->basis - $totalTime;
+                            }else{
+                                $invoiceAdjustTotal = $v->basis + $totalTime;
+                            }
+                            if($v->ad_type == 'percentage'){
+                                $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                            }else{
+                                $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                            }
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
+                    }
+                }                
+            }
         } else if($request->check_type == "expense") {
             $checkEntry = ExpenseEntry::whereId($request->id)->first();
+            if(!empty($checkEntry)){                              
+                if($checkEntry->invoice_link == null){
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('token',$request->token_id)->get();  
+                }else{
+                    $InvoiceAdjustment = InvoiceAdjustment::where('case_id', $checkEntry->case_id)->where('invoice_id',$checkEntry->invoice_link)->get();  
+                }   
+                if(count($InvoiceAdjustment) > 0){
+                    foreach($InvoiceAdjustment as $k=>$v){
+                        if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
+                            if($request->is_check == 'no'){ 
+                                $invoiceAdjustTotal = $v->basis - $totalTime;
+                            }else{
+                                $invoiceAdjustTotal = $v->basis + $totalTime;
+                            }
+                            if($v->ad_type == 'percentage'){
+                                $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                            }else{
+                                $invoiceAmount = number_format($invoiceAdjustTotal,2);
+                            }
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
+                    }
+                }                
+            }
         } else {
             $checkEntry = "";
         }
@@ -9025,7 +9127,7 @@ class BillingController extends BaseController
         } else {
             return response()->json(["status" => "error", 'msg' => "No record found"]);
         }
-        return response()->json(['status' => "success", 'msg' => "Record updated"]);
+        return response()->json(['status' => "success", 'msg' => "Record updated", "totalTime" => $totalTime]);
     }
 
     /**

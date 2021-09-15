@@ -198,7 +198,9 @@ class BaseController extends Controller
         $timeTotalBillable=$timeTotalNonBillable=0;
         $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $case_id)->where("time_entry_billable","yes")->get();
         foreach($flatFeeData as $TK=>$TE){
-            $timeTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+            if($TE->status == 'paid'){
+                $timeTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+            }
         }
         $FlatFeeEntry['case_id']=$case_id;
         $FlatFeeEntry['billable_entry']=$timeTotalBillable;

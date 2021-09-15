@@ -92,7 +92,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
                                             <a class="font-weight-bolder pendo-left-details-company"
-                                                href="{{BASE_URL}}contacts/companies/{{$val->id}}">{{$val->first_name}}</a>
+                                                href="{{ route('contacts/companies/view', $val->id) }}">{{$val->first_name}}</a>
                                             <small><a class="text-break pendo-left-details-company-email"
                                                     href="mailto:{{$val->email}}">{{$val->email}}</a></small>
                                         </div>
@@ -101,7 +101,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <div class="d-flex align-items-start mb-3">
                                         <div class="mr-1">
                                             @if(file_exists(public_path().'/images/users/'.$val->profile_image) && $val->profile_image!='')
-                                                <img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$val->profile_image}}" width="32" height="32">
+                                                <img class="rounded-circle" alt="" src="{{ assets('profile')}}/{{$val->profile_image}}" width="32" height="32">
                                             @else
                                             <i class="fas fa-2x fa-user-circle text-black-50"></i>
                                             @endif
@@ -110,7 +110,6 @@ $adjustment_token=round(microtime(true) * 1000);
                                         <div class="d-flex flex-column justify-content-center">
                                             <div class="d-flex flex-wrap align-items-center">
                                                 <a class="font-weight-bolder pendo-left-details-contact"
-                                                    {{-- href="{{BASE_URL}}contacts/clients/{{$val->id}}"> --}}
                                                     href="{{ route('contacts/clients/view', $val->id) }}">{{substr($val->first_name,0,15)}}
                                                     {{substr($val->last_name,0,15)}}</a>
                                                 <small class="ml-1 text-lowercase">(Client)</small>
