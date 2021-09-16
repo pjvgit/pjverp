@@ -853,7 +853,7 @@
                     }else{
                         $fAmt=$F;
                     }?>
-                    ${{$fAmt}}
+                    ${{number_format($fAmt,2)}}
                 </td>
             </tr>
 

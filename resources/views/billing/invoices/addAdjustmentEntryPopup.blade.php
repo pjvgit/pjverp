@@ -201,7 +201,7 @@
                     $("#basic").val(expense_total_amount);
                 } else if (applied_to1Val == "sub_total") {
                     var sub_total_amount = ($(".sub_total_amount").html() != undefined) ? $(".sub_total_amount").html().replace(/,/g, '') : 0.00;
-                    $("#basic").val($("#sub_total_text").val());
+                    $("#basic").val(sub_total_amount);
                 } else if (applied_to1Val == "flat_fees") {
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     $("#basic").val(flat_fee_sub_total_text);
@@ -224,13 +224,13 @@
             var basic = $("#basic").val().replace(/,/g, "");
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
-            $("#amount").val(calculation);
+            $("#amount").val(calculation).toFixed(2);
         });
         $("#basic").on("keyup change", function (e) {
             var basic = $("#basic").val().replace(/,/g, "");
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
-            $("#amount").val(calculation);
+            $("#amount").val(calculation).toFixed(2);
         });
         $('#saveAdjustmentForm').submit(function (e) {
             beforeLoader();

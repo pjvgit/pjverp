@@ -855,7 +855,8 @@ if(isset($_GET['task_read'])){
     </div>
 </div>
 <div id="editTask" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true"  data-backdrop="static"> 
+    <!-- data-keyboard="false" -->
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -1033,7 +1034,7 @@ if(isset($_GET['task_read'])){
 @include('commonPopup.add_case')
 <style>
     .modal {
-        overflow: auto !important;
+        overflow-y: auto !important;
     }
     .afterLoadClass{
         position: absolute; top: 0px; width: 560px; right: 0px; background-color: white; height: 100%; display: inline-table; box-shadow: rgba(0, 0, 0, 0.5) 1px 0px 7px; z-index: 100; min-height: 850px;

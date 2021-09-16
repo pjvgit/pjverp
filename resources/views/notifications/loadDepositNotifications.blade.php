@@ -15,6 +15,7 @@ if(!$commentData->isEmpty()){
                         $ImageArray['update']="activity_bill_updated.png";
                         $ImageArray['share']="activity_bill_shared.png";
                         $ImageArray['delete']="activity_bill_deleted.png";
+                        $ImageArray["view"]="activity_bill_viewed.png";
                         $image=$ImageArray[$v->action];
                         ?>
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">

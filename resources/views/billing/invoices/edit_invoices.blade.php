@@ -259,7 +259,7 @@
                                     </td>
                                     <td width="1%">
                                         <span data-toggle="tooltip" data-placement="left" title="Remove all flat fees">
-                                            <a data-toggle="modal" data-target="#removeAllExistingFlatFeeEntry"
+                                            <a data-toggle="modal" data-target="#removeAlllExistingFlatFeeEntry"
                                                 data-placement="bottom" href="javascript:;"> <i
                                                     class="fas fa-trash align-middle pr-2"></i></a>
                                         </span>
@@ -375,7 +375,7 @@
                                            {{$v->cost}} 
                                     </td>                                    
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                        <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -592,7 +592,7 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
-                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-check-type="time"
+                                        <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="time"
                                             id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
@@ -813,7 +813,7 @@
                                             </div>
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
-                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}"  data-check-type="expense"
+                                            <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-token_id="{{$adjustment_token}}"  data-check-type="expense"
                                                 id="invoice_expense_entry_nonbillable_time{{$v->eid}}"  <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td>
@@ -1915,6 +1915,49 @@
     </div>
 </div>
 <!-- end cancel -->
+<div id="removeAlllExistingFlatFeeEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="removeAlllExistingFlatFeeEntryForm" id="removeAlllExistingFlatFeeEntryForm"
+            name="removeAlllExistingFlatFeeEntryForm" method="POST">
+            @csrf
+            <input type="hidden" value="{{base64_encode(@$caseMaster['id'])}}" name="case_id" id="delete_flart_fee_entry_id">
+            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
+            <input type="hidden" value="{{$findInvoice->id}}" name="invoice_id" id="invoice_id">
+            <input type="hidden" value="{{$flateFeeTotal}}" name="total" id="total">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Remove All Flat Fees</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                        <div><p>Would you like to <strong>remove</strong> all Flat Fees from this invoice?</p><p><strong>Note:</strong> Only Case Billing Flat Fees (if one exists) will persist in {{config('app.name')}}.</p></div>
+                       
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-10  text-center">
+                        <div class="form-group row float-left">
+                            <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                                style="display: none;"></div>
+                        </div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <input class="btn btn-primary ladda-button example-button m-1 submit" name="action"
+                                value="Remove All Entries" id="submit" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 <!-- For Time Entry -->
 {{-- <div id="delete_existing_dialog" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -1963,6 +2006,8 @@
     <div class="modal-dialog">
         <form class="removeAlllExistingTimeEntryForm" id="removeAlllExistingTimeEntryForm" name="removeAlllExistingTimeEntryForm" method="POST">
             <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
+            <input type="hidden" value="{{$findInvoice->id}}" name="invoice_id" id="invoice_id">
+            <input type="hidden" value="{{$timeEntryAmount}}" name="total" id="total">
             <input type="hidden" value="{{(isset($caseMaster)) ? base64_encode($caseMaster['id']) : 0 }}" name="case_id">
             @csrf
             <div class="modal-content">
@@ -2047,6 +2092,7 @@
             name="removeExistingExpenseEntryForm" method="POST">
             @csrf
             <input type="hidden" value="" name="expense_entry_id" id="delete_expense_entry_id">
+            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">Remove Entry</h5>
@@ -2090,6 +2136,9 @@
             name="removeAlllExistingExpenseEntryForm" method="POST">
             @csrf
             <input type="hidden" value="{{ (isset($caseMaster)) ? base64_encode(@$caseMaster['id']) : 0 }}" name="case_id">
+            <input type="hidden" value="{{$adjustment_token}}" name="token_id" id="token_id">
+            <input type="hidden" value="{{$findInvoice->id}}" name="invoice_id" id="invoice_id">
+            <input type="hidden" value="{{$expenseAmount}}" name="total" id="total">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">Remove All Expenses</h5>
@@ -3120,6 +3169,50 @@
             $(".invoiceSharingBox").removeAttr('checked');
         });
 
+    });
+    $('#removeAlllExistingFlatFeeEntryForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+        if (!$('#removeAlllExistingFlatFeeEntryForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#removeAlllExistingFlatFeeEntryForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/deleteAllFlatFeeEntry", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&deleteMultiple=yes';
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
+        });
     });
     $('#removeAlllExistingTimeEntryForm').submit(function (e) {
         beforeLoader();

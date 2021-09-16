@@ -30,8 +30,8 @@ if(!$commentData->isEmpty()){ ?>
                         href="{{BASE_URL}}court_cases/{{$v->task_for['case_unique_number']}}/info">{{$v->task_for['case_title']}}</a><?php
                               }else if($v->task_for_lead!=NULL){
                                 ?> <a class="name"
-                        href="{{BASE_URL}}leads/{{$v->task_for['id']}}/case_details/info">{{$v->task_for['first_name']}}
-                        {{$v->task_for['last_name']}}</a><?php
+                        href="{{BASE_URL}}leads/{{@$v->task_for['id']}}/case_details/info">{{@$v->task_for['first_name']}}
+                        {{@$v->task_for['last_name']}}</a><?php
                                 }
                                 ?>
 

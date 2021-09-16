@@ -59,7 +59,7 @@ function actionFlatFeeEntry(action) {
                     invoice_entry_nonbillable_flat();
                     $("#flat_fee_delete_existing_dialog").modal("hide");
                     afterLoader();
-                    // window.location.reload();
+                    window.location.reload();
                 }
             },
             error: function (xhr, status, error) {
@@ -243,13 +243,13 @@ $(document).on("change", ".nonbillable-check", function() {
     if($(this).is(":checked")) {
         isCheck = "no";
     }
-    // $("#preloader").show();
+    $("#preloader").show();
     $.ajax({
         url: baseUrl+"/bills/invoices/save/nonbillable/check",
         type: "GET",
         data: {id: id, check_type: checkType, is_check: isCheck, token_id:token_id},
         success: function(data) {
-            // window.location.reload();
+            window.location.reload();
         }
     });
 });
