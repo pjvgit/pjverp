@@ -1989,7 +1989,7 @@ class BillingController extends BaseController
             });
 
         }else{
-            $Invoices = $Invoices->where("case_master.created_by",Auth::User);
+            $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
 
         }
         //Filters
@@ -4784,13 +4784,7 @@ class BillingController extends BaseController
             ->get();
 
             //Get the Adjustment list
-            $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
-            if($Adjustment_token->count() > 0 )
-                $InvoiceAdjustment=InvoiceAdjustment::select("*")
-                ->where("invoice_adjustment.token",$request->token)
-                ->where("invoice_adjustment.case_id",$case_id)->get();
-            else
-                $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
+            $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
 
             $InvoiceInstallment=InvoiceInstallment::select("*")
             ->where("invoice_installment.invoice_id",$invoiceID)
@@ -6154,7 +6148,7 @@ class BillingController extends BaseController
                 $CaseMaster=CaseMaster::find($Invoices['case_id']);
                 $InvoiceAdjustment = new InvoiceAdjustment;
                 
-                $FlatFeeEntryForInvoiceTotal = $TimeEntryForInvoiceTotal = $GrandTotalByInvoiceExp = $InvoiceAdjustmentTotal = 0;
+                $FlatFeeEntryForInvoiceTotal = $TimeEntryForInvoiceTotal = $GrandTotalByInvoiceExp = $InvoiceAdjustmentTotal = $forwardedInvoicesGrandTotal = 0;
 
                 $InvoiceAdjustmentData=InvoiceAdjustment::where("invoice_id",$v1)->get(); 
                 foreach($InvoiceAdjustmentData as $k => $v){
@@ -6193,10 +6187,19 @@ class BillingController extends BaseController
                 
                 $subTotal= ($FlatFeeEntryForInvoiceTotal + $TimeEntryForInvoiceTotal+ $GrandTotalByInvoiceExp); 
 
+                //forwarded invoices applied or not
+                $forwardedInvoices = Invoices::whereId($v1)->with("forwardedInvoices")->first();
+                if(!empty($forwardedInvoices)){
+                    foreach($forwardedInvoices->forwardedInvoices as $inv){
+                        $forwardedInvoicesGrandTotal+= (str_replace(",","",$inv['total_amount']) - str_replace(",","",$inv['paid_amount']));
+                    }
+                    $forwardedInvoicesGrandTotal = str_replace(",", '', number_format($forwardedInvoicesGrandTotal,2));
+                }
+                
                 $finalAmount=0;
                 if($Invoices->status != 'Forwarded'){         
                 $InvoiceAdjustment->case_id =$Invoices['case_id'];
-                $InvoiceAdjustment->token =NULL;
+                $InvoiceAdjustment->token = base64_encode($v1);
                 $InvoiceAdjustment->invoice_id =$Invoices['id'];
                 $InvoiceAdjustment->item=$discount_type;
                 $InvoiceAdjustment->applied_to=$discount_applied_to;
@@ -6256,10 +6259,9 @@ class BillingController extends BaseController
                 if($discount_applied_to=="sub_total"){                    
                     if($subTotal>0){
                         //forwarded invoices applied or not
-                        $forwardedInvoices =Invoices::whereId($v1)->with("forwardedInvoices")->first();
                         $forwardedInvoicesTotal = 0;
                         foreach($forwardedInvoices->forwardedInvoices as $inv){
-                            $forwardedInvoicesTotal+= $inv['total_amount'];
+                            $forwardedInvoicesTotal+= str_replace(",","",$inv['total_amount']);
                         }
                         $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','sub_total')->get();
                         if($forwardedInvoicesTotal > 0 && (count($balanceForwardInvoice) > 0 || $forwardedInvoicesTotal >= $subTotal) ) {
@@ -6283,7 +6285,7 @@ class BillingController extends BaseController
                     $forwardedInvoices = Invoices::whereId($v1)->with("forwardedInvoices")->first();
                     $forwardedInvoicesTotal = 0;
                     foreach($forwardedInvoices->forwardedInvoices as $inv){
-                        $forwardedInvoicesTotal+= ($inv['total_amount'] - $inv['paid_amount']);
+                        $forwardedInvoicesTotal+= (str_replace(",","",$inv['total_amount']) - str_replace(",","",$inv['paid_amount']));
                     }
                     if($forwardedInvoicesTotal > 0.1) {
                         $InvoiceAdjustment->basis =str_replace(",","",$forwardedInvoicesTotal);
@@ -6318,12 +6320,12 @@ class BillingController extends BaseController
                     if($Invoices->payment_plan_enabled == 'no'){
                         $InvoiceAdjustment->save();
                         if($discount_type=="discount"){
-                            $subTotalSave=$InvoiceAdjustmentTotal + ($subTotal-$finalAmount);
+                            $subTotalSave=$InvoiceAdjustmentTotal + $forwardedInvoicesGrandTotal + ($subTotal-$finalAmount);
                             if($subTotalSave<0){
                                 $subTotalSave=0;
                             }
                         }else{
-                            $subTotalSave=$InvoiceAdjustmentTotal + ($subTotal + $finalAmount);
+                            $subTotalSave=$InvoiceAdjustmentTotal + $forwardedInvoicesGrandTotal + ($subTotal + $finalAmount);
                         }
                         $Invoices->total_amount=$subTotalSave;
                         // $Invoices->token=base64_decode($v1);

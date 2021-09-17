@@ -847,7 +847,7 @@
                     <?php 
                     $paidAmount = ($findInvoice->paid_amount) ? (float) $findInvoice->paid_amount : 0;
                     $total = @$timeEntryAmount + @$expenseAmount + @$flatFeeEntryAmount + $addition + $totalFwdAmt;
-                    $F= number_format($total - ($discount + $paidAmount), 2);
+                    $F= str_replace(",","",number_format($total - ($discount + $paidAmount), 2));
                     if($F<=0){
                         $fAmt=0;
                     }else{
