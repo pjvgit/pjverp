@@ -885,7 +885,7 @@ if(!isset($addition)){ $addition=0;}
                                 <tbody>
                                     @forelse ($unpaidInvoices as $invkey => $invitem)
                                         <tr>
-                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}"></td>
+                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-token_id="{{$adjustment_token}}" data-due-amount="{{ $invitem->due_amount }}"></td>
                                             <td>{{ $invitem->invoice_id }}</td>
                                             <td>{{ $invitem->total_amount }}</td>
                                             <td>{{ $invitem->paid_amount }}</td>
@@ -958,7 +958,25 @@ if(!isset($addition)){ $addition=0;}
                                     <?php 
                                     $discount=0;
                                     $addition=0;
+                                    $flatFeeAdjustment = $timeEntryAdjustment = $expenseEntryAdjustment = $forwardedInvoicesAdjustment = 0; 
                                     foreach($InvoiceAdjustment as $k=>$v){
+                                        switch ($v->applied_to) {
+                                            case 'expenses':
+                                                $expenseEntryAdjustment++;
+                                                break;
+                                            case 'balance_forward_total':                                                
+                                                $forwardedInvoicesAdjustment++;
+                                                break;
+                                            case 'time_entries':
+                                                $timeEntryAdjustment++;
+                                                break;
+                                            case 'flat_fees':
+                                                $flatFeeAdjustment++;
+                                                break;
+                                            default:
+                                                # code...
+                                                break;
+                                        }
                                     ?>
 
                                     <tr id="entry_{{$v->id}}" class="invoice_entry discount">
@@ -1017,35 +1035,33 @@ if(!isset($addition)){ $addition=0;}
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                                         onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                                        class="ml-4">
+                                        class="ml-4"><span class="forwardAdjustAmt">
                                 <?php 
                                                 if($v->ad_type=="amount"){
                                                     echo "-";
                                                 }else{
                                                     echo $v->basis;
                                                 }
-                                                ?></a>
+                                                ?></span></a>
                         </td>
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                                         onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                                        class="ml-4">
+                                        class="ml-4 "><span class="forwardAdjustPercentage">
                                 <?php 
                                                 if($v->ad_type=="amount"){
                                                     echo "-";
                                                 }else{
                                                     echo $v->percentages."%";
                                                 }
-                                                ?>
-
-                            </a>
+                                                ?></span></a>
                         </td>
 
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                             onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                            class="ml-4">
-                            {{$v->amount}}</a>
+                            class="ml-4"><span class="forwardAdjustFinalAmt">
+                            {{$v->amount}}</span></a>
 
                             <?php 
                                                 if($v->item=="discount"){
@@ -1062,8 +1078,11 @@ if(!isset($addition)){ $addition=0;}
                         </td>
                         </tr>
                         <?php } ?>
-
-
+                        <input type="hidden" value="{{$flatFeeAdjustment++}}" name="flatFeeAdjustment" id="flatFeeAdjustment">
+                        <input type="hidden" value="{{$timeEntryAdjustment++}}" name="timeEntryAdjustment" id="timeEntryAdjustment">
+                        <input type="hidden" value="{{$expenseEntryAdjustment++}}" name="expenseEntryAdjustment" id="expenseEntryAdjustment">
+                        <input type="hidden" value="{{$forwardedInvoicesAdjustment++}}" name="forwardedInvoicesAdjustment" id="forwardedInvoicesAdjustment">
+                        <input type="hidden" value="new" name="invoice_type" id="invoice_type">
                         <tr class="footer">
                             <td colspan="4">
                                 <div class="locked">
@@ -4059,6 +4078,63 @@ if(!isset($addition)){ $addition=0;}
     
     $("#bill_invoice_date").on("change", function() {
         paymentTerm();
+    });
+
+    $(document).on("change", ".forwarded-invoices-check", function() {
+        var lineTotal = 0.00;
+        var finaltotal = $("#final_total_text").val();
+        $(".forwarded-invoices-check").each(function(ind, item) {
+            var dueAmt = 0.00;
+            if($(this).is(":checked")) {
+                dueAmt = $(this).attr("data-due-amount");
+                $("#unpaid_amt_"+$(this).val()).text(dueAmt);
+            } else {
+                $("#unpaid_amt_"+$(this).val()).text("");
+            }
+            lineTotal += parseFloat(dueAmt);
+        });
+        var due = $(this).attr("data-due-amount");
+        
+        // $(".forwardAdjustAmt").each(function(ind, item) {
+        //     var forwardAdjustAmt = $(this).text();
+        //     var forwardAdjustPercentage = $(".forwardAdjustPercentage").html().replace(/%/g, '');
+        //     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
+            
+        //     var total = parseFloat(forwardAdjustAmt) + parseFloat(due);
+        //     var finalTotal = (total * forwardAdjustPercentage) / 100;
+        //     $(".forwardAdjustAmt").html(total);
+        //     $(".forwardAdjustFinalAmt").html(finalTotal.toFixed(2));
+        //     $(".discounts_section_total").text((parseFloat(discount_amount) + parseFloat(finalTotal)).toFixed(2));
+        // }); 
+
+        var isCheck = "no";
+        if($(this).is(":checked")) {
+            finaltotal = parseFloat(finaltotal) + parseFloat(due);
+            isCheck = "yes";
+        } else {
+            finaltotal = parseFloat(finaltotal) - parseFloat(due);
+        }
+        $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+        $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+        $("#forwarded_total_text").val(lineTotal.toFixed(2));
+        $("#final_total").text(finaltotal.toFixed(2));
+        $("#final_total_text").val(finaltotal.toFixed(2));
+        
+        if($("#forwardedInvoicesAdjustment").val() > 0){
+            $("#preloader").show();
+            var id = $(this).val();
+            var token_id = $(this).attr("data-token_id");
+            var case_id = $("#court_case_id").val();
+            $.ajax({
+                url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
+                type: "GET",
+                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due},
+                success: function(data) {
+                    // window.location.reload();
+                }
+            });
+        }
+        // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
     });
 </script>
 @stop

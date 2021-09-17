@@ -882,7 +882,7 @@
                                     @endphp
                                     @forelse ($unpaidInvoices as $invkey => $invitem)
                                         <tr>
-                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}" @if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) checked @endif></td>
+                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" data-token_id="{{$adjustment_token}}" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}" @if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) checked @endif></td>
                                             <td>{{ $invitem->invoice_id }}</td>
                                             <td>{{ $invitem->total_amount }}</td>
                                             <td>{{ $invitem->paid_amount }}</td>
@@ -954,7 +954,25 @@
                                     <?php 
                                     $discount=0;
                                     $addition=0;
+                                    $flatFeeAdjustment = $timeEntryAdjustment = $expenseEntryAdjustment = $forwardedInvoicesAdjustment = 0; 
                                     foreach($InvoiceAdjustment as $k=>$v){
+                                        switch ($v->applied_to) {
+                                            case 'expenses':
+                                                $expenseEntryAdjustment++;
+                                                break;
+                                            case 'balance_forward_total':                                                
+                                                $forwardedInvoicesAdjustment++;
+                                                break;
+                                            case 'time_entries':
+                                                $timeEntryAdjustment++;
+                                                break;
+                                            case 'flat_fees':
+                                                $flatFeeAdjustment++;
+                                                break;
+                                            default:
+                                                # code...
+                                                break;
+                                        }
                                     ?>
 
                                     <tr id="entry_{{$v->id}}" class="invoice_entry discount">
@@ -1053,8 +1071,11 @@
                         </td>
                         </tr>
                         <?php } ?>
-
-
+                        <input type="hidden" value="{{$flatFeeAdjustment++}}" name="flatFeeAdjustment" id="flatFeeAdjustment">
+                        <input type="hidden" value="{{$timeEntryAdjustment++}}" name="timeEntryAdjustment" id="timeEntryAdjustment">
+                        <input type="hidden" value="{{$expenseEntryAdjustment++}}" name="expenseEntryAdjustment" id="expenseEntryAdjustment">
+                        <input type="hidden" value="{{$forwardedInvoicesAdjustment++}}" name="forwardedInvoicesAdjustment" id="forwardedInvoicesAdjustment">
+                        <input type="hidden" value="edit" name="invoice_type" id="invoice_type">
                         <tr class="footer">
                             <td colspan="4">
                                 <div class="locked">
@@ -3442,7 +3463,7 @@
      
     }
     function recalculate() {
-        $(".forwarded-invoices-check").trigger("change");
+        // $(".forwarded-invoices-check").trigger("change");
         var total =  subtotal = 0;
         var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
         var time_entry_total_amount = ($(".time_entry_total_amount").html() != undefined) ? $(".time_entry_total_amount").html().replace(/,/g, '') : 0.00;
@@ -4170,8 +4191,51 @@
 
         });
     }
-    
 
+    $(document).on("change", ".forwarded-invoices-check", function() {
+        var lineTotal = 0.00;
+        var finaltotal = $("#final_total_text").val();
+        $(".forwarded-invoices-check").each(function(ind, item) {
+            var dueAmt = 0.00;
+            if($(this).is(":checked")) {
+                dueAmt = $(this).attr("data-due-amount");
+                $("#unpaid_amt_"+$(this).val()).text(dueAmt);
+            } else {
+                $("#unpaid_amt_"+$(this).val()).text("");
+            }
+            lineTotal += parseFloat(dueAmt);
+        });
+        var due = $(this).attr("data-due-amount");        
+        var isCheck = "no";
+        if($(this).is(":checked")) {
+            finaltotal = parseFloat(finaltotal) + parseFloat(due);
+            isCheck = "yes";
+        } else {
+            finaltotal = parseFloat(finaltotal) - parseFloat(due);
+        }
+        $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+        $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+        $("#forwarded_total_text").val(lineTotal.toFixed(2));
+        $("#final_total").text(finaltotal.toFixed(2));
+        $("#final_total_text").val(finaltotal.toFixed(2));
+
+        if($("#forwardedInvoicesAdjustment").val() > 0){
+            $("#preloader").show();
+            var id = $(this).val();
+            var token_id = $(this).attr("data-token_id");
+            var case_id = $("#court_case_id").val();
+            $.ajax({
+                url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
+                type: "GET",
+                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due},
+                success: function(data) {
+                    // window.location.reload();
+                }
+            });
+        }
+        
+        // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
+    });
 </script>
 @stop
 @endsection

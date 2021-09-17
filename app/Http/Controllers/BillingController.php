@@ -4784,7 +4784,13 @@ class BillingController extends BaseController
             ->get();
 
             //Get the Adjustment list
-            $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
+            $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
+            if($Adjustment_token->count() > 0 )
+                $InvoiceAdjustment=InvoiceAdjustment::select("*")
+                ->where("invoice_adjustment.token",$request->token)
+                ->where("invoice_adjustment.case_id",$case_id)->get();
+            else
+                $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
 
             $InvoiceInstallment=InvoiceInstallment::select("*")
             ->where("invoice_installment.invoice_id",$invoiceID)
@@ -9061,6 +9067,34 @@ class BillingController extends BaseController
             return response()->json(["status" => "error", 'msg' => "No record found"]);
         }
         return response()->json(['status' => "success", 'msg' => "Record updated", "totalTime" => $totalTime]);
+    }
+
+    public function saveforwardInvoiceCheck(Request $request){
+        $totalTime = str_replace(",","",$request->due); 
+        $InvoiceAdjustment = InvoiceAdjustment::where('ad_type','percentage')->where('case_id', $request->case_id)->where('token',$request->token_id)->get();  
+        if(count($InvoiceAdjustment) > 0){
+            foreach($InvoiceAdjustment as $k=>$v){
+                if($v->applied_to == 'balance_forward_total'){
+                    if($request->is_check == 'no'){ 
+                        $invoiceAdjustTotal = $v->basis - $totalTime;
+                    }else{
+                        $invoiceAdjustTotal = $v->basis + $totalTime;
+                    }
+                    $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                    InvoiceAdjustment::where("id",$v->id)->update([
+                        'basis' => $invoiceAdjustTotal,
+                        'amount'=> $invoiceAmount
+                    ]);
+                }
+            }
+            if($request->is_check == 'no'){
+                DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
+            }else{
+                DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
+            }
+            return response()->json(['status' => "success", 'msg' => "Record updated", "InvoiceAdjustment" => count($InvoiceAdjustment)]);
+        } 
+        return response()->json(['status' => "error"]);
     }
 
     /**

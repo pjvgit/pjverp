@@ -216,13 +216,13 @@
             var basic = $("#basic").val().replace(/,/g, "");
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
-            $("#amount").val(calculation).toFixed(2);
+            $("#amount").val(calculation.toFixed(2));
         });
         $("#basic").on("keyup change", function (e) {
             var basic = $("#basic").val().replace(/,/g, "");
             var percentage = $("#percentage").val();
             var calculation = (percentage / 100) * basic;
-            $("#amount").val(calculation).toFixed(2);
+            $("#amount").val(calculation.toFixed(2));
         });
         $('#updateAdjustmentForm').submit(function (e) {
             beforeLoader();

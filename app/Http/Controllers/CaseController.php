@@ -1104,8 +1104,9 @@ class CaseController extends BaseController
        }else{
         $caseMaster=CaseMaster::find($request->case_id);
         $caseMaster->billing_method=$request->billingMethod;
-        $caseMaster->billing_amount=($request->default_rate)??0.00;
+        $caseMaster->billing_amount=($request->default_rate)??$caseMaster->billing_amount;
         $caseMaster->save();
+        
         if($request->billing_method != "flat" || $request->billing_method != "mixed") {
             FlatFeeEntry::where('case_id', $request->case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->forceDelete();
         }

@@ -378,33 +378,6 @@ function addDaysToDate(bill_invoice_date, days){
  
 }
 
-$(document).on("change", ".forwarded-invoices-check", function() {
-    var lineTotal = 0.00;
-    var finaltotal = $("#final_total_text").val();
-    $(".forwarded-invoices-check").each(function(ind, item) {
-        var dueAmt = 0.00;
-        if($(this).is(":checked")) {
-            dueAmt = $(this).attr("data-due-amount");
-            $("#unpaid_amt_"+$(this).val()).text(dueAmt);
-        } else {
-            $("#unpaid_amt_"+$(this).val()).text("");
-        }
-        lineTotal += parseFloat(dueAmt);
-    });
-    var due = $(this).attr("data-due-amount");
-    if($(this).is(":checked")) {
-        finaltotal = parseFloat(finaltotal) + parseFloat(due);
-    } else {
-        finaltotal = parseFloat(finaltotal) - parseFloat(due);
-    }
-    $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
-    $("#forwarded_total_amount").text(lineTotal.toFixed(2));
-    $("#forwarded_total_text").val(lineTotal.toFixed(2));
-    $("#final_total").text(finaltotal.toFixed(2));
-    $("#final_total_text").val(finaltotal.toFixed(2));
-    // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
-});
-
 // Apply trust/credit balance input validation
 $('.apply-trust-amt, .credit-trust-amt').keypress(function(event) {
     if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
