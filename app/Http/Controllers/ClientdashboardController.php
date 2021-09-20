@@ -3385,6 +3385,7 @@ class ClientdashboardController extends BaseController
      */
     public function deleteCreditHistoryEntry(Request $request)
     {
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'delete_credit_id' => 'required|numeric',
         ]);
@@ -3408,7 +3409,7 @@ class ClientdashboardController extends BaseController
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
-            } else if($creditHistory->payment_type == "diposit"){
+            } else if($creditHistory->payment_type == "deposit"){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
             } 
 

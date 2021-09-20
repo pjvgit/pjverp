@@ -4,6 +4,7 @@ use App\CaseMaster;
 use App\CasePracticeArea;
 use App\Firm;
 use App\FirmAddress;
+use App\FirmSolReminder;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceCustomizationSettingColumn;
 use App\InvoiceSetting;
@@ -416,4 +417,12 @@ function getTimezoneList() {
     }
 
     return serialize($timezoneData);
+}
+
+/**
+ * Get firm SOL default reminder
+ */
+function firmSolReminders()
+{
+    return FirmSolReminder::where("firm_id", auth()->user()->firm_name)->get();
 }

@@ -4221,6 +4221,10 @@ class BillingController extends BaseController
                         $sendEmail = $this->sendMail($userEmail);
                     }
                 }
+                $Invoices->fill([
+                    'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
+                    'bill_sent_status' => 'Sent',
+                ])->save();
                 session(['popup_success' => 'Sharing updated']);
                 return response()->json(['errors'=>'']);
             }else{

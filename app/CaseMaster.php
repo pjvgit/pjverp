@@ -360,6 +360,16 @@ class CaseMaster extends Authenticatable
      */
     public function caseAllClient()
     {
-        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("id", "asc");
+        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("id", "asc")->wherePivot("deleted_at", Null);
+    }
+
+    /**
+     * Get the caseCreatedByUser that owns the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function caseCreatedByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

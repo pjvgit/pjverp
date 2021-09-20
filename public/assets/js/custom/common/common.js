@@ -54,27 +54,31 @@ $(document).on("click", ".snooze-time", function() {
  */
 $(document).on("click", ".dismiss-notification", function() {
     var disVal = $(this).val();
-    var reminderEventId = [], reminderTaskId = [];
+    var reminderEventId = [], reminderTaskId = [], solReminderId = [];
     if(disVal == "dismiss-all") {
         $(document).find("#popup_reminder_table tbody tr").each(function() {
             if($(this).attr('data-reminder-type') == "event") {
                 reminderEventId.push($(this).attr('data-reminder-id'));
-            } else {
+            } else if($(this).attr('data-reminder-type') == "task") {
                 reminderTaskId.push($(this).attr('data-reminder-id'));
+            } else {
+                solReminderId.push($(this).attr('data-reminder-id'));
             }
         })
     } else {
         if($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type') == "event") {
             reminderEventId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
-        } else {
+        } else if($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-type') == "task") {
             reminderTaskId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
+        } else {
+            solReminderId.push($(document).find("#popup_reminder_table tbody tr:first").attr('data-reminder-id'));
         }
     }
     
     $.ajax({
         url: baseUrl+"/update/popup/notification",
         type: 'GET',
-        data: {'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes'},
+        data: {'reminder_event_id': reminderEventId, 'reminder_task_id': reminderTaskId, is_dismiss: 'yes', 'sol_reminder_id': solReminderId},
         success: function(data) {
             if(data.status == "success") {
                 popupNotification();

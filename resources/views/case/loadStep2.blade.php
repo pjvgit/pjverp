@@ -96,6 +96,23 @@
         <div class="form-group row" id="addMoreReminder">
             <label for="sol_reminders" class="col-sm-2 col-form-label">SOL Reminders</label>
             <div class="col">
+                @forelse (firmSolReminders() as $key => $item)
+                    <div class="row form-group fieldGroup">
+                        <div class="col-md-2 form-group mb-3">
+                            <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
+                                <option value="email" {{ (@$item->reminder_type == 'email') ? 'selected' : '' }}>email</option>
+                                <option value="popup" {{ (@$item->reminder_type == 'popup') ? 'selected' : '' }}>popup</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group mb-3">
+                            <input class="form-control" id="reminder_days" value="{{ @$item->reminer_days }}" name="reminder_days[]" type="number" min="0"> 
+                        </div> <span class="pt-2">Days</span>
+                        <div class="col-md-2 form-group mb-3">   
+                            <button class="btn remove" type="button"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                @empty
+                @endforelse
                 <div class="test-sol-reminders fieldGroup">
                     
                     <div>
@@ -198,7 +215,7 @@
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
         });
-        $('#saveEditCase').on('click', '.remove', function () {
+        $('#AddCaseModel').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
 
@@ -274,4 +291,8 @@
         return false;
     }
 $("#case_name").focus();
+
+$("#case_statute").on('change.dp', function (e) {
+    $("#addMoreReminder").show();
+});
 </script>
