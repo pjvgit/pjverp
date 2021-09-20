@@ -613,6 +613,9 @@ class HomeController extends BaseController
                         "created_by" => $item->event->eventCreatedByUser->full_name ?? "-",
                         "type" => "event",
                         "name" => $item->event->event_title ?? "-",
+                        "case_id" => $item->event->case_id ?? "",
+                        "case_unique_number" => $item->event->case->case_unique_number ?? "",
+                        "lead_id" => $item->event->lead_id ?? "",
                         "case_lead" => (($item->event->case_id) ? $item->event->case->case_title : (($item->event->lead_id) ? $item->event->leadUser->full_name : "<No Case/Lead>") ),
                         "location" => $item->event->eventLocation->full_address ?? "",
                         "priority" => "-"
@@ -648,10 +651,13 @@ class HomeController extends BaseController
                             "event_id" => "",
                             "task_id" => $item->task_id,
                             "reminder_id" => $item->id,
-                            "date_time" => date('M d Y', strtotime(convertUTCToUserDate(@$item->task->task_due_on, auth()->user()->user_timezone))) ?? "",
+                            "date_time" => date('M d Y', strtotime(@$item->task->task_due_on)) ?? "",
                             "created_by" => $item->task->taskCreatedByUser->full_name ?? "-",
                             "type" => "task",
                             "name" => $item->task->task_title ?? "-",
+                            "case_id" => $item->task->case_id ?? "",
+                            "case_unique_number" => $item->task->case->case_unique_number ?? "",
+                            "lead_id" => $item->task->lead_id ?? "",
                             "case_lead" => (($item->task->case_id) ? $item->task->case->case_title : (($item->task->lead_id) ? $item->task->lead->full_name : "<No Case/Lead>") ),
                             "location" => "-",
                             "priority" => $item->task->priority_text ?? "-"
@@ -660,6 +666,53 @@ class HomeController extends BaseController
                 }
             }
         }
+
+        // For case SOL reminder
+        $result = CaseSolReminder::where("reminder_type", "popup")
+                    ->where(function($query) {
+                        $query->whereDate("remind_at", Carbon::now()) 
+                        ->orWhereDate("snooze_remind_at", Carbon::now());
+                    })   
+                    ->where("is_dismiss", "no")
+                    ->with('case', 'case.caseStaffAll', 'case.caseCreatedByUser')
+                    ->get();
+        if($result) {
+            foreach($result as $key => $item) {
+                $caseLinkedUser = $item->case->caseStaffAll->pluck('user_id')->toArray();
+                $users = User::where(function($query) use($caseLinkedUser) {
+                            $query->whereIn("id", $caseLinkedUser);
+                        })->whereId(auth()->id())->get();
+                if(count($users)) {
+                    $addTask = false;
+                    if($item->snooze_remind_at) {
+                        if(Carbon::now()->gte(Carbon::parse($item->snooze_remind_at))) {
+                            $addTask = true;
+                        }
+                    } else {
+                        $addTask = true;
+                    }
+                    if($addTask) {
+                        $isSetisfied = ($item->case->sol_satisfied == 'yes') ? '(Satisfied)' : '(Unsatisfied)';
+                        $events[] = [
+                            "event_id" => "",
+                            "task_id" => "",
+                            "reminder_id" => $item->id,
+                            "date_time" => date('M d Y', strtotime(@$item->case->case_statute_date)) ?? "",
+                            "created_by" => $item->case->caseCreatedByUser->full_name ?? "-",
+                            "type" => "SOL",
+                            "name" => "Statute of Limitations"."<br><b>".$isSetisfied."</b>",
+                            "case_id" => $item->case_id ?? "",
+                            "case_unique_number" => $item->case->case_unique_number ?? "",
+                            "lead_id" => $item->lead_id ?? "",
+                            "case_lead" => $item->case->case_title ?? "-",
+                            "location" => "-",
+                            "priority" => "-"
+                        ];
+                    }
+                }
+            }
+        }
+
         $view = '';
         if(count($events)) {
             $view = view("dashboard.popup_notification", ["result" => $events])->render();
@@ -678,6 +731,8 @@ class HomeController extends BaseController
                 CaseEventReminder::whereIn('id', $request->reminder_event_id)->update(["is_dismiss" => $request->is_dismiss]);
             if($request->reminder_task_id)
                 TaskReminder::whereIn('id', $request->reminder_task_id)->update(["is_dismiss" => $request->is_dismiss]);
+            if($request->sol_reminder_id)
+                CaseSolReminder::whereIn('id', $request->sol_reminder_id)->update(["is_dismiss" => $request->is_dismiss]);
         } else {
             if($request->reminder_type == "event") {
                 $reminder = CaseEventReminder::whereId($request->reminder_id)->first();
@@ -691,6 +746,16 @@ class HomeController extends BaseController
                 }
             } else if($request->reminder_type == "task") {
                 $reminder = TaskReminder::whereId($request->reminder_id)->first();
+                if($reminder) {
+                    $reminder->fill([
+                        "snooze_time" => $request->snooze_time,
+                        "snooze_type" => $request->snooze_type,
+                        "snoozed_at" => Carbon::now(),
+                        "snooze_remind_at" => Carbon::now(),
+                    ])->save();
+                }              
+            } else if($request->reminder_type == "SOL") {
+                $reminder = CaseSolReminder::whereId($request->reminder_id)->first();
                 if($reminder) {
                     $reminder->fill([
                         "snooze_time" => $request->snooze_time,

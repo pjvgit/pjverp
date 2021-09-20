@@ -272,6 +272,7 @@ class CaseController extends BaseController
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
                     $CaseSolReminder->created_by=Auth::User()->id; 
+                    $CaseSolReminder->remind_at=Carbon::now(); 
                     $CaseSolReminder->save();
                 }
             }
@@ -551,6 +552,7 @@ class CaseController extends BaseController
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
                     $CaseSolReminder->created_by=Auth::User()->id; 
+                    $CaseSolReminder->remind_at=Carbon::now(); 
                     $CaseSolReminder->save();
                 }
             }
@@ -864,7 +866,8 @@ class CaseController extends BaseController
                     $CaseSolReminder->case_id=$request->case_id; 
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-                    $CaseSolReminder->created_by=Auth::User()->id; 
+                    $CaseSolReminder->created_by=Auth::User()->id;
+                    $CaseSolReminder->remind_at=Carbon::now();  
                     $CaseSolReminder->save();
                 }
             }
@@ -6080,7 +6083,8 @@ class CaseController extends BaseController
             $CaseSolReminder->case_id=$case_id; 
             $CaseSolReminder->reminder_type=$request['reminder_type'][$i];
             $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-            $CaseSolReminder->created_by=Auth::user()->id; 
+            $CaseSolReminder->created_by=Auth::user()->id;
+            $CaseSolReminder->remind_at=Carbon::now();  
             $CaseSolReminder->save();
         }
         return response()->json(['errors'=>'']);

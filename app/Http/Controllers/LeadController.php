@@ -1021,6 +1021,7 @@ class LeadController extends BaseController
                         $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                         $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
                         $CaseSolReminder->created_by=Auth::User()->id; 
+                        $CaseSolReminder->remind_at=Carbon::now(); 
                         $CaseSolReminder->save();
                     }
                 }

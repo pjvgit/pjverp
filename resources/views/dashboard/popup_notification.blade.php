@@ -15,8 +15,16 @@
                     <td>{{ $item['date_time'] }}</td>
                     <td>{{ $item['created_by'] }}</td>
                     <td>{{ ucfirst($item['type']) }}</td>
-                    <td>{{ $item['name'] }}</td>
-                    <td>{{ $item['case_lead'] }}</td>
+                    <td>{!! $item['name'] !!}</td>
+                    <td>
+                        @if ($item['case_id'])
+                            <a href="{{ route('info', $item['case_unique_number']) }}" >{{ $item['case_lead'] }}</a>
+                        @elseif($item['lead_id'])
+                            <a href="{{ route('case_details/info', $item['lead_id']) }}" >{{ $item['case_lead'] }}</a>
+                        @else
+                            {{ $item['case_lead'] }}
+                        @endif
+                    </td>
                     <td>{{ $item['location'] }}</td>
                     <td>{{ $item['priority'] }}</td>
                 </tr>
