@@ -186,30 +186,46 @@ class CaseMaster extends Authenticatable
      }
      public function getUninvoicedBalanceAttribute(){
         if(isset($this->case_id)){
-            $default_rate = 0.00;
-            if($this->billing_method =='flat' || $this->billing_method =='mixed'){ 
-                $default_rate = $this->billing_amount;
-            } 
+            $flatTotalBillable=$flatTotalNonBillable=0;
+            $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $this->case_id)->where("time_entry_billable","yes")->get();
+            foreach($flatFeeData as $TK=>$TE){
+                if($TE->status == 'paid'){
+                    $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+                }
+            }
+            $flatFeeTotal = 0;
+            if(in_array($this->billing_method,["flat","mixed"])){
+                $flatFeeTotal = ($this->billing_amount - $flatTotalBillable);
+                $flatFeeTotal = ($flatFeeTotal > 0 ) ?  $flatFeeTotal : 0;
+            }
+            $timeTotalBillable=$timeTotalNonBillable=0;
+            $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$this->case_id)->where('status','unpaid')->get();
+            foreach($TimeEntry as $TK=>$TE){
+                if($TE['rate_type']=="flat"){
+                    if($TE['time_entry_billable']=="yes"){
+                            $timeTotalBillable+=str_replace(",","",number_format($TE['entry_rate'], 2));
+                    }else{
+                            $timeTotalNonBillable+=str_replace(",","",number_format($TE['entry_rate'], 2));
+                    }
+                }else{
+                    if($TE['time_entry_billable']=="yes"){
+                        $timeTotalBillable+=(str_replace(",","",number_format($TE['entry_rate'], 2)) * str_replace(",","",number_format($TE['duration'], 2)));
+                    }else{
+                        $timeTotalNonBillable+=(str_replace(",","",number_format($TE['entry_rate'], 2)) * str_replace(",","",number_format($TE['duration'], 2)));
+                    }
+                }
+            }
+            $expenseTotalBillable=$expenseTotalNonBillable=0;
+            $ExpenseEntry=ExpenseEntry::select("*")->where("case_id",$this->case_id)->where('status','unpaid')->get();
+            foreach($ExpenseEntry as $kE=>$vE){
+                if($vE['time_entry_billable']=="yes"){
+                    $expenseTotalBillable+=(str_replace(",","",number_format($vE->cost, 2)) * str_replace(",","",number_format($vE->duration, 2)));
+                }else{
+                    $expenseTotalNonBillable+=(str_replace(",","",number_format($vE->cost, 2)) * str_replace(",","",number_format($vE->duration, 2)));
+                }
+            }
 
-            $ExpenseEntry=ExpenseEntry::select(DB::raw('sum(cost*duration) AS totalExpenseEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
-        
-            $TaskTimeEntryFlat=TaskTimeEntry::select(DB::raw("sum(`entry_rate`) AS totalTimeEntry"))
-            ->where("case_id",$this->case_id)
-            ->where("status","unpaid")
-            ->where("rate_type","flat")
-            ->where("time_entry_billable","yes")
-            ->first();
-
-            $TaskTimeEntryhr=TaskTimeEntry::select(DB::raw("sum(entry_rate * duration)  AS totalTimeEntry"))
-            ->where("case_id",$this->case_id)
-            ->where("status","unpaid")
-            ->where("rate_type","hr")
-            ->where("time_entry_billable","yes")
-            ->first();
-
-            //  $TaskTimeEntry=TaskTimeEntry::select(DB::raw('sum(entry_rate*duration) AS totalTimeEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
-
-            return "$".number_format(($ExpenseEntry['totalExpenseEntry']+$TaskTimeEntryFlat['totalTimeEntry']+$TaskTimeEntryhr['totalTimeEntry']+$default_rate),2);
+            return "$".number_format(($expenseTotalBillable + $timeTotalBillable + $flatFeeTotal),2);
         }else{
             return "Not Specified";
         }

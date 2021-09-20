@@ -107,7 +107,7 @@
                 },
                 amount: {
                     required: true,
-                    min: 0.1,
+                    min: 0.01,
                 },
             },
             messages: {

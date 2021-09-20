@@ -1130,7 +1130,7 @@ var start = 0;
     });
 
     var lazyLoadingActive = 1;
-    var pageLength =  {{USER_PER_PAGE_LIMIT}};
+    var pageLength =  '100';
     var roundPage = 1;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() >= $(document).height()) {

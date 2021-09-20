@@ -1964,8 +1964,7 @@ class BillingController extends BaseController
         $columns = array('contact_name', 'contact_name', 'id', 'contact_name', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
         
-        $Invoices = CaseMaster::
-        leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
+        $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
@@ -1975,8 +1974,8 @@ class BillingController extends BaseController
                 "case_master.case_unique_number","case_master.id as ccid","case_master.practice_area as pa","case_master.billing_method","case_master.billing_amount",
                 DB::raw('CONCAT_WS(" ",lau.first_name,lau.last_name) as lead_attorney_name'));
       
-        // $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
-        $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
+        $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
+        // $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
         // $Invoices = $Invoices->where("task_time_entry.status","unpaid");
         // $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
         if(Auth::user()->parent_user==0)
@@ -1987,10 +1986,8 @@ class BillingController extends BaseController
                 $Invoices = $Invoices->orwhere("task_time_entry.status","unpaid");
                 $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
             });
-
         }else{
             $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
-
         }
         //Filters
         if($request->practice_area_id != 'all') {
@@ -3538,7 +3535,7 @@ class BillingController extends BaseController
             $this->invoiceHistory($invoiceHistory);
 
 
-            InvoiceAdjustment::where('token',$request->adjustment_token)->update(['invoice_id'=>$InvoiceSave->id]);
+            InvoiceAdjustment::where('token',$request->adjustment_token)->update(['invoice_id'=>$InvoiceSave->id,'token'=> base64_encode($InvoiceSave->id)]);
 
             //Flat Fees entry referance
             if(!empty($request->flatFeeEntrySelectedArray)){
@@ -9087,14 +9084,16 @@ class BillingController extends BaseController
                     ]);
                 }
             }
-            if($request->is_check == 'no'){
-                DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
-            }else{
-                DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
+            if($request->page == 'edit'){
+                if($request->is_check == 'no'){
+                    DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
+                }else{               
+                    DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
+                }
             }
             return response()->json(['status' => "success", 'msg' => "Record updated", "InvoiceAdjustment" => count($InvoiceAdjustment)]);
         } 
-        return response()->json(['status' => "error"]);
+        return response()->json(['status' => "no adjustment record"]);
     }
 
     /**

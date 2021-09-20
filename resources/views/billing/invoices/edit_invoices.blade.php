@@ -3462,8 +3462,26 @@
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
+
+    function forwardedInvoicesCalculate(){
+        var lineTotal = 0.00;
+        $(".forwarded-invoices-check").each(function(ind, item) {
+            if($(this).is(":checked")) {
+                dueAmt = $(this).attr("data-due-amount");
+                $("#unpaid_amt_"+$(this).val()).text(dueAmt);
+                lineTotal += parseFloat(dueAmt);
+            }else{
+                $("#unpaid_amt_"+$(this).val()).text("");
+            }
+        });
+        $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+        $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+        $("#forwarded_total_text").val(lineTotal.toFixed(2));
+    }
+    
     function recalculate() {
         // $(".forwarded-invoices-check").trigger("change");
+        forwardedInvoicesCalculate();
         var total =  subtotal = 0;
         var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
         var time_entry_total_amount = ($(".time_entry_total_amount").html() != undefined) ? $(".time_entry_total_amount").html().replace(/,/g, '') : 0.00;
@@ -4193,6 +4211,38 @@
     }
 
     $(document).on("change", ".forwarded-invoices-check", function() {
+        
+        var due = $(this).attr("data-due-amount");
+        var isCheck = "no";
+        var finaltotal = $("#final_total_text").val();
+        if($(this).is(":checked")) {
+            finaltotal = parseFloat(finaltotal) + parseFloat(due);
+            isCheck = "yes";
+        } else {
+            finaltotal = parseFloat(finaltotal) - parseFloat(due);
+        }
+        $("#final_total").text(finaltotal.toFixed(2));
+        $("#final_total_text").val(finaltotal.toFixed(2));
+        
+        if($("#forwardedInvoicesAdjustment").val() > 0){
+            $("#preloader").show();
+            var id = $(this).val();
+            var token_id = $(this).attr("data-token_id");
+            var case_id = $("#court_case_id").val();
+            $.ajax({
+                url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
+                type: "GET",
+                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'edit'},
+                success: function(data) {
+                    window.location.reload();
+                }
+            });
+        }
+       
+        forwardedInvoicesCalculate();
+    });
+
+    $(document).on("change", ".forwarded-invoices-check-old", function() {
         var lineTotal = 0.00;
         var finaltotal = $("#final_total_text").val();
         $(".forwarded-invoices-check").each(function(ind, item) {
@@ -4227,9 +4277,9 @@
             $.ajax({
                 url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
                 type: "GET",
-                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due},
+                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'edit'},
                 success: function(data) {
-                    // window.location.reload();
+                    window.location.reload();
                 }
             });
         }

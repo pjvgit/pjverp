@@ -250,7 +250,7 @@ if(!isset($addition)){ $addition=0;}
                                 @endif
                             </h2>
                         </div>
-                        <?php if($caseMaster &&  ($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed")){?>
+                        <?php if(($caseMaster &&  ($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed")) ||  $case_id == 'none' ){?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -380,7 +380,7 @@ if(!isset($addition)){ $addition=0;}
                                     
                                     <td style="text-align: center; padding-top: 10px !important;">
                                         <input type="checkbox" class="invoice_entry_nonbillable_flat nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="flat" id="invoice_entry_nonbillable_flat_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
-                                            name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
+                                        data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -602,7 +602,7 @@ if(!isset($addition)){ $addition=0;}
                                     </td>
                                     <td style="text-align: center; padding-top: 10px !important;">
                                         <input type="checkbox" class="invoice_entry_nonbillable_time nonbillable-check" data-primaryID="{{$v->itd}}" data-token_id="{{$adjustment_token}}" data-check-type="time"
-                                            id="invoice_entry_nonbillable_time_{{$v->itd}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                            id="invoice_entry_nonbillable_time_{{$v->itd}}"  data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable == "no"){ echo "checked=checked"; } ?>
                                             name="linked_staff_checked_share[]" priceattr="{{$Total}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
@@ -824,7 +824,7 @@ if(!isset($addition)){ $addition=0;}
                                         </td>
                                         <td style="text-align: center; padding-top: 10px !important;">
                                             <input type="checkbox" class="invoice_expense_entry_nonbillable_time nonbillable-check"  data-primaryID="{{$v->eid}}" data-token_id="{{$adjustment_token}}" data-check-type="expense"
-                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
+                                                id="invoice_expense_entry_nonbillable_time{{$v->eid}}" data-time_entry_billable="{{$v->time_entry_billable}}" autocomplete="off" <?php if($v->time_entry_billable=="no"){ echo "checked=checked"; } ?>
                                                 name="invoice_expense_entry_nonbillable_time[]" priceattr="{{$Total}}" value="{{$v->eid}}">
                                         </td> 
                                     </tr>
@@ -1035,7 +1035,7 @@ if(!isset($addition)){ $addition=0;}
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                                         onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                                        class="ml-4"><span class="forwardAdjustAmt">
+                                        class="ml-4"><span class="<?php echo ($v->applied_to == 'balance_forward_total') ? 'forwardAdjustAmt' : '' ;?>">
                                 <?php 
                                                 if($v->ad_type=="amount"){
                                                     echo "-";
@@ -1047,7 +1047,7 @@ if(!isset($addition)){ $addition=0;}
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                                         onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                                        class="ml-4 "><span class="forwardAdjustPercentage">
+                                        class="ml-4 "><span class="<?php echo ($v->applied_to == 'balance_forward_total') ? 'forwardAdjustPercentage' : '' ;?>">
                                 <?php 
                                                 if($v->ad_type=="amount"){
                                                     echo "-";
@@ -1060,7 +1060,7 @@ if(!isset($addition)){ $addition=0;}
                         <td style="text-align: right;" class="">
                             <a data-toggle="modal" data-target="#editAdjustmentEntry"
                             onclick="editAdjustmentEntry({{$v->id}})" data-placement="bottom" href="javascript:;"
-                            class="ml-4"><span class="forwardAdjustFinalAmt">
+                            class="ml-4"><span class="<?php echo ($v->applied_to == 'balance_forward_total') ? 'forwardAdjustFinalAmt' : '' ;?>">
                             {{$v->amount}}</span></a>
 
                             <?php 
@@ -2570,20 +2570,15 @@ if(!isset($addition)){ $addition=0;}
         $('.image_link_sprite_cancel').hide();
 
         $('.invoice_entry_nonbillable_time').change(function () { //".checkbox" change 
+            console.log("2573 > invoice_entry_nonbillable_time event occurs");
             var id = $(this).attr('id');
             var val = $(this).val;
             var sum = 0;
             var primaryid = $(this).data('primaryid');
             if (!$(this).is(":checked")) {
-                $(this).parent().prev().css('text-decoration', '');
-                $(this).parent().prev().prev().css('text-decoration', '');
-                $(this).parent().prev().prev().prev().css('text-decoration', '');
                 $(".timeentry_amount_"+primaryid).removeClass("strike");
             } else {
                 $(".timeentry_amount_"+primaryid).addClass("strike");
-                $(this).parent().prev().css('text-decoration', 'line-through');
-                $(this).parent().prev().prev().css('text-decoration', 'line-through');
-                $(this).parent().prev().prev().prev().css('text-decoration','line-through');
             }
             $('input[name="linked_staff_checked_share[]"]').each(function (i) {
                 if (!$(this).is(":checked")) {
@@ -2598,9 +2593,6 @@ if(!isset($addition)){ $addition=0;}
 
             $(".time_entry_total_amount").html(sum);
             $('.time_entry_total_amount').number(true, 2);
-
-
-
             recalculate();
 
         });
@@ -3464,8 +3456,26 @@ if(!isset($addition)){ $addition=0;}
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
+
+    function forwardedInvoicesCalculate(){
+        var lineTotal = 0.00;
+        $(".forwarded-invoices-check").each(function(ind, item) {
+            if($(this).is(":checked")) {
+                dueAmt = $(this).attr("data-due-amount");
+                $("#unpaid_amt_"+$(this).val()).text(dueAmt);
+                lineTotal += parseFloat(dueAmt);
+            }else{
+                $("#unpaid_amt_"+$(this).val()).text("");
+            }
+        });
+        $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
+        $("#forwarded_total_amount").text(lineTotal.toFixed(2));
+        $("#forwarded_total_text").val(lineTotal.toFixed(2));
+    }
+
     function recalculate() {          
-        $(".forwarded-invoices-check").trigger("change");
+        // $(".forwarded-invoices-check").trigger("change");
+        forwardedInvoicesCalculate();
         var total =  subtotal = 0;
 
         var expense_total_amount = ($(".expense_total_amount").html() != undefined) ? $(".expense_total_amount").html().replace(/,/g, '') : 0.00;
@@ -4002,19 +4012,16 @@ if(!isset($addition)){ $addition=0;}
 
 
     $('input[name="invoice_expense_entry_nonbillable_time[]"]').each(function (i) {
-        if ($(this).is(":checked")) {
-           
-            $(this).parent().prev().css('text-decoration', 'line-through');
-            $(this).parent().prev().prev().css('text-decoration', 'line-through');
-            $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+        var primaryid = $(this).data('primaryid');
+        if ($(this).is(":checked")) {           
+            $(".timeentry_amount_"+primaryid).addClass("strike");
         }
     });
 
     $('input[name="linked_staff_checked_share[]"]').each(function (i) {
+        var primaryid = $(this).data('primaryid');
         if ($(this).is(":checked")) {
-            $(this).parent().prev().css('text-decoration', 'line-through');
-            $(this).parent().prev().prev().css('text-decoration', 'line-through');
-            $(this).parent().prev().prev().prev().css('text-decoration','line-through');
+            $(".timeentry_amount_"+primaryid).addClass("strike");
         }
     });
 
@@ -4081,46 +4088,21 @@ if(!isset($addition)){ $addition=0;}
     });
 
     $(document).on("change", ".forwarded-invoices-check", function() {
-        var lineTotal = 0.00;
-        var finaltotal = $("#final_total_text").val();
-        $(".forwarded-invoices-check").each(function(ind, item) {
-            var dueAmt = 0.00;
-            if($(this).is(":checked")) {
-                dueAmt = $(this).attr("data-due-amount");
-                $("#unpaid_amt_"+$(this).val()).text(dueAmt);
-            } else {
-                $("#unpaid_amt_"+$(this).val()).text("");
-            }
-            lineTotal += parseFloat(dueAmt);
-        });
-        var due = $(this).attr("data-due-amount");
         
-        // $(".forwardAdjustAmt").each(function(ind, item) {
-        //     var forwardAdjustAmt = $(this).text();
-        //     var forwardAdjustPercentage = $(".forwardAdjustPercentage").html().replace(/%/g, '');
-        //     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
-            
-        //     var total = parseFloat(forwardAdjustAmt) + parseFloat(due);
-        //     var finalTotal = (total * forwardAdjustPercentage) / 100;
-        //     $(".forwardAdjustAmt").html(total);
-        //     $(".forwardAdjustFinalAmt").html(finalTotal.toFixed(2));
-        //     $(".discounts_section_total").text((parseFloat(discount_amount) + parseFloat(finalTotal)).toFixed(2));
-        // }); 
-
+        var due = $(this).attr("data-due-amount");
         var isCheck = "no";
+        var finaltotal = $("#final_total_text").val();
         if($(this).is(":checked")) {
             finaltotal = parseFloat(finaltotal) + parseFloat(due);
             isCheck = "yes";
         } else {
             finaltotal = parseFloat(finaltotal) - parseFloat(due);
         }
-        $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
-        $("#forwarded_total_amount").text(lineTotal.toFixed(2));
-        $("#forwarded_total_text").val(lineTotal.toFixed(2));
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
         
         if($("#forwardedInvoicesAdjustment").val() > 0){
+
             $("#preloader").show();
             var id = $(this).val();
             var token_id = $(this).attr("data-token_id");
@@ -4128,13 +4110,14 @@ if(!isset($addition)){ $addition=0;}
             $.ajax({
                 url: baseUrl+"/bills/invoices/save/forwardInvoice/check",
                 type: "GET",
-                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due},
+                data: {case_id:case_id, id: id, is_check: isCheck, token_id:token_id, due:due, page:'new'},
                 success: function(data) {
-                    // window.location.reload();
+                    window.location.reload();
                 }
             });
         }
-        // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
+       
+        forwardedInvoicesCalculate();
     });
 </script>
 @stop
