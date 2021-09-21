@@ -2214,10 +2214,10 @@ class BillingController extends BaseController
             $TimeEntry=$TimeEntry->get();
         
             //Get the Expense Entry list
-            $ExpenseEntry=ExpenseEntry::leftJoin("users","users.id","=","expense_entry.user_id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")->where("expense_entry.case_id",$case_id)
-            // ->where("expense_entry.time_entry_billable","yes")
-            // ->where("expense_entry.remove_from_current_invoice","no")
-            // ->where("expense_entry.token_id","!=",$request->token) 
+            $ExpenseEntry=ExpenseEntry::leftJoin("users","users.id","=","expense_entry.user_id")
+            ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
+            ->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")
+            ->where("expense_entry.case_id",$case_id)
             ->where("expense_entry.status","unpaid")
             ->where(function($ExpenseEntry) use($request){
                 $ExpenseEntry->where("expense_entry.token_id","!=",$request->token);
@@ -4704,6 +4704,7 @@ class BillingController extends BaseController
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
+                dd($files);
                 $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
@@ -4813,7 +4814,11 @@ class BillingController extends BaseController
             // Get unpaid balances invoices list
             $unpaidInvoices = [];
             if($caseMaster) {
-                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("id", "!=", $findInvoice->id)->get();
+                $selectedFwdInv = [];
+                if(count($findInvoice->forwardedInvoices)) {
+                    $selectedFwdInv = $findInvoice->forwardedInvoices->pluck("id")->toArray();
+                }
+                $unpaidInvoices = Invoices::where("case_id", $caseMaster->id)->where("due_amount", ">", 0)->where("status", "!=", "Forwarded")->where("id","!=", $findInvoice->id)->orWhereIn('id', $selectedFwdInv)->get();
             }
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
@@ -6294,15 +6299,18 @@ class BillingController extends BaseController
                     foreach($forwardedInvoices->forwardedInvoices as $inv){
                         $forwardedInvoicesTotal+= (str_replace(",","",$inv['total_amount']) - str_replace(",","",$inv['paid_amount']));
                     }
-                    if($forwardedInvoicesTotal > 0.1) {
+                    if($forwardedInvoicesTotal > 0.01) {
                         $InvoiceAdjustment->basis =str_replace(",","",$forwardedInvoicesTotal);
-                        $subTotal = $forwardedInvoicesTotal;
                         if($amountType=="percentage"){
                             $finalAmount=($amount/100)*$subTotal;
                             $Applied=TRUE;
                         }else{
                             $finalAmount=$amount;
-                            $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
+                            if($subTotal >= 0.01 && $forwardedInvoicesGrandTotal > 0.01){
+                                $Applied= TRUE;
+                            }else{
+                                $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
+                            }
                         }        
                     }else{
                         $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','balance_forward_total')->get();
@@ -6322,10 +6330,11 @@ class BillingController extends BaseController
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
                 $InvoiceAdjustment->created_by=Auth::User()->id; 
                 }
-
+                
                 if($Applied==TRUE){
                     if($Invoices->payment_plan_enabled == 'no'){
                         $InvoiceAdjustment->save();
+                        // echo $InvoiceAdjustmentTotal.'---->'.$forwardedInvoicesGrandTotal.'---->'.$subTotal.'---->'.$finalAmount;
                         if($discount_type=="discount"){
                             $subTotalSave=$InvoiceAdjustmentTotal + $forwardedInvoicesGrandTotal + ($subTotal-$finalAmount);
                             if($subTotalSave<0){
@@ -6334,6 +6343,7 @@ class BillingController extends BaseController
                         }else{
                             $subTotalSave=$InvoiceAdjustmentTotal + $forwardedInvoicesGrandTotal + ($subTotal + $finalAmount);
                         }
+                        // dd($subTotalSave);
                         $Invoices->total_amount=$subTotalSave;
                         // $Invoices->token=base64_decode($v1);
                         $Invoices->due_amount=$subTotalSave;

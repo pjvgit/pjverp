@@ -49,7 +49,7 @@
             Snooze 5 mins
         </button>
         <div class="btn-group">
-            <button type="button" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-secondary" data-toggle="dropdown">
+            <button type="button" id="snoozeDropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-secondary" data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
@@ -63,16 +63,12 @@
             </div>
         </div>
     </div>
-    {{-- <select class="dismiss-notification btn btn-primary">
-        <option value="dismiss">Dismiss</option>
-        <option value="dismiss-all">Dismiss All</option>
-    </select> --}}
     <div role="group" class="btn-group">
-        <button type="button" value="dismiss" class="btn btn-primary ladda-button example-button dismiss-notification">
+        <button type="button" value="dismiss"  class="btn btn-primary ladda-button example-button dismiss-notification">
             Dismiss
         </button>
         <div class="btn-group">
-            <button type="button" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
+            <button type="button" id="dismissDropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
@@ -81,4 +77,7 @@
         </div>
     </div>
 </div>
-            
+<script>
+$("#snoozeDropdown").trigger("click");
+$("#dismissDropdown").trigger("click");
+</script>
