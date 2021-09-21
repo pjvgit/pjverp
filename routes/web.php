@@ -1059,6 +1059,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     //Dashboard [Billing]
     Route::post('bills/dashboard/recordPayment', 'BillingController@recordPayment')->name('dashboard/recordPayment');
     Route::post('bills/dashboard/depositIntoTrust', 'BillingController@depositIntoTrust')->name('dashboard/depositIntoTrust');
+    Route::post('bills/dashboard/depositIntoTrust/clientCases', 'BillingController@depositIntoTrustClientCase')->name('dashboard/depositIntoTrust/clientCases');
     Route::post('bills/dashboard/depositIntoTrustByCase', 'BillingController@depositIntoTrustByCase')->name('dashboard/depositIntoTrustByCase');
     
     Route::post('bills/dashboard/depositIntoTrustPopup', 'BillingController@depositIntoTrustPopup')->name('dashboard/depositIntoTrustPopup');

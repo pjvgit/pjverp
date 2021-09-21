@@ -35,6 +35,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
     <div class="col-md-2">
         <div class="card mb-4">
             <div class="card-body">
+                <input type="hidden" id="user_id" value="{{ $client_id }}">
                 <span id="responseMain"></span>
                 <nav class="test-general-settings-nav p-0 pt-0" role="navigation">
                             <div class="p-1">
@@ -323,7 +324,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                         <hr class="mt-2">
                         <div class="row">
                             <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){
-                                ?> @include('company_dashboard.billing.trust_history')
+                                ?> 
+                                {{-- @include('company_dashboard.billing.trust_history') --}}
+                                @include('client_dashboard.billing.trust_history')
                             <?php } ?>
                             @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
                             @if(Route::currentRouteName() == "contacts/company/billing/credit/history")
@@ -1632,7 +1635,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         });
         
         //Billing tab
-        var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
+        /* var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
             serverSide: true,
             "dom": '<"top">rt<"bottom"pl>',
             responsive: false,
@@ -1737,7 +1740,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "initComplete": function(settings, json) {
                     $('td').css('font-size',parseInt('13px'));  
                 }
-        });
+        }); */
         $('#addRequestFund').on('hidden.bs.modal', function () {
             requestFundGrid.ajax.reload(null,false);
         });
@@ -2453,4 +2456,5 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\trusthistory.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop

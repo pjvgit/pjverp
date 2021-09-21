@@ -7,7 +7,8 @@
             <a data-toggle="modal" data-target="#withdrawFromTrust" data-placement="bottom" href="javascript:;" onclick="withdrawFromTrust();">
                 <button type="button" class="mx-1 btn btn-outline-info">Withdraw from Trust</button>
             </a>
-            <a data-toggle="modal" data-target="#depositAmountPopup" data-placement="bottom" href="javascript:;" onclick="loadDepositPopup();"> 
+            {{-- <a data-toggle="modal" data-target="#depositAmountPopup" data-placement="bottom" href="javascript:;" onclick="loadDepositPopup();">  --}}
+            <a data-toggle="modal" data-target="#depositIntoTrust" data-placement="bottom" href="javascript:;" onclick="depositIntoTrust({{ $client_id }});"> 
                 <button type="button" class="mx-1 btn btn-primary">Deposit into Trust</button>
             </a>
         </div>

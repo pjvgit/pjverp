@@ -1,3 +1,12 @@
+------------------------------------ 21-SEP-2021 ------------------------------
+ALTER TABLE `case_client_selection` ADD `allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `billing_amount`;
+ALTER TABLE `case_master` ADD `total_allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `firm_id`;
+ALTER TABLE `trust_history` ADD `allocated_to_case_id` INT(11) NULL AFTER `related_to_fund_request_id`;
+
+------------------------------------ 20-SEP-2021 ------------------------------
+ALTER TABLE `case_sol_reminder` ADD `remind_at` TIMESTAMP NULL AFTER `reminer_number`, ADD `reminded_at` TIMESTAMP NULL AFTER `remind_at`, ADD `snooze_time` INT(11) NULL AFTER `reminded_at`, ADD `snooze_type` VARCHAR(255) NULL AFTER `snooze_time`, ADD `snoozed_at` TIMESTAMP NULL AFTER `snooze_type`, ADD `snooze_remind_at` TIMESTAMP NULL AFTER `snoozed_at`;
+ALTER TABLE `case_sol_reminder` ADD `is_dismiss` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `snooze_remind_at`;
+
 ------------------------------------ 09-SEP-2021 ------------------------------
 ALTER TABLE `invoice_apply_trust_credit_funds` ADD `trust_history_last_id` INT(11) NULL AFTER `show_credit_account_history`, ADD `credit_history_last_id` INT(11) NULL AFTER `trust_history_last_id`;
 ALTER TABLE `invoice_apply_trust_credit_funds` ADD `total_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `credit_history_last_id`;

@@ -42,6 +42,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
     <div class="col-md-2">
         <div class="card mb-4">
             <div class="card-body">
+                <input type="hidden" id="user_id" value="{{ $client_id }}">
                 <span id="responseMain"></span>
                 <nav class="test-general-settings-nav p-0 pt-0" role="navigation">
                     <ul class="nav nav-pills flex-column text-wrap">
@@ -912,7 +913,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div>
 
-<div id="depositAmountPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- Make common code for trust balance from billing dashboard/client/company --}}
+{{-- <div id="depositAmountPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -928,7 +930,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <div id="withdrawFromTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -2066,15 +2068,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             });
         });
 
-        $('#depositAmountPopup').on('hidden.bs.modal', function () {
+        /* // $('#depositAmountPopup').on('hidden.bs.modal', function () {
+        $('#depositIntoTrustAccount').on('hidden.bs.modal', function () {
             billingTabTrustHistory.ajax.reload(null, false);
             // window.location.reload();
             // // window.location = baseUrl+"/contacts/attorneys";
-        });
+        }); */
         
         
         //Billing tab
-        var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
+        /* var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
             serverSide: true,
             "dom": '<"top">rt<"bottom"pl>',
             responsive: false,
@@ -2142,8 +2145,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(3)', nRow).html('<div class="text-left">'+aData.payment_method+' '+isRefender+'</div>');
                     }
                    
-
-                    var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' (Client)</a>';
+                    if(aData.allocated_to_case_id != null) {
+                        var clientLink='<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>';
+                    } else {
+                        var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' (Client)</a>';
+                    }
                     $('td:eq(4)', nRow).html('<div class="text-left">'+clientLink+'</div>');
 
                     if(aData.fund_type=="withdraw"){
@@ -2179,8 +2185,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 },
                 "initComplete": function(settings, json) {
                     $('td').css('font-size',parseInt('13px'));  
-                }
-        });
+                },
+            "drawCallback": function (settings) { 
+                var response = settings.json;
+                $(".trust-total-balance").text(response.trust_total);
+            },
+        }); */
         $('#addRequestFund').on('hidden.bs.modal', function () {
             requestFundGrid.ajax.reload(null, false);
         });
@@ -2971,7 +2981,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     
     //Billing Tab @START
 
-    function loadDepositPopup() {
+    /* function loadDepositPopup() { // Make common code for trust balance from billing dashboard/client/company
         $("#preloader").show();
         $("#depositAmountPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -2985,7 +2995,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
+    } */
     function withdrawFromTrust() {
         $("#preloader").show();
         $("#withdrawFromTrustArea").html('<img src="{{LOADER}}""> Loading...');
@@ -3155,4 +3165,5 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 // <script src="{{ asset('assets\js\custom\invoice\listinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\trusthistory.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
