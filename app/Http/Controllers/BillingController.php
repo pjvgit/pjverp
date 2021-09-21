@@ -7787,6 +7787,20 @@ class BillingController extends BaseController
            exit;    
        }
     }  
+
+    /**
+     * Get selected client case list with allocated trust balance
+     */
+    public function depositIntoTrustClientCase(Request $request)
+    {
+        // return $request->all();
+        $result = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
+            $query->where('users.id', $request->user_id);
+        })->select("id", "case_title", "total_allocated_trust_balance")->get();
+        $user = User::whereId($request->user_id)->with('userAdditionalInfo')->first();
+        return response()->json(['result' => $result, 'user' => $user]);
+    }
+
     public function depositIntoTrustByCase(Request $request)
     {
         
@@ -7822,7 +7836,8 @@ class BillingController extends BaseController
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id)->where("amount_due",">",0)->get();
-                return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList'));
+                $case = CaseMaster::whereId($request->case_id)->first();
+                return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case'));
                 exit;  
             }else{
                 return response()->json(['errors'=>'error']);
@@ -7898,6 +7913,7 @@ class BillingController extends BaseController
             $TrustInvoice->fund_type='diposit';
             $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
             $TrustInvoice->created_by=Auth::user()->id; 
+            $TrustInvoice->allocated_to_case_id = $request->case_id;
             $TrustInvoice->save();
 
             
@@ -7908,6 +7924,12 @@ class BillingController extends BaseController
 
             // $deposit_into_trust->total_amount=$userDataForDeposit['trust_account_balance'] + $request->amount;
             // $deposit_into_trust->save();
+
+            // For allocated case trust balance
+            if($request->case_id != '') {
+                CaseMaster::where('id', $request->case_id)->increment('total_allocated_trust_balance', $request['amount']);
+                CaseClientSelection::where('case_id', $request->case_id)->where('selected_user', $request->trust_account)->increment('allocated_trust_balance', $request['amount']);
+            }
 
 
              //Get previous amount

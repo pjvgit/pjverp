@@ -272,7 +272,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 
-<div id="depositIntoTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="depositIntoTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-lg ">
         <div class="modal-content">
@@ -289,7 +289,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-lg ">
@@ -447,7 +447,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         })
     }
 
-    function depositIntoTrust() {
+    /* function depositIntoTrust() {
         $('.showError').html('');
         
         $("#preloader").show();
@@ -491,7 +491,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
               
             }
         })
-    }
+    } */
 
     function loadExpenseActivity() {
         $('.showError').html('');
@@ -1033,5 +1033,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 </script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\trusthistory.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

@@ -28,10 +28,11 @@ use Illuminate\Support\Str;
 use Yajra\Datatables\Datatables;
 use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup,App\AccountActivity;
 use App\Traits\FundRequestTrait;
+use App\Traits\TrustAccountTrait;
 
 class ClientdashboardController extends BaseController
 {
-    use CreditAccountTrait, FundRequestTrait;
+    use CreditAccountTrait, FundRequestTrait, TrustAccountTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -917,18 +918,22 @@ class ClientdashboardController extends BaseController
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
         $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
         $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
-        $allLeads = $allLeads->with('invoice', 'fundRequest');   
+        $allLeads = $allLeads->with('invoice', 'fundRequest', 'allocateToCase');   
         $totalData=$allLeads->count();
         $totalFiltered = $totalData; 
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('trust_history.id','DESC');
         $allLeads = $allLeads->get();
+
+        $userAddInfo = UsersAdditionalInfo::where('user_id', $requestData['user_id'])->first();
+
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $allLeads 
+            "data"            => $allLeads,
+            "trust_total"     => $userAddInfo->trust_account_balance ?? 0.00
         );
         echo json_encode($json_data);  
     }
@@ -1119,12 +1124,18 @@ class ClientdashboardController extends BaseController
             }
             $TrustInvoice->refund_ref_id=$request->transaction_id;
             $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
+            $TrustInvoice->allocated_to_case_id = $GetAmount->allocated_to_case_id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
 
             // For request refund
             if($TrustInvoice->related_to_fund_request_id) {
                 $this->refundTrustRequest($TrustInvoice->id);
+            }
+
+            // For allocated case refund
+            if($TrustInvoice->allocated_to_case_id) {
+                $this->refundAllocateTrustBalance($TrustInvoice);
             }
             dbCommit();
             session(['popup_success' => 'Withdraw fund successful']);
@@ -1152,6 +1163,11 @@ class ClientdashboardController extends BaseController
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
 
+                // For allocated case refund
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->deleteRefundedAllocateTrustBalance($TrustInvoice);
+                }
+
             }else if($TrustInvoice->fund_type=="refund_withdraw"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->refund_amount);
                 $updateRedord=TrustHistory::find($TrustInvoice->refund_ref_id);
@@ -1159,6 +1175,10 @@ class ClientdashboardController extends BaseController
                 $updateRedord->save();
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
+
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->deleteAllocateTrustBalance($TrustInvoice);
+                }
             }
 
 
@@ -1167,6 +1187,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
 
+            // For related to fund request
             if($TrustInvoice->related_to_fund_request_id) {
                 $this->deletePaymentTrustRequest($TrustInvoice->id);
             }

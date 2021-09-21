@@ -165,7 +165,6 @@
             'fa-sort-down align-text-top');
     });
     $(document).find('#full_refund').change(function () {
-        alert();
         if ($(this).is(":checked")) {
             $("#amount").val($(this).attr("data-total-amount"));
             $("#amount").attr('readonly', true);

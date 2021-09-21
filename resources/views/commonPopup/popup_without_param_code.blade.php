@@ -980,7 +980,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
-    function depositIntoTrustPopup(id) {
+    function depositIntoTrustPopup(id, caseId = null) {
         $('.showError').html('');
         beforeLoader();
         $("#preloader").show();
@@ -990,7 +990,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             type: "POST",
             url: baseUrl + "/bills/dashboard/depositIntoTrustPopup",
             data: {
-                'id': id
+                'id': id, case_id: caseId
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {

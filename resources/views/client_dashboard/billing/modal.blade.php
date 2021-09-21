@@ -43,3 +43,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </form>
     </div>
 </div>
+
+{{-- For trust balance deposit --}}
+<div id="depositIntoTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Deposit Into Trust</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="showError" style="display:none"></div>
+                <div id="depositIntoTrustArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -18,7 +18,7 @@ class CaseMaster extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'case_title','case_status','created_at','case_statute_date','case_open_date'
+        'case_title','case_status','created_at','case_statute_date','case_open_date', 'total_allocated_trust_balance'
     ];
     protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name"];
     public function getCaseuserAttribute(){
