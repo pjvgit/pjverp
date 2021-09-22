@@ -23,7 +23,7 @@
                                     <?php } ?>
                                 </optgroup> --}}
                                 <optgroup label="Client">
-                                    @forelse (firmClientList() as $key => $item)
+                                    @forelse ($ClientList as $key => $item)
                                         <option uType="client" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}">{{$item->name}} 
                                             ({{ getUserTypeText()[$item->user_level] }})
                                         </option>
@@ -37,7 +37,7 @@
                                     <?php } ?>
                                 </optgroup> --}}
                                 <optgroup label="Comapny">
-                                    @forelse (firmCompanyList() as $key => $item)
+                                    @forelse ($CompanyList as $key => $item)
                                         <option uType="company" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}" >{{$item->name}} 
                                             ({{ getUserTypeText()[$item->user_level] }})
                                         </option>

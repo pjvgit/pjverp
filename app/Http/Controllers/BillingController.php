@@ -7779,21 +7779,35 @@ class BillingController extends BaseController
        $validator = \Validator::make($request->all(), [
         //    'id' => 'required|min:1|max:255',
        ]);
-       if ($validator->fails())
-       {
-           return response()->json(['errors'=>$validator->errors()->all()]);
-       }else{
-          $activityData=[];
-         $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
-         ->leftJoin("case_master","invoices.case_id","=","case_master.id")
-         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","users.user_level","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
-         ->where("invoices.created_by",Auth::user()->id)
-         ->where("invoices.status","!=","Paid")
-         ->groupBy("users.id");
-      
-         $Invoices=$Invoices->get();
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $activityData=[];
+            $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
+            ->leftJoin("case_master","invoices.case_id","=","case_master.id")
+            ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","users.user_level","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
+            ->where("invoices.created_by",Auth::user()->id)
+            ->where("invoices.status","!=","Paid")
+            ->groupBy("users.id");
+        
+            $Invoices=$Invoices->get();
+            $ClientList = firmClientList();
+            $CompanyList = firmCompanyList();
+            if($request->case_id) {
+                $authUser = auth()->user();
+                $ClientList = User::whereHas("clientCases", function($query) use($request) {
+                    $query->where("case_master.id", $request->case_id);
+                })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
+                ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
 
-           return view('billing.dashboard.depositIntoTrust',compact('activityData','Invoices'));     
+                $CompanyList = User::whereHas("clientCases", function($query) use($request) {
+                    $query->where("case_master.id", $request->case_id);
+                })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')
+                ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
+            }
+
+           return view('billing.dashboard.depositIntoTrust',compact('ClientList', 'CompanyList', 'activityData','Invoices'));     
            exit;    
        }
     }  
@@ -7811,7 +7825,7 @@ class BillingController extends BaseController
         return response()->json(['result' => $result, 'user' => $user]);
     }
 
-    public function depositIntoTrustByCase(Request $request)
+    /* public function depositIntoTrustByCase(Request $request)
     {
         
        $validator = \Validator::make($request->all(), [
@@ -7829,7 +7843,7 @@ class BillingController extends BaseController
             return view('billing.dashboard.depositIntoTrustByCase',compact('caseClient'));     
             exit;    
        }
-    }  
+    }   */
 
     public function depositIntoTrustPopup(Request $request)
     {

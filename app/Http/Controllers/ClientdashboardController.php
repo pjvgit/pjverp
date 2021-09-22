@@ -938,7 +938,7 @@ class ClientdashboardController extends BaseController
         echo json_encode($json_data);  
     }
 
-    public function addTrustEntry(Request $request)
+    /* public function addTrustEntry(Request $request)
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
@@ -1018,14 +1018,19 @@ class ClientdashboardController extends BaseController
             return response()->json(['errors'=>'','msg'=>$msg]);
             exit;   
         }
-    }
+    } */
 
     
     public function withdrawFromTrust(Request $request)
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
-        return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo'));     
+        $userCases = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
+                        $query->where('users.id', $request->user_id);
+                    })->select("id", "case_title", "total_allocated_trust_balance")->get();
+
+        $totalAllocatedBalance = $userCases->sum("total_allocated_trust_balance") ?? 0.00;
+        return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases', 'totalAllocatedBalance'));     
         exit;    
     } 
     public function saveWithdrawFromTrust(Request $request)
@@ -1059,7 +1064,13 @@ class ClientdashboardController extends BaseController
                 $TrustInvoice->withdraw_from_account=$request->select_account;
             }
             $TrustInvoice->refund_ref_id=$request->transaction_id;
+            $TrustInvoice->allocated_to_case_id = $request->case_id;
             $TrustInvoice->save();
+
+            if($request->case_id != '') {
+                $this->withdrawAllocateTrustBalance($TrustInvoice);
+            }
+
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -1135,7 +1146,11 @@ class ClientdashboardController extends BaseController
 
             // For allocated case refund
             if($TrustInvoice->allocated_to_case_id) {
-                $this->refundAllocateTrustBalance($TrustInvoice);
+                if($GetAmount->fund_type=="withdraw"){
+                    $this->deleteRefundedAllocateTrustBalance($TrustInvoice); // Refund withdraw amount to case trust balance
+                } else {
+                    $this->refundAllocateTrustBalance($TrustInvoice);
+                }
             }
             dbCommit();
             session(['popup_success' => 'Withdraw fund successful']);
@@ -1173,6 +1188,11 @@ class ClientdashboardController extends BaseController
                 $updateRedord=TrustHistory::find($TrustInvoice->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
+
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->refundAllocateTrustBalance($TrustInvoice);
+                }
+
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
 
@@ -3085,7 +3105,7 @@ class ClientdashboardController extends BaseController
                     $companyUser->first_name=$val; 
                     $companyUser->created_by =Auth::User()->id;
                     $companyUser->user_level="4";
-                    $companyUser->user_title="";
+                    $companyUser->user_title="Company";
                     $companyUser->parent_user=Auth::User()->id;
                     $companyUser->save();
                     $fetchedIds[]=$companyUser->id;

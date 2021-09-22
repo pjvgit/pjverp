@@ -2,14 +2,14 @@
 <form class="depositForm" id="depositForm" name="depositForm" method="POST">
     <span id="response"></span>
     @csrf
-    <div class="col-md-12" id="contact_div"
+    <div class="col-md-12" id="contact_div">
         <div class="form-group row">
             <div class="col-sm-12">
                 <label for="inputEmail3" class="col-form-label">Select Contact</label>
                 <select class="form-control contact select2" id="contact" name="contact">
                     <option></option>
                     <optgroup label="Client">
-                        @forelse (firmClientList() as $key => $item)
+                        @forelse ($ClientList as $key => $item)
                             <option value="{{$item->id}}">{{$item->name}} 
                                 ({{ getUserTypeText()[$item->user_level] }})
                             </option>
@@ -17,7 +17,7 @@
                         @endforelse
                     </optgroup>
                     <optgroup label="Comapny">
-                        @forelse (firmCompanyList() as $key => $item)
+                        @forelse ($CompanyList as $key => $item)
                             <option value="{{$item->id}}">{{$item->name}} 
                                 ({{ getUserTypeText()[$item->user_level] }})
                             </option>

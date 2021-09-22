@@ -1062,7 +1062,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
-    function addRequestFundPopup() {
+    function addRequestFundPopup(caseId = null) {
         $("#preloader").show();
         $("#addRequestFundArea").html('<img src="{{LOADER}}"> Loading...');
         $(function () {
@@ -1070,7 +1070,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 url: baseUrl + "/contacts/companies/addRequestFundPopup",
                 data: {
-                    "user_id": ""
+                    "user_id": "", case_id: caseId
                 },
                 success: function (res) {
                     $("#addRequestFundArea").html(res);
@@ -1507,7 +1507,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
         })
     }
-    function depositIntoTrust() {
+    function depositIntoTrust(clientId = null, caseId = null) {
         $('.showError').html('');
         
         // $("#preloader").show();
@@ -1517,7 +1517,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             type: "POST",
             url: baseUrl + "/bills/dashboard/depositIntoTrust",
             data: {
-                "id": null
+                "id": null, case_id: caseId
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {

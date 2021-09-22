@@ -18,9 +18,10 @@ class UsersAdditionalInfo extends Authenticatable
 
     protected $fillable = [
         'id', 'user_id', 'contact_group_id', 'user_timezone', 'user_status', 'client_portal_enable', 'address2', 'dob', 'job_title', 'driver_license', 
-        'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 'credit_account_balance'
+        'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 
+        'credit_account_balance'
     ];
-    protected $appends  = ['lastloginnewformate','caselist'];
+    protected $appends  = ['lastloginnewformate','caselist', 'unallocate_trust_balance'];
 
     public function getLastloginnewformateAttribute(){
         $CommonController= new CommonController();
@@ -56,5 +57,23 @@ class UsersAdditionalInfo extends Authenticatable
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Set unallocate trust balance using trust account balance attribute
+     */
+    public function getUnallocateTrustBalanceAttribute()
+    {
+        return number_format(($this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance')), 2);
+    }
+
+    /**
+     * Get all of the case client selected table column for the UsersAdditionalInfo
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function selectedCases()
+    {
+        return $this->hasMany(CaseClientSelection::class, 'selected_user', 'user_id');
     }
 }

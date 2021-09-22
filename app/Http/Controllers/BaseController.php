@@ -245,7 +245,7 @@ class BaseController extends Controller
         $TimeEntry['non_billable_entry']=$expenseTotalNonBillable;
         return $TimeEntry;
     }
-    public function getTrustBalance($case_id){
+    /* public function getTrustBalance($case_id){
         $masterUser=[];
         $totalTrustSum=0;
         $clients=CaseClientSelection::where("case_id", $case_id)->get();
@@ -258,7 +258,7 @@ class BaseController extends Controller
         $masterUser['totalTrustSum']=$totalTrustSum;
         return $masterUser;
         
-    }
+    } */
 
     
    public function getAllLinkedClients($case_id)

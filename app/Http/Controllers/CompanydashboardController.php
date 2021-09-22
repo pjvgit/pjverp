@@ -719,23 +719,27 @@ class CompanydashboardController extends BaseController
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
         $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
         $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
-        $allLeads = $allLeads->with('invoice', 'fundRequest');  
+        $allLeads = $allLeads->with('invoice', 'fundRequest', 'allocateToCase');  
         $totalData=$allLeads->count();
         $totalFiltered = $totalData; 
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('trust_history.payment_date','ASC');
         $allLeads = $allLeads->get();
+
+        $userAddInfo = UsersAdditionalInfo::where('user_id', $requestData['user_id'])->first();
+
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $allLeads 
+            "data"            => $allLeads,
+            "trust_total"     => $userAddInfo->trust_account_balance ?? 0.00
         );
         echo json_encode($json_data);  
     }
-
-    public function addTrustEntry(Request $request)
+    // Made common code for client and company in billing controller
+    /* public function addTrustEntry(Request $request)
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
@@ -802,8 +806,9 @@ class CompanydashboardController extends BaseController
             return response()->json(['errors'=>'','msg'=>$msg]);
             exit;   
         }
-    }
-    public function withdrawFromTrust(Request $request)
+    } */
+    // Made common code for client and company in client dashboard controller
+    /* public function withdrawFromTrust(Request $request)
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
@@ -971,7 +976,7 @@ class CompanydashboardController extends BaseController
             return response()->json(['errors'=>'']);
             exit;   
         }
-    }
+    } */
     public function downloadTrustActivityOld(Request $request)
     {
         $id=$request->id;
@@ -1063,14 +1068,27 @@ class CompanydashboardController extends BaseController
         $client_id=$request->user_id;
         //Get all client related to firm
         // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-
+        $ClientList = firmClientList();
         //Get all company related to firm
         // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
-        
+        $CompanyList = firmCompanyList();
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
+
+        if($request->case_id) {
+            $authUser = auth()->user();
+            $ClientList = User::whereHas("clientCases", function($query) use($request) {
+                $query->where("case_master.id", $request->case_id);
+            })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
+            ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
+
+            $CompanyList = User::whereHas("clientCases", function($query) use($request) {
+                $query->where("case_master.id", $request->case_id);
+            })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')
+            ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
+        }
         
-        return view('company_dashboard.billing.addFundRequestEnrty',compact(/* 'ClientList','CompanyList', */'client_id','userData','UsersAdditionalInfo'));     
+        return view('company_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','client_id','userData','UsersAdditionalInfo'));     
         exit;    
     } 
 

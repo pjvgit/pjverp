@@ -932,7 +932,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     </div>
 </div> --}}
 
-<div id="withdrawFromTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="withdrawFromTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -948,10 +948,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
-<div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -967,9 +967,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="deletePaymentEntry" id="deletePaymentEntry" name="deletePaymentEntry" method="POST">
@@ -1002,7 +1002,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 
 
 
@@ -2285,7 +2285,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
         });
 
-        $('#deletePaymentEntry').submit(function (e) {
+        /* $('#deletePaymentEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -2329,7 +2329,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
 
         $('#exportPDFpopupForm').submit(function (e) {
             
@@ -2996,7 +2996,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     } */
-    function withdrawFromTrust() {
+    /* function withdrawFromTrust() {
         $("#preloader").show();
         $("#withdrawFromTrustArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -3010,8 +3010,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function RefundPopup(id) {
+    } */
+    /* function RefundPopup(id) {
         $("#preloader").show();
         $("#RefundPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -3025,11 +3025,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function deleteEntry(id) {
+    } */
+    /* function deleteEntry(id) {
         $("#deleteEntry").modal("show");
         $("#delete_payment_id").val(id);
-    }
+    } */
     function exportPDFpopup() {
         $("#export_trust_start_date").val("");
         $("#export_trust_end_date").val("");

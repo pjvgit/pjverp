@@ -1000,12 +1000,13 @@ class CaseController extends BaseController
                
             } 
             $caseBiller=[];
-            $flatFeeEntryData=$timeEntryData=$expenseEntryData=$trustUSers=$InvoicesTotal=$InvoicesCollectedTotal=$InvoicesPendingTotal='';
+            $flatFeeEntryData=$timeEntryData=$expenseEntryData=$caseClients=$InvoicesTotal=$InvoicesCollectedTotal=$InvoicesPendingTotal='';
             if(\Route::current()->getName()=="overview"){
                 $flatFeeEntryData=$this->getFlatfeeEntryTotalByCase($case_id);    
                 $timeEntryData=$this->getTimeEntryTotalByCase($case_id);    
                 $expenseEntryData=$this->getExpenseEntryTotalByCase($case_id);    
-                $trustUSers=$this->getTrustBalance($case_id);    
+                // $trustUSers=$this->getTrustBalance($case_id); 
+                $caseClients = CaseClientSelection::where("case_id", $case_id)->with("user", "user.userAdditionalInfo")->get();
                 $InvoicesTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("total_amount");
                 $InvoicesCollectedTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("paid_amount");
                 $InvoicesPendingTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("due_amount");
@@ -1068,7 +1069,7 @@ class CaseController extends BaseController
             
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
-            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','trustUSers','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
+            return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','caseClients','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
         }
     }
 
