@@ -90,12 +90,12 @@ class AccountActivity extends Authenticatable
      }
 
      public function getCAmtAttribute(){
-        return number_format($this->credit_amount,2);
+        return $this->credit_amount;
      }
      public function getDAmtAttribute(){
-        return number_format($this->debit_amount,2);
+        return $this->debit_amount;
      }
      public function getTAmtAttribute(){
-        return number_format($this->total_amount,2);
+        return $this->total_amount;
      }
 }

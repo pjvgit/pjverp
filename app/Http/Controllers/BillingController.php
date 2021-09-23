@@ -406,18 +406,19 @@ class BillingController extends BaseController
         
         $filename="time_entry_".time().'.pdf';
          $PDFData=view('billing.time_entry.viewTimeEntryPdf',compact('case'));
-        $pdf = new Pdf;
-        // $pdf->setOptions(['javascript-delay' => 5000]);
-        if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = WKHTMLTOPDF_PATH;
-        }
-        $pdf->addPage($PDFData);
-        // $pdf->setOptions(['javascript-delay' => 5000]);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
+        // $pdf = new Pdf;
+        // // $pdf->setOptions(['javascript-delay' => 5000]);
+        // if($_SERVER['SERVER_NAME']=='localhost'){
+        //     $pdf->binary = WKHTMLTOPDF_PATH;
+        // }
+        // $pdf->addPage($PDFData);
+        // // $pdf->setOptions(['javascript-delay' => 5000]);
+        // $pdf->saveAs(public_path("download/pdf/".$filename));
+        // $path = public_path("download/pdf/".$filename);
         // return response()->download($path);
         // exit;
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+        return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
         exit;
     }
     /******************************************** EXPENSES******************************/
@@ -921,18 +922,19 @@ class BillingController extends BaseController
         
         $filename="expenses_entry_".time().'.pdf';
          $PDFData=view('billing.expenses.viewExpenseEntryPdf',compact('case'));
-        $pdf = new Pdf;
-        // $pdf->setOptions(['javascript-delay' => 5000]);
-        if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = WKHTMLTOPDF_PATH;
-        }
-        $pdf->addPage($PDFData);
-        // $pdf->setOptions(['javascript-delay' => 5000]);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
+        // $pdf = new Pdf;
+        // // $pdf->setOptions(['javascript-delay' => 5000]);
+        // if($_SERVER['SERVER_NAME']=='localhost'){
+        //     $pdf->binary = WKHTMLTOPDF_PATH;
+        // }
+        // $pdf->addPage($PDFData);
+        // // $pdf->setOptions(['javascript-delay' => 5000]);
+        // $pdf->saveAs(public_path("download/pdf/".$filename));
+        // $path = public_path("download/pdf/".$filename);
         // return response()->download($path);
         // exit;
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+        return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
         exit;
     }
 
@@ -1037,16 +1039,17 @@ class BillingController extends BaseController
          
          $filename="requested_funds_".time().'.pdf';
          $PDFData=view('billing.requested_fund.viewRequestedFundsPdf',compact('case'));
-         $pdf = new Pdf;
-        //  $pdf->setOptions(['javascript-delay' => 5000]);
-         if($_SERVER['SERVER_NAME']=='localhost'){
-             $pdf->binary = WKHTMLTOPDF_PATH;
-         }
-         $pdf->addPage($PDFData);
-        //  $pdf->setOptions(['javascript-delay' => 5000]);
-         $pdf->saveAs(public_path("download/pdf/".$filename));
-         $path = public_path("download/pdf/".$filename);
-         return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        //  $pdf = new Pdf;
+        // //  $pdf->setOptions(['javascript-delay' => 5000]);
+        //  if($_SERVER['SERVER_NAME']=='localhost'){
+        //      $pdf->binary = WKHTMLTOPDF_PATH;
+        //  }
+        //  $pdf->addPage($PDFData);
+        // //  $pdf->setOptions(['javascript-delay' => 5000]);
+        //  $pdf->saveAs(public_path("download/pdf/".$filename));
+        //  $path = public_path("download/pdf/".$filename);
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+         return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
          exit;
      }
      /******************************************** Saved Activity******************************/
@@ -1190,18 +1193,19 @@ class BillingController extends BaseController
          
          $filename="saved_activity".time().'.pdf';
         $PDFData=view('billing.activities.savedActivityPdf',compact('case'));
-         $pdf = new Pdf;
-         // $pdf->setOptions(['javascript-delay' => 5000]);
-         if($_SERVER['SERVER_NAME']=='localhost'){
-             $pdf->binary = WKHTMLTOPDF_PATH;
-         }
-         $pdf->addPage($PDFData);
-         // $pdf->setOptions(['javascript-delay' => 5000]);
-         $pdf->saveAs(public_path("download/pdf/".$filename));
-         $path = public_path("download/pdf/".$filename);
+        //  $pdf = new Pdf;
+        //  // $pdf->setOptions(['javascript-delay' => 5000]);
+        //  if($_SERVER['SERVER_NAME']=='localhost'){
+        //      $pdf->binary = WKHTMLTOPDF_PATH;
+        //  }
+        //  $pdf->addPage($PDFData);
+        //  // $pdf->setOptions(['javascript-delay' => 5000]);
+        //  $pdf->saveAs(public_path("download/pdf/".$filename));
+        //  $path = public_path("download/pdf/".$filename);
          // return response()->download($path);
          // exit;
-         return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+         $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+         return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
          exit;
      }
      /******************************************** Invoices******************************/
@@ -1725,6 +1729,16 @@ class BillingController extends BaseController
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
+                //Case Activity
+                if($InvoiceData['case_id'] > 0){
+                    $caseActivityData=[];
+                    $caseActivityData['activity_title']='accepted a payment of $'.number_format($request['amount'],2).' for invoice';
+                    $caseActivityData['case_id']=$InvoiceData['case_id'];
+                    $caseActivityData['activity_type']='accept_payment';
+                    $caseActivityData['extra_notes']=$InvoiceData['id'];
+                    $caseActivityData['staff_id']=$InvoiceData['user_id'];
+                    $this->caseActivity($caseActivityData);
+                }
 
                  //Get previous amount
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
@@ -4507,12 +4521,6 @@ class BillingController extends BaseController
         $invoice_id=base64_decode($request->id);
         $Invoice=Invoices::where("id",$invoice_id)->first();
         $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
-       
-        $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
-        $UsersAdditionalInfo = $UsersAdditionalInfo->leftJoin('countries','users.country','=','countries.id');
-        $UsersAdditionalInfo = $UsersAdditionalInfo->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"users_additional_info.*","users.state","countries.name as county_name")
-        ->where("user_id",$Invoice['user_id'])
-        ->first();
 
         $caseMaster=CaseMaster::find($Invoice['case_id']);
         //Getting firm related data
@@ -4540,7 +4548,7 @@ class BillingController extends BaseController
         ->get();
         
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData', 'firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceInstallment','InvoiceHistory','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
         /* $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
             $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
@@ -5761,7 +5769,7 @@ class BillingController extends BaseController
             $invoiceHistory['created_by']=Auth::User()->id;
             $invoiceHistory['created_at']=date('Y-m-d H:i:s');
             // $this->invoiceHistory($invoiceHistory);
-
+           
             if($GetAmount->deposit_into=="Operating Account" && $GetAmount->pay_method != "Trust"){
                 //Insert invoice payment record.
                 $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Operating Account")->orderBy("created_at","DESC")->first();
@@ -5858,6 +5866,28 @@ class BillingController extends BaseController
             }
             
             $this->invoiceHistory($invoiceHistory);
+
+            //Add Invoice history for activity
+            $data=[];
+            $data['case_id']=$findInvoice['case_id'];
+            $data['user_id']=$findInvoice['user_id'];
+            $data['activity']='refunded a payment of $'.number_format($request['amount'],2);
+            $data['activity_for']=$findInvoice['id'];
+            $data['type']='invoices';
+            $data['action']='refund';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+            
+            //Case Activity
+            if($findInvoice['case_id'] > 0){
+                $caseActivityData=[];
+                $caseActivityData['activity_title']='refunded a payment of $'.number_format($request['amount'],2).' for invoice';
+                $caseActivityData['case_id']=$findInvoice['case_id'];
+                $caseActivityData['activity_type']='refund_payment';
+                $caseActivityData['extra_notes']=$findInvoice['id'];
+                $caseActivityData['staff_id']=$findInvoice['user_id'];
+                $this->caseActivity($caseActivityData);
+            }
 
             // Update invoice status and paid/due amount
             $this->updateInvoiceAmount($findInvoice['id']);
@@ -5980,18 +6010,19 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::find($request->id);
         $filename="Invoice_".$invoice_id.'.pdf';
         $PDFData=view('billing.invoices.viewInvoiceHistoryPdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','InvoiceHistory'));
-        $pdf = new Pdf;
-        $pdf->setOptions(['javascript-delay' => 5000]);
-        if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = WKHTMLTOPDF_PATH;
-        }
-        $pdf->addPage($PDFData);
-        $pdf->setOptions(['javascript-delay' => 5000]);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
+        // $pdf = new Pdf;
+        // $pdf->setOptions(['javascript-delay' => 5000]);
+        // if($_SERVER['SERVER_NAME']=='localhost'){
+        //     $pdf->binary = WKHTMLTOPDF_PATH;
+        // }
+        // $pdf->addPage($PDFData);
+        // $pdf->setOptions(['javascript-delay' => 5000]);
+        // $pdf->saveAs(public_path("download/pdf/".$filename));
+        // $path = public_path("download/pdf/".$filename);
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
         // return response()->download($path);
         // exit;
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
         exit;
     }
 
@@ -6787,14 +6818,15 @@ class BillingController extends BaseController
         
         $filename="trust_account_activity".time().'.pdf';
         $PDFData=view('billing.account_activity.trustAccountActivityPdf',compact('FetchQuery','requestData'));
-        $pdf = new Pdf;
-        if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = WKHTMLTOPDF_PATH;
-        }
-        $pdf->addPage($PDFData);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        // $pdf = new Pdf;
+        // if($_SERVER['SERVER_NAME']=='localhost'){
+        //     $pdf->binary = WKHTMLTOPDF_PATH;
+        // }
+        // $pdf->addPage($PDFData);
+        // $pdf->saveAs(public_path("download/pdf/".$filename));
+        // $path = public_path("download/pdf/".$filename);
+        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);        
+        return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
         exit;
     }
 
@@ -6826,18 +6858,19 @@ class BillingController extends BaseController
          
          $filename="account_activity".time().'.pdf';
         $PDFData=view('billing.account_activity.accountActivityPdf',compact('FetchQuery','requestData'));
-         $pdf = new Pdf;
-         // $pdf->setOptions(['javascript-delay' => 5000]);
-         if($_SERVER['SERVER_NAME']=='localhost'){
-             $pdf->binary = WKHTMLTOPDF_PATH;
-         }
-         $pdf->addPage($PDFData);
-         // $pdf->setOptions(['javascript-delay' => 5000]);
-         $pdf->saveAs(public_path("download/pdf/".$filename));
-         $path = public_path("download/pdf/".$filename);
+        //  $pdf = new Pdf;
+        //  // $pdf->setOptions(['javascript-delay' => 5000]);
+        //  if($_SERVER['SERVER_NAME']=='localhost'){
+        //      $pdf->binary = WKHTMLTOPDF_PATH;
+        //  }
+        //  $pdf->addPage($PDFData);
+        //  // $pdf->setOptions(['javascript-delay' => 5000]);
+        //  $pdf->saveAs(public_path("download/pdf/".$filename));
+        //  $path = public_path("download/pdf/".$filename);
          // return response()->download($path);
          // exit;
-         return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+         $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+         return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
          exit;
      }
     /********************************Account Activity ***************************** */
@@ -8965,6 +8998,14 @@ class BillingController extends BaseController
                     $ExpenseForInvoice = ExpenseForInvoice::leftJoin("expense_entry",'expense_entry.id',"=","expense_for_invoice.expense_entry_id")->leftJoin("users","expense_entry.user_id","=","users.id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select('users.*','expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")->where("expense_for_invoice.invoice_id",$invoice_id)->get();
                     $pdfData[$invoice_id]['ExpenseForInvoice']=$ExpenseForInvoice;
 
+                     //Get the flat fee Entry list
+                    $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+                    ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+                    ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+                    ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+                    ->get();
+                    $pdfData[$invoice_id]['FlatFeeEntryForInvoice']=$FlatFeeEntryForInvoice;
+
                     $firmData=Firm::find($userData['firm_name']);
                     $pdfData[$invoice_id]['firmData']=$firmData;
 
@@ -8987,15 +9028,16 @@ class BillingController extends BaseController
 
                 $filename="Invoices_".time().'.pdf';
                  $PDFData=view('billing.invoices.viewBulkInvoicePdf',compact('pdfData'));
-                $pdf = new Pdf;
-                if($_SERVER['SERVER_NAME']=='localhost'){
-                    $pdf->binary = EXE_PATH;
-                }
-                $pdf->addPage($PDFData);
-                $pdf->setOptions(['javascript-delay' => 5000]);
-                $pdf->saveAs(public_path("download/pdf/".$filename));
-                $path = public_path("download/pdf/".$filename);
-                return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+                // $pdf = new Pdf;
+                // if($_SERVER['SERVER_NAME']=='localhost'){
+                //     $pdf->binary = EXE_PATH;
+                // }
+                // $pdf->addPage($PDFData);
+                // $pdf->setOptions(['javascript-delay' => 5000]);
+                // $pdf->saveAs(public_path("download/pdf/".$filename));
+                // $path = public_path("download/pdf/".$filename);
+                $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+                return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
                 exit;
             
          } 
@@ -9027,17 +9069,18 @@ class BillingController extends BaseController
  
          $filename="Invoice_".$invoice_id.'.pdf';
          $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction'));
-         $pdf = new Pdf;
-         if($_SERVER['SERVER_NAME']=='localhost'){
-             $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
-         }
-         $pdf->addPage($PDFData);
-         $pdf->setOptions(['javascript-delay' => 5000]);
-         $pdf->saveAs(public_path("download/pdf/".$filename));
-         $path = public_path("download/pdf/".$filename);
+        //  $pdf = new Pdf;
+        //  if($_SERVER['SERVER_NAME']=='localhost'){
+        //      $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+        //  }
+        //  $pdf->addPage($PDFData);
+        //  $pdf->setOptions(['javascript-delay' => 5000]);
+        //  $pdf->saveAs(public_path("download/pdf/".$filename));
+        //  $path = public_path("download/pdf/".$filename);
          // return response()->download($path);
          // exit;
-         return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+         $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+         return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
          exit;
      }
      public function printView(Request $request)

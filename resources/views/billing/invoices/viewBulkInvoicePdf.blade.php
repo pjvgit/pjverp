@@ -2,8 +2,10 @@
 
 <?php
 foreach($pdfData as $keyData=>$valueData){
-$paid=$valueData['Invoice']['amount_paid'];
-$invoice=$valueData['Invoice']['invoice_amount'];
+// $paid=$valueData['Invoice']['amount_paid'];
+// $invoice=$valueData['Invoice']['invoice_amount'];
+$invoice=$valueData['Invoice']['total_amount'];
+$paid=$valueData['Invoice']['paid_amount'];
 $finalAmt=$invoice-$paid;
 ?>
 <div class="page" style="page-break-after: always;">
@@ -28,9 +30,7 @@ $finalAmt=$invoice-$paid;
             <tr>
                 <td style="width: 60%;"><b>
                         {{ucfirst(substr($valueData['userData']['user_name'],0,100))}}</b><br>
-                    {{($valueData['userData']['street'])??''}} {{($valueData['userData']['apt_unit'])??''}}<br>
-                    {{($valueData['userData']['city'])??''}} {{($valueData['userData']['state'])??''}}
-                    {{($valueData['userData']['postal_code'])??''}}<br>
+                        {!! nl2br($valueData['Invoice']['bill_address_text']) !!}
                 </td>
                 <td style="width: 40%;">
 
@@ -84,8 +84,108 @@ $finalAmt=$invoice-$paid;
     <h3>
         <p>{{ucfirst(substr($valueData['caseMaster']['case_title'],0,100))}}</p>
     </h3>
-    <?php   $discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;?>
+    <?php   $flatFeeEntryAmount=$discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=$forwardedInvoices=0;?>
+    <?php if(!$valueData['FlatFeeEntryForInvoice']->isEmpty()){?>
+    <b>Flat Fee</b>
+    <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+        <tbody>
+            <tr class="invoice_info_row">
+                <td class="invoice_info_bg">
+                    Date
+                </td>
+                <td class="invoice_info_bg">
+                    EE
+                </td>
+                <td class="invoice_info_bg">
+                    Item
+                </td>
+                <td class="invoice_info_bg">
+                    Description
+                </td>
+                <td class="invoice_info_bg" style=" text-align: right;width:10%;">
+                    Amount
+                </td>
+            </tr>
+            <?php
+        
+            $nonBillDataFlateFee=[];
+            foreach($valueData['FlatFeeEntryForInvoice'] as $k=>$v){
+                if($v->time_entry_billable=="yes"){
+                    ?>
+                <tr class="invoice_info_row ">
+                    <td class="time-entry-date" style="vertical-align: top;">
+                        {{date('m/d/Y',strtotime($v->entry_date))}}
+                    </td>
+                    <td class="time-entry-ee" style="vertical-align: top;">
+                        {{$v->first_name[0]}}{{$v->last_name[0]}}
+                    </td>
+                    <td class="time-entry-activity" style="vertical-align: top;">
+                        Flat Fee
+                    </td>
+                    <td class="time-entry-description" style="vertical-align: top;">
+                        <p class="invoice_notes">
+                            {{$v->description}}
+                        </p>
+                    </td>
+                    <td style="vertical-align: top; text-align: right;" class="" >
+                        ${{number_format($v->cost,2)}}
+                    </td>
+                    
+                </tr>
+            <?php 
+            $flatFeeEntryAmount+=$v->cost;
+            }else{
+                    $nonBillDataFlateFee[]=$v;
+                }
+            } ?>
+
+            <?php
+            if(!empty($nonBillDataFlateFee)){
+                ?>
+                <tr class="invoice_info_row nonbillable-title">
+                    <td class="invoice_info_bg" colspan="7">
+                    Non-billable Flat Fees:
+                    </td>
+                    </tr>
+                <?php 
+                foreach($nonBillDataFlateFee as $k=>$v){
+                    ?>
+                    <tr class="invoice_info_row ">
+                        <td class="time-entry-date" style="vertical-align: top;">
+                            {{date('m/d/Y',strtotime($v->entry_date))}}
+                        </td>
+                        <td class="time-entry-ee" style="vertical-align: top;">
+                            {{$v->first_name[0]}}{{$v->last_name[0]}}
+                        </td>
+                        <td class="time-entry-activity" style="vertical-align: top;">
+                            Flat Fee
+                        </td>
+                        <td class="time-entry-description" style="vertical-align: top;">
+                            <p class="invoice_notes">
+                                {{$v->description}}
+                            </p>
+                        </td>
+                        <td style="vertical-align: top; text-align: right;" class="nonbillableRow" >
+                            ${{number_format($v->cost,2)}}
+                        </td>
+                        
+                    </tr>
+                    <?php
+                }
+
+            }?>
+            <tr>
+                <td colspan="4" class="total-summary-column" style="text-align:right;">
+                    Flat Fee Total:
+                </td>
+
+                <td class="total-data-column" style="text-align:right;"> ${{number_format($flatFeeEntryAmount,2)}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <br>
+    <?php } ?>  
     <?php
     if(!$valueData['TimeEntryForInvoice']->isEmpty()){?>
     <b>Time Entries</b>
@@ -161,30 +261,19 @@ $finalAmt=$invoice-$paid;
                 </td>
             </tr>
             <?php } ?>
-
-
-        </tbody>
-    </table>
-
-    <table style="width:100%;text-align: left;font-size: 12px;" border="0">
-        <tbody>
             <tr style="padding-left: 4px;">
-
-                <td scope="col" style="width: 80%;text-align: right;">Totals:</td>
+                <td scope="col" colspan="5" style="width: 80%;text-align: right;">Totals:</td>
                 <td scope="col" style="width: 10%;text-align: right;"> <b>{{number_format($timeEntryTime,1)}}</b></td>
                 <td scope="col" style="width: 10%;text-align: right;">
                     <b>${{number_format($timeEntryAmount,2)}}</b>
                 </td>
             </tr>
-
         </tbody>
     </table>
-    <br>
     <?php } ?>
     <?php 
     if(!$valueData['ExpenseForInvoice']->isEmpty()){?>
-    <h3>Expenses</h3>
-
+    <b>Expenses</b>
     <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
         <tbody>
             <tr class="invoice_info_row">
@@ -245,21 +334,49 @@ $finalAmt=$invoice-$paid;
                 </td>
             </tr>
             <?php } ?>
-        </tbody>
-    </table>
-    <table style="width:100%;text-align: left;font-size: 12px;" border="0">
-        <tbody>
             <tr style="padding-left: 4px;">
                 <td scope="col" colspan="6" style="text-align: right;width:90%;" width="90%"> Expense Total:</td>
                 <td scope="col" style="width: 10%;text-align: right;" width="10%">
                     <b> ${{number_format($expenseAmount,2)}}</b>
                 </td>
             </tr>
-
+        </tbody>
+    </table>
+    <?php } ?>
+    @if (count($valueData['Invoice']->forwardedInvoices))
+    <b>Unpaid Invoice Balance Forward</b>
+    <table style="width: 100%; border-collapse: collapse;font-size: 12px;" border="1">
+        <tbody>
+            <tr class="invoice_info_row">
+                <td class="invoice_info_bg">Invoice #</td>
+                <td class="invoice_info_bg">Invoice Total</td>
+                <td class="invoice_info_bg">Amount Paid</td>
+                <td class="invoice_info_bg">Due Date</td>
+                <td class="invoice_info_bg" style=" text-align: right;width:10%;">Balance Forward</td>
+            </tr>
+            @forelse ($valueData['Invoice']->forwardedInvoices as $invkey => $invitem)
+                <tr class="invoice_info_row">
+                    <td>{{ $invitem->invoice_id }}</td>
+                    <td>${{ $invitem->total_amount_new }}</td>
+                    <td>${{ $invitem->paid_amount_new }}</td>
+                    <td>{{ ($invitem->due_date) ? date('m/d/Y', strtotime($invitem->due_date)) : "" }}</td>
+                    <td style="vertical-align: top; text-align: right;">${{ $invitem->due_amount_new }}</td>
+                </tr>
+            @empty                        
+            @endforelse
+            <tr>
+                <td colspan="4" class="total-summary-column" style="text-align: right;">
+                    Balance Forward:
+                </td>
+                @php
+                    $forwardedInvoices = $valueData['Invoice']->forwardedInvoices->sum('due_amount');
+                @endphp
+                <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> ${{ number_format($forwardedInvoices, 2) }}</td>
+            </tr>
         </tbody>
     </table>
     <br>
-    <?php } ?>
+    @endif
     <?php 
     if(!$valueData['InvoiceAdjustment']->isEmpty()){?>
     <h3>Adjustments</h3>
@@ -389,10 +506,17 @@ $finalAmt=$invoice-$paid;
                 </td>
                 <td style="text-align: right; border-right: none; vertical-align: top; width: 140px; line-height: 1.8;"
                     rowspan="1">
+                    <?php if(!$valueData['FlatFeeEntryForInvoice']->isEmpty()){?>
+                    Flat Fee Sub-Total:<br>
+                    <?php } ?>
                     Time Entry Sub-Total:<br>
                     Expense Sub-Total:<br>
                     <span style="font-weight: bold;">Sub-Total:</span><br>
                     <br>
+                    <?php  if (count($valueData['Invoice']->forwardedInvoices)){ ?>
+                    <span>Balance Forward:</span>
+                    <br>
+                    <?php } ?>
                     <?php if($discount!="0"){?>
                     <span>Discounts:</span>
                     <br>
@@ -407,10 +531,18 @@ $finalAmt=$invoice-$paid;
                 </td>
                 <td style="text-align: right; border-left: none; vertical-align: top; width: 85px; line-height: 1.8;"
                     rowspan="1">
+                    <?php if(!$valueData['FlatFeeEntryForInvoice']->isEmpty()){?>
+                    ${{number_format($flatFeeEntryAmount,2)}}<br>
+                    <?php } ?>
                     ${{number_format($timeEntryAmount,2)}}<br>
                     ${{number_format($expenseAmount,2)}}<br>
                     ${{number_format($timeEntryAmount+$expenseAmount,2)}}<br>
                     <br>
+                    <?php  
+                    if (count($valueData['Invoice']->forwardedInvoices)){
+                        $forwardedInvoices = $valueData['Invoice']->forwardedInvoices->sum('due_amount'); ?>
+                        ${{ number_format($forwardedInvoices,2) }} <br>
+                    <?php } ?>
 
                     <?php if($discount!="0"){?>
                     ${{number_format($discount,2)}}<br>
@@ -420,8 +552,8 @@ $finalAmt=$invoice-$paid;
                     ${{number_format($addition,2)}}<br>
                     <?php } ?>
                     <br>
-                    ${{number_format($timeEntryAmount+$expenseAmount-$discount+$addition,2)}}<br>
-                    $0.00
+                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition+$forwardedInvoices,2)}}<br>
+                    ${{number_format($valueData['Invoice']['paid_amount'],2)}}
                 </td>
             </tr>
 
@@ -439,7 +571,7 @@ $finalAmt=$invoice-$paid;
                 </td>
                 <td class="invoice_info_bg" id="invoice-balance-due"
                     style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
-                    ${{number_format($timeEntryAmount+$expenseAmount-$discount+$addition,2)}}
+                    ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$valueData['Invoice']['paid_amount']),2)}}
                 </td>
             </tr>
 

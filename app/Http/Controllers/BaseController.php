@@ -112,7 +112,7 @@ class BaseController extends Controller
     public function caseActivity($data){
         $CaseActivity = new CaseActivity;
         $CaseActivity->case_id=$data['case_id'];
-        $CaseActivity->activity_title=$data['activity_title'];
+        $CaseActivity->activity_title=$data['activity_title']??NULL;
         $CaseActivity->activity_type=($data['activity_type'])??NULL;
         $CaseActivity->extra_notes=($data['extra_notes'])??NULL;
         $CaseActivity->staff_id=($data['staff_id'])??NULL;

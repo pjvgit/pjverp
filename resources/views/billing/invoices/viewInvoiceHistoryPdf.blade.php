@@ -30,8 +30,10 @@
 
 </head>
 <?php
-$paid=$Invoice['amount_paid'];
-$invoice=$Invoice['invoice_amount'];
+// $paid=$Invoice['amount_paid'];
+// $invoice=$Invoice['invoice_amount'];
+$invoice=$Invoice['total_amount'];
+$paid=$Invoice['paid_amount'];
 $finalAmt=$invoice-$paid;
 ?>
 
@@ -59,6 +61,8 @@ $finalAmt=$invoice-$paid;
                         {{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
                         {{ucfirst(substr($userData['last_name'],0,50))}}</b>
+                        <br>
+                        {!! nl2br($Invoice->bill_address_text) !!}
                 </td>
                 <td style="width: 40%;">
 
@@ -117,7 +121,7 @@ $finalAmt=$invoice-$paid;
     <table style="width:50%;text-align: left;font-size: 16px;" border="0">
         <tbody>
             <tr>
-                <td scope="col" style="width: 10%;text-align:left;"><b>Date:</b> {{$InvoiceHistory['created_at']}} UTC
+                <td scope="col" style="width: 10%;text-align:left;"><b>Date:</b> {{convertUTCToUserTime($InvoiceHistory['created_at'], auth()->user()->user_timezone)}} UTC
                 </td>
             </tr>
             <tr>
@@ -130,7 +134,7 @@ $finalAmt=$invoice-$paid;
                         Type:</b>{{$InvoiceHistory['pay_method']}}</td>
             </tr>
             <tr>
-                <td scope="col" style="width: 10%;text-align:left;"><b>Payment Identifier:</b>-</td>
+                <td scope="col" style="width: 10%;text-align:left;"><b>Payment Identifier:</b> {{$InvoiceHistory['id']}}</td>
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Entered By:</b>
@@ -144,19 +148,19 @@ $finalAmt=$invoice-$paid;
     <table style="width:50%;text-align: left;font-size: 16px;" border="0">
         <tbody>
             <tr>
-                <td scope="col" style="width: 10%;text-align:left;"><b>Date:</b> {{$InvoiceHistory['created_at']}} UTC
+                <td scope="col" style="width: 10%;text-align:left;"><b>Date:</b> {{convertUTCToUserTime($InvoiceHistory['created_at'], auth()->user()->user_timezone)}} UTC
                 </td>
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Refund:</b>:
-                    ${{number_format($InvoiceHistory['amount'],2)}} on Invoice
+                    ${{number_format($InvoiceHistory['amount'],2)}} on Invoice #{{sprintf('%06d', $InvoiceHistory['invoice_id'])}}
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Payment
                         Type:</b>{{$InvoiceHistory['pay_method']}}</td>
             </tr>
             <tr>
-                <td scope="col" style="width: 10%;text-align:left;"><b>Payment Identifier:</b>-</td>
+                <td scope="col" style="width: 10%;text-align:left;"><b>Payment Identifier:</b> {{$InvoiceHistory['id']}}</td>
             </tr>
             <tr>
                 <td scope="col" style="width: 10%;text-align:left;"><b>Entered By:</b>

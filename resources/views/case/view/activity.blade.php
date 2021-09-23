@@ -12,10 +12,14 @@
                 <div class="card-body"> 
                     <div class="mb-1">
                         <a href="{{ route('contacts/attorneys/info', base64_encode($v['created_id'])) }}"> {{$v['created_by']}} </a>
-                        <strong class="mr-1">{{$v['title']}} </strong> 
+                        <strong class="mr-1">{{$v['title']}}</strong> 
                         @if($v['staff_id'] != '')
-                        <a href="{{ route('contacts/clients/view', $v['staff_id']) }}"> {{$v['staff_name']}} </a>
-                        @else
+                            @if($v['activity_type'] == 'refund_payment' || $v['activity_type'] == 'accept_payment')
+                                <a href="{{ route('bills/invoices/view', base64_encode($v['extra_notes']) ) }}">#{{ sprintf('%06d', $v['extra_notes'])}} </a>
+                            @else
+                                <a href="{{ route('contacts/clients/view', $v['staff_id']) }}"> {{$v['staff_name']}} </a>
+                            @endif
+                        @else                            
                             @if($v['extra_notes'] != '')
                                 {{ $v['extra_notes']}}
                             @else

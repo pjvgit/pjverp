@@ -64,7 +64,7 @@ class UsersAdditionalInfo extends Authenticatable
      */
     public function getUnallocateTrustBalanceAttribute()
     {
-        return number_format(($this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance')), 2);
+        return  $this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance');
     }
 
     /**

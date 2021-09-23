@@ -980,6 +980,7 @@ class CaseController extends BaseController
                     $mainArray[$k]['staff_id']=$vv->staff_id;
                     $mainArray[$k]['staff_name']=(isset($staffUSer->first_name)) ?  $staffUSer->first_name.' '.$staffUSer->last_name:  '';
                     $mainArray[$k]['extra_notes']=$vv->extra_notes;
+                    $mainArray[$k]['activity_type']=$vv->activity_type;
 
                     $CommonController= new CommonController();
                     $timezone=Auth::User()->user_timezone;

@@ -7,9 +7,10 @@
                     $imageLink["update"]="activity_bill_updated.png";
                     $imageLink["delete"]="activity_bill_deleted.png";
                     $imageLink["pay"]="activity_bill_paid.png";
+                    $imageLink["refund"]="activity_bill_refunded.png";
                     $image=$imageLink[$v->action];
                     
-                    if(in_array($v->action,["add","update","delete","pay"])){ ?>
+                    if(in_array($v->action,["add","update","delete","pay","refund"])){ ?>
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}}  for invoice
                     @if ($v->deleteInvoice == NULL)

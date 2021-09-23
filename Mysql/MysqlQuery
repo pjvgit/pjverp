@@ -1,3 +1,7 @@
+------------------------------------ 23-SEP-2021 ------------------------------
+ALTER TABLE `all_history`
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
+
 ------------------------------------ 21-SEP-2021 ------------------------------
 ALTER TABLE `case_client_selection` ADD `allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `billing_amount`;
 ALTER TABLE `case_master` ADD `total_allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `firm_id`;

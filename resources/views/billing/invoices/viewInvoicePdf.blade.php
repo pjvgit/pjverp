@@ -703,7 +703,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             </td>
             <td class="invoice_info_bg" id="invoice-balance-due"
                 style="text-align: right; border-left: none; vertical-align: top; font-weight: bold; ">
-                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount-$discount+$addition+$forwardedInvoices,2)}}
+                ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$Invoice['paid_amount']),2)}}
             </td>
         </tr>
 
