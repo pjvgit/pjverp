@@ -15,7 +15,7 @@
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
                         @if($findInvoice->status != "Forwarded" && $findInvoice->status != "Paid")
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
-                          <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->invoice_unique_token}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
+                          <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->id}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
                         @endif
                         @if($findInvoice->status != "Forwarded")
@@ -292,7 +292,7 @@
 <?php } ?>
 
 
-<div id="payInvoice" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<!-- <div id="payInvoice" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -309,11 +309,11 @@
                         <div id="payInvoiceArea">
                         </div>
                     </div>
-                </div><!-- end of main-content -->
+                </div>
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -784,21 +784,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
         })
     }
-    function payinvoice(id) {
-        $("#preloader").show();
-        $("#payInvoiceArea").html('');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url:  baseUrl +"/bills/invoices/payInvoice", // json datasource
-                data: {'id':id},
-                success: function (res) {
-                    $("#payInvoiceArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
+    // function payinvoice(id) {
+    //     $("#preloader").show();
+    //     $("#payInvoiceArea").html('');
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             url:  baseUrl +"/bills/invoices/payInvoice", // json datasource
+    //             data: {'id':id},
+    //             success: function (res) {
+    //                 $("#payInvoiceArea").html(res);
+    //                 $("#preloader").hide();
+    //             }
+    //         })
+    //     })
+    // }
 
     function RefundPopup(id) {
         $("#preloader").show();

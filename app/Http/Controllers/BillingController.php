@@ -1428,12 +1428,10 @@ class BillingController extends BaseController
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
-
-
+                $contactInfo = User::find($invoiceData['user_id']);
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level","users_additional_info.trust_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
       
-
-                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts'));
+                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts','contactInfo'));
                 exit;    
             }else{
                 return response()->json(['errors'=>'error']);
@@ -4663,16 +4661,55 @@ class BillingController extends BaseController
             if(!empty($error)){
                 return response()->json(['errors'=>$error]);
             }
-            $FindInvoice=Invoices::find($request->invoice_id);
-            if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
-                $FindInvoice->status="Sent";
-                $FindInvoice->bill_sent_status="Sent";
-                $FindInvoice->save();
+            $Invoice=Invoices::find($request->invoice_id);
+            if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
+                $Invoice->status="Sent";
+                $Invoice->bill_sent_status="Sent";
+                $Invoice->save();
             }
-            if($FindInvoice) {
-                $FindInvoice->fill(['is_sent' => 'yes'])->save();
+            if($Invoice) {
+                $Invoice->fill(['is_sent' => 'yes'])->save();
             }
-            $invoice_id=$request->invoice_id;
+            // re-generate pdf file with updated info
+            $invoice_id= $request->invoice_id;
+            
+            $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
+            
+            $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
+            $UsersAdditionalInfo = $UsersAdditionalInfo->leftJoin('countries','users.country','=','countries.id');
+            $UsersAdditionalInfo = $UsersAdditionalInfo->select("users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),DB::raw('CONCAT_WS(",",users_additional_info.address2,users.apt_unit,users.city,users.state,users.postal_code) as full_address'),"users_additional_info.*","users.state","countries.name as county_name")
+            ->where("user_id",$Invoice['user_id'])
+            ->first();
+    
+            $caseMaster=CaseMaster::find($Invoice['case_id']);
+            //Getting firm related data
+            $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
+            
+    
+            $TimeEntryForInvoice = TimeEntryForInvoice::join("task_time_entry",'task_time_entry.id',"=","time_entry_for_invoice.time_entry_id")->leftJoin("users","task_time_entry.user_id","=","users.id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select('users.*','task_time_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")->where("time_entry_for_invoice.invoice_id",$invoice_id)->get();
+    
+            $ExpenseForInvoice = ExpenseForInvoice::leftJoin("expense_entry",'expense_entry.id',"=","expense_for_invoice.expense_entry_id")->leftJoin("users","expense_entry.user_id","=","users.id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select('users.*','expense_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")->where("expense_for_invoice.invoice_id",$invoice_id)->get();
+            $firmData=Firm::find($userData['firm_name']);
+    
+            //Get the Adjustment list
+            $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
+    
+            $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
+    
+            $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+    
+            //Get the flat fee Entry list
+            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
+            ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
+            ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+            ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
+            ->get();
+            
+            $filename="Invoice_".$invoice_id.'.pdf';
+            $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
+            $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+            // end
             foreach($request->client as $k=>$v){
                 $findUSer=User::find($v);
                 if($findUSer['email'] == '' || $findUSer['email'] == NULL){
@@ -4704,7 +4741,6 @@ class BillingController extends BaseController
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
-                dd($files);
                 $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
@@ -5302,7 +5338,7 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $invoice_id=$request->id;
-            $invoiceData=Invoices::where("invoice_unique_token",$invoice_id)->first();
+            $invoiceData=Invoices::where("id",$invoice_id)->first();
             if(!empty($invoiceData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
@@ -5491,7 +5527,7 @@ class BillingController extends BaseController
         }
     }
 
-    public function saveInvoicePaymentWithHistory(Request $request)
+    public function saveInvoicePaymentWithHistory_old(Request $request)
     {
         $invoiceId=Invoices::where("invoice_unique_token",$request->invoice_id)->first();
         $request['amount']=str_replace(",","",$request->amount);
@@ -9157,10 +9193,10 @@ class BillingController extends BaseController
      */
     public function saveInvoicePaymentFromCredit(Request $request)
     {
-        $invoiceId=Invoices::where("invoice_unique_token",$request->invoice_id)->first();
+        // $invoiceId=Invoices::where("invoice_unique_token",$request->invoice_id)->first();
 
         $request['amount']=str_replace(",","",$request->amount);
-        $InvoiceData=Invoices::find($invoiceId['id']);
+        $InvoiceData=Invoices::find($request->invoice_id);
         $finalAmt = $InvoiceData['total_amount'] - $InvoiceData['paid_amount'];
 
         $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"credit_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$InvoiceData['user_id'])->first();

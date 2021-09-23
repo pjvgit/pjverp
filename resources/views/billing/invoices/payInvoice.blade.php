@@ -4,6 +4,7 @@ $paid=$invoiceData['paid_amount'];
 $invoice=$invoiceData['total_amount'];
 $finalAmt=$invoice-$paid;
 ?>
+<div class="blade" bladefile="resources/views/billing/invoices/payInvoice.blade.php"></div>
 <div class="row">
     <div class="col-md-6 selenium-invoice-number">Invoice Number: #{{sprintf("%05d", $invoiceData['id'])}}</div>
     <div class="col-md-4 text-right">Invoice Amount:</div>
@@ -149,10 +150,15 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Notes</label>
                     <input class="form-control" value="" id="notes" name="notes" type="text">
                 </div>
-            </div>
-
-            <div class="row">
-                
+                <div class="col-md-6 form-group">
+                    <label for="contact-field">Choose contact</label>
+                    <select class="form-control caller_name" id="contact_id" name="contact_id" style="width: 100%;"
+                        placeholder="Select a contact">
+                        <option></option>
+                        <option value="{{$invoiceData->user_id}}">{{$contactInfo->fullname}}</option>
+                    </select>  
+                    <span id="contactin"></span>
+                </div>                
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Deposit Into </label>
                     <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;"
@@ -256,7 +262,7 @@ $finalAmt=$invoice-$paid;
     <div class="tab-pane fade" id="fromCreditccount" role="tabpanel" aria-labelledby="credit-account-tab">
         <form class="PayInvoiceFromCreditForm" id="PayInvoiceFromCreditForm" name="PayInvoiceFromCreditForm" method="POST">
             @csrf
-            <input type="hidden" id="invoice_id" value="{{$invoiceData->invoice_unique_token}}" name="invoice_id">
+            <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Select User Account</label>
@@ -337,6 +343,11 @@ $finalAmt=$invoice-$paid;
             theme: "classic",
 
         });
+        $("#contact_id").select2({
+            placeholder: "Select contact",
+            theme: "classic",
+
+        });
         $("#deposit_into").select2({
             placeholder: "Select a bank account",
             theme: "classic",
@@ -359,6 +370,9 @@ $finalAmt=$invoice-$paid;
                     // max:{{$finalAmt}}
                     validAmount: true,
                 },
+                contact_id: {
+                    required: true,
+                },
                 deposit_into: {
                     required: true,
                 },
@@ -374,6 +388,9 @@ $finalAmt=$invoice-$paid;
                     required: "Amount is required",
                     // max:"Amount exceeds requested balance of ${{number_format($finalAmt,2)}}" 
                 },
+                contact_id: {
+                    required: "Contact is required",
+                },
                 deposit_into: {
                     required: "Deposit Account is required",
                 },
@@ -386,7 +403,8 @@ $finalAmt=$invoice-$paid;
                     error.appendTo('#ptype');
                 } else if (element.is('.amountFirst')) {
                     error.appendTo('#amt');
-                    depositin
+                } else if (element.is('#contact_id')) {
+                    error.appendTo('#contactin');    
                 } else if (element.is('#deposit_into')) {
                     error.appendTo('#depositin');
                 } else if (element.is('#trust_account')) {
@@ -463,6 +481,7 @@ $finalAmt=$invoice-$paid;
     }
 
     function didPayment() {
+        console.log("Payinvoice > didPayment > submit form");
         var amtVal= $('#amountFirst').val();
         var currentAmt = $.number(amtVal,2);
         swal({

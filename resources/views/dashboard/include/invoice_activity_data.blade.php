@@ -9,9 +9,9 @@
                     $imageLink["pay"]="activity_bill_paid.png";
                     $image=$imageLink[$v->action];
                     
-                    if(in_array($v->action,["add","update","delete"])){ ?>
+                    if(in_array($v->action,["add","update","delete","pay"])){ ?>
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}}  for invoice
                     @if ($v->deleteInvoice == NULL)
                         <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
                     @else

@@ -1024,7 +1024,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('bills/invoices/resendUpdatedInvoice', 'BillingController@resendUpdatedInvoice')->name('bills/invoices/resendUpdatedInvoice');
     Route::post('bills/invoices/payInvoice', 'BillingController@payInvoice')->name('bills/invoices/payInvoice');
     Route::post('bills/invoices/saveTrustInvoicePaymentWithHistory', 'BillingController@saveTrustInvoicePaymentWithHistory')->name('bills/invoices/saveTrustInvoicePaymentWithHistory');
-    Route::post('bills/invoices/saveInvoicePaymentWithHistory', 'BillingController@saveInvoicePaymentWithHistory')->name('bills/invoices/saveInvoicePaymentWithHistory');
+    // Route::post('bills/invoices/saveInvoicePaymentWithHistory', 'BillingController@saveInvoicePaymentWithHistory')->name('bills/invoices/saveInvoicePaymentWithHistory');
     Route::post('bills/invoices/refundPopup', 'BillingController@refundPopup')->name('bills/invoices/refundPopup');
     Route::post('bills/invoices/saveRefundPopup', 'BillingController@saveRefundPopup')->name('bills/invoices/saveRefundPopup');
     Route::post('bills/invoices/deletePaymentEntry', 'BillingController@deletePaymentEntry')->name('bills/invoices/deletePaymentEntry');

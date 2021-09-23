@@ -4,6 +4,7 @@ $paid=$invoiceData['paid_amount'];
 $invoice=$invoiceData['total_amount'];
 $finalAmt=$invoice-$paid;
 ?>
+<div class="blade" bladefile="resources/views/billing/invoices/recordPaymentInvoice.blade.php"></div>
 <div class="row">
     <div class="col-md-6 selenium-invoice-number">Invoice Number: #{{sprintf("%05d", $invoiceData['id'])}}</div>
     <div class="col-md-4 text-right">Invoice Amount:</div>

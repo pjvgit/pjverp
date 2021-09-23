@@ -511,7 +511,7 @@
 <?php } ?>
 
 
-<div id="payInvoice" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<!-- <div id="payInvoice" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -528,11 +528,11 @@
                         <div id="payInvoiceArea">
                         </div>
                     </div>
-                </div><!-- end of main-content -->
+                </div>
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -1041,21 +1041,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
         })
     }
-    function payinvoice(id) {
-        $("#preloader").show();
-        $("#payInvoiceArea").html('');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url:  baseUrl +"/bills/invoices/payInvoice", // json datasource
-                data: {'id':id},
-                success: function (res) {
-                    $("#payInvoiceArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
+    // function payinvoice(id) {
+    //     $("#preloader").show();
+    //     $("#payInvoiceArea").html('');
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             url:  baseUrl +"/bills/invoices/payInvoice", // json datasource
+    //             data: {'id':id},
+    //             success: function (res) {
+    //                 $("#payInvoiceArea").html(res);
+    //                 $("#preloader").hide();
+    //             }
+    //         })
+    //     })
+    // }
 
     function RefundPopup(id) {
         $("#preloader").show();

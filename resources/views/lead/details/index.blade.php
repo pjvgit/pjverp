@@ -238,11 +238,11 @@ if(isset($_GET['type'])){
                                     href="{{URL::to('leads/'.$user_id.'/case_details/intake_forms')}}"><span>
                                         <i class="i-Settings-Window  text-16 mr-1"></i>Intake Forms</span></a>
                             </div>
-                            <div class="nav-item">
+                            <!-- <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="case_details/invoices"){ echo "active"; } ?>" data-page="calendar"
                                     href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}"><span>
                                         <i class="i-Dollar-Sign  text-16 mr-1"></i>Invoices</span></a>
-                            </div>
+                            </div> -->
                         </div>
                         <hr class="mt-2">
                         <?php

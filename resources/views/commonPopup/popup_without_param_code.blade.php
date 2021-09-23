@@ -938,6 +938,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 <script type="text/javascript">
     function payinvoice(id) {
+        console.log("Popup_without_param_code.blade.php > payinvoice for " + id);
         $('.showError').html('');
         beforeLoader();
         $("#preloader").show();
