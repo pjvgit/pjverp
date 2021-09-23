@@ -1,13 +1,14 @@
 function loadDepositIntoCredit(ele) {
     var userId = $(ele).attr("data-auth-user-id");
     var clientId = $(ele).attr("data-client-id");
+    var caseId = $(ele).attr("data-case-id");
     $('.showError').html('');
     $("#loadDepositIntoCreditArea").html('');
     // $("#loadDepositIntoCreditArea").html('<img src="{{LOADER}}"> Loading...');
     $.ajax({
         type: "POST",
         url: baseUrl + "/bills/dashboard/loadDepositIntoCredit",
-        data: {"logged_in_user": userId},
+        data: {"logged_in_user": userId, case_id: caseId},
         success: function (res) {
             if (typeof (res.errors) != "undefined" && res.errors !== null) {
                 $('.showError').html('');

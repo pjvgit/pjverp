@@ -131,7 +131,7 @@
                                             <p class="mb-1" data-testid="allocate-funds-tooltip">Client Trust Balance (Unallocated)
                                                 <span id="unallocated-trust" data-toggle="tooltip" data-html="true" title="<b>Client Trust Balance</b><br>Unallocated Trust Fund Amount that is available for any of client's cases"><i class="fas fa-info-circle ml-1"></i></span>
                                             </p>
-                                            <h4 class="font-weight-bold" id="available-total-unallocatedTrust-balance">${{ $totalUnallocated }}</h4></div>
+                                            <h4 class="font-weight-bold" id="available-total-unallocatedTrust-balance">${{ number_format($totalUnallocated, 2) }}</h4></div>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover">
@@ -164,14 +164,14 @@
                                         </div>
                                         <div class="pl-0 col-3">
                                             <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;" > 
-                                                <button type="button" class="btn btn-primary btn-rounded m-1" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}">Deposit into Credit</button>
+                                                <button type="button" class="btn btn-primary btn-rounded m-1" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}" data-case-id="{{ $CaseMaster->case_id }}">Deposit into Credit</button>
                                             </a>
                                         </div>
                                     </div>
                                     <div class="pl-2 mb-2 row ">
                                         <div class="col-12">
                                             <p class="mb-1">Credit Balance</p>
-                                            <h4 class="font-weight-bold" id="available-total-credit-balance">${{ $totalCreditBalance }}</h4></div>
+                                            <h4 class="font-weight-bold" id="available-total-credit-balance">${{ number_format($totalCreditBalance, 2) }}</h4></div>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover">
@@ -383,7 +383,7 @@
                 @if(!empty(getInvoiceSetting()) && getInvoiceSetting()->is_non_trust_retainers_credit_account == 'yes')
                 <div class="mb-3 card">
                     <div class="card-header">
-                        <h4 class="card-title"><strong>Running Credit Balance</strong></h4></div>
+                        <h4><strong>Running Credit Balance</strong></h4></div>
                     <div class="card-body" style="font-size: 14px;">
                         <div class="table-responsive">
                             <table class="table table-lg table-hover">
@@ -422,7 +422,8 @@
     </div>
 </div>
 
-<div id="depositIntoTrustForCasePoppup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- Made common code for trust deposit --}}
+{{-- <div id="depositIntoTrustForCasePoppup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-lg ">
         <div class="modal-content">
@@ -439,7 +440,9 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
+
+@include('client_dashboard.billing.credit_history_modal')
 
 @include('case.view.timebilling.billingContactPopup')
 

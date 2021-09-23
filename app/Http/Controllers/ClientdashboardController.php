@@ -1024,13 +1024,12 @@ class ClientdashboardController extends BaseController
     public function withdrawFromTrust(Request $request)
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
+        $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->user_id)->first();
         $userCases = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
                         $query->where('users.id', $request->user_id);
                     })->select("id", "case_title", "total_allocated_trust_balance")->get();
 
-        $totalAllocatedBalance = $userCases->sum("total_allocated_trust_balance") ?? 0.00;
-        return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases', 'totalAllocatedBalance'));     
+        return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases'));     
         exit;    
     } 
     public function saveWithdrawFromTrust(Request $request)
@@ -4151,6 +4150,18 @@ class ClientdashboardController extends BaseController
 
         return response()->json(['errors'=>'','url'=>'', 'msg'=>"Your backup is being created. Building File in backgourd..."]);
         exit;        
+    }
+
+    /**
+     * Save minimum trust balance of client cases
+     */
+    public function saveMinTrustBalance(Request $request)
+    {
+        // return $request->all();
+
+        CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->update(["minimum_trust_balance" => $request->min_balance]);
+
+        return response()->json(['errors'=>'', 'msg'=>"Minimum trust balance successfully updated"]);
     }
 }
   

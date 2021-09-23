@@ -11,7 +11,7 @@ class CaseClientSelection extends Model
     public $timestamps = true;
     protected $table = "case_client_selection";
     public $primaryKey = 'id';
-    protected $fillable = [ 'id', 'case_id', 'selected_user','created_by', 'created_at', 'allocated_trust_balance' ];
+    protected $fillable = [ 'id', 'case_id', 'selected_user','created_by', 'created_at', 'allocated_trust_balance', 'minimum_trust_balance' ];
 
     /**
      * Get the user that owns the CaseClientSelection

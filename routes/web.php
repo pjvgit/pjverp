@@ -739,6 +739,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('contacts/clients/{id}/text_messages', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_text_messages');
     Route::get('contacts/clients/{id}/email', 'ClientdashboardController@clientDashboardView')->name('contacts_clients_email');
     Route::get('contacts/clients/{id}/billing/credit/history', 'ClientdashboardController@clientDashboardView')->name('contacts/clients/billing/credit/history');
+    Route::get('contacts/clients/{id}/billing/trust/allocation', 'ClientdashboardController@clientDashboardView')->name('contacts/clients/billing/trust/allocation');
 
     Route::post('contacts/clients/casesLoad', 'ClientdashboardController@clientCaseList');
     Route::post('contacts/clients/unlinkFromCase', 'ClientdashboardController@unlinkFromCase');
@@ -819,6 +820,9 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
     // For client -> billing invoice
     Route::get('contacts/clients/load/invoices', 'ClientdashboardController@loadInvoices')->name('contacts/clients/load/invoices');
+    
+    // For Client -> Trust allocation
+    Route::post('contacts/clients/save/min/trust/balance', 'ClientdashboardController@saveMinTrustBalance')->name('contacts/clients/save/min/trust/balance');
 
 
     //Company Dashboard

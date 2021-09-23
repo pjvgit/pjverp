@@ -1,3 +1,6 @@
+------------------------------------ 23-SEP-2021 ------------------------------
+ALTER TABLE `case_client_selection` ADD `minimum_trust_balance` float(8,2) NOT NULL DEFAULT '0.00' AFTER `allocated_trust_balance`;
+
 ------------------------------------ 21-SEP-2021 ------------------------------
 ALTER TABLE `case_client_selection` ADD `allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `billing_amount`;
 ALTER TABLE `case_master` ADD `total_allocated_trust_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `firm_id`;

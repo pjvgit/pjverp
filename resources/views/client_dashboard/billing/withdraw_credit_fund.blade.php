@@ -13,7 +13,7 @@
                             <div class="input-group">
                                 <select class="form-control caller_name select2" id="credit_account" name="credit_account" style="width: 100%;" placeholder="Select user's account...">
                             <option></option>
-                            <option>Credit Account (${{number_format($UsersAdditionalInfo->credit_account_balance,2)}})</option>
+                            <option data-amount={{ $UsersAdditionalInfo->credit_account_balance }}>Credit Account (${{number_format($UsersAdditionalInfo->credit_account_balance,2)}})</option>
                         </select>
                             </div>
                         </div>
@@ -98,6 +98,10 @@
             theme: "classic",
 
         });
+
+        $("#credit_account").on("change", function() {
+            $("#amount").attr("data-max-amount", $('#credit_account :selected').attr("data-amount"));
+        });
         
         afterLoader();
         $("#addWithdrawForm").validate({
@@ -107,6 +111,7 @@
                 },
                 amount: {
                     required: true,
+                    maxamount: true,
                 }
             },
             messages: {

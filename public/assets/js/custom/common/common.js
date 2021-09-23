@@ -94,3 +94,18 @@ $(document).on("click", "#popup_close_btn", function() {
     $.cookie('is_popup_dismissed', 'yes', { expires: date });
     $("#notification_popup").modal('hide');
 })
+
+$(document).ready(function() {
+    // Max amount validation rule
+    jQuery.validator.addMethod("maxamount", function(value, element, params){
+        value = value.replace(',', '');
+        params = $(element).attr("data-max-amount");
+        if (parseFloat(value) > parseFloat(params)) {
+            return false;  // FAIL validation when matches
+        } else {
+            return true;   // PASS validation otherwise
+        };
+    }, function(params, element) {
+        return 'Please enter a value less than or equal to ' + $(element).attr("data-max-amount");
+    });
+});

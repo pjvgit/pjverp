@@ -19,7 +19,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <span id="response"></span>
             @csrf
             <input type="hidden" id="trust_account_id" name="non_trust_account" value="{{$userData['uid']}}">
-            @if($fundRequestList)
+            @if(!empty($fundRequestList) && count($fundRequestList))
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Apply to Request</label>
