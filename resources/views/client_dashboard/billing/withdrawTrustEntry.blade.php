@@ -11,11 +11,19 @@
                     <div>
                         <div class="">
                             <div class="input-group">
-                                <select class="form-control caller_name select2" id="trust_account" name="trust_account"
-                            style="width: 100%;" placeholder="Select user's account...">
-                            <option></option>
-                            <option>Trust Account (${{number_format($UsersAdditionalInfo->trust_account_balance,2)}})</option>
-                        </select>
+                                <select class="form-control caller_name select2" id="trust_account" name="trust_account" style="width: 100%;" placeholder="Select user's account...">
+                                    <option></option>
+                                    <optgroup label="Withdraw from a case">
+                                        @forelse ($userCases as $item)
+                                            <option value="{{ $item->id }}" data-amount={{ $item->total_allocated_trust_balance }}>{{ ucfirst($item->case_title) }} (Balance ${{ number_format($item->total_allocated_trust_balance, 2) }})
+                                        @empty
+                                        @endforelse
+                                    </optgroup>
+                                    <optgroup label="Withdraw from unallocated">
+                                        <option>Trust Account (Balance ${{number_format(($UsersAdditionalInfo->trust_account_balance - $totalAllocatedBalance),2)}})</option>
+                                    </optgroup>
+                                </select>
+                                <input type="hidden" name="case_id" id="case_id" >
                             </div>
                         </div>
                     </div>
@@ -46,7 +54,7 @@
                                     <span class="input-group-text">$</span>
                                 </div>
                                 <input class="form-control number" style="width:50%; " maxlength="20" name="amount" id="amount"
-                                    value="" type="text" aria-label="Amount (to the nearest dollar)">
+                                    value="" type="text" aria-label="Amount (to the nearest dollar)" min="1">
                                 <small>&nbsp;</small>
                                 <div class="input-group col-sm-9" id="TypeError"></div>
                                 <span id="amt"></span>
@@ -125,6 +133,16 @@
             placeholder: "Select a bank account",
             theme: "classic",
 
+        });
+
+        $("#trust_account").on("change", function() {
+            var label=$('#trust_account :selected').parent().attr('label');
+            if(label == "Withdraw from a case") {
+                $("#case_id").val($(this).val());
+                $("#amount").attr("max", $('#trust_account :selected').attr("data-amount"));
+            } else {
+                $("#case_id").val("");
+            }
         });
         
         afterLoader();

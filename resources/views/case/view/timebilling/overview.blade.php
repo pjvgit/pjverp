@@ -68,7 +68,138 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="mt-3 card">
+                    <div class="card-header">
+                        <h4><strong>Trust and Credit Balances</strong></h4></div>
+                        <div class="card-body">
+                            <div data-testid="case-billing-balances-container">
+                                <div>
+                                    <div class="pl-2 mb-2 row ">
+                                        <div class="col-6">
+                                            <h4 class="mb-1 font-weight-bold">Trust Balances</h4></div>
+                                        <div id="retainer-request-trust-btns" class="pl-0 col-3">
+                                            <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;">
+                                                <button class="btn btn-primary btn-rounded m-1" type="button" id="button" onclick="addRequestFundPopup({{ $CaseMaster->case_id }});">Request Funds</button>
+                                            </a>
+                                        </div>
+                                        <div class="pl-0 col-3">
+                                            <a data-toggle="modal" data-target="#depositIntoTrust" data-placement="bottom" href="javascript:;" onclick="depositIntoTrust(null, {{ $CaseMaster->case_id }});"> 
+                                                <button type="button" class="btn btn-primary btn-rounded m-1">Deposit Into Trust</button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="pl-2 mb-2 row ">
+                                        <div class="col-12">
+                                            <p class="mb-1 allocated" data-testid="allocate-funds-tooltip">Case Trust Balance (Allocated)
+                                                <span id="allocated-trust" data-toggle="tooltip" data-html="true" title="<b>Case Trust Balance</b><br>Allocated Trust Fund Amount that is exclusively for this case"><i class="fas fa-info-circle ml-1"></i></span>
+                                            </p>
+                                            <h4 class="font-weight-bold" id="available-total-allocatedTrust-balance">${{ number_format($CaseMaster->total_allocated_trust_balance, 2) }}</h4></div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <tbody>
+                                                @forelse ($caseClients as $item)
+                                                <tr>
+                                                    <td class="pl-1" style="width: 33%;">
+                                                        @if($item->user->user_level == 2)
+                                                        <a href="{{ route('contacts/clients/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                        @elseif($item->user->user_level == 4)
+                                                        <a href="{{ route('contacts/companies/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                        @endif
+                                                    </td>
+                                                    <td class="pl-1" style="width: 33%;">${{ number_format($item->allocated_trust_balance, 2) }}</td>
+                                                    <td class="pl-1" style="width: 33%;"></td>
+                                                </tr>    
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="pl-2 mb-2 row ">
+                                        <div class="col-12">
+                                            @php
+                                                $totalUnallocated = 0.00; $totalCreditBalance = 0.00; $availableTrustBalance = 0.00;
+                                                if(!empty($caseClients)) {
+                                                    foreach ($caseClients as $cckey => $ccvalue) {
+                                                        $totalUnallocated = $totalUnallocated + $ccvalue->user->userAdditionalInfo->unallocate_trust_balance ?? 0.00;
+                                                        $totalCreditBalance = $totalCreditBalance + $ccvalue->user->userAdditionalInfo->credit_account_balance ?? 0.00;
+                                                    }
+                                                    $availableTrustBalance = $CaseMaster->total_allocated_trust_balance + $totalUnallocated;
+                                                }
+                                            @endphp                                            
+                                            <p class="mb-1" data-testid="allocate-funds-tooltip">Client Trust Balance (Unallocated)
+                                                <span id="unallocated-trust" data-toggle="tooltip" data-html="true" title="<b>Client Trust Balance</b><br>Unallocated Trust Fund Amount that is available for any of client's cases"><i class="fas fa-info-circle ml-1"></i></span>
+                                            </p>
+                                            <h4 class="font-weight-bold" id="available-total-unallocatedTrust-balance">${{ $totalUnallocated }}</h4></div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <tbody>
+                                                @forelse ($caseClients as $item)
+                                                    <tr>
+                                                        <td class="pl-1" style="width: 33%;">
+                                                            @if($item->user->user_level == 2)
+                                                            <a href="{{ route('contacts/clients/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                            @elseif($item->user->user_level == 4)
+                                                            <a href="{{ route('contacts/companies/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                            @endif
+                                                        </td>
+                                                        <td class="pl-1" style="width: 33%;">${{ $item->user->userAdditionalInfo->unallocate_trust_balance }}</td>
+                                                        <td class="pl-1" style="width: 33%;"></td>
+                                                    </tr>
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @if(!empty(getInvoiceSetting()) && getInvoiceSetting()->is_non_trust_retainers_credit_account == 'yes')
+                                    <div class="pl-2 mb-2 row ">
+                                        <div class="col-6">
+                                            <h4 class="mb-1 font-weight-bold">Credit Balances</h4></div>
+                                        <div id="retainer-request-credit-btns" class="pl-0 col-3">
+                                            <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;">
+                                                <button class="btn btn-primary btn-rounded m-1" type="button" id="button" onclick="addRequestFundPopup({{ $CaseMaster->case_id }});">Request Funds</button>
+                                            </a>
+                                        </div>
+                                        <div class="pl-0 col-3">
+                                            <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;" > 
+                                                <button type="button" class="btn btn-primary btn-rounded m-1" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}">Deposit into Credit</button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="pl-2 mb-2 row ">
+                                        <div class="col-12">
+                                            <p class="mb-1">Credit Balance</p>
+                                            <h4 class="font-weight-bold" id="available-total-credit-balance">${{ $totalCreditBalance }}</h4></div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <tbody>
+                                                @forelse ($caseClients as $item)
+                                                <tr>
+                                                    <td class="pl-1" style="width: 33%;">
+                                                        @if($item->user->user_level == 2)
+                                                        <a href="{{ route('contacts/clients/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                        @elseif($item->user->user_level == 4)
+                                                        <a href="{{ route('contacts/companies/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
+                                                        @endif
+                                                    </td>
+                                                    <td class="pl-1" style="width: 33%;">${{ $item->user->userAdditionalInfo->credit_account_balance }}</td>
+                                                    <td class="pl-1" style="width: 33%;"></td>
+                                                </tr>
+                                                @empty
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                {{-- <div class="mt-3 card">
                     <div class="card-header">
                         <h4><strong>Trust Balances</strong></h4>
                     </div>
@@ -120,7 +251,7 @@
                             </table>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <div class="mt-3 card">
                     <div class="card-header">
                         <h4><strong>Case Billing Information</strong></h4>
@@ -221,7 +352,7 @@
                                     <tr>
                                         <td class="border-top-0">Available Trust Balance</td>
                                         <td id="available-running-total-trust-balance" class="text-right border-top-0">
-                                            ${{number_format($TrustAmt,2)}}</td>
+                                            ${{number_format($availableTrustBalance, 2)}}</td>
                                     </tr>
                                     <tr>
                                         <td class="border-top-0">Un-Invoiced Balance</td>
@@ -234,7 +365,7 @@
                                             </span>
                                         <td class="text-right align-bottom">
                                             <?php
-                                            $currentBalance=$TrustAmt-$totalBills;
+                                            $currentBalance=$availableTrustBalance-$totalBills;
                                             if($currentBalance>0){
                                                 ?> <span class="font-weight-bold h5 text-success">${{number_format($currentBalance,2)}}</span><?php
                                             }else{
@@ -249,6 +380,43 @@
                         </div>
                     </div>
                 </div>
+                @if(!empty(getInvoiceSetting()) && getInvoiceSetting()->is_non_trust_retainers_credit_account == 'yes')
+                <div class="mb-3 card">
+                    <div class="card-header">
+                        <h4 class="card-title"><strong>Running Credit Balance</strong></h4></div>
+                    <div class="card-body" style="font-size: 14px;">
+                        <div class="table-responsive">
+                            <table class="table table-lg table-hover">
+                                <tbody>
+                                    <tr>
+                                        <td class="border-top-0">Available Credit Balance</td>
+                                        <td id="available-running-total-credit-balance" class="border-top-0 text-right">${{ $totalCreditBalance }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border-top-0">Un-Invoiced Balance</td>
+                                        <td class="border-top-0 text-right">-${{ number_format($totalBills, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border-top-0">Running Credit Balance<i id="credit-balance-help" class="question-mark-icon mx-1"></i></td>
+                                        <td class="text-right align-bottom">
+                                            @php
+                                                $currentBalance = $totalCreditBalance - $totalBills;
+                                            @endphp
+                                            <span class="font-weight-bold h5 ">
+                                                @if($currentBalance > 0)
+                                                ${{ number_format($currentBalance, 2) }}
+                                                @else 
+                                                ${{ number_format(abs($currentBalance), 2) }}
+                                                @endif
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -277,10 +445,11 @@
 
 
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $('[data-toggle="tooltip"]').tooltip();
 
-    function depositIntoTrustForCase() {
+    /* function depositIntoTrustForCase() {
         $('.showError').html('');
         $("#preloader").show();
         $("#depositIntoTrustForCaseArea").html('');
@@ -323,7 +492,7 @@
 
             }
         })
-    }
+    } */
     /* function editBillingContactPopup() {
         $('.showError').html('');
         $("#editBillingContactPopupArea").html('');
@@ -363,5 +532,9 @@
             }
         })
     } */
+
+    $('#depositIntoTrustAccount').on('hidden.bs.modal', function () {
+        window.location.reload();
+    });
 </script>
 @stop

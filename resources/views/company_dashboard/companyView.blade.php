@@ -111,7 +111,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Trust Account:</div>
                                     <a id="link_rate19630204" class="default-rate-link btn btn-link pl-0" href="#"
-                                        onclick="return false; return false;">$<?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?>
+                                        onclick="return false; return false;">$<span class="trust-total-balance"><?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?></span>
                                     </a>
                                 </div>
 
@@ -774,7 +774,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 </div>
 
-<div id="depositAmountPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="depositAmountPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -790,9 +790,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="withdrawFromTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="withdrawFromTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -808,10 +808,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
-<div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="RefundPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -827,9 +827,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="deleteEntry" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="deletePaymentEntry" id="deletePaymentEntry" name="deletePaymentEntry" method="POST">
@@ -862,7 +862,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </form>
     </div>
-</div>
+</div> --}}
 
 
 <div id="exportPDFpopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -1833,7 +1833,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td').css('font-size',parseInt('13px'));  
                 }
         });
-        $('#deletePaymentEntry').submit(function (e) {
+        /* $('#deletePaymentEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -1877,7 +1877,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
         $('#exportPDFpopupForm').submit(function (e) {
             
             beforeLoader();
@@ -2291,7 +2291,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     
 
     //Billing Tab @START
-    function loadDepositPopup() {
+    /* function loadDepositPopup() {
         $("#preloader").show();
         $("#depositAmountPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -2305,8 +2305,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function withdrawFromTrust() {
+    } */
+    /* function withdrawFromTrust() {
         $("#preloader").show();
         $("#withdrawFromTrustArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -2320,8 +2320,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function RefundPopup(id) {
+    } */
+    /* function RefundPopup(id) {
         $("#preloader").show();
         $("#RefundPopupArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -2335,11 +2335,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function deleteEntry(id) {
+    } */
+    /* function deleteEntry(id) {
         $("#deleteEntry").modal("show");
         $("#delete_payment_id").val(id);
-    }
+    } */
     function exportPDFpopup() {
         $("#export_trust_start_date").val("");
         $("#export_trust_end_date").val("");

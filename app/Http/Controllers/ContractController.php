@@ -843,7 +843,7 @@ class ContractController extends BaseController
                 $companyUser->first_name=$request->company_name_text; 
                 $companyUser->created_by =Auth::User()->id;
                 $companyUser->user_level="4";
-                $companyUser->user_title="";
+                $companyUser->user_title="Company";
                 $companyUser->parent_user=Auth::User()->id;
                 $companyUser->save();
                 $UsersAdditionalInfo->company_id=$companyUser->id;
@@ -1010,7 +1010,7 @@ class ContractController extends BaseController
                 $companyUser->first_name=$request->company_name_text; 
                 $companyUser->created_by =Auth::User()->id;
                 $companyUser->user_level="4";
-                $companyUser->user_title="";
+                $companyUser->user_title="Company";
                 $companyUser->parent_user =Auth::User()->id;
                 $companyUser->save();
                 $UsersAdditionalInfo->company_id=$companyUser->id;
@@ -1398,7 +1398,7 @@ class ContractController extends BaseController
                 $companyUser->first_name=$request->company_name_text; 
                 $companyUser->created_by =Auth::User()->id;
                 $companyUser->user_level="4";
-                $companyUser->user_title="";
+                $companyUser->user_title="Company";
                 $companyUser->parent_user=Auth::User()->id;
                 $companyUser->firm_name=Auth::User()->firm_name;
                 $companyUser->save();

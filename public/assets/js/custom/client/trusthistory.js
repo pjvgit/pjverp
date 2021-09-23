@@ -71,7 +71,7 @@ $(document).ready(function() {
             if(aData.allocated_to_case_id != null) {
                 var clientLink='<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>';
             } else {
-                var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' (Client)</a>';
+                var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' ('+aData.user_title+')</a>';
             }
             $('td:eq(4)', nRow).html('<div class="text-left">'+clientLink+'</div>');
 
@@ -120,7 +120,10 @@ $(document).ready(function() {
     });
 });
 
-
+/**
+ * Deposit into trust
+ * @param {*} clientId 
+ */
 function depositIntoTrust(clientId = null) {
     $('.showError').html('');
     
@@ -180,3 +183,95 @@ function depositIntoTrust(clientId = null) {
         }
     })
 }
+
+/**
+ * withdraw from trust
+ */
+function withdrawFromTrust() {
+    $("#preloader").show();
+    $("#withdrawFromTrustArea").html('<img src="{{LOADER}}""> Loading...');
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/clients/withdrawFromTrust", 
+            data: {"user_id": $("#user_id").val()},
+            success: function (res) {
+                $("#withdrawFromTrustArea").html(res);
+                $("#preloader").hide();
+            }
+        })
+    })
+}
+
+/**
+ * Refund trust balance
+ * @param {*} id 
+ */
+function RefundPopup(id) {
+    $("#preloader").show();
+    $("#RefundPopupArea").html('<img src="{{LOADER}}""> Loading...');
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/clients/refundPopup", 
+            data: {"user_id": $("#user_id").val(),'transaction_id':id},
+            success: function (res) {
+                $("#RefundPopupArea").html(res);
+                $("#preloader").hide();
+            }
+        })
+    })
+}
+
+// For delete payment entry
+function deleteEntry(id) {
+    $("#deleteEntry").modal("show");
+    $("#delete_payment_id").val(id);
+}
+
+// For delete payment entry
+$('#deletePaymentEntry').submit(function (e) {
+    beforeLoader();
+    e.preventDefault();
+
+    if (!$('#deletePaymentEntry').valid()) {
+        beforeLoader();
+        return false;
+    }
+    var dataString = '';
+    dataString = $("#deletePaymentEntry").serialize();
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "/contacts/clients/deletePaymentEntry", // json datasource
+        data: dataString,
+        beforeSend: function (xhr, settings) {
+            settings.data += '&delete=yes';
+        },
+        success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                $.each(res.errors, function (key, value) {
+                    errotHtml += '<li>' + value + '</li>';
+                });
+                errotHtml += '</ul></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+                return false;
+            } else {
+                window.location.reload();
+            }
+        },
+        error: function (xhr, status, error) {
+        $('.showError').html('');
+        var errotHtml =
+            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+        $('.showError').append(errotHtml);
+        $('.showError').show();
+        afterLoader();
+    }
+    });
+});
