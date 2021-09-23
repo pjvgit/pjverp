@@ -20,7 +20,7 @@
                                         @endforelse
                                     </optgroup>
                                     <optgroup label="Withdraw from unallocated">
-                                        <option>Trust Account (Balance ${{number_format(($UsersAdditionalInfo->trust_account_balance - $totalAllocatedBalance),2)}})</option>
+                                        <option data-amount={{ $UsersAdditionalInfo->unallocate_trust_balance }}>Trust Account (Balance ${{number_format(($UsersAdditionalInfo->unallocate_trust_balance),2)}})</option>
                                     </optgroup>
                                 </select>
                                 <input type="hidden" name="case_id" id="case_id" >
@@ -54,7 +54,7 @@
                                     <span class="input-group-text">$</span>
                                 </div>
                                 <input class="form-control number" style="width:50%; " maxlength="20" name="amount" id="amount"
-                                    value="" type="text" aria-label="Amount (to the nearest dollar)" min="1">
+                                    value="" type="text" aria-label="Amount (to the nearest dollar)">
                                 <small>&nbsp;</small>
                                 <div class="input-group col-sm-9" id="TypeError"></div>
                                 <span id="amt"></span>
@@ -139,10 +139,10 @@
             var label=$('#trust_account :selected').parent().attr('label');
             if(label == "Withdraw from a case") {
                 $("#case_id").val($(this).val());
-                $("#amount").attr("max", $('#trust_account :selected').attr("data-amount"));
             } else {
                 $("#case_id").val("");
             }
+            $("#amount").attr("data-max-amount", $('#trust_account :selected').attr("data-amount"));
         });
         
         afterLoader();
@@ -153,6 +153,7 @@
                 },
                 amount: {
                     required: true,
+                    maxamount: true,
                 }
             },
             messages: {

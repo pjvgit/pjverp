@@ -377,7 +377,7 @@ class CaseMaster extends Authenticatable
     public function caseAllClient()
     {
         return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("users.id", "asc")
-                ->withPivot('allocated_trust_balance')->whereNull('case_client_selection.deleted_at');
+                ->withPivot('allocated_trust_balance', 'minimum_trust_balance')->whereNull('case_client_selection.deleted_at');
     }
 
     /**

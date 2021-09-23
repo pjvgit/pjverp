@@ -290,7 +290,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         </div>
     </div>
 </div> --}}
-<div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-lg ">
         <div class="modal-content">
@@ -307,8 +307,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             </div>
         </div>
     </div>
-</div>
-
+</div> --}}
+@include('client_dashboard.billing.credit_history_modal')
 
 <!-- Modals -->
 <div id="loadAllTimeEntryPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
