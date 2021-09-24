@@ -956,6 +956,7 @@
                                     $addition=0;
                                     $flatFeeAdjustment = $timeEntryAdjustment = $expenseEntryAdjustment = $forwardedInvoicesAdjustment = 0; 
                                     foreach($InvoiceAdjustment as $k=>$v){
+                                        if($v->amount >= 0.01){
                                         switch ($v->applied_to) {
                                             case 'expenses':
                                                 $expenseEntryAdjustment++;
@@ -1065,17 +1066,18 @@
                                                 ?>
                         </td>                        
                         <td> 
-                            <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
+                            <!-- <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
                             <a onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
-                            </span>
+                            </span> -->
                         </td>
                         </tr>
-                        <?php } ?>
+                        <?php } } ?>
                         <input type="hidden" value="{{$flatFeeAdjustment++}}" name="flatFeeAdjustment" id="flatFeeAdjustment">
                         <input type="hidden" value="{{$timeEntryAdjustment++}}" name="timeEntryAdjustment" id="timeEntryAdjustment">
                         <input type="hidden" value="{{$expenseEntryAdjustment++}}" name="expenseEntryAdjustment" id="expenseEntryAdjustment">
                         <input type="hidden" value="{{$forwardedInvoicesAdjustment++}}" name="forwardedInvoicesAdjustment" id="forwardedInvoicesAdjustment">
                         <input type="hidden" value="edit" name="invoice_type" id="invoice_type">
+                        <input type="hidden" value="{{ $findInvoice->paid_amount }}" name="paid_amount" id="paid_amount">
                         <tr class="footer">
                             <td colspan="4">
                                 <div class="locked">
@@ -1251,7 +1253,15 @@
                                         &nbsp;
                                     </td>
                                 </tr>
-
+                                
+                                <tr class="footer no-border totals " id="invoiceRestrict">
+                                    <td colspan="4" style="text-align: right; font-weight: bold;">
+                                    <div style="display: none;">
+                                    <input type="text" value="" name="final_total_amount" id="final_total_amount">
+                                    </div>
+                                        <span id="2ErrorFinal_total_text"></span>
+                                    </td>
+                                </tr>
                                 @error('final_total_text')
                                 <tr class="footer no-border totals">
                                     <td colspan="4"  style="text-align: right;">
@@ -1874,7 +1884,7 @@
                         </div>
                         &nbsp;
                             <!-- <button class="btn btn-secondary btn-rounded  m-1" type="button" data-dismiss="modal">Cancel</button> -->
-                            <a data-toggle="modal"  data-target="#cancelEdit" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-secondary btn-rounded  m-1" >Cancel</a>
+                            <!-- <a data-toggle="modal"  data-target="#cancelEdit" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-secondary btn-rounded  m-1" >Cancel</a> -->
                         </a>
                         <button type="submit" id="SaveInvoiceButton" name="saveinvoice" class="btn btn-primary btn-rounded submit submitbutton">Save Invoice</button></div>
                   
@@ -2957,13 +2967,17 @@
             $("#innerLoader").show();
         });
         $("#saveInvoiceForm").validate({
+            ignore: [],
             rules: {
                 contact: {
                     required: true
                 },
                 court_case_id: {
                     required: true
-                }             
+                },
+                final_total_amount: {
+                    min : {{ $findInvoice->paid_amount ?? 0 }}
+                }
             },
             messages: {
                 contact: {
@@ -2971,6 +2985,9 @@
                 },
                 court_case_id: {
                     required: "Please select a client"
+                },
+                final_total_amount: {
+                    min: "You cannot lower the amount of this invoice below ${{ $findInvoice->paid_amount }} </br> because payments have already been received for that amount."
                 }
             },
             errorPlacement: function (error, element) {
@@ -2978,6 +2995,8 @@
                     error.appendTo('#1Error');
                 } else if (element.is('#court_case_id')) {
                     error.appendTo('#2Error');
+                } else if (element.is('#final_total_amount')) {
+                    error.appendTo('#2ErrorFinal_total_text');
                 } else {
                     element.after(error);
                 }
@@ -3503,6 +3522,9 @@
         if(final_total <= 0 ){
             final_total=0;
         }
+        console.log("final_total = " + final_total);  
+        console.log("paid_amount = " + $("#paid_amount").val());
+        
         $(".sub_total_amount").html(subtotal);
         $("#sub_total_text").val(subtotal);
         $('.sub_total_amount').number(true, 2);
@@ -3512,13 +3534,12 @@
         $('.invoice_total').number(true, 2);
         
         $("#final_total_text").val(final_total);
+        $("#final_total_amount").val(final_total);        
         $(".final_total").html(final_total);
         $('.final_total').number(true, 2);
 
         $("#payment_plan_balance").html(final_total);
         $('#payment_plan_balance').number(true, 2);
-
-
     }
 
     function addSingleTimeEntry() {
@@ -4286,6 +4307,18 @@
         
         // $(".total-to-apply").text('$'+totalAppliedAmt.toFixed(2));
     });
+
+function invoiceRestrict(){
+    var paid_amount = $("#paid_amount").val();
+    var final_total = $("#final_total_text").val();
+    
+    if(parseFloat(final_total) <= parseFloat(paid_amount)){
+        // alert("You cannot lower the amount of this invoice below "+$("#paid_amount").val()+" because payments have already been received for that amount.");
+        return false;
+    }else{
+        return true;
+    }   
+}
 </script>
 @stop
 @endsection

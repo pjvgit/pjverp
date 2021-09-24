@@ -960,6 +960,7 @@ if(!isset($addition)){ $addition=0;}
                                     $addition=0;
                                     $flatFeeAdjustment = $timeEntryAdjustment = $expenseEntryAdjustment = $forwardedInvoicesAdjustment = 0; 
                                     foreach($InvoiceAdjustment as $k=>$v){
+                                        if($v->amount >= 0.01){
                                         switch ($v->applied_to) {
                                             case 'expenses':
                                                 $expenseEntryAdjustment++;
@@ -1077,7 +1078,7 @@ if(!isset($addition)){ $addition=0;}
                             </span>
                         </td>
                         </tr>
-                        <?php } ?>
+                        <?php } }?>
                         <input type="hidden" value="{{$flatFeeAdjustment++}}" name="flatFeeAdjustment" id="flatFeeAdjustment">
                         <input type="hidden" value="{{$timeEntryAdjustment++}}" name="timeEntryAdjustment" id="timeEntryAdjustment">
                         <input type="hidden" value="{{$expenseEntryAdjustment++}}" name="expenseEntryAdjustment" id="expenseEntryAdjustment">

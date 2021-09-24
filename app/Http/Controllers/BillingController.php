@@ -1434,7 +1434,6 @@ class BillingController extends BaseController
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
                 $contactInfo = User::find($invoiceData['user_id']);
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level","users_additional_info.trust_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
-      
                 return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts','contactInfo'));
                 exit;    
             }else{
@@ -3793,7 +3792,7 @@ class BillingController extends BaseController
                         'trust_history_last_id' => @$trustHistoryLast->id,
                         'total_balance' => @$trustHistoryLast->current_trust_balance
                     ]);
-                    if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
+                    if(!empty($item) && array_key_exists("applied_amount", (array) $item) && @$item['applied_amount'] != "") {
                         $authUser = auth()->user();
                         //Insert invoice payment record.
                         $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
@@ -3807,7 +3806,7 @@ class BillingController extends BaseController
                             'notes' => $request->notes,
                             'status' => "0",
                             'entry_type' => "0",
-                            'payment_from_id' => $item['client_id'],
+                            'payment_from_id' => @$item['client_id'],
                             'deposit_into' => "Operating Account",
                             'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
                             'firm_id' => $authUser->firm_name,
@@ -3819,18 +3818,18 @@ class BillingController extends BaseController
                         $this->updateInvoiceAmount($InvoiceSave->id);
 
                         // Deduct amount from trust account after payment.
-                        $userAddInfo = UsersAdditionalInfo::where("user_id", $item['client_id'])->first();
+                        $userAddInfo = UsersAdditionalInfo::where("user_id", @$item['client_id'])->first();
                         if($userAddInfo) {
                             $userAddInfo->fill([
-                                'trust_account_balance' => ($userAddInfo->trust_account_balance) ? $userAddInfo->trust_account_balance - $item['applied_amount'] ?? 00 : $userAddInfo->trust_account_balance
+                                'trust_account_balance' => ($userAddInfo->trust_account_balance) ? $userAddInfo->trust_account_balance - @$item['applied_amount'] ?? 00 : $userAddInfo->trust_account_balance
                             ])->save();
                         }
                             
                         // Add trust history
                         TrustHistory::create([
                             "client_id" => $item['client_id'],
-                            "withdraw_amount" => $item['applied_amount'] ?? 0,
-                            "current_trust_balance" => $userAddInfo->trust_account_balance,
+                            "withdraw_amount" => @$item['applied_amount'] ?? 0,
+                            "current_trust_balance" => @$userAddInfo->trust_account_balance,
                             "payment_date" => date('Y-m-d'),
                             "payment_method" => "Trust",
                             "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
@@ -3843,7 +3842,7 @@ class BillingController extends BaseController
                         $invoiceHistory['invoice_id'] = $InvoiceSave->id;
                         $invoiceHistory['acrtivity_title']='Payment Received';
                         $invoiceHistory['pay_method']='Trust';
-                        $invoiceHistory['amount'] = $item['applied_amount'] ?? 0;
+                        $invoiceHistory['amount'] = @$item['applied_amount'] ?? 0;
                         $invoiceHistory['responsible_user'] = $authUser->id;
                         $invoiceHistory['deposit_into']='Operating Account';
                         $invoiceHistory['deposit_into_id'] = ($request->client_id)??NULL;
@@ -3858,7 +3857,7 @@ class BillingController extends BaseController
                         $data=[];
                         $data['case_id'] = $InvoiceSave->case_id;
                         $data['user_id'] = $InvoiceSave->user_id;
-                        $data['activity']='accepted a payment of $'.number_format($item['applied_amount'] ?? 0,2).' (Trust)';
+                        $data['activity']='accepted a payment of $'.number_format(@$item['applied_amount'] ?? 0,2).' (Trust)';
                         $data['activity_for'] = $InvoiceSave->id;
                         $data['type']='invoices';
                         $data['action']='pay';
@@ -3884,7 +3883,7 @@ class BillingController extends BaseController
                         'total_balance' => @$creditHistoryLast->total_balance
                     ]);
 
-                    if(!empty($item) && array_key_exists("applied_amount", (array) $item) && $item['applied_amount'] != "") {
+                    if(!empty($item) && array_key_exists("applied_amount", (array) $item) && @$item['applied_amount'] != "") {
                         $authUser = auth()->user();
                         //Insert invoice payment record.
                         $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","credit")->orderBy("created_at","DESC")->first();
@@ -3898,7 +3897,7 @@ class BillingController extends BaseController
                             'notes' => $request->notes,
                             'status' => "0",
                             'entry_type' => "0",
-                            'payment_from_id' => $item['client_id'],
+                            'payment_from_id' => @$item['client_id'],
                             'deposit_into' => "Operating Account",
                             'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
                             'firm_id' => $authUser->firm_name,
@@ -3910,7 +3909,7 @@ class BillingController extends BaseController
                         $this->updateInvoiceAmount($InvoiceSave->id);
 
                         // Deduct amount from credit account after payment.
-                        $userAddInfo = UsersAdditionalInfo::where("user_id", $item['client_id'])->first();
+                        $userAddInfo = UsersAdditionalInfo::where("user_id", @$item['client_id'])->first();
                         if($userAddInfo) {
                             $userAddInfo->fill([
                                 'credit_account_balance' => ($userAddInfo->credit_account_balance) ? $userAddInfo->credit_account_balance - $item['applied_amount'] ?? 00 : $userAddInfo->credit_account_balance
@@ -3919,12 +3918,12 @@ class BillingController extends BaseController
                             
                         // Add credit history
                         DepositIntoCreditHistory::create([
-                            "user_id" => $item['client_id'],
+                            "user_id" => @$item['client_id'],
                             "payment_method" => "payment",
-                            "deposit_amount" => $item['applied_amount'] ?? 0,
+                            "deposit_amount" => @$item['applied_amount'] ?? 0,
                             "payment_date" => date('Y-m-d'),
                             "payment_type" => "payment",
-                            "total_balance" => $userAddInfo->credit_account_balance,
+                            "total_balance" => @$userAddInfo->credit_account_balance,
                             "related_to_invoice_id" => $InvoiceSave->id,
                             "created_by" => auth()->id(),
                             "firm_id" => auth()->user()->firm_name,
@@ -3935,10 +3934,10 @@ class BillingController extends BaseController
                         $invoiceHistory['invoice_id'] = $InvoiceSave->id;
                         $invoiceHistory['acrtivity_title']='Payment Received';
                         $invoiceHistory['pay_method']='Credit';
-                        $invoiceHistory['amount'] = $item['applied_amount'] ?? 0;
+                        $invoiceHistory['amount'] = @$item['applied_amount'] ?? 0;
                         $invoiceHistory['responsible_user'] = $authUser->id;
                         $invoiceHistory['deposit_into']='Operating Account';
-                        $invoiceHistory['deposit_into_id'] = ($item['client_id'])??NULL;
+                        $invoiceHistory['deposit_into_id'] = (@$item['client_id'])??NULL;
                         $invoiceHistory['invoice_payment_id'] = $InvoicePayment->id;
                         $invoiceHistory['notes']=$request->notes ?? NULL;
                         $invoiceHistory['status']="1";
@@ -3950,7 +3949,7 @@ class BillingController extends BaseController
                         $data=[];
                         $data['case_id'] = $InvoiceSave->case_id;
                         $data['user_id'] = $InvoiceSave->user_id;
-                        $data['activity']='accepted a payment of $'.number_format($item['applied_amount'] ?? 0,2).' (Credit)';
+                        $data['activity']='accepted a payment of $'.number_format(@$item['applied_amount'] ?? 0,2).' (Credit)';
                         $data['activity_for'] = $InvoiceSave->id;
                         $data['type']='invoices';
                         $data['action']='pay';
@@ -5224,10 +5223,10 @@ class BillingController extends BaseController
                             'account_type' => 'trust',
                             'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
                         ];
-                        if($appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
+                        if(@$appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
                             $data['trust_history_last_id'] = @$trustHistoryLast->id;
                             $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if($appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
+                        } else if(@$appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
                             $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
                         }
                         $appliedTrust->fill($data + [
@@ -5249,7 +5248,7 @@ class BillingController extends BaseController
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
                     $appliedCredit = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
-                    $creditHistoryLast = DepositIntoCreditHistory::where("user_id", $item['client_id'])->orderBy('created_at', 'desc')->first();
+                    $creditHistoryLast = DepositIntoCreditHistory::where("user_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     if($appliedCredit) {
                         $data = [
                             'invoice_id' => $InvoiceSave->id,
@@ -5258,10 +5257,10 @@ class BillingController extends BaseController
                             'account_type' => 'credit',
                             'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
                         ];
-                        if($appliedCredit->show_credit_account_history != 'credit account history' && $item['show_credit_account_history'] == 'credit account history') {
+                        if(@$appliedCredit->show_credit_account_history != 'credit account history' && @$item['show_credit_account_history'] == 'credit account history') {
                             $data['credit_history_last_id'] = @$creditHistoryLast->id;
                             $data['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else if($appliedCredit->show_credit_account_history != 'credit account summary' && $item['show_credit_account_history'] == 'credit account summary') {
+                        } else if(@$appliedCredit->show_credit_account_history != 'credit account summary' && @$item['show_credit_account_history'] == 'credit account summary') {
                             $data['total_balance'] = @$creditHistoryLast->total_balance;
                         }
                         $appliedCredit->fill($data + [
@@ -5300,6 +5299,14 @@ class BillingController extends BaseController
         }else{
             $SharedInvoice=SharedInvoice::where("invoice_id",$request->share_invoice_id)->get();
             $FindInvoice=Invoices::find($request->share_invoice_id);
+            if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
+                $FindInvoice->status="Sent";
+                $FindInvoice->bill_sent_status="Sent";
+                $FindInvoice->save();
+            }
+            if($FindInvoice) {
+                $FindInvoice->fill(['is_sent' => 'yes'])->save();
+            }
             $invoice_id=$FindInvoice['id'];
             foreach($SharedInvoice as $k=>$v){
                 $findUSer=User::find($v->user_id);

@@ -985,7 +985,7 @@ class CaseController extends BaseController
                     $CommonController= new CommonController();
                     $timezone=Auth::User()->user_timezone;
                     $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($vv->created_at)),$timezone);
-                    $mainArray[$k]['created_at']=date('m-d-Y h:i A',strtotime($convertedDate));
+                    $mainArray[$k]['created_at']=$convertedDate;
 
                     $caseCreatedAt=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($CaseMaster->created_new_date)),$timezone);
                     $caseCreatedDate=date('m-d-Y h:i A',strtotime($caseCreatedAt));
