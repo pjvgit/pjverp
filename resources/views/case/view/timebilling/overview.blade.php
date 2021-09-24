@@ -109,7 +109,11 @@
                                                         @endif
                                                     </td>
                                                     <td class="pl-1" style="width: 33%;">${{ number_format($item->allocated_trust_balance, 2) }}</td>
-                                                    <td class="pl-1" style="width: 33%;"></td>
+                                                    <td class="pl-1 text-danger" style="width: 33%;">
+                                                    @if ($item->minimum_trust_balance > $item->allocated_trust_balance)
+                                                    *Minimum Trust Balance<br>${{ number_format($item->minimum_trust_balance, 2) }}
+                                                    @endif
+                                                    </td>
                                                 </tr>    
                                                 @empty
                                                 @endforelse
@@ -146,7 +150,11 @@
                                                             @endif
                                                         </td>
                                                         <td class="pl-1" style="width: 33%;">${{ $item->user->userAdditionalInfo->unallocate_trust_balance }}</td>
-                                                        <td class="pl-1" style="width: 33%;"></td>
+                                                        <td class="pl-1 text-danger" style="width: 33%;">
+                                                        @if ($item->user->userAdditionalInfo->minimum_trust_balance > $item->user->userAdditionalInfo->unallocate_trust_balance)
+                                                        *Minimum Trust Balance<br>${{ number_format($item->user->userAdditionalInfo->minimum_trust_balance, 2) }}
+                                                        @endif
+                                                        </td>
                                                     </tr>
                                                 @empty
                                                 @endforelse
@@ -397,7 +405,11 @@
                                         <td class="border-top-0 text-right">-${{ number_format($totalBills, 2) }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="border-top-0">Running Credit Balance<i id="credit-balance-help" class="question-mark-icon mx-1"></i></td>
+                                        <td class="border-top-0">Running Credit Balance
+                                            <span data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the available credit balance minus any uninvoiced balances.">
+                                                <i aria-hidden="true" class="fa fa-question-circle ml-1"></i>
+                                            </span>
+                                        </td>
                                         <td class="text-right align-bottom">
                                             @php
                                                 $currentBalance = $totalCreditBalance - $totalBills;

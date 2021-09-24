@@ -822,7 +822,10 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('contacts/clients/load/invoices', 'ClientdashboardController@loadInvoices')->name('contacts/clients/load/invoices');
     
     // For Client -> Trust allocation
+    Route::get('contacts/clients/trust/allocation/list', 'ClientdashboardController@listTrustAllocation')->name('contacts/clients/trust/allocation/list');
     Route::post('contacts/clients/save/min/trust/balance', 'ClientdashboardController@saveMinTrustBalance')->name('contacts/clients/save/min/trust/balance');
+    Route::get('contacts/clients/trust/allocation/detail', 'ClientdashboardController@getTrustAllocationDetail')->name('contacts/clients/trust/allocation/detail');
+    Route::post('contacts/clients/save/trust/allocation', 'ClientdashboardController@saveTrustAllocation')->name('contacts/clients/save/trust/allocation');
 
 
     //Company Dashboard
