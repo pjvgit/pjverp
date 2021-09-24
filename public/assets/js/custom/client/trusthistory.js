@@ -55,6 +55,14 @@ $(document).ready(function() {
                 var ftype="Refund Withdraw from Trust (Trust Account)";
             }else if(aData.fund_type=="refund_deposit"){
                 var ftype="Refund Deposit into Trust (Trust Account)";
+            }else if(aData.fund_type=="allocate_trust_fund"){
+                var notes = aData.notes;
+                var myString = notes.substring(notes.indexOf("#"));
+                ftype = notes.replace(myString, '<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' ('+aData.user_title+')</a>');
+            }else if(aData.fund_type=="deallocate_trust_fund"){
+                var notes = aData.notes;
+                var myString = notes.substring(notes.indexOf("#"));
+                ftype = notes.replace(myString, '<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>');
             }else{
                 var ftype="Deposit into Trust (Trust Account)"+isRefender;
             }
@@ -81,6 +89,10 @@ $(document).ready(function() {
                 $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.refund+'</div>');
             }else if(aData.fund_type=="refund_deposit"){
                 $('td:eq(5)', nRow).html('<div class="text-left">-$'+aData.refund+'</div>');
+            }else if(aData.fund_type=="allocate_trust_fund"){
+                $('td:eq(5)', nRow).html('<div class="text-left">($'+aData.amount_paid+')</div>');
+            }else if(aData.fund_type=="deallocate_trust_fund"){
+                $('td:eq(5)', nRow).html('<div class="text-left">(-$'+aData.amount_paid+')</div>');
             }else{
                 $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amount_paid+'</div>');
             }
@@ -92,14 +104,18 @@ $(document).ready(function() {
 
                 var refund='<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
             }else{
-                var deelete='<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('+aData.id+');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                if(aData.fund_type=="allocate_trust_fund" || aData.fund_type=="deallocate_trust_fund"){
+                    var deelete = '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                    var refund = '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                } else {
+                    var deelete='<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('+aData.id+');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
 
-                if(aData.fund_type=="refund_withdraw" || aData.fund_type=="refund_deposit"){
-                    var refund='<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
-                }else{
-                    var refund='<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('+aData.id+');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
+                    if(aData.fund_type=="refund_withdraw" || aData.fund_type=="refund_deposit"){
+                        var refund='<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                    }else{
+                        var refund='<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('+aData.id+');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
+                    }
                 }
-
             }
             
 

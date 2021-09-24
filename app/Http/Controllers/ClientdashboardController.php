@@ -4153,15 +4153,68 @@ class ClientdashboardController extends BaseController
     }
 
     /**
+     * Get trust allocation list
+     */
+    public function listTrustAllocation(Request $request)
+    {
+        $userProfile = User::where("id", $request->client_id)->where("firm_name", auth()->user()->firm_name)->with('clientCases', 'userAdditionalInfo')->first();
+        $case = $userProfile->clientCases;
+        $UsersAdditionalInfo = $userProfile->userAdditionalInfo;
+        return view("client_dashboard.billing.load_trust_allocation_list", compact('case', 'UsersAdditionalInfo'));
+    }
+
+    /**
      * Save minimum trust balance of client cases
      */
     public function saveMinTrustBalance(Request $request)
     {
         // return $request->all();
-
-        CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->update(["minimum_trust_balance" => $request->min_balance]);
-
+        if(!$request->case_id && $request->client_id) {
+            UsersAdditionalInfo::where("user_id", $request->client_id)->update(["minimum_trust_balance" => $request->min_balance]);
+        } else {
+            CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->update(["minimum_trust_balance" => $request->min_balance]);
+        }
         return response()->json(['errors'=>'', 'msg'=>"Minimum trust balance successfully updated"]);
     }
+
+    /**
+     * Get trust allocation detail of client's case
+     */
+    public function getTrustAllocationDetail(Request $request)
+    {
+        // return $request->all();
+        $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->with('case')->first();
+        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
+        return view("client_dashboard.billing.load_trust_allocation_detail", compact('clientCaseInfo', 'userAddInfo'));
+    }
+
+    /**
+     * save trust allocation data
+     */
+    public function saveTrustAllocation(Request $request)
+    {
+        // return $request->all();
+
+        $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
+        $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
+        $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
+        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
+        TrustHistory::create([
+            "client_id" => $request->client_id,
+            "payment_method" => 'Trust Allocation',
+            // "withdraw_amount" => ($diffAmt > 0) ? $diffAmt : 0.00,
+            "amount_paid" => abs($diffAmt),
+            "current_trust_balance" => $userAddInfo->trust_account_balance,
+            "payment_date" => date('Y-m-d'),
+            "notes" => ($diffAmt > 0) ? 'Deallocate Trust Funds from #'.$request->case_id : 'Allocate Trust Funds from #'.$request->client_id,
+            "fund_type" => ($diffAmt > 0) ? 'deallocate_trust_fund' : 'allocate_trust_fund',
+            "allocated_to_case_id" => $request->case_id,
+            "created_by" => Auth::user()->id,
+        ]);
+
+        return response()->json(['errors'=>'', 'msg'=>"Balance allocation is successful"]);
+    }
+
+
 }
   

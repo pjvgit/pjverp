@@ -22,4 +22,14 @@ class CaseClientSelection extends Model
     {
         return $this->belongsTo(User::class, 'selected_user');
     }
+
+    /**
+     * Get the case that owns the CaseClientSelection
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
 }
