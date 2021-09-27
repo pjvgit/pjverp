@@ -399,7 +399,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-items-info <?php if(Route::currentRouteName()=="overview"){ echo "active"; } ?>" data-page="info"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}">
-                                    <span><i class="i-Calendar-3  text-16 mr-1"></i> Overview</span>
+                                    <span><i class="i-Calendar-3  text-16 mr-1"></i> Info</span>
                                 </a>
                             </div>
                             <div class="nav-item">

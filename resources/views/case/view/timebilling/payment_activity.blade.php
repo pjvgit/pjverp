@@ -86,7 +86,8 @@
                     noteText=' <a role="button" data-toggle="popover" data-trigger="hover" title="" data-content="'+aData.notes+'" ><i class="fas fa-fw fa-file-invoice  text-16 mr-1"></i></a>';
                 }
                 if(aData.from_pay=="trust"){
-                    $('td:eq(3)', nRow).html('<div class="text-left nowrap">'+noteText+' Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
+                    // $('td:eq(3)', nRow).html('<div class="text-left nowrap">'+noteText+' Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
+                    $('td:eq(3)', nRow).html('<div class="text-left nowrap">'+noteText+' Payment into Trust (Trust Account)</div>');
                 }else{
                     $('td:eq(3)', nRow).html('<div class="text-left nowrap">'+noteText+' Payment into Operating (Operating Account)	</div>');
 

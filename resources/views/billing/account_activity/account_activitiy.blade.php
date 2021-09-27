@@ -225,7 +225,7 @@ if(isset($_GET['bank_account'])){
                     $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }else{
                 $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-                    '/court_cases/' + Case.case_unique_number + '/activity">' + Case
+                    '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
                     .case_title + '</a></div>');
                 }
                 $('td:eq(4)', nRow).html('<div class="text-left">' + aData.entered_by + '</div>');

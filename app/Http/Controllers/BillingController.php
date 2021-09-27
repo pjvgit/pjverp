@@ -1432,9 +1432,8 @@ class BillingController extends BaseController
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
-                $contactInfo = User::find($invoiceData['user_id']);
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level","users_additional_info.trust_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
-                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts','contactInfo'));
+                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts'));
                 exit;    
             }else{
                 return response()->json(['errors'=>'error']);
@@ -1444,13 +1443,14 @@ class BillingController extends BaseController
 
     public function saveTrustInvoicePayment(Request $request)
     {
+        // {"_token":"CMcon9N8F5rtezgagh3BcbT6WdK0Oo86a4XEtn9H","invoice_id":"260","contact_id":"11141","trust_account":"11141","amount":"2.75","payment_date":"09\/27\/2021","notes":"test","save":"yes"}
         $request['amount']=str_replace(",","",$request->amount);
         $InvoiceData=Invoices::find($request->invoice_id);
         $paid=$InvoiceData['paid_amount'];
         $invoice=$InvoiceData['total_amount'];
         $finalAmt=$invoice-$paid;
 
-        $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$InvoiceData['user_id'])->first();
+        $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$request->contact_id)->first();
 
         $validator = \Validator::make($request->all(), [
             'trust_account' => 'required',
@@ -1508,20 +1508,66 @@ class BillingController extends BaseController
                 $this->updateInvoiceAmount($request->invoice_id);
 
                 // Deduct amount from trust account after payment.
-                $trustAccountAmount=($userData['trust_account_balance']-$request->amount);
-                UsersAdditionalInfo::where('user_id',$InvoiceData['user_id'])
-                ->update(['trust_account_balance'=>$trustAccountAmount]);
+                // $trustAccountAmount=($userData['trust_account_balance']-$request->amount);
+                // UsersAdditionalInfo::where('user_id',$request->contact_id)
+                // ->update(['trust_account_balance'=>$trustAccountAmount]);
+                if(isset($request->trust_account)){
+                    // unallocate to selected user
+                    $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
+                    if(!empty($userDataForDeposit)){
+                        DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
+                            'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
+                        ]);
 
-                DB::commit();
+                        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+                        
+                        $TrustInvoice=new TrustHistory;
+                        $TrustInvoice->client_id=$request->trust_account;
+                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->amount_paid=$request->amount;
+                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->notes=$request->notes;
+                        $TrustInvoice->fund_type='payment';
+                        $TrustInvoice->related_to_invoice_id = $request->invoice_id;
+                        $TrustInvoice->created_by=Auth::user()->id; 
+                        $TrustInvoice->allocated_to_case_id = NULL;
+                        $TrustInvoice->save();
+                    }
+                    // allocate to case 
+                    $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
+                    if(!empty($CaseClientSelection)){
+                        DB::table('case_client_selection')->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)
+                        ->update([
+                            'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] + $request->amount),
+                        ]);
 
-               
+                        CaseMaster::where('id', $request->trust_account)->increment('total_allocated_trust_balance', $request->amount);
+                    
+                        UsersAdditionalInfo::where("user_id",$request->contact_id)->increment('trust_account_balance', $request->amount);
+                    
+                        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
+                        
+                        $TrustInvoice=new TrustHistory;
+                        $TrustInvoice->client_id=$request->contact_id;
+                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->amount_paid=$request->amount;
+                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->notes=$request->notes;
+                        $TrustInvoice->fund_type='payment';
+                        $TrustInvoice->related_to_invoice_id = $request->invoice_id;
+                        $TrustInvoice->created_by=Auth::user()->id; 
+                        $TrustInvoice->allocated_to_case_id = $request->trust_account;
+                        $TrustInvoice->save();
+                    }       
+                }
+                DB::commit();               
 
                 //Response message
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
                 // all good
-
-
                 $invoiceHistory=[];
                 $invoiceHistory['invoice_id']=$request->invoice_id;
                 $invoiceHistory['acrtivity_title']='Payment Received';
@@ -1542,7 +1588,7 @@ class BillingController extends BaseController
                 $InvoiceData=Invoices::find($request->invoice_id);
                 $data=[];
                 $data['case_id']=$InvoiceData['case_id'];
-                $data['user_id']=$InvoiceData['user_id'];
+                $data['user_id']=$request->contact_id;
                 $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Trust)';
                 $data['activity_for']=$InvoiceData['id'];
                 $data['type']='invoices';
@@ -1554,7 +1600,7 @@ class BillingController extends BaseController
                 //Get previous amount
                 $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
                 $activityHistory=[];
-                $activityHistory['user_id']=$InvoiceData['user_id'];
+                $activityHistory['user_id']=$request->contact_id;
                 $activityHistory['related_to']=$InvoiceData['id'];
                 $activityHistory['case_id']=$InvoiceData['case_id'];
                 $activityHistory['credit_amount']=0.00;
@@ -1579,7 +1625,7 @@ class BillingController extends BaseController
                 //Get previous amount
                 $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
                 $activityHistory=[];
-                $activityHistory['user_id']=$InvoiceData['user_id'];
+                $activityHistory['user_id']=$request->contact_id;
                 $activityHistory['related_to']=$InvoiceData['id'];
                 $activityHistory['case_id']=$InvoiceData['case_id'];
                 $activityHistory['debit_amount']=0.00;
@@ -1683,10 +1729,56 @@ class BillingController extends BaseController
 
                 //Deposit into trust account
                 if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
+                    // unallocate to selected user
                     $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
-                    DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-                        'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
-                    ]);
+                    if(!empty($userDataForDeposit)){
+                        DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
+                            'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
+                        ]);
+
+                        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+                        
+                        $TrustInvoice=new TrustHistory;
+                        $TrustInvoice->client_id=$request->trust_account;
+                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->amount_paid=$request->amount;
+                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->notes=$request->notes;
+                        $TrustInvoice->fund_type='payment';
+                        $TrustInvoice->related_to_invoice_id = $request->invoice_id;
+                        $TrustInvoice->created_by=Auth::user()->id; 
+                        $TrustInvoice->allocated_to_case_id = NULL;
+                        $TrustInvoice->save();
+                    }
+                    // allocate to case 
+                    $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
+                    if(!empty($CaseClientSelection)){
+                        DB::table('case_client_selection')->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)
+                        ->update([
+                            'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] + $request->amount),
+                        ]);
+
+                        CaseMaster::where('id', $request->trust_account)->increment('total_allocated_trust_balance', $request->amount);
+                    
+                        UsersAdditionalInfo::where("user_id",$request->contact_id)->increment('trust_account_balance', $request->amount);
+                    
+                        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
+                        
+                        $TrustInvoice=new TrustHistory;
+                        $TrustInvoice->client_id=$request->contact_id;
+                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->amount_paid=$request->amount;
+                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->notes=$request->notes;
+                        $TrustInvoice->fund_type='payment';
+                        $TrustInvoice->related_to_invoice_id = $request->invoice_id;
+                        $TrustInvoice->created_by=Auth::user()->id; 
+                        $TrustInvoice->allocated_to_case_id = $request->trust_account;
+                        $TrustInvoice->save();
+                        $request->trust_account = $request->contact_id;
+                    }       
                 }
                 DB::commit();
                 //Response message
@@ -1761,8 +1853,9 @@ class BillingController extends BaseController
                  $activityHistory['status']="unsent";
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
                     $activityHistory['pay_type']="trust";
+                    $activityHistory['from_pay']="trust";                    
                  }else{
-                    $activityHistory['pay_type']="client";
+                    $activityHistory['pay_type']="client"; 
                  }
                  $activityHistory['firm_id']=Auth::user()->firm_name;
                  $activityHistory['section']="invoice";
@@ -1772,7 +1865,7 @@ class BillingController extends BaseController
 
             } catch (\Exception $e) {
                 DB::rollback();
-                return response()->json(['errors'=>[$e->getMessage()]]); //$e->getMessage()
+                return response()->json(['errors'=>[$e->getMessage()], 'line_no' => [$e->getLine()] ]); //$e->getMessage()
                  exit;   
             }
             return response()->json(['errors'=>'','msg'=>$msg]);
@@ -7906,9 +7999,9 @@ class BillingController extends BaseController
     public function depositIntoTrustClientCase(Request $request)
     {
         // return $request->all();
-        $result = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
+        $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_client_selection.selected_user", $request->user_id)->whereHas('caseAllClient', function($query) use($request) {
             $query->where('users.id', $request->user_id);
-        })->select("id", "case_title", "total_allocated_trust_balance")->get();
+        })->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
         $user = User::whereId($request->user_id)->with('userAdditionalInfo')->first();
         return response()->json(['result' => $result, 'user' => $user]);
     }

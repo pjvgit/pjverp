@@ -155,7 +155,9 @@ $finalAmt=$invoice-$paid;
                     <select class="form-control caller_name" id="contact_id" name="contact_id" style="width: 100%;"
                         placeholder="Select a contact">
                         <option></option>
-                        <option value="{{$invoiceData->user_id}}">{{$contactInfo->fullname}}</option>
+                        <?php foreach($trustAccounts as $key=>$val){?>
+                            <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
+                        <?php } ?>
                     </select>  
                     <span id="contactin"></span>
                 </div>                
@@ -172,12 +174,9 @@ $finalAmt=$invoice-$paid;
 
                 <div class="col-md-6 form-group" id="ta">
                     <label for="firstName1">Trust Account</label>
-                    <select class="form-control caller_name" id="trust_account" name="trust_account" style="width: 100%;"
+                    <select class="form-control caller_name trust_account" id="trust_account" name="trust_account" style="width: 100%;"
                         placeholder="Select an account">
                         <option></option>
-                        <?php foreach($trustAccounts as $key=>$val){?>
-                            <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>) (${{number_format($val->trust_account_balance,2)}})</option>
-                            <?php } ?>
                     </select>
                     <span id="taacount"></span>
                 </div>
@@ -200,14 +199,26 @@ $finalAmt=$invoice-$paid;
             <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <label for="firstName1">Select User Account</label>
-                    <select class="form-control" id="from_trust_account" name="trust_account"
-                        style="width: 100%;">
+                    <label for="firstName1">Select Contact</label>
+                    <select class="form-control caller_name" id="trust_contact_id" name="contact_id"  style="width: 100%;">
                         <option></option>
-                        <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account)
+                        <?php foreach($trustAccounts as $key=>$val){?>
+                            <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
+                        <?php } ?>
+                        <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) -->
                         </option>
                     </select>
-                    <span id="ttaccount"></span>
+                    <span id="ttcaccount"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label for="firstName1">Trust Account</label>
+                    <select class="form-control caller_name trust_account" id="trust_account" name="trust_account" style="width: 100%;"
+                        placeholder="Select an account">
+                        <option></option>
+                    </select>
+                    <span id="taacount"></span>
                 </div>
             </div>
             <div class="row">
@@ -348,6 +359,11 @@ $finalAmt=$invoice-$paid;
             theme: "classic",
 
         });
+        $("#trust_contact_id").select2({
+            placeholder: "Select contact",
+            theme: "classic",
+
+        });
         $("#deposit_into").select2({
             placeholder: "Select a bank account",
             theme: "classic",
@@ -416,6 +432,9 @@ $finalAmt=$invoice-$paid;
         });
         $("#PayInvoiceFromTrustForm").validate({
             rules: {
+                contact_id: {
+                    required: true,
+                },
                 trust_account: {
                     required: true,
                 },
@@ -424,6 +443,9 @@ $finalAmt=$invoice-$paid;
                 }
             },
             messages: {
+                contact_id: {
+                    required: "Contact is required",
+                },
                 trust_account: {
                     required: "Account is required",
                 },
@@ -432,9 +454,9 @@ $finalAmt=$invoice-$paid;
                 }
             },
             errorPlacement: function (error, element) {
-                if (element.is('#from_trust_account')) {
-                    error.appendTo('#ttaccount');
-                } else {
+                if (element.is('#trust_contact_id')) {
+                    error.appendTo('#ttcaccount');
+                }else {
                     element.after(error);
                 }
             }
@@ -740,6 +762,52 @@ function didCreditPayment() {
             },
         });
 
+    });
+}
+$('#contact_id').on('select2:select', function (e) {
+    var data = e.params.data;
+    getClientCases(data.id);
+    // localStorage.setItem("selectedContact", data.id);
+
+});
+
+$('#trust_contact_id').on('select2:select', function (e) {
+    var data = e.params.data;
+    getClientCases(data.id);
+    // localStorage.setItem("selectedContact", data.id);
+
+});
+function getClientCases(clientId) {
+    var case_id = "{{$invoiceData['case_id']}}";
+    var optgroup = '';
+    $("#preloader").show();
+    $.ajax({
+        url: baseUrl+"/bills/dashboard/depositIntoTrust/clientCases",
+        type: 'POST',
+        data: {user_id: clientId},
+        success: function(data) {            
+            $('.trust_account').html('');
+            $('.trust_account').html('<option value=""></option>');
+            if(data.result.length > 0) {
+                optgroup += "<optgroup label='Allocate to case'>";
+                $.each(data.result, function(ind, item) {
+                    if(case_id == item.id){
+                        optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
+                    }
+                });                
+                optgroup += "</optgroup>"
+            }
+            
+            if(data.user) {
+                optgroup += "<optgroup label='Unallocated'>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.trust_account_balance+")" + "</option>";
+                optgroup += "</optgroup>";
+            }
+            
+            $('.trust_account').append(optgroup);
+            $(".select2-option").trigger('chosen:updated');
+            $("#preloader").hide();
+        }
     });
 }
 </script>

@@ -58,14 +58,14 @@ class CaseMaster extends Authenticatable
 
     public function getCaseOpenDateAttribute(){
         if(isset($this->attributes['case_open_date'])){
-            $userTime = convertUTCToUserTime($this->attributes['case_open_date'], auth()->user()->user_timezone ?? 'UTC');
+            $userTime = convertUTCToUserDate(date("Y-m-d", strtotime($this->attributes['case_open_date'])), auth()->user()->user_timezone ?? 'UTC');
             return date('Y-m-d', strtotime($userTime));  
         }
     } 
 
     public function getCaseStatuteDateAttribute(){
         if(isset($this->attributes['case_statute_date'])){
-            $userTime = convertUTCToUserTime($this->attributes['case_statute_date'], auth()->user()->user_timezone ?? 'UTC');
+            $userTime = convertUTCToUserDate(date("Y-m-d", strtotime($this->attributes['case_statute_date'])), auth()->user()->user_timezone ?? 'UTC');
             return date('Y-m-d', strtotime($userTime));  
         }
     }
