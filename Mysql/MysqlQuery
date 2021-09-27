@@ -1,3 +1,7 @@
+------------------------------------ 27-SEP-2021 ------------------------------
+ALTER TABLE `invoice_apply_trust_credit_funds` ADD `history_last_id` int(11) NULL AFTER `credit_history_last_id`;
+ALTER TABLE `invoice_apply_trust_credit_funds` ADD `allocate_applied_amount` float(8,2) NOT NULL DEFAULT '0.00' AFTER `applied_amount`;
+
 ------------------------------------ 24-SEP-2021 ------------------------------
 ALTER TABLE `trust_history`
 CHANGE `fund_type` `fund_type` enum('diposit','withdraw','refund_withdraw','refund_deposit','allocate_trust_fund') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `notes`;

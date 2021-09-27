@@ -1047,7 +1047,7 @@
     }
 
     // Get default firm reminder for client
-    var reminderAdded = false;
+    /* var reminderAdded = false;
     $(document).on("change", ".load-default-reminder", function() {
         if($(this).is(":checked") && !reminderAdded) {
             $.ajax({
@@ -1081,5 +1081,5 @@
                 reminderAdded = false;
             }
         }
-    });
+    }); */
 </script>

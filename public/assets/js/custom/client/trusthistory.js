@@ -63,6 +63,8 @@ $(document).ready(function() {
                 var notes = aData.notes;
                 var myString = notes.substring(notes.indexOf("#"));
                 ftype = notes.replace(myString, '<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>');
+            }else if(aData.fund_type=="payment"){
+                var ftype = aData.notes;
             }else{
                 var ftype="Deposit into Trust (Trust Account)"+isRefender;
             }
@@ -76,7 +78,7 @@ $(document).ready(function() {
                 $('td:eq(3)', nRow).html('<div class="text-left">'+aData.payment_method+' '+isRefender+'</div>');
             }
             
-            if(aData.allocated_to_case_id != null) {
+            if(aData.allocated_to_case_id != null && aData.fund_type != "payment") {
                 var clientLink='<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>';
             } else {
                 var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.client_name+' ('+aData.user_title+')</a>';
