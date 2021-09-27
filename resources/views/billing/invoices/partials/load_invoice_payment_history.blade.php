@@ -31,7 +31,7 @@
                 {{$hVal->added_date}}
             </td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
-                {{$hVal->pay_method}}
+                {{ $hVal->pay_method }}
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 <?php if($hVal->acrtivity_title=="Payment Received"){?>
@@ -45,9 +45,9 @@
                 ({{$hVal->responsible['user_title']}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                <?php if($hVal->acrtivity_title=="Payment Received"){
-                    echo $hVal->deposit_into;
-                    } ?>
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
+                    {{ $hVal->deposit_into }}
+                @endif
             </td>
             </tr>
             <?php } 

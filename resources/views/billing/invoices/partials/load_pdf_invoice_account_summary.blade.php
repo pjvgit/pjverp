@@ -33,7 +33,7 @@
                                 <td class="invoice_info_bg" style="width: 15%;"> Amount </td>
                                 <td class="invoice_info_bg" style="width: 15%;"> Balance </td>
                             </tr>
-                            @forelse ($item->userTrustAccountHistory->where('id', '<=', $user->trust_history_last_id) as $thkey => $thitem)
+                            @forelse ($item->userTrustAccountHistory->where('id', '<=', $user->history_last_id) as $thkey => $thitem)
                                 <tr class="invoice_info_row invoice-table-row">
                                     <td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
                                     <td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
@@ -74,7 +74,7 @@
                                 <td class="invoice_info_bg" style="width: 15%;"> Amount </td>
                                 <td class="invoice_info_bg" style="width: 15%;"> Balance </td>
                             </tr>
-                            @forelse ($item->userCreditAccountHistory->where('id', '<=', $user->credit_history_last_id) as $thkey => $thitem)
+                            @forelse ($item->userCreditAccountHistory->where('id', '<=', $user->history_last_id) as $thkey => $thitem)
                                 <tr class="invoice_info_row invoice-table-row">
                                     <td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
                                     <td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>

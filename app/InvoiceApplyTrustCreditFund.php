@@ -10,7 +10,7 @@ class InvoiceApplyTrustCreditFund extends Model
 
     protected $fillable = [
         'invoice_id', 'client_id', 'case_id', 'account_type', 'applied_amount', 'deposite_into', 'show_trust_account_history', 'show_credit_account_history', 
-        'created_by', 'updated_by', 'trust_history_last_id', 'credit_history_last_id', 'total_balance'
+        'created_by', 'updated_by', 'history_last_id', 'total_balance', 'allocate_applied_amount'
     ];
 
     protected $appends = [];
