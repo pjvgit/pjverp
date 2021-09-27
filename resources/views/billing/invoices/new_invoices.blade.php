@@ -2867,7 +2867,7 @@ if(!isset($addition)){ $addition=0;}
                 },
                 total_to_apply: {
                     max: function(element) {
-                        if($("#final_total_text").val() < $(element).val())
+                        if($("#final_total_text").val() > $(element).val())
                             return false;
                         else
                             return true;
