@@ -1541,7 +1541,7 @@ if(!isset($addition)){ $addition=0;}
                             <div>
                                 <span>Total Invoice Amount: <b class="ml-2 invoice-total-amount">$00.00</b></span>
                                 <span class="ml-3">Total To Apply: <b class="ml-2">$<span class="total-to-apply">00.00</span></b></span>
-                                <input type="text" name="total_to_apply" class="total-to-apply-text" value="0.00">
+                                <input type="hidden" name="total_to_apply" class="total-to-apply-text" value="0.00">
                             </div>
                         </div>
                     </div>
