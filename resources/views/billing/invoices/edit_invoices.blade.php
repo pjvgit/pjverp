@@ -1331,18 +1331,42 @@
                                             </thead>
                                             <tbody>
                                                 @forelse ($findInvoice->applyTrustFund as $key => $item)
-                                                <tr class="apply-funds-row">
-                                                    <td class="apply-funds-client">
-                                                        <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
-                                                        <span>{{ @$item->client->full_name }}</span></td>
-                                                    <td class="apply-funds-account">
-                                                        <div>Trust (Trust Account)</div>
-                                                    </td>
-                                                    <td class="apply-funds-available-amount">
-                                                        <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
-                                                    </td>
-                                                    <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
-                                                </tr>
+                                                    @if($item->applied_amount > 0)
+                                                    <tr class="apply-funds-row">
+                                                        <td class="apply-funds-client">
+                                                            <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                            <span>{{ @$item->client->full_name }}</span></td>
+                                                        <td class="apply-funds-account">
+                                                            <div>Trust (Trust Account)</div>
+                                                        </td>
+                                                        <td class="apply-funds-available-amount">
+                                                            <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
+                                                        </td>
+                                                        <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                    </tr>
+                                                    @endif
+                                                    @if($item->allocate_applied_amount > 0)
+                                                    <tr class="apply-funds-row">
+                                                        <td class="apply-funds-client">
+                                                            <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                            @if($item->applied_amount <= 0)
+                                                            <span>{{ @$item->client->full_name }}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="apply-funds-account">
+                                                            @if($item->applied_amount <= 0)
+                                                            <div>Trust (Trust Account)</div>
+                                                            @endif
+                                                        </td>
+                                                        <td class="apply-funds-available-amount">
+                                                            @php
+                                                                $allocateRow = $caseMaster->caseAllClient->where('id', $item->client_id)->first();
+                                                            @endphp
+                                                            <div>${{ number_format(@$allocateRow->pivot->allocated_trust_balance ?? 0, 2) }} <span class="allocation-status">(Allocated)</span></div>
+                                                        </td>
+                                                        <td class="apply-funds-applied-amount"><span>${{ number_format($item->allocate_applied_amount, 2) }}</span></td>
+                                                    </tr>
+                                                    @endif
                                                 @empty
                                                 @endforelse
                                             </tbody>
@@ -1389,7 +1413,7 @@
                             <div class="mt-4">
                                 <h4>Applied Credit Funds</h4>
                                 <div class="row">
-                                    @if(!empty($findInvoice->applyCreditFund) && count($findInvoice->applyCreditFund))
+                                    @if(!empty($findInvoice->applyCreditFund) && count($findInvoice->applyCreditFund) && $findInvoice->applyCreditFund->sum('applied_amount'))
                                     <div class="col-9">
                                         <table class="apply-credit-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
                                             <thead>
@@ -1402,18 +1426,20 @@
                                             </thead>
                                             <tbody>
                                                 @forelse ($findInvoice->applyCreditFund as $key => $item)
-                                                <tr class="apply-funds-row">
-                                                    <td class="apply-funds-client">
-                                                        <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
-                                                        <span>{{ @$item->client->full_name }}</span></td>
-                                                    <td class="apply-funds-account">
-                                                        <div>Credit (Operating Account)</div>
-                                                    </td>
-                                                    <td class="apply-funds-available-amount">
-                                                        <div>$0.00 <span class="allocation-status"></span></div>
-                                                    </td>
-                                                    <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
-                                                </tr>
+                                                    @if($item->applied_amount > 0)
+                                                    <tr class="apply-funds-row">
+                                                        <td class="apply-funds-client">
+                                                            <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
+                                                            <span>{{ @$item->client->full_name }}</span></td>
+                                                        <td class="apply-funds-account">
+                                                            <div>Credit (Operating Account)</div>
+                                                        </td>
+                                                        <td class="apply-funds-available-amount">
+                                                            <div>${{ number_format(@$item->userAdditionalInfo->credit_account_balance ?? 0, 2) }} <span class="allocation-status"></span></div>
+                                                        </td>
+                                                        <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
+                                                    </tr>
+                                                    @endif
                                                 @empty
                                                 @endforelse
                                             </tbody>

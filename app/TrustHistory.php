@@ -123,4 +123,14 @@ class TrustHistory extends Authenticatable
     {
         return $this->belongsTo(CaseMaster::class, 'allocated_to_case_id');
     }
+
+    /**
+     * Get the user that owns the TrustHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
 }

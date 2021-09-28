@@ -42,7 +42,7 @@
 								@forelse ($item->userTrustAccountHistory->where('id', '<=', $user->history_last_id) as $thkey => $thitem)
 									<tr class="invoice_info_row invoice-table-row">
 										<td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
-										<td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
+										<td style="vertical-align: top;"> {{ ($thitem->related_to_invoice_id) ? '#'.sprintf("%06d", $thitem->related_to_invoice_id) : "--" }} </td>
 										<td style="vertical-align: top;"> {{ ($thitem->fund_type == "diposit") ? "Trust deposit" : "Payment from trust" }} </td>
 										<td style="vertical-align: top;"> 
 											@if($thitem->fund_type == "diposit")
@@ -90,7 +90,7 @@
 								@forelse ($item->userCreditAccountHistory->where('id', '<=', $user->history_last_id) as $thkey => $thitem)
 									<tr class="invoice_info_row invoice-table-row">
 										<td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
-										<td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
+										<td style="vertical-align: top;"> {{ ($thitem->related_to_invoice_id) ? '#'.sprintf("%06d", $thitem->related_to_invoice_id) : "--" }} </td>
 										<td style="vertical-align: top;"> {{ ($thitem->payment_type == "payment" || $thitem->payment_type == "withdraw") ? "Credit withdrawal" : "Credit deposit" }} </td>
 										<td style="vertical-align: top;"> {{ ($thitem->payment_type == "payment" || $thitem->payment_type == "withdraw") ? "-$".number_format($thitem->deposit_amount, 2) : "$".number_format($thitem->deposit_amount, 2) }} </td>
 										<td style="vertical-align: top;"> ${{ number_format($thitem->total_balance, 2) }} </td>

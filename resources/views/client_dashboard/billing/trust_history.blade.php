@@ -1,6 +1,33 @@
 <div class="container-fluid">
     <div class="justify-content-end pt-2 d-print-none row ">
-        <div class="align-self-end text-right col-6">
+        <div class="pl-0 col-7">
+            <div class="container-fluid">
+                <div class="row ">
+                    <div class="col-4">
+                        <label for="trust-history-court-case-select">Trust Allocation</label>
+                        <select id="trust_history_case_select" class="form-control select2-case">
+                            <option value="">Select a case</option>
+                            @forelse ($case as $item)
+                                <option value="{{ $item->id }}" data-trust-type="case">{{ $item->case_title }}</option>
+                            @empty
+                            @endforelse
+                            <option value="{{ $userProfile->id }}" data-trust-type="user">{{ $userProfile->first_name.' '.$userProfile->last_name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label for="trust-history-bank-account-select">Bank Account</label>
+                        <select id="trust_history_bank_account_select" class="form-control select2-bank-account">
+                            <option value="">Select a bank account</option>
+                            <option value="trust">Trust Account</option>
+                        </select>
+                    </div>
+                    <div class="align-self-end pb-1 col-4">
+                        <button type="button" class="btn btn-secondary apply-filter">Apply Filters</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="align-self-end text-right col-5">
             <a data-toggle="modal" data-target="#exportPDFpopup" data-placement="bottom" href="javascript:;" onclick="exportPDFpopup();"> 
                 <button type="button" class="trust-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
             </a>
@@ -15,7 +42,7 @@
     </div>
 </div>
 <p><br></p>
-<table class="display table table-striped table-bordered" id="billingTabTrustHistory" style="width:100%">
+<table class="display table table-striped table-bordered" id="billingTabTrustHistory" style="width:100%" data-url="{{ route('contacts/clients/loadTrustHistory') }}" data-client-id="{{ @$client_id }}">
     <thead>
         <tr>
             <th class="" style="cursor: initial;">Date</th>

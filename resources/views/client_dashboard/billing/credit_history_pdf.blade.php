@@ -55,7 +55,7 @@
                     <br>Credit Balance on {{date('F,d,Y', strtotime($endDate))}}:
                     @if(!empty($creditHistory) && count($creditHistory))
                         @php
-                            $lastCreditBalance = $creditHistory->sortByDesc('payment_date')->first();
+                            $lastCreditBalance = $creditHistory->last();
                             $finalBalance = $lastCreditBalance->total_balance ?? 0;
                         @endphp
                     @endif
@@ -68,7 +68,7 @@
     <br>
     <br>
 
-    <span style="float: right;padding:5px;">Credit account activity from {{date('F,d,Y', strtotime($startDate))}} to {{date('F,d,Y', strtotime($endDate))}}</span>
+    <span style="float: right;padding:5px;">Credit account activity from {{date('F d,Y', strtotime($startDate))}} to {{date('F d,Y', strtotime($endDate))}}</span>
     <br>
     <hr>
     <br>

@@ -1,5 +1,17 @@
 $(document).ready(function() {
-    var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
+    $(".select2-case").select2({
+        placeholder: "Select a case",
+        theme: "classic",
+        allowClear: true
+    });
+    $(".select2-bank-account").select2({
+        placeholder: "Select a bank account",
+        theme: "classic",
+        allowClear: true
+    });
+
+
+    /* var billingTabTrustHistory =  $('#billingTabTrustHistory').DataTable( {
         serverSide: true,
         "dom": '<"top">rt<"bottom"pl>',
         responsive: false,
@@ -10,7 +22,11 @@ $(document).ready(function() {
         "ajax":{
             url :baseUrl +"/contacts/clients/loadTrustHistory", // json datasource
             type: "post",  // method  , by default get
-            data :{ 'user_id' : $("#user_id").val() },
+            data :{ 
+                'user_id' : $("#user_id").val(),
+                'case_id' : $(".select2-case").val(),
+                'bank_account' : $(".select2-bank-account").val(),
+            },
             error: function(){  // error handling
                 $(".employee-grid-error").html("");
                 $("#employee-grid").append('<tbody class="employee-grid-error"><tr><th colspan="8">No data found in the server</th></tr></tbody>');
@@ -131,10 +147,15 @@ $(document).ready(function() {
             var response = settings.json;
             $(".trust-total-balance").text(response.trust_total);
         },
-    });
+    }); */
 
     $('#depositIntoTrustAccount').on('hidden.bs.modal', function () {
-        billingTabTrustHistory.ajax.reload(null, false);
+        $('#billingTabTrustHistory').DataTable().ajax.reload(null, false);
+    });
+
+    // For apply filter
+    $(".apply-filter").on("click", function() {
+        $("#billingTabTrustHistory").DataTable().ajax.reload(null, false);
     });
 });
 

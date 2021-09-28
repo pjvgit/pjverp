@@ -64,8 +64,9 @@ $(document).on("click", ".balance-allocation-link", function() {
 $(document).on("input", ".allocate-fund", function() {
     var totalAmt = $(this).attr("data-total-amt");
     var amt = $(this).val();
+    amt = amt.replace(",", "");
     if(parseFloat(amt) > parseFloat(totalAmt)) {
-        $(this).val(totalAmt);
+        $(this).val((totalAmt > 0) ? totalAmt.toFixed(2) : "0.00");
         $(".unallocate-fund").val("0.00");
     } else {
         var unallocateAmt = totalAmt - amt;

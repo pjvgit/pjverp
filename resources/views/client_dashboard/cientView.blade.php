@@ -176,7 +176,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/clients/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}" >Billing</a>
+                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice","contacts/clients/billing/credit/history"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/messages')}}" >Messages</a>

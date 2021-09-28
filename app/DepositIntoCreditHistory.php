@@ -37,4 +37,14 @@ class DepositIntoCreditHistory extends Authenticatable
     {
         return $this->belongsTo(RequestedFund::class, 'related_to_fund_request_id');
     }
+
+    /**
+     * Get the user that owns the DepositIntoCreditHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -88,6 +88,14 @@ function deleteCreditEntry(id) {
     $("#delete_credit_id").val(id);
 }
 
+// For delete credit fund warning popup
+function deleteCreditWarningPopup(clientName = null) {
+    swal({
+        title: 'Cannot Delete',
+        text: "Deleting this transaction would result in a negative balance for "+clientName+". Please review transaction history and any related deposits for this client.",
+    });
+}
+
 // Delete credit fund entry
 $('#deleteCreditHistoryEntryForm').submit(function (e) {
     beforeLoader();

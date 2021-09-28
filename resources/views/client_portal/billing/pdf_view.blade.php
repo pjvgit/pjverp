@@ -590,7 +590,7 @@
 @if(!empty($invoice->invoice_setting))
     @if(/* $invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && */ !empty($invoice->applyTrustCreditFund))
     <div>
-        @include('billing.invoices.partials.load_pdf_invoice_account_summary', ['Invoice' => $invoice])
+        @include('billing.invoices.partials.load_invoice_account_summary_pdf', ['Invoice' => $invoice])
     </div>
     @endif
 @endif

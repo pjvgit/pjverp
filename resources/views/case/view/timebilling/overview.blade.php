@@ -149,7 +149,7 @@
                                                             <a href="{{ route('contacts/companies/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
                                                             @endif
                                                         </td>
-                                                        <td class="pl-1" style="width: 33%;">${{ $item->user->userAdditionalInfo->unallocate_trust_balance }}</td>
+                                                        <td class="pl-1" style="width: 33%;">${{ number_format($item->user->userAdditionalInfo->unallocate_trust_balance ?? 0, 2) }}</td>
                                                         <td class="pl-1 text-danger" style="width: 33%;">
                                                         @if ($item->user->userAdditionalInfo->minimum_trust_balance > $item->user->userAdditionalInfo->unallocate_trust_balance)
                                                         *Minimum Trust Balance<br>${{ number_format($item->user->userAdditionalInfo->minimum_trust_balance, 2) }}
@@ -193,7 +193,7 @@
                                                         <a href="{{ route('contacts/companies/view',$item->selected_user) }}">{{ $item->user->full_name }}</a>
                                                         @endif
                                                     </td>
-                                                    <td class="pl-1" style="width: 33%;">${{ $item->user->userAdditionalInfo->credit_account_balance }}</td>
+                                                    <td class="pl-1" style="width: 33%;">${{ number_format($item->user->userAdditionalInfo->credit_account_balance ?? 0, 2) }}</td>
                                                     <td class="pl-1" style="width: 33%;"></td>
                                                 </tr>
                                                 @empty
