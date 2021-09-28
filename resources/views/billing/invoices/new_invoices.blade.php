@@ -2884,12 +2884,12 @@ if(!isset($addition)){ $addition=0;}
                     required: true
                 },
                 total_to_apply: {
-                    max: function(element) {
-                        if($("#final_total_text").val() > $(element).val())
-                            return false;
-                        else
-                            return true;
-                    }
+                    // max: function(element) {
+                    //     if($("#final_total_text").val() >= $(element).val())
+                    //         return false;
+                    //     else
+                    //         return true;
+                    // }
                 }
             },
             messages: {
@@ -2909,7 +2909,8 @@ if(!isset($addition)){ $addition=0;}
                 } else if (element.is('#court_case_id')) {
                     error.appendTo('#2Error');
                 // } else if (element.attr('name') == "total_to_apply") {
-                    // swal("Issue saving invoice!", "Please resolve the issues in the Apply Trust & Credit Funds section and try again", "error");
+                //     element.after(error);
+                //     swal("Issue saving invoice!", "Please resolve the issues in the Apply Trust & Credit Funds section and try again");
                 } else {
                     element.after(error);
                 }

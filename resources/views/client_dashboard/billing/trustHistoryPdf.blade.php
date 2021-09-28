@@ -62,7 +62,7 @@
     <br>
     <br>
 
-    <span style="float: right;padding:5px;">Trust account activity through {{date('F,d,Y')}}</span>
+    <span style="float: right;padding:5px;">Trust account activity from {{date('F d,Y', strtotime($startDate))}} to {{date('F d,Y', strtotime($endDate))}}</span>
 
     <table style="width:100%;text-align: left;font-size: 12px;" border="1">
         <thead class="bg-gray-300">
@@ -102,6 +102,8 @@
                     $ftype="Refund Withdraw from Trust";
                 }else if($v->fund_type=="refund_deposit"){
                     $ftype="Refund Deposit into Trust";
+                }else if($v->fund_type=="payment"){
+                    $ftype="Payment from Trust to Operating";
                 }else{
                     $ftype="Deposit into Trust";
                 }
@@ -117,6 +119,11 @@
                     $tansactionAmount="-$".number_format($v->withdraw_amount,2);
                     $tansactionBalance="$".number_format($v->current_trust_balance,2);
                 }
+                if($v->fund_type=="payment"){
+                 
+                    $tansactionAmount="-$".number_format($v->amount_paid,2);
+                    $tansactionBalance="$".number_format($v->current_trust_balance,2);
+                }
                 if($v->fund_type=="refund_withdraw"){
                    
                     $tansactionAmount="$".number_format($v->refund_amount,2);
@@ -130,7 +137,7 @@
                 ?>
             <tr>
                 <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
-                <td style="padding:5px;">--</td>
+                <td style="padding:5px;">{{ ($v->related_to_invoice_id) ? '#'.sprintf("%06d", $v->related_to_invoice_id) : '--' }}</td>
                 <td style="padding:5px;">{{$ftype}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionAmount}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionBalance}}</td>

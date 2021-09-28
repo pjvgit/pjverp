@@ -34,4 +34,14 @@ class InvoiceApplyTrustCreditFund extends Model
     {
         return $this->belongsTo(UsersAdditionalInfo::class, 'client_id', 'user_id');
     }
+
+    /**
+     * Get the case that owns the InvoiceApplyTrustCreditFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function case()
+    {
+        return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
 }

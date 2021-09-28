@@ -1022,7 +1022,9 @@ class CompanydashboardController extends BaseController
             // return view('company_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
 
             $filename='trust_export_'.time().'.pdf';
-            $PDFData=view('company_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
+            $startDate = $request->from_date; $endDate = $request->to_date;
+            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate'));
+            // $PDFData=view('company_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
@@ -1031,11 +1033,14 @@ class CompanydashboardController extends BaseController
             $pdf->setOptions(['javascript-delay' => 5000]);
             $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
             // $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
-            $pdf->saveAs(public_path("download/pdf/".$filename));
-            $path = public_path("download/pdf/".$filename);
+            // $pdf->saveAs(public_path("download/pdf/".$filename));
+            // $path = public_path("download/pdf/".$filename);
             // return response()->download($path);
             // exit;
-            return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename,'errors'=>''], 200);
+            // return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename,'errors'=>''], 200);
+            $pdf->saveAs(storage_path("app/public/download/pdf/".$filename));
+            $path = storage_path("app/public/download/pdf/".$filename);
+            return response()->json([ 'success' => true, "url"=>asset(Storage::url('download/pdf/'.$filename)),"file_name"=>$filename,'errors'=>''], 200);
             exit;
         }
     }

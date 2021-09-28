@@ -29,7 +29,7 @@
 
         <li>
             <a href="{{route('bills/account_activity')}}"
-            class="{{ Route::currentRouteName()=='bills/account_activity' ? 'myactive' : '' }}">Account Activity</a>
+            class="{{ (in_array(Route::currentRouteName(), ['bills/account_activity', 'bills/trust_account_activity'])) ? 'myactive' : '' }}">Account Activity</a>
         </li>
 
         <li>

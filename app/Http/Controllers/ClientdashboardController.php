@@ -907,7 +907,7 @@ class ClientdashboardController extends BaseController
         }
     } 
 
-    public function loadTrustHistory()
+    /* public function loadTrustHistory()
     {   
         $requestData= $_REQUEST;
 
@@ -918,6 +918,9 @@ class ClientdashboardController extends BaseController
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
         $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
         $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
+        if($requestData['case_id'] != '') {
+            $allLeads = $allLeads->where("trust_history.allocated_to_case_id",$requestData['case_id']);
+        }
         $allLeads = $allLeads->with('invoice', 'fundRequest', 'allocateToCase');   
         $totalData=$allLeads->count();
         $totalFiltered = $totalData; 
@@ -936,6 +939,126 @@ class ClientdashboardController extends BaseController
             "trust_total"     => $userAddInfo->trust_account_balance ?? 0.00
         );
         echo json_encode($json_data);  
+    } */
+    public function loadTrustHistory(Request $request)
+    {   
+        $data = TrustHistory::where("client_id", $request->client_id);
+        if($request->case_id) {
+            $data = $data->where('allocated_to_case_id', $request->case_id);
+        }
+        $data = $data->orderBy("payment_date", "desc")->orderBy("created_at", "desc")
+                ->with("invoice", 'fundRequest', 'allocateToCase', 'user')->get();
+        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
+        return Datatables::of($data)
+            ->addColumn('action', function ($data) {
+                $action = '';
+                if($data->is_refunded == "yes") {
+                    $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                    $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                } else {
+                    if($data->fund_type=="allocate_trust_fund" || $data->fund_type=="deallocate_trust_fund"){
+                        $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                        $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                    } else {
+                        if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit"){
+                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                        }else{
+                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
+                        }
+                        $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                    }
+                }
+                return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
+            })
+            ->editColumn('payment_date', function ($data) {
+                // return $data->payment_date ?? "--";
+                if($data->payment_date) {
+                    $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone);
+                    if ($pDate->isToday()) {
+                        return "Today";
+                    } else if($pDate->isYesterday()) {
+                        return "Yesterday";
+                    } else {
+                        return $pDate->format("M d, Y");
+                    }
+                } else {
+                    return "";
+                }
+            })
+            ->addColumn('related_to', function ($data) {
+                if($data->related_to_invoice_id)
+                    return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
+                else if($data->related_to_fund_request_id)
+                    return $data->fundRequest->padding_id;
+                else
+                    return '--';
+            })
+            ->addColumn('allocated_to', function ($data) {
+                if($data->allocated_to_case_id != null && $data->fund_type != "payment") {
+                    $clientLink ='<a class="name" href="'.route('info', $data->allocateToCase->case_unique_number).'">'.$data->allocateToCase->case_title.'</a>';
+                } else {
+                    $clientLink ='<a class="name" href="'.route("contacts/clients/view", $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_title.')</a>';
+                }
+                return $clientLink;
+            })
+            ->editColumn('payment_method', function ($data) {
+                $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
+                if($data->fund_type == "withdraw")
+                    $pMethod = "Trust";
+                else
+                    $pMethod = $data->payment_method;
+                return ucwords($pMethod).' '.$isRefund;
+            })
+            ->editColumn('total_balance', function ($data) {
+                return $data->trust_balance;
+            })
+            ->editColumn('deposit_amount', function ($data) {
+                if($data->fund_type=="withdraw"){
+                    $amt = '-$'.number_format($data->withdraw, 2);
+                }else if($data->fund_type=="refund_withdraw"){
+                    $amt = '$'.number_format($data->refund, 2);
+                }else if($data->fund_type=="refund_deposit"){
+                    $amt = '-$'.number_format($data->refund, 2);
+                }else if($data->fund_type=="allocate_trust_fund"){
+                    $amt = '($'.number_format($data->amount_paid, 2).')';
+                }else if($data->fund_type=="deallocate_trust_fund"){
+                    $amt = '(-$'.number_format($data->amount_paid, 2).')';
+                }else{
+                    $amt = '$'.number_format($data->amount_paid, 2);
+                }
+                return $amt ?? 0.00;
+            })
+            ->addColumn('detail', function ($data) {
+                $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
+                if($data->fund_type=="withdraw"){
+                    if($data->withdraw_from_account!=null){
+                        $ftype="Withdraw from Trust (Trust Account) to Operating("+$data->withdraw_from_account+")";
+                    }else{
+                        $ftype="Withdraw from Trust (Trust Account)" .$isRefund;
+                    }
+                }else if($data->fund_type=="refund_withdraw"){
+                    $ftype="Refund Withdraw from Trust (Trust Account)";
+                }else if($data->fund_type=="refund_deposit"){
+                    $ftype="Refund Deposit into Trust (Trust Account)";
+                }else if($data->fund_type=="allocate_trust_fund"){
+                    $notes = $data->notes;
+                    $myString = substr($notes, strpos($notes, "#") + 1);
+                    $ftype = str_replace($myString, '<a class="name" href="'.route('contacts/clients/view', $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_title.')</a>', $notes);
+                }else if($data->fund_type=="deallocate_trust_fund"){
+                    $notes = $data->notes;
+                    $myString = substr($notes, strpos($notes, "#") + 1);
+                    $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
+                }else if($data->fund_type=="payment"){
+                    $ftype = $data->notes;
+                }else{
+                    $ftype="Deposit into Trust (Trust Account)".$isRefund;
+                }
+
+                return $ftype;
+            })
+            ->rawColumns(['action', 'detail', 'related_to', 'allocated_to'])
+            ->with("trust_total", $userAddInfo->trust_account_balance ?? 0.00)
+            ->make(true);
     }
 
     /* public function addTrustEntry(Request $request)
@@ -1265,7 +1388,7 @@ class ClientdashboardController extends BaseController
 
             $allHistory = TrustHistory::leftJoin('users','trust_history.client_id','=','users.id');
             $allHistory = $allHistory->select("trust_history.*");        
-            $allHistory = $allHistory->where("trust_history.client_id",$id); 
+            $allHistory = $allHistory->where("trust_history.client_id",$id)->whereIn("trust_history.fund_type", ['diposit','withdraw','refund_withdraw','refund_deposit','payment']); 
             if(isset($request->from_date) && isset($request->to_date)){
                 $allHistory = $allHistory->whereBetween('trust_history.payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
@@ -1274,7 +1397,8 @@ class ClientdashboardController extends BaseController
             // return view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
 
             $filename='trust_export_'.time().'.pdf';
-            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
+            $startDate = $request->from_date; $endDate = $request->to_date;
+            $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
@@ -1283,11 +1407,14 @@ class ClientdashboardController extends BaseController
             $pdf->setOptions(['javascript-delay' => 5000]);
             $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
             // $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
-            $pdf->saveAs(public_path("download/pdf/".$filename));
-            $path = public_path("download/pdf/".$filename);
+            // $pdf->saveAs(public_path("download/pdf/".$filename));
+            // $path = public_path("download/pdf/".$filename);
             // return response()->download($path);
             // exit;
-            return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename,'errors'=>''], 200);
+            // return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename,'errors'=>''], 200);
+            $pdf->saveAs(storage_path("app/public/download/pdf/".$filename));
+            $path = storage_path("app/public/download/pdf/".$filename);
+            return response()->json([ 'success' => true, "url"=>asset(Storage::url('download/pdf/'.$filename)),"file_name"=>$filename,'errors'=>''], 200);
             exit;
         }
     }
@@ -3209,10 +3336,10 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice")->get();
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice", "user")->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
-            ->addColumn('action', function ($data) {
+            ->addColumn('action', function ($data) use($userAddInfo){
                 $action = '';
                 if($data->is_refunded == "yes") {
 
@@ -3220,7 +3347,10 @@ class ClientdashboardController extends BaseController
                     $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 } else {
                     $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
-                    $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                    if($userAddInfo->credit_account_balance < $data->deposit_amount)
+                        $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
+                    else
+                        $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 }
                 return $action;
             })
@@ -3280,9 +3410,11 @@ class ClientdashboardController extends BaseController
                     $dText = "Refund Deposit into Credit (Operating Account)";
                 else
                     $dText = "Deposit into Credit (Operating Account)";
+
+                $noteContent = '<div>'.$data->notes.'</div>';
                 return $dText.' '.$isRefund.'<br>
-                        <a tabindex="0" class="" role="button" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$noteContent.'">View Notes</a>';
             })
             ->rawColumns(['action', 'detail', 'related_to_invoice_id'])
             ->with("credit_total", $userAddInfo->credit_account_balance ?? 0.00)
@@ -3357,20 +3489,19 @@ class ClientdashboardController extends BaseController
         // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
+        $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$request->client_id)->first();
         
         $validator = \Validator::make($request->all(), [
-            'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount,
+            'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount.'|lt:'.$UsersAdditionalInfo->credit_account_balance,
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
+            'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-                
             // DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('credit_account_balance', $request['amount']);
-            
-            $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$request->client_id)->first();
 
             if($creditHistory->payment_type == "withdraw") {
                 $fund_type='refund withdraw';
@@ -4194,25 +4325,26 @@ class ClientdashboardController extends BaseController
     public function saveTrustAllocation(Request $request)
     {
         // return $request->all();
+        if($request->allocated_balance > 0) {
+            $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
+            $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
+            $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
+            $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
+            TrustHistory::create([
+                "client_id" => $request->client_id,
+                "payment_method" => 'Trust Allocation',
+                // "withdraw_amount" => ($diffAmt > 0) ? $diffAmt : 0.00,
+                "amount_paid" => abs($diffAmt),
+                "current_trust_balance" => $userAddInfo->trust_account_balance,
+                "payment_date" => date('Y-m-d'),
+                "notes" => ($diffAmt > 0) ? 'Deallocate Trust Funds from #'.$request->case_id : 'Allocate Trust Funds from #'.$request->client_id,
+                "fund_type" => ($diffAmt > 0) ? 'deallocate_trust_fund' : 'allocate_trust_fund',
+                "allocated_to_case_id" => $request->case_id,
+                "created_by" => Auth::user()->id,
+            ]);
 
-        $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
-        $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
-        $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
-        $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
-        TrustHistory::create([
-            "client_id" => $request->client_id,
-            "payment_method" => 'Trust Allocation',
-            // "withdraw_amount" => ($diffAmt > 0) ? $diffAmt : 0.00,
-            "amount_paid" => abs($diffAmt),
-            "current_trust_balance" => $userAddInfo->trust_account_balance,
-            "payment_date" => date('Y-m-d'),
-            "notes" => ($diffAmt > 0) ? 'Deallocate Trust Funds from #'.$request->case_id : 'Allocate Trust Funds from #'.$request->client_id,
-            "fund_type" => ($diffAmt > 0) ? 'deallocate_trust_fund' : 'allocate_trust_fund',
-            "allocated_to_case_id" => $request->case_id,
-            "created_by" => Auth::user()->id,
-        ]);
-
-        return response()->json(['errors'=>'', 'msg'=>"Balance allocation is successful"]);
+            return response()->json(['errors'=>'', 'msg'=>"Balance allocation is successful"]);
+        }
     }
 
 
