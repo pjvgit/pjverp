@@ -368,12 +368,12 @@ function addDaysToDate(bill_invoice_date, days){
     }
 
     if(selectdValue=="5"){
-        $("#automated_reminders").prop("checked",false);/*  */
-        $("#automated_reminders").prop("disabled",true);
+        // $("#automated_reminders").prop("checked",false);/*  */
+        // $("#automated_reminders").prop("disabled",true);
         $('#bill_due_date').val('');
     }else{
-        $("#automated_reminders").prop("disabled",false);
-        $("#automated_reminders").prop("checked",true);
+        // $("#automated_reminders").prop("disabled",false);
+        // $("#automated_reminders").prop("checked",true);
     }
  
 }

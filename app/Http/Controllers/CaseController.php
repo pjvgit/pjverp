@@ -358,8 +358,8 @@ class CaseController extends BaseController
                 $caseStageHistory = new CaseStageUpdate;
                 $caseStageHistory->stage_id=($caseStatusChange->case_status)??NULL;
                 $caseStageHistory->case_id=$caseStatusChange->id;
-                $caseStageHistory->start_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
-                $caseStageHistory->end_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
+                $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($caseStatusChange->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');
+                $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($caseStatusChange->case_open_date)))), auth()->user()->user_timezone ?? 'UTC');
                 $caseStageHistory->created_by=Auth::user()->id; 
                 $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
                 $caseStageHistory->save();
@@ -663,8 +663,8 @@ class CaseController extends BaseController
             $caseStageHistory = new CaseStageUpdate;
             $caseStageHistory->stage_id=($caseStatusChange->case_status)??NULL;
             $caseStageHistory->case_id=$caseStatusChange->id;
-            $caseStageHistory->start_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
-            $caseStageHistory->end_date = date('Y-m-d',strtotime($caseStatusChange->case_open_date));
+            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $caseStageHistory->created_by=Auth::user()->id; 
             $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
             $caseStageHistory->save();
@@ -5813,8 +5813,8 @@ class CaseController extends BaseController
                     $caseStageHistory->stage_id=$request->case_status[$k];
                     $caseStageHistory->case_id=$request->case_id;
                     $caseStageHistory->created_by=Auth::user()->id; 
-                    $caseStageHistory->start_date = date('Y-m-d',strtotime($request->start_date[$k]));
-                    $caseStageHistory->end_date = date('Y-m-d',strtotime($request->end_date[$k]));
+                    $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
+                    $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
                     $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
                     $caseStageHistory->save();
                    
@@ -5829,8 +5829,8 @@ class CaseController extends BaseController
                             $caseStageHistory->stage_id=0;
                             $caseStageHistory->case_id=$request->case_id;
                             $caseStageHistory->created_by=Auth::user()->id; 
-                            $caseStageHistory->start_date = date('Y-m-d',strtotime($request->end_date[$k]));
-                            $caseStageHistory->end_date = date('Y-m-d',strtotime($request->start_date[$k+1]));
+                            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
+                            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$k+1])))), auth()->user()->user_timezone ?? 'UTC'); 
                             $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
                             $caseStageHistory->save();
                         }
@@ -6182,7 +6182,7 @@ class CaseController extends BaseController
         
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
-        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
+        ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), "messages.updated_at as last_post", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
         }

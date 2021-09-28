@@ -279,9 +279,12 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Select User Account</label>
                     <select class="form-control" id="from_credit_account" name="credit_account" style="width: 100%;">
                         <option></option>
-                        <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                        <?php foreach($trustAccounts as $key=>$val){?>
+                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
+                        <?php } ?>
+                        <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                             ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
-                        </option>
+                        </option> -->
                     </select>
                     <span id="ccaccount"></span>
                 </div>

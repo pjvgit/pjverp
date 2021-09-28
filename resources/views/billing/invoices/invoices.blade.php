@@ -383,6 +383,10 @@ td,th{
     color: white;
     padding-left: 13px;
 }
+.select2Selected{
+    background-color: red;
+    background-image: none;
+}
 </style>
 
 @include('billing.invoices.partials.invoice_action_modal')
@@ -926,6 +930,10 @@ td,th{
             theme: "classic",
             allowClear: true
         });
+        var searchBy = "{{$serachBy}}";
+        if(searchBy != ''){
+            $(".select2-selection__rendered").css({"color":"red", "font-weight": "900"});
+        }
         $('.dropdown-toggle').dropdown();
         $('#payInvoice').on('hidden.bs.modal', function () {
             invoiceGrid.ajax.reload(null, false);

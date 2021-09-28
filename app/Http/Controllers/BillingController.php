@@ -1219,6 +1219,7 @@ class BillingController extends BaseController
             ->where("invoices.created_by",$id);
             $InvoiceCounter=$Invoices->count();
             
+            $InvoicesPaidAmount = $InvoicesDraftAmount = $InvoicesSentAmount = $InvoicesPaidPartialAmount = $InvoicesUnsentAmount = $InvoicesPartialAmount = $InvoicesOverdueAmount = 0;
             if($Invoices->get()){
                 foreach($Invoices->get() as $k=>$v){
                     if($v->due_date!=NULL && $v->due_date < date('Y-m-d') && $v->status != "Forwarded"){
@@ -1228,23 +1229,44 @@ class BillingController extends BaseController
                             $updateInvoice->save();
                         }
                     }   
+                    if($v->created_by == $id && $v->status == "Paid"){
+                        $InvoicesPaidAmount += $v->paid_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Draft"){
+                        $InvoicesDraftAmount += $v->total_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Sent"){
+                        $InvoicesSentAmount += $v->total_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Partial"){
+                        $InvoicesPaidPartialAmount += $v->paid_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Unsent"){
+                        $InvoicesUnsentAmount += $v->total_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Partial"){
+                        $InvoicesPartialAmount += $v->paid_amount;
+                    }
+                    if($v->created_by == $id && $v->status == "Overdue"){
+                        $InvoicesOverdueAmount += $v->due_amount;
+                    }
                 }
             }
 
 
-            $InvoicesPaidAmount = Invoices::where("invoices.created_by",$id)->where("invoices.status","Paid")->where("invoices.created_by",$id)->sum("paid_amount");
+            // $InvoicesPaidAmount = Invoices::where("invoices.created_by",$id)->where("invoices.status","Paid")->where("invoices.created_by",$id)->sum("paid_amount");
            
-            $InvoicesPaidPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status","Partial")->where("invoices.created_by",$id)->sum("paid_amount");
+            // $InvoicesPaidPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status","Partial")->where("invoices.created_by",$id)->sum("paid_amount");
 
-            $InvoicesSentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Sent')->where("invoices.created_by",$id)->sum("total_amount");
+            // $InvoicesSentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Sent')->where("invoices.created_by",$id)->sum("total_amount");
 
-            $InvoicesDraftAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Draft')->where("invoices.created_by",$id)->sum("total_amount");
+            // $InvoicesDraftAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Draft')->where("invoices.created_by",$id)->sum("total_amount");
 
-            $InvoicesUnsentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Unsent')->where("invoices.created_by",$id)->sum("total_amount");
+            // $InvoicesUnsentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Unsent')->where("invoices.created_by",$id)->sum("total_amount");
 
-            $InvoicesPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Partial')->where("invoices.created_by",$id)->sum("paid_amount");
+            // $InvoicesPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Partial')->where("invoices.created_by",$id)->sum("paid_amount");
             
-            $InvoicesOverdueAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Overdue')->where("invoices.created_by",$id)->sum("due_amount");
+            // $InvoicesOverdueAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Overdue')->where("invoices.created_by",$id)->sum("due_amount");
             
             $getCaseIds = Invoices::select("case_id")->get()->pluck('case_id');
             $getClientIds = Invoices::select("user_id")->get()->pluck('user_id');
@@ -1431,7 +1453,7 @@ class BillingController extends BaseController
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
-                $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level","users_additional_info.trust_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
+                $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
                 return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts'));
                 exit;    
             }else{
@@ -1522,7 +1544,7 @@ class BillingController extends BaseController
                         
                         $TrustInvoice=new TrustHistory;
                         $TrustInvoice->client_id=$request->trust_account;
-                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->payment_method='Trust';
                         $TrustInvoice->amount_paid=$request->amount;
                         $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
@@ -1549,7 +1571,7 @@ class BillingController extends BaseController
                         
                         $TrustInvoice=new TrustHistory;
                         $TrustInvoice->client_id=$request->contact_id;
-                        $TrustInvoice->payment_method=$request->payment_method;
+                        $TrustInvoice->payment_method='Trust';
                         $TrustInvoice->amount_paid=$request->amount;
                         $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
@@ -5027,7 +5049,7 @@ class BillingController extends BaseController
                 $InvoiceSave->status = $request->bill_sent_status;
             }else{
                 if($request->bill_due_date != ''){
-                    if(strtotime($request->bill_invoice_date) >= strtotime($request->bill_due_date)){
+                    if(strtotime($request->bill_invoice_date) <= strtotime($request->bill_due_date)){
                         $InvoiceSave->status = "Overdue";
                     }
                 }else{
@@ -9334,7 +9356,7 @@ class BillingController extends BaseController
         $InvoiceData=Invoices::find($request->invoice_id);
         $finalAmt = $InvoiceData['total_amount'] - $InvoiceData['paid_amount'];
 
-        $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"credit_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$InvoiceData['user_id'])->first();
+        $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"credit_account_balance","users.id as uid")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$request->credit_account)->first();
 
         $validator = \Validator::make($request->all(), [
             'credit_account' => 'required',
@@ -9427,7 +9449,7 @@ class BillingController extends BaseController
                  //Add Invoice history
                  $data=[];
                  $data['case_id']=$InvoiceData['case_id'];
-                 $data['user_id']=$InvoiceData['user_id'];
+                 $data['user_id']=$request->credit_account;
                  $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Non-Trust Credit Account)';
                  $data['activity_for']=$InvoiceData['id'];
                  $data['type']='invoices';
@@ -9438,7 +9460,7 @@ class BillingController extends BaseController
                 //Get previous amount
                 $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","credit")->orderBy("id","DESC")->first();
                 $activityHistory=[];
-                $activityHistory['user_id']=$InvoiceData['user_id'];
+                $activityHistory['user_id']=$request->credit_account;
                 $activityHistory['related_to']=$InvoiceData['id'];
                 $activityHistory['case_id']=$InvoiceData['case_id'];
                 $activityHistory['credit_amount']=0.00;
@@ -9463,7 +9485,7 @@ class BillingController extends BaseController
                 //Get previous amount
                 $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
                 $activityHistory=[];
-                $activityHistory['user_id']=$InvoiceData['user_id'];
+                $activityHistory['user_id']=$request->credit_account;
                 $activityHistory['related_to']=$InvoiceData['id'];
                 $activityHistory['case_id']=$InvoiceData['case_id'];
                 $activityHistory['credit_amount']=0.00;

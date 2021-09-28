@@ -21,7 +21,7 @@ class ReplyMessages extends Authenticatable
     public function getCreatedDateNewAttribute(){
         if($this->created_at!=NULL){
             $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
-            return date('M d,H:ia',strtotime($userTime));
+            return date('M d,h:ia',strtotime($userTime));
         }else{
             return '--';
         }

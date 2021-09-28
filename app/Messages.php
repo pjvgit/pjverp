@@ -21,7 +21,7 @@ class Messages extends Authenticatable
     public function getLastPostAttribute(){
         if($this->updated_at!=NULL){
             $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
-            return date('d F H:i A',strtotime($userTime));
+            return date('d F h:i A',strtotime($userTime));
         }
     }
 }

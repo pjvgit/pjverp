@@ -1199,6 +1199,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#statusList").toggle();
     }
     function selectMethod() {
+        console.log("selectMethod when case stage change");
         $("#innerLoader").css('display', 'block');
         var selectdValue = $("#case_status option:selected").val();
         $.ajax({

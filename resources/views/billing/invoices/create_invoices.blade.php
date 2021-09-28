@@ -785,7 +785,7 @@ var start = 0;
                 $('td:eq(7)', nRow).html('<div class="text-left">' + aData.last_invoice +
                     '</div>');
                 console.log("client: "+aData.selected_user);
-                if(aData.selected_user && aData.deleted_at == null) {
+                if(aData.selected_user && aData.deleted_at == null && aData.is_billing_contact == 'yes') {
                     $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                         '/bills/invoices/new?page=open&court_case_id=' + aData.ccid + '&token=' + aData
                         .token + '">Invoice This Case</a></div>');

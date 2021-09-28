@@ -165,7 +165,11 @@ if(!isset($addition)){ $addition=0;}
                                     <td>
                                         <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" >
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ ( @$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : "") }}>{{ $item }}</option>
+                                                <option value="{{ $key }}" {{ 
+                                                    (
+                                                        (old('payment_terms') == $key) ? 'selected' : 
+                                                            ((@$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : 
+                                                                (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : ""))) }}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -188,11 +192,17 @@ if(!isset($addition)){ $addition=0;}
                                             style="display: inline; position: relative; top: -7px; left: 5px; color: rgb(0, 112, 187);"
                                             class="switch pr-5 switch-success mr-3">
                                             <span data-toggle="tooltip" data-placement="bottom"
-                                                {{-- title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."><i --}}
+                                               
                                                 title="{{ (isset($invoiceSetting) && $invoiceSetting->reminderSchedule) ? $invoiceSetting->getReminderMessage() : "" }}"><i
                                                     class="pl-1 fas fa-question-circle fa-lg"></i></span>
-
-                                            <input type="checkbox" name="automated_reminders" id="automated_reminders" disabled><span
+                                            <input type="checkbox" name="automated_reminders" id="automated_reminders" <?php 
+                                                    if(old('automated_reminders') == "on") {
+                                                        echo  "enabled checked" ;
+                                                    }else{
+                                                        echo ((old('payment_terms') != 5) ? 'enabled checked' : 
+                                                            ((@$invoiceSetting->default_invoice_payment_terms == $key) ? "enabled checked" : 
+                                                                (( $arrSetting['bill_payment_terms'] == $key) ? "enabled checked" : "")));
+                                                    } ?>><span
                                                 class="slider">
                                             </span>
                                         </label>
@@ -205,9 +215,17 @@ if(!isset($addition)){ $addition=0;}
                                         Status </td>
                                     <td style=" vertical-align: bottom;">
                                         <select id="bill_sent_status" name="bill_sent_status" class="custom-select">
-                                            <option value="Draft" {{ ((old('bill_sent_status') == 'Draft') ? "selected" : (( $arrSetting['bill_sent_status'] == 'Draft') ? "selected" : "") ) }} >Draft</option>
-                                            <option value="Unsent" {{ ((old('bill_sent_status') == 'Unsent')? "selected" : (( $arrSetting['bill_sent_status'] == 'Unsent') ? "selected" : "")) }} >Unsent</option>
-                                            <option value="Sent" {{ ((old('bill_sent_status') == 'Sent') ? "selected" : (( $arrSetting['bill_sent_status'] == 'Sent') ? "selected" : "")) }} >Sent</option>
+                                            <?php $arrStatus = ["Draft", "Unsent", "Sent"]; ?>
+                                            @foreach($arrStatus as $status)
+                                                <option value="{{$status}}" 
+                                                <?php 
+                                                    if(old('bill_sent_status') != ''){
+                                                        echo (old('bill_sent_status') == $status) ? "selected" : "" ;
+                                                    }else{
+                                                        echo ($arrSetting['bill_sent_status'] == $status) ? "selected" : "Unsent" ;
+                                                    }
+                                                 ?> >{{$status}}</option>
+                                            @endforeach;
                                         </select>
                                     </td>
                                 </tr>
