@@ -131,6 +131,9 @@ $(document).ready(function() {
             { "data": "total_balance"},
             { "data": "action", orderable: false, searchable: false },
         ],
+        initComplete: function () {
+            $("[data-toggle=popover]").popover();
+        },
         "ajax": {
             url: url,
             type: "post", // method  , by default get
@@ -146,6 +149,7 @@ $(document).ready(function() {
         "drawCallback": function (settings) { 
             var response = settings.json;
             $(".trust-total-balance").text(response.trust_total);
+            $("[data-toggle=popover]").popover();
         },
     });
 });

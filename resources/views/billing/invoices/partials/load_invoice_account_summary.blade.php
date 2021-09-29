@@ -3,12 +3,18 @@
 		$lableShow = 0;
 		$appliedTrustClient = $findInvoice->applyTrustFund/* ->pluck("show_trust_account_history", "client_id")->toArray() */;
 		$appliedcreditClient = $findInvoice->applyCreditFund/* ->pluck("show_credit_account_history", "client_id")->toArray() */;
-		foreach($appliedTrustClient as $k => $v){
+		$showTrustHistory = $findInvoice->applyTrustFund->pluck("show_trust_account_history")->toArray();
+		$showCreditHistory = $findInvoice->applyCreditFund->pluck("show_credit_account_history")->toArray();
+		$lableShow = 1;
+		if ((count(array_flip($showTrustHistory)) === 1 && end($showTrustHistory) === 'dont show') && (count(array_flip($showCreditHistory)) === 1 && end($showCreditHistory) === 'dont show')) {
+			$lableShow = 0;
+		}
+		/* foreach($appliedTrustClient as $k => $v){
 			$lableShow = ($v == 'dont show') ? 0 : 1;
 		}
 		foreach($appliedcreditClient as $k => $v){
 			$lableShow = ($v == 'dont show') ? 0 : 1;
-		}
+		} */
 	@endphp
 	<div class="ledger-histories">				
         @if(isset($caseMaster) && !empty($caseMaster->caseAllClient))

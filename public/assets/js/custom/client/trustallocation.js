@@ -86,12 +86,13 @@ $(document).on("click", ".confirm-btn", function() {
             if (res.errors != '') {
                 return false;
             } else {
-                toastr.success(res.msg, "", {
-                    positionClass: "toast-top-full-width",
-                    containerId: "toast-top-full-width"
-                });
-                // window.location.reload();
-                trustAllocationList();
+                if(res.msg != '') {
+                    toastr.success(res.msg, "", {
+                        positionClass: "toast-top-full-width",
+                        containerId: "toast-top-full-width"
+                    });
+                    trustAllocationList();
+                }
                 $("#trust_allocation_modal").modal("hide");
             }
         }

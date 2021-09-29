@@ -577,7 +577,9 @@
                 ({{$hVal->responsible['user_title']}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                {{ ($hVal->acrtivity_title=="Payment Received") ? $hVal->deposit_into : '' }}
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account'){
+                    {{ $hVal->deposit_into }}
+                @endif
             </td>
         </tr>
         @empty
@@ -588,7 +590,7 @@
 <br>
 
 @if(!empty($invoice->invoice_setting))
-    @if(/* $invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && */ !empty($invoice->applyTrustCreditFund))
+    @if(!empty($invoice->applyTrustCreditFund))
     <div>
         @include('billing.invoices.partials.load_invoice_account_summary_pdf', ['Invoice' => $invoice])
     </div>

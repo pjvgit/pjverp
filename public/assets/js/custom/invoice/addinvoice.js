@@ -338,7 +338,6 @@ $(document).ready(function () {
 function addDaysToDate(bill_invoice_date, days){
     var now = new Date(bill_invoice_date);
     now.setDate(now.getDate()+days);
-    console.log(now);
     return (now.getMonth() + 1).toString().padStart(2, '0') + '/' + now.getDate().toString().padStart(2, '0') + '/' + now.getFullYear();
 }
 /**
@@ -389,6 +388,7 @@ $('.apply-trust-amt, .apply-credit-amt').keypress(function(event) {
 $(".apply-trust-amt").on("focusout", function() {
     var amt = $(this).val();
     var totalAmt = parseFloat($(this).attr("data-max-amt"));
+    var clientId = $(this).attr("data-client-id");
     if(amt != '') {
         amt = parseFloat(amt);
         if(amt < totalAmt) {
@@ -398,13 +398,14 @@ $(".apply-trust-amt").on("focusout", function() {
             $(this).val(totalAmt.toFixed(2));
             $(this).parents('tr').find(".remain-trust-balance").text("0.00");
         }
-        $(this).parents('tr').find(".deposit-into-account").addClass("required");
+        // $(this).parents('tr').find(".deposit-into-account").addClass("required");
+        $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).addClass("required");
     } else {
         $(this).parents('tr').find(".remain-trust-balance").text(totalAmt.toFixed(2));
-        $(this).parents('tr').find(".deposit-into-account").removeClass("required");
+        // $(this).parents('tr').find(".deposit-into-account").removeClass("required");
+        $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).removeClass("required");
     }
     calculateAppliedTotalAmount();
-    // $('#saveInvoiceForm').valid();
 });
 
 // Apply credit balance
@@ -424,7 +425,6 @@ $(".apply-credit-amt").on("focusout", function() {
         $(this).parents('tr').find(".remain-credit-balance").text(totalAmt.toFixed(2));
     }
     calculateAppliedTotalAmount();
-    // $('#saveInvoiceForm').valid();
 });
 
 // Calculate trust/credit applied total amount
