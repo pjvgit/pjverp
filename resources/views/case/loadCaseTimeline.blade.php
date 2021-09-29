@@ -44,7 +44,7 @@
             <div class="col-3">
                 <input type="text" id="end_date_{{$key+1}}"   class="form-control dp"  name="end_date[{{$key}}]" value="{{date('m/d/Y',strtotime($stage['end_date'] ?? convertUTCToUserTimeZone('dateOnly')))}}" onchange="getEndDate({{$key+1}})"></p>
             </div>
-            <input type="hidden" name="state_id[{{$key}}]" value="{{$stage['id']}}">
+            <input type="hidden" name="state_id[{{$key}}]" value="{{$key}}">
 
             <div class="col-2">
                 <?php 
@@ -164,7 +164,8 @@
         });
         $(".add-more-index").click(function () {
             var cur= $(".counterIc").length;
-            var fieldHTML = '<div class="form-group fieldGroup"><div class="row fieldGroupCopy" ><div class="col-3 d-flex"><p class="mt-2 mr-1 counterIc">0)</p> <select id="case_status_'+cur+'" name="case_status[]" class="form-control custom-select col"><option value="0">No Stage</option> <?php foreach($caseStageList as $kcs=>$vcs){?><option value="{{$vcs->id}}">{{$vcs->title}}</option> <?php } ?> </select></div><div class="col-3"> <input type="text" id="start_date_'+cur+'"  name="start_date[]" onchange="getEndDate('+cur+')"  class="form-control dp" autocomplete="off" value=""></p></div><div class="col-3"> <input type="text" name="end_date[]" id="end_date_'+cur+'" class="form-control dp" onchange="getEndDate('+cur+')" value=""></p></div><div class="col-2"> <input type="text" autocomplete="off"class="form-control" name="days[]" id="days_'+cur+'" disabled value="0"></div><div class="col-1"> <button type="button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link"></button></div></div></div>';
+            var setIndex=  cur - 1;
+            var fieldHTML = '<div class="row fieldGroup"><div class="col-3 d-flex"><p class="mt-2 mr-1 counterIc">0)</p> <select id="case_status_'+cur+'" name="case_status['+setIndex+']" class="form-control custom-select col"><option value="0">No Stage</option> <?php foreach($caseStageList as $kcs=>$vcs){?><option value="{{$vcs->id}}">{{$vcs->title}}</option> <?php } ?> </select></div><div class="col-3"> <input type="text" id="start_date_'+cur+'"  name="start_date['+setIndex+']" onchange="getEndDate('+cur+')"  class="form-control dp" autocomplete="off" value=""></p></div><div class="col-3"> <input type="text" name="end_date['+setIndex+']" id="end_date_'+cur+'" class="form-control dp" onchange="getEndDate('+cur+')" value=""></p></div><div class="col-2"> <input type="hidden" name="state_id['+setIndex+']" value="'+setIndex+'"><input type="text" autocomplete="off"class="form-control" name="days['+setIndex+']" id="days_'+cur+'" disabled value="0"></div><div class="col-1"> <button type="button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link"></button></div></div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
             $('.dp').datepicker({
                 'format': 'mm/dd/yyyy',

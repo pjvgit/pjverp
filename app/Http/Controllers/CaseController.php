@@ -5765,91 +5765,121 @@ class CaseController extends BaseController
    }
 
    public function saveCaseHistory(Request $request)
-   {        
+   {   
     //    dd($request->all());
-       $validator = \Validator::make($request->all(), [
-           'start_date.*' => 'required',
-           'case_id' => 'required',
-           'end_date.*' => 'required'
-       ],['start_date.*.required'=>"Start date is required field.",'end_date.*.required'=>"End date is required field."]);
-       if($validator->fails())
-       {
-           return response()->json(['errors'=>$validator->errors()->all()]);
-       }else{
-            $errors = [];            
+        $validator = \Validator::make($request->all(), [
+            'start_date.*' => 'required',
+            'case_id' => 'required',
+            'end_date.*' => 'required'
+        ],['start_date.*.required'=>"Start date is required field.",'end_date.*.required'=>"End date is required field."]);
+        if($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $errors = $errorIndex = [];          
             if(isset($request->state_id) && !empty($request->state_id)){
                 foreach($request->state_id as $k=>$v){
+                    // echo $k."- [5782] >  start_date -> ".$request->start_date[$k]."end_date -> ".$request->end_date[$k];
+                    // echo "<br>";
                     if(strtotime($request->start_date[$k]) > strtotime($request->end_date[$k])) 
                     {
                         $errors[$k] = $request->end_date[$k].' End date must be come after start date '.$request->start_date[$k];                    
                     }      
-                    if(isset($request->start_date[$k+1])){
-                        if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
-                            $errors[$k] = 'Wrong Date selection of next to index of '.($k+1);                    
-                        }
-                    }
-                }
-            }
-            if(isset($request->case_status) && !empty($request->case_status)){
-                $CaseMaster=CaseMaster::find($request->case_id);
-                if($CaseMaster->case_status > 0){
-                    foreach($request->case_status as $k=>$v){
-                        if($CaseMaster->case_status == $request->case_status[$k]){ 
-                            $errors[$k] = 'The Current Stage is not used again in index of '.($k+1);                    
-                        }
-                    }
-                }
-            }
-            if(empty($errors)){
-            $CaseStageUpdate=CaseStageUpdate::where("case_id",$request->case_id)->delete();
-            if(isset($request->case_status) && !empty($request->case_status)){                
-                foreach($request->case_status as $k=>$v){
-                    
-                    $start = strtotime($request->start_date[$k]);
-                    $end = strtotime($request->end_date[$k]);
-                    $days_between = abs($end - $start) / 86400;
-
-                    $caseStageHistory = new CaseStageUpdate;
-                    $caseStageHistory->stage_id=$request->case_status[$k];
-                    $caseStageHistory->case_id=$request->case_id;
-                    $caseStageHistory->created_by=Auth::user()->id; 
-                    $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
-                    $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
-                    $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
-                    $caseStageHistory->save();
                    
                     if(isset($request->start_date[$k+1])){
-                        if($request->end_date[$k] != $request->start_date[$k+1]){
-                            
-                            $start = strtotime($request->end_date[$k]);
-                            $end = strtotime($request->start_date[$k+1]);
+                        // echo ($k+1)." - [5789] > start_date -> ".$request->start_date[$k+1]."end_date -> ".$request->end_date[$k];
+                        // echo "<br>";
+                        if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
+                            array_push($errorIndex, ($k+1));
+                            // echo 'Wrong Date selection of next to index of '.($k+1);  
+                            // echo "<br>";
+                            // $errors[$k] = 'Row number '.($k+1).' have conflicting start/end dates';
+                        }
+                    }
+                }
+                if(count($errorIndex) > 0){
+                    $errors['99'] = 'Row number '.implode(', ', $errorIndex).' have conflicting start/end dates';
+                }
+            }
+            // if(isset($request->case_status) && !empty($request->case_status)){
+            //     $CaseMaster=CaseMaster::find($request->case_id);
+            //     if($CaseMaster->case_status > 0){
+            //         foreach($request->case_status as $k=>$v){
+            //             if($CaseMaster->case_status == $request->case_status[$k]){ 
+            //                 $errors[$k] = 'The Current Stage is not used again in index of '.($k+1);                    
+            //             }
+            //         }
+            //     }
+            // }                 
+            
+            // $errors['2'] = max($request->state_id);
+            if(empty($errors)){
+                $CaseStageUpdate=CaseStageUpdate::where("case_id",$request->case_id)->forceDelete();
+                $new_array = array();
+                if(isset($request->state_id) && !empty($request->state_id)){    
+                    $arrayCount = max($request->state_id);
+                    for ($i=0; $i <= $arrayCount; $i++) { 
+                        if(isset($request->state_id[$i])){
+                            $start = strtotime($request->start_date[$i]);
+                            $end = strtotime($request->end_date[$i]);
                             $days_between = abs($end - $start) / 86400;
 
                             $caseStageHistory = new CaseStageUpdate;
-                            $caseStageHistory->stage_id=0;
+                            $caseStageHistory->stage_id=$request->case_status[$i];
                             $caseStageHistory->case_id=$request->case_id;
                             $caseStageHistory->created_by=Auth::user()->id; 
-                            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$k])))), auth()->user()->user_timezone ?? 'UTC'); 
-                            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$k+1])))), auth()->user()->user_timezone ?? 'UTC'); 
+                            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$i])))), auth()->user()->user_timezone ?? 'UTC'); 
+                            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$i])))), auth()->user()->user_timezone ?? 'UTC'); 
                             $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
                             $caseStageHistory->save();
+                        
+                            if(isset($request->start_date[$i+1])){
+                                if($request->end_date[$i] != $request->start_date[$i+1]){
+                                    
+                                    $start = strtotime($request->end_date[$i]);
+                                    $end = strtotime($request->start_date[$i+1]);
+                                    $days_between = abs($end - $start) / 86400;
+
+                                    $caseStageHistory = new CaseStageUpdate;
+                                    $caseStageHistory->stage_id=0;
+                                    $caseStageHistory->case_id=$request->case_id;
+                                    $caseStageHistory->created_by=Auth::user()->id; 
+                                    $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$i])))), auth()->user()->user_timezone ?? 'UTC'); 
+                                    $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$i+1])))), auth()->user()->user_timezone ?? 'UTC'); 
+                                    $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
+                                    $caseStageHistory->save();
+                                }
+                            }     
+                                                
+                        }else{
+                            if(($i-1) > 0){
+                                $start = strtotime($request->end_date[$i-1]);
+                                $end = strtotime($request->start_date[$i+1]);
+                                $days_between = abs($end - $start) / 86400;
+
+                                $caseStageHistory = new CaseStageUpdate;
+                                $caseStageHistory->stage_id=0;
+                                $caseStageHistory->case_id=$request->case_id;
+                                $caseStageHistory->created_by=Auth::user()->id; 
+                                $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->end_date[$i-1])))), auth()->user()->user_timezone ?? 'UTC'); 
+                                $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date[$i+1])))), auth()->user()->user_timezone ?? 'UTC'); 
+                                $caseStageHistory->days = ($days_between>0.99) ? ceil($days_between) : 0.5;
+                                $caseStageHistory->save();
+                            }
                         }
-                    }                    
-                   
-                }
-            }
-            
-            
-            session(['popup_success' => 'Case stage timeline history has been successfully saved.']);
-            return response()->json(['errors'=>'']);
-            exit;
+                    }
+                    $errors[99] = $arrayCount;
+                }           
+                
+                session(['popup_success' => 'Case stage timeline history has been successfully saved.']);
+                return response()->json(['errors'=>'']);
+                exit;
             }else{
                 return response()->json(['errors'=>$errors]);
                 exit;
-            }
-        
-       }
-   }
+            }        
+        }
+    }
 
     //Hide the popup when page reload or second time it will open
    public function dismissCaseModal(Request $request)

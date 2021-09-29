@@ -213,9 +213,20 @@ $finalAmt=$invoice-$paid;
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
+                    <label for="firstName1">Select Bank Account</label>
+                    <select class="form-control caller_name " id="bank_account" name="bank_account" style="width: 100%;"
+                        placeholder="Select a bank account" disabled>
+                        <option></option>
+                        <option value="trust">Trust Account</option>
+                    </select>
+                    <span id="bankacount"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
                     <label for="firstName1">Trust Account</label>
-                    <select class="form-control caller_name trust_account" id="trust_account" name="trust_account" style="width: 100%;"
-                        placeholder="Select an account">
+                    <select class="form-control caller_name trust_account bank_trust_account" id="trust_account" name="trust_account" style="width: 100%;"
+                        placeholder="Select an account" disabled>
                         <option></option>
                     </select>
                     <span id="taacount"></span>
@@ -438,6 +449,9 @@ $finalAmt=$invoice-$paid;
                 contact_id: {
                     required: true,
                 },
+                bank_account: {
+                    required: true,
+                },
                 trust_account: {
                     required: true,
                 },
@@ -448,6 +462,9 @@ $finalAmt=$invoice-$paid;
             messages: {
                 contact_id: {
                     required: "Contact is required",
+                },
+                bank_account: {
+                    required: "Bank Account is required",
                 },
                 trust_account: {
                     required: "Account is required",
@@ -778,8 +795,63 @@ $('#trust_contact_id').on('select2:select', function (e) {
     var data = e.params.data;
     getClientCases(data.id);
     // localStorage.setItem("selectedContact", data.id);
-
+    // $("#bank_account").attr("disabled",false);
+    $("#bank_account").removeAttr('disabled');
 });
+
+$('#bank_account').on('change', function (e) {
+    $(".bank_trust_account").removeAttr('disabled');
+});
+
+$('#offline-payment-tab').on('click', function (e) {
+    $("#PayInvoiceForm").trigger("reset");
+    $("#payment_method").select2({
+        placeholder: "Select method",
+        theme: "classic",
+        allowClear: true,
+    });
+    $("#contact_id").select2({
+        placeholder: "Select contact",
+        theme: "classic",
+        allowClear: true,
+    });
+    $("#deposit_into").select2({
+        placeholder: "Select a bank account",
+        theme: "classic",
+        allowClear: true,
+    });
+    $("#trust_account").select2({
+        placeholder: "Select an account",
+        theme: "classic",
+        allowClear: true,
+    });
+    return true;
+});
+$('#trust-account-tab').on('click', function (e) {
+    $("#PayInvoiceFromTrustForm").trigger("reset");
+    $("#trust_contact_id").select2({
+        placeholder: "Select contact",
+        theme: "classic",
+        allowClear: true,
+    });
+    $("#bank_account").select2({
+        placeholder: "Select a bank account",
+        theme: "classic",
+        allowClear: true,
+    });
+    $("#trust_account").select2({
+        placeholder: "Select an account",
+        theme: "classic",
+        allowClear: true,
+    });
+    return true;
+});
+$('#credit-account-tab').on('click', function (e) {
+    $("#PayInvoiceFromCreditForm").trigger("reset");
+    return true;
+});
+
+
 function getClientCases(clientId) {
     var case_id = "{{$invoiceData['case_id']}}";
     var optgroup = '';
@@ -803,7 +875,7 @@ function getClientCases(clientId) {
             
             if(data.user) {
                 optgroup += "<optgroup label='Unallocated'>";
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.trust_account_balance+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.unallocate_trust_balance+")" + "</option>";
                 optgroup += "</optgroup>";
             }
             

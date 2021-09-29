@@ -280,7 +280,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                             </optgroup> --}}
                             <optgroup label="Batches">
                                 <?php foreach($InvoicesBatches as $batchesKey=>$batchesVal){ ?>
-                                <option uType="batch" <?php if($serachOn=="batches" && $batchesVal->invoice_batch_id==$serachBy){ echo "selected=selected"; } ?>  value="{{base64_encode($batchesVal->invoice_batch_id)}}-{{base64_encode('batches')}}">{{$batchesVal->batch_code}}</option>
+                                <option uType="batch" <?php if($serachOn=="batches" && $batchesVal->invoice_batch_id==$serachBy){ echo "selected=selected"; } ?>  value="{{base64_encode($batchesVal->invoice_batch_id)}}-{{base64_encode('batches')}}"><?php if($serachOn=="batches" && $batchesVal->invoice_batch_id==$serachBy){ echo "Batch : "; } ?>{{$batchesVal->batch_code}}</option>
                                 <?php } ?>
                             </optgroup>
                             

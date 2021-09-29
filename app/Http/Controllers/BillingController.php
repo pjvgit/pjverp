@@ -1537,7 +1537,7 @@ class BillingController extends BaseController
                     $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
                     if(!empty($userDataForDeposit)){
                         DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-                            'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
+                            'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] - $request->amount),
                         ]);
 
                         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
@@ -1560,12 +1560,12 @@ class BillingController extends BaseController
                     if(!empty($CaseClientSelection)){
                         DB::table('case_client_selection')->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)
                         ->update([
-                            'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] + $request->amount),
+                            'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] - $request->amount),
                         ]);
 
-                        CaseMaster::where('id', $request->trust_account)->increment('total_allocated_trust_balance', $request->amount);
+                        CaseMaster::where('id', $request->trust_account)->decrement('total_allocated_trust_balance', $request->amount);
                     
-                        UsersAdditionalInfo::where("user_id",$request->contact_id)->increment('trust_account_balance', $request->amount);
+                        UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
                     
                         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
                         
