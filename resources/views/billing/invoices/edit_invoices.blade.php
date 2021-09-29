@@ -1332,9 +1332,9 @@
                                             <tbody>
                                                 @forelse ($findInvoice->applyTrustFund as $key => $item)
                                                     @if($item->applied_amount > 0)
+                                                    <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                     <tr class="apply-funds-row">
                                                         <td class="apply-funds-client">
-                                                            <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                             <span>{{ @$item->client->full_name }}</span></td>
                                                         <td class="apply-funds-account">
                                                             <div>Trust (Trust Account)</div>
@@ -1426,10 +1426,10 @@
                                             </thead>
                                             <tbody>
                                                 @forelse ($findInvoice->applyCreditFund as $key => $item)
+                                                    <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                     @if($item->applied_amount > 0)
                                                     <tr class="apply-funds-row">
                                                         <td class="apply-funds-client">
-                                                            <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                             <span>{{ @$item->client->full_name }}</span></td>
                                                         <td class="apply-funds-account">
                                                             <div>Credit (Operating Account)</div>

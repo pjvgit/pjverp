@@ -2,12 +2,18 @@
     $lableShow = 0;
     $appliedTrustClient = $Invoice->applyTrustFund/* ->pluck("show_trust_account_history", "client_id")->toArray() */;
     $appliedcreditClient = $Invoice->applyCreditFund/* ->pluck("show_credit_account_history", "client_id")->toArray() */;
-    foreach($appliedTrustClient as $k => $v){
+    $showTrustHistory = $Invoice->applyTrustFund->pluck("show_trust_account_history")->toArray();
+    $showCreditHistory = $Invoice->applyCreditFund->pluck("show_credit_account_history")->toArray();
+    $lableShow = 1;
+    if ((count(array_flip($showTrustHistory)) === 1 && end($showTrustHistory) === 'dont show') && (count(array_flip($showCreditHistory)) === 1 && end($showCreditHistory) === 'dont show')) {
+        $lableShow = 0;
+    }
+    /* foreach($appliedTrustClient as $k => $v){
         $lableShow = ($v == 'dont show') ? 0 : 1;
     }
     foreach($appliedcreditClient as $k => $v){
         $lableShow = ($v == 'dont show') ? 0 : 1;
-    }
+    } */
 @endphp
 <div class="ledger-histories">
     @if(isset($Invoice->case) && !empty($Invoice->case->caseAllClient))
@@ -38,7 +44,15 @@
                                     <td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
                                     <td style="vertical-align: top;"> {{ $thitem->related_to_invoice_id ?? "--"}} </td>
                                     <td style="vertical-align: top;"> {{ ($thitem->fund_type == "diposit") ? "Trust deposit" : "Payment from trust" }} </td>
-                                    <td style="vertical-align: top;"> {{ ($thitem->fund_type == "diposit") ? "$".number_format($thitem->amount_paid, 2) : "-$".number_format($thitem->withdraw_amount, 2) }} </td>
+                                    <td style="vertical-align: top;"> 
+                                        @if($thitem->fund_type == "diposit")
+                                        {{ "$".number_format($thitem->amount_paid, 2) }}
+                                        @elseif($thitem->fund_type == "withdraw")
+                                        {{ "-$".number_format($thitem->withdraw_amount, 2) }} 
+                                        @elseif($thitem->fund_type == "payment")
+                                        {{ "-$".number_format($thitem->amount_paid, 2) }}
+                                        @endif
+                                    </td>
                                     <td style="vertical-align: top;"> ${{ number_format($thitem->current_trust_balance, 2) }} </td>
                                 </tr>
                             @empty                                

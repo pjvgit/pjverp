@@ -75,7 +75,7 @@ class RequestedFund extends Authenticatable
     }
 
     public function getCurrentStatusAttribute(){
-        if($this->amount_due =="0.00"){
+        /* if($this->amount_due =="0.00"){
             return "Paid";
         }else if($this->amount_due!="0.00" && $this->amount_paid!="0.00" ){
              return "Partial";
@@ -83,8 +83,8 @@ class RequestedFund extends Authenticatable
             return "Overdue";
         }else{
             return "Sent";
-        }
-        
+        } */
+        return ucfirst($this->status);
     }
     public function getLastSendAttribute(){
         if($this->last_reminder_sent_on!=NULL){
@@ -106,7 +106,7 @@ class RequestedFund extends Authenticatable
             $status = "paid";
         }else if($this->attributes['amount_paid'] < $this->attributes['amount_requested'] && strtotime($this->attributes['due_date']) >= strtotime(date('Y-m-d'))){
             $status = "partial";
-        }else if(strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d'))){
+        }else if(isset($this->attributes['due_date']) && strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d'))){
             $status = "overdue";
         }else{
             $status = "sent";

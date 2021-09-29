@@ -348,7 +348,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <?php  if(!$clientList->isEmpty()){?>
+                            @if(!empty($clientList))
                             <div class="d-flex align-items-center">
                                 <small class="d-flex align-items-center">
                                     <i class="fas fa-circle fa-xs text-danger mr-1"></i>
@@ -357,44 +357,46 @@
                             </div>
                        
                             <table class="table table-sm table-borderless">
-                                <tbody> 
-                                    <?php foreach($clientList as $k=>$v){?>
-                                    <tr class="border-bottom">
-                                        <td class="overdue-invoice">
-                                            <small> 
-                                            <?php  if($v->user_level=="2"){?>
-                                            <a class="text-dark pendo-overdue-invoice-invoice-link" href="{{BASE_URL}}contacts/clients/{{$v->user_id}}">{{$v->first_name}} {{$v->last_name}}  </a>
-                                            <?php }else{ ?>
-                                                <a class="text-dark pendo-overdue-invoice-invoice-link" href="{{BASE_URL}}contacts/companies/{{$v->user_id}}">{{$v->first_name}}   
-                                                </a>
-                                            <?php } ?>
-                                            
-                                            ({{$CommonController->getUserTypeText($v->user_level)}})
-                                                    <span class="font-weight-bold">${{number_format($v->trust_account_balance,2)}}</span>
-                                                    <small>(under min. trust balance)</small>
-                                           
-                                        </td>
-                                        <td>
-                                            <div class="d-flex flex-row-reverse flex-nowrap">
-                                            <?php  if($v->user_level=="2"){?>
-                                            <a class="text-dark pendo-overdue-invoice-invoice-link" href="{{BASE_URL}}contacts/clients/{{$v->user_id}}">
-                                            <?php }else{ ?>
-                                                <a class="text-dark pendo-overdue-invoice-invoice-link" href="{{BASE_URL}}contacts/companies/{{$v->user_id}}">
-                                              
-                                            <?php } ?>
-                                                    <i class="fas fa-eye" title="" data-toggle="tooltip" data-placement="top" data-original-title="View Client"></i>
-                                                    <span class="sr-only">View {{$CommonController->getUserTypeText($v->user_level)}}</span>
-                                                </a> 
-                                            </div>
-                                        </td>
+                                <tbody>
+                                    @forelse ($clientList as $k => $v)
+                                        @if($v->userAdditionalInfo->minimum_trust_balance > $v->userAdditionalInfo->unallocate_trust_balance)
+                                            <tr class="border-bottom">
+                                                <td class="overdue-invoice">
+                                                    <small> 
+                                                    <?php  if($v->user_level=="2"){?>
+                                                    <a class="pendo-low-trust-user" href="{{BASE_URL}}contacts/clients/{{$v->id}}">{{ $v->full_name }}</a>
+                                                    <?php }else{ ?>
+                                                        <a class="pendo-low-trust-user" href="{{BASE_URL}}contacts/companies/{{$v->id}}">{{ $v->full_name }}   
+                                                        </a>
+                                                    <?php } ?>
+                                                    
+                                                    ({{ $v->user_type_text }})
+                                                            <span class="font-weight-bold">${{number_format($v->userAdditionalInfo->minimum_trust_balance - $v->userAdditionalInfo->unallocate_trust_balance,2)}}</span>
+                                                            <small>(under min. trust balance)</small>
+                                                
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex flex-row-reverse flex-nowrap">
+                                                    <?php  if($v->user_level=="2"){?>
+                                                    <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{BASE_URL}}contacts/clients/{{$v->id}}">
+                                                    <?php }else{ ?>
+                                                        <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{BASE_URL}}contacts/companies/{{$v->id}}">
+                                                    
+                                                    <?php } ?>
+                                                            <i class="fas fa-eye" title="" data-toggle="tooltip" data-placement="top" data-original-title="View Client"></i>
+                                                            <span class="sr-only">View {{$CommonController->getUserTypeText($v->user_level)}}</span>
+                                                        </a> 
+                                                    </div>
+                                                </td>
 
 
-                                    </tr>
-                                    <?php } ?>
-                                    
+                                            </tr>
+                                        @endif
+                                    @empty
+                                    @endforelse
                                 </tbody>
                             </table>
-                            <?php } ?>
+                            @endif
                         </div>
                     </div>
                 </div>

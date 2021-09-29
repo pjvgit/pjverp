@@ -4983,6 +4983,7 @@ class BillingController extends BaseController
 
     public function updateInvoiceEntry(Request $request)
     {
+        // return $request->all();
         $InvoiceSave=Invoices::find($request->invoice_id);
         $rules = [
             'invoice_number_padded' => 'required|numeric',

@@ -828,9 +828,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ({{$hVal->responsible['user_title']}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                <?php if($hVal->acrtivity_title=="Payment Received"){
-                        echo $hVal->deposit_into;
-                    } ?>
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account'){
+                    {{ $hVal->deposit_into }}
+                @endif
             </td>
         </tr>
         <?php } 
@@ -844,7 +844,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 <br>
 
 @if(!empty($Invoice->invoice_setting))
-    @if(/* $Invoice->invoice_setting['trust_credit_activity_on_invoice'] != "dont show" && */ !empty($Invoice->applyTrustCreditFund))
+    @if(!empty($Invoice->applyTrustCreditFund))
     <div>
         @include('billing.invoices.partials.load_invoice_account_summary_pdf')
     </div>

@@ -1371,7 +1371,7 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->unallocate_trust_balance ?? 0.00 }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->unallocate_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
@@ -1380,7 +1380,7 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-deposit-into">
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
-                                                                            <select class="form-control deposit-into-account" name="trust[{{$citem->id}}][deposite_into]">
+                                                                            <select class="form-control deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]">
                                                                                 <option value="">Select the deposit into account</option>
                                                                                 <option value="operating account" {{ (old('trust.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
@@ -1409,7 +1409,7 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
@@ -1419,7 +1419,7 @@ if(!isset($addition)){ $addition=0;}
                                                                     @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0)
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
-                                                                            <select class="form-control" name="trust[{{$citem->id}}][deposite_into]">
+                                                                            <select class="form-control deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]">
                                                                                 <option value="">Select the deposit into account</option>
                                                                                 <option value="operating account" {{ (old('trust.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
@@ -2884,12 +2884,9 @@ if(!isset($addition)){ $addition=0;}
                     required: true
                 },
                 total_to_apply: {
-                    // max: function(element) {
-                    //     if($("#final_total_text").val() >= $(element).val())
-                    //         return false;
-                    //     else
-                    //         return true;
-                    // }
+                    max: function() {
+                        return parseFloat($('#final_total_text').val());
+                    }
                 }
             },
             messages: {
@@ -2908,9 +2905,9 @@ if(!isset($addition)){ $addition=0;}
                     error.appendTo('#1Error');
                 } else if (element.is('#court_case_id')) {
                     error.appendTo('#2Error');
-                // } else if (element.attr('name') == "total_to_apply") {
-                //     element.after(error);
-                //     swal("Issue saving invoice!", "Please resolve the issues in the Apply Trust & Credit Funds section and try again");
+                } else if (element.attr('name') == "total_to_apply") {
+                    element.after(error);
+                    swal("Issue saving invoice!", "Please resolve the issues in the Apply Trust & Credit Funds section and try again");
                 } else {
                     element.after(error);
                 }

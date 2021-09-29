@@ -997,7 +997,7 @@ class ClientdashboardController extends BaseController
                 if($data->allocated_to_case_id != null && $data->fund_type != "payment") {
                     $clientLink ='<a class="name" href="'.route('info', $data->allocateToCase->case_unique_number).'">'.$data->allocateToCase->case_title.'</a>';
                 } else {
-                    $clientLink ='<a class="name" href="'.route("contacts/clients/view", $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_title.')</a>';
+                    $clientLink ='<a class="name" href="'.route("contacts/clients/view", $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>';
                 }
                 return $clientLink;
             })
@@ -1042,14 +1042,22 @@ class ClientdashboardController extends BaseController
                     $ftype="Refund Deposit into Trust (Trust Account)";
                 }else if($data->fund_type=="allocate_trust_fund"){
                     $notes = $data->notes;
-                    $myString = substr($notes, strpos($notes, "#") + 1);
-                    $ftype = str_replace($myString, '<a class="name" href="'.route('contacts/clients/view', $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_title.')</a>', $notes);
+                    $myString = substr($notes, strpos($notes, "#"));
+                    $ftype = str_replace($myString, '<a class="name" href="'.route('contacts/clients/view', $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>', $notes);
                 }else if($data->fund_type=="deallocate_trust_fund"){
                     $notes = $data->notes;
-                    $myString = substr($notes, strpos($notes, "#") + 1);
+                    $myString = substr($notes, strpos($notes, "#"));
                     $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
                 }else if($data->fund_type=="payment"){
-                    $ftype = $data->notes;
+                    // $ftype = $data->notes;
+                    $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                    $noteContent = '';
+                    if($data->notes != '') {
+                        $noteContent = '<br>
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                    }
+                    return $ftype.' '.$isRefund.$noteContent;
                 }else{
                     $ftype="Deposit into Trust (Trust Account)".$isRefund;
                 }
@@ -4328,16 +4336,22 @@ class ClientdashboardController extends BaseController
     public function saveTrustAllocation(Request $request)
     {
         // return $request->all();
-        if($request->allocated_balance > 0) {
-            $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
-            $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
-            $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
+        $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
+        $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
+        $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
+        $diffAmtAbs = abs($diffAmt);
+        if($diffAmtAbs > 0) {
             $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
+            $case = CaseMaster::whereId($request->case_id)->first();
+            if($case) {
+                $case->fill([
+                    'total_allocated_trust_balance' => ($diffAmt > 0) ? ($case->total_allocated_trust_balance - $diffAmtAbs) : ($case->total_allocated_trust_balance + $diffAmtAbs),
+                ])->save();
+            }
             TrustHistory::create([
                 "client_id" => $request->client_id,
                 "payment_method" => 'Trust Allocation',
-                // "withdraw_amount" => ($diffAmt > 0) ? $diffAmt : 0.00,
-                "amount_paid" => abs($diffAmt),
+                "amount_paid" => $diffAmtAbs,
                 "current_trust_balance" => $userAddInfo->trust_account_balance,
                 "payment_date" => date('Y-m-d'),
                 "notes" => ($diffAmt > 0) ? 'Deallocate Trust Funds from #'.$request->case_id : 'Allocate Trust Funds from #'.$request->client_id,
@@ -4345,9 +4359,9 @@ class ClientdashboardController extends BaseController
                 "allocated_to_case_id" => $request->case_id,
                 "created_by" => Auth::user()->id,
             ]);
-
             return response()->json(['errors'=>'', 'msg'=>"Balance allocation is successful"]);
         }
+        return response()->json(['errors'=>'', 'msg'=>""]);
     }
 
 

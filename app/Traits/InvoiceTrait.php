@@ -53,7 +53,7 @@ trait InvoiceTrait {
             "current_trust_balance" => @$userAddInfo->trust_account_balance,
             "payment_date" => date('Y-m-d'),
             "payment_method" => "Trust",
-            "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
+            // "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
             "fund_type" => 'payment',
             "related_to_invoice_id" => $InvoiceSave->id,
             "allocated_to_case_id" => @$item['case_id'],

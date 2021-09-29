@@ -27,7 +27,7 @@ class CompanydashboardController extends BaseController
         Session::forget('caseLinkToClient');
         Session::forget('clientId');
         $contractUserID=$client_id=$company_id=$id;
-        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->with("userCreditAccountHistory")->first();
+        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->where("users.firm_name",Auth::User()->firm_name)->with("userCreditAccountHistory", "clientCases")->first();
 
         if(empty($userProfile)){
             $User= User::find($id);
@@ -62,8 +62,8 @@ class CompanydashboardController extends BaseController
             //Get Active Case List
             $getCompanyWiseClientList=$this->getCompanyWiseCaseList($company_id);
             $CaseClientSelection = CaseClientSelection::select("case_id")->whereIn("selected_user",$getCompanyWiseClientList)->get()->pluck('case_id');
-            $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid") ->whereIn("case_master.id",$CaseClientSelection)->where("case_master.is_entry_done","1")->where("case_close_date",NULL)->get(); 
-            
+            // $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid") ->whereIn("case_master.id",$CaseClientSelection)->where("case_master.is_entry_done","1")->where("case_close_date",NULL)->get(); 
+            $case = $userProfile->clientCases;
             $closed_case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid") ->whereIn("case_master.id",$CaseClientSelection)->where("case_master.is_entry_done","1")->where("case_close_date","!=",NULL)->get(); 
 
             $caseCllientSelection =UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')

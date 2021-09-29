@@ -206,10 +206,16 @@ class HomeController extends BaseController
         $totalEvetdueInvoiceCount=$InvoicesOverdue->count();
         $InvoicesOverdue=$InvoicesOverdue->orderBy('due_date',"ASC")->limit(10)->get();
 
+        //For Alter widget (Minimum trust balance)
+        $clientList = User::where('firm_name', auth()->user()->firm_name)->whereIn("user_level",["2","4"])
+                ->whereHas("userAdditionalInfo", function($query) {
+                    $query->where("minimum_trust_balance", ">", 0);
+                })
+                ->with("userAdditionalInfo")->get();
 
         //Low trust balance notification
-        $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
-        ->select("*")->whereIn("users.user_level",["2","4"])->where("firm_name",Auth::user()->firm_name)->whereRaw('users_additional_info.minimum_trust_balance > users_additional_info.trust_account_balance')->get();
+        // $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
+        // ->select("*")->whereIn("users.user_level",["2","4"])->where("firm_name",Auth::user()->firm_name)->whereRaw('users_additional_info.minimum_trust_balance > users_additional_info.trust_account_balance')->get();
         
         return view('dashboard.homepage',compact('practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','upcomingTenEvents','upcomingTask','InvoicesOverdue','totalEvetdueInvoiceCount','clientList'));
     }
