@@ -52,7 +52,7 @@ class RequestedFund extends Authenticatable
             $userTime = convertUTCToUserDate($this->due_date, auth()->user()->user_timezone ?? 'UTC');
             return date("M d,Y",strtotime($userTime));
         }else{
-            return NULL;
+            return '--';
         }
         
     }  

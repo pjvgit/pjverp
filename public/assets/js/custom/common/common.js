@@ -108,4 +108,9 @@ $(document).ready(function() {
     }, function(params, element) {
         return 'Please enter a value less than or equal to ' + $(element).attr("data-max-amount");
     });
+
+    $.validator.addMethod('minStrict', function (value, el, param) {
+        return value > 0;
+    }, 'Should be greater than 0');
 });
+

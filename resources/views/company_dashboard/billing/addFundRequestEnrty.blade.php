@@ -54,7 +54,7 @@
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span></div>
-                                <input id="amount" name="amount" class="form-control number" value="" maxlength="50">
+                                <input id="amount" name="amount" class="form-control number minStrict" value="" maxlength="50">
                             </div>
                             <span id="amterror"></span>
                         </div>
@@ -235,6 +235,7 @@
                 },
                 amount: {
                     required: true,
+                    minStrict: true,
                 },
                 deposit_into: {
                     required: true,
