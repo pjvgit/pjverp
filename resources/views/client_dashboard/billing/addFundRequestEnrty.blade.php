@@ -217,6 +217,7 @@
                 },
                 amount: {
                     required: true,
+                    minStrict: true,
                 },
                 deposit_into: {
                     required: true,

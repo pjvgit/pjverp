@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-md-6 form-group mb-3">
                     <label for="firstName1">Due Date</label>
-                    <input class="form-control input-date" value="{{date('m/d/Y',strtotime(date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone)))))}}" id="due_date" maxlength="250" name="due_date" type="text">
+                    <input class="form-control input-date" value="{{($RequestedFund->due_date) ? date('m/d/Y',strtotime(date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone))))) : ''}}" id="due_date" maxlength="250" name="due_date" type="text">
                 </div>
                 
               </div>
@@ -54,6 +54,7 @@
             rules: {
                 amount: {
                     required: true,
+                    minStrict: true,
                 }
             },
             messages: {

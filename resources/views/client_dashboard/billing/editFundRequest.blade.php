@@ -53,6 +53,7 @@
             rules: {
                 amount: {
                     required: true,
+                    minStrict: true,
                 }
             },
             messages: {

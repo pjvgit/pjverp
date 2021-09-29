@@ -1583,6 +1583,7 @@ class ClientdashboardController extends BaseController
     } 
     public function saveEditFundRequest(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric'
@@ -1597,6 +1598,8 @@ class ClientdashboardController extends BaseController
             $RequestedFund->amount_requested=$request->amount;
             if(isset($request->due_date)){
                 $RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
+            } else {
+                $RequestedFund->due_date = $request->due_date;
             }
             $RequestedFund->status='sent';
             $RequestedFund->save();
