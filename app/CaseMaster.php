@@ -20,7 +20,7 @@ class CaseMaster extends Authenticatable
     protected $fillable = [
         'case_title','case_status','created_at','case_statute_date','case_open_date', 'total_allocated_trust_balance'
     ];
-    protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name"];
+    protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name","setup_billing"];
     public function getCaseuserAttribute(){
         $ContractUserCase =  CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","case_staff.lead_attorney")
         ->where('case_id',$this->id)  
@@ -318,6 +318,20 @@ class CaseMaster extends Authenticatable
         }
         
     } 
+
+    public function getSetupBillingAttribute(){
+        $caseBiller = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+        ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+        ->select("case_client_selection.billing_amount")
+        ->where("case_client_selection.case_id",$this->ccid)
+        ->where("is_billing_contact","yes")->first();
+        if(!empty($caseBiller)){
+            return "yes";
+        }else{
+            return "";
+        }
+                                
+    }
 
     /**
      * Get the caseOffice that owns the CaseMaster

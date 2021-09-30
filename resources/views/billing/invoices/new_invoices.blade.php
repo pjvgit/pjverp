@@ -163,7 +163,7 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">
                                         Payment Terms</td>
                                     <td>
-                                        <select id="bill_payment_terms" onchange="paymentTerm()" class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" >
+                                        <select id="bill_payment_terms"  class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" >
                                             @forelse (invoicePaymentTermList() as $key => $item)
                                                 <option value="{{ $key }}" {{ 
                                                     (
@@ -179,7 +179,10 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="width: auto;">&nbsp;</td>
                                     <td style="width: 120px; text-align: right; padding-right: 5px; ">
                                         Due Date</td>
-                                    <td><input id="bill_due_date" class="form-control date datepicker" name="bill_due_date" value="" ></td>
+                                    <td>
+                                        <input type="hidden" id="old_bill_due_date" name="old_bill_due_date" value="{{ old('bill_due_date') }}">
+                                        <input id="bill_due_date" class="form-control date datepicker" name="bill_due_date" value="{{ old('bill_due_date') }}">
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
@@ -4160,6 +4163,12 @@ if(!isset($addition)){ $addition=0;}
     $("#bill_invoice_date").on("change", function() {
         paymentTerm();
     });
+    
+    $("#bill_payment_terms").on("change", function() {
+        $("#old_bill_due_date").val('');
+        paymentTerm();
+    });
+    
 
     $(document).on("change", ".forwarded-invoices-check", function() {
         

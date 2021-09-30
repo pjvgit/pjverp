@@ -150,7 +150,7 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Notes</label>
                     <input class="form-control" value="" id="notes" name="notes" type="text">
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-12 form-group">
                     <label for="contact-field">Choose contact</label>
                     <select class="form-control caller_name" id="contact_id" name="contact_id" style="width: 100%;"
                         placeholder="Select a contact">
@@ -161,18 +161,33 @@ $finalAmt=$invoice-$paid;
                     </select>  
                     <span id="contactin"></span>
                 </div>                
-                <div class="col-md-6 form-group">
+                <div class="col-md-12 form-group">
                     <label for="firstName1">Deposit Into </label>
                     <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;"
-                        placeholder="Select a bank account">
+                        placeholder="Select a bank account" disabled>
                         <option></option>
                         <option value="Operating Account">Operating Account</option>
                         <option value="Trust Account">Trust Account</option>
                     </select>
-                    <span id="depositin"></span>
+                    <span id="depositin"></span>                    
+                </div>                
+                <div class="col-md-12 form-group" id="chkDeposit">
+                    <div class="col-form-label d-flex align-items-center h-100 credit-payment-field form-check">
+                        <input id="credit-payment-field" name="credit_payment" type="checkbox" class="my-0 form-check-input">
+                        <label for="credit-payment-field" class="my-0 form-check-label ">Mark as Credit Payment</label>
+                    </div>
                 </div>
-
-                <div class="col-md-6 form-group" id="ta">
+                <div class="col-md-12 form-group" id="ca">
+                    <label for="firstName1">Credit Account</label>
+                    <select class="form-control" id="from_credit_account" name="credit_account" style="width: 100%;">
+                        <option></option>
+                        <?php foreach($trustAccounts as $key=>$val){?>
+                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
+                        <?php } ?>
+                    </select>
+                    <span id="caacount"></span>
+                </div>
+                <div class="col-md-12 form-group" id="ta">
                     <label for="firstName1">Trust Account</label>
                     <select class="form-control caller_name trust_account" id="trust_account" name="trust_account" style="width: 100%;"
                         placeholder="Select an account">
@@ -230,6 +245,21 @@ $finalAmt=$invoice-$paid;
                         <option></option>
                     </select>
                     <span id="taacount"></span>
+                </div>
+            </div>
+            <div id="allocation-alert-section" data-testid="allocation-alert-section" class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-primary fade show" role="alert">
+                        <div class="d-flex align-items-start">
+                            <div class="w-100">
+                                <span data-testid="note">Note: <span id="selectContact"></span> has $<span id="selectContactUnallocatedAmount">0.00</span> in unallocated trust funds</span><br>
+                                <a href="javascript:;" data-toggle="modal" data-target="#trust_allocation_modal" class="balance-allocation-link btn-link" data-case-id="{{$invoiceData['case_id']}}"  data-user-id="" data-page="invoice_payment">
+                                    Transfer unallocated trust funds
+                                </a>
+                                to this case
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -348,6 +378,7 @@ $finalAmt=$invoice-$paid;
         </form>
     </div>
 </div>
+<script src="{{ asset('assets\js\custom\client\trustallocation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('.input-date').datepicker({
@@ -501,15 +532,27 @@ $finalAmt=$invoice-$paid;
                 $(".amountFirst").removeAttr("readonly");
             }
         });
-
-        $('#deposit_into').change(function () {
+        $('#deposit_into').change(function () {            
             if ($(this).val()=="Trust Account") {
                 $("#ta").show();
+                $("#chkDeposit").hide();
+                $("#ca").hide();
             } else {
                 $("#ta").hide();
+                $("#chkDeposit").show();
+            }
+        });
+        $('#credit-payment-field').on('change', function () {
+            if ($(this).is(":checked")) {
+                $("#ca").show();
+            } else {
+                $("#ca").hide();
             }
         });
         $("#ta").hide();
+        $("#chkDeposit").hide();
+        $("#ca").hide();
+        $("#allocation-alert-section").hide();
     });
 
     function paymentConfitmation() {
@@ -788,7 +831,9 @@ $('#contact_id').on('select2:select', function (e) {
     var data = e.params.data;
     getClientCases(data.id);
     // localStorage.setItem("selectedContact", data.id);
-
+    $("#deposit_into").removeAttr('disabled');
+    $("#from_credit_account").val(data.id);
+    $('#from_credit_account').find('option').not('[value='+data.id+']').hide();
 });
 
 $('#trust_contact_id').on('select2:select', function (e) {
@@ -797,10 +842,14 @@ $('#trust_contact_id').on('select2:select', function (e) {
     // localStorage.setItem("selectedContact", data.id);
     // $("#bank_account").attr("disabled",false);
     $("#bank_account").removeAttr('disabled');
+    $(".balance-allocation-link").attr("data-user-id",data.id)
 });
 
 $('#bank_account').on('change', function (e) {
     $(".bank_trust_account").removeAttr('disabled');
+    if( parseFloat($("#selectContactUnallocatedAmount").html()) >  0.10){
+        $("#allocation-alert-section").show();
+    }
 });
 
 $('#offline-payment-tab').on('click', function (e) {
@@ -851,6 +900,11 @@ $('#credit-account-tab').on('click', function (e) {
     return true;
 });
 
+function reallocateContact(){
+    $("body").addClass('modal-open');
+    var client_id = $("#trust_contact_id").val();
+    getClientCases(client_id);
+}
 
 function getClientCases(clientId) {
     var case_id = "{{$invoiceData['case_id']}}";
@@ -867,15 +921,21 @@ function getClientCases(clientId) {
                 optgroup += "<optgroup label='Allocate to case'>";
                 $.each(data.result, function(ind, item) {
                     if(case_id == item.id){
-                        optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
+                        optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
                     }
                 });                
                 optgroup += "</optgroup>"
             }
             
             if(data.user) {
+                $("#selectContact").html(data.user.full_name);
+                $("#selectContactUnallocatedAmount").html(data.user.user_additional_info.unallocate_trust_balance.toFixed(2));
+                
+                if( parseFloat($("#selectContactUnallocatedAmount").html()) <  0.01){
+                    $("#allocation-alert-section").hide();
+                }
                 optgroup += "<optgroup label='Unallocated'>";
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.unallocate_trust_balance+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.unallocate_trust_balance.toFixed(2)+")" + "</option>";
                 optgroup += "</optgroup>";
             }
             

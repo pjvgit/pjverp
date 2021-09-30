@@ -98,7 +98,7 @@
                     <input id="employee_no" type="number"
                         class="form-control-rounded form-control{{ $errors->has('employee_no') ? ' is-invalid' : '' }}"
                         name="employee_no" value="{{ old('employee_no') }}" placeholder="Number of Firm Employees"
-                        max-length="5" required autocomplete="employee_no">
+                        max-length="5" min="1" required autocomplete="employee_no">
 
                     @if ($errors->has('employee_no'))
                     <span class="invalid-feedback" role="alert">

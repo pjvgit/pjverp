@@ -249,8 +249,7 @@
                                 @endif
                             </h2>
                         </div>
-                        <?php $flateFeeTotal=0;
-                        if(!$FlatFeeEntryForInvoice->isEmpty()){?>
+                        <?php $flateFeeTotal=0; ?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -322,8 +321,8 @@
                                             This matter has no unbilled flat fees entries.
                                         </td>
                                     </tr>
-                                <?php } ?>
-                                <?php  foreach($FlatFeeEntryForInvoice as $k=>$v){
+                                <?php }else{ ?>
+                                <?php foreach($FlatFeeEntryForInvoice as $k=>$v){
                                     $flateFeeTotal+= ($v->time_entry_billable !="no") ? $v->cost : 0;
                                 ?>
                                 
@@ -379,8 +378,7 @@
                                             name="flat_fee_entry[]" priceattr="{{$v->cost}}" value="{{$v->itd}}">
                                     </td>
                                 </tr>
-                                <?php } ?>
-
+                                <?php } }?>
                                 <tr class="footer">
                                     <td colspan="3">
                                         <div class="locked">
@@ -394,8 +392,7 @@
                                         <div class="locked">
                                             {{@$caseMaster['case_title']}} flat fee totals:
                                         </div>
-                                    </td>
-                                   
+                                    </td>                                   
                                     <td>
                                         <div class="locked" style="text-align: right;">
                                             $<span id="flat_fee_entry_table_total"
@@ -405,12 +402,9 @@
                                     </td>
                                     <td>&nbsp;</td>
                                 </tr>
-
                             </tbody>
                         </table>
                         <br>
-                        <?php } ?>
-
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>

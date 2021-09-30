@@ -183,7 +183,7 @@ if($toalClientCount==$nonLinkCase){
         var dataString = $("#closeCaseForm").serialize();
         var array = [];
         $("input[class=client_checkbox]:checked").each(function (i) {
-            alert($(this).val())
+            // alert($(this).val())
             array.push($(this).val());
         });
         $.ajax({

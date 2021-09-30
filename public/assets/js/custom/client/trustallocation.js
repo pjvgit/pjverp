@@ -48,11 +48,13 @@ function trustAllocationList() {
 
 $(document).on("click", ".balance-allocation-link", function() {
     var caseId = $(this).attr("data-case-id");
-    var clientId = $("#user_id").val();
+    var clientId = $(this).attr("data-user-id");
+    var page = $(this).attr("data-page");
+    console.log(page);
     $.ajax({
         url: baseUrl+"/contacts/clients/trust/allocation/detail",
         type: 'GET',
-        data: { client_id: clientId, case_id: caseId},
+        data: { client_id: clientId, case_id: caseId, page : page},
         success: function(res) {
             if (res != '') {
                 $("#trust_allocation_modal_body").html(res);
@@ -64,20 +66,20 @@ $(document).on("click", ".balance-allocation-link", function() {
 $(document).on("input", ".allocate-fund", function() {
     var totalAmt = $(this).attr("data-total-amt");
     var amt = $(this).val();
-    amt = amt.replace(",", "");
+    amt = (!amt.trim()) ? 0 : amt.replace(",", "");
+    console.log(amt);
     if(parseFloat(amt) > parseFloat(totalAmt)) {
-        $(this).val((totalAmt > 0) ? totalAmt.toFixed(2) : "0.00");
+        $(this).val((parseFloat(totalAmt) > 0) ? parseFloat(totalAmt).toFixed(2) : "0.00");
         $(".unallocate-fund").val("0.00");
     } else {
-        var unallocateAmt = totalAmt - amt;
-        $(".unallocate-fund").val(unallocateAmt.toFixed(2));
+        var unallocateAmt = parseFloat(totalAmt) - parseFloat(amt);
+        $(".unallocate-fund").val(parseFloat(unallocateAmt).toFixed(2));
     }
-
 });
 
 $(document).on("click", ".confirm-btn", function() {
     var formData = $(this).parents("form.trust-allocate-form").serialize();
-
+    var page = $("#page").val();
     $.ajax({
         url: baseUrl+"/contacts/clients/save/trust/allocation",
         type: 'POST',
@@ -85,16 +87,24 @@ $(document).on("click", ".confirm-btn", function() {
         success: function(res) {
             if (res.errors != '') {
                 return false;
-            } else {
-                if(res.msg != '') {
-                    toastr.success(res.msg, "", {
-                        positionClass: "toast-top-full-width",
-                        containerId: "toast-top-full-width"
-                    });
-                    trustAllocationList();
-                }
+            } else {               
                 $("#trust_allocation_modal").modal("hide");
+                if(page == "invoice_payment"){
+                    reallocateContact();
+                }else{ 
+                    if(res.msg != '') {
+                        toastr.success(res.msg, "", {
+                            positionClass: "toast-top-full-width",
+                            containerId: "toast-top-full-width"
+                        });
+                        trustAllocationList();
+                    }
+                }
             }
         }
     });
-})
+});
+
+$('#trust_allocation_modal').on('hidden.bs.modal', function () {
+    $('body').toggleClass("modal-open");
+});

@@ -8,6 +8,7 @@
     <div class="col-md-12">
         <input type="hidden" name="case_id" value="{{ $clientCaseInfo->case_id }}" >
         <input type="hidden" name="client_id" value="{{ @$userAddInfo->user_id }}" >
+        <input type="hidden" name="page" id="page" value="{{ $page }}" >
         <label class=""><strong>Trust (Trust Account)</strong></label>
         <div class="row ">
             <div class="pr-1 col-sm-3">

@@ -164,7 +164,7 @@
         });
         $(".add-more-index").click(function () {
             var cur= $(".counterIc").length;
-            var setIndex=  cur - 1;
+            var setIndex =  cur - 1;
             var fieldHTML = '<div class="row fieldGroup"><div class="col-3 d-flex"><p class="mt-2 mr-1 counterIc">0)</p> <select id="case_status_'+cur+'" name="case_status['+setIndex+']" class="form-control custom-select col"><option value="0">No Stage</option> <?php foreach($caseStageList as $kcs=>$vcs){?><option value="{{$vcs->id}}">{{$vcs->title}}</option> <?php } ?> </select></div><div class="col-3"> <input type="text" id="start_date_'+cur+'"  name="start_date['+setIndex+']" onchange="getEndDate('+cur+')"  class="form-control dp" autocomplete="off" value=""></p></div><div class="col-3"> <input type="text" name="end_date['+setIndex+']" id="end_date_'+cur+'" class="form-control dp" onchange="getEndDate('+cur+')" value=""></p></div><div class="col-2"> <input type="hidden" name="state_id['+setIndex+']" value="'+setIndex+'"><input type="text" autocomplete="off"class="form-control" name="days['+setIndex+']" id="days_'+cur+'" disabled value="0"></div><div class="col-1"> <button type="button" class="remove fas fa-times fa-lg text-black-50 delete-row-btn btn btn-link"></button></div></div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
             $('.dp').datepicker({

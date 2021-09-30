@@ -641,7 +641,8 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 @section('page-js-inner')
 <script type="text/javascript">
 var start = 0;
-    $(document).ready(function () {       
+    $(document).ready(function () {     
+        $("#preloader").show();   
         loadMoreData(0);
 
         $('#batchSaved').on('hidden.bs.modal', function () {
@@ -1140,8 +1141,8 @@ var start = 0;
     });
 
     function loadMoreData(round){
-        // $("#preloader").show(); 
-        beforeLoader();       
+        $("#preloader").show(); 
+        // beforeLoader();       
         $.ajax(
         {
             url: baseUrl + "/bills/invoices/loadUpcomingInvoicesWithLoader",
@@ -1211,8 +1212,10 @@ var start = 0;
                     }
                     resultHtml +='<td><div class="text-left">' + aData.last_invoice +
                         '</div></td>';
-                    // console.log("client: "+aData.selected_user);
-                    if(aData.selected_user && aData.deleted_at == null) {
+                    console.log("client: "+aData.selected_user);
+                    console.log("case_id: "+aData.case_id);                    
+                    console.log("case_setup: "+aData.setup_billing);                    
+                    if(aData.setup_billing == 'yes') {
                         resultHtml +='<td><div class="text-left"><a class="name" href="' + baseUrl +
                             '/bills/invoices/new?page=open&court_case_id=' + aData.ccid + '&token=' + aData
                             .token + '">Invoice This Case</a></div></td>';
@@ -1224,8 +1227,8 @@ var start = 0;
                 });
                
             });
-            afterLoader();
-            // $("#preloader").hide();
+            // afterLoader();
+            $("#preloader").hide();
             $(".lazy-load-data").append(resultHtml);
             // $(".lazy-load-data").html('');
             // $(".lazy-load-data").html(resultHtml);

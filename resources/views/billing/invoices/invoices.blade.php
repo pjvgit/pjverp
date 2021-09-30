@@ -254,7 +254,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                             <option value="">Filter bills by case, billing contact or batch...</option>
                             <optgroup label="Cases" style="background-color:gray;">
                                 <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                <option uType="case" <?php if($serachOn=="case" && $Caseval->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($Caseval->id)}}-{{base64_encode('case')}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
+                                <option uType="case" <?php if($serachOn=="case" && $Caseval->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($Caseval->id)}}-{{base64_encode('case')}}"><?php if($serachOn=="case" && $Caseval->id==$serachBy){ echo "Case :"; } ?>{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
                                 <?php } ?>
                             </optgroup>
                             {{-- <optgroup label="Potential Cases">
@@ -264,18 +264,18 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                             </optgroup> --}}
                             <optgroup label="Contacts">
                                 <?php foreach($CaseMasterClient as $CaseMasterClientKey=>$CaseMasterClientVal){ ?>
-                                <option uType="contact"  <?php if($serachOn=="contact" && $CaseMasterClientVal->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($CaseMasterClientVal->id)}}-{{base64_encode('contact')}}">{{substr($CaseMasterClientVal->first_name,0,100)}} {{substr($CaseMasterClientVal->last_name,0,100)}}</option>
+                                <option uType="contact"  <?php if($serachOn=="contact" && $CaseMasterClientVal->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($CaseMasterClientVal->id)}}-{{base64_encode('contact')}}"> <?php if($serachOn=="contact" && $CaseMasterClientVal->id==$serachBy){ echo "Billing Contact:"; } ?> {{substr($CaseMasterClientVal->first_name,0,100)}} {{substr($CaseMasterClientVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup>
                             
                             {{-- <optgroup label="Companies">
                                 <?php foreach($CaseMasterCompanies as $CaseMasterCompaniesKey=>$CaseMasterCompaniesVal){ ?>
-                                <option uType="company" <?php if($serachOn=="company" && $CaseMasterCompaniesVal->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($CaseMasterCompaniesVal->id)}}-{{base64_encode('company')}}">{{substr($CaseMasterCompaniesVal->first_name,0,100)}} </option>
+                                <option uType="company" <?php if($serachOn=="company" && $CaseMasterCompaniesVal->id==$serachBy){ echo "selected=selected"; } ?> value="{{base64_encode($CaseMasterCompaniesVal->id)}}-{{base64_encode('company')}}"><?php if($serachOn=="company" && $CaseMasterCompaniesVal->id==$serachBy){ echo "Billing Contact:"; } ?>{{substr($CaseMasterCompaniesVal->first_name,0,100)}} </option>
                                 <?php } ?>
                             </optgroup> --}}
                             {{-- <optgroup label="Leads">
                                 <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                <option uType="lead" <?php if($serachOn=="lead" && $caseLeadListVal->id==$serachBy){ echo "selected=selected"; } ?>  value="{{base64_encode($caseLeadListVal->id)}}-{{base64_encode('lead')}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                <option uType="lead" <?php if($serachOn=="lead" && $caseLeadListVal->id==$serachBy){ echo "selected=selected"; } ?>  value="{{base64_encode($caseLeadListVal->id)}}-{{base64_encode('lead')}}"><?php if($serachOn=="lead" && $caseLeadListVal->id==$serachBy){ echo "Billing Contact:"; } ?>{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup> --}}
                             <optgroup label="Batches">

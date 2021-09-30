@@ -15,7 +15,7 @@
             }
         @endphp
         <td class="trust-allocation">
-            <a href="javascript:;" data-toggle="modal" data-target="#trust_allocation_modal" class="balance-allocation-link btn-link" data-case-id="{{ $citem->id }}">
+            <a href="javascript:;" data-toggle="modal" data-target="#trust_allocation_modal" class="balance-allocation-link btn-link" data-case-id="{{ $citem->id }}" data-user-id="{{@$UsersAdditionalInfo->user_id}}" data-page="trust_allocation">
                 ${{ number_format($allocateTrustBalance, 2) }}
             </a>
         </td>

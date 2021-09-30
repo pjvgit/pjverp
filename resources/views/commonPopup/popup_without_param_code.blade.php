@@ -936,6 +936,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+
+<div id="trust_allocation_modal" class="modal fade bd-example-modal-md " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Trust Allocation</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+				<div id="trust_allocation_modal_body">
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     function payinvoice(id) {
         console.log("Popup_without_param_code.blade.php > payinvoice for " + id);

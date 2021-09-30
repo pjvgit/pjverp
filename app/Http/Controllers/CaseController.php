@@ -5790,6 +5790,7 @@ class CaseController extends BaseController
                         // echo ($k+1)." - [5789] > start_date -> ".$request->start_date[$k+1]."end_date -> ".$request->end_date[$k];
                         // echo "<br>";
                         if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
+                            array_push($errorIndex, ($k));
                             array_push($errorIndex, ($k+1));
                             // echo 'Wrong Date selection of next to index of '.($k+1);  
                             // echo "<br>";
@@ -5798,7 +5799,7 @@ class CaseController extends BaseController
                     }
                 }
                 if(count($errorIndex) > 0){
-                    $errors['99'] = 'Row number '.implode(', ', $errorIndex).' have conflicting start/end dates';
+                    $errors['99'] = 'Row number '.implode(' and ', $errorIndex).' have conflicting start/end dates';
                 }
             }
             // if(isset($request->case_status) && !empty($request->case_status)){
@@ -5810,8 +5811,20 @@ class CaseController extends BaseController
             //             }
             //         }
             //     }
-            // }                 
-            
+            // }       
+            // if(isset($request->state_id) && !empty($request->state_id)){    
+            //     $arrayCount = max($request->state_id);
+            //     for ($i=0; $i <= $arrayCount; $i++) { 
+
+            //         if(isset($request->state_id[$i])){
+            //             $errors[$i] = 'Start Date:'. $request->start_date[$i] .'- End Date:'.$request->end_date[$i];
+            //         }else{                        
+            //             if($i > 0){
+            //                 $errors[$i] = 'nostage > Start Date:'. $request->end_date[$i-1] .'- End Date:'.$request->start_date[$i+1];
+            //             }
+            //         }
+            //     }          
+            // }
             // $errors['2'] = max($request->state_id);
             if(empty($errors)){
                 $CaseStageUpdate=CaseStageUpdate::where("case_id",$request->case_id)->forceDelete();
@@ -5852,7 +5865,7 @@ class CaseController extends BaseController
                             }     
                                                 
                         }else{
-                            if(($i-1) > 0){
+                            if($i > 0){
                                 $start = strtotime($request->end_date[$i-1]);
                                 $end = strtotime($request->start_date[$i+1]);
                                 $days_between = abs($end - $start) / 86400;
@@ -5868,7 +5881,6 @@ class CaseController extends BaseController
                             }
                         }
                     }
-                    $errors[99] = $arrayCount;
                 }           
                 
                 session(['popup_success' => 'Case stage timeline history has been successfully saved.']);

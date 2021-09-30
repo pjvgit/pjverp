@@ -122,6 +122,14 @@ class UserController extends BaseController
         // Save invoice settings
         $this->saveDefaultInvoicePreferences($firm->id, $user->id);
 
+        //Insert default case stage 
+        $data = array(
+            array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $user->id, 'created_at' => date('Y-m-d')),
+            array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $user->id, 'created_at' => date('Y-m-d')),
+            array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $user->id, 'created_at' => date('Y-m-d')),
+        );        
+        CaseStage::insert($data);
+
         // //Create default plan for the user type is client or end user
         // $start_date = date('Y-m-d h:i:s');
         // $end_date= date('Y-m-d h:i:s',strtotime("+1 week", strtotime($start_date)));
@@ -174,13 +182,7 @@ class UserController extends BaseController
             if($verifyUser->user_status==1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
-                //Insert default case stage 
-                $data = array(
-                    array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                    array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                    array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                );        
-                CaseStage::insert($data);
+                
 
                 // $case_practice_area = array(
                 //     array('title' => 'Bankruptcy','status' => '1',"created_by"=>$verifyUser->id),

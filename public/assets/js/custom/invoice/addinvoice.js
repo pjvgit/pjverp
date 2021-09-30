@@ -348,8 +348,11 @@ function addDaysToDate(bill_invoice_date, days){
     var setDate='';
     var selectdValue = $("#bill_payment_terms option:selected").val();
     var bill_invoice_date=$("#bill_invoice_date").val();
+    var old_bill_due_date=$("#old_bill_due_date").val();
+    if(old_bill_due_date == ''){
     if(selectdValue==0 || selectdValue==1){
-        $('#bill_due_date').datepicker("update", bill_invoice_date);
+        
+            $('#bill_due_date').datepicker("update", bill_invoice_date);
     }else if(selectdValue==2){
         // CheckIn = $("#bill_invoice_date").datepicker('getDate');
         CheckOut = addDaysToDate(bill_invoice_date, 15)
@@ -374,7 +377,7 @@ function addDaysToDate(bill_invoice_date, days){
         // $("#automated_reminders").prop("disabled",false);
         // $("#automated_reminders").prop("checked",true);
     }
- 
+    }
 }
 
 // Apply trust/credit balance input validation

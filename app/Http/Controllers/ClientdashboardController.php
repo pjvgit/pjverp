@@ -4327,7 +4327,8 @@ class ClientdashboardController extends BaseController
         // return $request->all();
         $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->with('case')->first();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
-        return view("client_dashboard.billing.load_trust_allocation_detail", compact('clientCaseInfo', 'userAddInfo'));
+        $page = $request->page;
+        return view("client_dashboard.billing.load_trust_allocation_detail", compact('clientCaseInfo', 'userAddInfo', 'page'));
     }
 
     /**
