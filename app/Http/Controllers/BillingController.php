@@ -990,7 +990,7 @@ class BillingController extends BaseController
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
          $case = $case->withCount('fundPaymentHistory');
-         $case = $case->get();
+         $case = $case->with('user', 'allocateToCase')->get();
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
              "recordsTotal"    => intval( $totalData ),  
@@ -1557,6 +1557,7 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_id = $request->invoice_id;
                         $TrustInvoice->created_by=Auth::user()->id; 
                         $TrustInvoice->allocated_to_case_id = NULL;
+                        $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                         $TrustInvoice->save();
                     }else{
                         // allocate to case 
@@ -1585,12 +1586,11 @@ class BillingController extends BaseController
                             $TrustInvoice->fund_type='payment';
                             $TrustInvoice->related_to_invoice_id = $request->invoice_id;
                             $TrustInvoice->created_by=Auth::user()->id; 
-                        $TrustInvoice->created_by=Auth::user()->id; 
-                            $TrustInvoice->created_by=Auth::user()->id; 
                             $TrustInvoice->allocated_to_case_id = $request->trust_account;
+                            $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                             $TrustInvoice->save();
-                        }     
-                    }  
+                        }      
+                    } 
                 }
                 DB::commit();               
 
@@ -8058,7 +8058,11 @@ class BillingController extends BaseController
 
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
-                $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id)->where("amount_due",">",0)->get();
+                $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id);
+                if($request->case_id != '') {
+                    $clientList = $clientList->where("requested_fund.allocated_to_case_id",$request->case_id);
+                }
+                $clientList = $clientList->where("amount_due",">",0)->get();
                 $case = CaseMaster::whereId($request->case_id)->first();
                 return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case'));
                 exit;  

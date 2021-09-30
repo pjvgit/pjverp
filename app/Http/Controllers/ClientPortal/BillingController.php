@@ -108,7 +108,7 @@ class BillingController extends Controller
             $data['user_id']=$fundRequest->client_id;
             $data['client_id']=$fundRequest->client_id;
             $data['activity']='has viewed deposit request';
-            $data['type']='deposit';
+            $data['type']='fundrequest';
             $data['action']='view';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);

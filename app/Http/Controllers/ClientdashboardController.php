@@ -1015,7 +1015,7 @@ class ClientdashboardController extends BaseController
             ->editColumn('deposit_amount', function ($data) {
                 if($data->fund_type=="withdraw"){
                     $amt = '-$'.number_format($data->withdraw, 2);
-                }else if($data->fund_type=="refund_withdraw"){
+                }else if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund payment"){
                     $amt = '$'.number_format($data->refund, 2);
                 }else if($data->fund_type=="refund_deposit"){
                     $amt = '-$'.number_format($data->refund, 2);
@@ -1051,6 +1051,16 @@ class ClientdashboardController extends BaseController
                 }else if($data->fund_type=="payment"){
                     // $ftype = $data->notes;
                     $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                    $noteContent = '';
+                    if($data->notes != '') {
+                        $noteContent = '<br>
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                    }
+                    return $ftype.' '.$isRefund.$noteContent;
+                }else if($data->fund_type=="refund payment"){
+                    // $ftype = $data->notes;
+                    $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
                     $noteContent = '';
                     if($data->notes != '') {
                         $noteContent = '<br>
@@ -1238,7 +1248,10 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
                 $GetAmount->is_refunded="yes";
                 $GetAmount->save();
-
+            } else if($GetAmount->fund_type=="payment") {
+                DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
+                $GetAmount->is_refunded="yes";
+                $GetAmount->save();
             }else{
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
                 $GetAmount->is_refunded="yes";
@@ -1249,7 +1262,7 @@ class ClientdashboardController extends BaseController
        
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->client_id;
-            $TrustInvoice->payment_method='Trust Refund';
+            $TrustInvoice->payment_method='Refund for Trust';
             $TrustInvoice->amount_paid="0.00";
             $TrustInvoice->withdraw_amount="0.00";
             $TrustInvoice->refund_amount=$request['amount'];
@@ -1258,16 +1271,24 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->notes=$request->notes;
             if($GetAmount->fund_type=="withdraw"){
                 $TrustInvoice->fund_type='refund_withdraw';
+            } else if($GetAmount->fund_type=="payment") {
+                $TrustInvoice->fund_type='refund payment';
             
             }else{
                 $TrustInvoice->fund_type='refund_deposit';
             
             }
             $TrustInvoice->refund_ref_id=$request->transaction_id;
+            $TrustInvoice->related_to_invoice_id = @$GetAmount->related_to_invoice_id;
             $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
             $TrustInvoice->allocated_to_case_id = $GetAmount->allocated_to_case_id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
+
+            if($TrustInvoice->fund_type == "refund payment") {
+                $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request);
+                $TrustInvoice->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
+            }
 
             // For request refund
             if($TrustInvoice->related_to_fund_request_id) {
@@ -1322,7 +1343,10 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->refundAllocateTrustBalance($TrustInvoice);
                 }
-
+            } else if($TrustInvoice->fund_type == "refund payment") {
+                $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
 
@@ -1335,6 +1359,10 @@ class ClientdashboardController extends BaseController
             $updateBalaance=UsersAdditionalInfo::where("user_id",$TrustInvoice->client_id)->first();
             if($updateBalaance['trust_account_balance']<=0){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
+            }
+
+            if($TrustInvoice->fund_type == "refund payment") {
+                $this->deleteInvoicePaymentHistoryTrust($TrustInvoice->id);
             }
 
             // For related to fund request
@@ -1440,7 +1468,7 @@ class ClientdashboardController extends BaseController
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
         $allLeads = $allLeads->withCount('fundPaymentHistory');
-        $allLeads = $allLeads->get();
+        $allLeads = $allLeads->with('user', 'allocateToCase')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -1456,21 +1484,35 @@ class ClientdashboardController extends BaseController
         $authUser = auth()->user();
         //Get all client related to firm
         // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-
+        $ClientList = firmClientList();
         //Get all company related to firm
         // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
-       
+        $CompanyList = firmCompanyList();
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
+
+        if($request->case_id) {
+            $authUser = auth()->user();
+            $ClientList = User::whereHas("clientCases", function($query) use($request) {
+                $query->where("case_master.id", $request->case_id);
+            })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
+            ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
+
+            $CompanyList = User::whereHas("clientCases", function($query) use($request) {
+                $query->where("case_master.id", $request->case_id);
+            })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')
+            ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
+        }
         
-        return view('client_dashboard.billing.addFundRequestEnrty',compact(/* 'ClientList','CompanyList', */'client_id','userData','UsersAdditionalInfo'));     
+        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','client_id','userData','UsersAdditionalInfo'));     
         exit;    
     } 
 
     public function reloadAmount(Request $request)
     {
         $client_id=$request->user_id;
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("user_id","trust_account_balance","minimum_trust_balance", "credit_account_balance")->where("user_id",$client_id)->first(); 
+        $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->with('user')->first(); 
+        $clientCases = CaseClientSelection::where("selected_user", $client_id)->with("case")->get();
         $trust_account_balance=$minimum_trust_balance=0.00;
         if(!empty($UsersAdditionalInfo)){
             $trust_account_balance=number_format($UsersAdditionalInfo->trust_account_balance,2);
@@ -1478,7 +1520,7 @@ class ClientdashboardController extends BaseController
         }
         $requestDefaultMessage = @getInvoiceSetting()->request_funds_preferences_default_msg ?? "";
         $is_non_trust_retainer = @getInvoiceSetting()->is_non_trust_retainers_credit_account ?? "no";
-        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage, 'credit_account_balance' => $UsersAdditionalInfo->credit_account_balance ?? 0, 'is_non_trust_retainer' => $is_non_trust_retainer]);
+        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage, 'is_non_trust_retainer' => $is_non_trust_retainer, 'clientCases' => $clientCases]);
         exit;
 
     } 
@@ -1507,6 +1549,7 @@ class ClientdashboardController extends BaseController
             $RequestedFund->email_message=$request->message;
             $RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             $RequestedFund->status='sent';
+            $RequestedFund->allocated_to_case_id=$request->case_id;
             $RequestedFund->created_by=Auth::user()->id; 
             $RequestedFund->save();
 
@@ -1515,8 +1558,9 @@ class ClientdashboardController extends BaseController
             $data['deposit_for']=$RequestedFund->client_id;
             $data['user_id']=$RequestedFund->client_id;
             $data['client_id']=$RequestedFund->client_id;
+            $data['case_id']=$request->case_id;
             $data['activity']='sent deposit request';
-            $data['type']='deposit';
+            $data['type']='fundrequest';
             $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
@@ -1649,7 +1693,7 @@ class ClientdashboardController extends BaseController
             $data['deposit_for']=$getRequestedFund->client_id;
             $data['user_id']=Auth::User()->id;
             $data['activity']='deleted deposit request ';
-            $data['type']='deposit';
+            $data['type']='fundrequest';
             $data['action']='delete';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
@@ -1699,13 +1743,13 @@ class ClientdashboardController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
-            $RequestedFundDueDate = date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone)));            
+            $RequestedFundDueDate = ($RequestedFund->due_date) ? date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone))) : '';            
             $firmData=Firm::find(Auth::User()->firm_name);
             $getTemplateData = EmailTemplate::find(17);
             $mail_body = $getTemplateData->content;
-            $mail_body = str_replace('{message}', date('F d, Y',strtotime($RequestedFundDueDate)), $mail_body);
+            $mail_body = str_replace('{message}', ($RequestedFundDueDate) ? date('F d, Y',strtotime($RequestedFundDueDate)) : '', $mail_body);
             $mail_body = str_replace('{amount}', number_format($RequestedFund->amount_due,2), $mail_body);
-            $mail_body = str_replace('{duedate}', date('m/d/Y',strtotime($RequestedFundDueDate)), $mail_body);
+            $mail_body = str_replace('{duedate}', ($RequestedFundDueDate) ? date('m/d/Y',strtotime($RequestedFundDueDate)) : '', $mail_body);
             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);

@@ -1068,7 +1068,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 
 
-<div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-xl ">
         <div class="modal-content">
@@ -1084,7 +1084,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 {{-- <div id="addEmailToClient" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -1135,7 +1135,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
 @include('client_dashboard.billing.modal')
 
-<div id="editFundRequest" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="editFundRequest" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -1204,7 +1204,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 <div id="archiveContact" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -1539,7 +1539,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $('#DeleteModal').on('hidden.bs.modal', function () {
             window.location.reload();
         });
-        $("#addEmailtouser").validate({
+        /* $("#addEmailtouser").validate({
             rules: {
                 email: {
                     required: true,
@@ -1552,7 +1552,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     email : "Email is not formatted correctly"
                 }
             }
-        });
+        }); */
 
         $('input[name="client_portal_enable"]').click(function () {
             var vals = $(this).val();
@@ -2204,7 +2204,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 $(".trust-total-balance").text(response.trust_total);
             },
         }); */
-        $('#addRequestFund').on('hidden.bs.modal', function () {
+        /* $('#addRequestFund').on('hidden.bs.modal', function () {
             requestFundGrid.ajax.reload(null, false);
         });
 
@@ -2296,7 +2296,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "initComplete": function(settings, json) {
                     $('td').css('font-size',parseInt('13px'));  
                 }
-        });
+        }); */
 
         /* $('#deletePaymentEntry').submit(function (e) {
             beforeLoader();
@@ -2438,7 +2438,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         }); */
 
         
-        $('#deleteRequestedFundEntry').submit(function (e) {
+        /* $('#deleteRequestedFundEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -2482,7 +2482,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
         $('#archiveContactForm').submit(function (e) {
             beforeLoader();
             e.preventDefault();
@@ -3050,7 +3050,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#exportPDFpopup").modal("show");
     }
 
-    function addRequestFundPopup() {
+    // Made common code for fund request from client/company/case and billing dashboard
+    /* function addRequestFundPopup() {
         $("#preloader").show();
         $("#addRequestFundArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -3064,8 +3065,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
-    function editFundRequest(id) {
+    } */
+    /* function editFundRequest(id) {
         $("#preloader").show();
         $("#editFundRequestArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -3106,7 +3107,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
+    } */
     
     function archiveContact(id) {
         $("#archiveContact").modal("show");

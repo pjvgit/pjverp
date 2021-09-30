@@ -80,6 +80,7 @@ if(isset($_GET['type'])){
                                 <th>Number</th>
                                 <th class="col-md-auto"> Contact </th>
                                 <th class="nosort">Account</th>
+                                <th class="nosort">Allocated To</th>
                                 <th> Amount </th>
                                 <th> Paid </th>
                                 <th> Amount Due </th>
@@ -97,8 +98,8 @@ if(isset($_GET['type'])){
     </div>
 </div>
 <!-- Modals -->
-
-<div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- Made common code for client/company/case and billing dashboard --}}
+{{-- <div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-xl ">
         <div class="modal-content">
@@ -232,7 +233,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </form>
     </div>
-</div>
+</div> --}}
+@include('client_dashboard.billing.modal')
 
 <!--Over-->
 <style>
@@ -282,7 +284,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             // $("#contact").val('').trigger('change').select2('open');
         });
         $('.dropdown-toggle').dropdown();
-        $("#addEmailtouser").validate({
+        /* $("#addEmailtouser").validate({
             rules: {
                 email: {
                     required: true,
@@ -296,7 +298,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 },
                
             },
-        });
+        }); */
      
         var timeEntryGrid =  $('#timeEntryGrid').DataTable( {
             serverSide: true,
@@ -329,6 +331,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id'},
                 { data: 'id'},
                 { data: 'id'},
+                { data: 'id'},
                 { data: 'id','sorting':false},
                 { data: 'id','sorting':false},
                 { data: 'id','sorting':false}],
@@ -351,17 +354,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     // $('td:eq(2)', nRow).html('<div class="text-left">'+aData.trust_account+' '+trustLabel+' ' +$msg+'</div>');
                     $('td:eq(2)', nRow).html('<div class="text-left">'+aData.deposit_into_type.substr(0,1).toUpperCase()+aData.deposit_into_type.substr(1)+' '+trustLabel+' ' +$msg+'</div>');
-
-                    $('td:eq(3)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
-                    $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');
-                    $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>');
-                    $('td:eq(6)', nRow).html('<div class="text-left">'+aData.due_date_format+'</div>');
-                    $('td:eq(7)', nRow).html('<div class="text-left">'+aData.last_send+'</div>');
+                    
+                    if(aData.allocated_to_case_id != null) {
+                        var clientLink='<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>';
+                    } else {
+                        if(aData.user.user_level == 2)
+                            var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
+                        else
+                            var clientLink='<a class="name" href="'+baseUrl+'/contacts/companies/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
+                    }
+                    $('td:eq(3)', nRow).html('<div class="text-left">'+clientLink+'</div>');
+                    $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
+                    $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');
+                    $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>');
+                    $('td:eq(7)', nRow).html('<div class="text-left">'+aData.due_date_format+'</div>');
+                    $('td:eq(8)', nRow).html('<div class="text-left">'+aData.last_send+'</div>');
                   
                     if(aData.is_viewed=="no"){
-                        $('td:eq(8)', nRow).html('<div class="text-left">Never</div>');
+                        $('td:eq(9)', nRow).html('<div class="text-left">Never</div>');
                     }else{
-                        $('td:eq(8)', nRow).html('<div class="text-left">Yes</div>');
+                        $('td:eq(9)', nRow).html('<div class="text-left">Yes</div>');
                     }
                     // if(aData.is_due!=null){
                     //     var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>Overdue';
@@ -378,7 +390,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         var curSetatus=aData.current_status;
                     }
                     
-                    $('td:eq(9)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
+                    $('td:eq(10)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
                     // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');"><i class="fas fa-pen align-middle pr-3"></i></a> <a data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('+aData.id+');"><i class="fas fa-bell pr-3 align-middle"></i></a> <a data-toggle="modal"  data-target="#deleteRequestFund" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+');"><i class="fas fa-trash align-middle "></i></a></div>');
                     var action = '<div class="text-center">\
@@ -395,7 +407,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         </a>\
                     </div>';
 
-                    $('td:eq(10)', nRow).html(action);
+                    $('td:eq(11)', nRow).html(action);
                 },
                 "initComplete": function(settings, json) {
                     $('[data-toggle="tooltip"]').tooltip();
@@ -404,7 +416,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         });
         $('#actionbutton').attr('disabled', 'disabled');
 
-        $('#deleteRequestedFundEntry').submit(function (e) {
+        /* $('#deleteRequestedFundEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -448,9 +460,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
 
-        $('#addEmailtouser').submit(function (e) {
+        /* $('#addEmailtouser').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -499,16 +511,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
     });
-
-    function addRequestFundPopup() {
+    // made common code for fund request from client/company/case and billing dashboard
+    /* function addRequestFundPopup() {
         $("#preloader").show();
         $("#addRequestFundArea").html('Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/companies/addRequestFundPopup", 
+                url: baseUrl + "/contacts/clients/addRequestFundPopup", 
                 data: {"user_id": ""},
                 success: function (res) {
                     $("#email").val('');
@@ -560,7 +572,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
+    } */
     function printEntry()
    {
         var info = $('#timeEntryGrid').DataTable().page.info();
@@ -583,5 +595,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
    }
 </script>
+<script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

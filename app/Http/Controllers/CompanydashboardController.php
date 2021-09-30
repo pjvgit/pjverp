@@ -1058,7 +1058,7 @@ class CompanydashboardController extends BaseController
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
         $allLeads = $allLeads->withCount('fundPaymentHistory');
-        $allLeads = $allLeads->get();
+        $allLeads = $allLeads->with('user', 'allocateToCase')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -1067,8 +1067,8 @@ class CompanydashboardController extends BaseController
         );
         echo json_encode($json_data);  
     }
-
-    public function addRequestFundPopup(Request $request)
+    // Made common code for request
+    /* public function addRequestFundPopup(Request $request)
     {
         $client_id=$request->user_id;
         //Get all client related to firm
@@ -1109,9 +1109,9 @@ class CompanydashboardController extends BaseController
         return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance]);
         exit;
 
-    } 
+    } */ 
 
-    public function saveRequestFundPopup(Request $request)
+    /* public function saveRequestFundPopup(Request $request)
     {
         $request['amount']=str_replace(",","",$request->amount);
 
@@ -1335,7 +1335,7 @@ class CompanydashboardController extends BaseController
 
             
         }
-    }
+    } */
 
     public function addNewMessagePopup(Request $request)
     {
