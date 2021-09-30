@@ -110,6 +110,7 @@ $(document).ready(function() {
     });
 
     $.validator.addMethod('minStrict', function (value, el, param) {
+        value = value.replace(',', '');
         return value > 0;
     }, 'Should be greater than 0');
 });

@@ -120,9 +120,9 @@ trait CreditAccountTrait {
             $invRefHistory->fill(["status" => "1"])->save();
             InvoicePayment::whereId($invRefHistory->invoice_payment_id)->update(["status" => 0]);
         }
-        $this->updateInvoiceAmount($creditHistory->related_to_invoice_id);
         $invPayment->delete();
         $invHistory->delete();
+        $this->updateInvoiceAmount($creditHistory->related_to_invoice_id);
     }
 
     /**
@@ -135,15 +135,17 @@ trait CreditAccountTrait {
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
-        // Log::info("total paid amount: ".$remainPaidAmt);
+        Log::info("total paid amount: ".$totalPaid);
+        Log::info("total refund amount: ".$totalRefund);
+        Log::info("total remain paid amount: ".$remainPaidAmt);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-        // Log::info("invoice due date: ".$dueDate);
+        Log::info("invoice due date: ".$dueDate);
         // Log::info("compare date: ".strtotime($dueDate).' <= '.strtotime(date('Y-m-d')));
         if($remainPaidAmt == 0) {
             $status="Unsent";
         } elseif($invoice->total_amount == $remainPaidAmt) {
             $status = "Paid";
-        } else if($remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
+        } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
             $status="Partial";
         } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
             $status="Overdue";

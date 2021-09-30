@@ -1,3 +1,9 @@
+------------------------------------ 28-SEP-2021 ------------------------------
+ALTER TABLE `requested_fund` ADD `allocated_to_case_id` int(11) NULL AFTER `last_reminder_sent_on`;
+ALTER TABLE `trust_history` CHANGE `fund_type` `fund_type` enum('diposit','withdraw','refund_withdraw','refund_deposit','allocate_trust_fund','deallocate_trust_fund','payment','refund payment') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `notes`;
+ALTER TABLE `trust_history` ADD `related_to_invoice_payment_id` int(11) NULL AFTER `allocated_to_case_id`;
+ALTER TABLE `all_history` CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`;
+
 ------------------------------------ 27-SEP-2021 ------------------------------
 ALTER TABLE `trust_history`
 CHANGE `fund_type` `fund_type` enum('diposit','withdraw','refund_withdraw','refund_deposit','allocate_trust_fund','deallocate_trust_fund','payment') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `notes`;

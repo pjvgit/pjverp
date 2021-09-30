@@ -58,6 +58,7 @@ trait InvoiceTrait {
             "related_to_invoice_id" => $InvoiceSave->id,
             "allocated_to_case_id" => @$item['case_id'],
             "created_by" => $authUser->id,
+            "related_to_invoice_payment_id" => $InvoicePayment->id,
         ]);
 
         if(array_key_exists("allocate_applied_amount", (array) $item) && $item["allocate_applied_amount"] != "") {

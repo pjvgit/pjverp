@@ -28,7 +28,6 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <input type="hidden" id="case_id" name="case_id" value="{{ @$case->id }}">
             <?php
             if(!$clientList->isEmpty()){?>
-            @if(!$case)
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Apply to Request</label>
@@ -43,7 +42,6 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                 </div>
               
             </div>
-            @endif
             <?php } ?>
             <div class="row">
                 <div class="col-md-6 form-group">

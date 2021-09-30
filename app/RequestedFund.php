@@ -16,7 +16,7 @@ class RequestedFund extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = ['client_id', 'deposit_into', 'deposit_into_type', 'amount_requested', 'amount_due', 'amount_paid', 'payment_date', 'due_date', 
-                'email_message', 'status', 'is_viewed', 'reminder_sent_counter', 'last_reminder_sent_on', 'created_by', 'updated_by'];
+                'email_message', 'status', 'is_viewed', 'reminder_sent_counter', 'last_reminder_sent_on', 'created_by', 'updated_by', 'allocated_to_case_id'];
 
     protected $appends  = ['padding_id','amt_requested','amt_paid','amt_due','due_date_format','send_date_format','is_due','last_send','current_status', 'payment_at'];
     public function getPaddingIdAttribute(){
@@ -104,7 +104,7 @@ class RequestedFund extends Authenticatable
     {
         if($this->attributes['amount_due'] =="0.00"){
             $status = "paid";
-        }else if($this->attributes['amount_paid'] < $this->attributes['amount_requested'] && strtotime($this->attributes['due_date']) >= strtotime(date('Y-m-d'))){
+        }else if($this->attributes['amount_paid'] > 0 && $this->attributes['amount_paid'] < $this->attributes['amount_requested'] && strtotime($this->attributes['due_date']) >= strtotime(date('Y-m-d'))){
             $status = "partial";
         }else if(isset($this->attributes['due_date']) && strtotime($this->attributes['due_date']) < strtotime(date('Y-m-d'))){
             $status = "overdue";
@@ -131,5 +131,25 @@ class RequestedFund extends Authenticatable
     public function fundPaymentHistory()
     {
         return $this->hasMany(TrustHistory::class, 'related_to_fund_request_id');
+    }
+
+    /**
+     * Get the user that owns the RequestedFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    /**
+     * Get the case that owns the RequestedFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function allocateToCase()
+    {
+        return $this->belongsTo(CaseMaster::class, 'allocated_to_case_id');
     }
 }

@@ -11,33 +11,16 @@
                             <select class="form-control caller_name select2" id="contact" onchange="reloadClientAmount()" name="contact"
                                 style="width: 100%;" placeholder="Search for an existing contact or company">
                                 <option></option>
-                                {{-- <optgroup label="Client">
-                                    <?php foreach($ClientList as $key=>$val){ 
-                                        if($val->email==NULL){
-                                            $isEmail="no";
-                                        }else{
-                                            $isEmail="yes";
-                                        }?>
-                                    <option uType="client" isemail="{{$isEmail}}" value="{{$val->id}}" <?php if($val->id==$client_id){ echo "selected=selected";} ?> >{{substr($val->name,0,200)}} (Client)
-                                    </option>
-                                    <?php } ?>
-                                </optgroup> --}}
                                 <optgroup label="Client">
-                                    @forelse (firmClientList() as $key => $item)
+                                    @forelse ($ClientList as $key => $item)
                                         <option uType="client" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}">{{$item->name}} 
                                             ({{ getUserTypeText()[$item->user_level] }})
                                         </option>
                                     @empty
                                     @endforelse
                                 </optgroup>
-                                {{-- <optgroup label="Company">
-                                    <?php foreach($CompanyList as $CompanyListKey=>$CompanyListVal){ ?>
-                                    <option uType="company"  isemail={{$val->email}} value="{{$CompanyListVal->id}}">
-                                        {{substr($CompanyListVal->first_name,0,200)}} (Company)</option>
-                                    <?php } ?>
-                                </optgroup> --}}
                                 <optgroup label="Comapny">
-                                    @forelse (firmCompanyList() as $key => $item)
+                                    @forelse ($CompanyList as $key => $item)
                                         <option uType="company" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}" >{{$item->name}} 
                                             ({{ getUserTypeText()[$item->user_level] }})
                                         </option>
@@ -68,20 +51,30 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row" data-testid="user-bank-account-autocomplete"><label for="bank-account"
-                            class="d-block col-4 pt-2 ">Deposit Into</label>
-                        <div class="deposit-account-select-wrapper col-8">
-                            <div class="Select has-value is-searchable Select--single">
-                                <select class="form-control caller_name select2" id="deposit_into" name="deposit_into"
-                                    style="width: 100%;" placeholder="Select user's account...">
-                                    <option></option>
-                                    <option selected="selected" value="trust">Trust Account (${{number_format($UsersAdditionalInfo->trust_account_balance,2)}})</option>
-                                    @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes" && isset($UsersAdditionalInfo->credit_account_balance))
-                                    <option value="credit">Operating Account (${{number_format($UsersAdditionalInfo->credit_account_balance ?? 0,2)}})</option>
-                                    @endif
-                                </select>
-                            </div>
+                    <div class="form-group row" data-testid="user-bank-account-autocomplete">
+                        <label for="bank-account" class="d-block col-4 pt-2 ">Deposit Into</label>
+                        <div class="col-8">
+                            <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;" placeholder="Select user's account...">
+                                <option></option>
+                                <option value="trust">Trust Account</option>
+                                @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                                <option value="credit">Operating Account</option>
+                                @endif
+                            </select>
+                            <span class="deposit_into_error" ></span>
                         </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="d-block col-4 pt-2">Allocate Funds
+                            <span id="allocate-funds-tooltip" data-toggle="tooltip" data-html="true" title="<b>Now you can earmark trust funds by case:</b> <br> - Keep each case's trust balance seperate <br> - Prevent improperly applying trust funds <br><b>Note:</b> select client name to keep trust funds on the client level (Unallocated option)"><i class="fas fa-info-circle ml-1"></i></span>
+                        </label>
+                        <div class="col-8">
+                            <select class="form-control select2-option" id="allocate_fund" name="allocate_fund" style="width: 100%;" disabled>
+                                <option value=""></option>
+                            </select> 
+                            <span class="allocate_fund_error" ></span>
+                        </div>
+                        <input type="hidden" name="case_id" id="case_id">
                     </div>
                     <div class="form-group row"><label for="retainer-request-email-notes-el"
                             class="col-4 pt-2 d-block ">Email Message</label>
@@ -134,7 +127,7 @@
                                 <div class="col-9">Current Trust Balance:</div>
                                 <div class="col-3" data-testid="current-balance">
                                     $<span id="current-balance">
-                                       {{number_format($UsersAdditionalInfo->trust_account_balance,2)}}
+                                       {{number_format($UsersAdditionalInfo->trust_account_balance ?? 0,2)}}
                                     </span>
                                 </div>
                             </div>
@@ -142,7 +135,7 @@
                                 <div class="col-9">Minimum Trust Amount Required:</div>
                                 <div class="col-3" data-testid="minimum-trust-balance">
                                     $<span id="minimum-trust-balance">
-                                    {{number_format($UsersAdditionalInfo->minimum_trust_balance,2)}}
+                                    {{number_format($UsersAdditionalInfo->minimum_trust_balance ?? 0,2)}}
                                 </span>
                             </div>
                             </div>
@@ -185,6 +178,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
         reloadClientAmount();
         $('.input-date').datepicker({
             'format': 'm/d/yyyy',
@@ -206,7 +200,7 @@
             allowClear: true,
             dropdownParent: $("#addRequestFund"),
         });
-        $('#addEmailToClient .close, .close-modal').on('click', function () {
+        $('#addEmailToClient .close, #addEmailToClient .close-email-modal').on('click', function () {
             $("#contact").val("").trigger('change');
         });
         afterLoader();
@@ -220,6 +214,9 @@
                     minStrict: true,
                 },
                 deposit_into: {
+                    required: true,
+                },
+                allocate_fund: {
                     required: true,
                 }
             },
@@ -239,7 +236,11 @@
                     error.appendTo('#ptype');
                 } else if (element.is('#amount')) {
                     error.appendTo('#amterror');
-                } else {
+                } else if (element.attr("name") == "allocate_fund")
+                    error.insertAfter(".allocate_fund_error");
+                else if (element.attr("name") == "deposit_into")
+                    error.insertAfter(".deposit_into_error");
+                else {
                     element.after(error);
                 }
             }
@@ -263,6 +264,12 @@
                 $("#client_id_for_email").val(contactSelectd);
                 return false;
             }
+            var caseId = '';
+            var label = $('#allocate_fund :selected').parent().attr('label');
+            if(label != "Unallocated") {
+                caseId = $('#allocate_fund :selected').val();
+            }
+            $("#case_id").val(caseId);
             var dataString = '';
             dataString = $("#addRequestForm").serialize();
             $.ajax({
@@ -320,6 +327,18 @@
             $('#disabledArea').addClass('retainer-request-opaque');
         });
 
+        $(".select2-option").select2({
+            theme: "classic",
+            placeholder: "Select funds allocation",
+            allowClear: true,
+            minimumResultsForSearch: Infinity
+        });
+        $("#deposit_into").select2({
+            theme: "classic",
+            placeholder: "Select a bank accoun",
+            allowClear: true,
+            minimumResultsForSearch: Infinity
+        });
     });
 
     function countChar(val) {
@@ -360,15 +379,39 @@
                         $("#preloader").hide();
 
                         $("#current-balance").html(res.trust_account_balance);
+                        $('#current-balance').number(true, 2);
+
                         $("#minimum-trust-balance").html(res.minimum_trust_balance);
+                        $('#minimum-trust-balance').number(true, 2);
+
                         $("#current-balance-list-down").text(res.minimum_trust_balance);
-                        $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
-                        if(res.is_non_trust_retainer == "yes") {
-                            $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
+                        // $('#deposit_into').html('<option value="trust">Trust Account</option>');
+                        if(res.is_non_trust_retainer == "yes" && $("#deposit_into option[value='credit']").length < 0) {
+                            $('#deposit_into').append('<option value="credit">Operating Account</option>'); 
                         }
                         $(".text-muted").show();
                         $('#disabledArea').removeClass('retainer-request-opaque');
-                        $('.submit').removeAttr("disabled");  
+                        $('.submit').removeAttr("disabled"); 
+                        if($("#deposit_into").val() != '') { 
+                            $('#allocate_fund').html("");
+                            if(res.clientCases.length > 0) {
+                                if($("#deposit_into").val() == "trust") {
+                                    var optgroup = "<optgroup label='Allocate to case'>";
+                                    $.each(res.clientCases, function(ind, item) {
+                                        optgroup += "<option value='" + item.case_id + "'>" + item.case.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
+                                    });
+                                    optgroup += "</optgroup>"
+                                    $('#allocate_fund').append(optgroup);
+                                }
+                            }
+                            var optgroup = "<optgroup label='Unallocated'>";
+                            if(res.freshData) {
+                                optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+res.freshData.unallocate_trust_balance+")" + "</option>";
+                            }
+                            optgroup += "</optgroup>"
+                            $('#allocate_fund').append(optgroup);
+                            $(".select2-option").trigger('chosen:updated');
+                        }
                     }
                 })
             }
@@ -388,11 +431,33 @@
                 $("#current-balance").html(res.trust_account_balance);
                 $("#minimum-trust-balance").html(res.minimum_trust_balance);
                 $("#current-balance-list-down").text(res.minimum_trust_balance);
-                $('#deposit_into').html('<option selected="selected" value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
-                if(res.is_non_trust_retainer == "yes") {
+                // $('#deposit_into').html('<option value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
+                if(res.is_non_trust_retainer == "yes" && $("#deposit_into option[value='credit']").length < 0) {
                     $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
                 }
             }
         })
     }
+
+$("#deposit_into").on("change", function() {
+    if($(this).val() != '') {
+        $('#allocate_fund').prop("disabled", false);
+    } else {
+        $('#allocate_fund').prop("disabled", true);
+    }
+    reloadClientAmount();
+    if($(this).val() == 'trust') {
+        $("#allocate-funds-tooltip").show();
+    } else {
+        $("#allocate-funds-tooltip").hide();
+    }
+});
+
+/* $("#contact").on("change", function() {
+    if($(this).val() != '') {
+        $('#deposit_into').prop("disabled", false);
+    } else {
+        $('#deposit_into').prop("disabled", true);
+    }
+}); */
 </script>

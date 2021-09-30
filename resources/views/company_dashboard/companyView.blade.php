@@ -926,7 +926,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 
 
-<div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog  modal-xl ">
         <div class="modal-content">
@@ -942,7 +942,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 {{-- <div id="addEmailToClient" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
@@ -992,7 +992,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div> --}}
 @include('client_dashboard.billing.modal')
 
-<div id="editFundRequest" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+{{-- <div id="editFundRequest" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -1061,7 +1061,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 @include('client_dashboard.billing.credit_history_modal')
 
@@ -1754,7 +1754,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td').css('font-size',parseInt('13px'));  
                 }
         }); */
-        $('#addRequestFund').on('hidden.bs.modal', function () {
+       /*  $('#addRequestFund').on('hidden.bs.modal', function () {
             requestFundGrid.ajax.reload(null,false);
         });
         var requestFundGrid =  $('#requestFundGrid').DataTable( {
@@ -1845,7 +1845,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "initComplete": function(settings, json) {
                     $('td').css('font-size',parseInt('13px'));  
                 }
-        });
+        }); */
         /* $('#deletePaymentEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
@@ -1983,7 +1983,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
             });
         }); */
-        $('#deleteRequestedFundEntry').submit(function (e) {
+        /* $('#deleteRequestedFundEntry').submit(function (e) {
             beforeLoader();
             e.preventDefault();
 
@@ -2027,7 +2027,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 afterLoader();
             }
             });
-        });
+        }); */
     });
 
 
@@ -2359,7 +2359,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $('.showError').html('');
         $("#exportPDFpopup").modal("show");
     }
-    function addRequestFundPopup() {
+    // Made common code for fund request from client/company/case and billing dashboard
+    /* function addRequestFundPopup() {
         $("#preloader").show();
         $("#addRequestFundArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -2415,7 +2416,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })
         })
-    }
+    } */
     //Billing Tab @END
 
     function archiveCompany() {

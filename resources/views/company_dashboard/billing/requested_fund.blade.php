@@ -61,6 +61,7 @@ if($totalData<=0){
             <th class="" style="cursor: initial;">Number</th>
             <th class="" style="cursor: initial;">Contact</th>
             <th class="" style="cursor: initial;">Account</th>
+            <th class="" style="cursor: initial;">Allocated To</th>
             <th class="" style="cursor: initial;">Amount</th>
             <th class="" style="cursor: initial;">Paid To</th>
             <th class="" style="cursor: initial;">Amount Due</th>
