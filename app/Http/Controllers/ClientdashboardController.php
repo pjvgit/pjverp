@@ -960,7 +960,7 @@ class ClientdashboardController extends BaseController
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                     } else {
-                        if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit"){
+                        if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit" || $data->fund_type=="refund payment"){
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
@@ -1262,7 +1262,7 @@ class ClientdashboardController extends BaseController
        
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->client_id;
-            $TrustInvoice->payment_method='Refund for Trust';
+            $TrustInvoice->payment_method='Trust Refund';
             $TrustInvoice->amount_paid="0.00";
             $TrustInvoice->withdraw_amount="0.00";
             $TrustInvoice->refund_amount=$request['amount'];
@@ -1344,6 +1344,7 @@ class ClientdashboardController extends BaseController
                     $this->refundAllocateTrustBalance($TrustInvoice);
                 }
             } else if($TrustInvoice->fund_type == "refund payment") {
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->refund_amount);
                 $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
@@ -1561,7 +1562,7 @@ class ClientdashboardController extends BaseController
             $data['case_id']=$request->case_id;
             $data['activity']='sent deposit request';
             $data['type']='fundrequest';
-            $data['action']='add';
+            $data['action']='share';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
@@ -3632,6 +3633,7 @@ class ClientdashboardController extends BaseController
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
             } else if($creditHistory->payment_type == "refund payment") {
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();

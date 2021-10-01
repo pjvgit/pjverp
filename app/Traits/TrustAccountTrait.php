@@ -55,7 +55,7 @@ trait TrustAccountTrait {
         $trustHistory = TrustHistory::whereId($trustId)->first();
         $invPayment = InvoicePayment::whereId($trustHistory->related_to_invoice_payment_id)->first();
         $authUser = auth()->user();
-        $currentBalance = InvoicePayment::where("firm_id", $authUser->firm_name)->where("deposit_into","Trust Account")->orderBy("created_at","DESC")->first();
+        $currentBalance = InvoicePayment::where("firm_id", $authUser->firm_name)->where("deposit_into","Operating Account")->orderBy("created_at","DESC")->first();
         if($currentBalance['total'] - $request->amount <= 0){
             $finalAmt=0;
         }else{
@@ -67,8 +67,8 @@ trait TrustAccountTrait {
             'payment_from' => 'trust',
             'amount_refund' => $request->amount,
             'amount_paid' => 0.00,
-            'payment_method' => "Refund",
-            'deposit_into' => NULL,
+            'payment_method' => "Trust Refund",
+            'deposit_into' => "Trust Account",
             'notes' => $request->notes,
             'refund_ref_id' => $invPayment->id,
             'payment_date' => date('Y-m-d',strtotime($request->payment_date)),
@@ -88,7 +88,7 @@ trait TrustAccountTrait {
 
         // For update invoice status and due/paid amount
         $this->updateInvoiceAmount($invoiceId);
-
+        Log::info("Old transaction:". $trustHistory->related_to_invoice_payment_id.", invoice payment id:".$trustHistory->related_to_invoice_payment_id);
         $invoiceHistory = InvoiceHistory::where("invoice_payment_id", $trustHistory->related_to_invoice_payment_id)->first();
         if($invoiceHistory) {
             $invoiceHistory->fill([
@@ -99,10 +99,10 @@ trait TrustAccountTrait {
         InvoiceHistory::create([
             'invoice_id'  => $invoiceId,
             'acrtivity_title' => 'Payment Refund',
-            'pay_method' => "Refund",
+            'pay_method' => "Trust Refund",
             'amount' => $request->amount,
             'responsible_user' => $authUser->id,
-            'deposit_into' => NULL,
+            'deposit_into' => "Trust Account",
             'notes' => $request->notes,
             'status' => "4",
             'refund_ref_id' => $invoiceHistory->id,

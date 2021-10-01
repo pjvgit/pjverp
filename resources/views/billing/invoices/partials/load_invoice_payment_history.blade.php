@@ -31,7 +31,7 @@
                 {{$hVal->added_date}}
             </td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
-                {{ $hVal->pay_method }}
+                {{ $hVal->pay_method }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 <?php if($hVal->acrtivity_title=="Payment Received"){?>
@@ -46,6 +46,8 @@
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
                 @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
+                    {{ $hVal->deposit_into }}
+                @elseif($hVal->acrtivity_title=="Payment Refund" && $hVal->pay_method == 'Trust')
                     {{ $hVal->deposit_into }}
                 @endif
             </td>

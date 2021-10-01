@@ -32,6 +32,7 @@ trait InvoiceTrait {
             'entry_type' => "0",
             'payment_from_id' => @$item['client_id'],
             'deposit_into' => "Operating Account",
+            'deposit_into_id' => @$item['client_id'],
             'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
             'firm_id' => $authUser->firm_name,
             'created_by' => $authUser->id 
@@ -76,7 +77,7 @@ trait InvoiceTrait {
         $invoiceHistory['amount'] = @$item['applied_amount'] ?? 0;
         $invoiceHistory['responsible_user'] = $authUser->id;
         $invoiceHistory['deposit_into']='Operating Account';
-        $invoiceHistory['deposit_into_id'] = ($request->client_id)??NULL;
+        $invoiceHistory['deposit_into_id'] = (@$item['client_id'])??NULL;
         $invoiceHistory['invoice_payment_id'] = $InvoicePayment->id;
         $invoiceHistory['notes']=$request->notes ?? NULL;
         $invoiceHistory['status']="1";

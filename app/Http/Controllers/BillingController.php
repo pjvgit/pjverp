@@ -1779,6 +1779,7 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_id = $request->invoice_id;
                         $TrustInvoice->created_by=Auth::user()->id; 
                         $TrustInvoice->allocated_to_case_id = NULL;
+                        $TrustInvoice->related_to_invoice_payment_id = $InvoicePayment->id;
                         $TrustInvoice->save();
                     }
                     // allocate to case 
@@ -1806,6 +1807,7 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_id = $request->invoice_id;
                         $TrustInvoice->created_by=Auth::user()->id; 
                         $TrustInvoice->allocated_to_case_id = $request->trust_account;
+                        $TrustInvoice->related_to_invoice_payment_id = $InvoicePayment->id;
                         $TrustInvoice->save();
                         $request->trust_account = $request->contact_id;
                     }       
@@ -4002,6 +4004,7 @@ class BillingController extends BaseController
                             'entry_type' => "0",
                             'payment_from_id' => @$item['client_id'],
                             'deposit_into' => "Operating Account",
+                            'deposit_into_id' => @$item['client_id'],
                             'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
                             'firm_id' => $authUser->firm_name,
                             'created_by' => $authUser->id,
@@ -5828,7 +5831,7 @@ class BillingController extends BaseController
         return view('billing.invoices.refundEntry',compact('userData','UsersAdditionalInfo','findEntry','findInvoice'));     
         exit;    
     } 
-    public function saveRefundPopup(Request $request)
+    /* public function saveRefundPopupOld(Request $request)
     {
         // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
@@ -5879,7 +5882,7 @@ class BillingController extends BaseController
             }
             $invoiceHistory['amount']=$request['amount'];
             $invoiceHistory['responsible_user']=Auth::User()->id;
-            $invoiceHistory['deposit_into'] = ($GetAmount->pay_method == "Trust") ? "Trust" : "Operating";
+            $invoiceHistory['deposit_into'] = (in_array($GetAmount->pay_method, ["Trust", "Refund for Trust"])) ? "Trust" : "Operating";
             $invoiceHistory['deposit_into_id']=$GetAmount['deposit_into_id'];
             $invoiceHistory['notes']=$request->notes;
             $invoiceHistory['status']="4";
@@ -5927,6 +5930,13 @@ class BillingController extends BaseController
                     $UsersAdditionalInfo->refresh();
                     $creditHistory->is_refunded="yes";
                     $creditHistory->save();
+
+                    $invoiceHistory1 = InvoiceHistory::where("invoice_payment_id", $creditHistory->related_to_invoice_payment_id)->first();
+                    if($invoiceHistory1) {
+                        $invoiceHistory1->fill([
+                            "status" => ($request->amount == $invoiceHistory1->amount) ? 2 : 3,
+                        ])->save();
+                    }
         
                     $depCredHis = DepositIntoCreditHistory::create([
                         "user_id" => $creditHistory->user_id,
@@ -5979,11 +5989,228 @@ class BillingController extends BaseController
                 $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $GetAmount['deposit_into_id'])->first();
                 if($UsersAdditionalInfo) {
                     $UsersAdditionalInfo->fill(['trust_account_balance' => ($UsersAdditionalInfo->trust_account_balance + $request->amount)])->save();
+                    $UsersAdditionalInfo->refresh();
                 }
 
+                $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $GetAmount->invoice_payment_id)->first();
+                if($trustHistory) {
+                    $trustHistory->is_refunded="yes";
+                    $trustHistory->save();
+
+                    $invoiceHistory1 = InvoiceHistory::where("invoice_payment_id", $trustHistory->related_to_invoice_payment_id)->first();
+                    if($invoiceHistory1) {
+                        $invoiceHistory1->fill([
+                            "status" => ($request->amount == $invoiceHistory1->amount) ? 2 : 3,
+                        ])->save();
+                    }
+        
+                    TrustHistory::create([
+                        "user_id" => $trustHistory->user_id,
+                        "refund_amount" => $request->amount,
+                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                        "payment_method" => "Trust Refund",
+                        "fund_type" => 'refund payment',
+                        "total_balance" => @$UsersAdditionalInfo->trust_account_balance,
+                        "notes" => $request->notes,
+                        "refund_ref_id" => $trustHistory->id,
+                        "created_by" => auth()->id(),
+                        "firm_id" => auth()->user()->firm_name,
+                        "related_to_invoice_id" => $trustHistory->related_to_invoice_id,
+                        "related_to_invoice_payment_id" => $entryDone->id,
+                    ]);
+                }
             }
             
             $this->invoiceHistory($invoiceHistory);
+
+            //Add Invoice history for activity
+            $data=[];
+            $data['case_id']=$findInvoice['case_id'];
+            $data['user_id']=$findInvoice['user_id'];
+            $data['activity']='refunded a payment of $'.number_format($request['amount'],2);
+            $data['activity_for']=$findInvoice['id'];
+            $data['type']='invoices';
+            $data['action']='refund';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+            
+            //Case Activity
+            if($findInvoice['case_id'] > 0){
+                $caseActivityData=[];
+                $caseActivityData['activity_title']='refunded a payment of $'.number_format($request['amount'],2).' for invoice';
+                $caseActivityData['case_id']=$findInvoice['case_id'];
+                $caseActivityData['activity_type']='refund_payment';
+                $caseActivityData['extra_notes']=$findInvoice['id'];
+                $caseActivityData['staff_id']=$findInvoice['user_id'];
+                $this->caseActivity($caseActivityData);
+            }
+
+            // Update invoice status and paid/due amount
+            $this->updateInvoiceAmount($findInvoice['id']);
+
+            // Update installment payment status and amount
+            $this->updateInvoiceInstallment($request->amount, $findInvoice['id']);
+
+            session(['popup_success' => 'Withdraw fund successful']);
+            return response()->json(['errors'=>'']);
+            exit;   
+        }
+    } */
+
+    public function saveRefundPopup(Request $request)
+    {
+        // return $request->all();
+        $request['amount']=str_replace(",","",$request->amount);
+        $invoiceHistory = InvoiceHistory::find($request->transaction_id);
+        $findInvoice = Invoices::find($invoiceHistory->invoice_id);
+
+        $mt=$invoiceHistory->amount; 
+        $validator = \Validator::make($request->all(), [
+            'amount' => 'required|numeric|max:'.$mt,
+        ],[
+            'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        } else {
+            $invoiceHistoryNew = [];
+            $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$invoiceHistory['deposit_into_id'])->first();
+            if($invoiceHistory->pay_method == "Trust"){
+                // return $invoiceHistory;
+                //Insert invoice payment record.
+                $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Trust Account")->orderBy("created_at","DESC")->first();
+                if($currentBalance['total']-$request->amount<=0){
+                    $finalAmt=0;
+                }else{
+                    $finalAmt=$currentBalance['total']-$request->amount;
+                }
+                // $entryDone= DB::table('invoice_payment')->insert([
+                $entryDone=  InvoicePayment::create([
+                    'invoice_id'=>$findInvoice['id'],
+                    'payment_from'=>'trust',
+                    'amount_refund'=>$request->amount,
+                    'amount_paid'=>0.00,
+                    'payment_method'=>"Trust Refund",
+                    'deposit_into'=>"Trust",
+                    'deposit_into_id' => @$UsersAdditionalInfo->user_id,
+                    'notes'=>$request->notes,
+                    // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
+                    'refund_ref_id'=>$invoiceHistory->invoice_payment_id,
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
+                    'notes'=>$request->notes,
+                    'status'=>"1",
+                    'entry_type'=>"0",
+                    'total'=>$finalAmt,
+                    'ip_unique_id'=>Hash::make(time().rand(1,20000)),
+                    'firm_id'=>Auth::User()->firm_name,
+                    'created_at'=>date('Y-m-d H:i:s'),
+                    'created_by'=>Auth::user()->id 
+                ]);
+                $invoiceHistoryNew['invoice_payment_id']=$entryDone->id;
+                $invoiceHistoryNew['pay_method']="Trust Refund";
+
+                if($UsersAdditionalInfo) {
+                    $UsersAdditionalInfo->fill(['trust_account_balance' => ($UsersAdditionalInfo->trust_account_balance + $request->amount)])->save();
+                    $UsersAdditionalInfo->refresh();
+                }
+
+                $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $invoiceHistory->invoice_payment_id)->first();
+                if($trustHistory) {
+                    $trustHistory->is_refunded="yes";
+                    $trustHistory->save();
+        
+                    TrustHistory::create([
+                        "client_id" => $UsersAdditionalInfo->user_id,
+                        "refund_amount" => $request->amount,
+                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                        "payment_method" => "Trust Refund",
+                        "fund_type" => 'refund payment',
+                        "current_trust_balance" => @$UsersAdditionalInfo->trust_account_balance,
+                        "notes" => $request->notes,
+                        "refund_ref_id" => $trustHistory->id,
+                        "created_by" => auth()->id(),
+                        "firm_id" => auth()->user()->firm_name,
+                        "related_to_invoice_id" => $trustHistory->related_to_invoice_id,
+                        "related_to_invoice_payment_id" => $entryDone->id,
+                    ]);
+                }
+            } else {
+                // return 'shdfvdshf';
+                //Insert invoice payment record.
+                $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Operating Account")->orderBy("created_at","DESC")->first();
+                if($currentBalance['total']-$request->amount<=0){
+                    $finalAmt=0;
+                }else{
+                    $finalAmt=$currentBalance['total']-$request->amount;
+                }
+
+                $entryDone=  InvoicePayment::create([
+                    'invoice_id'=>$findInvoice['id'],
+                    'payment_from'=>'client',
+                    'amount_refund'=>$request->amount,
+                    'amount_paid'=>0.00,
+                    'payment_method'=>"Refund",
+                    'deposit_into'=>NULL,
+                    'deposit_into_id' => @$UsersAdditionalInfo->user_id,
+                    'notes'=>$request->notes,
+                    'refund_ref_id'=>$invoiceHistory->invoice_payment_id,
+                    'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
+                    'notes'=>$request->notes,
+                    'status'=>"1",
+                    'entry_type'=>"1",
+                    'total'=>$finalAmt,
+                    'firm_id'=>Auth::User()->firm_name,
+                    'ip_unique_id'=>Hash::make(time().rand(1,20000)),
+                    'created_at'=>date('Y-m-d H:i:s'),
+                    'created_by'=>Auth::user()->id 
+                ]);
+                $invoiceHistoryNew['invoice_payment_id']=$entryDone->id;
+                $invoiceHistoryNew['pay_method']="Refund";
+
+                $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $invoiceHistory->invoice_payment_id)->first();
+                if($creditHistory) {
+                    $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
+                    if($creditHistory->payment_type == "payment") {
+                        $fund_type='refund payment';
+                        $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+                    }
+                    $UsersAdditionalInfo->refresh();
+                    $creditHistory->is_refunded="yes";
+                    $creditHistory->save();
+        
+                    $depCredHis = DepositIntoCreditHistory::create([
+                        "user_id" => $creditHistory->user_id,
+                        "deposit_amount" => $request->amount,
+                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                        "payment_method" => "refund",
+                        "payment_type" => $fund_type,
+                        "total_balance" => $UsersAdditionalInfo->credit_account_balance,
+                        "notes" => $request->notes,
+                        "refund_ref_id" => $creditHistory->id,
+                        "created_by" => auth()->id(),
+                        "firm_id" => auth()->user()->firm_name,
+                        "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
+                        "related_to_invoice_payment_id" => $entryDone->id,
+                    ]);
+
+                    $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                }
+            }
+            $invoiceHistory->status = ($mt==$request['amount']) ? 2 : 3;
+            $invoiceHistory->save();
+
+            $invoiceHistoryNew['invoice_id']=$findInvoice['id'];
+            $invoiceHistoryNew['acrtivity_title']='Payment Refund';
+            $invoiceHistoryNew['amount']=$request['amount'];
+            $invoiceHistoryNew['responsible_user']=Auth::User()->id;
+            $invoiceHistoryNew['deposit_into'] = (in_array($invoiceHistory->pay_method, ["Trust", "Trust Refund"])) ? "Trust" : "Operating";
+            $invoiceHistoryNew['deposit_into_id'] = @$UsersAdditionalInfo->user_id;
+            $invoiceHistoryNew['notes']=$request->notes;
+            $invoiceHistoryNew['status']="4";
+            $invoiceHistoryNew['refund_ref_id']=$request->transaction_id;
+            $invoiceHistoryNew['created_by']=Auth::User()->id;
+            $invoiceHistoryNew['created_at']=date('Y-m-d H:i:s');
+            $this->invoiceHistory($invoiceHistoryNew);
 
             //Add Invoice history for activity
             $data=[];
@@ -6051,53 +6278,54 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $TrustInvoice=InvoiceHistory::find($request->payment_id);
-            // $PaymentMaster=InvoiceHistory::find($TrustInvoice['refund_ref_id']);
-            $PaymentMaster=InvoiceHistory::find($request->payment_id);
-            if($PaymentMaster['deposit_into']=="Trust Account"){
-                $IPayment=InvoicePayment::find($PaymentMaster['invoice_payment_id']);
-                
-                DB::table('users_additional_info')->where('user_id',$IPayment['deposit_into_id'])->decrement('trust_account_balance', $TrustInvoice->amount);
-               
-                $updateBalaance=UsersAdditionalInfo::where("user_id",$IPayment['deposit_into_id'])->first();
-                if($updateBalaance['trust_account_balance']<=0){
-                    DB::table('users_additional_info')->where('user_id',$IPayment['deposit_into_id'])->update(['trust_account_balance'=> "0.00"]);
-                }
-            }
-            $PaymentMaster->status="1";
-            $PaymentMaster->save();
-
+            $PaymentMaster = InvoiceHistory::find($request->payment_id);
             $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
-            $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
-            if($creditHistory) {
-                if($creditHistory->payment_type == "refund payment") {
-                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
-                    $updateRedord->is_refunded="no";
-                    $updateRedord->save();
-                    UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
-                } else {
-                    UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+            if(in_array($PaymentMaster->pay_method, ["Trust", "Trust Refund"])){
+                // Update trust history
+                $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
+                if($trustHistory) {
+                    if($trustHistory->fund_type == "refund payment") {
+                        $updateRedord= TrustHistory::find($trustHistory->refund_ref_id);
+                        $updateRedord->is_refunded="no";
+                        $updateRedord->save();
+                        UsersAdditionalInfo::where('user_id',$trustHistory->client_id)->decrement('trust_account_balance', $trustHistory->refund_amount);
+                    } else {
+                        UsersAdditionalInfo::where('user_id',$trustHistory->client_id)->increment('trust_account_balance', $trustHistory->amount_paid);
+                    }
+                    $trustHistory->delete();
                 }
-                $this->updateNextPreviousCreditBalance($creditHistory->user_id);
-                $creditHistory->delete();
+            } else if(in_array($PaymentMaster->pay_method, ["Non-Trust Credit Account", "Refund"])){
+                // Update credit history
+                $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
+                if($creditHistory) {
+                    if($creditHistory->payment_type == "refund payment") {
+                        $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                        $updateRedord->is_refunded="no";
+                        $updateRedord->save();
+                        UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+                    } else {
+                        UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+                    }
+                    $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                    $creditHistory->delete();
+                }            
             }
+            // Update refund reference record status
+            $refundRefHistory = InvoiceHistory::find($PaymentMaster->refund_ref_id);
+            if($refundRefHistory) {
+                $refundRefHistory->status="1";
+                $refundRefHistory->save();
+            }            
 
             if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
                 $this->updateInvoiceInstallment($invoicePayment->amount_paid, $PaymentMaster->invoice_id);
                 $invoicePayment->delete();
                 $this->updateInvoiceAmount($PaymentMaster->invoice_id);
             } else {
-                $refundPaymentReference = InvoiceHistory::whereId($PaymentMaster->refund_ref_id)->first();
-                $refundPaymentReference->fill(["status" => "1"])->save();
                 // For update installment amount and status
                 $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id", $PaymentMaster->invoice_id)->first();
                 if(!empty($getInstallMentIfOn)){
                     $this->installmentManagement($invoicePayment->amount_refund, $PaymentMaster->invoice_id);
-                }
-
-                // Update trust balance
-                if($invoicePayment->payment_method == "Trust Refund") {
-                    UsersAdditionalInfo::where("user_id", $invoicePayment->deposit_into_id)->decrement('trust_account_balance', $invoicePayment->amount_refund);
                 }
                 $invoicePayment->delete();
                 $this->updateInvoiceAmount($PaymentMaster->invoice_id);
@@ -7930,11 +8158,14 @@ class BillingController extends BaseController
             $data['user_id']=$DepositIntoCreditHistory->created_by;
             $data['client_id']=$DepositIntoCreditHistory->user_id;
             $data['activity']='accepted a deposit into credit of $'.$DepositIntoCreditHistory->deposit_amount.' ('.ucfirst($DepositIntoCreditHistory->payment_method).') for';
-            if(isset($request->applied_to) && $request->applied_to != 0) {
-                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request ".@$refundRequest->padding_id;
-            }
             $data['type']='credit';
             $data['action']='add';
+            if(isset($request->applied_to) && $request->applied_to!=0){
+                $data['deposit_id']=$request->applied_to;
+                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request";
+                $data['type']='fundrequest';
+                $data['action']='pay';
+            }
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
@@ -8189,6 +8420,12 @@ class BillingController extends BaseController
             $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
             $data['type']='deposit';
             $data['action']='add';
+            if(isset($request->applied_to) && $request->applied_to!=0){
+                $data['deposit_id']=$request->applied_to;
+                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request";
+                $data['type']='fundrequest';
+                $data['action']='pay';
+            }
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
             
@@ -8257,12 +8494,15 @@ class BillingController extends BaseController
     {
   
         $commentData = AllHistory::join('users','users.id','=','all_history.created_by')
+        ->leftJoin('users as client','client.id','=','all_history.client_id')
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('case_events','case_events.id','=','all_history.event_id')
         ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
         ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-        ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID","users.*","all_history.*",
+            "case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number",
+            DB::raw('CONCAT_WS(" ",client.first_name,client.last_name) as client_name'), "client.user_level as client_level")
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)
