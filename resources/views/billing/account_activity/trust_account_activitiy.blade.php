@@ -248,8 +248,13 @@ if(isset($_GET['bank_account'])){
                 if(Contact==null || aData.contact==null){
                     $('td:eq(2)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }else{
+                    if(aData.enter_by_user_level == "2"){
                     $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                     '/contacts/clients/' + Contact.id + '">' + Contact.name + '</a></div>');
+                    }else{
+                    $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
+                    '/contacts/companies/' + Contact.id + '">' + Contact.name + '</a></div>');
+                    }
                 }
                 var Case = JSON.parse(aData.case);
                 if(Case==null || aData.case==null){

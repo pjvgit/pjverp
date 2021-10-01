@@ -479,8 +479,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                 <button class="btn btn-secondary  m-1" type="button"
                                     data-dismiss="modal">Cancel</button>
                             </a>
-                            <button class="btn btn-primary ladda-button example-button m-1 submit" id="submit"
-                                type="submit">Reactivate Lead</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" type="submit">Reactivate Lead</button>
                         </div>
                     </div>
                 </div>

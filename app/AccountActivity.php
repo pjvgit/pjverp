@@ -14,7 +14,7 @@ class AccountActivity extends Authenticatable
     public $primaryKey = 'id';
 
 
-    protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','c_amt','d_amt','t_amt'];
+    protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','enter_by_user_level','c_amt','d_amt','t_amt'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->related_to);
     }  
@@ -84,6 +84,14 @@ class AccountActivity extends Authenticatable
         if(isset($this->user_id)){
             $caseCllientSelection = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name)  as name'),"users.id")->where("id",$this->user_id)->first();
             return $caseCllientSelection['name'];
+        }else{
+            return NULL;
+        }
+     }
+     public function getEnterByUserLevelAttribute(){
+        if(isset($this->user_id)){
+            $caseCllientSelection = User::select("users.user_level")->where("id",$this->user_id)->first();
+            return $caseCllientSelection['user_level'];
         }else{
             return NULL;
         }

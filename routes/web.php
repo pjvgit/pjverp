@@ -839,6 +839,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('contacts/companies/{id}/messages', 'CompanydashboardController@companyDashboardView')->name('contacts_company_messages');
     Route::get('contacts/companies/{id}/email', 'CompanydashboardController@companyDashboardView')->name('contacts_company_email');
     Route::get('contacts/companies/{id}/billing/credit/history', 'CompanydashboardController@companyDashboardView')->name('contacts/company/billing/credit/history');
+    Route::get('contacts/companies/{id}/billing/trust/allocation', 'CompanydashboardController@companyDashboardView')->name('contacts/companies/billing/trust/allocation');
 
     Route::post('contacts/companies/clientLoad', 'CompanydashboardController@clientList');
     Route::post('contacts/companies/clientArchiveLoad', 'CompanydashboardController@clientArchiveList');
