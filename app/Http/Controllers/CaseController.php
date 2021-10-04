@@ -5790,8 +5790,8 @@ class CaseController extends BaseController
                         // echo ($k+1)." - [5789] > start_date -> ".$request->start_date[$k+1]."end_date -> ".$request->end_date[$k];
                         // echo "<br>";
                         if(strtotime($request->end_date[$k]) > strtotime($request->start_date[$k+1])){
-                            array_push($errorIndex, ($k));
                             array_push($errorIndex, ($k+1));
+                            array_push($errorIndex, ($k+2));
                             // echo 'Wrong Date selection of next to index of '.($k+1);  
                             // echo "<br>";
                             // $errors[$k] = 'Row number '.($k+1).' have conflicting start/end dates';

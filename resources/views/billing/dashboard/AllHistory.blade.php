@@ -50,11 +50,11 @@ if(!$commentData->isEmpty()){ ?>
                         @if($v->deposit_id)
                             #R-{{sprintf('%06d', $v->deposit_id)}}
                         @endif
-                        <?php if($v->ulevel=="2"){?>
+                        <?php if($v->ulevel=="2" && $v->deposit_for){?>
                             to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>
 
-                        <?php if($v->ulevel=="4"){?>
+                        <?php if($v->ulevel=="4" && $v->deposit_for){?>
                             to <a class="name"
                             href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
                             <?php } ?>
@@ -242,12 +242,12 @@ if(!$commentData->isEmpty()){ ?>
                             #R-{{sprintf('%06d', $v->deposit_id)}}
                         @endif
                         @if($v->action == "share")
-                            @if($v->client_level=="2")
-                                to <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->client_name}} (Client)</a>
+                            @if($v->ulevel=="2" && $v->client_id)
+                                to <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
                             @endif
 
-                            @if($v->client_level=="4")
-                                to <a class="name" href="{{ route('contacts/companies/view', $v->client_id) }}">{{$v->client_name}} (Company)</a>
+                            @if($v->ulevel=="4" && $v->client_id)
+                                to <a class="name" href="{{ route('contacts/companies/view', $v->client_id) }}">{{$v->fullname}} (Company)</a>
                             @endif
                         @endif
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web

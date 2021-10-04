@@ -204,6 +204,7 @@ $finalAmt=$invoice-$paid;
                         <option></option>
                     </select>
                     <span id="taacount"></span>
+                    <input type="hidden" name="is_case" id="is_case">
                 </div>
             </div>
             <hr>
@@ -964,4 +965,13 @@ function getClientCases(clientId) {
         }
     });
 }
+
+$("#trust_account").on("change", function() {
+    var label = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
+    if(label == 'Allocate to case') {
+        $("#is_case").val("yes");
+    } else {
+        $("#is_case").val("");
+    }
+})
 </script>
