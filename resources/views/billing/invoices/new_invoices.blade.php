@@ -163,13 +163,24 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">
                                         Payment Terms</td>
                                     <td>
-                                        <select id="bill_payment_terms"  class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" >
+                                        <select id="bill_payment_terms"  class="custom-select form-control select2Dropdown" name="payment_terms" data-invoiceSetting_default_invoice_payment_terms="{{ @$invoiceSetting->default_invoice_payment_terms }}" data-arrSetting_bill_payment_terms="{{$arrSetting['bill_payment_terms']}}" data-old_payment_terms="{{old('payment_terms')}}" >
                                             @forelse (invoicePaymentTermList() as $key => $item)
-                                                <option value="{{ $key }}" {{ 
-                                                    (
-                                                        (old('payment_terms') == $key) ? 'selected' : 
-                                                            ((@$invoiceSetting->default_invoice_payment_terms == $key) ? "selected" : 
-                                                                (( $arrSetting['bill_payment_terms'] == $key) ? "selected" : ""))) }}>{{ $item }}</option>
+                                            <?php 
+                                                $selectedPaymentTerms = '';
+                                                if (old('payment_terms') != '' && old('payment_terms') == $key){
+                                                    $selectedPaymentTerms = 'selected';
+                                                }else{
+                                                    if ($arrSetting['bill_payment_terms'] == $key){
+                                                        $selectedPaymentTerms = 'selected';
+                                                    }else{
+                                                        if(@$invoiceSetting->default_invoice_payment_terms == $key)
+                                                        {
+                                                            $selectedPaymentTerms = 'selected';
+                                                        }
+                                                    }
+                                                } 
+                                            ?>                                                
+                                            <option value="{{ $key }}" {{$selectedPaymentTerms}}>{{ $item }}</option>
                                             @empty
                                             @endforelse
                                         </select></td>
@@ -202,7 +213,7 @@ if(!isset($addition)){ $addition=0;}
                                                     if(old('automated_reminders') == "on") {
                                                         echo  "enabled checked" ;
                                                     }else{
-                                                        echo ((old('payment_terms') != 5) ? 'enabled checked' : 
+                                                        echo ((old('payment_terms') != '' && old('payment_terms') != 5) ? 'enabled checked' : 
                                                             ((@$invoiceSetting->default_invoice_payment_terms == $key) ? "enabled checked" : 
                                                                 (( $arrSetting['bill_payment_terms'] == $key) ? "enabled checked" : "")));
                                                     } ?>><span

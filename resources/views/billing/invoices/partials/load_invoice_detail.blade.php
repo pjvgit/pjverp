@@ -107,9 +107,13 @@
         <tr>
             <td style="vertical-align: top; width: 350px; word-wrap: break-word;" rowspan="2">
                 <span class="billing_user_name">
+                    @if($userMaster->user_level == 2)
                     <a href="{{route('contacts/clients/view', $userMaster->id) }}">{{$userMaster->first_name}}
                         {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
-                        
+                    @else
+                    <a href="{{route('contacts/companies/view', $userMaster->id) }}">{{$userMaster->first_name}}
+                        {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>
+                    @endif
                         {!! nl2br($findInvoice->bill_address_text) !!}
                 </span>
                 <p></p>

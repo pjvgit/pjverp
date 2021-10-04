@@ -984,8 +984,11 @@ td,th{
                     // $('td:eq(2)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
                     $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
 
-                    $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
-
+                    if(aData.user_level == 2)
+                        $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
+                    else
+                        $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/companies/'+aData.uid+'">'+aData.contact_name+'</a></div>');
+                        
                     if(aData.ctitle == null)
                         $('td:eq(4)', nRow).html('<div class="text-left">None</div>');
                     else

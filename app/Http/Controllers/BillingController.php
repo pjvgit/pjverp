@@ -1310,14 +1310,12 @@ class BillingController extends BaseController
          $requestData= $_REQUEST;
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
-         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")->where("invoices.created_by",Auth::user()->id);
+         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")->where("invoices.created_by",Auth::user()->id);
       
-
          if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
             $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));
          }
       
-         
          if(isset($requestData['global_search']) && $requestData['global_search']!=""){
             $MixVal=explode("-",$requestData['global_search']);
             $serachOn=base64_decode($MixVal[1]);
@@ -1453,7 +1451,11 @@ class BillingController extends BaseController
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
-                $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")->where("case_client_selection.case_id",$invoiceData['case_id'])->groupBy("case_client_selection.selected_user")->get();
+                $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                ->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
+                ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")
+                ->where("case_client_selection.case_id",$invoiceData['case_id'])
+                ->groupBy("case_client_selection.selected_user")->get();                
                 return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts'));
                 exit;    
             }else{
@@ -1682,7 +1684,7 @@ class BillingController extends BaseController
                             
             } catch (\Exception $e) {
                 DB::rollback();
-                return response()->json(['errors'=>["Server error."]]); //$e->getMessage()
+                return response()->json(['errors'=>[$e->getMessage()], 'line_no' => [$e->getLine()]]); //$e->getMessage()
                  exit;   
             }
             return response()->json(['errors'=>'','msg'=>$msg]);

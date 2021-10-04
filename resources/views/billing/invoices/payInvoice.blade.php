@@ -155,9 +155,13 @@ $finalAmt=$invoice-$paid;
                     <select class="form-control caller_name" id="contact_id" name="contact_id" style="width: 100%;"
                         placeholder="Select a contact">
                         <option></option>
-                        <?php foreach($trustAccounts as $key=>$val){?>
+                        <?php                        
+                        if(count($trustAccounts) > 0) {
+                            foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
-                        <?php } ?>
+                        <?php } }else{ ?>
+                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
+                        <?php }  ?>
                     </select>  
                     <span id="contactin"></span>
                 </div>                
@@ -181,8 +185,14 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Credit Account</label>
                     <select class="form-control" id="from_credit_account" name="credit_account" style="width: 100%;">
                         <option></option>
-                        <?php foreach($trustAccounts as $key=>$val){?>
-                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
+                        <?php 
+                            if(count($trustAccounts) > 0) {
+                            foreach($trustAccounts as $key=>$val){?>
+                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}})</option>
+                        <?php } }else{ ?>
+                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                                ${{number_format($userData['credit_account_balance'],2)}})
+                            </option>
                         <?php } ?>
                     </select>
                     <span id="caacount"></span>
@@ -217,11 +227,14 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Select Contact</label>
                     <select class="form-control caller_name" id="trust_contact_id" name="contact_id"  style="width: 100%;">
                         <option></option>
-                        <?php foreach($trustAccounts as $key=>$val){?>
+                        <?php
+                            if(count($trustAccounts) > 0) {
+                            foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
+                        <?php } }else{ ?>
+                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
                         <?php } ?>
-                        <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) -->
-                        </option>
+                        <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) </option> -->
                     </select>
                     <span id="ttcaccount"></span>
                 </div>
@@ -320,8 +333,14 @@ $finalAmt=$invoice-$paid;
                     <label for="firstName1">Select User Account</label>
                     <select class="form-control" id="from_credit_account" name="credit_account" style="width: 100%;">
                         <option></option>
-                        <?php foreach($trustAccounts as $key=>$val){?>
+                        <?php 
+                        if(count($trustAccounts) > 0) {
+                            foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
+                        <?php } }else{ ?>
+                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                                ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
+                            </option>
                         <?php } ?>
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                             ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)

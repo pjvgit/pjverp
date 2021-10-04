@@ -185,6 +185,7 @@ class User extends Authenticatable
         $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id");
         $case = $case->where("case_staff.user_id",$this->id);
         $case = $case->where("case_master.is_entry_done","1");
+        $case = $case->where("case_master.case_close_date",null);
         $totalData=$case->count();
         return $totalData;
     }

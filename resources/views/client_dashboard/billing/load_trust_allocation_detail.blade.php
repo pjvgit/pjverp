@@ -1,7 +1,7 @@
-
+@if(!empty($clientCaseInfo))
 <p data-testid="introduction-text"><strong>Allocate trust funds to case</strong>
-    <br>Enter the dollar amount you want earmarked for each case.
-    <br>Note: the unallocated funds total will be updated as the new amount is entered</p>
+<br>Enter the dollar amount you want earmarked for each case.
+<br>Note: the unallocated funds total will be updated as the new amount is entered</p>
 <form class="trust-allocate-form">
     @csrf
 <div class="row ">
@@ -41,3 +41,9 @@
     <button type="button" class="confirm-btn btn btn-primary mr-2">OK</button>
 </div>
 </form>
+@else
+<center>
+<p data-testid="introduction-text"><strong>Unable to fetch trust allocation data. Please try again</strong></p>
+<button type="button" class="close-btn-0 btn btn-link mr-2" data-dismiss="modal" aria-label="Close">Cancel</button>
+</center>
+@endif

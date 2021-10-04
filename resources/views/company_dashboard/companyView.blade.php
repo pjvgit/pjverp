@@ -41,7 +41,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             <div class="p-1">
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Contacts:</div>
-                                    <?php foreach($caseCllientSelection as $key=>$val){
+                                    <?php
+                                    if(count($caseCllientSelection) > 0) {
+                                    foreach($caseCllientSelection as $key=>$val){
                                      
                                         if($val->user_level==4){
                                         ?>
@@ -74,8 +76,10 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                           </div>
                                       </div>
                                       <?php 
+                                    } } }else{
+                                        echo "<div class='text-muted'>No Contacts Linked.</div>";
                                     }
-                                      }?>
+                                    ?>                                    
                                 </div>
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Active Cases:</div>
@@ -116,7 +120,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     </div>
                                     <div class="align-middle">
                                         $<span class="trust-total-balance"><?php echo number_format($UsersAdditionalInfo['trust_account_balance'],2)??'0.0';?></span>
-                                        <a href="{{ route('contacts/clients/billing/trust/allocation', $client_id) }}" >View Details</a>
+                                        <a href="{{ route('contacts/companies/billing/trust/allocation', $client_id) }}" >View Details</a>
                                     </div>
                                 </div>
 
@@ -187,7 +191,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/companies/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
+                    <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/messages')}}" >Messages</a>
@@ -301,7 +305,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('company_dashboard.loadNotes')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/clients/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}">
@@ -326,7 +330,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 </a>
                             </div>
                             <div class="nav-item mr-4">
-                                <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts/clients/billing/trust/allocation"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust/allocation')}}">
+                                <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts/companies/billing/trust/allocation"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust/allocation')}}">
                                     <span> <i class="fas fa-suitcase  mr-2"></i>Trust Allocation</span>
                                 </a>
                             </div>
@@ -351,7 +355,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 ?> @include('company_dashboard.billing.invoice')
                             <?php } ?>
                            
-                            @if(Route::currentRouteName() == "contacts/clients/billing/trust/allocation")
+                            @if(Route::currentRouteName() == "contacts/companies/billing/trust/allocation")
                                 @include('client_dashboard.billing.trust_allocation')
                             @endif
                         </div>             

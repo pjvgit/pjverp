@@ -29,7 +29,7 @@ if(!$commentData->isEmpty()){ ?>
                     <?php  if($v->task_for_case!=NULL){  ?>  
                     <a class="name" href="{{ route('info',$v->task_for['case_unique_number']) }}">{{$v->task_for['case_title']}}</a>
                     <?php }else if($v->task_for_lead!=NULL){
-                    log::info("resources/views/dashboard/TaskHistory.blade.php line 32 >".json_encode($v->task_for));
+                    \Log::info("resources/views/dashboard/TaskHistory.blade.php line 32 >".json_encode($v->task_for));
                     ?>  
                     <a class="name" href="{{ route('case_details/info', $v->task_for['id']) }}">{{@$v->task_for['first_name'] .' '.@$v->task_for['last_name']}}</a>
                     <?php } ?>                         
