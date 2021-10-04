@@ -18,9 +18,6 @@ trait InvoiceTrait {
     public function invoiceApplyTrustFund($item, $request, $InvoiceSave)
     {
         $authUser = auth()->user();
-        //Insert invoice payment record.
-        $currentBalance=InvoicePayment::where("firm_id", $authUser->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
-
         // Store invoice payment
         $InvoicePayment = InvoicePayment::create([
             'invoice_id' => $InvoiceSave->id,
@@ -33,7 +30,6 @@ trait InvoiceTrait {
             'payment_from_id' => @$item['client_id'],
             'deposit_into' => "Operating Account",
             'deposit_into_id' => @$item['client_id'],
-            'total' => (@$currentBalance['total'] ?? 0 + @$item['applied_amount'] ?? 0),
             'firm_id' => $authUser->firm_name,
             'created_by' => $authUser->id 
         ]);
@@ -65,8 +61,8 @@ trait InvoiceTrait {
         if(array_key_exists("allocate_applied_amount", (array) $item) && $item["allocate_applied_amount"] != "") {
             $clientCaseSelect = CaseClientSelection::where("case_id", @$item['case_id'])->where("selected_user", $item['client_id'])->first();
             if($clientCaseSelect) {
-                $clientCaseSelect->decrement('allocated_trust_balance', @$item['applied_amount'] ?? 0);
-                CaseMaster::where("id", @$item['case_id'])->decrement('total_allocated_trust_balance', @$item['applied_amount'] ?? 0);
+                $clientCaseSelect->decrement('allocated_trust_balance', $item["allocate_applied_amount"] ?? 0);
+                CaseMaster::where("id", @$item['case_id'])->decrement('total_allocated_trust_balance', $item["allocate_applied_amount"] ?? 0);
             }
         }
 

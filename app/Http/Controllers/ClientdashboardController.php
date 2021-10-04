@@ -960,7 +960,7 @@ class ClientdashboardController extends BaseController
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                     } else {
-                        if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit" || $data->fund_type=="refund payment"){
+                        if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit" || $data->fund_type=="refund payment" || $data->fund_type=="refund payment deposit"){
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
@@ -1017,12 +1017,14 @@ class ClientdashboardController extends BaseController
                     $amt = '-$'.number_format($data->withdraw, 2);
                 }else if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund payment"){
                     $amt = '$'.number_format($data->refund, 2);
-                }else if($data->fund_type=="refund_deposit"){
+                }else if($data->fund_type=="refund_deposit" || $data->fund_type=="refund payment deposit"){
                     $amt = '-$'.number_format($data->refund, 2);
                 }else if($data->fund_type=="allocate_trust_fund"){
                     $amt = '($'.number_format($data->amount_paid, 2).')';
                 }else if($data->fund_type=="deallocate_trust_fund"){
                     $amt = '(-$'.number_format($data->amount_paid, 2).')';
+                }else if($data->fund_type=="payment deposit"){
+                    $amt = '$'.number_format($data->amount_paid, 2);
                 }else{
                     $amt = '$'.number_format($data->amount_paid, 2);
                 }
@@ -1049,7 +1051,6 @@ class ClientdashboardController extends BaseController
                     $myString = substr($notes, strpos($notes, "#"));
                     $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
                 }else if($data->fund_type=="payment"){
-                    // $ftype = $data->notes;
                     $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
                     $noteContent = '';
                     if($data->notes != '') {
@@ -1058,8 +1059,25 @@ class ClientdashboardController extends BaseController
                         data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
                     }
                     return $ftype.' '.$isRefund.$noteContent;
+                }else if($data->fund_type=="payment deposit"){
+                    $ftype = "Payment into Trust (Trust Account)";
+                    $noteContent = '';
+                    if($data->notes != '') {
+                        $noteContent = '<br>
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                    }
+                    return $ftype.' '.$isRefund.$noteContent;
+                }else if($data->fund_type=="refund payment deposit"){
+                    $ftype = "Refund Payment into Trust (Trust Account)";
+                    $noteContent = '';
+                    if($data->notes != '') {
+                        $noteContent = '<br>
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                    }
+                    return $ftype.' '.$isRefund.$noteContent;
                 }else if($data->fund_type=="refund payment"){
-                    // $ftype = $data->notes;
                     $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
                     $noteContent = '';
                     if($data->notes != '') {
@@ -1245,18 +1263,21 @@ class ClientdashboardController extends BaseController
         }else{
             dbStart(); 
             if($GetAmount->fund_type=="withdraw"){
+                $fund_type='refund_withdraw';
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
-                $GetAmount->is_refunded="yes";
-                $GetAmount->save();
             } else if($GetAmount->fund_type=="payment") {
+                $fund_type='refund payment';
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
-                $GetAmount->is_refunded="yes";
-                $GetAmount->save();
-            }else{
+            } else if($GetAmount->fund_type=="payment deposit") {
+                $fund_type='refund payment deposit';
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
-                $GetAmount->is_refunded="yes";
-                $GetAmount->save();
+            }else{
+                $fund_type='refund_deposit';
+                DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
             }
+            
+            $GetAmount->is_refunded="yes";
+            $GetAmount->save();
             
             $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->client_id)->first();
        
@@ -1269,15 +1290,7 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
             $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
             $TrustInvoice->notes=$request->notes;
-            if($GetAmount->fund_type=="withdraw"){
-                $TrustInvoice->fund_type='refund_withdraw';
-            } else if($GetAmount->fund_type=="payment") {
-                $TrustInvoice->fund_type='refund payment';
-            
-            }else{
-                $TrustInvoice->fund_type='refund_deposit';
-            
-            }
+            $TrustInvoice->fund_type=$fund_type;
             $TrustInvoice->refund_ref_id=$request->transaction_id;
             $TrustInvoice->related_to_invoice_id = @$GetAmount->related_to_invoice_id;
             $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
@@ -1285,7 +1298,7 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->save();
 
-            if($TrustInvoice->fund_type == "refund payment") {
+            if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
                 $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request);
                 $TrustInvoice->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
             }
@@ -1348,6 +1361,17 @@ class ClientdashboardController extends BaseController
                 $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
+            } else if($TrustInvoice->fund_type == "refund payment deposit") {
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment ('trust_account_balance', $TrustInvoice->refund_amount);
+                $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
+
+                // For allocated case refund payment deposit
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->deleteRefundedAllocateTrustBalance($TrustInvoice);
+                }
+
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
 
@@ -1362,7 +1386,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
 
-            if($TrustInvoice->fund_type == "refund payment") {
+            if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
                 $this->deleteInvoicePaymentHistoryTrust($TrustInvoice->id);
             }
 
@@ -3446,7 +3470,7 @@ class ClientdashboardController extends BaseController
                 return '$'.number_format($data->total_balance, 2);
             })
             ->editColumn('deposit_amount', function ($data) {
-                if($data->payment_type == "deposit" || $data->payment_type == "refund withdraw") {
+                if($data->payment_type == "deposit" || $data->payment_type == "refund withdraw" || $data->payment_type == "payment deposit") {
                     $amt = '$'.number_format($data->deposit_amount, 2);
                 } else {
                     $amt = '-$'.number_format($data->deposit_amount, 2);
@@ -3465,6 +3489,8 @@ class ClientdashboardController extends BaseController
                     $dText = "Refund Payment from Credit (Operating Account)";
                 else if($data->payment_type == "refund deposit")
                     $dText = "Refund Deposit into Credit (Operating Account)";
+                else if($data->payment_type == "payment deposit")
+                    $dText = "Payment into Credit (Operating Account)";
                 else
                     $dText = "Deposit into Credit (Operating Account)";
 
@@ -3566,6 +3592,9 @@ class ClientdashboardController extends BaseController
             } elseif($creditHistory->payment_type == "payment") {
                 $fund_type='refund payment';
                 $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+            } elseif($creditHistory->payment_type == "payment deposit") {
+                $fund_type='refund payment deposit';
+                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
             } else {
                 $fund_type='refund deposit';
                 $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
@@ -3590,7 +3619,7 @@ class ClientdashboardController extends BaseController
                 "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
             ]);
 
-            if($fund_type == "refund payment") {
+            if($fund_type == "refund payment" || $fund_type == "refund payment deposit") {
                 $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);
                 $depCredHis->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
             }
@@ -3638,6 +3667,11 @@ class ClientdashboardController extends BaseController
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
+            } else if($creditHistory->payment_type == "refund payment deposit") {
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                $updateRedord->is_refunded="no";
+                $updateRedord->save();
             } else if($creditHistory->payment_type == "deposit"){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
             } 
@@ -3648,7 +3682,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
             }
 
-            if($creditHistory->payment_type == "refund payment") {
+            if($creditHistory->payment_type == "refund payment" || $creditHistory->payment_type == "refund payment deposit") {
                 $this->deleteInvoicePaymentHistory($creditHistory->id);
             }
 

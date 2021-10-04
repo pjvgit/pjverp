@@ -330,7 +330,7 @@ class HomeController extends BaseController
     {
   
         $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-        ->leftJoin('users as client','client.id','=','all_history.client_id')
+        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('document_master','document_master.id','=','all_history.document_id')
@@ -339,7 +339,7 @@ class HomeController extends BaseController
         ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
         ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID","users.*","all_history.*","document_master.*",
             "case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number",
-            DB::raw('CONCAT_WS(" ",client.first_name,client.last_name) as client_name'), "client.user_level as client_level")
+            "u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'), "u1.id as client_id")
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)
