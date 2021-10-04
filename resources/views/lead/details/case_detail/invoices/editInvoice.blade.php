@@ -13,16 +13,16 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Invoice Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($PotentialCaseInvoice->invoice_date))}}" id="invoiceDate" maxlength="250"
+            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($FindInvoice->invoice_date))}}" id="invoiceDate" maxlength="250"
                 name="invoice_date" type="text">
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Invoice #</label>
-            <input class="form-control" value="{{$PotentialCaseInvoice->invoice_number}}" id="dateadded" maxlength="250" name="invoice_number" type="text">
+            <input class="form-control" value="{{str_pad($FindInvoice->id, 6, '0', STR_PAD_LEFT)}}" disabled id="dateadded" maxlength="250" name="invoice_number" type="text">
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Due Date</label>
-            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($PotentialCaseInvoice->due_date))}}" id="dueDate" maxlength="250"
+            <input class="form-control datepicker" value="{{date('m/d/Y',strtotime($FindInvoice->due_date))}}" id="dueDate" maxlength="250"
                 name="due_date" type="text">
         </div>
         <div class="col-6 mb-3">
@@ -30,7 +30,7 @@
                 <div class="px-0 ">
                     <div class="input-group">
                         <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
-                            id="total_amount" name="total_amount" class="form-control number" value="{{$PotentialCaseInvoice->invoice_amount}}">
+                            id="total_amount" name="total_amount" class="form-control number" value="{{$FindInvoice->total_amount}}">
                     </div>
                 </div>
                 <span id="afterShowError"></span>
@@ -40,7 +40,7 @@
         <div class="col-md-12 form-group mb-3">
             <label for="firstName1">Description</label>
             <textarea rows="10" class="form-control" name="description"
-                placeholder="Notes">{{$PotentialCaseInvoice->description}}</textarea>
+                placeholder="Notes">{{$FindInvoice->notes}}</textarea>
             <small>This description will appear in your invoice</small>
         </div>
     </div>
@@ -62,12 +62,12 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
             </a>
-            <div role="group" class="btn-group">
+            <!-- <div role="group" class="btn-group"> -->
                 <button type="submit" name="savenow" id="submit" value="savenow"
                     class="btn btn-primary ladda-button example-button ">
                     Save
                 </button>
-                <div class="btn-group">
+                <!-- <div class="btn-group">
                     <button type="button" aria-haspopup="true" aria-expanded="false"
                         class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
                         <span class="sr-only">Toggle Dropdown</span>
@@ -76,8 +76,8 @@
                         <button type="submit" id="save-and-close-button" tabindex="0" name="savelater" value="savelater"
                             role="menuitem" class="dropdown-item cursor-pointer submit">Save &amp; Pay</button>
                     </div>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
         </div>
     </div>
 </form>

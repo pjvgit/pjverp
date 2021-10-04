@@ -1491,7 +1491,8 @@ class ClientdashboardController extends BaseController
         $CompanyList = firmCompanyList();
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance","minimum_trust_balance")->where("user_id",$request->user_id)->first();
-
+        // Get All Lead related to firm
+        $LeadList = firmLeadList();
         if($request->case_id) {
             $authUser = auth()->user();
             $ClientList = User::whereHas("clientCases", function($query) use($request) {
@@ -1505,7 +1506,7 @@ class ClientdashboardController extends BaseController
             ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
         }
         
-        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','client_id','userData','UsersAdditionalInfo'));     
+        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','LeadList','client_id','userData','UsersAdditionalInfo'));     
         exit;    
     } 
 

@@ -27,6 +27,13 @@
                                     @empty
                                     @endforelse
                                 </optgroup>
+                                <optgroup label="Lead">
+                                    @forelse ($LeadList as $key => $item)
+                                        <option uType="lead" value="{{$item->id}}" {{ ($item->id == $client_id) ? "selected" : "" }} isemail="{{ ($item->email) ? 'yes' : 'no' }}" >{{$item->name}}                                             ({{ getUserTypeText()[$item->user_level] }})
+                                        </option>
+                                    @empty
+                                    @endforelse
+                                </optgroup>
                             </select>
                         </div>
                     </div>

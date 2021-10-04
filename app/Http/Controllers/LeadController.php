@@ -28,6 +28,10 @@ use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
 use Exception;
 
+use App\Invoices,App\TimeEntryForInvoice;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+
 class LeadController extends BaseController
 {
     public function __construct()
@@ -2461,7 +2465,7 @@ class LeadController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            LeadAdditionalInfo::where('id',$request->user_id)->update(['user_status'=>"1",'do_not_hire_reason'=>NULL,'do_not_hire_on'=>NULL]);
+            LeadAdditionalInfo::where('user_id',$request->user_id)->update(['user_status'=>"1",'do_not_hire_reason'=>NULL,'do_not_hire_on'=>NULL]);
             return response()->json(['errors'=>'','id'=>$request->user_id]);
             exit;
         }
@@ -6323,19 +6327,20 @@ class LeadController extends BaseController
     public function loadInvoices()
     {   
         $requestData= $_REQUEST;
-        $PotentialCaseInvoice = PotentialCaseInvoice::select("potential_case_invoice.*");      
-        $PotentialCaseInvoice = $PotentialCaseInvoice->where("potential_case_invoice.lead_id",$requestData['user_id']);        
-        $totalData=$PotentialCaseInvoice->count();
+        $FindInvoice = Invoices::select("*");      
+        $FindInvoice = $FindInvoice->where("user_id",$requestData['user_id']);        
+        $FindInvoice = $FindInvoice->where("is_lead_invoice","yes");        
+        $totalData=$FindInvoice->count();
         $totalFiltered = $totalData; 
      
-        $PotentialCaseInvoice = $PotentialCaseInvoice->offset($requestData['start'])->limit($requestData['length']);
-        $PotentialCaseInvoice = $PotentialCaseInvoice->orderBy('created_at','DESC');
-        $PotentialCaseInvoice = $PotentialCaseInvoice->get();
+        $FindInvoice = $FindInvoice->offset($requestData['start'])->limit($requestData['length']);
+        $FindInvoice = $FindInvoice->orderBy('created_at','DESC');
+        $FindInvoice = $FindInvoice->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $PotentialCaseInvoice 
+            "data"            => $FindInvoice 
         );
         echo json_encode($json_data);  
     }
@@ -6344,7 +6349,7 @@ class LeadController extends BaseController
     {
         $lead_id=$request->user_id;
         $userData=User::find($request->user_id);
-        $maxNumber=PotentialCaseInvoice::where("lead_id",$lead_id)->max('invoice_number');
+        $maxNumber=DB::table("invoices")->max("id") + 1;
         return view('lead.details.case_detail.invoices.addInvoice',compact('userData','lead_id','maxNumber'));
 
     }
@@ -6356,7 +6361,7 @@ class LeadController extends BaseController
         //     exit;  
         $validator = \Validator::make($request->all(), [
             'invoice_date' => 'required',
-            'invoice_number' => 'required|min:1|max:128|unique:potential_case_invoice,invoice_number,NULL,id,lead_id,'.$request->lead_id,
+            'invoice_number' => 'required|numeric|unique:invoices,id',
             'due_date' => 'required',
             'total_amount' => 'required'
         ]);
@@ -6365,34 +6370,86 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             
-            $PotentialCaseInvoice = new PotentialCaseInvoice;
-            $PotentialCaseInvoice->lead_id=$request->lead_id; 
-            $PotentialCaseInvoice->invoice_unique_id=md5(uniqid(rand(), true).time()); 
-            $PotentialCaseInvoice->invoice_number=$request->invoice_number;
-            $PotentialCaseInvoice->invoice_amount=str_replace(",","",$request->total_amount);
-            $PotentialCaseInvoice->amount_paid="0.00";
-            $PotentialCaseInvoice->due_date=date('Y-m-d',strtotime($request->due_date));
-            $PotentialCaseInvoice->invoice_date=date('Y-m-d',strtotime($request->invoice_date));
-            $PotentialCaseInvoice->description=$request->description;
-            $PotentialCaseInvoice->status="2";
-            $PotentialCaseInvoice->created_by=Auth::user()->id; 
-            $PotentialCaseInvoice->save();
+            // $PotentialCaseInvoice = new PotentialCaseInvoice;
+            // $PotentialCaseInvoice->lead_id=$request->lead_id; 
+            // $PotentialCaseInvoice->invoice_unique_id=md5(uniqid(rand(), true).time()); 
+            // $PotentialCaseInvoice->invoice_number=$request->invoice_number;
+            // $PotentialCaseInvoice->invoice_amount=str_replace(",","",$request->total_amount);
+            // $PotentialCaseInvoice->amount_paid="0.00";
+            // $PotentialCaseInvoice->due_date=date('Y-m-d',strtotime($request->due_date));
+            // $PotentialCaseInvoice->invoice_date=date('Y-m-d',strtotime($request->invoice_date));
+            // $PotentialCaseInvoice->description=$request->description;
+            // $PotentialCaseInvoice->status="2";
+            // $PotentialCaseInvoice->created_by=Auth::user()->id; 
+            // $PotentialCaseInvoice->save();
 
-            $invoiceHistory=[];
-            $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice->id;
-            $invoiceHistory['acrtivity_title']='Invoice Created';
-            $invoiceHistory['pay_method']=NULL;
-            $invoiceHistory['amount']=NULL;
-            $invoiceHistory['responsible_user']=Auth::User()->id;
-            $invoiceHistory['deposit_into']=NULL;
-            $invoiceHistory['notes']=NULL;
-            $invoiceHistory['created_by']=Auth::User()->id;
-            $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-            $CommonController= new CommonController();
-            $CommonController->invoiceHistory($invoiceHistory);
+            DB::table('invoices')->where("deleted_at","!=",NULL)->where("id",$request->invoice_number)->delete();
+            $InvoiceSave=new Invoices;
+            $InvoiceSave->is_lead_invoice='yes';
+            $InvoiceSave->id=$request->invoice_number;
+            $InvoiceSave->user_id=$request->lead_id;
+            $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->total_amount=$request->total_amount;
+            $InvoiceSave->due_amount=$request->total_amount;
+            $InvoiceSave->notes=$request->description;
+            $InvoiceSave->created_by=Auth::User()->id; 
+            $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
+            $InvoiceSave->firm_id = auth()->user()->firm_name;
+            $InvoiceSave->save();
 
-            // session(['popup_success' => 'Invoice successfully created.']);
-            return response()->json(['errors'=>'','invoice_id'=>$PotentialCaseInvoice->id]);
+            if($InvoiceSave->id >= 0){                
+                $invoiceHistory=[];
+                $invoiceHistory['lead_invoice_id']=$InvoiceSave->id;
+                $invoiceHistory['acrtivity_title']='Invoice Created';
+                $invoiceHistory['pay_method']=NULL;
+                $invoiceHistory['amount']=NULL;
+                $invoiceHistory['responsible_user']=Auth::User()->id;
+                $invoiceHistory['deposit_into']=NULL;
+                $invoiceHistory['notes']=NULL;
+                $invoiceHistory['created_by']=Auth::User()->id;
+                $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                $CommonController= new CommonController();
+                $CommonController->invoiceHistory($invoiceHistory);
+
+
+                //Time entry referance 
+                $TaskActivity=TaskActivity::where('title','Consultation Fee')->where("firm_id",Auth::user()->firm_name)->first();
+                if(empty($TaskActivity)){
+                    $newTaskAvtivity = new TaskActivity;
+                    $newTaskAvtivity->title="Consultation Fee";
+                    $newTaskAvtivity->status="1";
+                    $newTaskAvtivity->firm_id=Auth::User()->firm_name; 
+                    $newTaskAvtivity->created_by=Auth::User()->id; 
+                    $newTaskAvtivity->save();
+                    $TaskAvtivityId = $newTaskAvtivity->id;
+                }else{
+                    $TaskAvtivityId = $TaskActivity->id;
+                }
+                $TaskTimeEntry = new TaskTimeEntry;
+                $TaskTimeEntry->user_id = $request->lead_id;                
+                $TaskTimeEntry->activity_id=$TaskAvtivityId;
+                $TaskTimeEntry->time_entry_billable="yes";
+                $TaskTimeEntry->description="Consultation Fee";
+                $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->invoice_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                $TaskTimeEntry->entry_rate=str_replace(",","",$request->total_amount);
+                $TaskTimeEntry->rate_type="flat";
+                $TaskTimeEntry->duration=0;
+                $TaskTimeEntry->status='paid'; 
+                $TaskTimeEntry->invoice_link=$InvoiceSave->id; 
+                $TaskTimeEntry->created_by=Auth::User()->id; 
+                $TaskTimeEntry->save();
+
+                $TimeEntryForInvoice=new TimeEntryForInvoice;
+                $TimeEntryForInvoice->invoice_id=$InvoiceSave->id;                    
+                $TimeEntryForInvoice->time_entry_id=$TaskTimeEntry->id;
+                $TimeEntryForInvoice->created_by=Auth::User()->id; 
+                $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                $TimeEntryForInvoice->save();
+            }
+
+            session(['popup_success' => 'Invoice successfully created.']);
+            return response()->json(['errors'=>'','invoice_id'=>$InvoiceSave->id]);
             exit;   
         }
     }   
@@ -6400,16 +6457,15 @@ class LeadController extends BaseController
     public function editInvoice(Request $request)
     {
         $invoice_id=$request->id;
-        $PotentialCaseInvoice=PotentialCaseInvoice::find($invoice_id);
-        $userData=User::find($PotentialCaseInvoice->lead_id);
-        return view('lead.details.case_detail.invoices.editInvoice',compact('userData','PotentialCaseInvoice','invoice_id'));
+        $FindInvoice = Invoices::find($invoice_id);
+        $userData=User::find($FindInvoice->user_id);
+        return view('lead.details.case_detail.invoices.editInvoice',compact('userData','FindInvoice','invoice_id'));
 
     }
     public function updateInvoice(Request $request)
     {
         $validator = \Validator::make($request->all(), [
             'invoice_date' => 'required',
-            'invoice_number' => 'required|min:1|max:128|unique:potential_case_invoice,invoice_number,'.$request->invoice_id.',id,lead_id,'.$request->lead_id,
             'due_date' => 'required',
             'total_amount' => 'required'
         ]);
@@ -6418,18 +6474,30 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             
-            $PotentialCaseInvoice = PotentialCaseInvoice::find($request->invoice_id);
-            $PotentialCaseInvoice->invoice_number=$request->invoice_number;
-            $PotentialCaseInvoice->invoice_amount=str_replace(",","",$request->total_amount);
-            // $PotentialCaseInvoice->amount_paid=str_replace(",","",$request->amount_paid);
-            $PotentialCaseInvoice->due_date=date('Y-m-d',strtotime($request->due_date));
-            $PotentialCaseInvoice->invoice_date=date('Y-m-d',strtotime($request->invoice_date));
-            $PotentialCaseInvoice->description=$request->description;
-            $PotentialCaseInvoice->updated_by=Auth::user()->id; 
-            $PotentialCaseInvoice->save();
+            // $PotentialCaseInvoice = PotentialCaseInvoice::find($request->invoice_id);
+            // $PotentialCaseInvoice->invoice_number=$request->invoice_number;
+            // $PotentialCaseInvoice->invoice_amount=str_replace(",","",$request->total_amount);
+            // // $PotentialCaseInvoice->amount_paid=str_replace(",","",$request->amount_paid);
+            // $PotentialCaseInvoice->due_date=date('Y-m-d',strtotime($request->due_date));
+            // $PotentialCaseInvoice->invoice_date=date('Y-m-d',strtotime($request->invoice_date));
+            // $PotentialCaseInvoice->description=$request->description;
+            // $PotentialCaseInvoice->updated_by=Auth::user()->id; 
+            // $PotentialCaseInvoice->save();
+
+            $InvoiceSave=Invoices::find($request->invoice_id);
+            $InvoiceSave->is_lead_invoice='yes';
+            $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->total_amount=$request->total_amount;
+            $InvoiceSave->due_amount=$request->total_amount;
+            $InvoiceSave->notes=$request->description;
+            $InvoiceSave->updated_by=Auth::User()->id; 
+            $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
+            $InvoiceSave->firm_id = auth()->user()->firm_name;
+            $InvoiceSave->save();
 
             $invoiceHistory=[];
-            $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice->id;
+            $invoiceHistory['lead_invoice_id']=$request->invoice_id;
             $invoiceHistory['acrtivity_title']='Invoice Updated';
             $invoiceHistory['pay_method']=NULL;
             $invoiceHistory['amount']=NULL;
@@ -6441,7 +6509,12 @@ class LeadController extends BaseController
             $CommonController= new CommonController();
             $CommonController->invoiceHistory($invoiceHistory);
 
-
+            $TaskTimeEntry=TaskTimeEntry::where('invoice_link',$request->invoice_id)->first();
+            if(!empty($TaskTimeEntry)){
+                $TaskTimeEntry->entry_rate=str_replace(",","",$request->total_amount);
+                $TaskTimeEntry->updated_by=Auth::User()->id; 
+                $TaskTimeEntry->save();
+            }
 
             session(['popup_success' => 'Invoice successfully updated.']);
             return response()->json(['errors'=>'']);
@@ -6483,16 +6556,14 @@ class LeadController extends BaseController
         }else{
                 
             $invoice_id=$request->invoice_id;
-            $PotentialCaseInvoice=PotentialCaseInvoice::where("id",$invoice_id)->first();
+            $PotentialCaseInvoice=Invoices::where("id",$invoice_id)->first();
             $firmData=Firm::find(Auth::User()->firm_name);
-            if($request->sent_by=="email"){
-
-                
+            if($request->sent_by=="email"){                
                 $invoiceHistory=[];
                 $invoiceHistory['lead_invoice_id']=$PotentialCaseInvoice['id'];
                 $invoiceHistory['acrtivity_title']='Emailed Invoice';
                 $invoiceHistory['lead_message']=$request->email_message;
-                $invoiceHistory['lead_id']=$PotentialCaseInvoice['lead_id'];
+                $invoiceHistory['lead_id']=$PotentialCaseInvoice['user_id'];
                 $invoiceHistory['pay_method']=NULL;
                 $invoiceHistory['amount']=NULL;
                 $invoiceHistory['responsible_user']=Auth::User()->id;
@@ -6523,11 +6594,10 @@ class LeadController extends BaseController
                     "mail_body" => $mail_body
                 ];
                 $sendEmail = $this->sendMail($user);
-                $saveData=PotentialCaseInvoice::find($invoice_id);
+                $saveData=Invoices::find($invoice_id);
                 $saveData->status="1";
                 $saveData->save();
                 session(['popup_success' => 'Email sent successfully.']);
-            }else{
             }
             return response()->json(['errors'=>'']);
             exit;   
@@ -6567,8 +6637,8 @@ class LeadController extends BaseController
     public function downloadInvoiceForm(Request $request)
     {
         $invoice_id=$request->id;
-        $PotentialCaseInvoice=PotentialCaseInvoice::where("id",$invoice_id)->first();
-        $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$PotentialCaseInvoice['lead_id'])->first();
+        $PotentialCaseInvoice=Invoices::where("id",$invoice_id)->first();
+        $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$PotentialCaseInvoice['user_id'])->first();
        
         //Getting firm related data
         $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
@@ -6577,19 +6647,25 @@ class LeadController extends BaseController
         $PotentialCaseInvoicePayment=PotentialCaseInvoicePayment::select("potential_case_invoice_payment.*","users.id","users.first_name","users.last_name","users.user_title")->leftJoin('users','users.id',"=","potential_case_invoice_payment.created_by")->where("invoice_id",$PotentialCaseInvoice['id'])->get();
         $filename="Invoice_".$PotentialCaseInvoice['id'].'_'.time().'.pdf';
         $PDFData=view('lead.details.case_detail.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','PotentialCaseInvoice','firmAddress','PotentialCaseInvoicePayment'));
+
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){
-            $pdf->binary = EXE_PATH;
+            $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
         }
         $pdf->addPage($PDFData);
         $pdf->setOptions(['javascript-delay' => 5000]);
-        // $pdf->setOptions(["footer-right"=> "Page [page] from [topage]"]);
-        // $pdf->setOptions(["footer-left"=> "Completed on ". date('m/d/Y',strtotime($caseIntakeForm['submited_at']))]);
-        $pdf->saveAs(public_path("download/pdf/".$filename));
-        $path = public_path("download/pdf/".$filename);
-        // return response()->download($path);
-        // exit;
-        return response()->json([ 'success' => true, "url"=>url('public/download/pdf/'.$filename),"file_name"=>$filename], 200);
+        if (!File::isDirectory('download')) {
+			File::makeDirectory('download', 0755, true, true);
+		}		
+		$subDirectory = Storage::path("download/pdf");
+		if (!File::isDirectory($subDirectory)) {
+			File::makeDirectory($subDirectory, 0755, true, true);
+		}
+        if (!$pdf->saveAs($subDirectory.'/'.$filename)) {
+            Log::info("Generate pdf error: ". $pdf->getError());
+        }
+        $path = asset(Storage::url("download/pdf/".$filename));
+        return response()->json([ 'success' => true, "url"=>$path,"file_name"=>$filename], 200);
         exit;
     }
 

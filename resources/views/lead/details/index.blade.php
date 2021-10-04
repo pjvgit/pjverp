@@ -135,10 +135,13 @@ if(isset($_GET['type'])){
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["lead_details/info","lead_details/notes","lead_details/activity"])){ echo "active show"; } ?>" id="profile-basic-tab" href="{{URL::to('leads/'.$user_id.'/lead_details/info')}}">Lead Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms","case_details/invoices"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('leads/'.$user_id.'/case_details/info')}}" >Potential Case Details</a>
+                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('leads/'.$user_id.'/case_details/info')}}" >Potential Case Details</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/text_messages')}}">Communications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["case_details/invoices"])){ echo "active show"; } ?>" id="billing-basic-tab" href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}">Billing</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -191,7 +194,7 @@ if(isset($_GET['type'])){
                         ?>    
                     </div>
                     
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms","case_details/invoices"])){ echo "active show"; } ?> " id="timeBilling" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms"])){ echo "active show"; } ?> " id="timeBilling" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-items-info <?php if(Route::currentRouteName()=="case_details/info"){ echo "active"; } ?>"
@@ -238,11 +241,6 @@ if(isset($_GET['type'])){
                                     href="{{URL::to('leads/'.$user_id.'/case_details/intake_forms')}}"><span>
                                         <i class="i-Settings-Window  text-16 mr-1"></i>Intake Forms</span></a>
                             </div>
-                            <!-- <div class="nav-item">
-                                <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="case_details/invoices"){ echo "active"; } ?>" data-page="calendar"
-                                    href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}"><span>
-                                        <i class="i-Dollar-Sign  text-16 mr-1"></i>Invoices</span></a>
-                            </div> -->
                         </div>
                         <hr class="mt-2">
                         <?php
@@ -291,13 +289,6 @@ if(isset($_GET['type'])){
                         <?php
                         }
                         ?>  
-                         <?php
-                         if(Route::currentRouteName()=="case_details/invoices"){
-                         ?>
-                                 @include('lead.details.case_detail.invoices.invoiceList',compact('LeadData','CaseNotesData'))
-                         <?php
-                         }
-                         ?>  
                     </div>
                     <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
@@ -343,7 +334,28 @@ if(isset($_GET['type'])){
                          ?> 
 
                     </div>
-                   
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["case_details/invoices"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel" aria-labelledby="billing-basic-tab">
+                        <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
+                                <div class="nav-item">
+                                    <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="case_details/invoices"){ echo "active"; } ?>" data-page="calendar"
+                                        href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}"><span>Invoices and Requests</span></a>
+                                </div>
+                                <div class="nav-item">
+                                    <a class="nav-link  pendo-case-notes" data-page="Trust" href=""><span>Trust History</span></a>
+                                </div>
+                                <div class="nav-item">
+                                    <a class="nav-link  pendo-case-notes" data-page="Credit" href=""><span>Credit History</span></a>
+                                </div>                                  
+                        </div> 
+                        <hr class="mt-2">                                
+                        <?php
+                        if(Route::currentRouteName()=="case_details/invoices"){
+                        ?>
+                                @include('lead.details.case_detail.invoices.invoiceList',compact('LeadData','CaseNotesData'))
+                        <?php
+                        }
+                        ?>  
+                    </div>
                 </div>
             </div>
         </div>
@@ -466,9 +478,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="row">
                         <div class="col-md-12">
                             Are you sure you want to reactivate this lead?
-                            <input type="hidden" name="user_id" value="{{$LeadData['lead_additional_info_id']}}" id="user_id">
+                            <input type="hidden" name="user_id" value="{{$LeadData['user_id']}}" id="user_id">
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1192,7 +1203,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
         });
 
-        var dataTableinvoiceList =  $('#invoiceList').DataTable( {
+        var dataTableinvoiceList =  $('#invoiceList_old').DataTable( {
             serverSide: true,
             "dom": '<"top">rt<"bottom"p><"clear">',
             responsive: false,
