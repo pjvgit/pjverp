@@ -976,21 +976,26 @@ td,th{
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     $('td:eq(0)', nRow).html('<div class="text-left"><input id="select-row-74" class="task_checkbox" type="checkbox" value="'+aData.id+'" class="task_checkbox" name="expenceId['+aData.id+']"></div>');
 
-                    $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
-                   
-                    // $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
-
-                    // $('td:eq(2)', nRow).html('<div class="text-left">'+aData.invoice_id+'</div>');
-                    // $('td:eq(2)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
-                    $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    if(aData.is_lead_invoice == 'yes'){
+                        $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
+                        $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    }else{
+                        $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
+                        $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
+                    }
 
                     if(aData.user_level == 2)
                         $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.uid+'">'+aData.contact_name+'</a></div>');
+                    else if(aData.user_level == 5 && aData.is_lead_invoice == 'yes')
+                        $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/leads/'+aData.uid+'/case_details/info">'+aData.contact_name+'</a></div>');
                     else
                         $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/companies/'+aData.uid+'">'+aData.contact_name+'</a></div>');
                         
                     if(aData.ctitle == null)
-                        $('td:eq(4)', nRow).html('<div class="text-left">None</div>');
+                        if(aData.user_level == 5 && aData.is_lead_invoice == 'yes')
+                            $('td:eq(4)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/leads/'+aData.uid+'/case_details/invoices">Potential Case: '+aData.contact_name+'</a></div>');
+                        else
+                            $('td:eq(4)', nRow).html('<div class="text-left">None</div>');
                     else
                         $('td:eq(4)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.ctitle+'</a></div>');
                     
@@ -1013,15 +1018,7 @@ td,th{
                         var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'+aData.status;
                     }else if(aData.status=="Overdue"){
                         var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>'+aData.status;
-                    }else if(aData.status=="Unsent"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Sent"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Forwarded"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Overdue"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Draft"){
+                    }else{
                         var curSetatus=aData.status;
                     }
                     $('td:eq(10)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
@@ -1036,7 +1033,9 @@ td,th{
                     } else {
                         var reminder='';
                         if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
-                            var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                            if(aData.is_lead_invoice=="no"){
+                                var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                            }
                         }
                         var dollor='&nbsp;';
                         if(aData.status!="Paid"){

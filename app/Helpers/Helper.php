@@ -393,6 +393,20 @@ function firmCompanyList()
     return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
 }
 
+/**
+ * Get firm all lead
+ */
+function firmLeadList()
+{
+    $authUser = auth()->user();
+    return User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'users.user_level', 'users.email')
+    ->where("users.firm_name", $authUser->firm_name)
+    ->where('users.user_type', 5)
+    ->where('users.user_level', 5)
+    ->where("lead_additional_info.is_converted","no")
+    ->where("lead_additional_info.user_status","1")->get();    
+}
+
 function getTimezoneList() {
     /* * get dynamically timezone data* */
     $timezones = [];

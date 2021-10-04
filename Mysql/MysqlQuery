@@ -1,3 +1,7 @@
+ALTER TABLE `invoices`
+------------------------------------ 04-OCT-2021 ------------------------------
+ADD `is_lead_invoice` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_sent`;
+
 ------------------------------------ 30-SEP-2021 ------------------------------
 ALTER TABLE `deposit_into_credit_history`
 CHANGE `payment_type` `payment_type` enum('deposit','withdraw','payment','refund deposit','refund withdraw','refund payment','payment deposit') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'deposit' AFTER `payment_date`;

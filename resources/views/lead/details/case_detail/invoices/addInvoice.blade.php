@@ -16,7 +16,7 @@
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Invoice #</label>
-            <input class="form-control" value="{{str_pad($maxNumber+1, 4, '0', STR_PAD_LEFT)}}" id="dateadded" maxlength="250" name="invoice_number" type="text">
+            <input class="form-control" value="{{str_pad($maxNumber, 6, '0', STR_PAD_LEFT)}}" id="dateadded" maxlength="250" name="invoice_number" type="text">
         </div>
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Due Date</label>
@@ -60,12 +60,12 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
             </a>
-            <div role="group" class="btn-group">
+            <!-- <div role="group" class="btn-group"> -->
                 <button type="submit" name="savenow" id="submit" value="savenow"
                     class="btn btn-primary ladda-button example-button submit ">
                     Save
                 </button>
-                <div class="btn-group">
+                <!-- <div class="btn-group">
                     <button type="button" aria-haspopup="true" aria-expanded="false"
                         class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
                         <span class="sr-only">Toggle Dropdown</span>
@@ -75,7 +75,7 @@
                             role="menuitem" class="dropdown-item cursor-pointer submit">Save &amp; Pay</button>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">

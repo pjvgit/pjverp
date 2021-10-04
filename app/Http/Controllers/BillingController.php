@@ -1333,7 +1333,7 @@ class BillingController extends BaseController
                 $Invoices = $Invoices->whereIn("invoices.id",$AllIDs);
             }
          }
-         
+        //  $Invoices = $Invoices->where("invoices.is_lead_invoice",'no');
          $totalData=$Invoices->count();
          $totalFiltered = $totalData; 
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
@@ -7000,23 +7000,23 @@ class BillingController extends BaseController
       {
           $invoiceID=base64_decode($request->id);
           // echo Hash::make($invoiceID);
-          $findInvoice=PotentialCaseInvoice::find($invoiceID);
+          $findInvoice=Invoices::find($invoiceID);
           if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
           {
               return view('pages.404');
           }else{
-              $LeadDetails=User::find($findInvoice['lead_id']);
+              $LeadDetails=User::find($findInvoice['user_id']);
               $firmData = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->first();
   
-              $InvoiceHistory=InvoiceHistory::leftJoin("users","invoice_history.lead_id","=","users.id")->select("invoice_history.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'))->where("lead_invoice_id",$invoiceID)->orderBy("invoice_history.id","DESC")->get();
-  
+              $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoiceID)->orderBy("id","DESC")->get();
+
               $lastEntry= $InvoiceHistory->first();
             
               $userMaster=User::find($findInvoice->user_id);
               
               $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
   
-              $InvoiceHistoryTransaction=InvoiceHistory::where("lead_invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
   
   
               $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();

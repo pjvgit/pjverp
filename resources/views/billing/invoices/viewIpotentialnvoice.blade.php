@@ -16,15 +16,13 @@
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payPotentialInvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;"" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
                         <div class="pl-1">
-
                             <a class="btn btn-outline-secondary  m-1" data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;">Edit</a>
-                        </div>
-                        
+                        </div>                        
 
-                        <a class="btn btn-lg btn-link px-2 mr-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice({{$findInvoice->id}});" data-placement="bottom">
+                        <!-- <a class="btn btn-lg btn-link px-2 mr-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice({{$findInvoice->id}});" data-placement="bottom">
                             <i class="fas fa-envelope" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Send"></i>
-                        </a>
+                        </a> -->
                         <?php $id=base64_encode($findInvoice->id);?>
                         <a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice"
                         data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice({{$findInvoice->id}});">
@@ -32,16 +30,16 @@
                                 data-placement="top" title="" data-original-title="Download"></i>
                         </a>
 
-                        <a class="btn btn-lg btn-link px-2 text-black-50 print-bill-icon-action"  onclick="printPDF({{$findInvoice->id}});">
+                        <!-- <a class="btn btn-lg btn-link px-2 text-black-50 print-bill-icon-action"  onclick="printPDF({{$findInvoice->id}});">
                             <i class="fas fa-print test-print-bill" id="print-bill-button" data-toggle="tooltip"
                                 data-original-title="Print"></i>
-                        </a>
-                        <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"
+                        </a> -->
+                        <!-- <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"
                             data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;">
                             <i class="fas fa-trash test-delete-bill" data-bill-id="12211253" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Delete"
                                 onclick="deleteInvoice({{$findInvoice->id}})"></i>
-                        </a>
+                        </a> -->
                     </div>
 
                 </div>
@@ -333,6 +331,7 @@
                     <div class="mb-2 col-8 col-md-8">
                         <div class="mt-auto pt-1 d-flex flex-column">
                             <span>{{$LeadDetails['first_name']}} {{$LeadDetails['middle_name']}} {{$LeadDetails['last_name']}}</span>
+                            <span>{{$LeadDetails['email']}}</span>
                         </div>
                     </div>
                 <div class="mb-2 col-4 col-md-4">
@@ -342,16 +341,16 @@
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <strong>Date</strong>
-                        <span> {{date('M j, Y',strtotime($findInvoice->created_at))}}</span>
+                        <span> {{date('M d, Y',strtotime($findInvoice->created_at))}}</span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <strong>Due</strong>
-                        <span>{{($findInvoice->due_date) ? date('M j, Y',strtotime($findInvoice->due_date)) : NULL}}</span>
+                        <span>{{($findInvoice->due_date) ? date('M d, Y',strtotime($findInvoice->due_date)) : NULL}}</span>
                     </div>
                 </div>
             </div>
             <?php
-            $invoiceAmt=$findInvoice['invoice_amount'];
+            $invoiceAmt=$findInvoice['total_amount'];
             $paidAmt=$findInvoice['amount_paid'];
             $dueAmt=$invoiceAmt-$paidAmt;
             if($dueAmt<=0){
@@ -359,7 +358,8 @@
             }
 
             ?>
-        <hr><h3 class="mb-3"><strong>Amount Due: <span class="test-amount-due">${{number_format($dueAmt,2)}}</span></strong></h3><span><strong>Description:</strong></span><div><p>This is for your consultation fee. Please pay at your earliest convenience.</p></div></div></div>
+        <hr><h3 class="mb-3"><strong>Amount Due: <span class="test-amount-due">${{number_format($dueAmt,2)}}</span></strong></h3>
+        <span><strong>Description:</strong></span></br>{!! nl2br($findInvoice->notes) !!}</div></div>
     <br>
     <br>    </div>
     </div>
@@ -1147,7 +1147,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $.ajax({
                 type: "POST",
                 url:  baseUrl +"/leads/openSendInvoicePopup", // json datasource
-                data: {'invoice_id':id,'user_id':{{$findInvoice->lead_id}}},
+                data: {'invoice_id':id,'user_id':{{$findInvoice->user_id}}},
                 success: function (res) {
                     $("#sendInvoiceArea").html(res);
                     $("#preloader").hide();

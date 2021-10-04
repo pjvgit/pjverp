@@ -3,13 +3,13 @@
     @csrf
     <div class="showError" style="display:none"></div>
     <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/lead/details/case_detail/invoices/sendInvoice.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Send By:</label>
             <div class="col-sm-9">
                 <select class="form-control country" id="sent_by" name="sent_by" style="width: 30%;">
                     <option value="email">Email</option>
-                    <option value="sms">Text(SMS)</option>
+                    <!-- <option value="sms">Text(SMS)</option> -->
                 </select>
             </div>
         </div>

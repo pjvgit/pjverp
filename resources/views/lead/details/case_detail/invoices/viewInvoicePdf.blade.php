@@ -31,7 +31,7 @@
 </head>
 <?php
 $paid=$PotentialCaseInvoice['amount_paid'];
-$invoice=$PotentialCaseInvoice['invoice_amount'];
+$invoice=$PotentialCaseInvoice['total_amount'];
 $finalAmt=$invoice-$paid;
 ?>
 
@@ -57,7 +57,10 @@ $finalAmt=$invoice-$paid;
             <tr>
                 <td style="width: 60%;"><b>{{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
-                        {{ucfirst(substr($userData['last_name'],0,50))}}</b></td>
+                        {{ucfirst(substr($userData['last_name'],0,50))}}</b>
+                        </br>
+                        {{$userData['email']}}
+                    </td>
                 <td style="width: 40%;">
 
                     <table style="width:100%;text-align: left;font-size: 16px;" border="0">
@@ -70,7 +73,7 @@ $finalAmt=$invoice-$paid;
                             <tr style="padding-left: 4px;">
                                 <td scope="col" style="width: 10%;text-align:right;"><b>Invoice #:</b></td>
                                 <td scope="col" style="width: 10%;text-align:left;">
-                                    {{$PotentialCaseInvoice['invoice_number']}}</td>
+                                    {{$PotentialCaseInvoice['invoice_id']}}</td>
                             </tr>
 
 
@@ -127,10 +130,10 @@ $finalAmt=$invoice-$paid;
                 <td scope="col" style="width: 25%;">Consultation Fee</td>
                 <td scope="col" style="width: 25%;">Consultation Fee</td>
                 <td scope="col" style="width: 10%;text-align: right;">
-                    ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                    ${{number_format($PotentialCaseInvoice['due_amount'],2)}}</td>
                 <td scope="col" style="width: 10%;text-align: right;">flat</td>
                 <td scope="col" style="width: 10%;text-align: right;">
-                    ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                    ${{number_format($PotentialCaseInvoice['due_amount'],2)}}</td>
             </tr>
 
         </tbody>
@@ -146,7 +149,7 @@ $finalAmt=$invoice-$paid;
                 <td scope="col" style="width: 10%;text-align: right;">Totals:</td>
                 <td scope="col" style="width: 10%;text-align: right;">0.0</td>
                 <td scope="col" style="width: 10%;text-align: right;">
-                    ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                    ${{number_format($PotentialCaseInvoice['total_amount'],2)}}</td>
             </tr>
 
         </tbody>
@@ -158,7 +161,7 @@ $finalAmt=$invoice-$paid;
         <div
             style="width: 55%;border: solid 1px black;padding-left: 5px;padding-top: 5px;min-height: 100px;float:left;font-size: 12px;">
             <b>Notes:</b><br>
-            {{$PotentialCaseInvoice['description']}}
+            {!! nl2br($PotentialCaseInvoice['notes']) !!}
         </div>
         <div
             style="width: 40%;border: solid 1px black;padding-top: 5px;min-height: 100px;float: right;margin-left: 20px;">
@@ -167,12 +170,12 @@ $finalAmt=$invoice-$paid;
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;">Time Entry Sub-Total:</td>
                         <td scope="col" style="width: 10%;text-align:right;">
-                            ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                            ${{number_format($PotentialCaseInvoice['due_amount'],2)}}</td>
                     </tr>
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><b>Sub-Total:</b></td>
                         <td scope="col" style="width: 10%;text-align:right;">
-                            ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                            ${{number_format($PotentialCaseInvoice['due_amount'],2)}}</td>
                     </tr>
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><br></td>
@@ -182,7 +185,7 @@ $finalAmt=$invoice-$paid;
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><b>Total:</b></td>
                         <td scope="col" style="width: 10%;text-align:right;">
-                            ${{number_format($PotentialCaseInvoice['invoice_amount'],2)}}</td>
+                            ${{number_format($PotentialCaseInvoice['due_amount'],2)}}</td>
                     </tr>
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><b>Amount Paid:</b></td>
