@@ -204,7 +204,7 @@ $finalAmt=$invoice-$paid;
                         <option></option>
                     </select>
                     <span id="taacount"></span>
-                    <input type="hidden" name="is_case" id="is_case">
+                    <input type="hidden" name="is_case" class="is_case">
                 </div>
             </div>
             <hr>
@@ -259,6 +259,7 @@ $finalAmt=$invoice-$paid;
                         <option></option>
                     </select>
                     <span id="taacount"></span>
+                    <input type="hidden" name="is_case" class="is_case">
                 </div>
             </div>
             <div id="allocation-alert-section" data-testid="allocation-alert-section" class="row">
@@ -710,6 +711,7 @@ $finalAmt=$invoice-$paid;
                         }, 1000);
                         $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                         $('#invoiceGrid').DataTable().ajax.reload(null, false);
+                        updateInvoiceDetail();
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -966,12 +968,13 @@ function getClientCases(clientId) {
     });
 }
 
-$("#trust_account").on("change", function() {
+$(".trust_account").on("change", function() {
     var label = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
+    var selectedTab = $('#myTab').find('li a.active').attr('aria-controls');
     if(label == 'Allocate to case') {
-        $("#is_case").val("yes");
+        $("#"+selectedTab).find(".is_case").val("yes");
     } else {
-        $("#is_case").val("");
+        $("#"+selectedTab).find(".is_case").val("");
     }
 })
 </script>

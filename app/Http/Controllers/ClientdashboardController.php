@@ -950,7 +950,7 @@ class ClientdashboardController extends BaseController
                 ->with("invoice", 'fundRequest', 'allocateToCase', 'user')->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
-            ->addColumn('action', function ($data) {
+            ->addColumn('action', function ($data) use($userAddInfo) {
                 $action = '';
                 if($data->is_refunded == "yes") {
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
@@ -965,7 +965,17 @@ class ClientdashboardController extends BaseController
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
                         }
-                        $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id) {
+                            $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                        } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
+                            $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
+                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid)
+                                $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                            else
+                                $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                        } else {
+                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                        }
                     }
                 }
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
@@ -1019,6 +1029,8 @@ class ClientdashboardController extends BaseController
                     $amt = '$'.number_format($data->refund, 2);
                 }else if($data->fund_type=="refund_deposit" || $data->fund_type=="refund payment deposit"){
                     $amt = '-$'.number_format($data->refund, 2);
+                }else if($data->fund_type=="payment"){
+                    $amt = '-$'.number_format($data->amount_paid, 2);
                 }else if($data->fund_type=="allocate_trust_fund"){
                     $amt = '($'.number_format($data->amount_paid, 2).')';
                 }else if($data->fund_type=="deallocate_trust_fund"){
@@ -1252,10 +1264,17 @@ class ClientdashboardController extends BaseController
         }else{
             $mt=$GetAmount->amount_paid;
         } 
+        $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->client_id)->first();
+        $lessAmount = $UsersAdditionalInfo->unallocate_trust_balance;
+        if($GetAmount->allocated_to_case_id) {
+            $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
+            $lessAmount = $allocateAmount->allocated_trust_baalnce;
+        }
         $validator = \Validator::make($request->all(), [
-            'amount' => 'required|numeric|max:'.$mt,
+            'amount' => 'required|numeric|max:'.$mt.'|lt:'.$lessAmount,
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
+            'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {
@@ -1278,8 +1297,10 @@ class ClientdashboardController extends BaseController
             
             $GetAmount->is_refunded="yes";
             $GetAmount->save();
-            
-            $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->client_id)->first();
+
+            if($UsersAdditionalInfo->unallocate_trust_balance < $request->amount) {
+
+            }
        
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->client_id;
@@ -1310,14 +1331,14 @@ class ClientdashboardController extends BaseController
 
             // For allocated case refund
             if($TrustInvoice->allocated_to_case_id) {
-                if($GetAmount->fund_type=="withdraw"){
+                if($GetAmount->fund_type=="withdraw" || $TrustInvoice->fund_type == "refund payment"){
                     $this->deleteRefundedAllocateTrustBalance($TrustInvoice); // Refund withdraw amount to case trust balance
                 } else {
                     $this->refundAllocateTrustBalance($TrustInvoice);
                 }
             }
             dbCommit();
-            session(['popup_success' => 'Withdraw fund successful']);
+            session(['popup_success' => 'Refund successful']);
             return response()->json(['errors'=>'']);
             exit;   
         }
@@ -1361,8 +1382,12 @@ class ClientdashboardController extends BaseController
                 $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
+
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->refundAllocateTrustBalance($TrustInvoice);
+                }
             } else if($TrustInvoice->fund_type == "refund payment deposit") {
-                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment ('trust_account_balance', $TrustInvoice->refund_amount);
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->refund_amount);
                 $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
@@ -1371,7 +1396,15 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->deleteRefundedAllocateTrustBalance($TrustInvoice);
                 }
-
+            } else if($TrustInvoice->fund_type == "payment deposit") {
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
+                // For allocated case refund payment deposit
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->deleteAllocateTrustBalance($TrustInvoice);
+                }
+            }else if($TrustInvoice->fund_type=="payment"){
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->amount_paid);
+                $this->deletePaymentTrustBalance($TrustInvoice);
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
 
@@ -1386,7 +1419,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
 
-            if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
+            if($TrustInvoice->fund_type == "payment" || $TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit" || $TrustInvoice->fund_type == "payment deposit") {
                 $this->deleteInvoicePaymentHistoryTrust($TrustInvoice->id);
             }
 
@@ -3472,6 +3505,8 @@ class ClientdashboardController extends BaseController
             ->editColumn('deposit_amount', function ($data) {
                 if($data->payment_type == "deposit" || $data->payment_type == "refund withdraw" || $data->payment_type == "payment deposit") {
                     $amt = '$'.number_format($data->deposit_amount, 2);
+                } else if($data->payment_type == "refund payment") {
+                    $amt = '$'.number_format($data->deposit_amount, 2);
                 } else {
                     $amt = '-$'.number_format($data->deposit_amount, 2);
                 }
@@ -3672,7 +3707,9 @@ class ClientdashboardController extends BaseController
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
-            } else if($creditHistory->payment_type == "deposit"){
+            } else if($creditHistory->payment_type == "payment") {
+                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+            } else if($creditHistory->payment_type == "deposit" || $creditHistory->payment_type == "payment deposit"){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
             } 
 
@@ -3682,7 +3719,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
             }
 
-            if($creditHistory->payment_type == "refund payment" || $creditHistory->payment_type == "refund payment deposit") {
+            if($creditHistory->payment_type == "refund payment" || $creditHistory->payment_type == "refund payment deposit" || $creditHistory->payment_type == "payment" || $creditHistory->payment_type == "payment deposit") {
                 $this->deleteInvoicePaymentHistory($creditHistory->id);
             }
 

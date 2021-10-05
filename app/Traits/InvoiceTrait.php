@@ -15,7 +15,7 @@ trait InvoiceTrait {
     /**
      * Update allocated trust balance when trust deposit refund
      */
-    public function invoiceApplyTrustFund($item, $request, $InvoiceSave)
+    public function invoiceApplyTrustFund($item, $request, $InvoiceSave, $trustFundType = null)
     {
         $authUser = auth()->user();
         // Store invoice payment
@@ -53,12 +53,12 @@ trait InvoiceTrait {
             // "notes" => "Payment from Trust (Trust Account) to Operating (Operating Account)",
             "fund_type" => 'payment',
             "related_to_invoice_id" => $InvoiceSave->id,
-            "allocated_to_case_id" => @$item['case_id'],
+            "allocated_to_case_id" => ($trustFundType == "allocate") ? @$item['case_id'] : NULL,
             "created_by" => $authUser->id,
             "related_to_invoice_payment_id" => $InvoicePayment->id,
         ]);
 
-        if(array_key_exists("allocate_applied_amount", (array) $item) && $item["allocate_applied_amount"] != "") {
+        if(array_key_exists("allocate_applied_amount", (array) $item) && $item["allocate_applied_amount"] != "" && $trustFundType == "allocate") {
             $clientCaseSelect = CaseClientSelection::where("case_id", @$item['case_id'])->where("selected_user", $item['client_id'])->first();
             if($clientCaseSelect) {
                 $clientCaseSelect->decrement('allocated_trust_balance', $item["allocate_applied_amount"] ?? 0);
@@ -73,6 +73,7 @@ trait InvoiceTrait {
         $invoiceHistory['amount'] = @$item['applied_amount'] ?? 0;
         $invoiceHistory['responsible_user'] = $authUser->id;
         $invoiceHistory['deposit_into']='Operating Account';
+        $invoiceHistory['payment_from'] = 'trust';
         $invoiceHistory['deposit_into_id'] = (@$item['client_id'])??NULL;
         $invoiceHistory['invoice_payment_id'] = $InvoicePayment->id;
         $invoiceHistory['notes']=$request->notes ?? NULL;

@@ -421,6 +421,7 @@ class HomeController extends BaseController
                 $commentData=$commentData->where("all_history.user_id",$request->user_id);
             }
             $commentData=$commentData->orderBy('all_history.id','DESC');
+            return $commentData->get();
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
