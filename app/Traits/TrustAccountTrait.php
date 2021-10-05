@@ -48,6 +48,17 @@ trait TrustAccountTrait {
     }
 
     /**
+     * Update allocated trust balance when trust payment delete
+     */
+    public function deletePaymentTrustBalance($trustHistory)
+    {
+        CaseMaster::where('id', $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->amount_paid);
+        if($trustHistory->allocated_to_case_id) {
+            CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
+        }
+    }
+
+    /**
      * Update invoice payment entry and history after credit refund
      */
     public function updateInvoicePaymentAfterTrustRefund($trustId, $request)
