@@ -11,7 +11,16 @@ $finalAmt=$invoice-$paid;
     <div class="col-md-2 text-right selenium-total-amount">${{number_format($invoice,2)}}</div>
 </div>
 <div class="row">
-    <div class="col-md-6 selenium-case-name"> {{  (($caseMaster) ? ucfirst(substr($caseMaster['case_title'],0,50)) : 'None') }}</div>
+    <div class="col-md-6 selenium-case-name"> 
+    <?php 
+        if($invoiceData['is_lead_invoice'] == 'yes'){
+            echo "Potential Case: ".$userData['user_name'];
+        }else{
+            echo (($caseMaster) ? ucfirst(substr($caseMaster['case_title'],0,50)) : 'None');
+        }
+    ?>
+    <input type="hidden" name="is_lead_invoice" id="is_lead_invoice" value="{{$invoiceData['is_lead_invoice']}}">
+    </div>
     <div class="col-md-4 text-right">Amount Paid:</div>
     <div class="col-md-2 text-right selenium-paid-amount">${{number_format($paid,2)}}</div>
 </div>
@@ -171,10 +180,13 @@ $finalAmt=$invoice-$paid;
                         placeholder="Select a bank account" disabled>
                         <option></option>
                         <option value="Operating Account">Operating Account</option>
-                        <option value="Trust Account">Trust Account</option>
+                        <?php if($invoiceData['is_lead_invoice'] == 'no'){
+                            echo '<option value="Trust Account">Trust Account</option>';
+                        } ?>
                     </select>
                     <span id="depositin"></span>                    
-                </div>                
+                </div>  
+                <?php if($invoiceData['is_lead_invoice'] == 'no'){ ?>              
                 <div class="col-md-12 form-group" id="chkDeposit">
                     <div class="col-form-label d-flex align-items-center h-100 credit-payment-field form-check">
                         <input id="credit-payment-field" name="credit_payment" type="checkbox" class="my-0 form-check-input">
@@ -206,6 +218,8 @@ $finalAmt=$invoice-$paid;
                     <span id="taacount"></span>
                     <input type="hidden" name="is_case" id="is_case">
                 </div>
+
+                <?php } ?>
             </div>
             <hr>
             <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;">

@@ -191,7 +191,7 @@ if(!$commentData->isEmpty()){ ?>
             </td>
         </tr>
         <?php
-        }else if($v->type=="invoices"){
+        }else if($v->type=="invoices" || $v->type=="lead_invoice"){
         ?>
             @include('dashboard.include.invoice_activity_data')
         <?php } ?>

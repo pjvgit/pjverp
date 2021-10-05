@@ -13,16 +13,16 @@
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
-                          <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payPotentialInvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;"" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
+                          <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;"" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
                         <div class="pl-1">
                             <a class="btn btn-outline-secondary  m-1" data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;">Edit</a>
                         </div>                        
 
-                        <!-- <a class="btn btn-lg btn-link px-2 mr-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice({{$findInvoice->id}});" data-placement="bottom">
+                        <a class="btn btn-lg btn-link px-2 mr-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice({{$findInvoice->id}});" data-placement="bottom">
                             <i class="fas fa-envelope" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Send"></i>
-                        </a> -->
+                        </a>
                         <?php $id=base64_encode($findInvoice->id);?>
                         <a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice"
                         data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice({{$findInvoice->id}});">
@@ -87,7 +87,7 @@
                                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
                                             $refund='<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
                                         } else if($value->acrtivity_title=="Emailed Invoice"){
-                                            $notes=$value->entered_by.' <br><a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message" data-content="'.$value->lead_message.'" data-original-title="Dismissible popover">View Message</a>';
+                                            $notes=$value->notes.' <br><a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message" data-content="'.$value->lead_message.'" data-original-title="Dismissible popover">View Message</a>';
                                         }else{
                                             $refund='';
                                         }
@@ -199,7 +199,7 @@
                                         }else if($value->acrtivity_title=="Payment Refund" && $value->notes!=NULL){
                                             $notes=$value->notes;
                                         } else if($value->acrtivity_title=="Emailed Invoice"){
-                                            $notes=$value->entered_by.' <br><a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message" data-content="'.$value->lead_message.'" data-original-title="Dismissible popover">View Message</a>';
+                                            $notes=$value->notes.' <br><a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message" data-content="'.$value->lead_message.'" data-original-title="Dismissible popover">View Message</a>';
                                         }else if($value->acrtivity_title=="Emailed Invoice" && $value->notes!=NULL){
                                             $notes=$value->notes;
                                         }else{

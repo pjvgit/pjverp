@@ -988,7 +988,9 @@ class BillingController extends BaseController
          $totalFiltered = $totalData; 
  
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
+         if(isset($requestData['order']) && $requestData['order']!=''){
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+         }
          $case = $case->withCount('fundPaymentHistory');
          $case = $case->with('user', 'allocateToCase')->get();
          $json_data = array(
@@ -8825,8 +8827,10 @@ class BillingController extends BaseController
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
-        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice")
+        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
+        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
         ->where("all_history.type","invoices")
+        ->orWhere("all_history.type","lead_invoice")
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)

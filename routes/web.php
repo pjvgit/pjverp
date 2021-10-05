@@ -629,6 +629,8 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
      Route::get('leads/{id}/case_details/calendars','LeadController@leadIno')->name('case_details/calendars');
      Route::get('leads/{id}/case_details/intake_forms','LeadController@leadIno')->name('case_details/intake_forms');
      Route::get('leads/{id}/case_details/invoices','LeadController@leadIno')->name('case_details/invoices');
+     Route::get('leads/{id}/case_details/trust_history','LeadController@leadIno')->name('case_details/trust_history');
+     Route::get('leads/{id}/case_details/credit_history','LeadController@leadIno')->name('case_details/credit_history');
 
      Route::get('leads/{id}/communications/text_messages','LeadController@leadIno')->name('communications/text_messages');
      Route::get('leads/{id}/communications/calls','LeadController@leadIno')->name('communications/calls');
@@ -1058,7 +1060,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('bills/activities/loadTrustAccountActivity', 'BillingController@loadTrustAccountActivity')->name('bills/activities/loadTrustAccountActivity');
 
     //Potentail case invoice
-    Route::get('bills/invoices/potentialview/{id}', 'BillingController@viewPotentailInvoice')->name('bills/invoices/potentialview/{id}');
+    Route::get('bills/invoices/potentialview/{id}', 'BillingController@viewPotentailInvoice')->name('bills/invoices/potentialview');
 
 
     //Financial Insights

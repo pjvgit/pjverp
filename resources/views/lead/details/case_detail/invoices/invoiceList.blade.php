@@ -1,6 +1,3 @@
-<?php
-$CommonController= new App\Http\Controllers\CommonController();
-?>
 <div class="row ">
     <div class="col">
     </div>
@@ -48,104 +45,187 @@ if($totalInvoiceData<=0){
 <?php
 }else{?>
 <div class="table-responsive">
-    <table class="display table table-striped table-bordered" id="invoiceList" style="width:100%">
+    <table class="display table table-striped table-bordered" id="invoiceListw" style="width:100%">
         <thead>
             <tr>
-                <th width="5%">TYPE</th>
-                <th width="10%">NUMBER</th>
+                <th width="4%">TYPE</th>
+                <th width="5%">NUMBER</th>
                 <th width="10%">AMOUNT</th>
-                <th width="10%">CREATED</th>
-                <th width="10%">DUE</th>
+                <th width="13%">CREATED</th>
+                <th width="13%">DUE</th>
                 <th width="10%">ACCOUNT</th>
                 <th width="15%">ALLOCATAION</th>
                 <th width="10%">STATUS</th>
                 <th width="20%"></th>
             </tr>
         </thead>
+        <tbody>
+            @foreach($FindInvoice as $aData)
+            <tr>
+                <td width="4%"><div class="text-left"><i class="fas fa-file-invoice"></i></div></td>
+                <td width="5%"><div class="text-left"><a href="{{ url('bills/invoices/potentialview',$aData->decode_id)}}">{{$aData->invoice_id}}</a></div></td>
+                <td width="10%"><div class="text-left">${{$aData->total_amount}}</div></td>
+                <td width="13%"><div class="text-left">{{$aData->created_date_new}}</div></td>
+                <td width="13%"><div class="text-left">{{$aData->due_date_new}}</div></td>
+                <td width="10%"><div class="text-left"><i class="table-cell-placeholder"></i></div></td>
+                <td width="15%"><div class="text-left"><i class="table-cell-placeholder"></i></div></td>
+                <?php
+                if($aData->status=="Paid"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'.$aData->status.'</div></td>';
+                }else if($aData->status=="Partial"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'.$aData->status.'</div></td>';
+                }else if($aData->status=="Overdue"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>'.$aData->status.'</div></td>';
+                }else{
+                    echo '<td width="10%"><div class="text-left">'.$aData->status.'</div></td>';
+                }
+                $editOption='<a class="btn btn-lg btn-link px-2 text-black-50 copyButton" data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-pen align-middle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"></i></a>';
+                    if($aData->due_amount > 0){
+                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-paper-plane" data-toggle="tooltip" data-placement="top" title="" data-original-title="Send"></i></a>';
+                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice('.$aData->id.');"> <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip" data-placement="top" title="" data-original-title="Download"></i></a>';
+                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#deleteInvoice" onclick="deleteInvoice('.$aData->id.');"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                    }
+                    echo '<td width="20%"><div class="d-flex align-items-center float-right">'.$editOption.'</div></td>';
+                ?>                
+            </tr>
+            @endforeach
+            @foreach($RequestedFundData as $aData)
+            <tr>
+                <td width="4%"><div class="text-left"><i class="fas fa-hand-holding-usd"></i></div></td>
+                <td width="5%"><div class="text-left">{{$aData->padding_id}}</div></td>
+                <td width="10%"><div class="text-left">${{$aData->amt_requested}}</div></td>
+                <td width="13%"><div class="text-left">{{$aData->last_send}}</div></td>
+                <td width="13%"><div class="text-left">{{$aData->due_date_format}}</div></td>
+                <td width="10%"><div class="text-left">{{ ucfirst($aData->deposit_into_type). ' (Operating Account)'}}</div></td>
+                <td width="15%"><div class="text-left">{{$aData->contact_name}}</div></td>
+                <?php
+                if($aData->current_status=="Paid"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'.$aData->current_status.'</div></td>';
+                }else if($aData->current_status=="Partial"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'.$aData->current_status.'</div></td>';
+                }else if($aData->current_status=="Overdue"){
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>'.$aData->current_status.'</div></td>';
+                }else{
+                    echo '<td width="10%"><div class="text-left">'.$aData->current_status.'</div></td>';
+                }
+
+                $editOption= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('.$aData->id.');"> <i class="fas fa-pen"></i> </a>';
+                
+                if($aData->status != 'paid') {
+                    if($aData->deposit_into_type == 'credit'){
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoNonTrustAccount"  onclick="depositIntoNonTrustAccount('.$aData->client_id.');"><i class="fas fa-dollar-sign"></i></a>';
+                    }
+                    if($aData->deposit_into_type == 'trust'){
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoTrustAccount"  onclick="depositIntoTrustPopup('.$aData->client_id.');"><i class="fas fa-dollar-sign"></i></a>';
+                    }
+
+                    $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('.$aData->id.');"> <i class="fas fa-bell"></i> </a>';
+
+                    $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('.$aData->id.', this);" data-payment-count="'.$aData->fund_payment_history_count.'"><i class="fas fa-trash"></i></a>';
+                }
+                echo '<td width="20%"><div class="d-flex align-items-center float-right">'.$editOption.'</div></td>';
+                ?>                
+            </tr>
+            @endforeach
+        </tbody>
     </table>
+</div>
+<div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
+            @csrf
+            <input type="hidden" value="" name="invoiceId" id="delete_invoice_id">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Confirm Delete</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="showError" style="display:none"></div>
+                    <div class="row">
+                        <div class="col-md-12" id="confirmAccess">
+                            Are you sure you want to delete this invoice?
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12  text-center">
+                        <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader"
+                            style="display: none;"></div>
+                        <div class="form-group row float-right">
+                            <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary ladda-button example-button m-1 submit" type="submit">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 <?php } ?>
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
-    $("#actionbutton").trigger("click");
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+        $("#actionbutton").trigger("click");
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     });
-    var dataTableinvoiceList =  $('#invoiceList').DataTable( {
-            serverSide: true,
-            "dom": '<"top">rt<"bottom"p><"clear">',
-            responsive: false,
-            processing: true,
-            stateSave: true,
-            searching: false, "ordering": false,
-            "ajax":{
-                url :baseUrl +"/leads/loadInvoices", // json datasource
-                type: "post", 
-                data :{ 'user_id' : '{{$user_id}}' },
-                error: function(){  
-                    $(".employee-grid-error").html("");
-                    $("#employee-grid").append('<tbody class="employee-grid-error"><tr><th colspan="8">No data found in the server</th></tr></tbody>');
-                    $("#employee-grid_processing").css("display","none");
+
+    function deleteInvoice(id) {
+        $("#deleteInvoicePopup").modal("show");
+        $("#delete_invoice_id").val(id);
+    }
+
+    $('#deleteInvoiceForm').submit(function (e) {
+        beforeLoader();
+        e.preventDefault();
+
+        if (!$('#deleteInvoiceForm').valid()) {
+            beforeLoader();
+            return false;
+        }
+        var dataString = '';
+        dataString = $("#deleteInvoiceForm").serialize();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/deleteInvoice", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&delete=yes';
+            },
+            success: function (res) {
+                beforeLoader();
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    afterLoader();
+                    return false;
+                } else {
+                    afterLoader();
+                    window.location.reload();
                 }
             },
-            pageResize: true,  
-            pageLength:{{USER_PER_PAGE_LIMIT}},
-            columns: [
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false},
-                { data: 'id',sortable:false}],
-                "fnCreatedRow": function (nRow, aData, iDataIndex) {
-
-                    if(aData.invoice_id){
-                        $('td:eq(0)', nRow).html('<div class="text-left"><i class="fas fa-file-invoice"></i></div>'); 
-                    }else{
-                        $('td:eq(0)', nRow).html('<div class="text-left"><i class="fas fa-hand-holding-usd"></i></div>'); 
-                    }
-                    $('td:eq(1)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_id+'">'+aData.invoice_id+'</a></div>'); 
-                   
-                    if(aData.total_amount==null){
-                        $('td:eq(2)', nRow).html('<div class="text-left"></div>'); 
-                    }else{
-                        $('td:eq(2)', nRow).html('<div class="text-left">$'+aData.total_amount+'</div>'); 
-                    }
-                    
-                    $('td:eq(3)', nRow).html('<div class="text-left">'+aData.invoice_date+'</div>'); 
-                    $('td:eq(4)', nRow).html('<div class="text-left">'+aData.due_date+'</div>'); 
-                    
-                    $('td:eq(5)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>'); 
-                    $('td:eq(6)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>'); 
-
-                    if(aData.is_pay=="Partial"){
-                        var f='text-warning';
-                    }else{
-                        var f='text-success';
-                    }
-                    var fLabel='<span class="intake-form-status d-flex align-items-center"><i class="fas fa-circle  '+f+' mr-2"></i>'+aData.status+'</span>';
-                    $('td:eq(7)', nRow).html('<div class="text-left">'+fLabel+'</div>');
-                    var editOption='<a  data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Edit"><i class="fas fa-pen align-middle" data="MyText"></i></span></a>';
-                    // var sendOption='<a class="btn btn-lg btn-link px-2 mr-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice('+aData.id+')" data-placement="bottom"><i class="fas fa-envelope" data-toggle="tooltip" data-placement="top" title="" data-original-title="Send"></i></a>';
-                    var downloadOption='<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice('+aData.id+');"> <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip" data-placement="top" title="" data-original-title="Download"></i></a>';
-                    $('td:eq(8)', nRow).html('<div class="d-flex align-items-center float-right">'+editOption+downloadOption+'</div>');
-                },
-                "initComplete": function(settings, json) {
-                    $('th').css('font-size',parseInt('13px'));  
-                    $('td').css('font-size',parseInt('13px'));      
-                    $("[data-toggle=popover]").popover();
-                    $("[data-toggle=tooltip]").tooltip();
-                }
-        });
-        $('#addNewInvoice,#payInvoice').on('hidden.bs.modal', function () {
-            dataTableinvoiceList.ajax.reload(null, false);
+            error: function (xhr, status, error) {
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+                afterLoader();
+            }
         });
     });
 </script>

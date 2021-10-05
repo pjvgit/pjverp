@@ -8,28 +8,37 @@
                     $imageLink["delete"]="activity_bill_deleted.png";
                     $imageLink["pay"]="activity_bill_paid.png";
                     $imageLink["refund"]="activity_bill_refunded.png";
+                    $imageLink["share"]="activity_bill_refunded.png";
                     $image=$imageLink[$v->action];
                     
                     if(in_array($v->action,["add","update","delete","pay","refund"])){ ?>
-                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}}  for invoice
-                    @if ($v->deleteInvoice == NULL)
-                        <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
-                    @else
-                        #{{sprintf('%06d', $v->activity_for)}}
-                    @endif 
-                    <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <?php  if($v->case_unique_number!=NULL){  ?>
-                        <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
-                    <?php } ?>
+                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
+                         <!-- for invoice -->
+                        @if ($v->deleteInvoice == NULL)
+                            @if($v->type == 'lead_invoice')
+                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            @else
+                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            @endif
+                        @else
+                            #{{sprintf('%06d', $v->activity_for)}}
+                        @endif 
+                        <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
+                        <?php  if($v->case_unique_number!=NULL){  ?>
+                            <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                        <?php } 
+                            if($v->type == 'lead_invoice'){  ?>
+                            <a class="name" href="{{ route('case_details/info',$v->user_id) }}">{{$v->fullname}}</a>
+                        <?php } ?>
                     <?php } else{ ?>
-                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
-                    {{$v->activity}} for {{$v->title}} 
-                    <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                    <?php  if($v->case_unique_number!=NULL){  ?>
-                        <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
-                    <?php }  ?>
+                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                        {{$v->activity}} for {{$v->title}} 
+                        <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
+                        <?php  if($v->case_unique_number!=NULL){  ?>
+                            <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                        <?php }  ?>
                     <?php } ?>
                 </div>
             </td>

@@ -437,10 +437,16 @@ class HomeController extends BaseController
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
             ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice")
+            ->leftJoin('users as u1','u1.id','=','all_history.client_id')
+            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
             ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","invoices")
             ->orderBy('all_history.id','DESC');
+            if(isset($request->client_id)){
+                $commentData=$commentData->where("all_history.client_id",$request->client_id);
+            }else{
+                $commentData=$commentData->where("all_history.type","invoices")
+                ->orWhere("all_history.type","lead_invoice");
+            }
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
