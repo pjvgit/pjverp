@@ -125,7 +125,9 @@ if(isset($_GET['st'])){
                                 <th width="5%">Status</th>
                                 <th width="15%">User</th>
                                 <th width="15%">Case</th>
+                                <?php if($_REQUEST['i'] != 'i'){?>
                                 <th width="10%" class="text-center"></th>
+                                <?php } ?>
                             </tr>
                         </thead>
 
@@ -262,35 +264,56 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id'},
                 { data: 'date_format_new'},
                 { data: 'activity_title'},
-                { data: 'duration'},
+                { data: 'id','sorting':false},
                 { data: 'description','sorting':false},
                 { data: 'id','sorting':false},
                 { data: 'id','sorting':false},
                 { data: 'id','sorting':false},
                 { data: 'id'},
                 { data: 'id','sorting':false},
-                { data: 'id','sorting':false}],
+                <?php if($_REQUEST['i'] != 'i'){?>
+                { data: 'id','sorting':false},
+                <?php } ?>
+            ],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
-
+                    if(aData.duration > 0.01){
+                        $('td:eq(2)', nRow).html('<div class="text-left">$'+aData.duration+'</div>');
+                    }else{
+                        $('td:eq(2)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+                    }
                     if(aData.rate_type=="flat"){
                         $('td:eq(4)', nRow).html('<div class="text-left">Flat</div>');
                     }else{
                         $('td:eq(4)', nRow).html('<div class="text-left">'+aData.entry_rate+'/'+aData.rate_type+'</div>');
                     }
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.calculated_amt+'</div>');
-                    $('td:eq(6)', nRow).html('<div class="text-left">Open</div>');
+                    if(aData.invoice_link != null){
+                        if(aData.is_lead_invoice == 'yes'){
+                            $('td:eq(6)', nRow).html('<a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_invoice_id+'">Invoiced</a>');
+                        }else{
+                            $('td:eq(6)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+aData.decode_invoice_id+'">Invoiced</a>');
+                        }
+                    }else{
+                        $('td:eq(6)', nRow).html('<div class="text-left">Open</div>');
+                    }
                     // $('td:eq(7)', nRow).html('<div class="text-left">'+aData.user_name+'</div>');
                     
                     $('td:eq(7)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
 
                     if(aData.ctitle!=null){
                         $('td:eq(8)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/time_entries">'+aData.ctitle+'</a></div>');
-
                     }else{
-                        $('td:eq(8)', nRow).html('<div class="text-left"></div>');
+                        if(aData.task_id == null && aData.case_id == null){
+                            $('td:eq(8)', nRow).html('<div class="text-left">'+aData.lead_data+'</div>');
+                        }else{
+                            $('td:eq(8)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+                        }
                     }
-
-                    $('td:eq(9)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                    if(aData.invoice_link == null){
+                        $('td:eq(9)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                    }else{
+                        $('td:eq(9)', nRow).html('<div class="text-left"></div>');
+                    }
                 },
                 "initComplete": function(settings, json) {
                   

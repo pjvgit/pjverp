@@ -50,7 +50,7 @@ if(isset($_GET['type'])){
                         <?php if($LeadData['is_published']=="no"){ ?>
                             <i class="fas fa-10x fa-user-circle text-black-50"></i>
                     <?php } else{ ?> 
-                            <img class="mw-100 mh-100 align-items:start m-auto" src="{{BASE_URL}}public/profile/{{$LeadData['profile_image']}}" width="126" height="130">
+                            <img class="mw-100 mh-100 align-items:start m-auto" src="{{BASE_URL}}profile/{{$LeadData['profile_image']}}" width="126" height="130">
                     <?php } ?>
                         <button onclick="changeProfileImage()" type="button"
                             class="bg-light edit-profile-pic px-3 btn btn-secondary"
@@ -793,7 +793,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                 <?php if($LeadData['is_published']=="no"){ ?>
                                     <i class="default-avatar-256" data-testid="default-image"></i>
                             <?php } else{ ?> 
-                                    <img class="mw-100 mh-100 w-100 h-100 align-items:start m-auto" src="{{BASE_URL}}public/profile/{{$LeadData['profile_image']}}">
+                                    <img class="mw-100 mh-100 w-100 h-100 align-items:start m-auto" src="{{BASE_URL}}profile/{{$LeadData['profile_image']}}">
                             <?php } ?>
                                 
                             </div>

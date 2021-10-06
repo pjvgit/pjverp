@@ -137,7 +137,8 @@
                     date: true
                 },
                 total_amount: {
-                    required: true
+                    required: true,
+                    min:{{$FindInvoice->paid_amount}} 
                 }
             },
             messages: {
@@ -152,6 +153,7 @@
                 },
                 total_amount: {
                     required: "Amount is required.",
+                    min: "You cannot lower the amount of this invoice below ${{ $FindInvoice->paid_amount }} </br> because payments have already been received for that amount."
                 },
             },errorPlacement: function (error, element) {
                 if (element.is('#total_amount')) {

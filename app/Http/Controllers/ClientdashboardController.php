@@ -3594,9 +3594,9 @@ class ClientdashboardController extends BaseController
      */
     public function refundCreditPopup(Request $request)
     {
-        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id)->first();
         $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
+        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id ?? $creditHistory->user_id);
+        $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id ?? $creditHistory->user_id)->first();
         return view('client_dashboard.billing.refund_credit_fund',compact('userData','UsersAdditionalInfo','creditHistory'));   
     } 
     /**

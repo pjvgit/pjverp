@@ -1124,6 +1124,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
     
     function downloadInvoice(id) {
+        console.log("downloadInvoice" + 1127);
         $("#preloader").show();
         $.ajax({
             type: "POST",

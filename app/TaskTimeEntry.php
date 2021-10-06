@@ -16,7 +16,7 @@ class TaskTimeEntry extends Authenticatable
     protected $fillable = [
         'task_id', 'case_id', 'user_id', 'activity_id', 'time_entry_billable', 'description', 'entry_date', 'entry_rate', 'rate_type', 'duration'
     ];    
-    protected $appends  = ['decode_id','decode_invoice_id','date_format_new','calculated_amt'];
+    protected $appends  = ['decode_id','decode_invoice_id','date_format_new','calculated_amt','lead_data'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->uid);
     }  
@@ -68,6 +68,13 @@ class TaskTimeEntry extends Authenticatable
         }        
         return str_replace(",","",number_format($this->attributes['entry_rate'], $decimalPoint));
     }
+
+    public function getLeadDataAttribute(){
+        $userData = $this->user;
+        if($userData->user_level == 5){
+            return '<a class="name" href="'.route('case_details/info',$this->user_id).'">Potential Case: '.$userData->full_name.'</a>';
+        }
+    }    
 
     /**
      * Get the taskActivity that owns the TaskTimeEntry

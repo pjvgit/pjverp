@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
 use Exception;
 
-use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund;
+use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustment;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -1953,16 +1953,36 @@ class LeadController extends BaseController
             $taskHistory['created_at']=date('Y-m-d H:i:s');
             $this->taskHistory($taskHistory);
             
-            $caseHistory=[];
-            $caseHistory['acrtivity_title']='added';
-            $caseHistory['activity_by']=Auth::User()->id;
-            $caseHistory['for_lead']=($TaskMaster->lead_id)??NULL;
-            $caseHistory['type']="1";
-            $caseHistory['task_id']=$TaskMaster->id;
-            $caseHistory['case_id']=NULL;
-            $caseHistory['created_by']=Auth::User()->id;
-            $caseHistory['created_at']=date('Y-m-d H:i:s');
-            $this->saveCaseActivity($caseHistory);
+            $data=[];
+            if(!isset($request->no_case_link)){
+                if(isset($request->case_or_lead)) { 
+                    if($request->text_case_id!=''){
+                        $data['task_for_case']=$request->text_case_id;
+                    }    
+                    if($request->text_lead_id!=''){
+                        $data['task_for_lead']=$request->text_lead_id; ;
+                    }    
+                } 
+            }
+            $data['task_id']=$TaskMaster->id;
+            $data['task_name']=$TaskMaster->task_title;
+            $data['user_id']=Auth::User()->id;
+            $data['activity']='added a task';
+            $data['type']='task';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            // $caseHistory=[];
+            // $caseHistory['acrtivity_title']='added';
+            // $caseHistory['activity_by']=Auth::User()->id;
+            // $caseHistory['for_lead']=($TaskMaster->lead_id)??NULL;
+            // $caseHistory['type']="1";
+            // $caseHistory['task_id']=$TaskMaster->id;
+            // $caseHistory['case_id']=NULL;
+            // $caseHistory['created_by']=Auth::User()->id;
+            // $caseHistory['created_at']=date('Y-m-d H:i:s');
+            // $this->saveCaseActivity($caseHistory);
             
 
             return response()->json(['errors'=>'','user_id'=>$request->user_id]);
@@ -2153,6 +2173,22 @@ class LeadController extends BaseController
             $taskHistory['created_by']=Auth::User()->id;
             $taskHistory['created_at']=date('Y-m-d H:i:s');
             $this->taskHistory($taskHistory);
+
+            $data=[];
+            if($TaskMaster->case_id!=NULL) { 
+                $data['task_for_case']=$TaskMaster->case_id;  
+            }   
+            if($TaskMaster->lead_id!=NULL) { 
+                $data['task_for_lead']=$TaskMaster->lead_id;  
+            } 
+            $data['task_id']=$TaskMaster->id;
+            $data['task_name']=$TaskMaster->task_title;
+            $data['user_id']=Auth::User()->id;
+            $data['activity']='updated a task';
+            $data['type']='task';
+            $data['action']='update';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
             $this->saveEditTaskReminder($request->all(),$TaskMaster->id); 
             $this->saveEditLinkedStaffToTask($request->all(),$TaskMaster->id); 
@@ -6522,6 +6558,13 @@ class LeadController extends BaseController
             $InvoiceSave->updated_by=Auth::User()->id; 
             $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;
+            if(strtotime(date('Y-m-d')) <= strtotime($request->due_date)){
+                if($InvoiceSave->paid_amount > 0 && $InvoiceSave->due_amount > 0){
+                    $InvoiceSave->status = "Partial";
+                }
+            }else{
+                $InvoiceSave->status='Overdue';
+            }
             $InvoiceSave->save();
 
             $invoiceHistory=[];
@@ -6628,12 +6671,12 @@ class LeadController extends BaseController
                 
                 //Add Invoice history
                 $data=[];
-                $data['user_id']=$InvoiceData['user_id'];
+                $data['user_id']=$FindInvoice['user_id'];
                 $data['activity']='emailed invoice';
-                $data['activity_for']=$InvoiceData['id'];
+                $data['activity_for']=$FindInvoice['id'];
                 $data['type']='lead_invoice';
                 $data['action']='share';
-                $data['client_id']=$InvoiceData['user_id'];
+                $data['client_id']=$FindInvoice['user_id'];
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
@@ -6710,9 +6753,21 @@ class LeadController extends BaseController
         $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
         
         $firmData=Firm::find($userData['firm_name']);
-        $PotentialCaseInvoicePayment=PotentialCaseInvoicePayment::select("potential_case_invoice_payment.*","users.id","users.first_name","users.last_name","users.user_title")->leftJoin('users','users.id',"=","potential_case_invoice_payment.created_by")->where("invoice_id",$PotentialCaseInvoice['id'])->get();
+
+
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        //Get the Adjustment list
+        $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
+
+        $TimeEntryForInvoice = TimeEntryForInvoice::join("task_time_entry",'task_time_entry.id',"=","time_entry_for_invoice.time_entry_id")
+        ->leftJoin("users","task_time_entry.user_id","=","users.id")
+        ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+        ->select('users.*','task_time_entry.*',"task_activity.title as activity_title",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid")
+        ->where("time_entry_for_invoice.invoice_id",$invoice_id)
+        ->get();
+
         $filename="Invoice_".$PotentialCaseInvoice['id'].'_'.time().'.pdf';
-        $PDFData=view('lead.details.case_detail.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','PotentialCaseInvoice','firmAddress','PotentialCaseInvoicePayment'));
+        $PDFData=view('lead.details.case_detail.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','PotentialCaseInvoice','firmAddress','InvoiceHistoryTransaction','InvoiceAdjustment', 'TimeEntryForInvoice'));
 
         $pdf = new Pdf;
         if($_SERVER['SERVER_NAME']=='localhost'){

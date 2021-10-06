@@ -18,13 +18,13 @@
             <label for="inputEmail3" class="col-sm-3 col-form-label">Send To:</label>
             <div class="col-sm-9">
                 <input class="form-control" value="{{$userData->email}}" id="email_address" maxlength="250"
-                    name="email_address" type="text" placeholder="example@email.com">
+                    name="email_address" type="text" placeholder="example@email.com">                    
             </div>
         </div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Subject:</label>
             <div class="col-sm-9">
-                <input class="form-control" value="Invoice from  {{$firmData->firm_name}}" id="email_subject"
+                <input class="form-control" value="Invoice from {{$firmData->firm_name}}" id="email_subject"
                     maxlength="250" name="email_subject" type="text" placeholder="">
 
             </div>
@@ -33,8 +33,9 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Message:</label>
             <div class="col-sm-9">
-                <textarea class="form-control" id="email_message" maxlength="250" rows="10"
+                <textarea class="form-control" id="email_message" maxlength="160" rows="10"
                     name="email_message">Click the link below to review your invoice.</textarea>
+                <div class="text-muted text-right mb-3 mt-1">Character count: <span id="textCount">44</span>/160</div>
             </div>
         </div>
 
@@ -61,6 +62,12 @@
                 email_address: {
                     required: true,
                     email: true
+                },
+                email_subject: {
+                    required: true,
+                },
+                email_message: {
+                    required: true,
                 }
             },
             messages: {
@@ -68,6 +75,12 @@
                     required: "You must provide a valid email address.",
                     email: "A valid email address is required."
                 },
+                email_subject: {
+                    required: "Subject is required"
+                },
+                email_message: {
+                    required: "Message is required."
+                }
             }
         });
         $('#EmailForm').submit(function (e) {
@@ -118,7 +131,10 @@
                 },
             });
         });
-
+        $("#email_message").on('keyup', function(event) {
+            var length = $(this).val().length;
+            $("#textCount").html(length);
+        });
     });
-
+   
 </script>

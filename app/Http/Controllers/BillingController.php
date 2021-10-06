@@ -96,7 +96,7 @@ class BillingController extends BaseController
         $columns = array('id','entry_date', 'entry_date', 'activity_title', 'duration', 'case_status','case_unique_number','user_name','user_name','user_name');
         $requestData= $_REQUEST;
         
-        $case = TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
+        $case = TaskTimeEntry::leftJoin("users","task_time_entry.created_by","=","users.id")
         ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
         ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
         ->select('task_time_entry.*',"task_activity.title as activity_title","case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,"case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid");
@@ -116,7 +116,7 @@ class BillingController extends BaseController
         }
         
         if(isset($requestData['type']) && $requestData['type']=='own'){
-            $case = $case->where("task_time_entry.user_id",Auth::User()->id);
+            $case = $case->where("task_time_entry.created_by",Auth::User()->id);
         }
         if(isset($requestData['st']) && $requestData['st']!=''){
             $case = $case->where("task_activity.title",'like', '%' . $requestData['st'] . '%');
@@ -135,7 +135,7 @@ class BillingController extends BaseController
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $case = $case->get();
-
+        // dd($case);
        
         // echo "<pre>";
         // print_r(\DB::getQueryLog());
@@ -6950,7 +6950,7 @@ class BillingController extends BaseController
                         if($vv->rate_type=="hr"){
                             $TotalAmt=(str_replace(",","",$vv->entry_rate)*str_replace(",","",$vv->duration));
                         }else{
-                            $TotalAmt=str_replace(",","",$vv->duration);
+                            $TotalAmt=str_replace(",","",$vv->entry_rate);
                         }
                         $TimeEntryForInvoiceTotal+=str_replace(",","",$TotalAmt);
                     }
@@ -6968,7 +6968,6 @@ class BillingController extends BaseController
                 }
                 
                 $subTotal= ($FlatFeeEntryForInvoiceTotal + $TimeEntryForInvoiceTotal+ $GrandTotalByInvoiceExp); 
-
                 //forwarded invoices applied or not
                 $forwardedInvoices = Invoices::whereId($v1)->with("forwardedInvoices")->first();
                 if(!empty($forwardedInvoices)){
@@ -6979,7 +6978,7 @@ class BillingController extends BaseController
                 }
                 
                 $finalAmount=0;
-                if($Invoices->status != 'Forwarded'){         
+                if($Invoices->status != 'Forwarded' && $Invoices->is_lead_invoice == 'no'){         
                 $InvoiceAdjustment->case_id =$Invoices['case_id'];
                 $InvoiceAdjustment->token = base64_encode($v1);
                 $InvoiceAdjustment->invoice_id =$Invoices['id'];

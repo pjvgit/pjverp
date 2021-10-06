@@ -8,7 +8,7 @@
                     $imageLink["delete"]="activity_bill_deleted.png";
                     $imageLink["pay"]="activity_bill_paid.png";
                     $imageLink["refund"]="activity_bill_refunded.png";
-                    $imageLink["share"]="activity_bill_refunded.png";
+                    $imageLink["share"]="activity_bill_shared.png";
                     $image=$imageLink[$v->action];
                     
                     if(in_array($v->action,["add","update","delete","pay","refund"])){ ?>
