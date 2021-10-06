@@ -711,7 +711,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
 </table>
 <br>
 
-<?php if(isset($InvoiceInstallment) && !$InvoiceInstallment->isEmpty()){?>
+@if(!empty($InvoiceInstallment) && count($InvoiceInstallment))
 <table style="width: 100%; border-collapse: collapse;font-size: 12px;border-left: none;float:right;
             border-bottom: none;border-top: none;margin-bottom:10px;float:left;" border="0">
     <tr>
@@ -777,7 +777,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
     </tr>
 </table>
 <br>
-<?php } ?>
+@endif
 <?php if(isset($InvoiceHistoryTransaction) && !$InvoiceHistoryTransaction->isEmpty()){?>
 <h3> Payment History</h3>
 <table

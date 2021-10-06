@@ -861,8 +861,7 @@
                 </td>
             </tr>
 
-            <?php
-            if(!empty($InvoiceInstallment)){?>
+            @if(!empty($InvoiceInstallment) && count($InvoiceInstallment))
             <tr class="invoice_info_row">
                 <td style="border: none;">
                 <a name="payment_plan">&nbsp;</a>
@@ -907,7 +906,7 @@
                 </div>
                 </td>
             </tr>
-            <?php } ?>
+            @endif
         </tbody>
     </table>
     <br>

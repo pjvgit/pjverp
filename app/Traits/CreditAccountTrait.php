@@ -34,6 +34,10 @@ trait CreditAccountTrait {
                 $currentBal = $currentBal - $item->deposit_amount;
             } else if($item->payment_type == "refund payment") {
                 $currentBal = $currentBal + $item->deposit_amount;
+            } else if($item->payment_type == "payment deposit") {
+                $currentBal = $currentBal + $item->deposit_amount;
+            } else if($item->payment_type == "refund payment deposit") {
+                $currentBal = $currentBal - $item->deposit_amount;
             }
             $item->total_balance = $currentBal;
             $item->save();

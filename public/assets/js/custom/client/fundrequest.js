@@ -63,6 +63,12 @@ $(document).ready(function() {
         });
     });
 
+    $('#addRequestFund').on('hidden.bs.modal', function () {
+        requestFundGrid.ajax.reload(null, false);
+        $('#requestFundGrid').DataTable().ajax.reload(null, false);
+        $('#timeEntryGrid').DataTable().ajax.reload(null, false); // For billing > request fund list
+    });
+
     var requestFundGrid =  $('#requestFundGrid').DataTable( {
         serverSide: true,
         "dom": '<"top">rt<"bottom"pl>',
@@ -163,11 +169,6 @@ $(document).ready(function() {
         "initComplete": function(settings, json) {
             $('td').css('font-size',parseInt('13px'));  
         }
-    });
-
-    $('#addRequestFund').on('hidden.bs.modal', function () {
-        requestFundGrid.ajax.reload(null, false);
-        $('#timeEntryGrid').DataTable().ajax.reload(null, false); // For billing > request fund list
     });
 });
 

@@ -1024,7 +1024,7 @@ class ClientdashboardController extends BaseController
             })
             ->editColumn('deposit_amount', function ($data) {
                 if($data->fund_type=="withdraw"){
-                    $amt = '-$'.number_format($data->withdraw, 2);
+                    $amt = '-$'.number_format($data->withdraw_amount ?? 0, 2);
                 }else if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund payment"){
                     $amt = '$'.number_format($data->refund, 2);
                 }else if($data->fund_type=="refund_deposit" || $data->fund_type=="refund payment deposit"){
@@ -1046,10 +1046,17 @@ class ClientdashboardController extends BaseController
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
                 if($data->fund_type=="withdraw"){
                     if($data->withdraw_from_account!=null){
-                        $ftype="Withdraw from Trust (Trust Account) to Operating("+$data->withdraw_from_account+")";
+                        $ftype="Withdraw from Trust (Trust Account) to Operating(".$data->withdraw_from_account.")";
                     }else{
                         $ftype="Withdraw from Trust (Trust Account)" .$isRefund;
                     }
+                    $noteContent = '';
+                    if($data->notes != '') {
+                        $noteContent = '<br>
+                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                    }
+                    return $ftype.' '.$isRefund.$noteContent;
                 }else if($data->fund_type=="refund_withdraw"){
                     $ftype="Refund Withdraw from Trust (Trust Account)";
                 }else if($data->fund_type=="refund_deposit"){
@@ -1105,7 +1112,7 @@ class ClientdashboardController extends BaseController
                 return $ftype;
             })
             ->rawColumns(['action', 'detail', 'related_to', 'allocated_to'])
-            ->with("trust_total", $userAddInfo->trust_account_balance ?? 0.00)
+            ->with("trust_total", number_format($userAddInfo->trust_account_balance ?? 0.00, 2))
             ->make(true);
     }
 
@@ -1222,7 +1229,7 @@ class ClientdashboardController extends BaseController
        
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->client_id;
-            $TrustInvoice->payment_method=$request->payment_method;
+            $TrustInvoice->payment_method=$request->payment_method ?? 'Trust';
             $TrustInvoice->amount_paid="0.00";
             $TrustInvoice->withdraw_amount=$request->amount;
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
@@ -1294,13 +1301,9 @@ class ClientdashboardController extends BaseController
                 $fund_type='refund_deposit';
                 DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
             }
-            
+            $UsersAdditionalInfo->refresh();
             $GetAmount->is_refunded="yes";
             $GetAmount->save();
-
-            if($UsersAdditionalInfo->unallocate_trust_balance < $request->amount) {
-
-            }
        
             $TrustInvoice=new TrustHistory;
             $TrustInvoice->client_id=$request->client_id;
@@ -3535,9 +3538,8 @@ class ClientdashboardController extends BaseController
                         data-trigger="focus" title="Notes" data-content="'.$noteContent.'">View Notes</a>';
             })
             ->rawColumns(['action', 'detail', 'related_to_invoice_id'])
-            ->with("credit_total", $userAddInfo->credit_account_balance ?? 0.00)
-            ->make(true)
-            ;
+            ->with("credit_total", number_format($userAddInfo->credit_account_balance ?? 0.00, 2))
+            ->make(true);
     }
 
     /**

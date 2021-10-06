@@ -20,7 +20,7 @@ use App\InvoiceSetting;
 use App\Jobs\InvoiceReminderEmailJob;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
-use App\Traits\TrustAccountTrait;
+use App\Traits\TrustAccountActivityTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -31,7 +31,7 @@ use mikehaertl\wkhtmlto\Pdf;
 use Illuminate\Support\Str;
 class BillingController extends BaseController
 {
-    use CreditAccountTrait, InvoiceTrait, TrustAccountTrait;
+    use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait;
     public function __construct()
     {
     }
@@ -1514,7 +1514,7 @@ class BillingController extends BaseController
                     'entry_type'=>"0",
                     'deposit_into'=>"Operating Account",
                     'payment_from_id'=>$request->trust_account,
-                    'total'=>($currentBalance['total']+$request->amount),
+                    'total'=> ($currentBalance) ? ($currentBalance['total']+$request->amount) : $request->amount,
                     'firm_id'=>Auth::User()->firm_name,
                     'created_at'=>date('Y-m-d H:i:s'),
                     'created_by'=>Auth::user()->id 
@@ -1554,8 +1554,6 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                         $TrustInvoice->save();
                     }else{
-                        // allocate to case 
-                        // allocate to case 
                         // allocate to case 
                         $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
                         if(!empty($CaseClientSelection)){
@@ -1623,7 +1621,7 @@ class BillingController extends BaseController
             
 
                 //Get previous amount
-                $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+                /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
                 $activityHistory=[];
                 $activityHistory['user_id']=$request->contact_id;
                 $activityHistory['related_to']=$InvoiceData['id'];
@@ -1644,11 +1642,12 @@ class BillingController extends BaseController
                 $activityHistory['section']="invoice";
                 $activityHistory['created_by']=Auth::User()->id;
                 $activityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveAccountActivity($activityHistory);
+                $this->saveAccountActivity($activityHistory); */
+                $this->updateTrustAccountActivity($request, $amtAction = 'sub');
 
                 
                 //Get previous amount
-                $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
                 $activityHistory=[];
                 $activityHistory['user_id']=$request->contact_id;
                 $activityHistory['related_to']=$InvoiceData['id'];
@@ -1672,7 +1671,8 @@ class BillingController extends BaseController
                 $activityHistory['section']="invoice";
                 $activityHistory['created_by']=Auth::User()->id;
                 $activityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveAccountActivity($activityHistory);
+                $this->saveAccountActivity($activityHistory); */
+                $this->updateClientPaymentActivity($request, $InvoiceData);
                 
                             
             } catch (\Exception $e) {
@@ -1936,6 +1936,7 @@ class BillingController extends BaseController
             try {
                 $invoiceHistory=[];
                 $invoiceHistory['deposit_into'] = $request->deposit_into;
+                $request->request->add(['payment_type' => 'payment']);
 
                 //Insert invoice payment record.
                 $InvoicePayment=InvoicePayment::create([
@@ -1986,6 +1987,7 @@ class BillingController extends BaseController
                     ]);
 
                     $invoiceHistory['deposit_into'] = 'Credit';
+                    $request->request->add(['payment_type' => 'payment deposit']);
                 }
 
                 // Offline payment and deposit into trust account
@@ -2030,6 +2032,7 @@ class BillingController extends BaseController
                         $TrustInvoice->save();
                         $request->trust_account = $request->contact_id;
                     }       
+                    $request->request->add(['payment_type' => 'payment deposit']);
                 }
 
                 
@@ -2085,11 +2088,13 @@ class BillingController extends BaseController
 
                  //Get previous amount
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
-                    $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+                    // $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+                    $this->updateTrustAccountActivity($request, null, $InvoiceData);
                  }else{
-                    $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                    // $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                    $this->updateClientPaymentActivity($request, $InvoiceData);
                  }
-                 $activityHistory=[];
+                 /* $activityHistory=[];
                  $activityHistory['user_id']=$InvoiceData['user_id'];
                  $activityHistory['related_to']=$InvoiceData['id'];
                  $activityHistory['case_id']=$InvoiceData['case_id'];
@@ -2113,7 +2118,7 @@ class BillingController extends BaseController
                  $activityHistory['section']="invoice";
                  $activityHistory['created_by']=Auth::User()->id;
                  $activityHistory['created_at']=date('Y-m-d H:i:s');
-                 $this->saveAccountActivity($activityHistory);
+                 $this->saveAccountActivity($activityHistory); */
 
             } catch (\Exception $e) {
                 DB::rollback();
@@ -8748,13 +8753,13 @@ class BillingController extends BaseController
 
 
              //Get previous amount
-             $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+             /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
              $activityHistory=[];
              $activityHistory['user_id']=$request->trust_account;
              $activityHistory['case_id']=NULL;
              $activityHistory['credit_amount']=$request->amount;
              $activityHistory['debit_amount']=0.00;
-             $activityHistory['total_amount']=$AccountActivityData['total_amount']+$request->amount;
+             $activityHistory['total_amount']=$AccountActivityData['total_amount'] ?? 0 + $request->amount;
              $activityHistory['entry_date']=date('Y-m-d');
              $activityHistory['notes']=$request->notes;
              $activityHistory['status']="unsent";
@@ -8769,7 +8774,8 @@ class BillingController extends BaseController
             }
              $activityHistory['created_by']=Auth::User()->id;
              $activityHistory['created_at']=date('Y-m-d H:i:s');
-             $this->saveAccountActivity($activityHistory);
+             $this->saveAccountActivity($activityHistory); */
+             $this->updateTrustAccountActivity($request);
 
              $data=[];
             $data['user_id']=$request->trust_account;

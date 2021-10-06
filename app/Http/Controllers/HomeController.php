@@ -421,7 +421,7 @@ class HomeController extends BaseController
                 $commentData=$commentData->where("all_history.user_id",$request->user_id);
             }
             $commentData=$commentData->orderBy('all_history.id','DESC');
-            return $commentData->get();
+            // return $commentData->get();
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
@@ -541,15 +541,18 @@ class HomeController extends BaseController
         {
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('users as u1','u1.id','=','all_history.deposit_for')
-            ->select("users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"all_history.created_at as all_history_created_at")
+            ->leftJoin('users as u2','u2.id','=','all_history.client_id')
+            ->select("users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),
+                "all_history.created_at as all_history_created_at","u2.user_level as client_level",DB::raw('CONCAT_WS(" ",u2.first_name,u2.middle_name,u2.last_name) as client_name'))
             ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","deposit")
+            ->whereIn("all_history.type",["deposit", "fundrequest"])
             ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
+            // return $commentData;
             return view('notifications.loadDepositNotifications', compact('commentData'))->render();
         }
     }
