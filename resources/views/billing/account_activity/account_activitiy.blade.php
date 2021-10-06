@@ -82,6 +82,7 @@ if(isset($_GET['bank_account'])){
                                 <th class="text-nowrap" width="10%">Case</th>
                                 <th class="text-nowrap" width="10%">Entered By</th>
                                 <th class="text-nowrap" width="30%">Notes</th>
+                                <th class="text-nowrap" width="30%">Payment Method</th>
                                 <th class="text-nowrap" width="10%">Amount</th>
                                 <th class="d-print-none" width="10%">Total </th>
                             </tr>
@@ -200,7 +201,11 @@ if(isset($_GET['bank_account'])){
                 {
                     data: 'id',
                     'sorting': false
-                }
+                },
+                {
+                    data: 'id',
+                    'sorting': false
+                },
             ],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date + '</div>');
@@ -234,21 +239,21 @@ if(isset($_GET['bank_account'])){
                     .case_title + '</a></div>');
                 }
                 $('td:eq(4)', nRow).html('<div class="text-left">' + aData.entered_by + '</div>');
-                if(aData.from_pay=="trust"){
-
+                /* if(aData.from_pay=="trust"){
                     $('td:eq(5)', nRow).html('<div class="text-left">Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
                 }else{
-                    $('td:eq(5)', nRow).html('<div class="text-left">Payment into Operating (Operating Account)	</div>');
-
-                }
+                    $('td:eq(5)', nRow).html('<div class="text-left">Payment into Operating (Operating Account)	</div>');  
+                } */
+                $('td:eq(5)', nRow).html('<div class="text-left">'+aData.notes+'</div>');
+                $('td:eq(6)', nRow).html(aData.payment_method);
                 if(aData.c_amt=="0.00"){
-                    $('td:eq(6)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+                    $('td:eq(7)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                 }else{
-                    $('td:eq(6)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
+                    $('td:eq(7)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
                     .c_amt + '</span></div>');
                 }
                 
-                $('td:eq(7)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
+                $('td:eq(8)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
                     .t_amt + '</span></div>');
 
             },

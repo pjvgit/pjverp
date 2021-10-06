@@ -1,3 +1,6 @@
+------------------------------------ 06-OCT-2021 ------------------------------
+ALTER TABLE `account_activity` ADD `payment_type` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `payment_method`;
+
 ------------------------------------ 05-OCT-2021 ------------------------------
 ALTER TABLE `all_history`
 CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`;

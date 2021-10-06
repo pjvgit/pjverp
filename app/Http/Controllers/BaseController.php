@@ -167,7 +167,7 @@ class BaseController extends Controller
         $ClientActivity->created_at=date('Y-m-d H:i:s');
         $ClientActivity->save();
     }
-    public function saveAccountActivity($historyData)
+    /* public function saveAccountActivity($historyData)
     {
         $AccountActivity = new AccountActivity; 
         $AccountActivity->user_id=$historyData['user_id'];
@@ -189,7 +189,7 @@ class BaseController extends Controller
         $AccountActivity->created_at=date('Y-m-d H:i:s');
         $AccountActivity->save();
         return true;
-    }
+    } */
     public function generateUniqueToken()
     {
         return Str::random(250)."-".time(); 

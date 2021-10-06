@@ -134,8 +134,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     $<span class="credit-total-balance">{{ number_format($UsersAdditionalInfo['credit_account_balance'],2)??'0.0' }}</span>
                                 </div>
                                 @endif
-
-                                <div class="mb-4">
+                                {{-- This section removed by mycase --}}
+                                {{-- <div class="mb-4">
                                     <div class="font-weight-bold">Minimum Trust Balance:</div>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -143,7 +143,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                         </div>
                                         <input id="trust_amount"  name="trust_amount" class="form-control number" value="{{number_format($UsersAdditionalInfo['minimum_trust_balance'],2)}}">
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="mb-4">
                                     <div class="font-weight-bold">Created:</div>
@@ -1127,7 +1127,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             window.location.reload();
         });
         
-        $("#trust_amount").focusout(function(){
+        /* $("#trust_amount").focusout(function(){
             $(function () {
                 $.ajax({
                     type: "POST",
@@ -1142,7 +1142,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                 })
             })
-        });
+        }); */
 
         var linkedClient =  $('#linkedClient').DataTable( {
             serverSide: true,
