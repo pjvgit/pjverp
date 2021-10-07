@@ -1,3 +1,9 @@
+------------------------------------ 07-OCT-2021 ------------------------------
+ALTER TABLE `account_activity` ADD `is_refunded` enum('no','yes') COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT 'no' AFTER `payment_type`;
+ALTER TABLE `account_activity`
+ADD `payment_status` enum('payment','refund entry','partial refund','full refund') NULL AFTER `refund_ref_id`,
+ADD `invoice_history_id` int(11) NULL COMMENT 'ref > invoice_history > id' AFTER `payment_status`;
+
 ------------------------------------ 06-OCT-2021 ------------------------------
 ALTER TABLE `account_activity` ADD `payment_type` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `payment_method`;
 

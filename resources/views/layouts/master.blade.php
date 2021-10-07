@@ -44,6 +44,7 @@
     <script>
         var baseUrl = '<?php echo URL('/');?>';
         var loaderImage = '<?=LOADER?>';
+        var imgBaseUrl = "{{ asset('') }}";
     </script>
 </head>
 
