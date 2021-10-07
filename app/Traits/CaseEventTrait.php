@@ -553,7 +553,8 @@ trait CaseEventTrait {
                     $data['event_for_case']=$request->text_case_id;
                 }    
                 if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id; ;
+                    $data['event_for_lead']=$request->text_lead_id;
+                    $data['client_id']=$request->text_lead_id;
                 }    
             } 
         }

@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
 use Exception;
 
-use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustment;
+use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustmentuse,App\FlatFeeEntry;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -1068,6 +1068,7 @@ class LeadController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            $caseMasterData=CaseMaster::find($request->case_id);
 
             $CaseClientSelection =CaseClientSelection::firstOrNew(array('case_id' => $request->case_id));;
             $CaseClientSelection->case_id=$request->case_id; 
@@ -1075,11 +1076,32 @@ class LeadController extends BaseController
             $CaseClientSelection->created_by=Auth::user()->id; 
             if($request->id == $request->billing_contact){
                 $CaseClientSelection->is_billing_contact='yes';
-                if(isset($request->billingMethod)) { $CaseClientSelection->billing_method=$request->billingMethod; }
-                if(isset($request->default_rate)) { $CaseClientSelection->billing_amount=$request->default_rate; }
+                if(isset($request->billingMethod)) { 
+                    $CaseClientSelection->billing_method=$request->billingMethod; 
+                    $caseMasterData->billing_method=$request->billingMethod; 
+                }
+                if(isset($request->default_rate)) { 
+                    $CaseClientSelection->billing_amount=$request->default_rate; 
+                    $caseMasterData->billing_amount=$request->default_rate; 
+                }                
             }   
             $CaseClientSelection->save();
-            
+            $caseMasterData->save();
+
+            // // Flat fees entry
+            // if(isset($request->billingMethod)) {
+            //     if($request->billingMethod == "flat" || $request->billingMethod == "mixed") {
+            //         FlatFeeEntry::create([
+            //             'case_id' => $request->case_id,
+            //             'user_id' => Auth::user()->id,
+            //             'entry_date' => Carbon::now(),
+            //             'cost' =>  $request->default_rate ?? 0,
+            //             'time_entry_billable' => 'yes',
+            //             'created_by' => Auth::user()->id, 
+            //         ]);
+            //     }
+            // }
+
             //Activity tab
             $datauser=[];
             $datauser['activity_title']='linked client';
@@ -1168,7 +1190,20 @@ class LeadController extends BaseController
                 // $deleteLead= LeadAdditionalInfo::where("user_id",$CaseClientIs->selected_user)->delete();
                 LeadAdditionalInfo::where("user_id",$CaseClientIs->selected_user)->update(['is_converted'=>'yes','converted_date'=>date('Y-m-d')]);
 
+                // update all history from lead_id to case_id
+                AllHistory::where('client_id', $CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "client_id" => null]);
 
+                // update all invoice from lead_id to case_id
+                Invoices::where("user_id",$CaseClientIs->selected_user)->update('case_id',$request->case_id);
+
+                // update all time_entry from lead_id to case_id
+                TimeEntry::where("user_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "user_id" => null]);
+
+                // update all events from lead_id to case_id
+                CaseEvent::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+
+                // update all task from lead_id to case_id
+                Task::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
             }
             session(['popup_success' => 'Case has been created.']);
         }else{
@@ -1960,7 +1995,8 @@ class LeadController extends BaseController
                         $data['task_for_case']=$request->text_case_id;
                     }    
                     if($request->text_lead_id!=''){
-                        $data['task_for_lead']=$request->text_lead_id; ;
+                        $data['task_for_lead']=$request->text_lead_id;
+                        $data['client_id']=$request->text_lead_id;
                     }    
                 } 
             }
@@ -2180,6 +2216,7 @@ class LeadController extends BaseController
             }   
             if($TaskMaster->lead_id!=NULL) { 
                 $data['task_for_lead']=$TaskMaster->lead_id;  
+                $data['client_id']=$TaskMaster->lead_id;
             } 
             $data['task_id']=$TaskMaster->id;
             $data['task_name']=$TaskMaster->task_title;
@@ -6599,7 +6636,7 @@ class LeadController extends BaseController
             }
 
             session(['popup_success' => 'Invoice successfully updated.']);
-            return response()->json(['errors'=>'']);
+            return response()->json(['errors'=>'','invoice_id'=>$request->invoice_id]);
             exit;   
         }
     }   

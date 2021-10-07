@@ -60,22 +60,18 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
             </a>
-            <!-- <div role="group" class="btn-group"> -->
-                <button type="submit" name="savenow" id="submit" value="savenow"
-                    class="btn btn-primary ladda-button example-button submit ">
-                    Save
-                </button>
-                <!-- <div class="btn-group">
-                    <button type="button" aria-haspopup="true" aria-expanded="false"
-                        class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right ">
-                        <button type="submit" id="save-and-close-button" tabindex="0" name="savelater" value="savelater"
-                            role="menuitem" class="dropdown-item cursor-pointer submit">Save &amp; Pay</button>
-                    </div>
-                </div>
-            </div> -->
+            <button type="submit" name="savenow" id="submit" value="payment"
+                class="btn btn-secondary ladda-button example-button submit">
+                Record Payment
+            </button>
+            <button type="submit" name="savenow" id="submit" value="sendnow"
+                class="btn btn-secondary ladda-button example-button submit">
+                Send Now
+            </button>
+            <button type="submit" name="savenow" id="submit" value="savenow"
+                class="btn btn-primary ladda-button example-button submit ">
+                Save
+            </button>
         </div>
     </div>
     <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
@@ -165,8 +161,8 @@
     $(document).on("click", ":submit", function(e){
         $("#current_submit").val($(this).val());
     });
-    $('#AddNewInvoice').submit(function (e) {
-       beforeLoader();
+    $('#AddNewInvoice').submit(function (e) {        
+        beforeLoader();
         e.preventDefault();
 
         if (!$('#AddNewInvoice').valid()) {
@@ -201,25 +197,33 @@
                     afterLoader();
                     return false;
                 } else {
-                    if($("#current_submit").val()=="savelater"){
+                    $("#addNewInvoice").modal("hide");
+                    setTimeout(() => {
+                    if($("#current_submit").val()=="sendnow"){
                         toastr.success('Invoice successfully created.', "", {
                             progressBar: !0,
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });
-                        $("#addNewInvoice").modal("hide");
+                        $("#sendInvoice").modal("show");
+                        sendInvoice(res.invoice_id);
+                    }else if($("#current_submit").val()=="payment"){
+                        toastr.success('Invoice successfully created.', "", {
+                            progressBar: !0,
+                            positionClass: "toast-top-full-width",
+                            containerId: "toast-top-full-width"
+                        });
                         $("#payInvoice").modal("show");
-                        payPotentialInvoice(res.invoice_id);
+                        payinvoice(res.invoice_id);
                     }else{
                         toastr.success('Invoice successfully created.', "", {
                             progressBar: !0,
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });
-                        $("#addNewInvoice").modal("hide");
                         window.location.reload(); 
-                    }
-                    
+                    }                      
+                    }, 1000);               
                 }
             }
         });

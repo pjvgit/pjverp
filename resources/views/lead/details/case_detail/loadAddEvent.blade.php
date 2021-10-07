@@ -1,7 +1,7 @@
 
 <form class="createEvent" id="createEvent" name="createEvent" method="POST">
     @csrf
-    <div class="row">
+    <div class="row" bladefilename="resources/views/lead/details/case_detail/loadAddEvent.blade.php">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
             <?php if(Auth::User()->add_event_guide=="0"){?>   

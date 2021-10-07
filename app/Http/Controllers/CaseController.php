@@ -2612,7 +2612,8 @@ class CaseController extends BaseController
                     $data['event_for_case']=$request->text_case_id;
                 }    
                 if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id; ;
+                    $data['event_for_lead']=$request->text_lead_id;                                            
+                    $data['client_id']=$request->text_lead_id;
                 }    
             } 
         }
@@ -2708,7 +2709,8 @@ class CaseController extends BaseController
                         $data['event_for_case']=$request->text_case_id;
                     }    
                     if($request->text_lead_id!=''){
-                        $data['event_for_lead']=$request->text_lead_id; ;
+                        $data['event_for_lead']=$request->text_lead_id;                        
+                        $data['client_id']=$request->text_lead_id;
                     }    
                 } 
             }
@@ -4569,7 +4571,8 @@ class CaseController extends BaseController
                     $data['event_for_case']=$request->text_case_id;
                 }    
                 if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id; ;
+                    $data['event_for_lead']=$request->text_lead_id;                                            
+                    $data['client_id']=$request->text_lead_id;
                 }    
             } 
         }
@@ -4800,7 +4803,8 @@ class CaseController extends BaseController
                     $data['event_for_case']=$request->text_case_id;
                 }    
                 if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id; ;
+                    $data['event_for_lead']=$request->text_lead_id;                        
+                    $data['client_id']=$request->text_lead_id;
                 }    
             } 
         }
@@ -5191,7 +5195,8 @@ class CaseController extends BaseController
             $data['event_for_case']=$CaseEvent->case_id;
         }    
         if($CaseEvent->lead_id!=NULL){
-            $data['event_for_lead']=$CaseEvent->lead_id;
+            $data['event_for_lead']=$CaseEvent->lead_id;                        
+            $data['client_id']=$CaseEvent->lead_id;
         }    
         $data['event_id']=$CaseEvent->id;
         $data['event_name']=$CaseEvent->event_title;

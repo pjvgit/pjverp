@@ -890,14 +890,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         });
     }
     $('button').attr('disabled',false);
-    $('#submit').attr('disabled',true);
+    // $('#submit').attr('disabled',true);
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
     $(document).ready(function () {
-        $("#submit").attr("disabled","disabled");
+        // $("#submit").attr("disabled","disabled");
         $("#taskViewArea").hide();
         $("#statusEditor").show();
         $("#statusList").hide();

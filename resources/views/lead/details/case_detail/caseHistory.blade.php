@@ -26,23 +26,23 @@
 @section('page-js')
 <script type="text/javascript">
     $(document).ready(function () {
-        $(document).on('click', '.InvoiceNotify .pagination a', function(event){
+        $(document).on('click', '.AllNotify .pagination a', function(event){
             event.preventDefault(); 
             var page = $(this).attr('href').split('page=')[1];
-            loadInvoiceNotification(page);
+            loadAllNotification(page);
         });      
     });
     function onchangeLength(){
         let activeTav=$("ul.nav-tabs li a.active").attr("id");
-        loadInvoiceNotification(1);
+        loadAllNotification(1);
     }
-    function loadInvoiceNotification(page=null) {
+    function loadAllNotification(page=null) {
         $("#innerLoader").css('display', 'none');
         $("#leadinvoiceEntry").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/notifications/loadInvoiceNotification?per_page="+$("#per_page").val()+"&page="+page+"&client_id={{$LeadData->user_id}}", // json datasource
+                url: baseUrl + "/notifications/loadAllNotification?per_page="+$("#per_page").val()+"&page="+page+"&client_id={{$LeadData->user_id}}", // json datasource
                 data: 'bulkload',
                 success: function (res) {
                     $("#leadinvoiceEntry").html(res);
@@ -51,6 +51,6 @@
             })
         })
     }
-    loadInvoiceNotification(1);
+    loadAllNotification(1);
 </script>
 @endsection

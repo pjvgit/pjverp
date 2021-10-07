@@ -976,7 +976,7 @@ td,th{
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     $('td:eq(0)', nRow).html('<div class="text-left"><input id="select-row-74" class="task_checkbox" type="checkbox" value="'+aData.id+'" class="task_checkbox" name="expenceId['+aData.id+']"></div>');
 
-                    if(aData.is_lead_invoice == 'yes'){
+                    if(aData.is_lead_invoice == 'yes' && aData.case_unique_number == ''){
                         $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_id+'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>');
                         $('td:eq(2)', nRow).html('<a href="'+baseUrl+'/bills/invoices/potentialview/'+aData.decode_id+'">'+aData.invoice_id+' </a>');
                     }else{
