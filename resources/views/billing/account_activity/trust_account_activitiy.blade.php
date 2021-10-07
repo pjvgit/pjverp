@@ -264,7 +264,16 @@ if(isset($_GET['bank_account'])){
                     '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
                     .case_title + '</a></div>');
                 }
-                $('td:eq(4)', nRow).html('<div class="text-left">' + aData.entered_by + '</div>');
+                var noteContent = '';
+                if(aData.notes != null) {
+                    noteContent += '<div class="position-relative">\
+                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'+aData.notes+'</div>">\
+                                <img style="border: none;" src="'+imgBaseUrl+'icon/note.svg'+'">\
+                            </a>\
+                        </div>';
+                }
+                $('td:eq(4)', nRow).html('<div style="display: flex !important; justify-content: space-between !important;"><div class="text-left">' + aData.entered_by +'</div>'+ ' ' +noteContent+'</div>');
+
                 if(aData.c_amt=="0.00"){
                     $('td:eq(5)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                 }else{
@@ -285,6 +294,7 @@ if(isset($_GET['bank_account'])){
             },
             "initComplete": function (settings, json) {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('[data-toggle="popover"]').popover();
                 $('.payRow').number(true, 2);
             }
         });

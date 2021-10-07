@@ -14,7 +14,7 @@ class AccountActivity extends Authenticatable
     public $primaryKey = 'id';
 
 
-    protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','enter_by_user_level','c_amt','d_amt','t_amt'];
+    protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','enter_by_user_level','c_amt','d_amt','t_amt', 'payment_note'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->related_to);
     }  
@@ -106,4 +106,28 @@ class AccountActivity extends Authenticatable
      public function getTAmtAttribute(){
         return $this->total_amount;
      }
+
+    public function getPaymentNoteAttribute()
+    {
+        $paymentType = $this->payment_type;
+        $isRefund = ($this->is_refunded == "yes") ? "(Refunded)" : "";
+        if($paymentType=="withdraw"){
+            $ftype="Withdraw from Trust (Trust Account)";
+        }else if($paymentType=="refund_withdraw"){
+            $ftype="Refund Withdraw from Trust (Trust Account)";
+        }else if($paymentType=="refund_deposit"){
+            $ftype="Refund Deposit into Trust (Trust Account)";
+        }else if($paymentType=="payment"){
+            $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+        }else if($paymentType=="payment deposit"){
+            $ftype = "Payment into Trust (Trust Account)";
+        }else if($paymentType=="refund payment deposit"){
+            $ftype = "Refund Payment into Trust (Trust Account)";
+        }else if($paymentType=="refund payment"){
+            $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+        }else{
+            $ftype="Deposit into Trust (Trust Account)";
+        }
+        return $ftype.' '.$isRefund;
+    }
 }

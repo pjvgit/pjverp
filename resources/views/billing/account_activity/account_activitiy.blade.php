@@ -238,19 +238,30 @@ if(isset($_GET['bank_account'])){
                     '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
                     .case_title + '</a></div>');
                 }
-                $('td:eq(4)', nRow).html('<div class="text-left">' + aData.entered_by + '</div>');
+
+                var noteContent = '';
+                if(aData.notes != null) {
+                    noteContent += '<div class="position-relative">\
+                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'+aData.notes+'</div>">\
+                                <img style="border: none;" src="'+imgBaseUrl+'icon/note.svg'+'">\
+                            </a>\
+                        </div>';
+                }
+                $('td:eq(4)', nRow).html('<div style="display: flex !important; justify-content: space-between !important;"><div class="text-left">' + aData.entered_by +'</div>'+ ' ' +noteContent+'</div>');
+                
                 /* if(aData.from_pay=="trust"){
                     $('td:eq(5)', nRow).html('<div class="text-left">Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
                 }else{
                     $('td:eq(5)', nRow).html('<div class="text-left">Payment into Operating (Operating Account)	</div>');  
                 } */
-                $('td:eq(5)', nRow).html('<div class="text-left">'+aData.notes+'</div>');
+                $('td:eq(5)', nRow).html('<div class="text-left">'+aData.payment_note+'</div>');
                 $('td:eq(6)', nRow).html(aData.payment_method);
-                if(aData.c_amt=="0.00"){
-                    $('td:eq(7)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+                if(aData.d_amt=="0.00" && aData.c_amt > 0){
+                    $('td:eq(7)', nRow).html('<div class="text-left">$<span class="payRow">' + aData.c_amt + '</span></div>');
+                } else if(aData.c_amt=="0.00" && aData.d_amt > 0) {
+                    $('td:eq(7)', nRow).html('<div class="text-left">-$<span class="payRow">' + aData.d_amt + '</span></div>');
                 }else{
-                    $('td:eq(7)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
-                    .c_amt + '</span></div>');
+                    $('td:eq(7)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                 }
                 
                 $('td:eq(8)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
