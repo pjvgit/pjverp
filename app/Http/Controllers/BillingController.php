@@ -21,6 +21,7 @@ use App\Jobs\InvoiceReminderEmailJob;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
 use App\Traits\TrustAccountActivityTrait;
+use App\Traits\TrustAccountTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -31,7 +32,7 @@ use mikehaertl\wkhtmlto\Pdf;
 use Illuminate\Support\Str;
 class BillingController extends BaseController
 {
-    use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait;
+    use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait, TrustAccountTrait;
     public function __construct()
     {
     }
@@ -1645,7 +1646,7 @@ class BillingController extends BaseController
                 $activityHistory['created_by']=Auth::User()->id;
                 $activityHistory['created_at']=date('Y-m-d H:i:s');
                 $this->saveAccountActivity($activityHistory); */
-                $this->updateTrustAccountActivity($request, $amtAction = 'sub');
+                $this->updateTrustAccountActivity($request, $amtAction = 'sub', $InvoiceData, $isDebit = "yes");
 
                 
                 //Get previous amount
@@ -6436,6 +6437,7 @@ class BillingController extends BaseController
                             CaseMaster::where('id', $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $request->amount);
                             CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $request->amount);
                         }
+                        $this->updateNextPreviousTrustBalance($trustHistory->client_id);
                     }
                 } else if($invoiceHistory->payment_from == "credit" && $invoiceHistory->pay_method == "Non-Trust Credit Account") {
                     //Insert invoice payment record.
@@ -6629,6 +6631,7 @@ class BillingController extends BaseController
                                 CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
                             }
                         }
+                        $this->updateNextPreviousTrustBalance($trustHistory->client_id);
                         TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->delete();
                     }
                 } else if(in_array($PaymentMaster->pay_method, ["Non-Trust Credit Account", "Refund"]) && $PaymentMaster->payment_from == "credit"){
@@ -6697,6 +6700,7 @@ class BillingController extends BaseController
                                     CaseMaster::where("id", $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->amount_paid);
                                 }
                             }
+                            $this->updateNextPreviousTrustBalance($trustHistory->client_id);
                             $trustHistory->delete();
                         }
                     }
@@ -8786,6 +8790,7 @@ class BillingController extends BaseController
                 CaseClientSelection::where('case_id', $request->case_id)->where('selected_user', $request->trust_account)->increment('allocated_trust_balance', $request['amount']);
             }
 
+            $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
 
              //Get previous amount
              /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();

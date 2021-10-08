@@ -26,7 +26,7 @@
             <th class="" style="cursor: initial;">Payment Method</th>
             <th class="" style="cursor: initial;">Amount</th>
             <th class="" style="cursor: initial;">Balance</th>
-            <th class="text-right d-print-none" style="cursor: initial;">Action</th>
+            <th class="text-center d-print-none" style="cursor: initial;">Action</th>
         </tr>
     </thead>
 </table>

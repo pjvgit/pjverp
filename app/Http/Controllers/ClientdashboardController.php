@@ -29,6 +29,7 @@ use Yajra\Datatables\Datatables;
 use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNotes,App\CaseStageUpdate,App\ExpenseEntry,App\CaseEvent,App\ClientFullBackup,App\AccountActivity;
 use App\Traits\FundRequestTrait;
 use App\Traits\TrustAccountTrait;
+use Exception;
 
 class ClientdashboardController extends BaseController
 {
@@ -965,11 +966,11 @@ class ClientdashboardController extends BaseController
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
                         }
-                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id) {
+                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && $data->fund_type != "withdraw") {
                             $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                         } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
                             $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
-                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid)
+                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw")
                                 $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                             else
                                 $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
@@ -1048,7 +1049,7 @@ class ClientdashboardController extends BaseController
                     if($data->withdraw_from_account!=null){
                         $ftype="Withdraw from Trust (Trust Account) to Operating(".$data->withdraw_from_account.")";
                     }else{
-                        $ftype="Withdraw from Trust (Trust Account)" .$isRefund;
+                        $ftype="Withdraw from Trust (Trust Account)";
                     }
                     $noteContent = '';
                     if($data->notes != '') {
@@ -1248,6 +1249,8 @@ class ClientdashboardController extends BaseController
                 $this->withdrawAllocateTrustBalance($TrustInvoice);
             }
 
+            $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
+
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
             exit;   
@@ -1264,6 +1267,7 @@ class ClientdashboardController extends BaseController
     } 
     public function saveRefundPopup(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         $GetAmount=TrustHistory::find($request->transaction_id);
         if($GetAmount->fund_type=="withdraw"){
@@ -1275,10 +1279,11 @@ class ClientdashboardController extends BaseController
         $lessAmount = $UsersAdditionalInfo->unallocate_trust_balance;
         if($GetAmount->allocated_to_case_id) {
             $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
-            $lessAmount = $allocateAmount->allocated_trust_baalnce;
+            $lessAmount = $allocateAmount->allocated_trust_balance;
         }
+        
         $validator = \Validator::make($request->all(), [
-            'amount' => 'required|numeric|max:'.$mt.'|lt:'.$lessAmount,
+            'amount' => 'required|numeric|max:'.$mt.'|lte:'.$lessAmount,
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
             'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
@@ -1287,63 +1292,70 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            dbStart(); 
-            if($GetAmount->fund_type=="withdraw"){
-                $fund_type='refund_withdraw';
-                DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
-            } else if($GetAmount->fund_type=="payment") {
-                $fund_type='refund payment';
-                DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
-            } else if($GetAmount->fund_type=="payment deposit") {
-                $fund_type='refund payment deposit';
-                DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
-            }else{
-                $fund_type='refund_deposit';
-                DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
-            }
-            $UsersAdditionalInfo->refresh();
-            $GetAmount->is_refunded="yes";
-            $GetAmount->save();
-       
-            $TrustInvoice=new TrustHistory;
-            $TrustInvoice->client_id=$request->client_id;
-            $TrustInvoice->payment_method='Trust Refund';
-            $TrustInvoice->amount_paid="0.00";
-            $TrustInvoice->withdraw_amount="0.00";
-            $TrustInvoice->refund_amount=$request['amount'];
-            $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-            $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
-            $TrustInvoice->notes=$request->notes;
-            $TrustInvoice->fund_type=$fund_type;
-            $TrustInvoice->refund_ref_id=$request->transaction_id;
-            $TrustInvoice->related_to_invoice_id = @$GetAmount->related_to_invoice_id;
-            $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
-            $TrustInvoice->allocated_to_case_id = $GetAmount->allocated_to_case_id;
-            $TrustInvoice->created_by=Auth::user()->id; 
-            $TrustInvoice->save();
-
-            if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
-                $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request);
-                $TrustInvoice->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
-            }
-
-            // For request refund
-            if($TrustInvoice->related_to_fund_request_id) {
-                $this->refundTrustRequest($TrustInvoice->id);
-            }
-
-            // For allocated case refund
-            if($TrustInvoice->allocated_to_case_id) {
-                if($GetAmount->fund_type=="withdraw" || $TrustInvoice->fund_type == "refund payment"){
-                    $this->deleteRefundedAllocateTrustBalance($TrustInvoice); // Refund withdraw amount to case trust balance
-                } else {
-                    $this->refundAllocateTrustBalance($TrustInvoice);
+            try {
+                dbStart(); 
+                if($GetAmount->fund_type=="withdraw"){
+                    $fund_type='refund_withdraw';
+                    DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
+                } else if($GetAmount->fund_type=="payment") {
+                    $fund_type='refund payment';
+                    DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
+                } else if($GetAmount->fund_type=="payment deposit") {
+                    $fund_type='refund payment deposit';
+                    DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
+                }else{
+                    $fund_type='refund_deposit';
+                    DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
                 }
+                $UsersAdditionalInfo->refresh();
+                $GetAmount->is_refunded="yes";
+                $GetAmount->save();
+        
+                $TrustInvoice=new TrustHistory;
+                $TrustInvoice->client_id=$request->client_id;
+                $TrustInvoice->payment_method='Trust Refund';
+                $TrustInvoice->amount_paid="0.00";
+                $TrustInvoice->withdraw_amount="0.00";
+                $TrustInvoice->refund_amount=$request['amount'];
+                $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+                $TrustInvoice->notes=$request->notes;
+                $TrustInvoice->fund_type=$fund_type;
+                $TrustInvoice->refund_ref_id=$request->transaction_id;
+                $TrustInvoice->related_to_invoice_id = @$GetAmount->related_to_invoice_id;
+                $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
+                $TrustInvoice->allocated_to_case_id = $GetAmount->allocated_to_case_id;
+                $TrustInvoice->created_by=Auth::user()->id; 
+                $TrustInvoice->save();
+
+                if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
+                    $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request, $TrustInvoice);
+                    $TrustInvoice->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
+                }
+
+                // For request refund
+                if($TrustInvoice->related_to_fund_request_id) {
+                    $this->refundTrustRequest($TrustInvoice->id);
+                }
+
+                // For allocated case refund
+                if($TrustInvoice->allocated_to_case_id) {
+                    if($GetAmount->fund_type=="withdraw" || $TrustInvoice->fund_type == "refund payment"){
+                        $this->deleteRefundedAllocateTrustBalance($TrustInvoice); // Refund withdraw amount to case trust balance
+                    } else {
+                        $this->refundAllocateTrustBalance($TrustInvoice);
+                    }
+                }
+
+                $this->updateNextPreviousTrustBalance($request->client_id);
+                dbCommit();
+                session(['popup_success' => 'Refund successful']);
+                return response()->json(['errors'=>'']);
+                exit;   
+            } catch (Exception $e) {
+                dbEnd();
+                return response()->json(['errors'=> $e->getMessage()]);
             }
-            dbCommit();
-            session(['popup_success' => 'Refund successful']);
-            return response()->json(['errors'=>'']);
-            exit;   
         }
     }
 
@@ -1405,6 +1417,7 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->deleteAllocateTrustBalance($TrustInvoice);
                 }
+                $this->deleteTrustAccountActivity($TrustInvoice->id);
             }else if($TrustInvoice->fund_type=="payment"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->amount_paid);
                 $this->deletePaymentTrustBalance($TrustInvoice);
@@ -1430,6 +1443,8 @@ class ClientdashboardController extends BaseController
             if($TrustInvoice->related_to_fund_request_id) {
                 $this->deletePaymentTrustRequest($TrustInvoice->id);
             }
+
+            $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
 
             $data=[];
             $data['user_id']=$TrustInvoice->client_id;
@@ -3462,7 +3477,7 @@ class ClientdashboardController extends BaseController
                     $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 } else {
                     $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
-                    if($userAddInfo->credit_account_balance < $data->deposit_amount)
+                    if($userAddInfo->credit_account_balance < $data->deposit_amount && $data->payment_type != "withdraw")
                         $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
                     else
                         $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
@@ -3573,7 +3588,8 @@ class ClientdashboardController extends BaseController
                 "user_id" => $request->client_id,
                 "payment_method" => "withdraw",
                 "deposit_amount" => $request->amount,
-                "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
                 "payment_type" => "withdraw",
                 "total_balance" => $UsersAdditionalInfo->credit_account_balance,
                 "notes" => $request->notes,
@@ -3634,15 +3650,16 @@ class ClientdashboardController extends BaseController
                 $fund_type='refund deposit';
                 $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
             }
-            $UsersAdditionalInfo->refresh();
-            // return $UsersAdditionalInfo;
             $creditHistory->is_refunded="yes";
             $creditHistory->save();
+
+            $UsersAdditionalInfo->refresh();
 
             $depCredHis = DepositIntoCreditHistory::create([
                 "user_id" => $request->client_id,
                 "deposit_amount" => $request->amount,
-                "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
                 "payment_method" => "refund",
                 "payment_type" => $fund_type,
                 "total_balance" => $UsersAdditionalInfo->credit_account_balance,
@@ -3707,7 +3724,7 @@ class ClientdashboardController extends BaseController
                 $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
                 $updateRedord->is_refunded="no";
                 $updateRedord->save();
-            } else if($creditHistory->payment_type == "payment") {
+            } else if($creditHistory->payment_type == "payment" || $creditHistory->payment_type == "withdraw") {
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
             } else if($creditHistory->payment_type == "deposit" || $creditHistory->payment_type == "payment deposit"){
                 DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
