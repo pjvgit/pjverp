@@ -80,7 +80,16 @@ trait InvoiceTrait {
         $invoiceHistory['status']="1";
         $invoiceHistory['created_by'] = $authUser->id;
         $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-        $this->invoiceHistory($invoiceHistory);
+        $newHistoryId = $this->invoiceHistory($invoiceHistory);
+        
+        $request->request->add(["invoice_history_id" => $newHistoryId]);
+        $request->request->add(['payment_type' => 'payment']);
+        $request->request->add(['trust_account' => $item['client_id']]);
+        $request->request->add(['contact_id' => $item['client_id']]);
+        $request->request->add(['amount' => $item['applied_amount']]);
+
+        $this->updateTrustAccountActivity($request, $amtAction = 'sub', $InvoiceSave, $isDebit = "yes");
+        $this->updateClientPaymentActivity($request, $InvoiceSave);
 
         //Add Invoice history
         $data=[];

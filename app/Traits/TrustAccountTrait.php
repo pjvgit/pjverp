@@ -6,11 +6,15 @@ use App\CaseClientSelection;
 use App\CaseMaster;
 use App\InvoiceHistory;
 use App\InvoicePayment;
+use App\Invoices;
 use App\TrustHistory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 trait TrustAccountTrait {
+
+    use TrustAccountActivityTrait;
+
     /**
      * Update allocated trust balance when trust deposit refund
      */
@@ -61,7 +65,7 @@ trait TrustAccountTrait {
     /**
      * Update invoice payment entry and history after credit refund
      */
-    public function updateInvoicePaymentAfterTrustRefund($trustId, $request)
+    public function updateInvoicePaymentAfterTrustRefund($trustId, $request, $newTrustHistory = null)
     {
         $trustHistory = TrustHistory::whereId($trustId)->first();
         $invPayment = InvoicePayment::whereId($trustHistory->related_to_invoice_payment_id)->first();
@@ -107,7 +111,7 @@ trait TrustAccountTrait {
             ])->save();
         }
 
-        InvoiceHistory::create([
+        $newInvHistory = InvoiceHistory::create([
             'invoice_id'  => $invoiceId,
             'acrtivity_title' => 'Payment Refund',
             'pay_method' => "Trust Refund",
@@ -120,6 +124,28 @@ trait TrustAccountTrait {
             'invoice_payment_id' => $newInvPayment->id,
             'created_by' => $authUser->id,
         ]);        
+
+        $request->request->add(['invoice_history_id' => $newInvHistory->id]);
+        $request->request->add(["payment_type" => @$newTrustHistory->fund_type]);
+        $request->request->add(["contact_id" => @$trustHistory->client_id]);
+        $request->request->add(["trust_account" => @$trustHistory->client_id]);
+        $request->request->add(["transaction_id" => @$invoiceHistory->id]);
+        $findInvoice = Invoices::whereId($trustHistory->related_to_invoice_id)->first();
+        if($invoiceHistory->payment_from == "offline" && !in_array($invoiceHistory->pay_method, ["Trust", "Non-Trust Credit Account"])) {
+            if($invoiceHistory->deposit_into == "Credit" || $invoiceHistory->deposit_into == "Trust Account") {
+                // For account activity
+                $this->updateTrustAccountActivity($request, $amtAction = "sub", $findInvoice, $isDebit = "yes");
+            } else {
+                // For account activity > payment history
+                $this->updateClientPaymentActivity($request, $findInvoice, $isDebit = "yes", $amtAction = "sub");
+            }
+        } else if($invoiceHistory->payment_from == "trust" && $invoiceHistory->pay_method == "Trust") {
+            // For account activity
+            $this->updateTrustAccountActivity($request, null, $findInvoice);
+
+            // For account activity > payment history
+            $this->updateClientPaymentActivity($request, $findInvoice, $isDebit = "yes", $amtAction = "sub");
+        }
 
         return $newInvPayment->id;
     }
@@ -138,9 +164,43 @@ trait TrustAccountTrait {
             $invRefHistory->fill(["status" => "1"])->save();
             InvoicePayment::whereId($invRefHistory->invoice_payment_id)->update(["status" => 0]);
         }
+
+        // For account activity
+        $this->deleteTrustAccountActivity($invHistory->id);
+
         $invPayment->delete();
         $invHistory->delete();
         $this->updateInvoiceAmount($trustHistory->related_to_invoice_id);
+    }
+
+    public function updateNextPreviousTrustBalance($userId) {
+        $trustHistory = TrustHistory::where("client_id", $userId)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
+        foreach($trustHistory as $key => $item) {
+            $previous = $trustHistory->get(--$key);  
+            $currentBal = 0;
+            if($previous) {
+                $currentBal = $previous->current_trust_balance;
+            }
+            if($item->fund_type == "diposit") {
+                $currentBal = $currentBal + $item->amount_paid;
+            } else if($item->fund_type == "refund_deposit") {
+                $currentBal = $currentBal - $item->refund_amount;
+            } else if($item->fund_type == "withdraw") {
+                $currentBal = $currentBal - $item->withdraw_amount;
+            } else if($item->fund_type == "refund_withdraw") {
+                $currentBal = $currentBal + $item->withdraw_amount;
+            } else if($item->fund_type == "payment") {
+                $currentBal = $currentBal - $item->amount_paid;
+            } else if($item->fund_type == "refund payment") {
+                $currentBal = $currentBal + $item->refund_amount;
+            } else if($item->fund_type == "payment deposit") {
+                $currentBal = $currentBal + $item->amount_paid;
+            } else if($item->fund_type == "refund payment deposit") {
+                $currentBal = $currentBal - $item->refund_amount;
+            }
+            $item->current_trust_balance = $currentBal;
+            $item->save();
+        }
     }
 }
  

@@ -1423,7 +1423,7 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.allocate_applied_amount') ?? '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">

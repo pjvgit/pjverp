@@ -112,6 +112,7 @@
                 amount: {
                     required: true,
                     maxamount: true,
+                    minStrict: true,
                 }
             },
             messages: {

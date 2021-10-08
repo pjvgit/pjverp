@@ -21,7 +21,7 @@
                             <option value="trust">Trust Account</option>
                         </select>
                     </div>
-                    <div class="align-self-end pb-1 col-4">
+                    <div class="align-self-end col-4">
                         <button type="button" class="btn btn-secondary apply-filter">Apply Filters</button>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
             <th class="" style="cursor: initial;">Allocated To</th>
             <th class="" style="cursor: initial;">Amount</th>
             <th class="" style="cursor: initial;">Balance</th>
-            <th class="text-right d-print-none" style="cursor: initial;">Action</th>
+            <th class="text-center d-print-none" style="cursor: initial;">Action</th>
         </tr>
     </thead>
 </table>
