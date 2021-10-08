@@ -106,11 +106,13 @@
             ?>
             <div class="row form-group fieldGroup" >
                 <div class="col-md-2 form-group mb-3">
-                    <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  "><option value="email">email</option><option value="popup">popup</option></select>
-    
+                    <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
+                        <option value="email" <?php echo ($val->reminder_type == 'email') ? 'selected' : '';?> >email</option>
+                        <option value="popup" <?php echo ($val->reminder_type == 'popup') ? 'selected' : '';?> >popup</option>
+                    </select>
                 </div>
                 <div class="col-md-2 form-group mb-3">
-                    <input class="form-control" id="reminder_days" value="1" name="reminder_days[]" type="number"> 
+                    <input class="form-control" id="reminder_days" value="{{$val->reminer_number}}" name="reminder_days[]" type="number"> 
                 </div> <span class="pt-2">Days</span>
                 <div class="col-md-2 form-group mb-3">   
                     <button class="btn remove" type="button"><i class="fa fa-trash" aria-hidden="true"></i>

@@ -577,7 +577,7 @@
                 ({{$hVal->responsible['user_title']}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account'){
+                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
                     {{ $hVal->deposit_into }}
                 @endif
             </td>

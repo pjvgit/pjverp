@@ -81,10 +81,12 @@ if($totalInvoiceData<=0){
                 }
                 $editOption='<a class="btn btn-lg btn-link px-2 text-black-50 copyButton" data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-pen align-middle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"></i></a>';
                     if($aData->due_amount > 0){
-                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-paper-plane" data-toggle="tooltip" data-placement="top" title="" data-original-title="Send"></i></a>';
-                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice('.$aData->id.');"> <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip" data-placement="top" title="" data-original-title="Download"></i></a>';
-                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#deleteInvoice" onclick="deleteInvoice('.$aData->id.');"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#payInvoice"  onclick="payinvoice('.$aData->id.');" data-placement="bottom"><i class="fas fa-dollar-sign" data-toggle="tooltip" data-placement="top" title="" data-original-title="Record Payment"></i></a>';
                     }
+                    $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-paper-plane" data-toggle="tooltip" data-placement="top" title="" data-original-title="Send"></i></a>';
+                    $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice('.$aData->id.');"> <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip" data-placement="top" title="" data-original-title="Download"></i></a>';
+                    $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#deleteInvoice" onclick="deleteInvoice('.$aData->id.');"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        
                     echo '<td width="20%"><div class="d-flex align-items-center float-right">'.$editOption.'</div></td>';
                 ?>                
             </tr>

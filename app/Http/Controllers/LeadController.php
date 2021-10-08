@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
 use Exception;
 
-use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustmentuse,App\FlatFeeEntry;
+use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustment,App\FlatFeeEntry,App\ClientNotes,App\AllHistory;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -837,6 +837,12 @@ class LeadController extends BaseController
             }
             
             $LeadAdditionalInfoMaster->save();
+
+            // added trust history in user_additional_info
+            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
+            $UsersAdditionalInfo->user_id=$request->user_id; 
+            $UsersAdditionalInfo->created_by =Auth::User()->id;
+            $UsersAdditionalInfo->save();
             
             $noteHistory=[];
             $noteHistory['acrtivity_title']='edited a lead';
@@ -938,6 +944,12 @@ class LeadController extends BaseController
             }
             $LeadAdditionalInfoMaster->license_state=$request->driver_state;
             $LeadAdditionalInfoMaster->save();
+
+            // added trust history in user_additional_info
+            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
+            $UsersAdditionalInfo->user_id=$request->user_id; 
+            $UsersAdditionalInfo->created_by =Auth::User()->id;
+            $UsersAdditionalInfo->save();
         }
         return response()->json(['errors'=>'','user_id'=>$UserMaster->id]);
         exit;
@@ -1204,6 +1216,29 @@ class LeadController extends BaseController
 
                 // update all task from lead_id to case_id
                 Task::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+
+                // update all notes from lead_id to case_id
+                $CaseNotes = CaseNotes::where('notes_for',$CaseClientIs->selected_user)->get();
+                if(count($CaseNotes) > 0){
+                    foreach ($CaseNotes as $k=>$v){
+                        $LeadNotes = new ClientNotes; 
+                        $LeadNotes->case_id=$request->case_id;
+                        $LeadNotes->note_date=$v->note_date;
+                        $LeadNotes->note_subject=$v->note_subject;
+                        $LeadNotes->notes=$v->notes;
+                        $LeadNotes->status="1";
+                        $LeadNotes->created_by=Auth::User()->id;
+                        $LeadNotes->created_at=date('Y-m-d H:i:s');            
+                        $LeadNotes->updated_by=Auth::User()->id;
+                        $LeadNotes->updated_at=date('Y-m-d H:i:s');
+                        $LeadNotes->save();        
+                    }
+                }
+                // delete all case notes from lead
+                $CaseNotes = CaseNotes::where('notes_for',$CaseClientIs->selected_user)->delete();
+
+                // update all intake-form from lead_id to case_id
+                CaseIntakeForm::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "client_id" => $CaseClientIs->selected_user,"lead_id" => null]);
             }
             session(['popup_success' => 'Case has been created.']);
         }else{
@@ -1734,6 +1769,12 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->sort_order=LeadAdditionalInfo::where('firm_id',Auth::User()->firm_name)->where('lead_status',$request->lead_status)->max('sort_order') + 1;
             $LeadAdditionalInfoMaster->created_by =Auth::User()->id;
             // $LeadAdditionalInfoMaster->save();
+
+            // added trust history in user_additional_info
+            $UsersAdditionalInfo= new UsersAdditionalInfo;
+            $UsersAdditionalInfo->user_id=$User->id; 
+            $UsersAdditionalInfo->created_by =Auth::User()->id;
+            $UsersAdditionalInfo->save();
 
             $noteHistory=[];
             $noteHistory['acrtivity_title']='added a lead';
@@ -2790,6 +2831,12 @@ class LeadController extends BaseController
             }
             $LeadAdditionalInfoMaster->conflict_check_description=$request->conflict_check_description;
             $LeadAdditionalInfoMaster->save();
+
+            // added trust history in user_additional_info
+            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
+            $UsersAdditionalInfo->user_id=$request->user_id; 
+            $UsersAdditionalInfo->created_by =Auth::User()->id;
+            $UsersAdditionalInfo->save();
 
             $caseHistory=[];
             $caseHistory['acrtivity_title']='updated';
@@ -6635,6 +6682,38 @@ class LeadController extends BaseController
                 $TaskTimeEntry->save();
             }
 
+            // update adjustment entry
+            if(isset($request->invoice_id) && $request->invoice_id!=""){
+                $InvoiceAdjustment = InvoiceAdjustment::where("invoice_id",$request->invoice_id)->get();
+                if(count($InvoiceAdjustment) > 0){
+                    $subTotalSave = $InvoiceSave->total_amount;
+                    foreach($InvoiceAdjustment as $k=>$v){
+                        if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
+                            $invoiceAdjustTotal = str_replace(",","",$request->total_amount);
+                            if($v->ad_type=="amount"){
+                                $invoiceAmount = $v->basis;
+                            }else{
+                                $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
+                            }
+                            if($v->ad_type!="amount"){
+                                InvoiceAdjustment::where("id",$v->id)->update([
+                                    'basis' => $invoiceAdjustTotal,
+                                    'amount'=> $invoiceAmount
+                                ]);
+                            }
+                            if($v->item=="discount"){
+                                $subTotalSave-=$invoiceAmount;
+                            }else{
+                                $subTotalSave+=$invoiceAmount;
+                            }                            
+                        }
+                    }
+                    $InvoiceSave->total_amount=$subTotalSave;
+                    $InvoiceSave->due_amount=$subTotalSave;
+                    $InvoiceSave->save();
+                }
+            }
+
             session(['popup_success' => 'Invoice successfully updated.']);
             return response()->json(['errors'=>'','invoice_id'=>$request->invoice_id]);
             exit;   
@@ -6718,7 +6797,7 @@ class LeadController extends BaseController
                 $CommonController->addMultipleHistory($data);
 
                 $getTemplateData = EmailTemplate::find(8);
-                $token=route("bills/invoices/potentialview", $FindInvoice->decode_id);
+                $token=route("bills/invoice/", $FindInvoice->decode_id);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{message}', $request->email_message, $mail_body);
                 $mail_body = str_replace('{token}', $token,$mail_body);
@@ -6751,15 +6830,15 @@ class LeadController extends BaseController
     }
     public function viewInvoice(Request $request)
     {
-        $invoice_id=$request->id;
-        $PotentialCaseInvoice=PotentialCaseInvoice::where("invoice_unique_id",$invoice_id)->first();
-        $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$PotentialCaseInvoice['lead_id'])->first();
-        $firmData=Firm::find($userData['firm_name']);
-
-        if(empty($PotentialCaseInvoice)){
+        $invoice_id=base64_decode($request->id);
+        $findInvoice=Invoices::find($invoice_id);
+        if(empty($findInvoice)){
             return view('pages.404');
         }else{
-            return view('lead.details.case_detail.invoices.viewInvoice',compact('userData','firmData','invoice_id','PotentialCaseInvoice'));
+            $LeadDetails=User::find($findInvoice['user_id']);
+            $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$findInvoice['user_id'])->first();
+            $firmData=Firm::find($userData['firm_name']);
+            return view('lead.details.case_detail.invoices.viewInvoice',compact('userData','firmData','LeadDetails','invoice_id','findInvoice'));
         }
     }
 

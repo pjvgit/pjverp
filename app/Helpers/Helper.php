@@ -12,6 +12,7 @@ use App\LeadAdditionalInfo;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\UsersAdditionalInfo;
 
 /**
  * Get lead list for add task
@@ -439,4 +440,11 @@ function getTimezoneList() {
 function firmSolReminders()
 {
     return FirmSolReminder::where("firm_id", auth()->user()->firm_name)->get();
+}
+// added trust history in user_additional_info
+function checkLeadInfoExists($user_id){
+    $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $user_id));
+    $UsersAdditionalInfo->user_id=$user_id; 
+    $UsersAdditionalInfo->created_by =Auth::User()->id;
+    $UsersAdditionalInfo->save();
 }

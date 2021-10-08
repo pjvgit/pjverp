@@ -155,11 +155,11 @@ class User extends Authenticatable
                     ->get();
         }
         
-        if(!empty($userCount)){
-            foreach($userCount as $k=>$v){
-                $v->cid=base64_encode($v->cid);
-            }
-        }            
+        // if(!empty($userCount)){
+        //     foreach($userCount as $k=>$v){
+        //         $v->cid=base64_encode($v->cid);
+        //     }
+        // }            
         return json_encode($userCount); 
     }
 

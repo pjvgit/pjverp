@@ -51,16 +51,15 @@ if(!$commentData->isEmpty()){ ?>
                             #R-{{sprintf('%06d', $v->deposit_id)}}
                         @endif
                         <?php if($v->ulevel=="2" && $v->deposit_for){?>
-                            to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
+                            <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
                         <?php } ?>
-
                         <?php if($v->ulevel=="4" && $v->deposit_for){?>
-                            to <a class="name"
-                            href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
-                            <?php } ?>
-
-                        {{$v->ulevel}} <abbr class="timeago"
-                            title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
+                            <a class="name" href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
+                        <?php } ?>
+                        @if($v->ulevel=="5"  && $v->deposit_for != '')
+                            for <a class="name" href="{{ route('case_details/invoices', @$v->deposit_for) }}">{{$v->fullname}} (Lead)</a>
+                        @endif
+                        <abbr class="timeago"  title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                     </div>
                 </td>
             </tr>
@@ -242,13 +241,15 @@ if(!$commentData->isEmpty()){ ?>
                             #R-{{sprintf('%06d', $v->deposit_id)}}
                         @endif
                         @if($v->action == "share")
-                            @if($v->ulevel=="2" && $v->client_id)
-                                to <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
-                            @endif
-
-                            @if($v->ulevel=="4" && $v->client_id)
-                                to <a class="name" href="{{ route('contacts/companies/view', $v->client_id) }}">{{$v->fullname}} (Company)</a>
-                            @endif
+                        @if($v->ulevel=="2" && !empty($v->client_id))
+                            to <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
+                        @endif
+                        @if($v->ulevel=="4" && !empty($v->client_id))
+                            to <a class="name" href="{{ route('contacts/companies/view', $v->client_id) }}">{{$v->fullname}} (Company)</a>
+                        @endif
+                        @if($v->ulevel=="5" && !empty($v->client_id))
+                            to <a class="name" href="{{ route('case_details/invoices', @$v->client_id) }}">{{$v->fullname}} (Lead)</a>
+                        @endif
                         @endif
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                     </div>

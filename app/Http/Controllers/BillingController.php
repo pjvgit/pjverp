@@ -1451,6 +1451,7 @@ class BillingController extends BaseController
             $invoice_id=$request->id;
             $invoiceData=Invoices::where("id",$invoice_id)->first();
             if(!empty($invoiceData)){
+                checkLeadInfoExists($invoiceData['user_id']);
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
@@ -8814,6 +8815,7 @@ class BillingController extends BaseController
              $data=[];
             $data['user_id']=$request->trust_account;
             $data['client_id']=$request->trust_account;
+            $data['deposit_for']=$request->trust_account;
             $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
             $data['type']='deposit';
             $data['action']='add';

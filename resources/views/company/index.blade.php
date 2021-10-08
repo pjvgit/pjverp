@@ -151,7 +151,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 var i1;
                 var clientList='';
                 for (i1 = 0; i1 < client_obj.length; ++i1) {
-                    clientList+='<a href="'+baseUrl+'/contacts/attorneys/'+client_obj[i1].cid+'">'+client_obj[i1].fullname+'</a>';
+                    clientList+='<a href="'+baseUrl+'/contacts/clients/'+client_obj[i1].cid+'">'+client_obj[i1].fullname+' (client)</a>';
                     clientList+="<br>";
                 }
                 if(clientList==''){
