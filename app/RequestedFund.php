@@ -20,7 +20,7 @@ class RequestedFund extends Authenticatable
 
     protected $appends  = ['padding_id','amt_requested','amt_paid','amt_due','due_date_format','send_date_format','is_due','last_send','current_status', 'payment_at'];
     public function getPaddingIdAttribute(){
-       return "#R-".sprintf('%06d', $this->id);
+       return "#R-".sprintf('%05d', $this->id);
 
     }
     public function getAmtRequestedAttribute(){

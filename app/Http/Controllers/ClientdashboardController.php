@@ -1773,7 +1773,7 @@ class ClientdashboardController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
-            session(['popup_success' => 'Request #R-'.sprintf('%06d',$getRequestedFund->id).' deleted successfully']);
+            session(['popup_success' => 'Request #R-'.sprintf('%05d',$getRequestedFund->id).' deleted successfully']);
             return response()->json(['errors'=>'']);
             exit;   
         }
@@ -1835,7 +1835,7 @@ class ClientdashboardController extends BaseController
             $user = [
                 "from" => FROM_EMAIL,
                 "from_title" => FROM_EMAIL_TITLE,
-                "subject" => "Reminder: Request #R-".sprintf('%06d', $RequestedFund->id)." is due ".date('F d, Y',strtotime($RequestedFundDueDate))." for ".$firmData->firm_name,
+                "subject" => "Reminder: Request #R-".sprintf('%05d', $RequestedFund->id)." is due ".date('F d, Y',strtotime($RequestedFundDueDate))." for ".$firmData->firm_name,
                 "to" => $clientData->email,
                 "full_name" => "",
                 "mail_body" => $mail_body
@@ -3825,10 +3825,18 @@ class ClientdashboardController extends BaseController
                 return $data->created_date_new;
             })
             ->addColumn('invoice_number', function ($data) {
-                return '<a href="'.route("bills/invoices/view", $data->decode_id).'">'.$data->invoice_id.' </a>';
+                if($data->is_lead_invoice == 'yes'){
+                    return '<a href="'.route("bills/invoices/potentialview", $data->decode_id).'">'.$data->invoice_id.'</a>';
+                }else{
+                    return '<a href="'.route("bills/invoices/view", $data->decode_id).'">'.$data->invoice_id.'</a>';
+                }
             })
             ->addColumn('view', function ($data) {
-                return '<a href="'.route("bills/invoices/view", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
+                if($data->is_lead_invoice == 'yes'){
+                    return '<a href="'.route("bills/invoices/potentialview", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
+                }else{
+                    return '<a href="'.route("bills/invoices/view", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
+                }
             })
             ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount'])
             ->with("credit_balance", $userAddInfo->credit_account_balance ?? 0.00)

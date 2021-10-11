@@ -3,7 +3,7 @@
         <span class="showError"></span>
         @csrf
         <div class="modal-body retainer-requests-popup-content">
-            <div class="row">
+            <div class="row" bladeFile="resources/views/company_dashboard/billing/addFundRequestEnrty.blade.php">
                 <div class="col-7">
                     <div class="form-group row">
                         <label for="contact" class="col-4 pt-2 ">Contact</label>

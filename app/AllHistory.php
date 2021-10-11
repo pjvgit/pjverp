@@ -20,7 +20,7 @@ class AllHistory extends Authenticatable
     protected $dates = ['created_at', 'updated_at'];
 
     public function getPaddingIdAttribute(){
-       return "#R-".sprintf('%06d', $this->id);
+       return "#R-".sprintf('%05d', $this->id);
 
     }
    

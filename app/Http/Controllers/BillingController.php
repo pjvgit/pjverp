@@ -8481,7 +8481,7 @@ class BillingController extends BaseController
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $fundRequestList = RequestedFund::where("client_id", $user_id)->where('deposit_into_type', 'credit')->where("amount_due",">",0)->get();
-                return view('billing.dashboard.depositNonTrustFundPopup',compact('userData','fundRequestList'));
+                return view('billing.dashboard.depositNonTrustFundPopup',compact('userData','fundRequestList','request'));
                 exit;  
             }else{
                 return response()->json(['errors'=>'error']);
@@ -8691,12 +8691,12 @@ class BillingController extends BaseController
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id);
-                if($request->case_id != '') {
+                if($request->case_id != '' && $request->case_id != 0) {
                     $clientList = $clientList->where("requested_fund.allocated_to_case_id",$request->case_id);
                 }
                 $clientList = $clientList->where("amount_due",">",0)->get();
                 $case = CaseMaster::whereId($request->case_id)->first();
-                return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case'));
+                return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case','request'));
                 exit;  
             }else{
                 return response()->json(['errors'=>'error']);
