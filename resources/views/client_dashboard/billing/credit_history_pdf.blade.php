@@ -52,10 +52,11 @@
                     <b>Credit Account Summary for {{ucfirst(substr($userData['first_name'],0,50))}}
                         {{ucfirst(substr($userData['middle_name'],0,50))}}
                         {{ucfirst(substr($userData['last_name'],0,50))}}</b>
-                    <br>Credit Balance on {{date('F,d,Y', strtotime($endDate))}}:
+                    <br>Credit Balance on {{ ($endDate) ? date('F,d,Y', strtotime($endDate)) : convertUTCToUserTimeZone('dateOnly') }}:
                     @if(!empty($creditHistory) && count($creditHistory))
                         @php
                             $lastCreditBalance = $creditHistory->last();
+                            $firstCreditBalance = $creditHistory->first();
                             $finalBalance = $lastCreditBalance->total_balance ?? 0;
                         @endphp
                     @endif
@@ -68,7 +69,13 @@
     <br>
     <br>
 
-    <span style="float: right;padding:5px;">Credit account activity from {{date('F d,Y', strtotime($startDate))}} to {{date('F d,Y', strtotime($endDate))}}</span>
+    <span style="float: right;padding:5px;">Credit account activity from 
+        @if($startDate && $endDate)
+        {{date('F d, Y', strtotime($startDate))}} to {{date('F d, Y', strtotime($endDate))}}
+        @else
+        {{ date('F d, Y', strtotime(convertUTCToUserTimeZone('dateOnly'))) }}
+        @endif
+    </span>
     <br>
     <hr>
     <br>
@@ -86,7 +93,11 @@
         <tbody>
             @if(!empty($creditHistory) && count($creditHistory))
             <tr>
-                <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : convertUTCToUserTimeZone('dateOnly') }}</td>
+                {{-- <td style="padding:5px;">{{ (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : convertUTCToUserTimeZone('dateOnly') }}</td> --}}
+                <td style="padding:5px;">
+                    {{ ($startDate && \Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::now())) ? date('m/d/Y', strtotime($startDate)) : 
+                    date('m/d/Y', strtotime(@$firstCreditBalance->payment_date)) }}
+                </td>
                 <td style="padding:5px;">--</td>
                 <td style="padding:5px;">Initial Balance</td>
                 <td style="padding:5px;text-align: right;">--</td>
@@ -119,7 +130,15 @@
                 @endphp
                 <tr>
                     <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
-                    <td style="padding:5px;">{{ ($v->related_to_invoice_id) ? $v->invoice->invoice_id : "--" }}</td>
+                    <td style="padding:5px;">
+                        @if($v->related_to_invoice_id)
+                        {{ '#'.sprintf("%06d", $v->related_to_invoice_id) }}
+                        @elseif($v->related_to_fund_request_id)
+                        {{ '#'.sprintf("%06d", $v->related_to_fund_request_id) }}
+                        @else
+                            {{ '--' }}
+                        @endif
+                    </td>
                     <td style="padding:5px;">{{ $dText }}</td>
                     <td style="padding:5px;text-align: right;">{{ $amt }}</td>
                     <td style="padding:5px;text-align: right;">{{ "$".number_format($v->total_balance, 2) }}</td>

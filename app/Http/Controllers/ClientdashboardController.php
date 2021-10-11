@@ -3626,7 +3626,7 @@ class ClientdashboardController extends BaseController
         $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$request->client_id)->first();
         
         $validator = \Validator::make($request->all(), [
-            'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount.'|lt:'.$UsersAdditionalInfo->credit_account_balance,
+            'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount.'|lte:'.$UsersAdditionalInfo->credit_account_balance,
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
             'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
@@ -3883,8 +3883,9 @@ class ClientdashboardController extends BaseController
                 $creditHistory = $creditHistory->whereBetween('payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
             $creditHistory = $creditHistory->orderBy('payment_date','asc')->with("invoice")->get();
+            $creditHistoryFirstRow = $creditHistory->first();
             $initialBalance = DepositIntoCreditHistory::where("user_id", $request->user_id)
-                        ->whereDate('payment_date', '<', date('Y-m-d',strtotime($request->from_date)))
+                        ->whereDate('payment_date', '<', ($request->from_date) ? date('Y-m-d',strtotime($request->from_date)) : date('Y-m-d', strtotime(@$creditHistoryFirstRow->payment_date)))
                         ->orderBy('payment_date', 'desc')->orderBy("created_at", "desc")->first();
 
             $filename='credit_export_'.time().'.pdf';

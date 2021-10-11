@@ -62,7 +62,13 @@
     <br>
     <br>
 
-    <span style="float: right;padding:5px;">Trust account activity from {{date('F d,Y', strtotime($startDate))}} to {{date('F d,Y', strtotime($endDate))}}</span>
+    <span style="float: right;padding:5px;">Trust account activity from 
+        @if($startDate && $endDate)
+        {{date('F d, Y', strtotime($startDate))}} to {{date('F d, Y', strtotime($endDate))}}
+        @else
+        {{ date('F d, Y', strtotime(convertUTCToUserTimeZone('dateOnly'))) }}
+        @endif
+    </span>
 
     <table style="width:100%;text-align: left;font-size: 12px;" border="1">
         <thead class="bg-gray-300">
@@ -102,8 +108,22 @@
                     $ftype="Refund Withdraw from Trust";
                 }else if($v->fund_type=="refund_deposit"){
                     $ftype="Refund Deposit into Trust";
+                }else if($v->fund_type=="allocate_trust_fund"){
+                    $notes = $v->notes;
+                    $myString = substr($notes, strpos($notes, "#"));
+                    $ftype = str_replace($myString, @$v->user->full_name.' ('.@$v->user->user_type_text.')', $notes);
+                }else if($v->fund_type=="deallocate_trust_fund"){
+                    $notes = $v->notes;
+                    $myString = substr($notes, strpos($notes, "#"));
+                    $ftype = str_replace($myString, @$v->allocateToCase->case_title, $notes);
                 }else if($v->fund_type=="payment"){
-                    $ftype="Payment from Trust to Operating";
+                    $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)".' '.$isRefender;
+                }else if($v->fund_type=="payment deposit"){
+                    $ftype = "Payment into Trust (Trust Account)".' '.$isRefender;
+                }else if($v->fund_type=="refund payment deposit"){
+                    $ftype = "Refund Payment into Trust (Trust Account)".' '.$isRefender;
+                }else if($v->fund_type=="refund payment"){
+                    $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)".' '.$isRefender;
                 }else{
                     $ftype="Deposit into Trust";
                 }
@@ -137,7 +157,15 @@
                 ?>
             <tr>
                 <td style="padding:5px;">{{date('m/d/Y',strtotime($v->payment_date))}}</td>
-                <td style="padding:5px;">{{ ($v->related_to_invoice_id) ? '#'.sprintf("%06d", $v->related_to_invoice_id) : '--' }}</td>
+                <td style="padding:5px;">
+                    @if($v->related_to_invoice_id)
+                    {{ '#'.sprintf("%06d", $v->related_to_invoice_id) }}
+                    @elseif($v->related_to_fund_request_id)
+                    {{ '#'.sprintf("%06d", $v->related_to_fund_request_id) }}
+                    @else
+                        {{ '--' }}
+                    @endif
+                </td>
                 <td style="padding:5px;">{{$ftype}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionAmount}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionBalance}}</td>

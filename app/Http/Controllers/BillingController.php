@@ -8767,7 +8767,7 @@ class BillingController extends BaseController
             $TrustInvoice->payment_method=$request->payment_method;
             $TrustInvoice->amount_paid=$request->amount;
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-            $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+            $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone);
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='diposit';
             $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
