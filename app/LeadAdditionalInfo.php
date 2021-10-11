@@ -17,7 +17,9 @@ class LeadAdditionalInfo extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-         'user_id', 'address2', 'dob', 'driver_license', 'license_state', 'referal_source', 'refered_by', 'lead_detail', 'date_added', 'practice_area', 'potential_case_value', 'assigned_to', 'office', 'potential_case_description', 'user_status', 'conflict_check', 'notes' ,'potential_case_title','do_not_hire_reason'   
+         'user_id', 'address2', 'dob', 'driver_license', 'license_state', 'referal_source', 'refered_by', 'lead_detail', 'date_added', 'practice_area', 
+         'potential_case_value', 'assigned_to', 'office', 'potential_case_description', 'user_status', 'conflict_check', 'notes' ,'potential_case_title',
+         'do_not_hire_reason', "allocated_trust_balance"  
     ];
     protected $appends  = ['decode_id','added_date','added_date_sort','assign_to','assign_to_title','refered_by_name','refered_by_name_title','donthire_date','conveted_date'];
 

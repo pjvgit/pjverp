@@ -31,6 +31,7 @@ function loadMoreEvent(page, filter = null) {
         } else {
             $('#'+divId).html('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
         }
+        $("#preloader").hide();
     }).fail(function () {
         $(".load-more-loader").hide();
         $('#'+divId).append('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');

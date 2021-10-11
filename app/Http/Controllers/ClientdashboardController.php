@@ -1007,6 +1007,8 @@ class ClientdashboardController extends BaseController
             ->addColumn('allocated_to', function ($data) {
                 if($data->allocated_to_case_id != null && $data->fund_type != "payment") {
                     $clientLink ='<a class="name" href="'.route('info', $data->allocateToCase->case_unique_number).'">'.$data->allocateToCase->case_title.'</a>';
+                // } else if($data->allocated_to_case_id == null && $data->related_to_fund_request != null && $data->user->user_level == 5) {
+                //     $clientLink = @$data->user->full_name.' ('.@$data->user->user_type_text.')';
                 } else {
                     $clientLink ='<a class="name" href="'.route("contacts/clients/view", $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>';
                 }
@@ -1588,8 +1590,10 @@ class ClientdashboardController extends BaseController
     public function reloadAmount(Request $request)
     {
         $client_id=$request->user_id;
+        $user = User::whereId($client_id)->select("user_level")->first();
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$client_id)->with('user')->first(); 
         $clientCases = CaseClientSelection::where("selected_user", $client_id)->with("case")->get();
+        $leadCases = LeadAdditionalInfo::where("user_id", $client_id)->select("user_id", "potential_case_title", "allocated_trust_balance")->get();
         $trust_account_balance=$minimum_trust_balance=0.00;
         if(!empty($UsersAdditionalInfo)){
             $trust_account_balance=number_format($UsersAdditionalInfo->trust_account_balance,2);
@@ -1597,7 +1601,9 @@ class ClientdashboardController extends BaseController
         }
         $requestDefaultMessage = @getInvoiceSetting()->request_funds_preferences_default_msg ?? "";
         $is_non_trust_retainer = @getInvoiceSetting()->is_non_trust_retainers_credit_account ?? "no";
-        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage, 'is_non_trust_retainer' => $is_non_trust_retainer, 'clientCases' => $clientCases]);
+        return response()->json(['errors'=>'','freshData'=>$UsersAdditionalInfo,'trust_account_balance'=>$trust_account_balance,
+            'minimum_trust_balance'=>$minimum_trust_balance, 'request_default_message' => $requestDefaultMessage, 'is_non_trust_retainer' => $is_non_trust_retainer, 
+            'clientCases' => $clientCases, 'leadCases' => $leadCases]);
         exit;
 
     } 
@@ -1615,7 +1621,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            
+            $user = User::whereId($request->contact)->select("user_level")->first();
             $RequestedFund=new RequestedFund;
             $RequestedFund->client_id=$request->contact;
             $RequestedFund->deposit_into=$request->contact;
@@ -1626,7 +1632,8 @@ class ClientdashboardController extends BaseController
             $RequestedFund->email_message=$request->message;
             $RequestedFund->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
             $RequestedFund->status='sent';
-            $RequestedFund->allocated_to_case_id=$request->case_id;
+            $RequestedFund->allocated_to_case_id= ($user->user_level != 5 && $request->case_id != "") ? $request->case_id : NULL;
+            $RequestedFund->allocated_to_lead_case_id= ($user->user_level == 5 && $request->case_id != "") ? $request->contact : NULL;
             $RequestedFund->created_by=Auth::user()->id; 
             $RequestedFund->save();
 
@@ -1635,7 +1642,7 @@ class ClientdashboardController extends BaseController
             $data['deposit_for']=$RequestedFund->client_id;
             $data['user_id']=$RequestedFund->client_id;
             $data['client_id']=$RequestedFund->client_id;
-            $data['case_id']=$request->case_id;
+            $data['case_id']=($user->user_level != 5 && $request->case_id != "") ? $request->case_id : NULL;
             $data['activity']='sent deposit request';
             $data['type']='fundrequest';
             $data['action']='share';

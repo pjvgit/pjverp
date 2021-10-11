@@ -2575,7 +2575,7 @@ class LeadController extends BaseController
             ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),DB::raw('CONCAT_WS(" ",u2.first_name,u2.last_name) as trust_account'),"users.id as uid");
             $RequestedFundData = $RequestedFundData->where("requested_fund.client_id",$user_id);
             $RequestedFundData = $RequestedFundData->withCount('fundPaymentHistory');
-            $RequestedFundData = $RequestedFundData->with('user', 'allocateToCase')->get();
+            $RequestedFundData = $RequestedFundData->with('allocateToLeadCase')->get();
             // dd($case); 
         }
 

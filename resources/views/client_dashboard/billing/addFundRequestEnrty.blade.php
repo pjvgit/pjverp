@@ -412,9 +412,21 @@
                                     $('#allocate_fund').append(optgroup);
                                 }
                             }
+                            var leadAllocateAmount = 0;
+                            if(res.leadCases.length > 0) {
+                                if($("#deposit_into").val() == "trust") {
+                                    var optgroup = "<optgroup label='Allocate to case'>";
+                                    $.each(res.leadCases, function(ind, item) {
+                                        optgroup += "<option value='" + item.user_id + "'>" + item.potential_case_title +"(Balance $"+item.allocated_trust_balance ?? 0.00+")" + "</option>";
+                                        leadAllocateAmount += item.allocated_trust_balance ?? 0.00;
+                                    });
+                                    optgroup += "</optgroup>"
+                                    $('#allocate_fund').append(optgroup);
+                                }
+                            }
                             var optgroup = "<optgroup label='Unallocated'>";
                             if(res.freshData) {
-                                optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+res.freshData.unallocate_trust_balance+")" + "</option>";
+                                optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
                             }
                             optgroup += "</optgroup>"
                             $('#allocate_fund').append(optgroup);

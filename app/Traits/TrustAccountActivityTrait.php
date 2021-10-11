@@ -69,12 +69,15 @@ trait TrustAccountActivityTrait {
         $activityHistory['status']="unsent";
         $activityHistory['pay_type']="trust";
         $activityHistory['firm_id']=$authUser->firm_name;
-        // if(isset($request->applied_to) && $request->applied_to!=0){
-        // $activityHistory['section']="request";
-        // $activityHistory['related_to']=$request->applied_to;
-        // }else{
-        $activityHistory['section']="other";
-        // }
+        if(isset($request->applied_to) && $request->applied_to!=0){
+            $activityHistory['section']="request";
+            $activityHistory['related_to']=$request->applied_to;
+        } else if(isset($InvoiceData) && $InvoiceData != null){
+            $activityHistory['section']="invoice";
+            $activityHistory['related_to']=$InvoiceData['id'];
+        }else{
+            $activityHistory['section']="other";
+        }
         $activityHistory['created_by']=$authUser->id;
         $activityHistory['created_at']=date('Y-m-d H:i:s');
 

@@ -29,7 +29,7 @@
     </div>
 </div>
 <?php
-if($totalInvoiceData<=0){
+if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
 ?>
 <br>
 <div class="d-flex flex-column justify-content-center align-items-center mt-4" style="height: 250px;">
@@ -99,7 +99,14 @@ if($totalInvoiceData<=0){
                 <td width="13%"><div class="text-left">{{$aData->last_send}}</div></td>
                 <td width="13%"><div class="text-left">{{$aData->due_date_format}}</div></td>
                 <td width="10%"><div class="text-left">{{ ucfirst($aData->deposit_into_type). ' (Operating Account)'}}</div></td>
-                <td width="15%"><div class="text-left">{{$aData->contact_name}}</div></td>
+                <td width="15%"><div class="text-left">
+                    @if($aData->allocated_to_lead_case_id)
+                        {{$aData->allocateToLeadCase->potential_case_title ?? ""}}
+                    @else
+                        {{$aData->contact_name}}
+                    @endif
+                    </div>
+                </td>
                 <?php
                 if($aData->current_status=="Paid"){
                     echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'.$aData->current_status.'</div></td>';

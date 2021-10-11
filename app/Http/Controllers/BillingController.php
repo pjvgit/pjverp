@@ -8738,6 +8738,10 @@ class BillingController extends BaseController
                 $refundRequest->payment_date=date('Y-m-d');
                 $refundRequest->status='partial';
                 $refundRequest->save();
+
+                if($refundRequest->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $refundRequest->allocated_to_lead_case_id)->increment('allocated_trust_balance', $request->amount);
+                }
             }
             // $deposit_into_trust=new DepositIntoTrust;
             // $deposit_into_trust->user_id=$request->trust_account;

@@ -790,6 +790,8 @@
                         return false;
                     } else {
                         window.location.reload();
+                        // loadMoreEvent(tab1Page = 1);
+                        // $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
                         $(".innerLoader").css('display', 'none');
 
                     }

@@ -366,9 +366,10 @@
     });
     $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
         $("#preloader").show();
-          window.location.reload();   
+          window.location.reload();  
+        // loadMoreEvent(1, filter = null); 
        
-        });
+    });
     function loadReminderPopup(evnt_id) {
         $("#reminderDAta").html('Loading...');
         $("#preloader").show();
