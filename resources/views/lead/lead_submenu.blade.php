@@ -21,11 +21,11 @@
             <a href="" class="myactive"> Lead Details </a>
         </li>
         <?php } ?>
-        <li>
+        <!-- <li>
             <a href="{{route('leads/statuses')}}" class="{{ Route::currentRouteName()=='' ? 'myactive' : '' }}">
                 Lead Insight
             </a>
-        </li>
+        </li> -->
     </ul>
 </div>
 <div class="separator-breadcrumb border-top"></div>

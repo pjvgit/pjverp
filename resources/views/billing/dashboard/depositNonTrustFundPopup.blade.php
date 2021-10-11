@@ -26,7 +26,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                     <select class="form-control caller_name select2" id="applied_to" name="applied_to" style="width: 100%;" placeholder="Applied To">
                         <option value="0"> Do not apply to a retainer request</option>
                         @forelse($fundRequestList as $key=>$val){?>
-                            <option value="{{$val->id}}">R-{{ sprintf('%06d', $val->id)}} (${{number_format($val->amount_due,2)}})</option>
+                            <option value="{{$val->id}}" <?php echo ($val->id == $request->request_id) ? 'selected':''; ?> >R-{{ sprintf('%06d', $val->id)}} (${{number_format($val->amount_due,2)}})</option>
                         @empty
                         @endforelse
                     </select>

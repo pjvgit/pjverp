@@ -3,7 +3,7 @@
         <span class="showError"></span>
         @csrf
         <div class="modal-body retainer-requests-popup-content">
-            <div class="row">
+            <div class="row" bladefile="resources/views/client_dashboard/billing/addFundRequestEnrty.blade.php">
                 <div class="col-7">
                     <div class="form-group row">
                         <label for="contact" class="col-4 pt-2 ">Contact</label>
@@ -304,7 +304,8 @@
                     } else {
                         swal('Success!', res.msg, 'success');
                         setTimeout(function () {
-                            $("#addRequestFund").modal("hide")
+                            $("#addRequestFund").modal("hide");
+                            window.location.reload();
                         }, 2000);
                     }
                 },

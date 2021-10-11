@@ -1026,7 +1026,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
-    function depositIntoTrustPopup(id, caseId = null) {
+    function depositIntoTrustPopup(id, caseId = null, request_id = null) {
         $('.showError').html('');
         beforeLoader();
         $("#preloader").show();
@@ -1036,7 +1036,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             type: "POST",
             url: baseUrl + "/bills/dashboard/depositIntoTrustPopup",
             data: {
-                'id': id, case_id: caseId
+                'id': id, case_id: caseId,
+                'request_id' : request_id
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {
@@ -1069,7 +1070,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
-    function depositIntoNonTrustAccount(id) {
+    function depositIntoNonTrustAccount(clinet_id, request_id = null) {        
         $('.showError').html('');
         $("#preloader").show();
         $("#depositIntoNonTrustAccountArea").html('');
@@ -1078,7 +1079,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             type: "POST",
             url: baseUrl + "/bills/dashboard/depositIntoNonTrustPopup",
             data: {
-                'id': id
+                'id': clinet_id, 
+                'request_id' : request_id
             },
             success: function (res) {
                 if (typeof (res.errors) != "undefined" && res.errors !== null) {

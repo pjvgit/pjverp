@@ -21,7 +21,7 @@
                             href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
                             {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                         @if($v->deposit_id)
-                            #R-{{sprintf('%06d', $v->deposit_id)}}
+                            #R-{{sprintf('%05d', $v->deposit_id)}}
                         @endif 
                         <?php if($v->ulevel=="2" && $v->deposit_for){?>
                             to <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
@@ -235,7 +235,7 @@
                         </a> 
                             {{$v->activity}} 
                         @if($v->deposit_id)
-                            #R-{{sprintf('%06d', $v->deposit_id)}}
+                            #R-{{sprintf('%05d', $v->deposit_id)}}
                         @endif
                         @if($v->action == "share")
                             @if($v->ulevel=="2" && !empty($v->client_id))

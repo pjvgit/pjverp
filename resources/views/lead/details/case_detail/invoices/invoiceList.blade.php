@@ -115,10 +115,10 @@ if($totalInvoiceData<=0){
                 
                 if($aData->status != 'paid') {
                     if($aData->deposit_into_type == 'credit'){
-                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoNonTrustAccount"  onclick="depositIntoNonTrustAccount('.$aData->client_id.');"><i class="fas fa-dollar-sign"></i></a>';
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoNonTrustAccount"  onclick="depositIntoNonTrustAccount('.$aData->client_id.','.$aData->id.');"><i class="fas fa-dollar-sign"></i></a>';
                     }
                     if($aData->deposit_into_type == 'trust'){
-                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoTrustAccount"  onclick="depositIntoTrustPopup('.$aData->client_id.');"><i class="fas fa-dollar-sign"></i></a>';
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoTrustAccount"  onclick="depositIntoTrustPopup('.$aData->client_id.',0,'.$aData->id.');"><i class="fas fa-dollar-sign"></i></a>';
                     }
 
                     $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('.$aData->id.');"> <i class="fas fa-bell"></i> </a>';

@@ -364,6 +364,12 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->created_by =Auth::User()->id;
             $LeadAdditionalInfoMaster->save();
 
+            // added trust history in user_additional_info
+            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $UserMaster->id));
+            $UsersAdditionalInfo->user_id=$request->user_id; 
+            $UsersAdditionalInfo->created_by =Auth::User()->id;
+            $UsersAdditionalInfo->save();
+
             $noteHistory=[];
             $noteHistory['acrtivity_title']='added a lead';
             $noteHistory['activity_by']=Auth::User()->id;
@@ -1205,11 +1211,19 @@ class LeadController extends BaseController
                 // update all history from lead_id to case_id
                 AllHistory::where('client_id', $CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "client_id" => null]);
 
+                AllHistory::where('client_id', $CaseClientIs->selected_user)->where('task_for_lead', $CaseClientIs->selected_user)->update([
+                    'task_for_lead' => null, 'task_for_case' => $request->case_id
+                ]);
+
+                AllHistory::where('client_id', $CaseClientIs->selected_user)->where('event_for_lead', $CaseClientIs->selected_user)->update([
+                    'event_for_lead' => null, 'event_for_case' => $request->case_id
+                ]);
+
                 // update all invoice from lead_id to case_id
-                Invoices::where("user_id",$CaseClientIs->selected_user)->update('case_id',$request->case_id);
+                Invoices::where("user_id",$CaseClientIs->selected_user)->update(['case_id' =>$request->case_id]);
 
                 // update all time_entry from lead_id to case_id
-                TimeEntry::where("user_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "user_id" => null]);
+                TaskTimeEntry::where("user_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "user_id" => null]);
 
                 // update all events from lead_id to case_id
                 CaseEvent::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
@@ -6797,7 +6811,7 @@ class LeadController extends BaseController
                 $CommonController->addMultipleHistory($data);
 
                 $getTemplateData = EmailTemplate::find(8);
-                $token=route("bills/invoice/", $FindInvoice->decode_id);
+                $token=route("bills/invoice/{id}", $FindInvoice->decode_id);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{message}', $request->email_message, $mail_body);
                 $mail_body = str_replace('{token}', $token,$mail_body);
@@ -6805,7 +6819,6 @@ class LeadController extends BaseController
                 $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
                 $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
                 $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-    
                 $user = [
                     "from" => FROM_EMAIL,
                     "from_title" => FROM_EMAIL_TITLE,
