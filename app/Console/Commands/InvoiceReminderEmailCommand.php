@@ -42,7 +42,8 @@ class InvoiceReminderEmailCommand extends Command
      */
     public function handle()
     {
-        $result = Invoices::where("automated_reminder", "yes")->whereNotNull("due_date")->has("invoiceShared")
+        $result = Invoices::where("automated_reminder", "yes")/* ->whereNotNull("due_date") */->has("invoiceShared")
+                    ->where("status", "!=", "Paid")
                     /* ->where(function($query) {
                         $query
                         ->whereRaw("due_date = '".Carbon::now()->subDays(7)->format("Y-m-d")."' OR due_date = '".Carbon::now()->format("Y-m-d")."' OR due_date = '".Carbon::now()->addDays(7)->format("Y-m-d")."'")
@@ -108,7 +109,7 @@ class InvoiceReminderEmailCommand extends Command
                     if($remindDate->eq($currentDate)) {
                         if(count($item->case->caseBillingClient)) {
                             foreach($item->case->caseBillingClient as $userkey => $useritem) {
-                                $date = Carbon::now($useritem->user_timezone); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
+                                $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                 Log::info($useritem->user_timezone."=".$date);
                                 if ($date->hour === 05) { 
                                     if($emailTemplate) {
@@ -121,10 +122,10 @@ class InvoiceReminderEmailCommand extends Command
                             Log::info("no billing client:". $item->id);
                         }
                     } else {
-                        Log::info("remind date: ".$remindDate);
+                        Log::info("invoice remind date: ".$remindDate);
                     }
                 } else {
-                    Log::info("template: ".$emailTemplateId);
+                    Log::info("invoice email template: ".$emailTemplateId);
                 }
             }
         }

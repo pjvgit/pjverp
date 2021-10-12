@@ -14,7 +14,7 @@ function loadMoreEvent(page, filter = null) {
     var upcoming = $("input:checkbox#mc:checked").val();
     $.ajax({
         url : '?page=' + page,
-        data: {upcoming: upcoming},
+        data: {upcoming_events: upcoming},
         beforeSend: function() {
             $(".load-more-loader").show();
         }
@@ -29,7 +29,16 @@ function loadMoreEvent(page, filter = null) {
             $('#'+divId+' .pagination').hide();
             $('[data-toggle="popover"]').popover();
         } else {
-            $('#'+divId).html('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+            // $('#'+divId).html('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
+            $('#'+divId).html('<tr>\
+                <th colspan="6">\
+                    <div class="mt-3 empty-events alert alert-info fade show" role="alert">\
+                        <div class="d-flex align-items-start">\
+                            <div class="w-100">There are no upcoming events scheduled.</div>\
+                        </div>\
+                    </div>\
+                </th>\
+            </tr>');
         }
         $("#preloader").hide();
     }).fail(function () {

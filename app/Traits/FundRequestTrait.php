@@ -18,11 +18,12 @@ trait FundRequestTrait {
             $fundRequest = RequestedFund::whereId($trustHistory->related_to_fund_request_id)->first();
             if($fundRequest) {
                 $fundRequest->fill([
-                    'status' => 'partial', // status set attribute in model for diff status
+                    // 'status' => 'partial', // status set attribute in model for diff status
                     'amount_due' => $fundRequest->amount_due + $trustHistory->refund_amount,
                     'amount_paid' => $fundRequest->amount_paid - $trustHistory->refund_amount,
                     'updated_by' => auth()->id(),
                 ])->save();
+                $this->updateFundRequestStatus($fundRequest);
             }
         }
     }
@@ -47,11 +48,12 @@ trait FundRequestTrait {
                     $paidAmt = $fundRequest->amount_paid;
                 }
                 $fundRequest->fill([
-                    'status' => 'partial', // status set attribute in model for diff status
+                    // 'status' => 'partial', // status set attribute in model for diff status
                     'amount_due' => $dueAmt,
                     'amount_paid' => $paidAmt,
                     'updated_by' => auth()->id(),
                 ])->save();
+                $this->updateFundRequestStatus($fundRequest);
             }
         }
     }
@@ -66,11 +68,12 @@ trait FundRequestTrait {
             $fundRequest = RequestedFund::whereId($creditHistory->related_to_fund_request_id)->first();
             if($fundRequest) {
                 $fundRequest->fill([
-                    'status' => 'partial', // status set attribute in model for diff status
+                    // 'status' => 'partial', // status set attribute in model for diff status
                     'amount_due' => $fundRequest->amount_due + $creditHistory->deposit_amount,
                     'amount_paid' => $fundRequest->amount_paid - $creditHistory->deposit_amount,
                     'updated_by' => auth()->id(),
                 ])->save();
+                $this->updateFundRequestStatus($fundRequest);
             }
         }
     }
@@ -95,13 +98,33 @@ trait FundRequestTrait {
                     $paidAmt = $fundRequest->amount_paid;
                 }
                 $fundRequest->fill([
-                    'status' => 'partial', // status set attribute in model for diff status
+                    // 'status' => 'partial', // status set attribute in model for diff status
                     'amount_due' => $dueAmt,
                     'amount_paid' => $paidAmt,
                     'updated_by' => auth()->id(),
                 ])->save();
+                $this->updateFundRequestStatus($fundRequest);
             }
         }
+    }
+
+    /**
+     * update fund request status
+     */
+    public function updateFundRequestStatus($fundRequest)
+    {
+        $dueDate = $fundRequest->due_date;
+        if($fundRequest->amount_due =="0.00"){
+            $value = "paid";
+        }else if($fundRequest->amount_paid > 0 && $fundRequest->amount_paid < $fundRequest->amount_requested && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))){
+            $value = "partial";
+        }else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))){
+            $value = "overdue";
+        }else{
+            $value = "sent";
+        }
+        $fundRequest->status = $value;
+        $fundRequest->save();
     }
 }
  

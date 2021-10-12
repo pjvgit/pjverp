@@ -950,7 +950,7 @@ class ClientdashboardController extends BaseController
             $data = $data->where('allocated_to_case_id', $request->case_id);
         }
         $data = $data->orderBy("payment_date", "desc")->orderBy("created_at", "desc")
-                ->with("invoice", 'fundRequest', 'allocateToCase', 'user')->get();
+                ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo')->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo) {
@@ -1009,8 +1009,8 @@ class ClientdashboardController extends BaseController
             ->addColumn('allocated_to', function ($data) {
                 if($data->allocated_to_case_id != null && $data->fund_type != "payment") {
                     $clientLink ='<a class="name" href="'.route('info', $data->allocateToCase->case_unique_number).'">'.$data->allocateToCase->case_title.'</a>';
-                // } else if($data->allocated_to_case_id == null && $data->related_to_fund_request != null && $data->user->user_level == 5) {
-                //     $clientLink = @$data->user->full_name.' ('.@$data->user->user_type_text.')';
+                } else if($data->related_to_fund_request_id && $data->allocated_to_lead_case_id && $data->leadAdditionalInfo) {
+                    $clientLink = @$data->leadAdditionalInfo->potential_case_title;
                 } else {
                     $clientLink ='<a class="name" href="'.route("contacts/clients/view", $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>';
                 }
@@ -1031,9 +1031,9 @@ class ClientdashboardController extends BaseController
                 if($data->fund_type=="withdraw"){
                     $amt = '-$'.number_format($data->withdraw_amount ?? 0, 2);
                 }else if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund payment"){
-                    $amt = '$'.number_format($data->refund, 2);
+                    $amt = '$'.number_format($data->refund_amount, 2);
                 }else if($data->fund_type=="refund_deposit" || $data->fund_type=="refund payment deposit"){
-                    $amt = '-$'.number_format($data->refund, 2);
+                    $amt = '-$'.number_format($data->refund_amount, 2);
                 }else if($data->fund_type=="payment"){
                     $amt = '-$'.number_format($data->amount_paid, 2);
                 }else if($data->fund_type=="allocate_trust_fund"){
@@ -1049,71 +1049,81 @@ class ClientdashboardController extends BaseController
             })
             ->addColumn('detail', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
-                if($data->fund_type=="withdraw"){
-                    if($data->withdraw_from_account!=null){
-                        $ftype="Withdraw from Trust (Trust Account) to Operating(".$data->withdraw_from_account.")";
+                if($data->user->user_level == 5) {
+                    if($data->fund_type == "diposit") {
+                        $ftype = "Payment into Trust (Trust Account)";
+                    }else if($data->fund_type=="refund_deposit"){
+                        $ftype="Refund Deposit into Trust (Trust Account)";
+                    } else {
+                        $ftype = '';
+                    }
+                    return $ftype.$isRefund;
+                } else {
+                    if($data->fund_type=="withdraw"){
+                        if($data->withdraw_from_account!=null){
+                            $ftype="Withdraw from Trust (Trust Account) to Operating(".$data->withdraw_from_account.")";
+                        }else{
+                            $ftype="Withdraw from Trust (Trust Account)";
+                        }
+                        $noteContent = '';
+                        if($data->notes != '') {
+                            $noteContent = '<br>
+                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        }
+                        return $ftype.' '.$isRefund.$noteContent;
+                    }else if($data->fund_type=="refund_withdraw"){
+                        $ftype="Refund Withdraw from Trust (Trust Account)";
+                    }else if($data->fund_type=="refund_deposit"){
+                        $ftype="Refund Deposit into Trust (Trust Account)";
+                    }else if($data->fund_type=="allocate_trust_fund"){
+                        $notes = $data->notes;
+                        $myString = substr($notes, strpos($notes, "#"));
+                        $ftype = str_replace($myString, '<a class="name" href="'.route('contacts/clients/view', $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>', $notes);
+                    }else if($data->fund_type=="deallocate_trust_fund"){
+                        $notes = $data->notes;
+                        $myString = substr($notes, strpos($notes, "#"));
+                        $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
+                    }else if($data->fund_type=="payment"){
+                        $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        $noteContent = '';
+                        if($data->notes != '') {
+                            $noteContent = '<br>
+                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        }
+                        return $ftype.' '.$isRefund.$noteContent;
+                    }else if($data->fund_type=="payment deposit"){
+                        $ftype = "Payment into Trust (Trust Account)";
+                        $noteContent = '';
+                        if($data->notes != '') {
+                            $noteContent = '<br>
+                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        }
+                        return $ftype.' '.$isRefund.$noteContent;
+                    }else if($data->fund_type=="refund payment deposit"){
+                        $ftype = "Refund Payment into Trust (Trust Account)";
+                        $noteContent = '';
+                        if($data->notes != '') {
+                            $noteContent = '<br>
+                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        }
+                        return $ftype.' '.$isRefund.$noteContent;
+                    }else if($data->fund_type=="refund payment"){
+                        $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        $noteContent = '';
+                        if($data->notes != '') {
+                            $noteContent = '<br>
+                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
+                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
+                        }
+                        return $ftype.' '.$isRefund.$noteContent;
                     }else{
-                        $ftype="Withdraw from Trust (Trust Account)";
+                        $ftype="Deposit into Trust (Trust Account)".$isRefund;
                     }
-                    $noteContent = '';
-                    if($data->notes != '') {
-                        $noteContent = '<br>
-                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                    }
-                    return $ftype.' '.$isRefund.$noteContent;
-                }else if($data->fund_type=="refund_withdraw"){
-                    $ftype="Refund Withdraw from Trust (Trust Account)";
-                }else if($data->fund_type=="refund_deposit"){
-                    $ftype="Refund Deposit into Trust (Trust Account)";
-                }else if($data->fund_type=="allocate_trust_fund"){
-                    $notes = $data->notes;
-                    $myString = substr($notes, strpos($notes, "#"));
-                    $ftype = str_replace($myString, '<a class="name" href="'.route('contacts/clients/view', $data->client_id).'">'.@$data->user->full_name.' ('.@$data->user->user_type_text.')</a>', $notes);
-                }else if($data->fund_type=="deallocate_trust_fund"){
-                    $notes = $data->notes;
-                    $myString = substr($notes, strpos($notes, "#"));
-                    $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
-                }else if($data->fund_type=="payment"){
-                    $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
-                    $noteContent = '';
-                    if($data->notes != '') {
-                        $noteContent = '<br>
-                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                    }
-                    return $ftype.' '.$isRefund.$noteContent;
-                }else if($data->fund_type=="payment deposit"){
-                    $ftype = "Payment into Trust (Trust Account)";
-                    $noteContent = '';
-                    if($data->notes != '') {
-                        $noteContent = '<br>
-                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                    }
-                    return $ftype.' '.$isRefund.$noteContent;
-                }else if($data->fund_type=="refund payment deposit"){
-                    $ftype = "Refund Payment into Trust (Trust Account)";
-                    $noteContent = '';
-                    if($data->notes != '') {
-                        $noteContent = '<br>
-                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                    }
-                    return $ftype.' '.$isRefund.$noteContent;
-                }else if($data->fund_type=="refund payment"){
-                    $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
-                    $noteContent = '';
-                    if($data->notes != '') {
-                        $noteContent = '<br>
-                        <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                    }
-                    return $ftype.' '.$isRefund.$noteContent;
-                }else{
-                    $ftype="Deposit into Trust (Trust Account)".$isRefund;
                 }
-
                 return $ftype;
             })
             ->rawColumns(['action', 'detail', 'related_to', 'allocated_to'])
@@ -1310,6 +1320,10 @@ class ClientdashboardController extends BaseController
                 }else{
                     $fund_type='refund_deposit';
                     DB::table('users_additional_info')->where('user_id',$request->client_id)->decrement('trust_account_balance', $request['amount']);
+                    // For allocated to lead case
+                    if($GetAmount->allocated_to_lead_case_id) {
+                        LeadAdditionalInfo::where("user_id", $GetAmount->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $request['amount']);
+                    }
                 }
                 $UsersAdditionalInfo->refresh();
                 $GetAmount->is_refunded="yes";
@@ -1329,6 +1343,7 @@ class ClientdashboardController extends BaseController
                 $TrustInvoice->related_to_invoice_id = @$GetAmount->related_to_invoice_id;
                 $TrustInvoice->related_to_fund_request_id = @$GetAmount->related_to_fund_request_id;
                 $TrustInvoice->allocated_to_case_id = $GetAmount->allocated_to_case_id;
+                $TrustInvoice->allocated_to_lead_case_id = $GetAmount->allocated_to_lead_case_id;
                 $TrustInvoice->created_by=Auth::user()->id; 
                 $TrustInvoice->save();
 
@@ -1350,8 +1365,20 @@ class ClientdashboardController extends BaseController
                         $this->refundAllocateTrustBalance($TrustInvoice);
                     }
                 }
-
+                // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($request->client_id);
+
+                // For account activity
+                if($TrustInvoice->fund_type == "refund_deposit") {
+                    $findInvoice = Invoices::whereId($GetAmount->related_to_invoice_id)->first();
+                    $request->request->add(["applied_to" => $TrustInvoice->related_to_fund_request_id]);
+                    $request->request->add(["trust_account" => @$UsersAdditionalInfo->user_id]);
+                    $request->request->add(['invoice_history_id' => null]);
+                    $request->request->add(['trust_history_id' => $TrustInvoice->id]);
+                    $request->request->add(["payment_type" => $TrustInvoice->fund_type]);
+                    $this->updateTrustAccountActivity($request, $amtAction = "sub", $findInvoice ?? null, $isDebit = "yes");
+                }
+
                 dbCommit();
                 session(['popup_success' => 'Refund successful']);
                 return response()->json(['errors'=>'']);
@@ -1387,6 +1414,11 @@ class ClientdashboardController extends BaseController
                     $this->deleteRefundedAllocateTrustBalance($TrustInvoice);
                 }
 
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->increment('allocated_trust_balance', $TrustInvoice->refund_amount);
+                }
+
             }else if($TrustInvoice->fund_type=="refund_withdraw"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->refund_amount);
                 $updateRedord=TrustHistory::find($TrustInvoice->refund_ref_id);
@@ -1396,6 +1428,10 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->refundAllocateTrustBalance($TrustInvoice);
                 }
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->refund_amount);
+                }
             } else if($TrustInvoice->fund_type == "refund payment") {
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->refund_amount);
                 $updateRedord= TrustHistory::find($TrustInvoice->refund_ref_id);
@@ -1404,6 +1440,10 @@ class ClientdashboardController extends BaseController
 
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->refundAllocateTrustBalance($TrustInvoice);
+                }
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->refund_amount);
                 }
             } else if($TrustInvoice->fund_type == "refund payment deposit") {
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->refund_amount);
@@ -1415,6 +1455,10 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->deleteRefundedAllocateTrustBalance($TrustInvoice);
                 }
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->increment('allocated_trust_balance', $TrustInvoice->refund_amount);
+                }
             } else if($TrustInvoice->fund_type == "payment deposit") {
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
                 // For allocated case refund payment deposit
@@ -1422,14 +1466,26 @@ class ClientdashboardController extends BaseController
                     $this->deleteAllocateTrustBalance($TrustInvoice);
                 }
                 $this->deleteTrustAccountActivity($TrustInvoice->id);
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->amount_paid);
+                }
             }else if($TrustInvoice->fund_type=="payment"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->amount_paid);
                 $this->deletePaymentTrustBalance($TrustInvoice);
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->increment('allocated_trust_balance', $TrustInvoice->amount_paid);
+                }
             }else if($TrustInvoice->fund_type=="diposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->decrement('trust_account_balance', $TrustInvoice->amount_paid);
 
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->deleteAllocateTrustBalance($TrustInvoice);
+                }
+                // For allocated lead case
+                if($TrustInvoice->allocated_to_lead_case_id) {
+                    LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->amount_paid);
                 }
             }
 
@@ -1448,8 +1504,6 @@ class ClientdashboardController extends BaseController
                 $this->deletePaymentTrustRequest($TrustInvoice->id);
             }
 
-            $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
-
             $data=[];
             $data['user_id']=$TrustInvoice->client_id;
             $data['client_id']=$TrustInvoice->client_id;
@@ -1459,7 +1513,13 @@ class ClientdashboardController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
+            // For account activity
+            $this->deleteTrustAccountActivity(null, $TrustInvoice->id);
+            $client_id = $TrustInvoice->client_id;
             TrustHistory::where('id',$request->payment_id)->delete();
+            // Update next/previous records
+            $this->updateNextPreviousTrustBalance($client_id);
+
             dbCommit();
             session(['popup_success' => 'Trust entry was deleted']);
             return response()->json(['errors'=>'']);

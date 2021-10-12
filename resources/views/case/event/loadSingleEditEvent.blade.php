@@ -746,9 +746,9 @@
 
                         return false;
                     } else {
-                        window.location.reload();
-                        // loadMoreEvent(tab1Page = 1);
-                        // $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
+                        // window.location.reload();
+                        loadMoreEvent(tab1Page = 1);
+                        $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
                         $("#innerLoader").css('display', 'none');
 
                     }
@@ -1133,7 +1133,7 @@
     function deleteEventFunction() {
         $("#confirmSave").css('display','block');
         $("#firstStep").css('display','none');
-        $(".modal-dialog").removeClass("modal-xl");
+        $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
         $("#exampleModalCenterTitle").html("Edit Recurring Event");
         $("#editEtitle").hide();
         $("#editRtitle").show();
@@ -1145,7 +1145,7 @@
     function goBack() {
         $("#confirmSave").css('display','none');
         $("#firstStep").css('display','block');
-        $(".modal-dialog").addClass("modal-xl");
+        $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
         $("#exampleModalCenterTitle").html("Edit Event");
         $("#editEtitle").show();
         $("#editRtitle").hide();

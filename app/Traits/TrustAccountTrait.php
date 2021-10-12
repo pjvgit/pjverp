@@ -174,13 +174,15 @@ trait TrustAccountTrait {
     }
 
     public function updateNextPreviousTrustBalance($userId) {
-        $trustHistory = TrustHistory::where("client_id", $userId)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->get();
+        $trustHistory = TrustHistory::where("client_id", $userId)->orderBy("payment_date", "asc")->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
         foreach($trustHistory as $key => $item) {
             $previous = $trustHistory->get(--$key);  
             $currentBal = 0;
             if($previous) {
                 $currentBal = $previous->current_trust_balance;
             }
+            Log::info("trust previous record:". $previous);
+            Log::info("trust current balance:". $currentBal);
             if($item->fund_type == "diposit") {
                 $currentBal = $currentBal + $item->amount_paid;
             } else if($item->fund_type == "refund_deposit") {
@@ -198,8 +200,10 @@ trait TrustAccountTrait {
             } else if($item->fund_type == "refund payment deposit") {
                 $currentBal = $currentBal - $item->refund_amount;
             }
-            $item->current_trust_balance = $currentBal;
-            $item->save();
+            Log::info("trust updated balance:". $currentBal);
+            TrustHistory::whereId($item->id)->update(['current_trust_balance' => $currentBal]);
+            $item->refresh();
+            Log::info("updated record:". $item);
         }
     }
 }

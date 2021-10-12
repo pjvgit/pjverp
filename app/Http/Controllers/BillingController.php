@@ -1614,8 +1614,9 @@ class BillingController extends BaseController
                 $invoiceHistory['created_by']=Auth::User()->id;
                 $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                 $newHistoryId = $this->invoiceHistory($invoiceHistory);
-                $request->request->add(["invoice_history_id" => $newHistoryId]);
 
+                $request->request->add(["invoice_history_id" => $newHistoryId]);
+                $request->request->add(["trust_history_id" => @$TrustInvoice->id]);
 
                 //Add Invoice history
                 $InvoiceData=Invoices::find($request->invoice_id);
@@ -2045,8 +2046,6 @@ class BillingController extends BaseController
                     $request->request->add(['payment_type' => 'payment deposit']);
                 }
 
-                
-                DB::commit();
                 //Response message
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
@@ -2057,7 +2056,6 @@ class BillingController extends BaseController
                 if(!empty($getInstallMentIfOn)){
                     $this->installmentManagement($request->amount,$request->invoice_id);
                 }
-                    
                 
                 $invoiceHistory['invoice_id']=$request->invoice_id;
                 $invoiceHistory['acrtivity_title']='Payment Received';
@@ -2073,7 +2071,6 @@ class BillingController extends BaseController
                 $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                 $newHistoryId = $this->invoiceHistory($invoiceHistory);
                 $request->request->add(["invoice_history_id" => $newHistoryId]);
-
                 
                 //Add Invoice history
                 $data=[];
@@ -2099,6 +2096,7 @@ class BillingController extends BaseController
 
                  //Get previous amount
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
+                    $request->request->add(["trust_history_id" => @$TrustInvoice->id]);
                     // $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
                     $this->updateTrustAccountActivity($request, null, $InvoiceData);
                  }else{
@@ -2130,7 +2128,7 @@ class BillingController extends BaseController
                  $activityHistory['created_by']=Auth::User()->id;
                  $activityHistory['created_at']=date('Y-m-d H:i:s');
                  $this->saveAccountActivity($activityHistory); */
-
+                DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
                 return response()->json(['errors'=>[$e->getMessage()], 'line_no' => [$e->getLine()] ]); //$e->getMessage()
@@ -7549,7 +7547,7 @@ class BillingController extends BaseController
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
         $FetchQuery = $FetchQuery->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $FetchQuery = $FetchQuery->get();
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -8790,6 +8788,7 @@ class BillingController extends BaseController
             $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
             $TrustInvoice->created_by=Auth::user()->id; 
             $TrustInvoice->allocated_to_case_id = $request->case_id;
+            $TrustInvoice->allocated_to_lead_case_id = @$refundRequest->allocated_to_lead_case_id;
             $TrustInvoice->save();
 
             
@@ -8832,6 +8831,8 @@ class BillingController extends BaseController
              $activityHistory['created_by']=Auth::User()->id;
              $activityHistory['created_at']=date('Y-m-d H:i:s');
              $this->saveAccountActivity($activityHistory); */
+             $request->request->add(["payment_type" => 'deposit']);
+             $request->request->add(["trust_history_id" => $TrustInvoice->id]);
              $this->updateTrustAccountActivity($request);
 
              $data=[];
