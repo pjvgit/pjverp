@@ -130,4 +130,14 @@ class AccountActivity extends Authenticatable
         }
         return $ftype.' '.$isRefund;
     }
+
+    /**
+     * Get the leadAdditionalInfo that owns the AccountActivity
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadAdditionalInfo()
+    {
+        return $this->belongsTo(LeadAdditionalInfo::class, 'user_id', 'user_id');
+    }
 }

@@ -1,4 +1,4 @@
-<form class="deleteEvent" id="deleteEvent" name="deleteEvent" method="POST">
+<form class="deleteEvent" id="deleteEventForm" name="deleteEvent" method="POST">
     <div id="showError2" style="display:none"></div>
     @csrf
     <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="hidden">
@@ -62,7 +62,7 @@
     $(document).ready(function () {
         
         $("#innerLoader1").css('display', 'none');
-        $('#deleteEvent').submit(function (e) {
+        $('#deleteEventForm').submit(function (e) {
            
             $("#innerLoader1").css('display', 'block');
             e.preventDefault();
@@ -76,7 +76,7 @@
                     'parent_evnt_id': '<?php echo $CaseEvent->parent_evnt_id;?>',
                 },
                 success: function (res) {
-                    $("#innerLoader1").css('display', 'block');
+                    $("#innerLoader1").css('display', 'none');
                     if (res.errors != '') {
                         $('#showError2').html('');
                         var errotHtml =
@@ -90,8 +90,9 @@
                         $("#innerLoader1").css('display', 'none');
                         return false;
                     } else {
-                        window.location.reload();
-                        // $('#EditCaseModel').modal('hide');
+                        // window.location.reload();
+                        $('#deleteEvent').modal('hide');
+                        loadMoreEvent(1, filter = 'true'); 
                     }
                 }
             });

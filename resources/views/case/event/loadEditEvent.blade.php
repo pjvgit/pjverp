@@ -434,52 +434,6 @@
                         </div>  
                     
                         @include('case.event.add_more_reminder_div')
-                        {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
-                            <div class="">
-                                <div class="d-flex col-10 pl-0 align-items-center">
-                                    <div class="pl-0 col-3">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_user_type" name="reminder_user_type[]"
-                                                    class="form-control custom-select  ">
-                                                    @forelse (reminderUserType() as $key => $item)
-                                                    <option value="{{ $key }}">{{ $item }}</option>
-                                                    @empty
-                                                    @endforelse
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pl-0 col-3">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_type" name="reminder_type[]"
-                                                    class="form-control custom-select  ">
-                                                    <option value="popup">popup</option>
-                                                    <option value="email">email</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
-                                    <div class="col-4">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_time_unit" name="reminder_time_unit[]"
-                                                    class="form-control custom-select  ">
-                                                    <option value="minute">minutes</option>
-                                                    <option value="hour">hours</option>
-                                                    <option value="day">days</option>
-                                                    <option value="week">weeks</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn remove" type="button">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div> --}}
 
                         <div class="form-group row pt-">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
@@ -789,9 +743,9 @@
 
                         return false;
                     } else {
-                        window.location.reload();
-                        // loadMoreEvent(tab1Page = 1);
-                        // $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
+                        // window.location.reload();
+                        loadMoreEvent(tab1Page = 1);
+                        $('#loadEditEventPopup,#loadAddEventPopup').modal("hide");
                         $(".innerLoader").css('display', 'none');
 
                     }
@@ -1092,7 +1046,7 @@
         } else {
             $("#confirmSave").css('display','block');
             $("#firstStep").css('display','none');
-            $(".modal-dialog").removeClass("modal-xl");
+            $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
             $("#exampleModalCenterTitle").html("Edit Recurring Event");
             $("#editEtitle").hide();
             $("#editRtitle").show();
@@ -1103,7 +1057,7 @@
     function goBack() {
         $("#confirmSave").css('display','none');
         $("#firstStep").css('display','block');
-        $(".modal-dialog").addClass("modal-xl");
+        $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
         $("#exampleModalCenterTitle").html("Edit Event");
         $("#editEtitle").show();
         $("#editRtitle").hide();

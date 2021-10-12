@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Http\Controllers\CommonController;
+use Illuminate\Support\Facades\Log;
+
 class RequestedFund extends Authenticatable
 {
     use Notifiable;
@@ -104,15 +106,15 @@ class RequestedFund extends Authenticatable
     {
         $dueDate = $this->attributes['due_date'];
         if($this->attributes['amount_due'] =="0.00"){
-            $status = "paid";
+            $value = "paid";
         }else if($this->attributes['amount_paid'] > 0 && $this->attributes['amount_paid'] < $this->attributes['amount_requested'] && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))){
-            $status = "partial";
+            $value = "partial";
         }else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))){
-            $status = "overdue";
+            $value = "overdue";
         }else{
-            $status = "sent";
+            $value = "sent";
         }
-        $this->attributes['status'] = $status;
+        $this->attributes['status'] = $value;
     }
 
     public function getPaymentAtAttribute(){

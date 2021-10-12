@@ -25,6 +25,7 @@ trait TrustAccountActivityTrait {
         $AccountActivity->payment_type=$historyData['payment_type'];
         $AccountActivity->payment_status=$historyData['payment_status'] ?? NULL;
         $AccountActivity->invoice_history_id=$historyData['invoice_history_id'];
+        $AccountActivity->trust_history_id=$historyData['trust_history_id'] ?? NULL;
         $AccountActivity->notes =$historyData['notes'];
         // $AccountActivity->notes = $this->getPaymentNote($historyData['payment_type']);
         $AccountActivity->pay_type =$historyData['pay_type'];
@@ -68,6 +69,7 @@ trait TrustAccountActivityTrait {
         $activityHistory['notes']=$request->notes;
         $activityHistory['status']="unsent";
         $activityHistory['pay_type']="trust";
+        $activityHistory['trust_history_id']=$request->trust_history_id ?? Null;
         $activityHistory['firm_id']=$authUser->firm_name;
         if(isset($request->applied_to) && $request->applied_to!=0){
             $activityHistory['section']="request";
@@ -145,32 +147,46 @@ trait TrustAccountActivityTrait {
         $this->saveAccountActivity($activityHistory);
     }
 
-    public function deleteTrustAccountActivity($invoiceHistoryId)
+    public function deleteTrustAccountActivity($invoiceHistoryId = null, $trustHistoryId = null)
     {
-        // Delete trust account activity
-        $activity = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "trust")->first();
-        if($activity) {
-            if($activity->fund_type == "refund payment") {
-                $updateRedord= AccountActivity::find($activity->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->payment_status=NULL;
-                $updateRedord->save();
+        if($trustHistoryId && $invoiceHistoryId == null) {
+            $activity = AccountActivity::where("trust_history_id", $trustHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "trust")->first();
+            if($activity) {
+                if($activity->fund_type == "refund payment" || $activity->fund_type == "refund_deposit") {
+                    $updateRedord= AccountActivity::find($activity->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->payment_status=NULL;
+                    $updateRedord->save();
+                }
+                $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
+                $activity->delete();
             }
-            $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
-            $activity->delete();
-        }
-        
-        // Delete payment history activity
-        $activityPay = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "client")->first();
-        if($activityPay) {
-            if($activityPay->fund_type == "refund payment") {
-                $updateRedord= AccountActivity::find($activityPay->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->payment_status=NULL;
-                $updateRedord->save();
+        } else if($invoiceHistoryId) {
+            // Delete trust account activity
+            $activity = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "trust")->first();
+            if($activity) {
+                if($activity->fund_type == "refund payment") {
+                    $updateRedord= AccountActivity::find($activity->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->payment_status=NULL;
+                    $updateRedord->save();
+                }
+                $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
+                $activity->delete();
             }
-            $this->updateNextPreviousTotalBalance($activityPay->id, $activityPay->pay_type);
-            $activityPay->delete();
+            
+            // Delete payment history activity
+            $activityPay = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "client")->first();
+            if($activityPay) {
+                if($activityPay->fund_type == "refund payment") {
+                    $updateRedord= AccountActivity::find($activityPay->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->payment_status=NULL;
+                    $updateRedord->save();
+                }
+                $this->updateNextPreviousTotalBalance($activityPay->id, $activityPay->pay_type);
+                $activityPay->delete();
+            }
         }
     }
 
@@ -193,7 +209,7 @@ trait TrustAccountActivityTrait {
                 $currentBal = $currentBal + $item->credit_amount;
             } else if($item->payment_type == "payment" && $item->debit_amount > 0) {
                 $currentBal = $currentBal - $item->debit_amount;
-            } else if($item->payment_type == "refund payment" && $item->debit_amount > 0) {
+            } else if(($item->payment_type == "refund payment" || $item->payment_type == "refund_deposit") && $item->debit_amount > 0) {
                 $currentBal = $currentBal - $item->debit_amount;
             } else if($item->payment_type == "refund payment" && $item->credit_amount > 0) {
                 $currentBal = $currentBal + $item->credit_amount;

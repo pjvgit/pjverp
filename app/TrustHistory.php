@@ -17,7 +17,7 @@ class TrustHistory extends Authenticatable
 
     protected $fillable = ['client_id', 'payment_method', 'amount_paid', 'withdraw_amount', 'withdraw_from_account', 'payment_date', 'notes', 'fund_type', 
                 'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by', 'related_to_fund_request_id',
-                'allocated_to_case_id', 'related_to_invoice_payment_id' ];
+                'allocated_to_case_id', 'related_to_invoice_payment_id', 'allocated_to_lead_case_id'];
 
     protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund'];
     public function getCreatedatnewformateAttribute(){
@@ -61,7 +61,7 @@ class TrustHistory extends Authenticatable
         
     }
     public function getTrustBalanceAttribute(){
-       if($this->current_trust_balance!='0.00'){
+       if($this->current_trust_balance > 0.00){
            return number_format($this->current_trust_balance,2);
         }else{
             return "0.00";
@@ -132,5 +132,15 @@ class TrustHistory extends Authenticatable
     public function user()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    /**
+     * Get the leadAdditionalInfo that owns the TrustHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadAdditionalInfo()
+    {
+        return $this->belongsTo(LeadAdditionalInfo::class, 'allocated_to_lead_case_id', 'user_id');
     }
 }

@@ -257,12 +257,15 @@ if(isset($_GET['bank_account'])){
                     }
                 }
                 var Case = JSON.parse(aData.case);
-                if(Case==null || aData.case==null){
+                if(Case!=null || aData.case!=null){
+                    $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
+                        '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
+                        .case_title + '</a></div>');
+                } else if(aData.section=="request" && aData.lead_additional_info != null) {
+                    $("td:eq(3)", nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
+                        '/leads/' + aData.user_id + '/lead_details/info/">' + aData.lead_additional_info.potential_case_title + '</a></div>')
+                } else {
                     $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
-                }else{
-                $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-                    '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
-                    .case_title + '</a></div>');
                 }
                 var noteContent = '';
                 if(aData.notes != null) {

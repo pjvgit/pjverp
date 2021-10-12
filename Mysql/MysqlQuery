@@ -1,3 +1,7 @@
+------------------------------------ 12-OCT-2021 ------------------------------
+ALTER TABLE `trust_history` ADD `allocated_to_lead_case_id` int(11) NULL AFTER `related_to_invoice_payment_id`;
+ALTER TABLE `account_activity` ADD `trust_history_id` int(11) NULL COMMENT 'ref > trust_history > id' AFTER `invoice_history_id`, ADD `credit_history_id` int(11) NULL COMMENT 'ref > deposit_into_credit_history > id' AFTER `trust_history_id`;
+
 ------------------------------------ 11-OCT-2021 ------------------------------
 ALTER TABLE `lead_additional_info` ADD `allocated_trust_balance` float(8,2) NOT NULL DEFAULT '0.00' COMMENT '0.00' AFTER `converted_date`;
 ALTER TABLE `requested_fund` ADD `allocated_to_lead_case_id` int(11) NULL AFTER `allocated_to_case_id`;
