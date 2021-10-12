@@ -71,7 +71,7 @@ class TaskTimeEntry extends Authenticatable
 
     public function getLeadDataAttribute(){
         $userData = $this->user;
-        if($userData->user_level == 5){
+        if(isset($userData) && $userData->user_level == 5){
             return '<a class="name" href="'.route('case_details/info',$this->user_id).'">Potential Case: '.$userData->full_name.'</a>';
         }
     }    

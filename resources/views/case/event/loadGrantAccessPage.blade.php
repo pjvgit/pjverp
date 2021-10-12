@@ -59,7 +59,7 @@
                 $(this).find(":submit").prop("disabled", false);
                 return false;
             }
-            var dataString = $("form").serialize();
+            var dataString = $("#grantAccessPage").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveGrantAccessPage", // json datasource

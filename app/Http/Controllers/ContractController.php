@@ -34,7 +34,7 @@ class ContractController extends BaseController
         $user = User::select('*',DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as name'));
         $user = $user->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
-        $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
+        // $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $totalData=$user->count();
         $totalFiltered = $totalData;  // when there is no search parameter then total number rows = total number filtered rows.
         if( !empty($requestData['search']['value']) ) {   // if there is a search parameter, $requestData['search']['value'] contains search parameter
@@ -623,7 +623,14 @@ class ContractController extends BaseController
      {
         $contractUserID=base64_decode($request->user_id);
         $user = User::select("users.*")->where("users.id",$contractUserID)->first();
-        $allUser = User::select("*")->where("users.parent_user",$user->parent_user)->where("users.id","!=",$user->id)->get();
+        // $allUser = User::select("*")->where("users.parent_user",$user->parent_user)->where("users.id","!=",$user->id)->get();
+
+        $allUser = User::select('*');
+        $allUser = $allUser->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
+        $allUser = $allUser->whereIn("user_level",['1','3']); //Show firm staff only
+        $allUser = $allUser->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
+        $allUser = $allUser->where("users.id","!=",$user->id);
+        $allUser = $allUser->get();
         return view('contract.loadDeactivateUser',compact('user','allUser'));
      }
 

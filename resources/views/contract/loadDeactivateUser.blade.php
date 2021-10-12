@@ -30,9 +30,9 @@ $reasons = unserialize(REASON_TITLE);
         <div class="col-md-12 form-group mb-3">
             <select name="assign_to" class="form-control" id="assign_to" disabled>
                 <option value="">Select User</option>
-                <?php foreach($allUser as $k=>$v){
-                     ?><option value="<?php echo $v->id;?>"><?php echo $v->first_name;?> <?php echo $v->last_name;?> <?php
-                 }?>
+                @foreach($allUser as $k=>$v)
+                <option value="{{$v->id}}">{{ $v->first_name.' '.$v->last_name}}</option>
+                @endforeach
             </select>
         </div>
         <div class="col-md-12 form-group mb-3">

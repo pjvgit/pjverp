@@ -365,10 +365,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->save();
 
             // added trust history in user_additional_info
-            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $UserMaster->id));
-            $UsersAdditionalInfo->user_id=$request->user_id; 
-            $UsersAdditionalInfo->created_by =Auth::User()->id;
-            $UsersAdditionalInfo->save();
+            UsersAdditionalInfo::updateOrCreate(['user_id' => $UserMaster->id], ['user_id' => $UserMaster->id,'created_by' => Auth::User()->id]);
 
             $noteHistory=[];
             $noteHistory['acrtivity_title']='added a lead';
@@ -845,10 +842,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->save();
 
             // added trust history in user_additional_info
-            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
-            $UsersAdditionalInfo->user_id=$request->user_id; 
-            $UsersAdditionalInfo->created_by =Auth::User()->id;
-            $UsersAdditionalInfo->save();
+            UsersAdditionalInfo::updateOrCreate(['user_id' => $request->user_id], ['user_id' => $request->user_id,'created_by' => Auth::User()->id]);
             
             $noteHistory=[];
             $noteHistory['acrtivity_title']='edited a lead';
@@ -952,10 +946,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->save();
 
             // added trust history in user_additional_info
-            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
-            $UsersAdditionalInfo->user_id=$request->user_id; 
-            $UsersAdditionalInfo->created_by =Auth::User()->id;
-            $UsersAdditionalInfo->save();
+            UsersAdditionalInfo::updateOrCreate(['user_id' => $request->user_id], ['user_id' => $request->user_id,'created_by' => Auth::User()->id]);
         }
         return response()->json(['errors'=>'','user_id'=>$UserMaster->id]);
         exit;
@@ -1958,8 +1949,8 @@ class LeadController extends BaseController
    public function loadAllStaffMember(Request $request)
    {
 
-         $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->get();
-
+        //  $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->get();
+         $loadFirmStaff = firmUserList();
          $SavedStaff=$from='';
          if(isset($request->edit)){
            $SavedStaff=CaseTaskLinkedStaff::select('user_id')->where("task_id", $request->task_id)->get()->pluck('user_id')->toArray();
@@ -2592,7 +2583,7 @@ class LeadController extends BaseController
             $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');        
             $totalCalls=$Calls->count();
             
-            $getAllFirmUser=$this->getAllFirmUser();
+            $getAllFirmUser=firmUserList();
             
             $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
             $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->groupBy("call_for")->get();
@@ -2847,10 +2838,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->save();
 
             // added trust history in user_additional_info
-            $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $request->user_id));
-            $UsersAdditionalInfo->user_id=$request->user_id; 
-            $UsersAdditionalInfo->created_by =Auth::User()->id;
-            $UsersAdditionalInfo->save();
+            UsersAdditionalInfo::updateOrCreate(['user_id' => $request->user_id], ['user_id' => $request->user_id,'created_by' => Auth::User()->id]);
 
             $caseHistory=[];
             $caseHistory['acrtivity_title']='updated';
@@ -6997,7 +6985,7 @@ class LeadController extends BaseController
         }
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
         
-         $getAllFirmUser=$this->getAllFirmUser();
+         $getAllFirmUser=firmUserList();
          $case_id='';
          if(isset($request->case_id)){
             $case_id=$request->case_id;
@@ -7134,7 +7122,7 @@ class LeadController extends BaseController
         }
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
         
-        $getAllFirmUser=$this->getAllFirmUser();
+        $getAllFirmUser=firmUserList();
         $Calls=Calls::find($call_id);
         return view('lead.details.communication.editCall',compact('ClientAndLead','potentialCase','CaseMasterData','getAllFirmUser','Calls'));
     }

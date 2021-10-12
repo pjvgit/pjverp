@@ -153,7 +153,9 @@ class BillingController extends BaseController
     {  
         $case_id=$request->case_id;
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
+        
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
 
         $from=$curDate="";
@@ -177,7 +179,8 @@ class BillingController extends BaseController
     {  
         $case_id=$request->case_id;
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
 
         $from=$curDate="";
@@ -208,7 +211,8 @@ class BillingController extends BaseController
             $updatedBy=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as updated_by_name'))->where("id",$TaskTimeEntry['updated_by'])->first();
         }
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
 
         $from=$curDate="";
@@ -503,7 +507,8 @@ class BillingController extends BaseController
         $case_id=$request->case_id;
         $getChildUsers=$this->getParentAndChildUserIds();
         $CaseMasterData = CaseMaster::whereIn('created_by',$getChildUsers)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
 
 
@@ -645,7 +650,8 @@ class BillingController extends BaseController
             $updatedBy=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as updated_by_name'))->where("id",$TaskTimeEntry['updated_by'])->first();
         }
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
         return view('billing.expenses.loadEditExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','TaskTimeEntry','createdBy','updatedBy'));     
         exit;    
@@ -834,7 +840,8 @@ class BillingController extends BaseController
     {
         $getChildUsers=$this->getParentAndChildUserIds();
         $CaseMasterData = CaseMaster::whereIn('created_by',$getChildUsers)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         return view('billing.expenses.bulkAssignCase',compact('CaseMasterData'));     
         exit;    
     } 
@@ -2907,7 +2914,8 @@ class BillingController extends BaseController
                     $case_id=base64_decode($request->id);
                 }
                 $CaseMasterData = CaseMaster::find($case_id);
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
                 // $invoice_token = $request->invoice_token;
                 return view('billing.invoices.addSingleFlatFeeEntryPopup',compact('CaseMasterData','loadFirmStaff','case_id','invoice_id','adjustment_token'/* , 'invoice_token' */));     
                 exit; 
@@ -2990,7 +2998,8 @@ class BillingController extends BaseController
             if(!empty($user)){
                 $invoice_id=$request->invoice_id;
                
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
 
                 $FlatFeeEntry = FlatFeeEntry::find($request->id);
                 $case_id=$FlatFeeEntry['case_id'];
@@ -3063,7 +3072,8 @@ class BillingController extends BaseController
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
 
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
                 return view('billing.invoices.addSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token'));     
@@ -3184,7 +3194,8 @@ class BillingController extends BaseController
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
 
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
                 return view('billing.invoices.editSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','TaskTimeEntry'));     
@@ -3355,7 +3366,8 @@ class BillingController extends BaseController
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
 
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
                 return view('billing.invoices.addSingleExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token'));     
@@ -3484,7 +3496,8 @@ class BillingController extends BaseController
                 $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
 
-                $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+                $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
                 return view('billing.invoices.editSingleExpenseEntryPopup',compact('CaseMasterData','loadFirmStaff','ExpenseEntry','defaultRate','case_id','TaskActivity'));     
@@ -9326,7 +9339,8 @@ class BillingController extends BaseController
                 }
             }
         }
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
 
         $type=$request->type;
         return view('billing.timesheet.viewTimesheet',compact('monthTimeEntryDataForCalander','CalenderArray','type','loadFirmStaff'));
@@ -9471,7 +9485,9 @@ class BillingController extends BaseController
                  }
              }
          }
-         $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        //  $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        
+        $loadFirmStaff = firmUserList();
  
          $caseList = InvoiceInstallment::leftJoin("invoices","invoices.id","=","invoice_installment.invoice_id")
         ->leftJoin("case_master","case_master.id","=","invoices.case_id")
@@ -9878,7 +9894,8 @@ class BillingController extends BaseController
     {
         $case_id=$request->case_id;
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         return view('billing.loadCaseList', compact('CaseMasterData','case_id'));
        
     }

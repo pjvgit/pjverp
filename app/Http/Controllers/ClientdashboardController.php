@@ -248,9 +248,10 @@ class ClientdashboardController extends BaseController
     public function addExistingCase(Request $request)
     {
         $client_id=base64_decode($request->user_id);
-        $UserType=User::find($client_id);
-        $user_level=$UserType['user_level'];
-        return view('client_dashboard.addExistingCase',compact('client_id','user_level'));
+        $UserInfo=User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+        ->select('users.*','users_additional_info.client_portal_enable')
+        ->where('users.id',$client_id)->first();
+        return view('client_dashboard.addExistingCase',compact('client_id','UserInfo'));
     }
 
     public function loadCaseData(Request $request)
@@ -825,7 +826,8 @@ class ClientdashboardController extends BaseController
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
         }
-        $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
+        $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
         
         return view('client_dashboard.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','company_id','case_id','client_id'));     
@@ -2974,10 +2976,16 @@ class ClientdashboardController extends BaseController
                         return response()->json(['errors'=>$errorString,'contact_id'=>'']);
                         exit;
                     } else if($csv_data[0][0]=="first_name" || $csv_data[0][0]=="First Name" || $csv_data[0][0]=="Legalcase ID" ){
+                        
                         $user_level="2";
                         unset($csv_data[0]);
+                        if(trim($val[0]) != ""){
+                            $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
+                            return response()->json(['errors'=>$errorString,'contact_id'=>'']);
+                            exit;
+                        }
                         $ClientCompanyImport->total_record=count($csv_data);
-                        $ClientCompanyImport->save();
+                        $ClientCompanyImport->save();                        
                         try {                        
                         foreach($csv_data as $key=>$val){
                             $UserArray[$key]['first_name']=$val[0];
@@ -3117,6 +3125,11 @@ class ClientdashboardController extends BaseController
                         if($csv_data[0][0]=="Company" || $csv_data[0][0]=="company" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="4";
                         unset($csv_data[0]);
+                        if(trim($val[0]) != ""){
+                            $errorString='<ul><li>please fill the correct data into file. No blank data passed into import.</li></ui>';
+                            return response()->json(['errors'=>$errorString,'contact_id'=>'']);
+                            exit;
+                        }
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
                         try {

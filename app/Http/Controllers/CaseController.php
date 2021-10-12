@@ -1037,7 +1037,7 @@ class CaseController extends BaseController
                 $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');        
                 $totalCalls=$Calls->count();
                 
-                $getAllFirmUser=$this->getAllFirmUser();
+                $getAllFirmUser=firmUserList();
                 
                 $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
                 $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->where("case_id",$case_id)->groupBy("call_for")->get();
@@ -1878,7 +1878,7 @@ class CaseController extends BaseController
     public function loadExistingStaff(Request $request)
     {
         $case_id=$request->case_id;
-        $caseStaff = User::select("first_name","last_name","id","user_level","user_title","default_rate")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->get();
+        $caseStaff = firmUserList();
         return view('case.view.addExistingStaff',compact('case_id','caseStaff'));
     }
 

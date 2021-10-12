@@ -509,6 +509,8 @@ $controllerLoad = new App\Http\Controllers\CommonController();
     
 
     function editTask(id) {
+        alert('resources/views/case/taskView.blade.php');
+        console.log("editTask > resources/views/case/taskView.blade.php > " + id);
         $("#loadTaskDetailsView").modal("hide");
         $("#editTaskArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {

@@ -1277,6 +1277,7 @@ if(isset($_GET['task_read'])){
     }
 
     function editTask(id) {
+        console.log("editTask > resources/views/task/index.blade.php > " + id);
         $("#preloader").show();
         $("#editTaskArea").html('');
         $("#editTaskArea").html('<img src="{{LOADER}}""> Loading...');
@@ -1614,6 +1615,8 @@ if(isset($_GET['task_read'])){
     }
 
     function editTaskInView(id) {
+        alert("resources/views/task/index.blade.php");
+        console.log("editTaskInView > resources/views/task/index.blade.php > " + id);
         $("#preloader").show();
         $("#editTaskAreaInView").html('');
         $(function () {

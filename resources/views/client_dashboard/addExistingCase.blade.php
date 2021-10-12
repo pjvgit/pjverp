@@ -3,7 +3,7 @@
     @csrf
     <div id="showError" class="showError" style="display:none"></div>
     <input type="hidden" name="client_id" value="{{$client_id}}">
-    <input type="hidden" name="user_level" value="{{$user_level}}">
+    <input type="hidden" name="user_level" value="{{$UserInfo->user_level}}">
     <div class="col-md-12">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Case Link</label>
@@ -17,6 +17,52 @@
             <div class="col-sm-2"><a id="browse_all_courtcases" tabindex="-1" href="#"
                     onclick="showAllCourtCasesAutocomplete(); ">Browse All</a></div>
         </div>
+        <hr>
+        <?php if($UserInfo->client_portal_enable==0){ ?>
+            <label for="inputEmail3" class="col-sm-2 col-form-label"><b>Sharing </b></label>
+            <table class="no_padding">
+                <tbody>
+                    <tr>
+                        <td>
+                            <div id="share_link">
+                                <label>
+                                    Sharing is disabled since this contact is not allowed to login.
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        <?php }else{ ?>
+
+        <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-2 col-form-label"><b>Sharing </b></label>
+            <table class="no_padding">
+                <tbody>
+                    <tr>
+                        <td>
+                            <div id="share_link">
+                                <label id="court_case_user_link_share_label">
+                                    <input type="checkbox" name="user_link_share" id="court_case_user_link_share">
+                                    Share all existing case events and documents with
+                                    selected contacts
+                                </label>
+
+                                <br>
+
+                                <label id="court_case_user_link_share_read_label">
+                                    <input type="checkbox" name="user_link_share_read"
+                                        id="court_case_user_link_share_read" disabled>
+                                    Automatically mark all items as read
+                                </label>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <?php } ?>
         <hr>
         <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
         <div class="form-group row float-right">
@@ -134,5 +180,13 @@
     function showAllCourtCasesAutocomplete() {
         $(".contact_group").select2("open");
     }
+
+    $("#court_case_user_link_share").on("click",function(){
+        if($(this).is(":checked")){
+            $("#court_case_user_link_share_read").removeAttr('disabled');
+        }else{
+            $("#court_case_user_link_share_read").attr('disabled','disabled');
+        }
+    });
 
 </script>

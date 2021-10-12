@@ -5,7 +5,7 @@
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
     <input class="form-control" id="timeTrackingEnabled" value="{{$Task->time_tracking_enabled}}" name="timeTrackingEnabled" type="hidden">
     
-    <div class="row">
+    <div class="row"  bladeFile="resources/views/task/loadEditTaskPopup.blade.php">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
            <div class="form-group row">
@@ -595,6 +595,7 @@
     // }
 
     function loadRightSection(case_id) {
+        console.log("loadRightSection > resources/views/task/loadEditTaskPopup.blade.php > " + case_id);
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTaskRightSection",

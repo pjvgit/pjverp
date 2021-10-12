@@ -1405,6 +1405,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
     function editTask(id) {
+        console.log("editTask > resources/views/case/viewCase.blade.php > " + id);
         $("#editTaskArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({

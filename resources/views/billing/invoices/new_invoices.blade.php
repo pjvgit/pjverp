@@ -2935,8 +2935,16 @@ if(!isset($addition)){ $addition=0;}
                 afterLoader();
                 return false;
             }else{
-                afterLoader();
-                return true;
+                var alert = 0;
+                if($("#final_total_text").val() <= 0 && alert == 0){
+                    swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
+                    alert++;
+                    afterLoader();
+                    return false;
+                }else{
+                    afterLoader();
+                    return true;
+                }               
             }
         });
 

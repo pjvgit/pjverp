@@ -7,7 +7,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 $userTitle = unserialize(USER_TITLE); 
 
 ?>
-<div class="d-flex align-items-center  pb-4">
+<div class="d-flex align-items-center  pb-4" bladeFile="resources/views/contract/attorneysView.blade.php">
     <i class="fas fa-user-circle fa-2x"></i>
     <h2 class="mx-2 mb-0 text-nowrap">
         <?php echo $userProfile->first_name;?>
@@ -168,9 +168,7 @@ $userTitle = unserialize(USER_TITLE);
                                     </div>
                                     
                                    
-                                    <?php 
-                                    
-                                    if($userProfile->user_status!="3"){?>
+                                    <?php if($userProfile->user_status!="3"){?>
                                     <div class="mt-md-2">
                                         <div class="mb-4">
                                             <div class="alert alert-info mt-xs-0 mt-md-3">
@@ -305,6 +303,7 @@ $userTitle = unserialize(USER_TITLE);
                     </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/attorneys/cases"){ echo "active show"; } ?>" id="contactBasic" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="table-responsive">
+                        <?php if($userProfile->user_status!="3"){?>
                             <div class="d-flex align-items-center justify-content-end mb-2 d-print-none">
                                 <div>
                                     <a data-toggle="modal" data-target="#linkBulkCasesToStaff" data-placement="bottom" href="javascript:;" class="btn btn-link text-black-50 link_all_cases" >Link to All Active Cases</a>
@@ -314,6 +313,7 @@ $userTitle = unserialize(USER_TITLE);
                                     <button class="btn btn-primary btn-rounded m-1 px-5" type="button" >Add Case Link</button>
                                 </a> 
                             </div>
+                        <?php } ?>
                             <table class="display table table-striped table-bordered" id="StaffLinkedCaseList" style="width:100%">
                                 <thead>
                                     <tr>
@@ -1042,8 +1042,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }else{
                         $('td:eq(3)', nRow).html('<div class="text-left">Not Specified</div>');
                     }
-                    var d="'{{base64_decode($id)}}','{{ $userProfile->first_name}} {{ $userProfile->middle_name}} {{ $userProfile->last_name}}','"+aData.id+"','"+aData.case_title+"',false";
-                    $('td:eq(4)', nRow).html('<div class="text-center"><a  href="javascript:void(0);" onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    <?php if($userProfile->user_status != 3){ ?>
+                        var d="'{{base64_decode($id)}}','{{ $userProfile->first_name}} {{ $userProfile->middle_name}} {{ $userProfile->last_name}}','"+aData.id+"','"+aData.case_title+"',false";
+                        $('td:eq(4)', nRow).html('<div class="text-center"><a  href="javascript:void(0);" onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    <?php }else{ ?>
+                        $('td:eq(4)', nRow).html('<div class="text-left"></div>');
+                    <?php } ?>
 
                 },
                 "initComplete": function(settings, json) {

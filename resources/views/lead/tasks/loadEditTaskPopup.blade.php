@@ -4,7 +4,7 @@
     <input class="form-control" id="id" value="{{ $Task->id}}" name="task_id" type="hidden">
 
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
-    <div class="row">
+    <div class="row" bladeFile="resources/views/lead/tasks/loadEditTaskPopup.blade.php">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
            <div class="form-group row">

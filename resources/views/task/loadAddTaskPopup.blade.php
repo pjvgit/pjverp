@@ -1,6 +1,6 @@
 <form class="CreateTask" id="CreateTask" name="CreateTask" method="POST">
     @csrf
-    <div class="row">
+    <div class="row" bladefile="resources/views/task/loadAddTaskPopup.blade.php">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
            <div class="form-group row">
@@ -430,6 +430,7 @@
     });
 
     function loadRightSection(case_id) {
+        console.log("loadRightSection > resources/views/task/loadAddTaskPopup.blade.php > " + case_id);
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTaskRightSection",

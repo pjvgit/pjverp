@@ -11,47 +11,32 @@
             <tr>
                 <td><b>Select All</b></td>
                 <td><input name="client-share-all" id="client_share_all" type="checkbox"></td>
-                {{-- <td><input name="client-attend-all" type="checkbox"></td> --}}
+                
             </tr>
             <?php 
-                    foreach($caseCllientSelection as $key=>$val){?>
-            <tr class="sharing-user">
-                <td class="d-flex  no-border "><span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#"
-                        data-toggle="popover" title=""
-                        data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number.
-                        </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{BASE_URL}}contacts/clients/{{$val->user_id}}'>Edit Info</a>"
-                        data-html="true">
-                        <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
-                        <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
-                    </a>
-                </td>
-                <?php /* <td>
-                    <label class="mb-0">
-                        <?php 
-                        if($val->client_portal_enable=="0"){
-                        ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
-                            onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
-                        <?php
-                        }else{
-                            ?>
-                        <input data-email-present="false" name="clientCheckbox[]" id="cleintUSER_{{$val->id}}"
-                            onclick="loadGrantAccessModal({{$val->id}});" type="checkbox"
-                            class="lead_client_attend_all_users client-login-not-enabled handler-attached">
-                        <?php
-                        }?>
-
-                    </label>
-                </td> */ ?>
-                <td>
-                    <label class="mb-0">
-                        <input name="attend-checkbox" type="checkbox" class="client_share_all_users">
-                    </label>
-                </td>
-
-            </tr>
+            foreach($caseCllientSelection as $key=>$val){?>
+                <tr class="sharing-user">
+                    <td class="d-flex no-border">
+                        <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
+                        <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#" data-toggle="popover" title="" data-trigger="hover"
+                            data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('contacts/clients/view', $val->user_id) }}'>Edit Info</a>" data-html="true">
+                            <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
+                            <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
+                        </a>
+                        <?php if($val->client_portal_enable=='0'){?> 
+                        <i class="tooltip-alert" id="err_popover_{{ $val->id }}" data-toggle="popover"  data-placement= "bottom" data-trigger="hover"  title="" 
+                            data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
+                            data-html="true" data-original-title="" style="display: none;"></i>
+                        <?php } ?>
+                    </td>
+                    <td>
+                        <label class="mb-0 loadEventRightSection">
+                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
+                            data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
+                            class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
+                        </label>
+                    </td>
+                </tr>
             <?php } ?>
         </table>
     <?php } ?>
@@ -187,6 +172,22 @@
         });
         $("#client_share_all").click(function () {
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
+        });
+        
+        $(".lead_client_share_all_users").click(function () {
+            console.log("lead_client_share_all_users > resources/views/task/loadTaskRightSection.blade.php ");
+            var userId = $(this).val();
+            if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
+                $("#SelectAllLeadShare").prop('checked', true);
+            } else {
+                $("#SelectAllLeadShare").prop('checked', false);
+            }
+            if($(this).is(":checked")){
+                $("#attend_user_"+userId).prop('disabled', false);
+            }else{
+                $("#attend_user_"+userId).prop('disabled', true);
+                $("#attend_user_"+userId).prop('checked', false);
+            }  
         });
         $("#client_attend_all").click(function () {
             $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
