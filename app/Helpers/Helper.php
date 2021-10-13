@@ -450,8 +450,5 @@ function firmSolReminders()
 }
 // added trust history in user_additional_info
 function checkLeadInfoExists($user_id){
-    $UsersAdditionalInfo= UsersAdditionalInfo::firstOrNew(array('id' => $user_id));
-    $UsersAdditionalInfo->user_id=$user_id; 
-    $UsersAdditionalInfo->created_by =Auth::User()->id;
-    $UsersAdditionalInfo->save();
+    UsersAdditionalInfo::updateOrCreate(['user_id' => $user_id], ['user_id' => $user_id,'created_by' => Auth::User()->id]);
 }

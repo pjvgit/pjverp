@@ -670,7 +670,7 @@ class TaskController extends BaseController
     public function saveEditTaskPopup(Request $request)
     {
      
-    //    return $request->all();
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'task_name' => 'required',
         ]);
@@ -838,6 +838,26 @@ class TaskController extends BaseController
                     }
                   
                 }
+            }
+        }else if(isset($request['ContactInviteClientCheckbox'])){
+            $alreadyAdded=[];
+            for($i=0;$i<count(array_unique($request['ContactInviteClientCheckbox']));$i++){
+                $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
+                $CaseEventLinkedContactLead->lead_id=$lead_id; 
+                $CaseEventLinkedContactLead->user_type='contact'; 
+                $CaseEventLinkedContactLead->contact_id=$request['ContactInviteClientCheckbox'][$i];
+                if(isset($request['ContactAttendClientCheckbox'][$i])){
+                    $attend="yes";
+                }else{
+                    $attend="no";
+                }
+                $CaseEventLinkedContactLead->attending=$attend;
+                $CaseEventLinkedContactLead->invite="yes";
+                $CaseEventLinkedContactLead->created_by=Auth::user()->id; 
+                if(!in_array($request['ContactInviteClientCheckbox'][$i],$alreadyAdded)){
+                    $CaseEventLinkedContactLead->save();
+                }
+                $alreadyAdded[]=$request['ContactInviteClientCheckbox'][$i];
             }
         }
         $pluckIds =CaseTaskLinkedStaff::select("*")->where("task_id", $task_id)->whereIn("id",$finalDataList)->get()->pluck("id");

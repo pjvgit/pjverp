@@ -10,8 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="client_share_all" type="checkbox"></td>
-                
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox"></td>
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>
@@ -245,7 +244,16 @@
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
         });
+        checkbocChecked();
     });
+
+    function checkbocChecked(){
+        if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
+            $("#SelectAllLeadShare").prop('checked', true);
+        } else {
+            $("#SelectAllLeadShare").prop('checked', false);
+        }
+    }
 
     function loadTimeEstimationUsersListbkp(SU) {
         var arrayList = [];
