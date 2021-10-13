@@ -52,6 +52,15 @@ trait TrustAccountTrait {
     }
 
     /**
+     * Update allocated trust balance when delete withdraw
+     */
+    public function deleteWithdrawAllocateTrustBalance($trustHistory)
+    {
+        CaseMaster::where('id', $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->withdraw_amount);
+        CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->withdraw_amount);
+    }
+
+    /**
      * Update allocated trust balance when trust payment delete
      */
     public function deletePaymentTrustBalance($trustHistory)
@@ -190,7 +199,7 @@ trait TrustAccountTrait {
             } else if($item->fund_type == "withdraw") {
                 $currentBal = $currentBal - $item->withdraw_amount;
             } else if($item->fund_type == "refund_withdraw") {
-                $currentBal = $currentBal + $item->withdraw_amount;
+                $currentBal = $currentBal + $item->refund_amount;
             } else if($item->fund_type == "payment") {
                 $currentBal = $currentBal - $item->amount_paid;
             } else if($item->fund_type == "refund payment") {

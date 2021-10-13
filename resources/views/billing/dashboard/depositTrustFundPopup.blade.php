@@ -213,6 +213,11 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                             $("#depositIntoTrustAccount").modal("hide")
                         }, 100);
                         swal('Deposit Successful!', res.msg, 'success');
+                        if($("#invoiceListw").length > 0) {
+                            setTimeout(function () {
+                            window.location.reload();
+                            }, 1000);
+                        }
                     }
                 },
                 error: function (jqXHR, exception) {

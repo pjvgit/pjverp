@@ -87,10 +87,10 @@ trait FundRequestTrait {
         if($creditHistory->related_to_fund_request_id) {
             $fundRequest = RequestedFund::whereId($creditHistory->related_to_fund_request_id)->first();
             if($fundRequest) {
-                if($creditHistory->fund_type == 'refund_deposit') {
+                if($creditHistory->payment_type == 'refund deposit') {
                     $dueAmt = $fundRequest->amount_due - $creditHistory->deposit_amount;
                     $paidAmt = $fundRequest->amount_paid + $creditHistory->deposit_amount;
-                } else if($creditHistory->fund_type == 'diposit'){
+                } else if($creditHistory->payment_type == 'deposit') {
                     $dueAmt = $fundRequest->amount_due + $creditHistory->deposit_amount;
                     $paidAmt = $fundRequest->deposit_amount - $creditHistory->amount_paid;
                 } else {

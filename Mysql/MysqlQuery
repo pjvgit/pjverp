@@ -2,6 +2,7 @@
 ALTER TABLE `task_linked_staff`
 ADD `is_contact` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `linked_or_not_with_case`,
 ADD `is_assign` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_contact`;
+ALTER TABLE `deposit_into_credit_history` ADD `allocated_to_lead_case_id` int(11) NULL AFTER `related_to_fund_request_id`;
 
 ------------------------------------ 12-OCT-2021 ------------------------------
 ALTER TABLE `trust_history` ADD `allocated_to_lead_case_id` int(11) NULL AFTER `related_to_invoice_payment_id`;

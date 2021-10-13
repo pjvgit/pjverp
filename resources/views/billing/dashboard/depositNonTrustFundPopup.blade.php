@@ -205,7 +205,11 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         setTimeout(function () {
                             $("#depositIntoNonTrustAccount").modal("hide")
                         }, 1000);
-                        $('#billing_credit_history_table').DataTable().ajax.reload(null, false);
+                        if($("#billing_credit_history_table").length > 0) {
+                            $('#billing_credit_history_table').DataTable().ajax.reload(null, false);
+                        } else {
+                            window.location.reload();
+                        }
                     }
                 },
                 error: function (jqXHR, exception) {
