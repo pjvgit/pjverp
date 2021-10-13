@@ -177,6 +177,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                     <textarea name="case_description" class="form-control" rows="5"></textarea>
                                                 </div>
                                             </div>
+                                            @if(IsCaseSolEnabled() == 'yes')
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of Limitations</label>
                                                 <div class="col-md-10 form-group mb-3">
@@ -227,7 +228,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                     </button>
                                                 </div>
                                             </div>
-                                        
+                                        @endif
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Conflict Check</label>
                                                 <div class="col-md-10 form-group mb-3">

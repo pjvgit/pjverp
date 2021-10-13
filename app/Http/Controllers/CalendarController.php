@@ -407,7 +407,7 @@ class CalendarController extends BaseController
           $case_id=$request->case_id;
           $caseLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
 
-          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereNotIn('id',$caseLinkedStaffList)->get();
+          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereNotIn('id',$caseLinkedStaffList)->where("user_status","1")->get();
        
           $caseLinkeSaved=array();
           $caseLinkeSavedAttending=array();

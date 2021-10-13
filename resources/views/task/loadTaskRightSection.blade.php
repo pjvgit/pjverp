@@ -10,7 +10,9 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox"></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" 
+                <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>
+                type="checkbox"></td>
             </tr>
             <?php 
             foreach($caseCllientSelection as $key=>$val){?>
@@ -29,11 +31,19 @@
                         <?php } ?>
                     </td>
                     <td>
+                        <?php if(isset($from) && $from=="edit"){?>
                         <label class="mb-0 loadEventRightSection">
-                            <input data-email-present="false" name="ContactInviteClientCheckbox[]" <?php if(in_array($val->id,$caseLinkeSavedInviteContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
-                            data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
-                            class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
+                            <input class="lead_client_share_all_users" name="linked_contact_checked_attend[]" 
+                            <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?>
+                            value="{{$val->id}}" id="linked_contact_checked_attend_{{$val->id}}"
+                            <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>
+                        <?php }else{ ?>
+                            <label class="mb-0 loadEventRightSection">
+                            <input class="lead_client_share_all_users"  name="linked_contact_checked_attend[]" value="{{$val->id}}" id="linked_contact_checked_attend_{{$val->id}}"
+                            <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
+                        </label>
+                        <?php } ?>    
                     </td>
                 </tr>
             <?php } ?>
@@ -93,7 +103,11 @@
                 <th class="sharing-list-header no-border w-75">Staff</th>
                 <th class="no-border">Assign</th>
             </tr>
-
+            <div style="display: none;">
+            {{count($caseLinkedStaffList)}} -- {{count($caseLinkedSavedAssigned)}}
+            {{ print_r($caseLinkedStaffList)}}
+            {{ print_r($caseLinkedSavedAssigned)}}
+            </div>
             <tr>
                 <td><b>Select All</b></td>
                 <td>
@@ -181,12 +195,6 @@
             } else {
                 $("#SelectAllLeadShare").prop('checked', false);
             }
-            if($(this).is(":checked")){
-                $("#attend_user_"+userId).prop('disabled', false);
-            }else{
-                $("#attend_user_"+userId).prop('disabled', true);
-                $("#attend_user_"+userId).prop('checked', false);
-            }  
         });
         $("#client_attend_all").click(function () {
             $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
@@ -244,16 +252,9 @@
         $("#HideShowNonlink").on('click', function () {
             $(".staff-table-nonlinked").toggle();
         });
-        checkbocChecked();
-    });
+        
 
-    function checkbocChecked(){
-        if ($('.lead_client_share_all_users:checked').length == $('.lead_client_share_all_users').length) {
-            $("#SelectAllLeadShare").prop('checked', true);
-        } else {
-            $("#SelectAllLeadShare").prop('checked', false);
-        }
-    }
+    });
 
     function loadTimeEstimationUsersListbkp(SU) {
         var arrayList = [];

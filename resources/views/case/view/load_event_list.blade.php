@@ -63,10 +63,13 @@
             </td>
             <td class="c-pointer">
                 <div class="mt-3 event-name d-flex align-items-center">
-                    <span><span class="">{{($vv->event_title)??'<No Title>'}}</span></span>
-                        @if($vv->is_event_private=='yes')
-                            <span class="text-danger"> &nbsp;[Private]</span>
-                        @endif 
+                    @if($vv->is_SOL=='yes')
+                        <span class="mr-2 badge badge-success">SOL</span>
+                    @endif 
+                        <span class="">{{($vv->event_title)??'<No Title>'}}</span>
+                    @if($vv->is_event_private=='yes')
+                        <span class="text-danger"> &nbsp;[Private]</span>
+                    @endif 
                 </div>
             </td>
             <td class="c-pointer">
@@ -148,6 +151,15 @@
                     <i class="table-cell-placeholder mt-3"></i>
                 @endif
             </td>
+            @if($vv->is_SOL=='yes')
+            <td class="event-users">
+                <a class="align-items-center" data-toggle="modal" data-target="#addCaseReminderPopup" 
+                data-placement="bottom" href="javascript:;" 
+                onclick="addCaseReminder({{$vv->case_id}});"> 
+                <i class="fas fa-bell pr-2 align-middle"></i>
+                </a>
+            </td>
+            @else
             <td class="event-users">
                 <?php if($vv->is_event_private=='no'){?>
                 <div class="mt-3 float-right">
@@ -206,6 +218,7 @@
                 </div>
                 <?php } ?>
             </td>
+            @endif
         </tr>
     @empty
     @endforelse

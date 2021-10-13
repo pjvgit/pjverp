@@ -175,6 +175,9 @@ class FirmController extends BaseController
             if(isset($request->statute_of_limitations) && $request->statute_of_limitations=="on"){
                 $FirmAddress->sol="yes";
                 $FirmAddress->save(); 
+            }else{
+                $FirmAddress->sol="no";
+                $FirmAddress->save(); 
             }
 
             // if ($request->hasFile('firm_logo')) {

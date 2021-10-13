@@ -1,3 +1,8 @@
+------------------------------------ 13-OCT-2021 ------------------------------
+ALTER TABLE `task_linked_staff`
+ADD `is_contact` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `linked_or_not_with_case`,
+ADD `is_assign` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `is_contact`;
+
 ------------------------------------ 12-OCT-2021 ------------------------------
 ALTER TABLE `trust_history` ADD `allocated_to_lead_case_id` int(11) NULL AFTER `related_to_invoice_payment_id`;
 ALTER TABLE `account_activity` ADD `trust_history_id` int(11) NULL COMMENT 'ref > trust_history > id' AFTER `invoice_history_id`, ADD `credit_history_id` int(11) NULL COMMENT 'ref > deposit_into_credit_history > id' AFTER `trust_history_id`;

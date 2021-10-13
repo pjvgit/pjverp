@@ -19,12 +19,11 @@ $adjustment_token=round(microtime(true) * 1000);
             <span class="text-danger"> [Closed]</span>
             <?php } ?>
         </h2>
-
+        @if(IsCaseSolEnabled() == 'yes')
         <div class="d-flex">
             <div id="court-case-number-header" class="case-number-header border-right pr-2 d-print-none">
                 {{$CaseMaster->case_unique_number}}
             </div>
-
             <div class="statute-of-limitations-field" data-can-edit-case="true" data-court-case-id="12065562"
                 data-sol-date="" data-sol-satisfied="false">
                 <div class="d-flex align-items-center pl-2 d-print-none">
@@ -55,6 +54,7 @@ $adjustment_token=round(microtime(true) * 1000);
                 }?>
             </span>
         </div>
+        @endif
     </div>
 
     <div class="ml-auto d-print-none">

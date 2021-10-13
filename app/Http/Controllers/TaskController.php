@@ -129,7 +129,7 @@ class TaskController extends BaseController
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
@@ -264,7 +264,7 @@ class TaskController extends BaseController
           $case_id=$request->case_id;
           $caseLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
 
-          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereNotIn('id',$caseLinkedStaffList)->get();
+          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseLinkedStaffList)->get();
        
           $caseLinkeSaved=array();
           $caseLinkeSavedAttending=array();
@@ -430,9 +430,9 @@ class TaskController extends BaseController
   }
    public function saveLinkedStaffToTask($request,$task_id)
    {
-       CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
-       if(isset($request['linked_staff_checked_attend'])){
-        for($i=0;$i<count($request['linked_staff_checked_attend']);$i++){
+        CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+        if(isset($request['linked_staff_checked_attend'])){
+            for($i=0;$i<count($request['linked_staff_checked_attend']);$i++){
                 $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
                 $CaseTaskLinkedStaff->task_id=$task_id; 
                 $CaseTaskLinkedStaff->user_id=$request['linked_staff_checked_attend'][$i];
@@ -444,6 +444,19 @@ class TaskController extends BaseController
                 }
                 $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
             
+                $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
+                $CaseTaskLinkedStaff->save();
+            }
+        }
+        if(isset($request['linked_contact_checked_attend'])){
+            for($i=0;$i<count($request['linked_contact_checked_attend']);$i++){
+                $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
+                $CaseTaskLinkedStaff->task_id=$task_id; 
+                $CaseTaskLinkedStaff->user_id=$request['linked_contact_checked_attend'][$i];
+                $CaseTaskLinkedStaff->time_estimate_total="0";
+                $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                $CaseTaskLinkedStaff->is_contact = "yes";
+                $CaseTaskLinkedStaff->is_assign = "yes";
                 $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                 $CaseTaskLinkedStaff->save();
             }
@@ -839,25 +852,35 @@ class TaskController extends BaseController
                   
                 }
             }
-        }else if(isset($request['ContactInviteClientCheckbox'])){
-            $alreadyAdded=[];
-            for($i=0;$i<count(array_unique($request['ContactInviteClientCheckbox']));$i++){
-                $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
-                $CaseEventLinkedContactLead->lead_id=$lead_id; 
-                $CaseEventLinkedContactLead->user_type='contact'; 
-                $CaseEventLinkedContactLead->contact_id=$request['ContactInviteClientCheckbox'][$i];
-                if(isset($request['ContactAttendClientCheckbox'][$i])){
-                    $attend="yes";
+        }if(isset($request['linked_contact_checked_attend'])){
+            foreach($request['linked_contact_checked_attend'] as $k=>$v){
+                $CaseTaskLinkedStaff = CaseTaskLinkedStaff::where("user_id",$v)->where("task_id", $task_id)->count();
+                if($CaseTaskLinkedStaff=="0"){
+                    $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
+                    $CaseTaskLinkedStaff->task_id=$task_id; 
+                    $CaseTaskLinkedStaff->user_id=$v; 
+                    $CaseTaskLinkedStaff->time_estimate_total="0";
+                    $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                    $CaseTaskLinkedStaff->is_contact = "yes";
+                    $CaseTaskLinkedStaff->is_assign = "yes";
+                    $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
+                    $CaseTaskLinkedStaff->save();
+                    $finalDataList[]=$CaseTaskLinkedStaff->id;
                 }else{
-                    $attend="no";
+                    $CaseTaskLinkedStaffCheck =CaseTaskLinkedStaff::select("*")->where("user_id",$v)->where("task_id", $task_id)->first();
+                    if(!empty($CaseTaskLinkedStaffCheck)){
+                        $CaseTaskLinkedStaff = CaseTaskLinkedStaff::find($CaseTaskLinkedStaffCheck->id);
+                        $CaseTaskLinkedStaff->task_id=$task_id; 
+                        $CaseTaskLinkedStaff->user_id=$v;
+                        $CaseTaskLinkedStaff->time_estimate_total="0";
+                        $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                        $CaseTaskLinkedStaff->is_contact = "yes";
+                        $CaseTaskLinkedStaff->is_assign = "yes";
+                        $CaseTaskLinkedStaff->updated_by=Auth::user()->id; 
+                        $CaseTaskLinkedStaff->save();
+                        $finalDataList[]=$CaseTaskLinkedStaffCheck->id;
+                    }                  
                 }
-                $CaseEventLinkedContactLead->attending=$attend;
-                $CaseEventLinkedContactLead->invite="yes";
-                $CaseEventLinkedContactLead->created_by=Auth::user()->id; 
-                if(!in_array($request['ContactInviteClientCheckbox'][$i],$alreadyAdded)){
-                    $CaseEventLinkedContactLead->save();
-                }
-                $alreadyAdded[]=$request['ContactInviteClientCheckbox'][$i];
             }
         }
         $pluckIds =CaseTaskLinkedStaff::select("*")->where("task_id", $task_id)->whereIn("id",$finalDataList)->get()->pluck("id");
@@ -1203,7 +1226,7 @@ class TaskController extends BaseController
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
@@ -1370,7 +1393,7 @@ class TaskController extends BaseController
   public function loadTaskRightSection(Request $request)
   {       
       $caseLinkeSaved=array();
-      $caseLinkedSavedAssigned=array();
+      $caseLinkedSavedAssigned=$caseLinkeSavedAttendingContact=$caseLinkeSavedInviteContact=array();
       $case_id=$request->case_id;
       $task_id=$request->task_id;
       $caseNonLinkedAssigned=[];
@@ -1381,7 +1404,7 @@ class TaskController extends BaseController
 
       //Load Non link staff list
       $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
 
      //Load Linked staff
       $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->orderBy('case_staff.user_id',"ASC")->groupBy('case_staff.user_id')->get();
@@ -1389,23 +1412,20 @@ class TaskController extends BaseController
   
       if(isset($task_id) && $task_id!=''){
      
-        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->get()->pluck('user_id');
+        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","no")->get()->pluck('user_id');
         $caseLinkedSavedAssigned= $caseLinkedSavedAssigned->toArray();
   
-        $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","no")->where("task_linked_staff.task_id",$task_id)->get()->pluck('user_id');
+        $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","no")->where("task_linked_staff.is_assign","no")->where("task_linked_staff.task_id",$task_id)->get()->pluck('user_id');
         $caseNonLinkedAssigned= $caseNonLinkedAssigned->toArray();
         $from="edit";
 
 
-        $caseLinkeSavedAttendingContact = CaseEventLinkedContactLead::select("case_event_linked_contact_lead.contact_id")->where("case_event_linked_contact_lead.lead_id",$request->lead_id)->where('attending','yes')->get()->pluck('contact_id');
+        $caseLinkeSavedAttendingContact = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->get()->pluck('user_id');
         $caseLinkeSavedAttendingContact= $caseLinkeSavedAttendingContact->toArray();
-
-        $caseLinkeSavedInviteContact = CaseEventLinkedContactLead::select("case_event_linked_contact_lead.contact_id")->where("case_event_linked_contact_lead.lead_id",$request->lead_id)->where('invite','yes')->get()->pluck('contact_id');
-        $caseLinkeSavedInviteContact= $caseLinkeSavedInviteContact->toArray();
         
       }
      
-      return view('task.loadTaskRightSection',compact('caseCllientSelection','loadFirmUser','from','task_id','caseLinkedStaffList','caseNonLinkedAssigned','caseLinkedSavedAssigned','caseLinkeSaved','caseLinkeSavedAttendingContact','caseLinkeSavedInviteContact'));     
+      return view('task.loadTaskRightSection',compact('caseCllientSelection','loadFirmUser','from','task_id','caseLinkedStaffList','caseNonLinkedAssigned','caseLinkedSavedAssigned','caseLinkeSaved','caseLinkeSavedAttendingContact'));     
       exit;    
  }
    

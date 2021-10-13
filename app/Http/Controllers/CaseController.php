@@ -81,7 +81,7 @@ class CaseController extends BaseController
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
         // return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
         return view('case.index',compact('CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress'));
@@ -204,7 +204,7 @@ class CaseController extends BaseController
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
         return view('case.loadStep1',compact('CaseMasterClient','CaseMasterCompany','user_id','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser'));
     }  
 
@@ -364,10 +364,9 @@ class CaseController extends BaseController
                 $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
                 $caseStageHistory->save();
     
-                if($caseStatusChange->case_statute!=NULL){
+                if($CaseMaster->case_statute_date !=NULL) {
                     $this->saveSOLEventIntoCalender($CaseMaster->id);
-                }
-                
+                }                
                 
                 DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
                 session(['popup_success' => 'Case has been created.']);
@@ -556,6 +555,11 @@ class CaseController extends BaseController
                     $CaseSolReminder->save();
                 }
             }
+            
+            // add sol in event calender
+            if($CaseMaster->case_statute_date !=NULL) {
+                $this->saveSOLEventIntoCalender($CaseMaster->id);
+            } 
 
             //Activity tab
             $data=[];
@@ -624,7 +628,7 @@ class CaseController extends BaseController
         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;
         $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_level","3")->get();
+        $loadFirmUser= $loadFirmUser->whereIn("id",$getChildUsers)->where("user_status","1")->where("user_level","3")->get();
         return view('case.loadStep4',compact('loadFirmUser','case_id'));
     }
 
@@ -669,7 +673,7 @@ class CaseController extends BaseController
             $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
             $caseStageHistory->save();
 
-            if($caseStatusChange->case_statute!=NULL){
+            if($caseStatusChange->case_statute_date !=NULL){
                 $this->saveSOLEventIntoCalender($request->case_id);
             }
 
@@ -871,6 +875,11 @@ class CaseController extends BaseController
                     $CaseSolReminder->save();
                 }
             }
+            
+            // add sol in event calender
+            if($CaseMaster->case_statute_date != null) {
+                $this->saveSOLEventIntoCalender($request->case_id);
+            } 
         }
         session(['popup_success' => 'Case details has been updated.']);
         return response()->json(['errors'=>'','case_id'=>$request->case_id]);
@@ -1702,8 +1711,22 @@ class CaseController extends BaseController
         $data1['activity_type']='';
         $data1['staff_id']=$CaseClientSelection->selected_user;
         $this->caseActivity($data1);
-
-
+        
+        // remove from task_linked_staff and case_allocation staff
+        $CaseEventData = CaseEvent::where('case_id',$CaseClientSelection->case_id)->get();
+        
+        if(count($CaseEventData) > 0) {
+            foreach ($CaseEventData as $k=>$v){
+                CaseEventLinkedStaff::where('user_id',$CaseClientSelection->selected_user)->where('event_id',$v->id)->delete();
+                CaseEventLinkedContactLead::where('contact_id',$CaseClientSelection->selected_user)->where('event_id',$v->id)->delete();
+            }
+        }
+        $TaskData = Task::where('case_id',$CaseClientSelection->case_id)->get();
+        if(count($TaskData) > 0) {
+            foreach ($TaskData as $k=>$v){
+                CaseTaskLinkedStaff::where('user_id',$CaseClientSelection->selected_user)->where('task_id',$v->id)->delete();
+            }
+        }
         CaseClientSelection::where("id", $id)->delete();
         session(['popup_success' => 'Unlink '.$request->username.' from case']);
         return response()->json(['errors'=>'','id'=>$id]);
@@ -1869,6 +1892,38 @@ class CaseController extends BaseController
     public function UnlinkAttorney(Request $request)
     {
         $id=$request->id;
+        $CaseStaffSelection = CaseStaff::where("id", $id)->first();
+        $data=[];
+        $data['user_id']=$CaseStaffSelection->user_id;
+        $data['client_id']=$CaseStaffSelection->user_id;
+        $data['case_id']=$CaseStaffSelection->case_id;
+        $data['activity']='unlinked Staff';
+        $data['type']='staff';
+        $data['action']='unlink';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
+
+        $data1=[];
+        $data1['activity_title']='unlinked staff';
+        $data1['case_id']=$CaseClientSelection->case_id;
+        $data1['activity_type']='';
+        $data1['staff_id']=$CaseClientSelection->user_id;
+        $this->caseActivity($data1);
+        // remove from task_linked_staff and case_allocation staff
+        $CaseEventData = CaseEvent::where('case_id',$CaseStaffSelection->case_id)->get();
+        
+        if(count($CaseEventData) > 0) {
+            foreach ($CaseEventData as $k=>$v){
+                CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->selected_user)->where('event_id',$v->id)->delete();
+                CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->selected_user)->where('event_id',$v->id)->delete();
+            }
+        }
+        $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
+        if(count($TaskData) > 0) {
+            foreach ($TaskData as $k=>$v){
+                CaseTaskLinkedStaff::where('user_id',$CaseStaffSelection->selected_user)->where('task_id',$v->id)->delete();
+            }
+        }
         CaseStaff::where("id", $id)->delete();
         session(['popup_success' => 'Unlink '.$request->username.' from case']);
         return response()->json(['errors'=>'','id'=>$id]);
@@ -5016,7 +5071,7 @@ class CaseController extends BaseController
           $case_id=$request->case_id;
           $caseLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
 
-          $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->whereNotIn('id',$caseLinkedStaffList)->get();
+          $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_status","1")->where("user_level","3")->whereNotIn('id',$caseLinkedStaffList)->get();
             if(isset($request->event_id)){
                 $nonLinkedSaved = CaseEventLinkedStaff::select("case_event_linked_staff.user_id")->where("case_event_linked_staff.event_id",$request->event_id)->where('is_linked','no')->get()->pluck('user_id');
                 $nonLinkedSaved= $nonLinkedSaved->toArray();
@@ -5356,22 +5411,41 @@ class CaseController extends BaseController
     }
 
     public function saveSOLEventIntoCalender($case_id){
-        $CaseData=CaseMaster::find($case_id);    
-        $CaseEvent = new CaseEvent;
-            $CaseEvent->event_title=$CaseData->case_title;  
-            $CaseEvent->case_id=$case_id;
-            $CaseEvent->event_type=NULL;
-            $CaseEvent->start_date=$CaseData->case_statute_date; 
-            $CaseEvent->end_date=$CaseData->case_statute_date; 
-            $CaseEvent->all_day="yes";
-            $CaseEvent->is_SOL="yes";
-            $CaseEvent->event_description="";
-            $CaseEvent->recuring_event="no"; 
-            $CaseEvent->event_location_id ='0';
-            $CaseEvent->is_event_private ='no';
-            $CaseEvent->parent_evnt_id ='0';
-            $CaseEvent->created_by=Auth::user()->id; 
-            $CaseEvent->save();
+        $CaseData=CaseMaster::find($case_id);
+        CaseEvent::updateOrCreate(
+            [
+                'case_id' => $case_id,
+                'is_SOL' => "yes"
+            ], [
+            'event_title'=>$CaseData->case_title,
+            'case_id'=>$case_id,
+            'event_type'=>NULL,
+            'start_date'=>$CaseData->case_statute_date,
+            'end_date'=>$CaseData->case_statute_date,
+            'all_day'=>"yes",
+            'is_SOL'=>"yes",
+            'event_description'=>"",
+            'recuring_event'=>"no",
+            'event_location_id'=>'0',
+            'is_event_private'=>'no',
+            'parent_evnt_id'=>'0',
+            'created_by'=>Auth::user()->id
+        ]);
+        // $CaseEvent = new CaseEvent;
+        // $CaseEvent->event_title=$CaseData->case_title;  
+        // $CaseEvent->case_id=$case_id;
+        // $CaseEvent->event_type=NULL;
+        // $CaseEvent->start_date=$CaseData->case_statute_date; 
+        // $CaseEvent->end_date=$CaseData->case_statute_date; 
+        // $CaseEvent->all_day="yes";
+        // $CaseEvent->is_SOL="yes";
+        // $CaseEvent->event_description="";
+        // $CaseEvent->recuring_event="no"; 
+        // $CaseEvent->event_location_id ='0';
+        // $CaseEvent->is_event_private ='no';
+        // $CaseEvent->parent_evnt_id ='0';
+        // $CaseEvent->created_by=Auth::user()->id; 
+        // $CaseEvent->save();
     }
     public function saveLocationOnce($locationdata){
       
@@ -5419,7 +5493,7 @@ class CaseController extends BaseController
 
         //Non linked staff List
         $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
         
         //Linked Staff List
         $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get();
@@ -5463,7 +5537,7 @@ class CaseController extends BaseController
         $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
 
         //Load all staff
-        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->get();
+        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->get();
         
         if(isset($request->event_id) && $request->event_id!=''){
             $caseLinkeSaved = CaseEventLinkedStaff::select("case_event_linked_staff.user_id")->where("case_event_linked_staff.event_id",$request->event_id)->get()->pluck('user_id');

@@ -14,7 +14,7 @@ class CaseTaskLinkedStaff extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy'   
+        'task_id', 'reminder_type', 'reminer_number', 'reminder_frequncy' ,'is_assign', 'is_contact' 
     ];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){

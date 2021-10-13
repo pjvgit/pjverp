@@ -452,3 +452,8 @@ function firmSolReminders()
 function checkLeadInfoExists($user_id){
     UsersAdditionalInfo::updateOrCreate(['user_id' => $user_id], ['user_id' => $user_id,'created_by' => Auth::User()->id]);
 }
+function IsCaseSolEnabled()
+{
+    $firmData = \App\Firm::find(Auth::User()->firm_name);
+    return $firmData->sol;
+}
