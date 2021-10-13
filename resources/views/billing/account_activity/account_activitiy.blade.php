@@ -80,9 +80,9 @@ if(isset($_GET['bank_account'])){
                                 <th class="text-nowrap" width="10%">Related To</th>
                                 <th class="text-nowrap" width="10%">Contact</th>
                                 <th class="text-nowrap" width="10%">Case</th>
-                                <th class="text-nowrap" width="10%">Entered By</th>
-                                <th class="text-nowrap" width="30%">Notes</th>
-                                <th class="text-nowrap" width="30%">Payment Method</th>
+                                <th class="text-nowrap" width="40%">Entered By</th>
+                                <th class="text-nowrap" width="20%">Notes</th>
+                                <th class="text-nowrap" width="10%">Payment Method</th>
                                 <th class="text-nowrap" width="10%">Amount</th>
                                 <th class="d-print-none" width="10%">Total </th>
                             </tr>

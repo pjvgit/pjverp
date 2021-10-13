@@ -23,7 +23,7 @@ class AccountActivity extends Authenticatable
         if($this->section=="invoice"){
            return sprintf('%06d', $this->related_to);
         }else if($this->section=="request"){
-            return sprintf('%06d', $this->related_to);
+            return sprintf('%05d', $this->related_to);
         }else{
             return '';
         }
@@ -111,12 +111,16 @@ class AccountActivity extends Authenticatable
     {
         $paymentType = $this->payment_type;
         $isRefund = ($this->is_refunded == "yes") ? "(Refunded)" : "";
-        if($paymentType=="withdraw"){
+        if($paymentType=="withdraw" && $this->pay_type == "trust"){
             $ftype="Withdraw from Trust (Trust Account)";
+        } else if($paymentType=="withdraw" && $this->pay_type == "client"){
+            $ftype="Withdraw from Trust (Trust Account) to Operating (Operating Account)";
         }else if($paymentType=="refund_withdraw"){
             $ftype="Refund Withdraw from Trust (Trust Account)";
         }else if($paymentType=="refund_deposit"){
             $ftype="Refund Deposit into Trust (Trust Account)";
+        }else if($paymentType=="refund deposit"){
+            $ftype="Refund Payment into Credit (Operating Account)";
         }else if($paymentType=="payment"){
             $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
         }else if($paymentType=="payment deposit"){
@@ -125,6 +129,8 @@ class AccountActivity extends Authenticatable
             $ftype = "Refund Payment into Trust (Trust Account)";
         }else if($paymentType=="refund payment"){
             $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+        } else if($paymentType=="deposit" && $this->pay_type == "client"){
+            $ftype="Payment into Credit (Operating Account)";
         }else{
             $ftype="Deposit into Trust (Trust Account)";
         }

@@ -8562,8 +8562,14 @@ class BillingController extends BaseController
                     "credit_account_balance" => ($userAddInfo->credit_account_balance + $request->amount),
                 ])->save();
             }
-
+            // For update next/previous credit balance
             $this->updateNextPreviousCreditBalance($request->non_trust_account);
+
+            $request->request->add(["payment_type" => 'deposit']);
+            $request->request->add(["contact_id" => $DepositIntoCreditHistory->user_id]);
+            $request->request->add(["credit_history_id" => $DepositIntoCreditHistory->id]);
+            $request->request->add(["applied_to" => @$refundRequest->id]);
+            $this->updateClientPaymentActivity($request);
 
             $data=[];
             $data['deposit_id']=$DepositIntoCreditHistory->id;
@@ -8832,9 +8838,9 @@ class BillingController extends BaseController
              $activityHistory['created_by']=Auth::User()->id;
              $activityHistory['created_at']=date('Y-m-d H:i:s');
              $this->saveAccountActivity($activityHistory); */
-             $request->request->add(["payment_type" => 'deposit']);
-             $request->request->add(["trust_history_id" => $TrustInvoice->id]);
-             $this->updateTrustAccountActivity($request);
+            $request->request->add(["payment_type" => 'deposit']);
+            $request->request->add(["trust_history_id" => $TrustInvoice->id]);
+            $this->updateTrustAccountActivity($request);
 
              $data=[];
             $data['user_id']=$request->trust_account;

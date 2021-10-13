@@ -61,7 +61,7 @@ class TrustHistory extends Authenticatable
         
     }
     public function getTrustBalanceAttribute(){
-       if($this->current_trust_balance > 0.00){
+       if($this->current_trust_balance != 0.00){
            return number_format($this->current_trust_balance,2);
         }else{
             return "0.00";

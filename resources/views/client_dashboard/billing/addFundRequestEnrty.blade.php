@@ -343,7 +343,7 @@
         });
         $("#deposit_into").select2({
             theme: "classic",
-            placeholder: "Select a bank accoun",
+            placeholder: "Select a bank account",
             allowClear: true,
             minimumResultsForSearch: Infinity
         });
@@ -426,7 +426,11 @@
                             }
                             var optgroup = "<optgroup label='Unallocated'>";
                             if(res.freshData) {
-                                optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
+                                if($("#deposit_into").val() == "credit") {
+                                    optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.credit_account_balance)+")" + "</option>";
+                                } else {
+                                    optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
+                                }
                             }
                             optgroup += "</optgroup>"
                             $('#allocate_fund').append(optgroup);

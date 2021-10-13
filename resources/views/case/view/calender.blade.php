@@ -314,6 +314,7 @@
                 },
                 success: function (res) {
                     $("#loadCommentPopup").modal('hide');
+                    $("#loadEditEventPopup .modal-dialog").addClass("modal-xl");
                     $("#EditEventPage").html('');
                     $("#EditEventPage").html(res);
                     $("#preloader").hide();
@@ -348,6 +349,7 @@
       }
         $("#preloader").show();
         $(function () {
+            // alert(id);
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/deleteEventPopup", 

@@ -1248,7 +1248,8 @@ class ClientdashboardController extends BaseController
             $TrustInvoice->amount_paid="0.00";
             $TrustInvoice->withdraw_amount=$request->amount;
             $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-            $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+            // $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+            $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
             $TrustInvoice->notes=$request->notes;
             $TrustInvoice->fund_type='withdraw';
             $TrustInvoice->created_by=Auth::user()->id; 
@@ -1264,6 +1265,18 @@ class ClientdashboardController extends BaseController
             }
 
             $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
+
+            // For account activity
+            $request->request->add(["trust_account" => @$TrustInvoice->client_id]);
+            $request->request->add(['trust_history_id' => $TrustInvoice->id]);
+            $request->request->add(["payment_type" => $TrustInvoice->fund_type]);
+            $this->updateTrustAccountActivity($request, $amtAction = "sub", null, $isDebit = "yes");
+
+            // For account activity > payment history
+            if(isset($request->select_account)) {
+                $request->request->add(["contact_id" => @$TrustInvoice->client_id]);
+                $this->updateClientPaymentActivity($request, null);
+            }
 
             session(['popup_success' => 'Withdraw fund successful']);
             return response()->json(['errors'=>'']);
@@ -1336,7 +1349,8 @@ class ClientdashboardController extends BaseController
                 $TrustInvoice->withdraw_amount="0.00";
                 $TrustInvoice->refund_amount=$request['amount'];
                 $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-                $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+                // $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
+                $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
                 $TrustInvoice->notes=$request->notes;
                 $TrustInvoice->fund_type=$fund_type;
                 $TrustInvoice->refund_ref_id=$request->transaction_id;
@@ -1365,8 +1379,6 @@ class ClientdashboardController extends BaseController
                         $this->refundAllocateTrustBalance($TrustInvoice);
                     }
                 }
-                // For update next/previous trust balance
-                $this->updateNextPreviousTrustBalance($request->client_id);
 
                 // For account activity
                 if($TrustInvoice->fund_type == "refund_deposit") {
@@ -1378,6 +1390,8 @@ class ClientdashboardController extends BaseController
                     $request->request->add(["payment_type" => $TrustInvoice->fund_type]);
                     $this->updateTrustAccountActivity($request, $amtAction = "sub", $findInvoice ?? null, $isDebit = "yes");
                 }
+                // For update next/previous trust balance
+                $this->updateNextPreviousTrustBalance($request->client_id);
 
                 dbCommit();
                 session(['popup_success' => 'Refund successful']);
@@ -1486,6 +1500,12 @@ class ClientdashboardController extends BaseController
                 // For allocated lead case
                 if($TrustInvoice->allocated_to_lead_case_id) {
                     LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->amount_paid);
+                }
+            } else if($TrustInvoice->fund_type=="withdraw"){
+                DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->withdraw_amount);
+
+                if($TrustInvoice->allocated_to_case_id) {
+                    $this->deleteWithdrawAllocateTrustBalance($TrustInvoice);
                 }
             }
 
@@ -3715,57 +3735,71 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            // DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('credit_account_balance', $request['amount']);
+            try {
+                dbStart();
+                if($creditHistory->payment_type == "withdraw") {
+                    $fund_type='refund withdraw';
+                    $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+                } elseif($creditHistory->payment_type == "payment") {
+                    $fund_type='refund payment';
+                    $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
+                } elseif($creditHistory->payment_type == "payment deposit") {
+                    $fund_type='refund payment deposit';
+                    $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
+                } else {
+                    $fund_type='refund deposit';
+                    $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
+                }
+                $creditHistory->is_refunded="yes";
+                $creditHistory->save();
 
-            if($creditHistory->payment_type == "withdraw") {
-                $fund_type='refund withdraw';
-                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
-            } elseif($creditHistory->payment_type == "payment") {
-                $fund_type='refund payment';
-                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
-            } elseif($creditHistory->payment_type == "payment deposit") {
-                $fund_type='refund payment deposit';
-                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
-            } else {
-                $fund_type='refund deposit';
-                $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance - $request->amount)])->save();
+                $UsersAdditionalInfo->refresh();
+
+                $depCredHis = DepositIntoCreditHistory::create([
+                    "user_id" => $request->client_id,
+                    "deposit_amount" => $request->amount,
+                    // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
+                    "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
+                    "payment_method" => "refund",
+                    "payment_type" => $fund_type,
+                    "total_balance" => $UsersAdditionalInfo->credit_account_balance,
+                    "notes" => $request->notes,
+                    "refund_ref_id" => $creditHistory->id,
+                    "created_by" => auth()->id(),
+                    "firm_id" => auth()->user()->firm_name,
+                    "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
+                    "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
+                ]);
+
+                if($fund_type == "refund payment" || $fund_type == "refund payment deposit") {
+                    $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);
+                    $depCredHis->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
+                }
+
+                // For request refund
+                if($depCredHis->related_to_fund_request_id) {
+                    $this->refundCreditRequest($depCredHis->id);
+                }
+
+                // For account activity
+                if($depCredHis->payment_type == "refund deposit") {
+                    $findInvoice = Invoices::whereId($creditHistory->related_to_invoice_id)->first();
+                    $request->request->add(["applied_to" => $depCredHis->related_to_fund_request_id]);
+                    $request->request->add(["contact_id" => $depCredHis->user_id]);
+                    $request->request->add(['credit_history_id' => $depCredHis->id]);
+                    $request->request->add(["payment_type" => $depCredHis->payment_type]);
+                    $this->updateClientPaymentActivity($request, $findInvoice ?? null, $isDebit = "yes", $amtAction = "sub");
+                }
+
+                $this->updateNextPreviousCreditBalance($request->client_id);
+                dbCommit();
+                session(['popup_success' => 'Refund successful']);
+                return response()->json(['errors'=>'']);
+                exit;   
+            } catch(Exception $e) {
+                dbEnd();
+                return response()->json(['errors' => $e->getMessage()]);
             }
-            $creditHistory->is_refunded="yes";
-            $creditHistory->save();
-
-            $UsersAdditionalInfo->refresh();
-
-            $depCredHis = DepositIntoCreditHistory::create([
-                "user_id" => $request->client_id,
-                "deposit_amount" => $request->amount,
-                // "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
-                "payment_date" => convertDateToUTCzone(date("Y-m-d", strtotime($request->payment_date)), auth()->user()->user_timezone),
-                "payment_method" => "refund",
-                "payment_type" => $fund_type,
-                "total_balance" => $UsersAdditionalInfo->credit_account_balance,
-                "notes" => $request->notes,
-                "refund_ref_id" => $creditHistory->id,
-                "created_by" => auth()->id(),
-                "firm_id" => auth()->user()->firm_name,
-                "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
-                "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
-            ]);
-
-            if($fund_type == "refund payment" || $fund_type == "refund payment deposit") {
-                $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);
-                $depCredHis->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
-            }
-
-            // For request refund
-            if($creditHistory->related_to_fund_request_id) {
-                $this->refundCreditRequest($creditHistory->id);
-            }
-
-            $this->updateNextPreviousCreditBalance($request->client_id);
-
-            session(['popup_success' => 'Refund successful']);
-            return response()->json(['errors'=>'']);
-            exit;   
         }
     }
 
@@ -3782,63 +3816,72 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
-            if($creditHistory->payment_type == "refund deposit") {
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+            try {
+                dbStart();
+                $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
+                if($creditHistory->payment_type == "refund deposit") {
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
 
-                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->save();
-            } else if($creditHistory->payment_type == "refund withdraw") {
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
-                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->save();
-            } else if($creditHistory->payment_type == "refund payment") {
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
-                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->save();
-            } else if($creditHistory->payment_type == "refund payment deposit") {
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
-                $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->save();
-            } else if($creditHistory->payment_type == "payment" || $creditHistory->payment_type == "withdraw") {
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
-            } else if($creditHistory->payment_type == "deposit" || $creditHistory->payment_type == "payment deposit"){
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
-            } 
+                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->save();
+                } else if($creditHistory->payment_type == "refund withdraw") {
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->save();
+                } else if($creditHistory->payment_type == "refund payment") {
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->save();
+                } else if($creditHistory->payment_type == "refund payment deposit") {
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+                    $updateRedord= DepositIntoCreditHistory::find($creditHistory->refund_ref_id);
+                    $updateRedord->is_refunded="no";
+                    $updateRedord->save();
+                } else if($creditHistory->payment_type == "payment" || $creditHistory->payment_type == "withdraw") {
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
+                } else if($creditHistory->payment_type == "deposit" || $creditHistory->payment_type == "payment deposit"){
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->decrement('credit_account_balance', $creditHistory->deposit_amount);
+                } 
 
 
-            $userAddInfo=UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
-            if($userAddInfo->credit_account_balance <= 0){
-                DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
+                $userAddInfo=UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
+                if($userAddInfo->credit_account_balance <= 0){
+                    DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->update(['credit_account_balance'=> "0.00"]);
+                }
+
+                if($creditHistory->payment_type == "refund payment" || $creditHistory->payment_type == "refund payment deposit" || $creditHistory->payment_type == "payment" || $creditHistory->payment_type == "payment deposit") {
+                    $this->deleteInvoicePaymentHistory($creditHistory->id);
+                }
+
+                if($creditHistory->related_to_fund_request_id) {
+                    $this->deletePaymentCreditRequest($creditHistory->id);
+                }
+
+                $data=[];
+                $data['user_id']=$creditHistory->client_id;
+                $data['client_id']=$creditHistory->client_id;
+                $data['activity']="deleted a payment";
+                $data['type']='deposit';
+                $data['action']='delete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+
+                // For account activity
+                $this->deletePaymentHistoryActivity($creditHistory->id);
+
+                $clientId = $creditHistory->user_id;
+                $creditHistory->delete();
+                $this->updateNextPreviousCreditBalance($clientId);
+
+                session(['popup_success' => 'Credit entry was deleted']);
+                return response()->json(['errors'=>'']);
+                exit;   
+            } catch (Exception $e) {
+                return response()->json(['errors'=> $e->getMessage()]);
             }
-
-            if($creditHistory->payment_type == "refund payment" || $creditHistory->payment_type == "refund payment deposit" || $creditHistory->payment_type == "payment" || $creditHistory->payment_type == "payment deposit") {
-                $this->deleteInvoicePaymentHistory($creditHistory->id);
-            }
-
-            if($creditHistory->related_to_fund_request_id) {
-                $this->deletePaymentCreditRequest($creditHistory->id);
-            }
-
-            $data=[];
-            $data['user_id']=$creditHistory->client_id;
-            $data['client_id']=$creditHistory->client_id;
-            $data['activity']="deleted a payment";
-            $data['type']='deposit';
-            $data['action']='delete';
-            $CommonController= new CommonController();
-            $CommonController->addMultipleHistory($data);
-
-            $clientId = $creditHistory->user_id;
-            $creditHistory->delete();
-            $this->updateNextPreviousCreditBalance($clientId);
-            session(['popup_success' => 'Credit entry was deleted']);
-            return response()->json(['errors'=>'']);
-            exit;   
         }
     }
 
