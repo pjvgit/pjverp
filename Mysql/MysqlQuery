@@ -1,6 +1,7 @@
 ------------------------------------ 14-OCT-2021 ------------------------------
 ALTER TABLE `deactivated_user`
 DROP INDEX `users_email_unique`;
+ALTER TABLE `account_activity` ADD `is_lead_invoice` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `credit_history_id`;
 
 ------------------------------------ 13-OCT-2021 ------------------------------
 ALTER TABLE `task_linked_staff`

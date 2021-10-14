@@ -27,6 +27,8 @@ $(document).on("change", ".load-default-reminder", function() {
                             $('body').find('#reminder_type_'+lastNo).val(item.reminder_type);
                         });
                         reminderAdded = true;
+                    } else {
+                        $(".reminder_user_type").append('<option value="client-lead">Clients/Leads</option>');
                     }
                 }
             }

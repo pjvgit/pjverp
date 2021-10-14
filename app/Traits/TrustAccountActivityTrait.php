@@ -29,7 +29,7 @@ trait TrustAccountActivityTrait {
         $AccountActivity->trust_history_id=$historyData['trust_history_id'] ?? NULL;
         $AccountActivity->credit_history_id=$historyData['credit_history_id'] ?? NULL;
         $AccountActivity->notes =$historyData['notes'];
-        // $AccountActivity->notes = $this->getPaymentNote($historyData['payment_type']);
+        $AccountActivity->is_lead_invoice = $historyData['is_lead_invoice'] ?? 'no';
         $AccountActivity->pay_type =$historyData['pay_type'];
         $AccountActivity->firm_id =$historyData['firm_id'];
         $AccountActivity->section =$historyData['section'];
@@ -79,6 +79,7 @@ trait TrustAccountActivityTrait {
         } else if(isset($InvoiceData) && $InvoiceData != null){
             $activityHistory['section']="invoice";
             $activityHistory['related_to']=$InvoiceData['id'];
+            $activityHistory['is_lead_invoice']=$InvoiceData['is_lead_invoice'];
         }else{
             $activityHistory['section']="other";
         }
@@ -138,6 +139,7 @@ trait TrustAccountActivityTrait {
         } else if(isset($InvoiceData) && $InvoiceData != null){
             $activityHistory['section']="invoice";
             $activityHistory['related_to']=$InvoiceData['id'];
+            $activityHistory['is_lead_invoice']=$InvoiceData['is_lead_invoice'];
         }else{
             $activityHistory['section']="other";
         }

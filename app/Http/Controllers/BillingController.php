@@ -1542,13 +1542,15 @@ class BillingController extends BaseController
                 // UsersAdditionalInfo::where('user_id',$request->contact_id)
                 // ->update(['trust_account_balance'=>$trustAccountAmount]);
                 if(isset($request->trust_account)){
+                    UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
+                    $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
                     // unallocate to selected user
                     if($request->is_case == "") {
-                        DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-                            'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] - $request->amount),
-                        ]);
+                        // DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
+                        //     'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] - $request->amount),
+                        // ]);
                         
-                        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+                        // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
                         
                         $TrustInvoice=new TrustHistory;
                         $TrustInvoice->client_id=$request->trust_account;
@@ -1574,9 +1576,8 @@ class BillingController extends BaseController
 
                             CaseMaster::where('id', $request->trust_account)->decrement('total_allocated_trust_balance', $request->amount);
                         
-                            UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
                         
-                            $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
+                            // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
                             
                             $TrustInvoice=new TrustHistory;
                             $TrustInvoice->client_id=$request->contact_id;
@@ -1593,8 +1594,7 @@ class BillingController extends BaseController
                             $TrustInvoice->save();
                         }      
                     } 
-                }
-                DB::commit();               
+                }            
 
                 //Response message
                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -1686,14 +1686,15 @@ class BillingController extends BaseController
                 $this->saveAccountActivity($activityHistory); */
                 $this->updateClientPaymentActivity($request, $InvoiceData);
                 
+                DB::commit(); 
+                return response()->json(['errors'=>'','msg'=>$msg]);
+                exit;     
                             
             } catch (\Exception $e) {
                 DB::rollback();
                 return response()->json(['errors'=>[$e->getMessage()], 'line_no' => [$e->getLine()]]); //$e->getMessage()
                  exit;   
             }
-            return response()->json(['errors'=>'','msg'=>$msg]);
-            exit;   
         }
     }
    
@@ -1958,7 +1959,7 @@ class BillingController extends BaseController
                     'payment_method'=>$request->payment_method,
                     'deposit_into'=>$request->deposit_into,
                     'notes'=>$request->notes,
-                    'deposit_into_id'=>($request->trust_account)??NULL,
+                    'deposit_into_id'=>($request->trust_account) ?? $request->contact_id,
                     'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
                     'status'=>"0",
                     'entry_type'=>"1",
@@ -7480,7 +7481,7 @@ class BillingController extends BaseController
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
         $FetchQuery = $FetchQuery->orderBy("id","DESC");
-        $FetchQuery = $FetchQuery->get();
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
