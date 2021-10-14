@@ -628,7 +628,7 @@ class ContractController extends BaseController
         $allUser = User::select('*');
         $allUser = $allUser->where("firm_name",Auth::user()->firm_name); //Logged in user not visible in grid
         $allUser = $allUser->whereIn("user_level",['1','3']); //Show firm staff only
-        $allUser = $allUser->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
+        $allUser = $allUser->where("user_status",1); // Check user is deactivated or not
         $allUser = $allUser->where("users.id","!=",$user->id);
         $allUser = $allUser->get();
         return view('contract.loadDeactivateUser',compact('user','allUser'));
@@ -652,9 +652,13 @@ class ContractController extends BaseController
              $userDeactivate->user_id= $request->user_id;
              if(isset($request->reason)) { $userDeactivate->reason=$request->reason; }
              if(isset($request->other_reason)) { $userDeactivate->other_reason=$request->other_reason; }
-             if(isset($request->assign_to)) { $userDeactivate-> assigned_to=$request->assign_to; }
+             if(isset($request->assign_to)) { $userDeactivate->assigned_to=$request->assign_to; }
              $userDeactivate->created_by =Auth::User()->id;
              $userDeactivate->save();
+
+            // assing all case to new staff
+            CaseStaff::where('user_id',$request->user_id)->update(['user_id'=>$request->assign_to]);
+
              session(['popup_success' => 'Profile data has been updated.']);
 
             return response()->json(['errors'=>'']);
@@ -1575,6 +1579,33 @@ class ContractController extends BaseController
     
         return view('contract.loadClient',compact('ClientList','CompanyList'));   
 
+    }
+
+    public function reactivateStaff(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'user_id' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $staff_id = base64_decode($request->user_id);
+            $user =User::find($staff_id);
+            $user->user_status="1";
+            $user->updated_by =Auth::User()->id;
+            $user->save();
+
+            // assing all case to new staff
+            $userDeactivate = DeactivatedUser::where('user_id', $staff_id)->first();
+            if(!empty($userDeactivate)){
+                CaseStaff::where('user_id',$userDeactivate->assigned_to)->update(['user_id'=>staff_id]);
+                $userDeactivate->delete();
+            }
+            session(['popup_success' => 'Profile data has been updated.']);
+
+            return response()->json(['errors'=>'']);
+            exit;
+        }
     }
 }
   

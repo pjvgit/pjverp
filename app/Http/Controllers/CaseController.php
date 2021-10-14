@@ -1905,9 +1905,9 @@ class CaseController extends BaseController
 
         $data1=[];
         $data1['activity_title']='unlinked staff';
-        $data1['case_id']=$CaseClientSelection->case_id;
+        $data1['case_id']=$CaseStaffSelection->case_id;
         $data1['activity_type']='';
-        $data1['staff_id']=$CaseClientSelection->user_id;
+        $data1['staff_id']=$CaseStaffSelection->user_id;
         $this->caseActivity($data1);
         // remove from task_linked_staff and case_allocation staff
         $CaseEventData = CaseEvent::where('case_id',$CaseStaffSelection->case_id)->get();

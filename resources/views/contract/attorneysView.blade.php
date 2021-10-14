@@ -209,22 +209,33 @@ $userTitle = unserialize(USER_TITLE);
                                     </div>
                                 <?php } else {?>
                                     <div class="mt-md-2">
-                                        <div class="alert alert-danger">
-                                            <?php
+                                        <?php
                                             $CommonController= new App\Http\Controllers\CommonController();
-                                            $d=strtotime($userProfile->updated_at. ' +30 days');
-                                            $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',$d),Auth::User()->user_timezone);?>
-                                          This <?php echo $userProfile->user_title;?> cannot be reactivated
-                                          until  <?php
-                                          echo $next_due_date = date('M j, Y h:i A', strtotime($convertedStartDateTime. ' +30 days')); ?>
+                                            $d=strtotime($userProfile->updated_at);
+                                            $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',$d),Auth::User()->user_timezone);
+                                            $next_due_date = date('M j, Y h:i A', strtotime($convertedStartDateTime. ' +0 days')); 
+                                            $validAt = date('Y-m-d', strtotime($convertedStartDateTime. ' +0 days')); 
+                                        ?>
+                                        @if(strtotime($validAt) > strtotime(date('Y-m-d')))
+                                        <div class="alert alert-danger">
+                                          This {{ $userProfile->user_title }} cannot be reactivated until {{$next_due_date}}.
                                           <br>
                                           <br>
                                           <a class="font-weight-bold alert-danger" href="#" target="_blank" rel="noopener noreferrer">
                                             Learn how to reactivate a user
                                           </a>
                                         </div>
+                                        @else
                                         <div class="text-center">
-                                            <button name="button" type="submit" class="btn btn-primary btn-rounded m-1 px-5" data-attorney-id="19771106">Reassign Tasks &amp; Events</button>
+                                        <a data-toggle="modal" data-target="#reactivateUser" data-placement="bottom" href="javascript:;"> 
+                                                <button class="btn  btn-outline-danger  btn-rounded text-nowrap reactivate-user" type="button" ">Reactivate {{ $userProfile->user_title}}</button>
+                                            </a>
+                                        </div>
+                                        @endif                                        
+                                        <div class="text-center">
+                                            <a data-toggle="modal" data-target="#reassignTask" data-placement="bottom" href="javascript:;"> 
+                                                    <button class="btn  btn-outline-info  btn-rounded text-nowrap reactivate-user" type="button">Reassign Tasks &amp; Events</button>
+                                            </a>
                                           </div>
                                        
                                     </div>
@@ -371,6 +382,86 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 </div>
             </div>
            
+        </div>
+    </div>
+</div>
+
+<div id="reactivateUser" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Reactivate {{$userProfile->user_title}}</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div>
+                            <p>Are you sure you want to reactivate this {{$userProfile->user_title}}?</p>
+                            <p>This users will be able to login to {{config('app.name')}} and You will be able to link this user to items in the system.</p>
+                        </div>
+                        <div>
+                            <p>Reactivate this user will add additional charges to your bills.</p>
+                        </div>                       
+                    </div>
+                    <div class="col-md-12" >
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary example-button m-1" onClick="reactivateStaff();" >Confirm Reactivation</span></button>
+                        </div>
+                    </div>
+                   <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reassignTask" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Reassign Tasks and Events</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 form-group mb-3">
+                        <label for="picker1"><b>Reassign Tasks and Events</b>
+                        </label>
+                        <select name="assign_to" class="form-control" id="assign_to">
+                            <option value="">Select User</option>
+                            @foreach(firmUserList() as $k=>$v)
+                            <option value="{{$v->id}}">{{ $v->first_name.' '.$v->last_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-12 form-group mb-3">
+                        <label for="picker1">User might be linked to additional court cases for events and tasks to be reassigned
+                            correctly.
+                        </label>
+                        <br><br>
+                        <label for="picker1"><b>Are you sure you want to deactivate test asdsa?</b><br>
+                            You will not be able to reactivate this user for 30 days.
+                        </label>
+                    </div>
+                    <div class="col-md-12" >
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary example-button m-1" onClick="reassignTask();" >Reassign Tasks and Events</span></button>
+                        </div>
+                    </div>
+                   <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1288,9 +1379,29 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
+    function reactivateStaff() {
+        $("#preloader").show();
+        $("#LoadProfile").html('<img src="{{LOADER}}""> Loading...');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/contacts/reactivateStaff", // json datasource
+                data: {
+                    "user_id": '{{$id}}'
+                },
+                success: function (res) {
+                    $("#reactivateStaff").modal('hide');
+                    window.location.reload();
+                    $("#preloader").hide();
+                },
+                error: function (res) {
+                    $("#preloader").hide();
+                }
+            });
+        })
+    }
     function loadFinalStepDeactivate() {
-        
-        // $("#preloader").show();
+        $("#preloader").show();
         $("#LoadProfile").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
@@ -1300,6 +1411,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     "user_id": '{{$id}}'
                 },
                 success: function (res) {
+                    $("#part1").html('');
                     $("#part1").html(res);
                     $("#preloader").hide();
                 }

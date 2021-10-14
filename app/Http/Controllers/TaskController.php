@@ -497,7 +497,7 @@ class TaskController extends BaseController
         $task_id = $request->task_id;
         $SavedStaff=$from='';
         if(isset($request->edit)){
-            $SavedStaff=CaseTaskLinkedStaff::select('user_id')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get()->pluck('user_id')->toArray();
+            $SavedStaff=CaseTaskLinkedStaff::select('user_id')->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get()->pluck('user_id')->toArray();
             $from='edit';  
         }
         return view('task.firmStaff',compact('loadFirmStaff','SavedStaff','from','task_id'));     
@@ -512,7 +512,7 @@ class TaskController extends BaseController
             if(isset($userList)){
                 $loadFirmStaff = User::select("first_name","last_name","id")->whereIn("id",$userList)->orderBy("id","ASC")->get();                
                 if($request->edit=="edit"){
-                    $fillsedHours=CaseTaskLinkedStaff::select('time_estimate_total',"user_id")->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get();
+                    $fillsedHours=CaseTaskLinkedStaff::select('time_estimate_total',"user_id")->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get();
                     foreach($fillsedHours as $k=>$v){
                         $fillsedHours[$v->user_id]=$v->time_estimate_total;
                     }
@@ -545,7 +545,7 @@ class TaskController extends BaseController
             $loadFirmStaff = User::select("users.*")->whereIn("users.id",$userList)->orderBy("id","ASC")->get();
          }else{
             // $loadFirmStaff = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$request->case_id)->get();
-            $loadFirmStaff = CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title")->select("users.*")->where("task_linked_staff.task_id",$request->task_id)->orderBy("user_id","ASC")->get();
+            $loadFirmStaff = CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title")->select("users.*")->where("task_linked_staff.task_id",$request->task_id)->where('task_linked_staff.is_contact','no')->orderBy("user_id","ASC")->get();
 
         }
 

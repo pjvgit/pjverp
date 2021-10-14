@@ -186,6 +186,10 @@
         $("#client_share_all").click(function () {
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
         });
+
+        $("#SelectAllLeadShare").click(function () {
+            $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+        });
         
         $(".lead_client_share_all_users").click(function () {
             console.log("lead_client_share_all_users > resources/views/task/loadTaskRightSection.blade.php ");
