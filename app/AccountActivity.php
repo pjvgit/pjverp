@@ -121,13 +121,17 @@ class AccountActivity extends Authenticatable
             $ftype="Refund Deposit into Trust (Trust Account)";
         }else if($paymentType=="refund deposit"){
             $ftype="Refund Payment into Credit (Operating Account)";
-        }else if($paymentType=="payment"){
+        }else if($paymentType=="payment" && $this->pay_type == "client" && $this->is_lead_invoice == "yes"){
+            $ftype = "Payment into Operating (Operating Account)";
+        }else if($paymentType=="payment" && $this->is_lead_invoice == "no"){
             $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
         }else if($paymentType=="payment deposit"){
             $ftype = "Payment into Trust (Trust Account)";
         }else if($paymentType=="refund payment deposit"){
             $ftype = "Refund Payment into Trust (Trust Account)";
-        }else if($paymentType=="refund payment"){
+        }else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes"){
+            $ftype = "Refund Payment into Operating (Operating Account)";
+        }else if($paymentType=="refund payment" && $this->is_lead_invoice == "no"){
             $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
         } else if($paymentType=="deposit" && $this->pay_type == "client"){
             $ftype="Payment into Credit (Operating Account)";

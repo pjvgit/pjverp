@@ -323,7 +323,7 @@
                         <div class="mb-2 col-8 col-md-8"></div>
                         <div class="mb-2 col-4 col-md-4">
                             <div class="mt-auto pt-1 d-flex flex-column">
-                                <span> {{$firmData->firm_name}}</span>
+                                <span> {{@$firmData->firm_name}}</span>
                             </div>
                         </div>
                     </div>

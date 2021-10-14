@@ -1,3 +1,6 @@
+------------------------------------ 14-OCT-2021 ------------------------------
+ALTER TABLE `account_activity` ADD `is_lead_invoice` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `credit_history_id`;
+
 ------------------------------------ 13-OCT-2021 ------------------------------
 ALTER TABLE `task_linked_staff`
 ADD `is_contact` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `linked_or_not_with_case`,
