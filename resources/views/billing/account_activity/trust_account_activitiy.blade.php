@@ -261,7 +261,7 @@ if(isset($_GET['bank_account'])){
                     $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                         '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case
                         .case_title + '</a></div>');
-                } else if((aData.section=="request" || aData.section=="request") && aData.lead_additional_info != null) {
+                } else if((aData.section=="request" || aData.section=="invoice") && aData.lead_additional_info != null) {
                     $("td:eq(3)", nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                         '/leads/' + aData.user_id + '/lead_details/info/">' + aData.lead_additional_info.potential_case_title + '</a></div>')
                 } else {

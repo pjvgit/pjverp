@@ -122,18 +122,13 @@
                                             ?>
                                         </td>
                                         <td class="invoice-history-row-amount">
-                                            <?php if($value->acrtivity_title=="Payment Received"){?>
-                                                <?php if($value->refund_amount!=NULL){
-                                                    ?>${{$value->refund_amount}}<?php 
-                                                }else{
-                                                    ?> ${{number_format($value->amount,2)}}<?php
-                                                }?>
-                                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                                            @if($value->acrtivity_title=="Payment Refund")
                                                 (${{number_format($value->amount,2)}})
-                                                
-                                            <?php } else {  ?>
-                                            <i class="table-cell-placeholder"></i> 
-                                            <?php  } ?>
+                                            @elseif($value->amount && $value->acrtivity_title !="Payment Refund")
+                                                ${{number_format($value->amount,2)}}
+                                            @else
+                                                <i class="table-cell-placeholder"></i> 
+                                            @endif
                                         </td>
                                         <td class="invoice-history-row-user">
                                             <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">
@@ -255,19 +250,13 @@
                                         </td>
                                         <td class="invoice-history-row-amount">
                                             
-                                            <?php if($value->acrtivity_title=="Payment Received"){?>
-                                                <?php if($value->refund_amount!=NULL){
-                                                    ?>${{$value->refund_amount}}<?php 
-                                                }else{
-                                                    ?> ${{number_format($value->amount,2)}}<?php
-                                                }?>
-                                            
-                                            <?php }else if($value->acrtivity_title=="Payment Refund"){?>
+                                            @if($value->acrtivity_title=="Payment Refund")
                                                 (${{number_format($value->amount,2)}})
-                                                
-                                            <?php } else {  ?>
-                                            <i class="table-cell-placeholder"></i> 
-                                            <?php  } ?>
+                                            @elseif($value->amount && $value->acrtivity_title !="Payment Refund")
+                                                ${{number_format($value->amount,2)}}
+                                            @else
+                                                <i class="table-cell-placeholder"></i> 
+                                            @endif
                                         </td>
                                         <td class="invoice-history-row-user">
                                             <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">
@@ -1166,5 +1155,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
    
 </script>
+<script src="{{ asset('assets\js\custom\invoice\viewinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

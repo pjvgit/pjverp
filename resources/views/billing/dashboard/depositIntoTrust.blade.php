@@ -115,7 +115,7 @@ function getClientCases(clientId) {
             if(data.result.length > 0) {
                 var optgroup = "<optgroup label='Allocate to case'>";
                 $.each(data.result, function(ind, item) {
-                    optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.total_allocated_trust_balance+")" + "</option>";
+                    optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
                 });
                 
                 optgroup += "</optgroup>"
@@ -123,7 +123,7 @@ function getClientCases(clientId) {
             }
             var optgroup = "<optgroup label='Unallocated'>";
             if(data.user) {
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.trust_account_balance+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.userAddInfo.unallocate_trust_balance.toFixed(2)+")" + "</option>";
             }
             optgroup += "</optgroup>"
             $('#allocate_fund').append(optgroup);

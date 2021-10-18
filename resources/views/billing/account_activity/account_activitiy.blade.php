@@ -76,15 +76,15 @@ if(isset($_GET['bank_account'])){
                         <thead>
                             <tr>
                                 <th>id</th>
-                                <th width="10%">Date</th>
-                                <th class="text-nowrap" width="10%">Related To</th>
-                                <th class="text-nowrap" width="10%">Contact</th>
-                                <th class="text-nowrap" width="10%">Case</th>
-                                <th class="text-nowrap" width="40%">Entered By</th>
-                                <th class="text-nowrap" width="20%">Notes</th>
-                                <th class="text-nowrap" width="10%">Payment Method</th>
-                                <th class="text-nowrap" width="10%">Amount</th>
-                                <th class="d-print-none" width="10%">Total </th>
+                                <th>Date</th>
+                                <th  >Related To</th>
+                                <th >Contact</th>
+                                <th >Case</th>
+                                <th >Entered By</th>
+                                <th class="text-wrap">Notes</th>
+                                <th >Payment Method</th>
+                                <th >Amount</th>
+                                <th class="d-print-none">Total </th>
                             </tr>
                         </thead>
                     </table>
@@ -164,6 +164,19 @@ if(isset($_GET['bank_account'])){
             }],
             pageResize: true, // enable page resize
             pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
+            /* autoWidth: false,
+            columns : [
+                { width : '50px' },
+                { width : '50px' },
+                { width : '50px' },
+                { width : '50px' },        
+                { width : '50px' },
+                { width : '50px' },
+                { width : '50px' },
+                { width : '50px' },                
+                { width : '50px' },
+                { width : '50px' }        
+            ], */
             columns: [
 
                 {

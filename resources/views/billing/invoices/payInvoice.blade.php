@@ -650,6 +650,7 @@ $finalAmt=$invoice-$paid;
                         setTimeout(function () {
                             $("#payInvoice").modal("hide");                           
                         }, 1000);
+                        updateInvoiceDetail();
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -955,23 +956,29 @@ function getClientCases(clientId) {
             $('.trust_account').html('<option value=""></option>');
             if(data.result.length > 0) {
                 optgroup += "<optgroup label='Allocate to case'>";
-                $.each(data.result, function(ind, item) {
-                    if(case_id == item.id){
-                        optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
-                    }
-                });                
+                if(data.is_lead_case == 'yes') {
+                    $.each(data.result, function(ind, item) {
+                        optgroup += "<option value='" + item.user_id + "'>" + item.potential_case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
+                    });      
+                } else {
+                    $.each(data.result, function(ind, item) {
+                        if(case_id == item.id){
+                            optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
+                        }
+                    });     
+                }           
                 optgroup += "</optgroup>"
             }
             
             if(data.user) {
                 $("#selectContact").html(data.user.full_name);
-                $("#selectContactUnallocatedAmount").html(data.user.user_additional_info.unallocate_trust_balance.toFixed(2));
+                $("#selectContactUnallocatedAmount").html(data.userAddInfo.unallocate_trust_balance.toFixed(2));
                 
                 if( parseFloat($("#selectContactUnallocatedAmount").html()) <  0.01){
                     $("#allocation-alert-section").hide();
                 }
                 optgroup += "<optgroup label='Unallocated'>";
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.user.user_additional_info.unallocate_trust_balance.toFixed(2)+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.userAddInfo.unallocate_trust_balance.toFixed(2)+")" + "</option>";
                 optgroup += "</optgroup>";
             }
             
