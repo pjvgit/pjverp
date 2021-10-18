@@ -485,7 +485,7 @@
                         </a>
                     
                         {{-- <button class="btn btn-primary example-button m-1" id="submit" type="submit" data-style="expand-left">Save Event </button> --}}
-                        <a class="btn btn-primary example-button m-1 text-white" onclick="deleteEventFunction();"  data-style="expand-left">Save Event </a>
+                        <a class="btn btn-primary example-button m-1 text-white" onclick="deleteEventFunction1();"  data-style="expand-left">Save Event </a>
                     
                     </div>
                 </div>
@@ -1018,7 +1018,7 @@
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: { "case_id": case_id, "event_id":"{{ $evetData->id}}" },
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#loadEditEventPopup #loadTaskSection").html(res);
             }
         })
     }
@@ -1029,13 +1029,13 @@
             url: baseUrl + "/leads/loadAllCaseStaffMember",
             data: "",
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#loadEditEventPopup #loadTaskSection").html(res);
               
             }
         })
     }
     changeCaseUser();
-    function deleteEventFunction() {
+    function deleteEventFunction1() {
         if (!$('#EditEventForm').valid()) {
             $(".innerLoader").css('display', 'none');
             $('.submit').removeAttr("disabled");

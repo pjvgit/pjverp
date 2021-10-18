@@ -64,7 +64,11 @@ class UsersAdditionalInfo extends Authenticatable
      */
     public function getUnallocateTrustBalanceAttribute()
     {
-        return  $this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance');
+        if($this->user && $this->user->user_level == 5) {
+            return  $this->trust_account_balance - $this->leadAdditionalInfo->allocated_trust_balance;
+        } else {
+            return  $this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance');
+        }
     }
 
     /**
@@ -75,5 +79,15 @@ class UsersAdditionalInfo extends Authenticatable
     public function selectedCases()
     {
         return $this->hasMany(CaseClientSelection::class, 'selected_user', 'user_id');
+    }
+
+    /**
+     * Get the leadAdditionalInfo associated with the UsersAdditionalInfo
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function leadAdditionalInfo()
+    {
+        return $this->hasOne(LeadAdditionalInfo::class, 'user_id', 'user_id');
     }
 }

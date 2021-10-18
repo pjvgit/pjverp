@@ -1488,9 +1488,14 @@ class BillingController extends BaseController
         $finalAmt=$invoice-$paid;
 
         $userDataForDeposit=UsersAdditionalInfo::where("user_id",$request->contact_id)->first();
-        if($request->is_case == "yes"){
-            $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
-            $account_balance = $CaseClientSelection['allocated_trust_balance'];
+        if($request->is_case == "yes") {
+            if($InvoiceData->is_lead_invoice == 'yes') {
+                $leadAdditionalInfo = LeadAdditionalInfo::where('user_id', $request->contact_id)->select("allocated_trust_balance")->first();
+                $account_balance = $leadAdditionalInfo->allocated_trust_balance ?? 0.00;
+            } else {
+                $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
+                $account_balance = $CaseClientSelection['allocated_trust_balance'];
+            }
         }else{
             $account_balance = $userDataForDeposit['unallocate_trust_balance'];
         }
@@ -1566,33 +1571,33 @@ class BillingController extends BaseController
                         $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
                         $TrustInvoice->save();
                     }else{
-                        // allocate to case 
-                        $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
-                        if(!empty($CaseClientSelection)){
-                            DB::table('case_client_selection')->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)
-                            ->update([
-                                'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] - $request->amount),
-                            ]);
-
-                            CaseMaster::where('id', $request->trust_account)->decrement('total_allocated_trust_balance', $request->amount);
-                        
-                        
-                            // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->contact_id)->first();
-                            
-                            $TrustInvoice=new TrustHistory;
-                            $TrustInvoice->client_id=$request->contact_id;
-                            $TrustInvoice->payment_method='Trust';
-                            $TrustInvoice->amount_paid=$request->amount;
-                            $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-                            $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
-                            $TrustInvoice->notes=$request->notes;
-                            $TrustInvoice->fund_type='payment';
-                            $TrustInvoice->related_to_invoice_id = $request->invoice_id;
-                            $TrustInvoice->created_by=Auth::user()->id; 
-                            $TrustInvoice->allocated_to_case_id = $request->trust_account;
-                            $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
-                            $TrustInvoice->save();
-                        }      
+                        // allocate to case/lead
+                        if($InvoiceData->is_lead_invoice == 'yes') {
+                            LeadAdditionalInfo::where('user_id', $request->contact_id)->decrement('allocated_trust_balance', $request->amount);
+                        } else {
+                            $CaseClientSelection = CaseClientSelection::select("allocated_trust_balance","selected_user")->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)->first();
+                            if(!empty($CaseClientSelection)){
+                                DB::table('case_client_selection')->where("selected_user",$request->contact_id)->where("case_id",$request->trust_account)
+                                ->update([
+                                    'allocated_trust_balance'=>($CaseClientSelection['allocated_trust_balance'] - $request->amount),
+                                ]);
+                                CaseMaster::where('id', $request->trust_account)->decrement('total_allocated_trust_balance', $request->amount);
+                            }
+                        }
+                        $TrustInvoice=new TrustHistory;
+                        $TrustInvoice->client_id=$request->contact_id;
+                        $TrustInvoice->payment_method='Trust';
+                        $TrustInvoice->amount_paid=$request->amount;
+                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
+                        $TrustInvoice->notes=$request->notes;
+                        $TrustInvoice->fund_type='payment';
+                        $TrustInvoice->related_to_invoice_id = $request->invoice_id;
+                        $TrustInvoice->created_by=Auth::user()->id; 
+                        $TrustInvoice->allocated_to_case_id = ($InvoiceData->is_lead_invoice == 'no') ? $request->trust_account : NULL;
+                        $TrustInvoice->related_to_invoice_payment_id = $lastInvoicePaymentId;
+                        $TrustInvoice->allocated_to_lead_case_id = ($InvoiceData->is_lead_invoice == 'yes') ? $request->contact_id : NULL;
+                        $TrustInvoice->save();
                     } 
                 }            
 
@@ -1618,9 +1623,10 @@ class BillingController extends BaseController
 
                 $request->request->add(["invoice_history_id" => $newHistoryId]);
                 $request->request->add(["trust_history_id" => @$TrustInvoice->id]);
+                $request->request->add(["payment_type" => 'payment']);
 
                 //Add Invoice history
-                $InvoiceData=Invoices::find($request->invoice_id);
+                // $InvoiceData=Invoices::find($request->invoice_id);
                 $data=[];
                 $data['case_id']=$InvoiceData['case_id'];
                 $data['user_id']=$request->contact_id;
@@ -2095,7 +2101,7 @@ class BillingController extends BaseController
                     $caseActivityData['staff_id']=$InvoiceData['user_id'];
                     $this->caseActivity($caseActivityData);
                 }
-
+                $request->request->add(["from_pay" => 'normal']);
                  //Get previous amount
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
                     $request->request->add(["trust_history_id" => @$TrustInvoice->id]);
@@ -6371,7 +6377,7 @@ class BillingController extends BaseController
                             $trustHistory->is_refunded="yes";
                             $trustHistory->save();
                 
-                            TrustHistory::create([
+                            $newTrustHistory = TrustHistory::create([
                                 "client_id" => $UsersAdditionalInfo->user_id,
                                 "refund_amount" => $request->amount,
                                 "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
@@ -6385,6 +6391,7 @@ class BillingController extends BaseController
                                 "related_to_invoice_id" => $trustHistory->related_to_invoice_id,
                                 "related_to_invoice_payment_id" => $entryDone->id,
                                 "allocated_to_case_id" => $trustHistory->allocated_to_case_id,
+                                "allocated_to_lead_case_id" => @$trustHistory->allocated_to_lead_case_id,
                             ]);
 
                             if($trustHistory->allocated_to_case_id) {
@@ -6430,7 +6437,7 @@ class BillingController extends BaseController
                         $trustHistory->save();
                         $trustHistory->refresh();
             
-                        TrustHistory::create([
+                        $newTrustHistory = TrustHistory::create([
                             "client_id" => $UsersAdditionalInfo->user_id,
                             "refund_amount" => $request->amount,
                             "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
@@ -6444,11 +6451,15 @@ class BillingController extends BaseController
                             "related_to_invoice_id" => $trustHistory->related_to_invoice_id,
                             "related_to_invoice_payment_id" => $entryDone->id,
                             "allocated_to_case_id" => $trustHistory->allocated_to_case_id,
+                            "allocated_to_lead_case_id" => @$trustHistory->allocated_to_lead_case_id,
                         ]);
 
                         if($trustHistory->allocated_to_case_id && $trustHistory->fund_type == 'payment') {
                             CaseMaster::where('id', $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $request->amount);
                             CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $request->amount);
+                        }
+                        if($trustHistory->allocated_to_lead_case_id && $trustHistory->fund_type == 'payment') {
+                            LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $request->amount);
                         }
                         $this->updateNextPreviousTrustBalance($trustHistory->client_id);
                     }
@@ -6527,17 +6538,19 @@ class BillingController extends BaseController
                 $invoiceHistoryNew['created_by']=Auth::User()->id;
                 $invoiceHistoryNew['created_at']=date('Y-m-d H:i:s');
                 $newHistoryId = $this->invoiceHistory($invoiceHistoryNew);
+
                 $request->request->add(['invoice_history_id' => $newHistoryId]);
+                $request->request->add(['trust_history_id' => $newTrustHistory->id ?? NULL]);
+                $request->request->add(["trust_account" => @$UsersAdditionalInfo->user_id]);
+                $request->request->add(["contact_id" => @$UsersAdditionalInfo->user_id]);
 
                 if($invoiceHistory->payment_from == "offline" && !in_array($invoiceHistory->pay_method, ["Trust", "Non-Trust Credit Account"])) {
                     if($invoiceHistory->deposit_into == "Credit" || $invoiceHistory->deposit_into == "Trust Account") {
                         // For account activity
-                        $request->request->add(["trust_account" => @$UsersAdditionalInfo->user_id]);
                         $request->request->add(["payment_type" => "refund payment deposit"]);
                         $this->updateTrustAccountActivity($request, $amtAction = "sub", $findInvoice, $isDebit = "yes");
                     } else {
                         // For account activity > payment history
-                        $request->request->add(["contact_id" => @$UsersAdditionalInfo->user_id]);
                         $request->request->add(["payment_type" => "refund payment"]);
                         $this->updateClientPaymentActivity($request, $findInvoice, $isDebit = "yes", $amtAction = "sub");
                     }
@@ -6624,7 +6637,7 @@ class BillingController extends BaseController
                 dbStart();
                 $PaymentMaster = InvoiceHistory::find($request->payment_id);
                 $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
-                if(in_array($PaymentMaster->pay_method, ["Trust", "Trust Refund"]) && $PaymentMaster->payment_from == "trust"){
+                if($PaymentMaster->payment_from == "trust" && in_array($PaymentMaster->pay_method, ["Trust", "Trust Refund"])){
                     // Update trust history
                     $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
                     if($trustHistory) {
@@ -6637,17 +6650,23 @@ class BillingController extends BaseController
                                 CaseMaster::where('id', $trustHistory->allocated_to_case_id)->decrement('total_allocated_trust_balance', $trustHistory->refund_amount);
                                 CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->decrement('allocated_trust_balance', $trustHistory->refund_amount);
                             }
+                            if($trustHistory->allocated_to_lead_case_id) {
+                                LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $trustHistory->refund_amount);
+                            }
                         } else {
                             UsersAdditionalInfo::where('user_id',$trustHistory->client_id)->increment('trust_account_balance', $trustHistory->amount_paid);
                             if($trustHistory->allocated_to_case_id) {
                                 CaseMaster::where('id', $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->amount_paid);
                                 CaseClientSelection::where('case_id', $trustHistory->allocated_to_case_id)->where('selected_user', $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
                             }
+                            if($trustHistory->allocated_to_lead_case_id) {
+                                LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $trustHistory->refund_amount);
+                            }
                         }
                         $this->updateNextPreviousTrustBalance($trustHistory->client_id);
                         TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->delete();
                     }
-                } else if(in_array($PaymentMaster->pay_method, ["Non-Trust Credit Account", "Refund"]) && $PaymentMaster->payment_from == "credit"){
+                } else if($PaymentMaster->payment_from == "credit" && in_array($PaymentMaster->pay_method, ["Non-Trust Credit Account", "Refund"])){
                     // Update credit history
                     $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
                     if($creditHistory) {
@@ -6691,11 +6710,17 @@ class BillingController extends BaseController
                                     CaseClientSelection::where("case_id", $trustHistory->allocated_to_case_id)->where("selected_user", $trustHistory->client_id)->decrement('allocated_trust_balance', $trustHistory->refund_amount);
                                     CaseMaster::where("id", $trustHistory->allocated_to_case_id)->decrement('total_allocated_trust_balance', $trustHistory->refund_amount);
                                 }
+                                if($trustHistory->allocated_to_lead_case_id) {
+                                    LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $trustHistory->refund_amount);
+                                }
                             } else if($trustHistory->fund_type == "payment deposit") {
                                 UsersAdditionalInfo::where('user_id',$trustHistory->client_id)->decrement('trust_account_balance', $trustHistory->amount_paid);
                                 if($trustHistory->allocated_to_case_id) {
                                     CaseClientSelection::where("case_id", $trustHistory->allocated_to_case_id)->where("selected_user", $trustHistory->client_id)->decrement('allocated_trust_balance', $trustHistory->amount_paid);
                                     CaseMaster::where("id", $trustHistory->allocated_to_case_id)->decrement('total_allocated_trust_balance', $trustHistory->amount_paid);
+                                }
+                                if($trustHistory->allocated_to_lead_case_id) {
+                                    LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $trustHistory->amount_paid);
                                 }
                             } else if($trustHistory->fund_type == "refund payment deposit") {
                                 $updateRedord= TrustHistory::find($trustHistory->refund_ref_id);
@@ -6706,11 +6731,17 @@ class BillingController extends BaseController
                                     CaseClientSelection::where("case_id", $trustHistory->allocated_to_case_id)->where("selected_user", $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->refund_amount);
                                     CaseMaster::where("id", $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->refund_amount);
                                 }
+                                if($trustHistory->allocated_to_lead_case_id) {
+                                    LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $trustHistory->refund_amount);
+                                }
                             } else {
                                 UsersAdditionalInfo::where('user_id',$trustHistory->client_id)->increment('trust_account_balance', $trustHistory->amount_paid);
                                 if($trustHistory->allocated_to_case_id) {
                                     CaseClientSelection::where("case_id", $trustHistory->allocated_to_case_id)->where("selected_user", $trustHistory->client_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
                                     CaseMaster::where("id", $trustHistory->allocated_to_case_id)->increment('total_allocated_trust_balance', $trustHistory->amount_paid);
+                                }
+                                if($trustHistory->allocated_to_lead_case_id) {
+                                    LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
                                 }
                             }
                             $this->updateNextPreviousTrustBalance($trustHistory->client_id);
@@ -8668,11 +8699,18 @@ class BillingController extends BaseController
     public function depositIntoTrustClientCase(Request $request)
     {
         // return $request->all();
-        $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_client_selection.selected_user", $request->user_id)->whereHas('caseAllClient', function($query) use($request) {
-            $query->where('users.id', $request->user_id);
-        })->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
-        $user = User::whereId($request->user_id)->with('userAdditionalInfo')->first();
-        return response()->json(['result' => $result, 'user' => $user]);
+        $user = User::whereId($request->user_id)->first();
+        $userAddInfo = UsersAdditionalInfo::where('user_id', $request->user_id)->first();
+        if($user->user_level == 5) {
+            $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
+            $is_lead_case = 'yes';
+        } else {
+            $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_client_selection.selected_user", $request->user_id)->whereHas('caseAllClient', function($query) use($request) {
+                $query->where('users.id', $request->user_id);
+            })->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
+            $is_lead_case = 'no';
+        }            
+        return response()->json(['result' => $result, 'user' => $user, 'is_lead_case' => $is_lead_case, 'userAddInfo' => $userAddInfo]);
     }
 
     /* public function depositIntoTrustByCase(Request $request)

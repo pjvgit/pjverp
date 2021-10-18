@@ -87,18 +87,12 @@
                             ?>
                         </td>
                         <td class="invoice-history-row-amount">
-                            @if($value->acrtivity_title=="Payment Received")
-                                @if($value->refund_amount!=NULL)
-                                    ${{$value->refund_amount}}
-                                @else
-                                    ${{number_format($value->amount,2)}}
-                                @endif
-                            @elseif($value->acrtivity_title=="Payment Refund")
+                            @if($value->acrtivity_title=="Payment Refund")
                                 (${{number_format($value->amount,2)}})
                             @elseif($value->amount)
                                 ${{number_format($value->amount,2)}}
                             @else
-                            <i class="table-cell-placeholder"></i> 
+                                <i class="table-cell-placeholder"></i> 
                             @endif
                         </td>
                         <td class="invoice-history-row-user">
@@ -231,16 +225,12 @@
                             ?>
                         </td>
                         <td class="invoice-history-row-amount">
-                            @if($value->acrtivity_title=="Payment Received")
-                                ${{number_format($value->amount,2)}}
-                            @elseif($value->acrtivity_title=="Payment Received" && $value->refund_amount!=NULL)
+                            @if($value->acrtivity_title=="Payment Refund")
                                 (${{number_format($value->amount,2)}})
-                            @elseif($value->acrtivity_title=="Payment Refund")
-                                (${{number_format($value->amount,2)}})
-                            @elseif($value->amount)
+                            @elseif($value->amount && $value->acrtivity_title !="Payment Refund")
                                 ${{number_format($value->amount,2)}}
                             @else
-                            <i class="table-cell-placeholder"></i> 
+                                <i class="table-cell-placeholder"></i> 
                             @endif
                         </td>
                         <td class="invoice-history-row-user">

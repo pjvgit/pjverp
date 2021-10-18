@@ -343,12 +343,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.contact_name+'</a></div>');
                     else
                         $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/companies/'+aData.client_id+'">'+aData.contact_name+'</a></div>');
-                    var trustLabel="Trust Account";
+                    var trustLabel="Account";
                     /* if(aData.trust_account!=""){
                         var trustLabel=" (Trust Account)";
                     } */
                     if(aData.deposit_into_type == "credit"){
-                        var trustLabel=" (Credit Account)";
+                        var trustLabel="(Credit Account)";
                     }
                     if(aData.email_message==null){
                         var $msg='';
