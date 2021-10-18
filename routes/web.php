@@ -255,7 +255,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('contacts/realoadCompanySelection', 'ContractController@realoadCompanySelection')->name('contacts/realoadCompanySelection');
     Route::post('contacts/removeCompany', 'ContractController@removeCompany')->name('contacts/removeCompany');
     Route::post('contacts/reactivateStaff', 'ContractController@reactivateStaff')->name('contacts/reactivateStaff');
-    
+    Route::post('contacts/saveAssignTaskForm', 'ContractController@saveAssignTaskForm')->name('contacts/saveAssignTaskForm');    
     
 
     //Case 
