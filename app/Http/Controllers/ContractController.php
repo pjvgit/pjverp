@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission,App\Firm;
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection,App\UserRole;
-use App\CasePracticeArea,App\CaseStage;
+use App\CasePracticeArea,App\CaseStage,App\CaseTaskLinkedStaff;
 use Illuminate\Support\Str;
 use App\Jobs\ProcessPodcast;
 
@@ -501,7 +501,7 @@ class ContractController extends BaseController
      public function attorneysView(Request $request,$id)
      {
          $contractUserID=base64_decode($id);
-        $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->first();
+         $userProfile = User::select("users.*","countries.name as countryname")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$contractUserID)->first();
             if(!empty($userProfile)){
                 //if parent user then data load using user id itself other wise load using parent user
                 if($userProfile->parent_user==0){
@@ -531,9 +531,9 @@ class ContractController extends BaseController
             }
 
             $case = CaseStaff::leftJoin('case_master','case_master.id',"=","case_staff.case_id")->leftjoin("users","case_staff.user_id","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid","users.user_role as userrole",'case_staff.rate_amount',"case_staff.id as case_staff_id","case_staff.id as case_staff_id","users.default_rate as user_default_rate","case_staff.rate_type as case_staff_rate_type")->where("case_staff.user_id",$contractUserID)->where("firm_name",Auth::user()->firm_name)->where("case_master.is_entry_done","1")->get();
+            $DeactivatedUserData = DeactivatedUser::where('user_id',$contractUserID)->first();   
             
-            
-            return view('contract.attorneysView',compact('userProfile','userProfileCreatedBy','id','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','case'));
+            return view('contract.attorneysView',compact('userProfile','userProfileCreatedBy','id','CaseMasterClient','CaseMasterCompany','practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','case','DeactivatedUserData'));
      }   
         
 
@@ -657,14 +657,94 @@ class ContractController extends BaseController
              $userDeactivate->save();
 
             // assing all case to new staff
-            CaseStaff::where('user_id',$request->user_id)->update(['user_id'=>$request->assign_to]);
+            if(isset($request->assign_to)) {
+                $caseStaffData =  CaseStaff::where('user_id',$request->user_id)->get();
+                if(count($caseStaffData) > 0){
+                    foreach($caseStaffData as $k =>$v){
+                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->assign_to], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                    }
+                }
+                $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$request->user_id)->get();
+                if(count($CaseTaskLinkedStaffData) > 0){
+                    foreach($CaseTaskLinkedStaffData as $k =>$v){
+                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->assign_to], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                    }
+                }
+                    
+                // CaseStaff::where('user_id',$request->user_id)->delete();
+                // CaseTaskLinkedStaff::where('user_id',$request->user_id)->delete();
+            }
 
-             session(['popup_success' => 'Profile data has been updated.']);
+            session(['popup_success' => 'Profile data has been updated.']);
 
             return response()->json(['errors'=>'']);
             exit;
          }
-     }
+    }
+
+    public function reactivateStaff(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'user_id' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $user_id = base64_decode($request->user_id);
+            $user =User::find($user_id);
+            $user->user_status="1";
+            $user->updated_by =Auth::User()->id;
+            $user->save();
+
+            // assing all case to current staff
+            $userDeactivate = DeactivatedUser::where('user_id', $user_id)->withTrashed()->first();
+            if(!empty($userDeactivate)){
+                // CaseStaff::where('user_id',$user_id)->update(['deleted_at'=> null]);
+                // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['deleted_at'=> null]);
+                $userDeactivate->delete();
+            }
+            session(['popup_success' => 'Profile data has been updated.']);
+
+            return response()->json(['errors'=>'']);
+            exit;
+        }
+    } 
+
+    public function saveAssignTaskForm(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'assign_to' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            // assing all case to new staff
+            $user_id = base64_decode($request->user_id);
+            $userDeactivate = DeactivatedUser::where('user_id', $user_id)->first();
+            if(!empty($userDeactivate)){       
+                $userDeactivate->assigned_to = $request->assign_to;
+                $userDeactivate->save();
+                $caseStaffData =  CaseStaff::where('user_id',$user_id)->withTrashed()->get();
+                if(count($caseStaffData) > 0){
+                    foreach($caseStaffData as $k =>$v){
+                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->assign_to], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                    }
+                }
+                $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id)->get();
+                if(count($CaseTaskLinkedStaffData) > 0){
+                    foreach($CaseTaskLinkedStaffData as $k =>$v){
+                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->assign_to], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                    }
+                }
+                // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
+                // CaseTaskLinkedStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
+                session(['popup_success' => 'Transferring tasks and events for selected user. It may take a couple minutes for this to complete.']);
+
+                return response()->json(['errors'=>'']);
+                exit;
+            }
+        }
+    }
 
 
      //Client
@@ -1579,33 +1659,6 @@ class ContractController extends BaseController
     
         return view('contract.loadClient',compact('ClientList','CompanyList'));   
 
-    }
-
-    public function reactivateStaff(Request $request){
-        $validator = \Validator::make($request->all(), [
-            'user_id' => 'required'
-        ]);
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            $staff_id = base64_decode($request->user_id);
-            $user =User::find($staff_id);
-            $user->user_status="1";
-            $user->updated_by =Auth::User()->id;
-            $user->save();
-
-            // assing all case to new staff
-            $userDeactivate = DeactivatedUser::where('user_id', $staff_id)->first();
-            if(!empty($userDeactivate)){
-                CaseStaff::where('user_id',$userDeactivate->assigned_to)->update(['user_id'=>staff_id]);
-                $userDeactivate->delete();
-            }
-            session(['popup_success' => 'Profile data has been updated.']);
-
-            return response()->json(['errors'=>'']);
-            exit;
-        }
     }
 }
   

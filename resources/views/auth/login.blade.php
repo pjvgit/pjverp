@@ -2,6 +2,9 @@
 @section('title', config('app.name').' :: Login')
 @section('content')
 
+@if($errors->any())
+    {{ implode('', $errors->all('<div>:message</div>')) }}
+@endif
 <div class="row">
     <div class="col-md-6">
         <div class="p-4">

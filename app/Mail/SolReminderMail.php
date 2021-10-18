@@ -34,7 +34,7 @@ class SolReminderMail extends Mailable
         // return $this->view('view.name');
         return $this
             // ->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))
-            ->subject("Reminder: Upcoming SOL")
+            ->subject("Upcoming Statute of Limitations: ".$this->case->case_title)
             ->markdown('emails.sol_reminder_email', ['case' => $this->case, 'firm' => $this->firm, 'user' => $this->user]);
     }
 }

@@ -21,7 +21,7 @@ class SolReminderEmailCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Send sol reminder at mid night on every day.';
+    protected $description = 'Send sol reminder on every hourly.';
 
     /**
      * Create a new command instance.
@@ -51,10 +51,11 @@ class SolReminderEmailCommand extends Command
                 // print_r('case-id : '.$v->id);echo PHP_EOL;
                 
                 //Client List
-                $CaseStaff = CaseStaff::join('users','users.id','=','case_staff.selected_user')
+                $CaseStaff = CaseStaff::join('users','users.id','=','case_staff.user_id')
                 ->select("users.id","users.first_name","users.last_name","users.email","users.user_timezone","users.firm_name")
                 ->where("case_staff.case_id",$v->id)->where("users.user_status","1")->get();
                 if(count($CaseStaff) > 0){
+                    $CaseSolReminderUpdateId = 0;
                     foreach($CaseStaff as $key =>$staff){
                         $firmDetail = firmDetail($staff->firm_name);
                         // print_r('--staff-id : '.$staff->id.'--staff-user_timezone : '.$staff->user_timezone);echo PHP_EOL;
@@ -79,9 +80,11 @@ class SolReminderEmailCommand extends Command
                                 
                                 if($reminderDate == $todayUserDate){
                                     // print_r("Send mail to staff at - ".$staff->email);echo PHP_EOL;
-                                    Log::info("Send mail to staff at - ".$staff->email);
-                                    \Mail::to($staff->email)->send(new SolReminderMail($v, $firmDetail, $staff));
-                                    CaseSolReminder::where('id',$j->id)->update(['reminded_at' => date('Y-m-d')]);
+                                    Log::info("SOL reminder : Send mail to staff at - ".$staff->email);
+                                    $mailSend = \Mail::to($staff->email)->send(new SolReminderMail($v, $firmDetail, $staff));
+                                    // print_r("Send mail - ". print($mailSend));echo PHP_EOL;
+                                    // print_r("Casesolremiceder update at - ".$j->id);echo PHP_EOL;
+                                    $CaseSolReminderUpdateId = $j->id;
                                 }
                                 // print_r('---------------------------------------------------------');echo PHP_EOL;
                             }
@@ -89,8 +92,9 @@ class SolReminderEmailCommand extends Command
                             Log::info("No SOL Reminder found");
                         }
                     }
+                    CaseSolReminder::where('id',$CaseSolReminderUpdateId)->update(['reminded_at' => date('Y-m-d')]);
                 }else{
-                    Log::info("No staff found");
+                    Log::info("SOL reminder : No staff found");
                 }
             }
         }

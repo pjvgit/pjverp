@@ -508,18 +508,20 @@ class TaskController extends BaseController
             $fillsedHours=[];
             $userList=json_decode($request->userList, TRUE);
             $userListWithHours=json_decode($request->arrayList, TRUE);
-
+            $task_case_id = $request->task_case_id;
             if(isset($userList)){
                 $loadFirmStaff = User::select("first_name","last_name","id")->whereIn("id",$userList)->orderBy("id","ASC")->get();                
                 if($request->edit=="edit"){
-                    $fillsedHours=CaseTaskLinkedStaff::select('time_estimate_total',"user_id")->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get();
-                    foreach($fillsedHours as $k=>$v){
-                        $fillsedHours[$v->user_id]=$v->time_estimate_total;
-                    }
-                    if(isset($userListWithHours) && !empty($userListWithHours)){
-                        foreach($userListWithHours as $k=>$v){
-                            $fillsedHours[$v['id']]=$v['hour'];
-                        } 
+                    if($task_case_id == $request->case_id){
+                        $fillsedHours=CaseTaskLinkedStaff::select('time_estimate_total',"user_id")->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get();
+                        foreach($fillsedHours as $k=>$v){
+                            $fillsedHours[$v->user_id]=$v->time_estimate_total;
+                        }
+                        if(isset($userListWithHours) && !empty($userListWithHours)){
+                            foreach($userListWithHours as $k=>$v){
+                                $fillsedHours[$v['id']]=$v['hour'];
+                            } 
+                        }
                     }
                 }else{
                     //This code is for show old added hours    

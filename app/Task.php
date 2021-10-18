@@ -44,7 +44,7 @@ class Task extends Authenticatable
     }
 
     public function getTaskUserAttribute(){
-        $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_type")
+        $tasklinkedstaff =  CaseTaskLinkedStaff::join('users','users.id','=','task_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_type","users.user_level")
         ->where('task_id',$this->id)  
         ->get();
         return $tasklinkedstaff; 

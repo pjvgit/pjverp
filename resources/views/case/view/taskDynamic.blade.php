@@ -156,11 +156,18 @@ foreach ($task as $element) {
                         if(count($subrow->task_user)>1){
                             $userListHtml="";
                             foreach($subrow->task_user as $linkuserValue){
-                                $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.base64_encode($linkuserValue->id)."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                switch ($linkuserValue->user_level) {
+                                    case '2':
+                                        $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/clients/'.$linkuserValue->id."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                        break;
+                                    default:
+                                        $userListHtml.="<span> <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i><a href=".BASE_URL.'contacts/attorneys/'.base64_encode($linkuserValue->id).'/cases'."> ".substr($linkuserValue->first_name,0,15) . " ". substr($linkuserValue->last_name,0,15)."</a></span><br>";
+                                        break;
+                                } ;
                             }
                         ?>
                 <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
-                    data-toggle="popover" data-trigger="hover" title="" data-content="{{$userListHtml}}"
+                    data-toggle="popover" data-trigger="focus" title="" data-content="{{$userListHtml}}"
                     data-html="true" data-original-title="" style="float:left;">{{count($subrow->task_user)}}
                     Users</a>
                 <?php 

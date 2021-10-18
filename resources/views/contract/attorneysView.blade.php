@@ -211,10 +211,10 @@ $userTitle = unserialize(USER_TITLE);
                                     <div class="mt-md-2">
                                         <?php
                                             $CommonController= new App\Http\Controllers\CommonController();
-                                            $d=strtotime($userProfile->updated_at);
+                                            $d=strtotime($DeactivatedUserData->created_at);
                                             $convertedStartDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',$d),Auth::User()->user_timezone);
-                                            $next_due_date = date('M j, Y h:i A', strtotime($convertedStartDateTime. ' +0 days')); 
-                                            $validAt = date('Y-m-d', strtotime($convertedStartDateTime. ' +0 days')); 
+                                            $next_due_date = date('M j, Y h:i A', strtotime($convertedStartDateTime. ' +30 days')); 
+                                            $validAt = date('Y-m-d', strtotime($convertedStartDateTime. ' +30 days')); 
                                         ?>
                                         @if(strtotime($validAt) > strtotime(date('Y-m-d')))
                                         <div class="alert alert-danger">
@@ -424,6 +424,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <div id="reassignTask" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
+    <form class="saveAssignTaskForm" id="saveAssignTaskForm" name="saveAssignTaskForm" method="POST">
+        @csrf
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Reassign Tasks and Events</h5>
@@ -431,11 +433,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
+                <div id="showError437" style="display:none"></div>
                 <div class="row">
+                    <input type="hidden" name="user_id" value="{{$id}}"/>
                     <div class="col-md-12 form-group mb-3">
                         <label for="picker1"><b>Reassign Tasks and Events</b>
                         </label>
-                        <select name="assign_to" class="form-control" id="assign_to">
+                        <select name="assign_to" class="form-control">
                             <option value="">Select User</option>
                             @foreach(firmUserList() as $k=>$v)
                             <option value="{{$v->id}}">{{ $v->first_name.' '.$v->last_name }}</option>
@@ -446,15 +450,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <label for="picker1">User might be linked to additional court cases for events and tasks to be reassigned
                             correctly.
                         </label>
-                        <br><br>
-                        <label for="picker1"><b>Are you sure you want to deactivate test asdsa?</b><br>
-                            You will not be able to reactivate this user for 30 days.
-                        </label>
+                        <br>
                     </div>
                     <div class="col-md-12" >
                         <div class="d-flex justify-content-end mt-3">
                             <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary example-button m-1" onClick="reassignTask();" >Reassign Tasks and Events</span></button>
+                            <button class="btn btn-primary example-button m-1" type="submit">Reassign</span></button>
                         </div>
                     </div>
                    <div class="form-group row">
@@ -463,6 +464,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 </div>
             </div>
         </div>
+    </form>
     </div>
 </div>
 
@@ -1255,6 +1257,61 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             },
             
         });
+    
+        $("#saveAssignTaskForm").validate({
+            rules: {
+                assign_to: {
+                    required: true
+                }
+            },
+            messages: {
+                assign_to: {
+                    required: "Please select a user to reassign tasks and events"
+                },
+            },
+            errorPlacement: function (error, element) {
+                if (element.is('#default_rate')) {
+                    error.appendTo('#TypeError');
+                } else {
+                    element.after(error);
+                }
+            }
+        });
+
+        $('#saveAssignTaskForm').submit(function (e) {
+            $("#innerLoader").css('display', 'block');
+            e.preventDefault();
+
+            if (!$('#saveAssignTaskForm').valid()) {
+                $("#innerLoader").css('display', 'none');
+                return false;
+            }
+
+            var dataString = $("#saveAssignTaskForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/saveAssignTaskForm", // json datasource
+                data: dataString,
+                success: function (res) {
+                    $("#innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('#showError437').html('');
+                        var errotHtml =
+                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('#showError437').append(errotHtml);
+                        $('#showError437').show();
+                        $("#innerLoader").css('display', 'none');
+                        return false;
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            });
+        });
     });
     function confirm_remove_user_link(userId, userName, caseId, caseName, isCompany, lastLawyer) {
       
@@ -1620,6 +1677,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $("#billing_rate_text").hide();
         }
     }
+
 </script>
 
 @stop

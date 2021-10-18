@@ -1,6 +1,7 @@
 
 <form class="CreateTask" id="CreateTask" name="CreateTask" method="POST">
     @csrf
+    <input class="form-control" id="task_case_id" value="{{ $Task->case_id}}" name="task_case_id" type="hidden">
     <input class="form-control" id="id" value="{{ $Task->id}}" name="task_id" type="hidden">
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
     <input class="form-control" id="timeTrackingEnabled" value="{{$Task->time_tracking_enabled}}" name="timeTrackingEnabled" type="hidden">
@@ -717,12 +718,17 @@
            
         });
         console.log(arrayList);
+        var selectdValue = $("#case_or_lead option:selected").val();
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTimeEstimationUsersList",
             data: {
                 "userList": JSON.stringify(SU),
-                "arrayList": JSON.stringify(arrayList)
+                "arrayList": JSON.stringify(arrayList),
+                "task_case_id" : $("#task_case_id").val(),
+                "case_id":selectdValue,
+                "edit":"edit",
+                "task_id":{{$Task->id}}
             },
             success: function (res) {
                 $("#dynamicUSerTimes").html(res);

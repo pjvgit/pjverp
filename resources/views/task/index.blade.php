@@ -370,7 +370,7 @@ if(isset($_GET['task_read'])){
                                                     }
                                                 ?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="javascript:;" data-toggle="popover" data-trigger="hover" title=""
+                                    href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
                                     data-content="{{$userListHtml}}" data-html="true" data-original-title=""
                                     style="float:left;">{{count($subrow->task_user)}} Users</a>
                                 <?php 
@@ -693,7 +693,7 @@ if(isset($_GET['task_read'])){
                                                     }
                                                 ?>
                                 <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                    href="javascript:;" data-toggle="popover" data-trigger="hover" title=""
+                                    href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
                                     data-content="{{$userListHtml}}" data-html="true" data-original-title=""
                                     style="float:left;">{{count($subrow->task_user)}} Users</a>
                                 <?php 
