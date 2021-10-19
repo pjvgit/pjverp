@@ -65,10 +65,11 @@ class UsersAdditionalInfo extends Authenticatable
     public function getUnallocateTrustBalanceAttribute()
     {
         if($this->user && $this->user->user_level == 5) {
-            return  $this->trust_account_balance - $this->leadAdditionalInfo->allocated_trust_balance;
+            $unallocateBalance = $this->trust_account_balance - $this->leadAdditionalInfo->allocated_trust_balance;
         } else {
-            return  $this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance');
+            $unallocateBalance = $this->trust_account_balance - $this->selectedCases->sum('allocated_trust_balance');
         }
+        return ($unallocateBalance > 0) ? $unallocateBalance : 0.00;
     }
 
     /**

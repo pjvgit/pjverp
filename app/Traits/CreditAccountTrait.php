@@ -119,16 +119,17 @@ trait CreditAccountTrait {
     {
         $creditHistory = DepositIntoCreditHistory::whereId($creditId)->first();
         $invPayment = InvoicePayment::whereId($creditHistory->related_to_invoice_payment_id)->first();
-
-        $invHistory = InvoiceHistory::where("invoice_payment_id", $invPayment->id)->first();
-        $invRefHistory = InvoiceHistory::whereId($invHistory->refund_ref_id)->first();
-        if($invRefHistory) {
-            $invRefHistory->fill(["status" => "1"])->save();
-            InvoicePayment::whereId($invRefHistory->invoice_payment_id)->update(["status" => 0]);
+        if($invPayment) {
+            $invHistory = InvoiceHistory::where("invoice_payment_id", $invPayment->id)->first();
+            $invRefHistory = InvoiceHistory::whereId($invHistory->refund_ref_id)->first();
+            if($invRefHistory) {
+                $invRefHistory->fill(["status" => "1"])->save();
+                InvoicePayment::whereId($invRefHistory->invoice_payment_id)->update(["status" => 0]);
+            }
+            $invPayment->delete();
+            $invHistory->delete();
+            $this->updateInvoiceAmount($creditHistory->related_to_invoice_id);
         }
-        $invPayment->delete();
-        $invHistory->delete();
-        $this->updateInvoiceAmount($creditHistory->related_to_invoice_id);
     }
 
     /**

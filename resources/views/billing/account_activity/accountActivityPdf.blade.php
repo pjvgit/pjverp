@@ -55,7 +55,9 @@
                     $caseData=json_decode($v->case);
                     if(!empty($caseData)){
                         echo $caseData->case_title;
-                    }else
+                    } else if($v->leadAdditionalInfo && $v->is_lead_invoice == 'yes') {
+                        echo $v->leadAdditionalInfo->potential_case_title ?? '';
+                    } else
                     {
                         ?><i class="table-cell-placeholder"></i><?php
                     }
@@ -67,23 +69,24 @@
             </td>
 
             <td scope="col" style="width: 15%;text-align:left;    white-space: nowrap!important;">
-                <?php
-                if($v->from_pay=="trust"){
-                    echo "Payment from Trust (Trust Account) to Operating (Operating Account)";
-                }else{
-                    echo "Payment into Operating (Operating Account)";
-    
-                }?>
+                {{ $v->payment_note }}
 
             </td>
 
             <td scope="col" style="width: 10%;text-align:left;    white-space: nowrap!important;">
-                <?php
+                {{-- <?php
                 if($v->c_amt=="0.00"){
                     ?><i class="table-cell-placeholder"></i><?php
                 }else{?>
                 ${{number_format($v->c_amt,2)}}
-                <?php } ?>
+                <?php } ?> --}}
+                @if($v->d_amt=="0.00" && $v->c_amt > 0)
+                    ${{ $v->c_amt }}
+                @elseif($v->c_amt=="0.00" && $v->d_amt > 0) {
+                    -${{ $v->d_amt }}
+                @else
+                    <i class="table-cell-placeholder"></i>
+                @endif
 
             </td>
             <td scope="col" style="width: 15%;text-align:left;">

@@ -540,7 +540,7 @@
         $(".repeat_monthly").hide();
         $(".repeat_yearly").hide();
         // $(".hide").hide();
-        $(document).on("click", ".add-more", function () {
+        $("document").on("click", ".add-more", function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
             // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);

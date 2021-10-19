@@ -18,11 +18,17 @@
                     <tbody class="apply-funds-invoices">
                         <?php foreach($SavedInvoices as $k=>$v){?>
                         <tr>
-                            <td>{{ @$v->case->case_title }}</td>
+                            <td>
+                                @if($v->is_lead_invoice == "yes")
+                                {{ @$v->leadAdditionalInfo->potential_case_title }}
+                                @else
+                                {{ @$v->case->case_title }}
+                                @endif
+                            </td>
                             <td>{{ $v->id }}</td>
                             <td>{{ $v->status }}</td>
                             <td>${{ number_format($v->due_amount ?? 0,2) }}</td>
-                            <td>${{ number_format(@$v->portalAccessUserAdditionalInfo->trust_account_balance ?? 0,2) }}</td>
+                            <td>${{ number_format(@$v->portalAccessUserAdditionalInfo->unallocate_trust_balance ?? 0,2) }}</td>
                         </tr>
                         <?php } ?>
                     </tbody>
@@ -38,7 +44,13 @@
                 </div><br>
                 <ul>
                     @foreach($NonSavedInvoices as $k=>$v)
-                        <li>{{sprintf('%06d', $v->id)}}</li>
+                        <li>{{sprintf('%06d', $v->id)}}
+                        @if($v->is_lead_invoice == "yes")
+                            ({{ @$v->leadAdditionalInfo->potential_case_title }})
+                        @else
+                            ({{@$v->case->case_title}})
+                        @endif
+                        </li>
                     @endforeach
                 </ul>
                 <div>
@@ -54,7 +66,13 @@
                 </div><br>
                 <ul>
                     <?php foreach($NonSavedInvoices as $k=>$v){?>
-                    <li>{{sprintf('%06d', $v->id)}} ({{$v->case_title}})</li>
+                    <li>{{sprintf('%06d', $v->id)}} 
+                        @if($v->is_lead_invoice == "yes")
+                            ({{ @$v->leadAdditionalInfo->potential_case_title }})
+                        @else
+                            ({{@$v->case->case_title}})
+                        @endif
+                    </li>
                     <?php } ?>
                 </ul>
                 <div>Funds cannot be applied to invoices if
