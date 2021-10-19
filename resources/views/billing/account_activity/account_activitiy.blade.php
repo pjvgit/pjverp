@@ -223,8 +223,11 @@ if(isset($_GET['bank_account'])){
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date + '</div>');
 
-                if(aData.section=="invoice"){
+                if(aData.section=="invoice" && aData.lead_additional_info == null){
                     $('td:eq(1)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/' + aData
+                    .decode_id + '">#' + aData.related + '</a>');
+                } else if(aData.section=="invoice" && aData.lead_additional_info != null){
+                    $('td:eq(1)', nRow).html('<a href="{{BASE_URL}}bills/invoices/potentialview/' + aData
                     .decode_id + '">#' + aData.related + '</a>');
                 }else if(aData.section=="request"){
                     $('td:eq(1)', nRow).html('#R-' + aData.related + '</a>');
@@ -238,6 +241,8 @@ if(isset($_GET['bank_account'])){
                     if(aData.enter_by_user_level == "2"){
                         $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                         '/contacts/clients/' + Contact.id + '">' + Contact.name + '</a></div>');
+                    } else if(aData.enter_by_user_level == 5) {
+                        $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl + '/leads/' + aData.user_id + '/lead_details/info">' + aData.enter_by + '</a></div>');
                     }else{
                         $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                         '/contacts/companies/' + Contact.id + '">' + Contact.name + '</a></div>');
@@ -249,7 +254,7 @@ if(isset($_GET['bank_account'])){
                     '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case.case_title + '</a></div>');
                 } else if((aData.section=="request" || aData.section=="invoice") && aData.lead_additional_info != null) {
                     $("td:eq(3)", nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-                        '/leads/' + aData.user_id + '/lead_details/info/">' + aData.lead_additional_info.potential_case_title + '</a></div>')
+                        '/leads/' + aData.user_id + '/case_details/info/">' + aData.lead_additional_info.potential_case_title + '</a></div>')
                 }else{
                     $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }

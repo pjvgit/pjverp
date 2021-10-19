@@ -53,6 +53,8 @@
                     $caseData=json_decode($v->case);
                     if(!empty($caseData)){
                         echo $caseData->case_title;
+                    } else if($v->leadAdditionalInfo && $v->is_lead_invoice == 'yes') {
+                        echo $v->leadAdditionalInfo->potential_case_title ?? '';
                     }else
                     {
                         ?><i class="table-cell-placeholder"></i><?php

@@ -27,7 +27,6 @@ trait TrustAccountActivityTrait {
         $AccountActivity->payment_status=$historyData['payment_status'] ?? NULL;
         $AccountActivity->invoice_history_id=$historyData['invoice_history_id'] ?? NULL;
         $AccountActivity->trust_history_id=$historyData['trust_history_id'] ?? NULL;
-        $AccountActivity->credit_history_id=$historyData['credit_history_id'] ?? NULL;
         $AccountActivity->notes =$historyData['notes'];
         $AccountActivity->is_lead_invoice = $historyData['is_lead_invoice'] ?? 'no';
         $AccountActivity->pay_type =$historyData['pay_type'];
@@ -128,7 +127,6 @@ trait TrustAccountActivityTrait {
         $activityHistory['payment_type']=$request->payment_type;
         $activityHistory['invoice_history_id']=$request->invoice_history_id ?? NULL;
         $activityHistory['trust_history_id']=$request->trust_history_id ?? Null;
-        $activityHistory['credit_history_id']=$request->credit_history_id ?? Null;
         $activityHistory['notes']=$request->notes;
         $activityHistory['status']="unsent";
         $activityHistory['pay_type']="client";

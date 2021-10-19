@@ -317,4 +317,14 @@ class Invoices extends Model
     {
         return $this->hasOne(InvoicePayment::class, 'invoice_id');
     }
+
+    /**
+     * Get the leadAdditionalInfo that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadAdditionalInfo()
+    {
+        return $this->belongsTo(LeadAdditionalInfo::class, 'user_id', 'user_id');
+    }
 }

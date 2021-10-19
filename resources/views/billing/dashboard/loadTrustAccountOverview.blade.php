@@ -1,7 +1,7 @@
 <div class="d-flex flex-column">
 
     <div class="account-balance pl-2">
-        <div class="d-flex flex-column flex-wrap p-2"><span>Account Balance</span>
+        <div class="d-flex flex-column flex-wrap p-2"><span>Monthly Account Balance</span>
             <div class="d-flex">
                 <h3 class="m-0">${{number_format(($AccountActivityCredited - $AccountActivityDebited),2)}}</h3><a
                     class="ml-3 align-self-end font-weight-light"

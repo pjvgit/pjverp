@@ -113,6 +113,8 @@ ALTER TABLE `users_additional_info`  ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci
 ALTER TABLE `users_detail`  ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE `usersold`  ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 
+ALTER TABLE `account_activity` DROP `credit_history_id`;
+
 ------------------------------------ 14-OCT-2021 ------------------------------
 ALTER TABLE `deactivated_user`
 DROP INDEX `users_email_unique`;

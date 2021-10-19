@@ -793,7 +793,10 @@ td,th{
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12 form-group mb-3">
-                            Are you sure you want to apply trust balances to these invoices?
+                            <p>Are you sure you want to apply trust balances to these invoices?</p>
+                            <div class="alert alert-warning">
+                                Please note that we currently do not support applying allocated case level trust balances
+                            </div>
                         </div>
                     </div>
                 </div>

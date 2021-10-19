@@ -3593,7 +3593,7 @@ class ClientdashboardController extends BaseController
                     $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 } else {
                     $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
-                    if($userAddInfo->credit_account_balance < $data->deposit_amount && $data->payment_type != "withdraw")
+                    if($userAddInfo->credit_account_balance < $data->deposit_amount && $data->payment_type != "withdraw" && $data->payment_type != "payment")
                         $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
                     else
                         $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
@@ -3625,7 +3625,7 @@ class ClientdashboardController extends BaseController
             })
             ->editColumn('payment_method', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
-                if($data->payment_method == "withdraw")
+                if($data->payment_method == "withdraw" || $data->payment_method == "payment")
                     $pMethod = "Non-Trust Credit Account";
                 else
                     $pMethod = $data->payment_method;
@@ -3832,7 +3832,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            try {
+            // try {
                 dbStart();
                 $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
                 if($creditHistory->payment_type == "refund deposit") {
@@ -3885,9 +3885,6 @@ class ClientdashboardController extends BaseController
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
-                // For account activity
-                $this->deletePaymentHistoryActivity($creditHistory->id);
-
                 $clientId = $creditHistory->user_id;
                 $creditHistory->delete();
                 $this->updateNextPreviousCreditBalance($clientId);
@@ -3895,9 +3892,9 @@ class ClientdashboardController extends BaseController
                 session(['popup_success' => 'Credit entry was deleted']);
                 return response()->json(['errors'=>'']);
                 exit;   
-            } catch (Exception $e) {
-                return response()->json(['errors'=> $e->getMessage()]);
-            }
+            // } catch (Exception $e) {
+            //     return response()->json(['errors'=> $e->getMessage()]);
+            // }
         }
     }
 
