@@ -30,7 +30,7 @@
 
 </head>
 <?php
-$paid=$PotentialCaseInvoice['amount_paid'];
+$paid=$PotentialCaseInvoice['paid_amount'];
 $invoice=$PotentialCaseInvoice['total_amount'];
 $finalAmt=$invoice-$paid;
 $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeEntryAmount=$expenseTime=$expenseAmount=0;
@@ -305,7 +305,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><b>Amount Paid:</b></td>
                         <td scope="col" style="width: 10%;text-align:right;">
-                            ${{number_format($PotentialCaseInvoice['amount_paid'],2)}}</td>
+                            ${{number_format($PotentialCaseInvoice['paid_amount'],2)}}</td>
                     </tr>
                     <tr style="padding-left: 4px;">
                         <td colspan="2" style="width: 100%;text-align:right;">
@@ -314,7 +314,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                     </tr>
                     <tr style="padding-left: 4px;">
                         <td scope="col" style="width: 10%;text-align:right;"><b>Balance Due:</b></td>
-                        <td scope="col" style="width: 10%;text-align:right;"><b>${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$PotentialCaseInvoice['amount_paid']),2)}}</b></td>
+                        <td scope="col" style="width: 10%;text-align:right;"><b>${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount+$addition+$forwardedInvoices-($discount+$PotentialCaseInvoice['paid_amount']),2)}}</b></td>
                     </tr>
                 </tbody>
             </table>

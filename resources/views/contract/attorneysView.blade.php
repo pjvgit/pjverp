@@ -216,7 +216,7 @@ $userTitle = unserialize(USER_TITLE);
                                             $next_due_date = date('M j, Y h:i A', strtotime($convertedStartDateTime. ' +30 days')); 
                                             $validAt = date('Y-m-d', strtotime($convertedStartDateTime. ' +30 days')); 
                                         ?>
-                                        @if(strtotime($validAt) > strtotime(date('Y-m-d')))
+                                        @if(strtotime($validAt) > strtotime('2022-10-19'))
                                         <div class="alert alert-danger">
                                           This {{ $userProfile->user_title }} cannot be reactivated until {{$next_due_date}}.
                                           <br>

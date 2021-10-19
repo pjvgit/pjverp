@@ -272,7 +272,8 @@ class CaseController extends BaseController
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
                     $CaseSolReminder->created_by=Auth::User()->id; 
-                    $CaseSolReminder->remind_at=Carbon::now(); 
+                    $reminderDate = \Carbon\Carbon::createFromFormat('Y-m-d', $CaseMaster->case_statute_date)->subDay($request['reminder_days'][$i])->format('Y-m-d'); // Subtracts reminder date day for case_statute_date 
+                    $CaseSolReminder->remind_at=$reminderDate;  
                     $CaseSolReminder->save();
                 }
             }
@@ -550,8 +551,9 @@ class CaseController extends BaseController
                     $CaseSolReminder->case_id=$CaseMaster->id; 
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-                    $CaseSolReminder->created_by=Auth::User()->id; 
-                    $CaseSolReminder->remind_at=Carbon::now(); 
+                    $CaseSolReminder->created_by=Auth::User()->id;                    
+                    $reminderDate = \Carbon\Carbon::createFromFormat('Y-m-d', $CaseMaster->case_statute_date)->subDay($request['reminder_days'][$i])->format('Y-m-d'); // Subtracts reminder date day for case_statute_date 
+                    $CaseSolReminder->remind_at=$reminderDate; 
                     $CaseSolReminder->save();
                 }
             }
@@ -871,7 +873,8 @@ class CaseController extends BaseController
                     $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                     $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
                     $CaseSolReminder->created_by=Auth::User()->id;
-                    $CaseSolReminder->remind_at=Carbon::now();  
+                    $reminderDate = \Carbon\Carbon::createFromFormat('Y-m-d', $CaseMaster->case_statute_date)->subDay($request['reminder_days'][$i])->format('Y-m-d'); // Subtracts reminder date day for case_statute_date 
+                    $CaseSolReminder->remind_at=$reminderDate;  
                     $CaseSolReminder->save();
                 }
             }
@@ -6197,17 +6200,19 @@ class CaseController extends BaseController
 
   public function saveCaseReminderPopup(Request $request)
   {
-      $request=$request->all();
+        $request=$request->all();
     //   print_r($request);exit;
-      $case_id=$request['case_id'];
+        $case_id=$request['case_id'];
+        $CaseMaster = CaseMaster::find($case_id);
         CaseSolReminder::where("case_id", $case_id)->delete();
         for($i=0;$i<count($request['reminder_type'])-1;$i++){
             $CaseSolReminder = new CaseSolReminder;
             $CaseSolReminder->case_id=$case_id; 
             $CaseSolReminder->reminder_type=$request['reminder_type'][$i];
             $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-            $CaseSolReminder->created_by=Auth::user()->id;
-            $CaseSolReminder->remind_at=Carbon::now();  
+            $CaseSolReminder->created_by=Auth::user()->id;                  
+            $reminderDate = \Carbon\Carbon::createFromFormat('Y-m-d', $CaseMaster->case_statute_date)->subDay($request['reminder_days'][$i])->format('Y-m-d'); // Subtracts reminder date day for case_statute_date 
+            $CaseSolReminder->remind_at=$reminderDate;   
             $CaseSolReminder->save();
         }
         return response()->json(['errors'=>'']);

@@ -9,7 +9,6 @@
             </thead>
             <tbody class="no-border">
                 <tr>
-
                     <td><b>Select All</b></td>
                     <td>
                         <?php if(isset($from) && $from=="edit"){?>

@@ -842,7 +842,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->save();
 
             // added trust history in user_additional_info
-            UsersAdditionalInfo::updateOrCreate(['user_id' => $request->user_id], ['user_id' => $request->user_id,'created_by' => Auth::User()->id]);
+            UsersAdditionalInfo::updateOrCreate(['user_id' => $request->id], ['user_id' => $request->id,'created_by' => Auth::User()->id]);
             
             $noteHistory=[];
             $noteHistory['acrtivity_title']='edited a lead';
@@ -1033,8 +1033,9 @@ class LeadController extends BaseController
                         $CaseSolReminder->case_id=$CaseMaster->id; 
                         $CaseSolReminder->reminder_type=$request['reminder_type'][$i]; 
                         $CaseSolReminder->reminer_number=$request['reminder_days'][$i];
-                        $CaseSolReminder->created_by=Auth::User()->id; 
-                        $CaseSolReminder->remind_at=Carbon::now(); 
+                        $CaseSolReminder->created_by=Auth::User()->id;                                                     
+                        $reminderDate = \Carbon\Carbon::createFromFormat('Y-m-d', $CaseMaster->case_statute_date)->subDay($request['reminder_days'][$i])->format('Y-m-d'); // Subtracts reminder date day for case_statute_date 
+                        $CaseSolReminder->remind_at=$reminderDate;   
                         $CaseSolReminder->save();
                     }
                 }
@@ -1179,23 +1180,23 @@ class LeadController extends BaseController
                 User::where('id',$CaseClientIs->selected_user)->update(['user_level'=>"2"]);//Change user type from lead to client
                 $getLEadInfo= LeadAdditionalInfo::select("*")->where("user_id",$CaseClientIs->selected_user)->first();
 
-                $UsersAdditionalInfo= new UsersAdditionalInfo;
-                $UsersAdditionalInfo->user_id=$getLEadInfo->user_id;
-                $UsersAdditionalInfo->contact_group_id="1";
-                $UsersAdditionalInfo->company_id=NULL;
-                $UsersAdditionalInfo->address2=$getLEadInfo->address2;
-                $UsersAdditionalInfo->dob=$getLEadInfo->dob;
-                $UsersAdditionalInfo->fax_number=NULL;
-                $UsersAdditionalInfo->job_title=NULL;
-                $UsersAdditionalInfo->driver_license=$getLEadInfo->driver_license;
-                $UsersAdditionalInfo->license_state=$getLEadInfo->license_state;
-                $UsersAdditionalInfo->website=NULL;
-                $UsersAdditionalInfo->notes=$getLEadInfo->notes;
-                $UsersAdditionalInfo->client_portal_enable=$getLEadInfo->client_portal_enable;
-                $UsersAdditionalInfo->created_at =$getLEadInfo->created_at;
-                $UsersAdditionalInfo->created_by =$getLEadInfo->created_by;
-                $UsersAdditionalInfo->save();
-
+                UsersAdditionalInfo::updateOrCreate(['user_id' => $getLEadInfo->user_id], [
+                    'user_id' => $getLEadInfo->user_id,
+                    'contact_group_id'=> "1",
+                    'company_id'=> NULL,
+                    'address2'=> $getLEadInfo->address2,
+                    'dob'=> $getLEadInfo->dob,
+                    'fax_number'=> NULL,
+                    'job_title'=> NULL,
+                    'driver_license'=> $getLEadInfo->driver_license,
+                    'license_state'=> $getLEadInfo->license_state,
+                    'website'=> NULL,
+                    'notes'=> $getLEadInfo->notes,
+                    'client_portal_enable'=> $getLEadInfo->client_portal_enable,
+                    'created_at' => $getLEadInfo->created_at,
+                    'created_by' => $getLEadInfo->created_by,
+                ]);
+                
                 // $deleteLead= LeadAdditionalInfo::where("user_id",$CaseClientIs->selected_user)->delete();
                 LeadAdditionalInfo::where("user_id",$CaseClientIs->selected_user)->update(['is_converted'=>'yes','converted_date'=>date('Y-m-d')]);
 
@@ -6533,6 +6534,7 @@ class LeadController extends BaseController
             $InvoiceSave->total_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->due_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->notes=$request->description;
+            $InvoiceSave->payment_term="0";
             $InvoiceSave->created_by=Auth::User()->id; 
             $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;
@@ -6641,6 +6643,7 @@ class LeadController extends BaseController
             $InvoiceSave->total_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->due_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->notes=$request->description;
+            $InvoiceSave->payment_term="0";
             $InvoiceSave->updated_by=Auth::User()->id; 
             $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;

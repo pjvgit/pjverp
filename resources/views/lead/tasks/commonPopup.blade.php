@@ -71,7 +71,7 @@
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/leads/loadEditTaskPopup", // json datasource
+                url: baseUrl + "/tasks/loadEditTaskPopup", // json datasource
                 data: {
                     "task_id": id,
                     "from_view":fromView

@@ -697,11 +697,13 @@
                     loadTimeEstimationUsersList(SU);
                 }
                 else if(beforeload==false){
-                    loadTimeEstimationUsersLinkedStaffList1();
+                    console.log("timeTrackingEnabled > 700");    
+                    loadTimeEstimationUsersLinkedStaffList11();
                     beforeload=true;
                 }
                 else{
-                    loadTimeEstimationUsersLinkedStaffList1();
+                    // console.log("timeTrackingEnabled > 704");    
+                    // loadTimeEstimationUsersLinkedStaffList1();
                 }
             }
             afterLoader();
@@ -737,7 +739,7 @@
         })
     }
     function loadTimeEstimationUsersLinkedStaffList11() {
-        console.log("loadTimeEstimationUsersLinkedStaffList1 > resources/views/task/loadEditTaskPopup.blade.php");
+        console.log("loadTimeEstimationUsersLinkedStaffList11 > resources/views/task/loadEditTaskPopup.blade.php");
         beforeLoader();
         var selectdValue = $("#case_or_lead option:selected").val() // or
         var SU=getCheckedUser();
@@ -782,7 +784,10 @@
         setTimeout(function(){  
             $('input:checkbox#time_tracking_enabled').trigger('click');
             if($("input:checkbox#time_tracking_enabled").is(":checked")){
-                loadTimeEstimationUsersLinkedStaffList1();
+                console.log("timeTrackingEnabled > 785");
+                // loadTimeEstimationUsersLinkedStaffList1();
+                var SU = getCheckedUser();
+                loadTimeEstimationUsersList(SU);
             }
         }, 500);        
     }

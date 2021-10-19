@@ -4321,6 +4321,9 @@ class BillingController extends BaseController
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
             return view('pages.404');
+        }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
+        {
+            return \Redirect::route('bills/invoices/potentialview', [$request->id]);
         }else{
             $firmData = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->first();
 

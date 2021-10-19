@@ -12,9 +12,11 @@
                 <span id="responseMain"></span>
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
+                        @if($findInvoice->due_amount > 0)
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;"" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
                         </div>
+                        @endif
                         <div class="pl-1">
                             <a class="btn btn-outline-secondary  m-1" data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice({{$findInvoice->id}})" data-placement="bottom"   href="javascript:;">Edit</a>
                         </div>                        
@@ -25,9 +27,13 @@
                         </a>
                         <?php $id=base64_encode($findInvoice->id);?>
                         <a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice"
-                        data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice({{$findInvoice->id}});">
+                            data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice({{$findInvoice->id}});">
                             <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip"
                                 data-placement="top" title="" data-original-title="Download"></i>
+                        </a>
+                        <a class="btn btn-lg btn-link px-2 text-black-50" 
+                            data-toggle="modal" data-target="#deleteInvoice" onclick="deleteInvoice({{$findInvoice->id}});">
+                            <i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i>
                         </a>
 
                         <!-- <a class="btn btn-lg btn-link px-2 text-black-50 print-bill-icon-action"  onclick="printPDF({{$findInvoice->id}});">

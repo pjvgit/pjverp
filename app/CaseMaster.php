@@ -395,6 +395,26 @@ class CaseMaster extends Authenticatable
     }
 
     /**
+     * Get the User detials associated with the Case staff 
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    
+    public function caseStaffDetails(){
+        return $this->belongsToMany(User::class, 'case_staff', 'case_id', 'user_id');
+    }
+
+    /**
+     * Get the firm detials associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseFirm()
+    {
+        return $this->hasOne(Firm::class, 'id', 'firm_id');
+    }
+
+    /**
      * Get the caseCreatedByUser that owns the CaseMaster
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -43,7 +43,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <table cellspacing="0" border="0" style="padding:0;border:0;margin:0;" bgcolor="#ffffff" width="601" cellpadding="0">
+                <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0; background-image: url(&quot;{{asset('images/mail/table_bg.jpg')}}&quot;); background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: initial"
+                    bgcolor="#ffffff" width="601" cellpadding="0">
                 <tbody>
                     <tr style="margin:0;padding:0;border:0">
                     <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
@@ -104,6 +105,22 @@
                 </tr>
 
                 </tbody></table>
+                <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0; background-image: url(&quot;{{ asset('images/mail/table_footer.jpg') }}&quot;); background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: initial"
+                    bgcolor="#ffffff" width="601" cellpadding="0">
+
+                    <tbody>
+                        <tr height="17" style="margin: 0; padding: 0; border: 0">
+
+                            <td style="padding: 0; border: 0; margin: 0" cellpadding="0">
+
+                                &nbsp;
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
                 <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0" width="601" cellpadding="0">
                     <tbody>
                         <tr style="margin: 0; padding: 0; border: 0">

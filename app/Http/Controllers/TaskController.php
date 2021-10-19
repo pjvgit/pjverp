@@ -497,7 +497,9 @@ class TaskController extends BaseController
         $task_id = $request->task_id;
         $SavedStaff=$from='';
         if(isset($request->edit)){
-            $SavedStaff=CaseTaskLinkedStaff::select('user_id')->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get()->pluck('user_id')->toArray();
+            $SavedStaff=CaseTaskLinkedStaff::select('user_id')
+                        ->where('is_contact','no')->where("task_id", $request->task_id)
+                        ->orderBy("user_id","ASC")->get()->pluck('user_id')->toArray();
             $from='edit';  
         }
         return view('task.firmStaff',compact('loadFirmStaff','SavedStaff','from','task_id'));     

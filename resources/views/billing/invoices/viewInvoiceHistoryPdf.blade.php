@@ -114,7 +114,13 @@ $finalAmt=$invoice-$paid;
     <hr>
 
     <h3>
-        <p>{{ucfirst(substr($caseMaster['case_title'],0,100))}}</p>
+        @if($Invoice['is_lead_invoice'] == 'yes') 
+        <p>Potential Case: {{ucfirst(substr($userData['first_name'],0,50))}}
+                        {{ucfirst(substr($userData['middle_name'],0,50))}}
+                        {{ucfirst(substr($userData['last_name'],0,50))}}</p>
+        @else
+        <p>{{ucfirst(substr(@$caseMaster['case_title'],0,100))}}</p>
+        @endif
     </h3>
     <?php if($InvoiceHistory['acrtivity_title']=="Payment Received"){ ?>
     <h4>Payment Recepit</h4>

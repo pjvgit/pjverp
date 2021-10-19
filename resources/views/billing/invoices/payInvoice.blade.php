@@ -643,14 +643,19 @@ $finalAmt=$invoice-$paid;
                         afterLoader();
                         return false;
                     } else {
-                        swal('Payment Successful!', res.msg, 'success').then(function(){
-                            window.location.reload();
-                        });
-                        afterLoader();
-                        setTimeout(function () {
-                            $("#payInvoice").modal("hide");                           
-                        }, 1000);
-                        updateInvoiceDetail();
+                        if($("#is_lead_invoice").val() != 'yes') {                        
+                            swal('Payment Successful!', res.msg, 'success');
+                            afterLoader();
+                            setTimeout(function () {
+                                $("#payInvoice").modal("hide");                           
+                            }, 1000);
+                            updateInvoiceDetail();
+                        }else{
+                            swal('Payment Successful!', res.msg, 'success').then(function(){
+                                window.location.reload();
+                            });
+                            afterLoader();
+                        }
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -719,14 +724,21 @@ $finalAmt=$invoice-$paid;
                         afterLoader();
                         return false;
                     } else {
-                        swal('Payment Successful!', res.msg, 'success');
-                        afterLoader();
-                        setTimeout(function () {
-                            $("#payInvoice").modal("hide")
-                        }, 1000);
-                        $('#billing_invoice_table').DataTable().ajax.reload(null, false);
-                        $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                        updateInvoiceDetail();
+                        if($("#is_lead_invoice").val() != 'yes') {                        
+                            swal('Payment Successful!', res.msg, 'success');
+                            afterLoader();
+                            setTimeout(function () {
+                                $("#payInvoice").modal("hide")
+                            }, 1000);
+                            $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                            $('#invoiceGrid').DataTable().ajax.reload(null, false);
+                            updateInvoiceDetail();
+                        }else{
+                            swal('Payment Successful!', res.msg, 'success').then(function(){
+                                window.location.reload();
+                            });
+                            afterLoader();                            
+                        }
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -842,14 +854,21 @@ function didCreditPayment() {
                     afterLoader();
                     return false;
                 } else {
-                    swal('Payment Successful!', res.msg, 'success');
-                    afterLoader();
-                    setTimeout(function () {
-                        $("#payInvoice").modal("hide")
-                    }, 1000);
-                    $('#billing_invoice_table').DataTable().ajax.reload(null, false);
-                    $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                    updateInvoiceDetail();
+                    if($("#is_lead_invoice").val() != 'yes') {
+                        swal('Payment Successful!', res.msg, 'success');
+                        afterLoader();
+                        setTimeout(function () {
+                            $("#payInvoice").modal("hide")
+                        }, 1000);
+                        $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                        $('#invoiceGrid').DataTable().ajax.reload(null, false);
+                        updateInvoiceDetail();
+                    }else{
+                        swal('Payment Successful!', res.msg, 'success').then(function(){
+                            window.location.reload();
+                        });
+                        afterLoader();                        
+                    }
                 }
             },
             error: function (jqXHR, exception) {
