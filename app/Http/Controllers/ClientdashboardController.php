@@ -968,11 +968,11 @@ class ClientdashboardController extends BaseController
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
                         }
-                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && $data->fund_type != "withdraw") {
+                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
                             $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                         } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
                             $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
-                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw")
+                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw" && $data->fund_type != "payment")
                                 $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                             else
                                 $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
@@ -3832,7 +3832,7 @@ class ClientdashboardController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            // try {
+            try {
                 dbStart();
                 $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
                 if($creditHistory->payment_type == "refund deposit") {
@@ -3888,13 +3888,14 @@ class ClientdashboardController extends BaseController
                 $clientId = $creditHistory->user_id;
                 $creditHistory->delete();
                 $this->updateNextPreviousCreditBalance($clientId);
-
+                dbCommit();
                 session(['popup_success' => 'Credit entry was deleted']);
                 return response()->json(['errors'=>'']);
                 exit;   
-            // } catch (Exception $e) {
-            //     return response()->json(['errors'=> $e->getMessage()]);
-            // }
+            } catch (Exception $e) {
+                dbEnd();
+                return response()->json(['errors'=> $e->getMessage()]);
+            }
         }
     }
 

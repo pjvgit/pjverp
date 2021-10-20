@@ -1117,8 +1117,8 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
     $("#editRtitle").hide();
     <?php  if($evetData->all_day=='yes'){  ?>
             $('input:checkbox.all_day').trigger('click');
-            $("#start_time").val('').attr("disabled", true);
-            $("#end_time").val('').attr("disabled", true);
+            $("#start_time").val('').attr("readonly", true);
+            $("#end_time").val('').attr("readonly", true);
     <?php }  ?>
   
     <?php  if(isset($evetData->event_frequency) && $evetData->event_frequency!=NULL){ ?>

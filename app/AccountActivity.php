@@ -166,6 +166,6 @@ class AccountActivity extends Authenticatable
      */
     public function leadAdditionalInfo()
     {
-        return $this->belongsTo(LeadAdditionalInfo::class, 'user_id', 'user_id');
+        return $this->hasOne(LeadAdditionalInfo::class, 'user_id', 'user_id');
     }
 }

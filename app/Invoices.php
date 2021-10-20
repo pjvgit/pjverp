@@ -245,7 +245,7 @@ class Invoices extends Model
      */
     public function applyTrustFund()
     {
-        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "trust");
+        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "trust")->withTrashed();
     }
 
     /**
@@ -255,7 +255,7 @@ class Invoices extends Model
      */
     public function applyCreditFund()
     {
-        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "credit");
+        return $this->hasMany(InvoiceApplyTrustCreditFund::class, 'invoice_id')->where("account_type", "credit")->withTrashed();
     }
 
     /**

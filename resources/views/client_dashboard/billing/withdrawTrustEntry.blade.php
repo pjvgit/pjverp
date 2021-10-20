@@ -13,12 +13,14 @@
                             <div class="input-group">
                                 <select class="form-control caller_name select2" id="trust_account" name="trust_account" style="width: 100%;" placeholder="Select user's account...">
                                     <option></option>
+                                    @if(isset($userCases) && count($userCases))
                                     <optgroup label="Withdraw from a case">
                                         @forelse ($userCases as $item)
                                             <option value="{{ $item->id }}" data-amount={{ $item->total_allocated_trust_balance }}>{{ ucfirst($item->case_title) }} (Balance ${{ number_format($item->total_allocated_trust_balance, 2) }})
                                         @empty
                                         @endforelse
                                     </optgroup>
+                                    @endif
                                     <optgroup label="Withdraw from unallocated">
                                         <option data-amount={{ $UsersAdditionalInfo->unallocate_trust_balance }}>Trust Account (Balance ${{number_format(($UsersAdditionalInfo->unallocate_trust_balance),2)}})</option>
                                     </optgroup>

@@ -1,23 +1,18 @@
 <div>
 	@php
 		$lableShow = 0;
-		$appliedTrustClient = $findInvoice->applyTrustFund/* ->pluck("show_trust_account_history", "client_id")->toArray() */;
-		$appliedcreditClient = $findInvoice->applyCreditFund/* ->pluck("show_credit_account_history", "client_id")->toArray() */;
+		$appliedTrustClient = $findInvoice->applyTrustFund;
+		$appliedcreditClient = $findInvoice->applyCreditFund;
 		$showTrustHistory = $findInvoice->applyTrustFund->pluck("show_trust_account_history")->toArray();
 		$showCreditHistory = $findInvoice->applyCreditFund->pluck("show_credit_account_history")->toArray();
 		$lableShow = 1;
 		if ((count(array_flip($showTrustHistory)) === 1 && end($showTrustHistory) === 'dont show') && (count(array_flip($showCreditHistory)) === 1 && end($showCreditHistory) === 'dont show')) {
 			$lableShow = 0;
 		}
-		/* foreach($appliedTrustClient as $k => $v){
-			$lableShow = ($v == 'dont show') ? 0 : 1;
-		}
-		foreach($appliedcreditClient as $k => $v){
-			$lableShow = ($v == 'dont show') ? 0 : 1;
-		} */
+		$caseClientWithTrashed = $caseMaster->caseAllClientWithTrashed;
 	@endphp
 	<div class="ledger-histories">				
-        @if(isset($caseMaster) && !empty($caseMaster->caseAllClient))
+        @if(isset($caseMaster) && !empty($caseClientWithTrashed))
 			@if($lableShow == 1)
 			<h3> Account Summary
 				<a id="ledger-histories-refresh" class="ledger-histories-refresh" onclick="refreshAccountHistory()">
@@ -25,7 +20,7 @@
 				</a>
 			</h3>
 			@endif
-            @forelse ($caseMaster->caseAllClient as $key => $item)
+            @forelse ($caseClientWithTrashed as $key => $item)
                 <div class="ledger_history_full mt-3">
 					@php
 						$user = $appliedTrustClient->where('client_id', $item->id)->first();
@@ -72,8 +67,8 @@
             @endforelse
 		@endif
 
-		@if(isset($caseMaster) && !empty($caseMaster->caseAllClient))
-            @forelse ($caseMaster->caseAllClient as $key => $item)
+		@if(isset($caseMaster) && !empty($caseClientWithTrashed))
+            @forelse ($caseClientWithTrashed as $key => $item)
                 <div class="ledger_history_full mt-3">
 					@php
 						$user = $appliedcreditClient->where('client_id', $item->id)->first();

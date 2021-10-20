@@ -478,7 +478,7 @@
                             <div><b>Last Modified: </b>{{date('l, F jS Y',strtotime($evetData->updated_at))}} by {{substr($updatedEvenByUserData->first_name,0,15)}} {{substr($updatedEvenByUserData->last_name,0,15)}}</div>  
                         <?php } ?>
                         </div>
-                    </div> <div class="loader-bubble loader-bubble-primary" id="innerLoader" style="display: none;"></div>
+                    </div> <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" style="display: none;"></div>
                     <div>
                         <a href="#">
                             <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
@@ -777,7 +777,7 @@
 
 
 
-        $("input:checkbox.recuring_event").click(function () {
+        $("#loadEditEventPopup input:checkbox.recuring_event").change(function () {
             if ($(this).is(":checked")) {
                 $("#repeat_dropdown").show();
                 $("#endondiv").show();
@@ -1107,8 +1107,8 @@
     $("#editRtitle").hide();
     <?php  if($evetData->all_day=='yes'){  ?>
             $('input:checkbox.all_day').trigger('click');
-            $("#start_time").val('').attr("disabled", true);
-            $("#end_time").val('').attr("disabled", true);
+            $("#start_time").val('').attr("readonly", true);
+            $("#end_time").val('').attr("readonly", true);
     <?php }  ?>
   
     <?php  if(isset($evetData->event_frequency)){ ?>

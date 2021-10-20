@@ -116,7 +116,7 @@ $('#deleteCreditHistoryEntryForm').submit(function (e) {
         },
         success: function (res) {
                 beforeLoader();
-                if (res.errors != '') {
+            if (res.errors != '') {
                 $('.showError').html('');
                 var errotHtml =
                     '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';

@@ -423,4 +423,15 @@ class CaseMaster extends Authenticatable
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * The caseAllClient that belong to the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function caseAllClientWithTrashed()
+    {
+        return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("users.id", "asc")
+                ->withPivot('allocated_trust_balance', 'minimum_trust_balance')->withTrashed();
+    }
 }

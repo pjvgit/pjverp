@@ -28,7 +28,13 @@
                             <td>{{ $v->id }}</td>
                             <td>{{ $v->status }}</td>
                             <td>${{ number_format($v->due_amount ?? 0,2) }}</td>
-                            <td>${{ number_format(@$v->portalAccessUserAdditionalInfo->unallocate_trust_balance ?? 0,2) }}</td>
+                            <td>
+                                @if(isset($fund_type) && $fund_type == "credit")
+                                ${{ number_format(@$v->portalAccessUserAdditionalInfo->credit_account_balance ?? 0,2) }}
+                                @else
+                                ${{ number_format(@$v->portalAccessUserAdditionalInfo->unallocate_trust_balance ?? 0,2) }}
+                                @endif
+                            </td>
                         </tr>
                         <?php } ?>
                     </tbody>

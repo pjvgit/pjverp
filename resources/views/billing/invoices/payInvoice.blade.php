@@ -171,6 +171,9 @@ $finalAmt=$invoice-$paid;
                         <?php } }else{ ?>
                             <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
                         <?php }  ?>
+                        @if (!empty($invoiceUserNotInCase))
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }}) Not in case</option>
+                        @endif
                     </select>  
                     <span id="contactin"></span>
                 </div>                
@@ -250,6 +253,10 @@ $finalAmt=$invoice-$paid;
                             <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
                         <?php } ?>
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) </option> -->
+                        
+                        @if (!empty($invoiceUserNotInCase))
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }}) Not in case</option>
+                        @endif
                     </select>
                     <span id="ttcaccount"></span>
                 </div>
@@ -1010,7 +1017,7 @@ function getClientCases(clientId) {
 
 $(".trust_account").on("change", function() {
     var label = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
-    var selectedTab = $('#myTab').find('li a.active').attr('aria-controls');
+    var selectedTab = $("#payInvoice ul#myTab li a.active").attr('aria-controls');
     if(label == 'Allocate to case') {
         $("#"+selectedTab).find(".is_case").val("yes");
     } else {
