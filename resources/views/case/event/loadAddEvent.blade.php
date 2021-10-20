@@ -1,7 +1,7 @@
 
 <form class="createEvent" id="createEvent" name="createEvent" method="POST">
     @csrf
-    <div class="row">
+    <div class="row" bladefilename="resources/views/case/event/loadAddEvent.blade.php">
         <div class="col-8">
             <div id="showError" style="display:none"></div>
             <?php if(Auth::User()->add_event_guide=="0"){?>   
@@ -371,9 +371,9 @@
                                 <div class="">
                                     <select id="reminder_type" name="reminder_type[]"
                                         class="reminder_type form-control custom-select  ">
-                                        <option value="popup">popup</option>
-                                        <option value="email">email</option>
-                                        <option value="text-sms">Text(SMS)</option>
+                                        @foreach(getEventReminderTpe() as $k =>$v)
+                                            <option value="{{$k}}">{{$v}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -540,7 +540,7 @@
         $(".repeat_monthly").hide();
         $(".repeat_yearly").hide();
         // $(".hide").hide();
-        $("document").on("click", ".add-more", function () {
+        $(".test-add-new-reminder").on("click", function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
             // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
@@ -983,7 +983,6 @@
     });
     changeCaseUser();
     $("#reminder_user_type option[value='client-lead']").hide();
-    $("#reminder_type option[value='text-sms']").hide();
    
 
     function firmStaff() {

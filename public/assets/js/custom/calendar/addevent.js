@@ -46,10 +46,8 @@ $(document).on("change", ".load-default-reminder", function() {
 // CHange reminder type based on reminder user type
 function chngeTy(sel){
     if(sel.value=='client-lead'){
-        $("#reminder_type_"+sel.id+" option[value='text-sms']").show();
         $("#reminder_type_"+sel.id+" option[value='popup']").hide();
     }else{
-        $("#reminder_type_"+sel.id+" option[value='text-sms']").hide();
         $("#reminder_type_"+sel.id+" option[value='popup']").show();
     }
 }
@@ -85,9 +83,7 @@ function loadGrantAccessModal(id) {
     var checkecCounter=$('input[name="clientCheckbox[]"]:checked').length;
     if(checkecCounter>0){
         $(".reminder_user_type option[value='client-lead']").show();
-        $(".reminder_type option[value='text-sms']").show();
     }else{
         $(".reminder_user_type option[value='client-lead']").hide();
-        $(".reminder_type option[value='text-sms']").hide();
     }
 }

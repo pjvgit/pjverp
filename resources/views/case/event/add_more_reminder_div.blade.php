@@ -18,9 +18,9 @@
                     <div class="">
                         <select id="reminder_type" name="reminder_type[]"
                             class="reminder_type form-control custom-select  ">
-                            <option value="popup">popup</option>
-                            <option value="email">email</option>
-                            <option value="text-sms">Text(SMS)</option>
+                            @foreach(getEventReminderTpe() as $k =>$v)
+                                <option value="{{$k}}">{{$v}}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>

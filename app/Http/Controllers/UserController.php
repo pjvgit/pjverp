@@ -948,7 +948,8 @@ class UserController extends BaseController
      }
      public function autoLogout(Request $request) {
         Auth::logout();
-        return redirect('/login');
+        Session::flush();
+        return redirect('login');
       }
 
     /**

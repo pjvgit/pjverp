@@ -1,4 +1,4 @@
-<div class="sharing-table clients-table">
+<div class="sharing-table clients-table" bladename="resources/views/case/event/loadEventRightSection.blade.php">
     <div class="table-responsive">
         <?php 
         if(!$caseCllientSelection->isEmpty()){?>
@@ -10,7 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
+                <td><input name="client-share-all" id="SelectAllLeadShare" type="checkbox" class="load-default-reminder-all" <?php if(count($caseCllientSelection)==count($caseLinkeSavedInviteContact)){?> checked="checked" <?php } ?>></td>
                 <td><input name="client-attend-all" id="SelectAllLeadAttend" type="checkbox" <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>></td>
             </tr>
             <?php 
@@ -82,6 +82,8 @@
             if($loadFirmUser->isEmpty()){ ?>
                 <tr class="sharing-user">
                     <td class=" no-border" colspan="3"> Non linked staff member not available</td>
+                    <td></td>
+                    <td></td>
                 </tr>
             <?php } ?>
         </table>
@@ -100,7 +102,7 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client_share_all" id="client_share_all"
-                        <?php if(count($caseLinkedStaffList)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkeSaved)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     <?php }else{ ?>
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
@@ -145,7 +147,9 @@
                         <input name="linked_staff_checked_attend[]"
                             <?php if(in_array($val->id,$caseLinkeSavedAttending)){ ?> checked="checked" <?php } ?>
                             value="{{$val->id}}" class="client_attend_all_users"
-                            id="linked_staff_checked_attend_{{$val->id}}" type="checkbox">
+                            id="linked_staff_checked_attend_{{$val->id}}" type="checkbox"
+                            <?php if(!in_array($val->id,$caseLinkeSaved)){ ?> disabled="disabled" <?php } ?>
+                            >
 
                         <?php } else {  ?>
                         <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="client_attend_all_users"
@@ -175,6 +179,11 @@
             if ($("#client_share_all").prop('checked')) {
                 $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
             }
+            $(".client_attend_all_users").each(function(element, index, set) {
+                if($(this).prop("disabled") === false){
+                    $(this).prop('checked', $("#client_attend_all").prop('checked'));
+                }
+            });
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);

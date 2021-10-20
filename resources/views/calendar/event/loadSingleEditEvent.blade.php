@@ -411,8 +411,9 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                                         <div>
                                                             <div class="">
                                                                 <select id="reminder_type_{{ $rkey + 1 }}" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
-                                                                    <option <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?> value="popup">popup</option>
-                                                                    <option <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?> value="email">email</option>
+                                                                @foreach(getEventReminderTpe() as $k =>$v)
+                                                                    <option value="{{$k}}" <?php if($rval->reminder_type==$k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                                                @endforeach
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -465,8 +466,9 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                             <div class="">
                                                 <select id="reminder_type" name="reminder_type[]"
                                                     class="form-control custom-select  ">
-                                                    <option value="popup">popup</option>
-                                                    <option value="email">email</option>
+                                                    @foreach(getEventReminderTpe() as $k =>$v)
+                                                        <option value="{{$k}}">{{$v}}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>

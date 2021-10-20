@@ -9,7 +9,6 @@
             <div class="col-sm-9">
                 <select class="form-control country" id="sent_by" name="sent_by" style="width: 30%;">
                     <option value="email">Email</option>
-                    <!-- <option value="sms">Text(SMS)</option> -->
                 </select>
             </div>
         </div>

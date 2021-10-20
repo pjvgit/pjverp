@@ -369,9 +369,9 @@
                                 <div class="">
                                     <select id="reminder_type" name="reminder_type[]"
                                         class="reminder_type form-control custom-select  ">
-                                        <option value="popup">popup</option>
-                                        <option value="email">email</option>
-                                        <option value="text-sms">Text(SMS)</option>
+                                        @foreach(getEventReminderTpe() as $k =>$v)
+                                            <option value="{{$k}}">{{$v}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -900,7 +900,6 @@
     });
     // changeCaseUser();
     $("#reminder_user_type option[value='client-lead']").hide();
-    $("#reminder_type option[value='text-sms']").hide();
     //  function changeCaseUser() {
     //     var selectdValue = $("#case_or_lead option:selected").val() // or
     //     loadCaseClient(selectdValue);
@@ -911,10 +910,8 @@
 
     function chngeTy(sel){
         if(sel.value=='client-lead'){
-            $("#reminder_type_"+sel.id+" option[value='text-sms']").show();
             $("#reminder_type_"+sel.id+" option[value='popup']").hide();
         }else{
-            $("#reminder_type_"+sel.id+" option[value='text-sms']").hide();
             $("#reminder_type_"+sel.id+" option[value='popup']").show();
         }
     }

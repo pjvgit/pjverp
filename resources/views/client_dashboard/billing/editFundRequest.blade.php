@@ -1,4 +1,4 @@
-<div data-testid="retainer-request-modal">
+<div data-testid="retainer-request-modal" bladeName="resources/views/client_dashboard/billing/editFundRequest.blade.php">
     <form class="updateEditFund" id="updateEditFund" name="updateEditFund" method="POST">
         <span class="showError"></span>
         @csrf
@@ -7,14 +7,14 @@
         <div class="modal-body retainer-requests-popup-content">
             <div class="row">
                 <div class="col-12">
-                    <p class="helper-text">Edit the request for #R-00{{$RequestedFund->id}} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_due,2)}} due on {{date('m/d/Y',strtotime($RequestedFund->due_date))}}.</p>
+                    <p class="helper-text">Edit the request for #R-{{ sprintf('%05d',$RequestedFund->id) }} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_requested,2)}} due on {{($RequestedFund->due_date) ? date('m/d/Y',strtotime(date('Y-m-d', strtotime(convertUTCToUserDate($RequestedFund->due_date, auth()->user()->user_timezone))))) : ''}}.</p>
                 </div>
                 <div class="col-md-6 form-group mb-3">
                     <label for="firstName1">Amount</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span></div>
-                        <input id="amount" name="amount" class="form-control number" value="{{number_format($RequestedFund->amount_due,2)}}" maxlength="50">
+                        <input id="amount" name="amount" class="form-control number" value="{{number_format($RequestedFund->amount_requested,2)}}" maxlength="50" min="{{$RequestedFund->amount_paid}}">
                     </div>
                     <span id="amterror"></span>
                 </div>
@@ -53,12 +53,13 @@
             rules: {
                 amount: {
                     required: true,
-                    minStrict: true,
+                    min:{{$RequestedFund->amount_paid}}
                 }
             },
             messages: {
                 amount: {
                     required: "Invalid amount",
+                    min: "Amount can't be less than the amount paid."
                 }
             },
             errorPlacement: function (error, element) {

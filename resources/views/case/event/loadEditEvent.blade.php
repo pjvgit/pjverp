@@ -401,8 +401,9 @@
                                                         <div>
                                                             <div class="">
                                                                 <select id="reminder_type_{{ $rkey + 1 }}" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
-                                                                    <option <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?> value="popup">popup</option>
-                                                                    <option <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?> value="email">email</option>
+                                                                    @foreach(getEventReminderTpe() as $k =>$v)
+                                                                        <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                         </div>

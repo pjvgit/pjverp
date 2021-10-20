@@ -1,4 +1,4 @@
-<div class="row ">
+<div class="row" bladeFile="resources/views/lead/details/case_detail/invoices/invoiceList.blade.php">
     <div class="col">
     </div>
     <div class="col">
@@ -12,14 +12,13 @@
                         </button>
                         <div class="dropdown-menu bg-transparent shadow-none p-0 m-0 ">
                             <div class="card">
-                                <button type="button" tabindex="0" role="menuitem" class="dropdown-item">
-                                    <a data-toggle="modal" data-target="#addNewInvoice" data-placement="bottom" href="javascript:;"
-                                        onclick="addNewInvoice();">Consultation Invoice</a>
-                                </button>
-                                <button type="button" tabindex="0" role="menuitem" class="dropdown-item">
-                                    <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;"
-                                        onclick="addRequestFundPopup();">Funds Request</a>
-                                </button>
+                                <a data-toggle="modal" data-target="#addNewInvoice" data-placement="bottom" href="javascript:;"
+                                        onclick="addNewInvoice();"><button type="button" tabindex="0" role="menuitem" class="dropdown-item">
+                                    Consultation Invoice</button>
+                                </a>
+                                <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;"
+                                        onclick="addRequestFundPopup();"><button type="button" tabindex="0" role="menuitem" class="dropdown-item">
+                                    Funds Request</button></a>                                
                             </div>
                         </div>
                     </div>
@@ -109,7 +108,7 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
                 </td>
                 <?php
                 if($aData->current_status=="Paid"){
-                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'.$aData->current_status.'</div></td>';
+                    echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;" ></i>'.$aData->current_status.'</div></td>';
                 }else if($aData->current_status=="Partial"){
                     echo '<td width="10%"><div class="text-left"><i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'.$aData->current_status.'</div></td>';
                 }else if($aData->current_status=="Overdue"){
@@ -118,19 +117,21 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
                     echo '<td width="10%"><div class="text-left">'.$aData->current_status.'</div></td>';
                 }
 
-                $editOption= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('.$aData->id.');"> <i class="fas fa-pen"></i> </a>';
+                $editOption= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('.$aData->id.');"> <i class="fas fa-pen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"></i> </a>';
                 
                 if($aData->status != 'paid') {
                     if($aData->deposit_into_type == 'credit'){
-                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoNonTrustAccount"  onclick="depositIntoNonTrustAccount('.$aData->client_id.','.$aData->id.');"><i class="fas fa-dollar-sign"></i></a>';
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoNonTrustAccount"  onclick="depositIntoNonTrustAccount('.$aData->client_id.','.$aData->id.');"><i class="fas fa-dollar-sign" data-toggle="tooltip" data-placement="top" title="" data-original-title="Record Payment"></i></a>';
                     }
                     if($aData->deposit_into_type == 'trust'){
-                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoTrustAccount"  onclick="depositIntoTrustPopup('.$aData->client_id.',0,'.$aData->id.');"><i class="fas fa-dollar-sign"></i></a>';
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  data-target="#depositIntoTrustAccount"  onclick="depositIntoTrustPopup('.$aData->client_id.',0,'.$aData->id.');"><i class="fas fa-dollar-sign" data-toggle="tooltip" data-placement="top" title="" data-original-title="Record Payment"></i></a>';
                     }
 
-                    $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('.$aData->id.');"> <i class="fas fa-bell"></i> </a>';
-
-                    $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('.$aData->id.', this);" data-payment-count="'.$aData->fund_payment_history_count.'"><i class="fas fa-trash"></i></a>';
+                    $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('.$aData->id.');"> <i class="fas fa-bell" data-toggle="tooltip" data-placement="top" title="" data-original-title="Reminders"></i> </a>';
+                    
+                    if($aData->amount_paid == 0) {
+                        $editOption.= '<a class="btn btn-lg btn-link px-2 text-black-50 bill-export-invoice" data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('.$aData->id.', this);" data-payment-count="'.$aData->fund_payment_history_count.'"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i></a>';
+                    }
                 }
                 echo '<td width="20%"><div class="d-flex align-items-center float-right">'.$editOption.'</div></td>';
                 ?>                
@@ -176,6 +177,7 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
 <?php } ?>
 @include('client_dashboard.billing.modal')
 @section('page-js-inner')
+<script src="{{asset('assets/js/tooltip.script.js')}}"></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {

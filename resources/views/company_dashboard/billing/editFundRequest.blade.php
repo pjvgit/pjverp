@@ -7,7 +7,7 @@
         <div class="modal-body retainer-requests-popup-content">
             <div class="row">
                 <div class="col-12">
-                    <p class="helper-text">Edit the request for #R-00{{$RequestedFund->id}} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_due,2)}} due on {{date('m/d/Y',strtotime($RequestedFund->due_date))}}.</p>
+                    <p class="helper-text">Edit the request for #R-{{sprintf('%05d',$RequestedFund->id)}} for<strong> {{$userData->cname}} </strong>in the amount of ${{number_format($RequestedFund->amount_due,2)}} due on {{date('m/d/Y',strtotime($RequestedFund->due_date))}}.</p>
                 </div>
                 <div class="col-md-6 form-group mb-3">
                     <label for="firstName1">Amount</label>

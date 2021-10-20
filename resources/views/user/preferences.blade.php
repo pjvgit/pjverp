@@ -132,14 +132,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="event_reminder_type"
                                                                                 name="event_reminder_type[]"
                                                                                 class="reminder_type form-control custom-select  ">
-                                                                                <option
-                                                                                                <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?>
-                                                                                                value="popup">popup
-                                                                                            </option>
-                                                                                            <option
-                                                                                                <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?>
-                                                                                                value="email">email
-                                                                                            </option>
+                                                                                @foreach(getEventReminderTpe() as $k =>$v)
+                                                                                        <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -199,8 +194,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="event_reminder_type"
                                                                                 name="event_reminder_type[]"
                                                                                 class="reminder_type form-control custom-select  ">
-                                                                                <option value="popup">popup</option>
-                                                                                <option value="email">email</option>
+                                                                                @foreach(getEventReminderTpe() as $k =>$v)
+                                                                                        <option value="{{$k}}" >{{$v}}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -249,14 +245,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="reminder_type"
                                                                                 name="task_reminder_type[]"
                                                                                 class="reminder_type form-control custom-select  ">
-                                                                                <option
-                                                                                <?php if($rval->reminder_type=="popup"){ echo "selected=selected"; } ?>
-                                                                                value="popup">popup
-                                                                            </option>
-                                                                            <option
-                                                                                <?php if($rval->reminder_type=="email"){ echo "selected=selected"; } ?>
-                                                                                value="email">email
-                                                                            </option>
+                                                                                @foreach(getEventReminderTpe() as $k =>$v)
+                                                                                        <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -320,8 +311,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="reminder_type"
                                                                                 name="task_reminder_type[]"
                                                                                 class="reminder_type form-control custom-select  ">
-                                                                                <option value="popup">popup</option>
-                                                                                <option value="email">email</option>
+                                                                                @foreach(getEventReminderTpe() as $k =>$v)
+                                                                                        <option value="{{$k}}" >{{$v}}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                         </div>
                                                                     </div>
