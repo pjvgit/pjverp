@@ -1463,13 +1463,18 @@ class BillingController extends BaseController
                 checkLeadInfoExists($invoiceData['user_id']);
                 $firmData=Firm::find(Auth::User()->firm_name);
                 $caseMaster=CaseMaster::select("case_title")->find($invoiceData['case_id']);
-                $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
+                $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance", "users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                 ->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
                 ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
-                ->groupBy("case_client_selection.selected_user")->get();                
-                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts'));
+                ->groupBy("case_client_selection.selected_user")->get(); 
+                $invoiceUserNotInCase = ''; 
+                if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5) {
+                    $invoiceUserNotInCase = UsersAdditionalInfo::where("user_id", $invoiceData->user_id)->with("user")->first();
+                }
+                // return $invoiceUserNotInCase;
+                return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts','invoiceUserNotInCase'));
                 exit;    
             }else{
                 return response()->json(['errors'=>'error']);
@@ -1499,6 +1504,7 @@ class BillingController extends BaseController
         }else{
             $account_balance = $userDataForDeposit['unallocate_trust_balance'];
         }
+        // return $account_balance;
         $validator = \Validator::make($request->all(), [
             'trust_account' => 'required',
             'amount' => 'required|numeric|min:1|max:'.$finalAmt.'|lte:'.$account_balance,
@@ -4317,7 +4323,7 @@ class BillingController extends BaseController
     public function viewInvoice(Request $request)
     {
         $invoiceID=base64_decode($request->id);
-        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustCreditFund")->first();
+        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
         if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
         {
             return view('pages.404');
@@ -4739,7 +4745,7 @@ class BillingController extends BaseController
     {
         $invoice_id=base64_decode($request->id);
         // $Invoice=Invoices::where("id",$invoice_id)->first();
-        $Invoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustCreditFund")->first();
+        $Invoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
         $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
        
         $UsersAdditionalInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id');
@@ -4748,7 +4754,7 @@ class BillingController extends BaseController
         ->where("user_id",$Invoice['user_id'])
         ->first();
 
-        $caseMaster=CaseMaster::find($Invoice['case_id']);
+        $caseMaster=CaseMaster::whereId($Invoice['case_id'])->with("caseAllClientWithTrashed")->first();
         //Getting firm related data
         $firmAddress = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",$userData['firm_name'])->first();
         
@@ -6666,8 +6672,9 @@ class BillingController extends BaseController
                                 LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $trustHistory->refund_amount);
                             }
                         }
-                        $this->updateNextPreviousTrustBalance($trustHistory->client_id);
+                        $clientId = $trustHistory->client_id;
                         TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->delete();
+                        $this->updateNextPreviousTrustBalance($clientId);
                     }
                 } else if($PaymentMaster->payment_from == "credit" && in_array($PaymentMaster->pay_method, ["Non-Trust Credit Account", "Refund"])){
                     // Update credit history
@@ -6681,8 +6688,9 @@ class BillingController extends BaseController
                         } else {
                             UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
                         }
-                        $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                        $userId = $creditHistory->user_id;
                         $creditHistory->delete();
+                        $this->updateNextPreviousCreditBalance($userId);
                     }            
                 } else if($PaymentMaster->payment_from == "offline") {
                     if($PaymentMaster->deposit_into == "Credit") {
@@ -6698,8 +6706,9 @@ class BillingController extends BaseController
                             } else {
                                 UsersAdditionalInfo::where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
                             }
-                            $this->updateNextPreviousCreditBalance($creditHistory->user_id);
+                            $userId = $creditHistory->user_id;
                             $creditHistory->delete();
+                            $this->updateNextPreviousCreditBalance($userId);
                         }            
                     } else if($PaymentMaster->deposit_into == "Trust Account") {
                         $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $invoicePayment->id)->first();
@@ -6747,8 +6756,9 @@ class BillingController extends BaseController
                                     LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $trustHistory->amount_paid);
                                 }
                             }
-                            $this->updateNextPreviousTrustBalance($trustHistory->client_id);
+                            $clientId = $trustHistory->client_id;
                             $trustHistory->delete();
+                            $this->updateNextPreviousTrustBalance($clientId);
                         }
                     }
                 }
@@ -7260,10 +7270,7 @@ class BillingController extends BaseController
                 if($userData->unallocate_trust_balance > 0 && $caseClientCount == 1 && $Invoices->status != "Forwarded" && $Invoices->status != "Paid")
                 {
                     if($finalAmt >= $userData->unallocate_trust_balance ){
-                        // $trustAccountAmount = $userData->trust_account_balance - $userData->unallocate_trust_balance;
                         $finalAmt = $userData->unallocate_trust_balance;
-                    }else{
-                        // $trustAccountAmount=($userData->unallocate_trust_balance - $finalAmt);
                     }
                     //Insert invoice payment record.
                     $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","trust")->orderBy("created_at","DESC")->first();
@@ -10121,7 +10128,7 @@ class BillingController extends BaseController
      */
     public function invoiceAccountHistory(Request $request)
     {
-        $findInvoice=Invoices::whereId($request->id)->with("forwardedInvoices", "applyTrustCreditFund")->first();
+        $findInvoice=Invoices::whereId($request->id)->with(["forwardedInvoices", "applyCreditFund", "applyTrustFund"])->first();
         $caseMaster=CaseMaster::whereId($findInvoice->case_id)->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
         return view("billing.invoices.partials.load_invoice_account_summary", ["findInvoice" => $findInvoice, "caseMaster" => $caseMaster])->render();
     }
@@ -10283,10 +10290,7 @@ class BillingController extends BaseController
                 if($userData['credit_account_balance']>0 && $caseClientCount == 1 && $Invoices->status != "Forwarded" && $Invoices->status != "Paid")
                 {
                     if($finalAmt >= $userData['credit_account_balance'] ){
-                        // $creditAccountAmount=0;
                         $finalAmt = $userData['credit_account_balance'];
-                    }else{
-                        // $creditAccountAmount=($userData['credit_account_balance']-$finalAmt);
                     }
                     //Insert invoice payment record.
                     $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("payment_from","credit")->orderBy("created_at","DESC")->first();
@@ -10295,7 +10299,7 @@ class BillingController extends BaseController
                         'invoice_id' => $Invoices->id,
                         'payment_from' => 'credit',
                         'amount_paid' => @$finalAmt ?? 0,
-                        'payment_date' => date('Y-m-d'),
+                        'payment_date' => convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
                         'notes' => $request->notes,
                         'status' => "0",
                         'entry_type' => "0",
@@ -10316,10 +10320,10 @@ class BillingController extends BaseController
                         
                     // Add credit history
                     DepositIntoCreditHistory::create([
-                        "user_id" => $Invoices['user_id'],
+                        "user_id" => $userData['user_id'],
                         "payment_method" => "payment",
                         "deposit_amount" => $finalAmt ?? 0,
-                        "payment_date" => date('Y-m-d'),
+                        "payment_date" => convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
                         "payment_type" => "payment",
                         "total_balance" => @$userData->credit_account_balance,
                         "related_to_invoice_id" => $Invoices->id,
@@ -10385,7 +10389,7 @@ class BillingController extends BaseController
             // $NonSavedInvoices=Invoices::select("case_master.case_title","invoices.id")->whereIn("invoices.id",$nonappliedInvoice);
             // $NonSavedInvoices=$NonSavedInvoices->leftJoin("case_master","case_master.id","=","invoices.case_id");
             // $NonSavedInvoices=$NonSavedInvoices->get();
-            $fund_type = $request->fund_type;
+            $fund_type = $request->fund_type ?? 'credit';
             return view('billing.invoices.trustBalanceAppliedResult',compact('SavedInvoices','NonSavedInvoices', 'fund_type'));
         }else{
             return view('pages.404');

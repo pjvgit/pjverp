@@ -1,7 +1,13 @@
 @extends('layouts.master')
 @section('title', 'Payment History - Account Activity - Billing')
 @section('main-content')
-
+<style>
+.test-note-callout{
+    display: block;
+    width: 12px;
+    margin-left: 25px;
+}
+</style>
 @include('billing.submenu')
 <?php
 $range=$account=""; 
@@ -77,13 +83,13 @@ if(isset($_GET['bank_account'])){
                             <tr>
                                 <th>id</th>
                                 <th>Date</th>
-                                <th  >Related To</th>
-                                <th >Contact</th>
-                                <th >Case</th>
-                                <th >Entered By</th>
-                                <th class="text-wrap">Notes</th>
-                                <th >Payment Method</th>
-                                <th >Amount</th>
+                                <th>Related To</th>
+                                <th>Contact</th>
+                                <th>Case</th>
+                                <th>Entered By</th>
+                                <th>Notes</th>
+                                <th>Payment Method</th>
+                                <th>Amount</th>
                                 <th class="d-print-none">Total </th>
                             </tr>
                         </thead>
@@ -262,7 +268,7 @@ if(isset($_GET['bank_account'])){
                 var noteContent = '';
                 if(aData.notes != null) {
                     noteContent += '<div class="position-relative">\
-                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'+aData.notes+'</div>">\
+                            <a class="test-note-callout d-print-none " tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'+aData.notes+'</div>">\
                                 <img style="border: none;" src="'+imgBaseUrl+'icon/note.svg'+'">\
                             </a>\
                         </div>';
@@ -294,106 +300,7 @@ if(isset($_GET['bank_account'])){
                 $('.payRow').number(true, 2);
             }
         });
-        // var paymentHistoryActivityTab = $('#paymentHistoryActivityTab').DataTable({
-        //     serverSide: true,
-        //     "dom": '<"top">rt<"bottom"pl><"clear">',
-        //     responsive: false,
-        //     processing: true,
-        //     searching: false,
-        //     "order": [
-        //         [0, "desc"]
-        //     ],
-        //     "ajax": {
-        //         url: baseUrl + "/bills/activities/loadAccountActivity", // json datasource
-        //         type: "post", // method  , by default get
-        //         data: { 'range': '{{$range}}','account': '{{$account}}'},
-        //         error: function () { // error handling
-        //             $(".paymentHistoryActivityTab-error").html("");
-        //             $("#paymentHistoryActivityTab_processing").css("display", "none");
-        //         }
-        //     },
-        //     "aoColumnDefs": [{
-        //         "bVisible": false,
-        //         "aTargets": [0]
-        //     }],
-        //     pageResize: true, // enable page resize
-        //     pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
-        //     columns: [
-
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         },
-        //         {
-        //             data: 'id',
-        //             'sorting': false
-        //         }
-        //     ],
-        //     "fnCreatedRow": function (nRow, aData, iDataIndex) {
-
-        //         $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date + '</div>');
-              
-        //         $('td:eq(1)', nRow).html('<a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_id+'">#'+aData.invoice_id+'</a>');
-        //         var Contact = JSON.parse(aData.contact);
-        //         $('td:eq(2)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-        //             '/contacts/clients/' + Contact.id +'">' +  Contact.name + '</a></div>');
-
-        //         var Case = JSON.parse(aData.case);
-        //         $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
-        //             '/court_cases/' + Case.case_unique_number + '/activity">' +  Case.case_title + '</a></div>');
-
-        //         $('td:eq(4)', nRow).html('<div class="text-left">' + aData.entered_by + '</div>');
-
-        //         if(aData.status==0){
-        //             if(aData.deposit_into=="Operating Account"){
-        //                 $('td:eq(5)', nRow).html('<div class="text-left">Payment into Operating (Operating Account)</div>');
-        //                 $('td:eq(6)', nRow).html('<div class="text-left">$<span class="payRow">' + aData.amount_paid + '</span></div>');
-        //             }else{
-        //                 $('td:eq(5)', nRow).html('<div class="text-left">Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
-        //                 $('td:eq(6)', nRow).html('<div class="text-left">$<span class="payRow">' + aData.amount_paid + '</span></div>');
-        //             }
-        //         }else{
-        //             $('td:eq(5)', nRow).html('<div class="text-left"><a href="javascript:void(0);" data-toggle="popover" data-trigger="focus" title="Notes" data-content="'+aData.refund_title+'" class="pr-2"><img style="border: none;" src="{{BASE_URL}}public/svg/note.svg"></a> Refund  Payment into Operating (Operating Account)</div>');
-        //             $('td:eq(6)', nRow).html('<div class="text-left">-$<span class="payRow">' + aData.amount_refund + '</span></div>');
-
-        //         }
-        //         $('td:eq(7)', nRow).html('<div class="text-left">$<span class="payRow">' + aData.total + '</span></div>');
-
-        //     },
-        //     "initComplete": function (settings, json) {
-        //         $('[data-toggle="tooltip"]').tooltip();
-        //         $("[data-toggle=popover]").popover();
-        //         $('.payRow').number(true, 2);
-        //     }
-        // });
+        
         $('#actionbutton').attr('disabled', 'disabled');
 
 

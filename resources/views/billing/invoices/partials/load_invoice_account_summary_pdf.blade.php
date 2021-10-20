@@ -1,24 +1,19 @@
 @php
     $lableShow = 0;
-    $appliedTrustClient = $Invoice->applyTrustFund/* ->pluck("show_trust_account_history", "client_id")->toArray() */;
-    $appliedcreditClient = $Invoice->applyCreditFund/* ->pluck("show_credit_account_history", "client_id")->toArray() */;
+    $appliedTrustClient = $Invoice->applyTrustFund;
+    $appliedcreditClient = $Invoice->applyCreditFund;
     $showTrustHistory = $Invoice->applyTrustFund->pluck("show_trust_account_history")->toArray();
     $showCreditHistory = $Invoice->applyCreditFund->pluck("show_credit_account_history")->toArray();
     $lableShow = 1;
     if ((count(array_flip($showTrustHistory)) === 1 && end($showTrustHistory) === 'dont show') && (count(array_flip($showCreditHistory)) === 1 && end($showCreditHistory) === 'dont show')) {
         $lableShow = 0;
     }
-    /* foreach($appliedTrustClient as $k => $v){
-        $lableShow = ($v == 'dont show') ? 0 : 1;
-    }
-    foreach($appliedcreditClient as $k => $v){
-        $lableShow = ($v == 'dont show') ? 0 : 1;
-    } */
+    $caseClientWithTrashed = $Invoice->case->caseAllClientWithTrashed;
 @endphp
 <div class="ledger-histories">
-    @if(isset($Invoice->case) && !empty($Invoice->case->caseAllClient))
+    @if(isset($Invoice->case) && !empty($caseClientWithTrashed))
     @if($lableShow == 1) <h3> Account Summary</h3> @endif
-        @forelse ($Invoice->case->caseAllClient as $key => $item)
+        @forelse ($caseClientWithTrashed as $key => $item)
             <div class="ledger_history_full mt-3">
                 @php
                     $user = $appliedTrustClient->where('client_id', $item->id)->first();
@@ -66,8 +61,8 @@
         @endforelse
     @endif
 
-    @if(isset($Invoice->case) && !empty($Invoice->case->caseAllClient))
-        @forelse ($Invoice->case->caseAllClient as $key => $item)
+    @if(isset($Invoice->case) && !empty($caseClientWithTrashed))
+        @forelse ($caseClientWithTrashed as $key => $item)
             <div class="ledger_history_full mt-3">
                 @php
                     $user = $appliedcreditClient->where('client_id', $item->id)->first();

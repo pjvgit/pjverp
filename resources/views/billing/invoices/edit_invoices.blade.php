@@ -1305,14 +1305,19 @@
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(!empty($invoiceSetting) && /* array_key_exists('trust_credit_activity_on_invoice', $invoiceSetting) && $invoiceSetting['trust_credit_activity_on_invoice'] != "dont show" */ $case_id != "none")
+                    @if(!empty($invoiceSetting) && $case_id != "none")
                     <div class="apply-funds-container p-3" id="apply-trust-and-credit-funds">
                         <h3 class="section-header p-2 apply-trust-credit-funds">Apply Trust &amp; Credit Funds</h3>
                         <div class="mt-3">
+                            @php
+                                $caseClientIdArray = $caseMaster->caseAllClient->pluck("id")->toArray();
+                                $appliedTrustFund = $findInvoice->applyTrustFund->whereIn("client_id", $caseClientIdArray);
+                                $appliedCreditFund = $findInvoice->applyCreditFund->whereIn("client_id", $caseClientIdArray);
+                            @endphp
                             <div class="mt-3">
                                 <h4>Applied Trust Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($findInvoice->applyTrustFund) && count($findInvoice->applyTrustFund))
+                                    @if(!empty($appliedTrustFund) && count($appliedTrustFund))
                                     <div class="col-9">
                                         <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
                                             <thead>
@@ -1324,7 +1329,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse ($findInvoice->applyTrustFund as $key => $item)
+                                                @forelse ($appliedTrustFund as $key => $item)
                                                     @if($item->applied_amount > 0)
                                                     <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                     <tr class="apply-funds-row">
@@ -1349,7 +1354,7 @@
                                                         </td>
                                                         <td class="apply-funds-account">
                                                             @if($item->applied_amount <= 0)
-                                                            <div>Trust (Trust Account)</div>
+                                                                Trust (Trust Account)
                                                             @endif
                                                         </td>
                                                         <td class="apply-funds-available-amount">
@@ -1377,7 +1382,7 @@
                                             <tbody>
                                                 @if(!empty($caseMaster->caseAllClient))
                                                     @php
-                                                        $appliedTrustClient = $findInvoice->applyTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
+                                                        $appliedTrustClient = $appliedTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
                                                     @endphp
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                     <tr class="account-history-config-row">
@@ -1407,7 +1412,7 @@
                             <div class="mt-4">
                                 <h4>Applied Credit Funds</h4>
                                 <div class="row">
-                                    @if(!empty($findInvoice->applyCreditFund) && count($findInvoice->applyCreditFund) && $findInvoice->applyCreditFund->sum('applied_amount'))
+                                    @if(!empty($appliedCreditFund) && count($appliedCreditFund) && $appliedCreditFund->sum('applied_amount'))
                                     <div class="col-9">
                                         <table class="apply-credit-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
                                             <thead>
@@ -1419,7 +1424,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse ($findInvoice->applyCreditFund as $key => $item)
+                                                @forelse ($appliedCreditFund as $key => $item)
                                                     <input type="hidden" name="credit[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
                                                     @if($item->applied_amount > 0)
                                                     <tr class="apply-funds-row">
@@ -1450,7 +1455,7 @@
                                             <tbody>
                                                 @if(!empty($caseMaster->caseAllClient))
                                                     @php
-                                                        $appliedCreditClient = $findInvoice->applyCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
+                                                        $appliedCreditClient = $appliedCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
                                                     @endphp
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                     <tr class="account-history-config-row">
