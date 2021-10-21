@@ -693,10 +693,20 @@
                     required:true
                 },
                 start_time:{
-                    required:true
+                    required: function() {
+                        if($("#loadEditEventPopup input:checkbox.all_day").is(":checked"))
+                            return false;
+                        else
+                            return true;
+                    }
                 },
                 end_time:{
-                    required:true
+                    required: function() {
+                        if($("#loadEditEventPopup input:checkbox.all_day").is(":checked"))
+                            return false;
+                        else
+                            return true;
+                    }
                 }
             },
             messages: {

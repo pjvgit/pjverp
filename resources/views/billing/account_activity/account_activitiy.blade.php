@@ -255,7 +255,7 @@ if(isset($_GET['bank_account'])){
                     }
                 }
                 var Case = JSON.parse(aData.case);
-                if(Case!=null || aData.case!=null){
+                if(Case!=null && aData.case!=null){
                     $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="' + baseUrl +
                     '/court_cases/' + Case.case_unique_number + '/payment_activity">' + Case.case_title + '</a></div>');
                 } else if((aData.section=="request" || aData.section=="invoice") && aData.lead_additional_info != null) {
@@ -275,11 +275,6 @@ if(isset($_GET['bank_account'])){
                 }
                 $('td:eq(4)', nRow).html('<div style="display: flex !important; justify-content: space-between !important;"><div class="text-left">' + aData.entered_by +'</div>'+ ' ' +noteContent+'</div>');
                 
-                /* if(aData.from_pay=="trust"){
-                    $('td:eq(5)', nRow).html('<div class="text-left">Payment from Trust (Trust Account) to Operating (Operating Account)</div>');
-                }else{
-                    $('td:eq(5)', nRow).html('<div class="text-left">Payment into Operating (Operating Account)	</div>');  
-                } */
                 $('td:eq(5)', nRow).html('<div class="text-left">'+aData.payment_note+'</div>');
                 $('td:eq(6)', nRow).html(aData.payment_method);
                 if(aData.d_amt=="0.00" && aData.c_amt > 0){

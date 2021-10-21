@@ -16,7 +16,7 @@ trait TrustAccountActivityTrait {
         $AccountActivity = new AccountActivity(); 
         $AccountActivity->user_id=$historyData['user_id'];
         $AccountActivity->related_to=$historyData['related_to'];
-        $AccountActivity->case_id =$historyData['case_id'];
+        $AccountActivity->case_id =$historyData['case_id'] ?? NULL;
         $AccountActivity->credit_amount =$historyData['credit_amount'];
         $AccountActivity->debit_amount =$historyData['debit_amount'];
         $AccountActivity->total_amount =$historyData['total_amount'];
@@ -51,7 +51,10 @@ trait TrustAccountActivityTrait {
         $activityHistory=[];
         $activityHistory['user_id']=$request->trust_account;
         $activityHistory['related_to']=$InvoiceData['id'] ?? NULL;
-        $activityHistory['case_id']= $InvoiceData['case_id'] ?? NULL;
+        $activityHistory['case_id']= $InvoiceData['case_id'] ?? $request->case_id;
+        if($request->allocated_case_id && $InvoiceData['case_id'] == 0) {
+            $activityHistory['case_id']= $request->allocated_case_id;
+        }
         $activityHistory['debit_amount']= ($isDebit == "yes") ? $request->amount : 0.00;
         $activityHistory['credit_amount']=($isDebit == "no") ? $request->amount : 0.00;
         $activityHistory['total_amount']= ($AccountActivityData) ? $AccountActivityData['total_amount'] + $request->amount : $request->amount;
@@ -111,7 +114,7 @@ trait TrustAccountActivityTrait {
         $activityHistory=[];
         $activityHistory['user_id']=$request->contact_id;
         $activityHistory['related_to']=$InvoiceData['id'] ?? NULL;
-        $activityHistory['case_id']=$InvoiceData['case_id'] ?? Null;
+        $activityHistory['case_id']=$InvoiceData['case_id'] ?? $request->case_id;
         $activityHistory['debit_amount']= ($isDebit == "yes") ? $request->amount : 0.00;
         $activityHistory['credit_amount']=($isDebit == "no") ? $request->amount : 0.00;
         if(!empty($AccountActivityData)){

@@ -368,6 +368,9 @@ $finalAmt=$invoice-$paid;
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                             ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
                         </option> -->
+                        @if (!empty($invoiceUserNotInCase))
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} (Balance {{number_format($invoiceUserNotInCase->credit_account_balance ?? 0,2)}})  - Operating (Operating Account) Not in case</option>
+                        @endif
                     </select>
                     <span id="ccaccount"></span>
                 </div>
@@ -976,7 +979,7 @@ function getClientCases(clientId) {
     $.ajax({
         url: baseUrl+"/bills/dashboard/depositIntoTrust/clientCases",
         type: 'POST',
-        data: {user_id: clientId},
+        data: {user_id: clientId, case_id: case_id},
         success: function(data) {            
             $('.trust_account').html('');
             $('.trust_account').html('<option value=""></option>');
@@ -988,9 +991,9 @@ function getClientCases(clientId) {
                     });      
                 } else {
                     $.each(data.result, function(ind, item) {
-                        if(case_id == item.id){
+                        // if(case_id == item.id || case_id == 0){
                             optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
-                        }
+                        // }
                     });     
                 }           
                 optgroup += "</optgroup>"
@@ -1006,6 +1009,9 @@ function getClientCases(clientId) {
                 optgroup += "<optgroup label='Unallocated'>";
                 optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.userAddInfo.unallocate_trust_balance.toFixed(2)+")" + "</option>";
                 optgroup += "</optgroup>";
+            }
+            if(case_id != 0 && data.result.length <= 0) {
+                $("#allocation-alert-section").hide();
             }
             
             $('.trust_account').append(optgroup);

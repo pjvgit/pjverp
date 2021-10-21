@@ -1470,7 +1470,7 @@ class BillingController extends BaseController
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
                 ->groupBy("case_client_selection.selected_user")->get(); 
                 $invoiceUserNotInCase = ''; 
-                if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5) {
+                if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5 && $invoiceData['case_id'] != 0) {
                     $invoiceUserNotInCase = UsersAdditionalInfo::where("user_id", $invoiceData->user_id)->with("user")->first();
                 }
                 // return $invoiceUserNotInCase;
@@ -1645,57 +1645,10 @@ class BillingController extends BaseController
             
 
                 //Get previous amount
-                /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
-                $activityHistory=[];
-                $activityHistory['user_id']=$request->contact_id;
-                $activityHistory['related_to']=$InvoiceData['id'];
-                $activityHistory['case_id']=$InvoiceData['case_id'];
-                $activityHistory['credit_amount']=0.00;
-                $activityHistory['debit_amount']=$request->amount;
-                if(!empty($AccountActivityData)){
-                    $activityHistory['total_amount']=$AccountActivityData['total_amount']-$request->amount;
-
-                }else{
-                    $activityHistory['total_amount']=$request->amount;
-                }
-                $activityHistory['entry_date']=date('Y-m-d');
-                $activityHistory['notes']=$request->notes;
-                $activityHistory['status']="unsent";
-                $activityHistory['pay_type']="trust";
-                $activityHistory['firm_id']=Auth::User()->firm_name;
-                $activityHistory['section']="invoice";
-                $activityHistory['created_by']=Auth::User()->id;
-                $activityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveAccountActivity($activityHistory); */
                 $this->updateTrustAccountActivity($request, $amtAction = 'sub', $InvoiceData, $isDebit = "yes");
 
                 
                 //Get previous amount
-                /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
-                $activityHistory=[];
-                $activityHistory['user_id']=$request->contact_id;
-                $activityHistory['related_to']=$InvoiceData['id'];
-                $activityHistory['case_id']=$InvoiceData['case_id'];
-                $activityHistory['debit_amount']=0.00;
-                $activityHistory['credit_amount']=$request->amount;
-                if(!empty($AccountActivityData)){
-                    $activityHistory['total_amount']=$AccountActivityData['total_amount']+$request->amount;
-
-                }else{
-                    $activityHistory['total_amount']=$request->amount;
-                }
-
-                // $activityHistory['total_amount']=$AccountActivityData['total_amount']+$request->amount;
-                $activityHistory['entry_date']=date('Y-m-d');
-                $activityHistory['notes']=$request->notes;
-                $activityHistory['status']="unsent";
-                $activityHistory['pay_type']="client";
-                $activityHistory['from_pay']="trust";
-                $activityHistory['firm_id']=Auth::User()->firm_name;
-                $activityHistory['section']="invoice";
-                $activityHistory['created_by']=Auth::User()->id;
-                $activityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveAccountActivity($activityHistory); */
                 $this->updateClientPaymentActivity($request, $InvoiceData);
                 
                 DB::commit(); 
@@ -2055,7 +2008,7 @@ class BillingController extends BaseController
                         $TrustInvoice->allocated_to_case_id = $request->trust_account;
                         $TrustInvoice->related_to_invoice_payment_id = $InvoicePayment->id;
                         $TrustInvoice->save();
-                        $request->trust_account = $request->contact_id;
+                        $request->request->add(["allocated_case_id" => $request->trust_account]);
                     }       
                     $request->request->add(['payment_type' => 'payment deposit']);
                 }
@@ -2108,40 +2061,15 @@ class BillingController extends BaseController
                     $this->caseActivity($caseActivityData);
                 }
                 $request->request->add(["from_pay" => 'normal']);
+                $request->request->add(["case_id" => $request->trust_account]);
+                $request->trust_account = $request->contact_id;
                  //Get previous amount
                  if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
                     $request->request->add(["trust_history_id" => @$TrustInvoice->id]);
-                    // $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
                     $this->updateTrustAccountActivity($request, null, $InvoiceData);
                  }else{
-                    // $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
                     $this->updateClientPaymentActivity($request, $InvoiceData);
                  }
-                 /* $activityHistory=[];
-                 $activityHistory['user_id']=$InvoiceData['user_id'];
-                 $activityHistory['related_to']=$InvoiceData['id'];
-                 $activityHistory['case_id']=$InvoiceData['case_id'];
-                 $activityHistory['credit_amount']=$request->amount;
-                 $activityHistory['debit_amount']=0.00;
-                 if(!empty($AccountActivityData)){
-                    $activityHistory['total_amount']=$AccountActivityData['total_amount']+$request->amount;
-                }else{
-                    $activityHistory['total_amount']=$request->amount;
-                }
-                 $activityHistory['entry_date']=date('Y-m-d');
-                 $activityHistory['notes']=$request->notes;
-                 $activityHistory['status']="unsent";
-                 if(isset($request->trust_account) && $request->deposit_into=="Trust Account"){
-                    $activityHistory['pay_type']="trust";
-                    $activityHistory['from_pay']="trust";                    
-                 }else{
-                    $activityHistory['pay_type']="client"; 
-                 }
-                 $activityHistory['firm_id']=Auth::user()->firm_name;
-                 $activityHistory['section']="invoice";
-                 $activityHistory['created_by']=Auth::User()->id;
-                 $activityHistory['created_at']=date('Y-m-d H:i:s');
-                 $this->saveAccountActivity($activityHistory); */
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
@@ -8745,9 +8673,12 @@ class BillingController extends BaseController
             $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
             $is_lead_case = 'yes';
         } else {
-            $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_client_selection.selected_user", $request->user_id)->whereHas('caseAllClient', function($query) use($request) {
-                $query->where('users.id', $request->user_id);
-            })->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
+            $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
+                ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at");
+            if($request->case_id) {
+                $result = $result->where("case_client_selection.case_id", $request->case_id);
+            }
+            $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
             $is_lead_case = 'no';
         }            
         return response()->json(['result' => $result, 'user' => $user, 'is_lead_case' => $is_lead_case, 'userAddInfo' => $userAddInfo]);

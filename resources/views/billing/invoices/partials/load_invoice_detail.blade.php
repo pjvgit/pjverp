@@ -135,7 +135,8 @@
         $expenseTime=$expenseAmount=0;
         $flatFeeEntryAmount=0;
         $totalFwdAmt = 0;
-        if(!$FlatFeeEntryForInvoice->isEmpty()){?>
+    ?>
+        @if(!empty($FlatFeeEntryForInvoice))
             <div class="line-items-table">
                 <h3>Flat Fees</h3>
                 <table style="width: 100%; border-collapse: collapse;">
@@ -254,7 +255,8 @@
                     </tbody>
                 </table>
             </div>
-        <?php }  if(!$TimeEntryForInvoice->isEmpty()){?>
+        @endif
+        <?php if(!$TimeEntryForInvoice->isEmpty()){?>
         <div class="line-items-table">
             <h3>Time Entries</h3>
             <table style="width: 100%; border-collapse: collapse;">
