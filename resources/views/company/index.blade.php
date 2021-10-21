@@ -149,15 +149,15 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 
                 var client_obj = JSON.parse(aData.contactlist);
                 var i1;
-                var clientList='';
-                for (i1 = 0; i1 < client_obj.length; ++i1) {
-                    clientList+='<a href="'+baseUrl+'/contacts/clients/'+client_obj[i1].cid+'">'+client_obj[i1].fullname+' (client)</a>';
+                if(client_obj.length > 0){
+                    var clientList='';
+                    for (i1 = 0; i1 < client_obj.length; ++i1) {
+                    clientList+='<a href="'+baseUrl+'/contacts/clients/'+client_obj[i1].cid+'">'+client_obj[i1].fullname+'</a>';
                     clientList+="<br>";
-                }
-                if(clientList==''){
-                    $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
+                    }
+                $('td:eq(3)', nRow).html('<div class="text-left">'+clientList+'</div>');
                 }else{
-                    $('td:eq(3)', nRow).html('<div class="text-left">'+clientList+'</div>');
+                    $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }
 
                 var createdbyobj = JSON.parse(aData.createdby); 

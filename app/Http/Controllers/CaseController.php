@@ -669,8 +669,8 @@ class CaseController extends BaseController
             $caseStageHistory = new CaseStageUpdate;
             $caseStageHistory->stage_id=($caseStatusChange->case_status)??NULL;
             $caseStageHistory->case_id=$caseStatusChange->id;
-            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
-            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            $caseStageHistory->start_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($caseStatusChange->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            $caseStageHistory->end_date = convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($caseStatusChange->case_open_date)))), auth()->user()->user_timezone ?? 'UTC'); 
             $caseStageHistory->created_by=Auth::user()->id; 
             $caseStageHistory->created_at=$caseStatusChange->case_open_date; 
             $caseStageHistory->save();
@@ -680,50 +680,50 @@ class CaseController extends BaseController
             }
 
             
-            $s=Session::get('caseLinkToClient');
-            if(isset($s))
-            {
-                $clientId=Session::get('clientId');
-                $CaseClientSelection=new CaseClientSelection;
-                $CaseClientSelection->case_id=$request->case_id;
-                $CaseClientSelection->selected_user=$clientId;
-                $CaseClientSelection->save();
+            // $s=Session::get('caseLinkToClient');
+            // if(isset($s))
+            // {
+            //     $clientId=Session::get('clientId');
+            //     $CaseClientSelection=new CaseClientSelection;
+            //     $CaseClientSelection->case_id=$request->case_id;
+            //     $CaseClientSelection->selected_user=$clientId;
+            //     $CaseClientSelection->save();
            
-                $ClientActivityHistory=[];
-                $ClientActivityHistory['acrtivity_title']='linked contact';
-                $ClientActivityHistory['activity_by']=Auth::User()->id;
-                $ClientActivityHistory['activity_for']=($clientId)??NULL;
-                $ClientActivityHistory['type']="2";
-                $ClientActivityHistory['task_id']=NULL;
-                $ClientActivityHistory['case_id']=$request->case_id;
-                $ClientActivityHistory['created_by']=Auth::User()->id;
-                $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveClientActivity($ClientActivityHistory);
-                return response()->json(['errors'=>'','reload'=>'true']);
-                exit;
-            }
-            $sCompany=Session::get('caseLinkToCompany');
-            if(isset($sCompany))
-            {
-                $companyId=Session::get('companyId');
-                $CaseClientSelection=new CaseClientSelection;
-                $CaseClientSelection->case_id=$request->case_id;
-                $CaseClientSelection->selected_user=$companyId;
-                $CaseClientSelection->save();
+            //     $ClientActivityHistory=[];
+            //     $ClientActivityHistory['acrtivity_title']='linked contact';
+            //     $ClientActivityHistory['activity_by']=Auth::User()->id;
+            //     $ClientActivityHistory['activity_for']=($clientId)??NULL;
+            //     $ClientActivityHistory['type']="2";
+            //     $ClientActivityHistory['task_id']=NULL;
+            //     $ClientActivityHistory['case_id']=$request->case_id;
+            //     $ClientActivityHistory['created_by']=Auth::User()->id;
+            //     $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
+            //     $this->saveClientActivity($ClientActivityHistory);
+            //     return response()->json(['errors'=>'','reload'=>'true']);
+            //     exit;
+            // }
+            // $sCompany=Session::get('caseLinkToCompany');
+            // if(isset($sCompany))
+            // {
+            //     $companyId=Session::get('companyId');
+            //     $CaseClientSelection=new CaseClientSelection;
+            //     $CaseClientSelection->case_id=$request->case_id;
+            //     $CaseClientSelection->selected_user=$companyId;
+            //     $CaseClientSelection->save();
            
-                $ClientActivityHistory=[];
-                $ClientActivityHistory['acrtivity_title']='linked contact';
-                $ClientActivityHistory['activity_by']=Auth::User()->id;
-                $ClientActivityHistory['activity_for']=($companyId)??NULL;
-                $ClientActivityHistory['type']="2";
-                $ClientActivityHistory['task_id']=NULL;
-                $ClientActivityHistory['case_id']=$request->case_id;
-                $ClientActivityHistory['created_by']=Auth::User()->id;
-                $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
-                $this->saveClientActivity($ClientActivityHistory);
-                return response()->json(['errors'=>'','reload'=>'true']);
-                exit;
-            }
+            //     $ClientActivityHistory=[];
+            //     $ClientActivityHistory['acrtivity_title']='linked contact';
+            //     $ClientActivityHistory['activity_by']=Auth::User()->id;
+            //     $ClientActivityHistory['activity_for']=($companyId)??NULL;
+            //     $ClientActivityHistory['type']="2";
+            //     $ClientActivityHistory['task_id']=NULL;
+            //     $ClientActivityHistory['case_id']=$request->case_id;
+            //     $ClientActivityHistory['created_by']=Auth::User()->id;
+            //     $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
+            //     $this->saveClientActivity($ClientActivityHistory);
+            //     return response()->json(['errors'=>'','reload'=>'true']);
+            //     exit;
+            // }
           
 
 
@@ -5293,7 +5293,7 @@ class CaseController extends BaseController
         // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
         // if(!$CaseEventLinkedContactLead->isEmpty()){
             Log::info("comment email job dispatched");
-            dispatch(new CommentEmail($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, auth()->user()->id()));
+            dispatch(new CommentEmail($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id));
             // CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
 
             // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));
@@ -5496,7 +5496,7 @@ class CaseController extends BaseController
 
         //Non linked staff List
         $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
         
         //Linked Staff List
         $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get();
@@ -5540,7 +5540,7 @@ class CaseController extends BaseController
         $caseCllientSelection = User::leftJoin('lead_additional_info','lead_additional_info.user_id','=','users.id')->select("users.id","users.first_name","users.last_name","users.user_level","users.parent_user","lead_additional_info.client_portal_enable")->where("users.id",$request->lead_id)->get();
 
         //Load all staff
-        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->get();
+        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->get();
         
         if(isset($request->event_id) && $request->event_id!=''){
             $caseLinkeSaved = CaseEventLinkedStaff::select("case_event_linked_staff.user_id")->where("case_event_linked_staff.event_id",$request->event_id)->get()->pluck('user_id');

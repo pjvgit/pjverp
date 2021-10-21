@@ -45,7 +45,10 @@ if(isset($_GET['bank_account'])){
                             <button onclick="printEntry();return false;" class="btn btn-link">
                                 <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
                                     title="" data-original-title="Print"></i>
-                                <span class="sr-only">Print This Page</span>
+                            </button>
+                            <button onclick="exportCSV('csv');return false;" class="btn btn-link">
+                                <i class="fas fa-file-download text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Export Report"></i>
                             </button>
                         </div>
 
@@ -318,9 +321,35 @@ if(isset($_GET['bank_account'])){
                 url: baseUrl + "/bills/invoices/printAccountActivity",
                 data :{ 'range': '{{$range}}','account': '{{$account}}','current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    window.open(res.url, '_blank');
-                    window.print();
+                    var w=window.open();
+                    w.document.write(res);
+                    w.print(res);
+                    w.close();
                     $("#preloader").hide();
+                    return false;                    
+                }
+            })
+        });
+    }
+
+    function exportCSV(type){
+        var info = $('#paymentHistoryActivityTab').DataTable().page.info();
+        var current_page=info.page;
+        var length=info.length;
+        var orderon=$('#paymentHistoryActivityTab').dataTable().fnSettings().aaSorting;
+        $("#preloader").show();
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/bills/invoices/printAccountActivity",
+                data :{ 'range': '{{$range}}','account': '{{$account}}','current_page':current_page,'length':length,'orderon':orderon,'exportType':type },
+                success: function (res) {
+                    $("#preloader").hide();
+                    swal('Success!', res.msg, 'success');
+                    window.open(res.url);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
                 }
             })
         });
