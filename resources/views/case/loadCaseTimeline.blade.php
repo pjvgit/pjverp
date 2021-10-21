@@ -72,11 +72,12 @@
         <div class="form-group row"></div>
         <h5 class="mb-4">Current Stage</h5>
         <?php 
-        if($CaseMaster->case_status!=0){?>
+        // if($CaseMaster->case_status!=0){?>
         <div class="row ">
             <div class="col-3 d-flex">
             <p class="mt-2 mr-1 lastC" ></p>
             <select id="case_status"  name="case_status" disabled class="form-control custom-select col">
+                <option value="0">No Stage</option>
                 <?php foreach($caseStageList as $kcs=>$vcs){?>
                     <option <?php if($CaseMaster->case_status==$vcs->id){ echo "selected=selected"; }?> value="{{$vcs->id}}">{{$vcs->title}}</option>
                 <?php } ?>
@@ -102,7 +103,7 @@
                  <input type="text" class="form-control" disabled value="{{$f1}}">
             </div>
         </div>
-        <?php } ?>
+        <?php //} ?>
       
         <div class="form-group row"></div>
 

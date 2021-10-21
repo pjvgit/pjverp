@@ -264,7 +264,7 @@ class TaskController extends BaseController
           $case_id=$request->case_id;
           $caseLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
 
-          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseLinkedStaffList)->get();
+          $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseLinkedStaffList)->get();
        
           $caseLinkeSaved=array();
           $caseLinkeSavedAttending=array();
@@ -1408,7 +1408,7 @@ class TaskController extends BaseController
 
       //Load Non link staff list
       $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->whereIn("parent_user",[Auth::user()->id,"0"])->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+      $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
 
      //Load Linked staff
       $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->orderBy('case_staff.user_id',"ASC")->groupBy('case_staff.user_id')->get();

@@ -2578,7 +2578,11 @@ class BillingController extends BaseController
             if($case_id == "none"){
                 $totalFlatFee = FlatFeeEntry::where('case_id', 0)->where('user_id', auth()->id())->where("status","unpaid")->first();
                 if(empty($totalFlatFee)) {
-                    FlatFeeEntry::create([
+                    FlatFeeEntry::updateOrcreate([
+                        'case_id' => 0,
+                        'user_id' => auth()->id(),
+                        "status" => "unpaid"
+                    ],[
                         'case_id' => 0,
                         'user_id' => auth()->id(),
                         'entry_date' => Carbon::now(),
@@ -2591,6 +2595,7 @@ class BillingController extends BaseController
             }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
+            ->where("flat_fee_entry.user_id",auth()->id())
             ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
@@ -7574,9 +7579,47 @@ class BillingController extends BaseController
         }
         $FetchQuery = $FetchQuery->orderBy("id","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
-        
-        $filename="trust_account_activity".time().'.pdf';
-        $PDFData=view('billing.account_activity.trustAccountActivityPdf',compact('FetchQuery','requestData'));
+        if(isset($request->exportType)){
+            $casesCsvData=[];
+            if(count($FetchQuery) > 0){
+                $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
+                $folderPath = public_path($fileDestination);
+
+                File::deleteDirectory($folderPath);
+                if(!is_dir($folderPath)) {
+                    File::makeDirectory($folderPath, $mode = 0777, true, true);
+                }    
+                
+                if(!File::isDirectory($folderPath)){
+                    File::makeDirectory($folderPath, 0777, true, true);    
+                }
+                
+                $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Total|LegalCase ID";
+                foreach($FetchQuery as $k=>$v){
+                    $Contact = json_decode($v->contact);
+                    $Case = json_decode($v->case);
+                    if($v->case_id==null && $v->leadAdditionalInfo != null) {
+                        $case_title = $v->leadAdditionalInfo->potential_case_title ?? $Contact->name;
+                    }else{
+                        $case_title = $Case->case_title ?? '';
+                    }
+                    $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".(($v->section=="request") ? "#R-".$v->related : $v->related)."|".$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                }
+
+                $file_path =  $folderPath.'/account_activities.csv';  
+                $file = fopen($file_path,"w+");
+                foreach ($casesCsvData as $exp_data){
+                fputcsv($file,explode('|',$exp_data));
+                }   
+                fclose($file); 
+                $Path= asset($fileDestination.'/account_activities.csv');
+            }
+            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+            exit;
+        }else{
+            $filename="trust_account_activity".time().'.pdf';
+            return view('billing.account_activity.trustAccountActivityPdf',compact('FetchQuery','requestData'));
+        }
         // $pdf = new Pdf;
         // if($_SERVER['SERVER_NAME']=='localhost'){
         //     $pdf->binary = WKHTMLTOPDF_PATH;
@@ -7584,9 +7627,9 @@ class BillingController extends BaseController
         // $pdf->addPage($PDFData);
         // $pdf->saveAs(public_path("download/pdf/".$filename));
         // $path = public_path("download/pdf/".$filename);
-        $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);        
-        return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
-        exit;
+        // $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);        
+        // return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
+        // exit;
     }
 
     public function printAccountActivity(Request $request)
@@ -7603,20 +7646,58 @@ class BillingController extends BaseController
         if(isset($requestData['account']) && $requestData['account']!=''){
             if($requestData['account']=="trust_account"){
                 $FetchQuery = $FetchQuery->where("from_pay","trust");
-            }/* else{
+            }else{
                 $FetchQuery = $FetchQuery->where("from_pay","none");
-            } */
+            }
         }
         if(isset($requestData['range']) && $requestData['range']!=''){
             $cutDate=explode("-",$requestData['range']);
             $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
         }
         $FetchQuery = $FetchQuery->orderBy("id","DESC");
-
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
-         
-         $filename="account_activity".time().'.pdf';
-        $PDFData=view('billing.account_activity.accountActivityPdf',compact('FetchQuery','requestData'));
+        
+        if(isset($request->exportType)){
+            $casesCsvData=[];
+            if(count($FetchQuery) > 0){
+                $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
+                $folderPath = public_path($fileDestination);
+
+                File::deleteDirectory($folderPath);
+                if(!is_dir($folderPath)) {
+                    File::makeDirectory($folderPath, $mode = 0777, true, true);
+                }    
+                
+                if(!File::isDirectory($folderPath)){
+                    File::makeDirectory($folderPath, 0777, true, true);    
+                }
+                
+                $casesCsvData[]="Date|Related To|Contact|Case Name|Entered By|Notes|Payment Notes|Payment Method|Refund|Refunded|Rejection|Rejected|Amount|Trust|Trust payment|Total|LegalCase ID";
+                foreach($FetchQuery as $k=>$v){
+                    $Contact = json_decode($v->contact);
+                    $Case = json_decode($v->case);
+                    if($v->case_id==null && $v->leadAdditionalInfo != null) {
+                        $case_title = $v->leadAdditionalInfo->potential_case_title ?? $Contact->name;
+                    }else{
+                        $case_title = $Case->case_title ?? 'none';
+                    }
+                    $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                }
+
+                $file_path =  $folderPath.'/account_activities.csv';  
+                $file = fopen($file_path,"w+");
+                foreach ($casesCsvData as $exp_data){
+                fputcsv($file,explode('|',$exp_data));
+                }   
+                fclose($file); 
+                $Path= asset($fileDestination.'/account_activities.csv');
+            }
+            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+            exit;
+        }else{
+            $filename="account_activity".time().'.pdf';
+            return view('billing.account_activity.accountActivityPdf',compact('FetchQuery','requestData'));
+        }
         //  $pdf = new Pdf;
         //  // $pdf->setOptions(['javascript-delay' => 5000]);
         //  if($_SERVER['SERVER_NAME']=='localhost'){
@@ -7628,9 +7709,9 @@ class BillingController extends BaseController
         //  $path = public_path("download/pdf/".$filename);
          // return response()->download($path);
          // exit;
-         $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
-         return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename], 200);
-         exit;
+        //  $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
+        //  return response()->json([ 'success' => true, "url"=>$pdfUrl,"file_name"=>$filename, 'PDFData' => $PDFData], 200);
+        //  exit;
      }
     /********************************Account Activity ***************************** */
 
