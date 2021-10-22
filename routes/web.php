@@ -1027,7 +1027,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('bills/invoices/view/reloadRowForViewInvoice', 'BillingController@reloadRowForViewInvoice')->name('bills/invoices/view/reloadRowForViewInvoice');
     Route::post('bills/invoices/sendReminder', 'BillingController@sendReminder')->name('bills/invoices/sendReminder');
     Route::post('bills/invoices/saveSendReminder', 'BillingController@saveSendReminder')->name('bills/invoices/saveSendReminder');
-    Route::get('bills/invoices/downloadInvoice/{id}', 'BillingController@downloaInvoivePdfView')->name('bills/invoices/downloadInvoice/{id}');
+    Route::get('bills/invoices/downloadInvoice/{id}', 'BillingController@downloaInvoivePdfView')->name('bills/invoices/downloadInvoice');
     Route::post('bills/invoices/downloadInvoice', 'BillingController@downloaInvoivePdf')->name('bills/invoices/downloadInvoice');
     Route::post('bills/invoices/emailInvoice', 'BillingController@emailInvoice')->name('bills/invoices/emailInvoice');
     Route::post('bills/invoices/SendEmailInvoice', 'BillingController@saveSendReminderWithAttachment')->name('bills/invoices/SendEmailInvoice');

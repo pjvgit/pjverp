@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title','Contacts')
 @section('main-content')
+@include('client.submenu')
 <?php
 $userTitle = unserialize(USER_TITLE); 
 $target=$group="";
@@ -31,9 +32,10 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </li>
                     </ul>
                     <div class="ml-auto d-flex align-items-center d-print-none">
-                        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">
-                            <i class="fas fa-print"></i> Print
-                        </a>
+                        <button onclick="printEntry();return false;" class="btn btn-link">
+                            <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Print"></i>
+                        </button>
                         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}imports/contacts">Import Contact
                         </a>
                         <div class="ml-auto d-flex align-items-center d-print-none">
@@ -52,7 +54,8 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </select>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive" id="printDiv">
+                    <h3 id="hiddenLable">Contacts</h3>
                     <table class="display table table-striped table-bordered" id="ClientListGrid" style="width:100%">
                         <thead>
                             <tr>
@@ -348,5 +351,24 @@ function loadClientEditBox(id) {
         })
     })
 } 
+
+function printEntry()
+{
+    $('#ClientListGrid_length').hide();
+    $('#ClientListGrid_info').hide();
+    $('#ClientListGrid_paginate').hide();
+    $('#hiddenLable').show();
+    var canvas = document.getElementById("printDiv").innerHTML;
+    var w=window.open();
+    w.document.write(canvas);
+    w.print(canvas);
+    w.close();
+    $('#hiddenLable').hide();
+    $('#ClientListGrid_length').show();
+    $('#ClientListGrid_info').show();
+    $('#ClientListGrid_paginate').show();
+    return false;  
+}
+$('#hiddenLable').hide();
 </script>
 @stop

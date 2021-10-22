@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Contact Groups')
 @section('main-content')
+@include('client.submenu')
 <div class="row">
     
     <div class="col-md-12">
@@ -10,10 +11,15 @@
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <h3>Contact Groups</h3>
                     <div class="ml-auto d-flex align-items-center d-print-none">
+                        <button onclick="printEntry();return false;" class="btn btn-link">
+                            <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Print"></i>
+                        </button>
                         <a data-toggle="modal"  data-target="#AddContactGroup" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactGroup();">Add Contact Groups</button></a>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive" id="printDiv">
+                    <h3 id="hiddenLable">Contact Groups</h3>
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
                             <tr>
@@ -202,5 +208,24 @@ function loadEditBox(id) {
         })
     })
 }
+
+function printEntry()
+{
+    $('#employee-grid_length').hide();
+    $('#employee-grid_info').hide();
+    $('#employee-grid_paginate').hide();
+    $('#hiddenLable').show();
+    var canvas = document.getElementById("printDiv").innerHTML;
+    var w=window.open();
+    w.document.write(canvas);
+    w.print(canvas);
+    w.close();
+    $('#hiddenLable').hide();
+    $('#employee-grid_length').show();
+    $('#employee-grid_info').show();
+    $('#employee-grid_paginate').show();
+    return false;  
+}
+$('#hiddenLable').hide();
 </script>
 @stop

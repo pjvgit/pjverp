@@ -66,6 +66,10 @@ if(isset($_GET['task_read'])){
                             <a href="{{route('tasks/markasread')}}">
                                 <button type="button" class="mr-2 btn btn-link">Mark all as read</button>
                             </a>
+                            <button onclick="printEntry();return false;" class="btn btn-link">
+                                <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Print"></i>
+                            </button>
                             <div id="bulk-dropdown" class="mr-2 actions-button btn-group">
                                 <div class="mx-2">
 
@@ -185,6 +189,7 @@ if(isset($_GET['task_read'])){
 
                     </div>
                 </form>
+                <div id="printDiv" class="d-print-none">
                 <?php 
                 if(isset($_GET['sort_on']) && isset($_GET['defaultsor']) && $_GET['defaultsor']==''){
                    
@@ -195,7 +200,7 @@ if(isset($_GET['task_read'])){
 
                             <tr>
                                 <th class="text-center" style="cursor: initial;">
-                                    <label class="sr-only ">Select all rows</label>
+                                    <!-- <label class="sr-only ">Select all rows</label> -->
                                     <input type="checkbox" class="mx-1" name="all" id="checkall">
                                 </th>
                                 <?php if($orderby=="asc" && $orderon=="status"){
@@ -284,7 +289,7 @@ if(isset($_GET['task_read'])){
                         @foreach($task as $subrow)
                         <tr class="">
                             <td class="text-center">
-                                <label for="select-row-74" class="sr-only ">Select row</label>
+                                <!-- <label for="select-row-74" class="sr-only ">Select row</label> -->
                                 <input id="select-row-74" type="checkbox" class="task_checkbox" value="{{$subrow->id}}"
                                     name="selectedTask[{{$subrow->id}}]">
                             </td>
@@ -470,7 +475,7 @@ if(isset($_GET['task_read'])){
 
                             <tr>
                                 <th class="text-center" style="cursor: initial;">
-                                    <label class="sr-only ">Select all rows</label>
+                                    <!-- <label class="sr-only ">Select all rows</label> -->
                                     <input type="checkbox" class="mx-1" name="all" id="checkall">
                                 </th>
                                 <?php if($orderby=="asc" && $orderon=="status"){
@@ -604,7 +609,7 @@ if(isset($_GET['task_read'])){
                         @foreach($row as $subrow)
                         <tr class="collapse show"  id="accordion-item-icons-{{$key}}">
                             <td class="text-center">
-                                <label for="select-row-74" class="sr-only ">Select row</label>
+                                <!-- <label for="select-row-74" class="sr-only ">Select row</label> -->
                                 <input id="select-row-74" type="checkbox" value="{{$subrow->id}}" class="task_checkbox"
                                     name="selectedTask[{{$subrow->id}}]">
                             </td>
@@ -773,6 +778,7 @@ if(isset($_GET['task_read'])){
                 <?php 
                 }
                 ?>
+                </div>
             </div>
         </div>
     </div>
@@ -1649,6 +1655,18 @@ if(isset($_GET['task_read'])){
             }
         })
    }
+
+   function printEntry()
+    {
+        $(".pagination").hide();
+        var canvas = document.getElementById("printDiv").innerHTML;
+        var w=window.open();
+        w.document.write(canvas);
+        w.print(canvas);
+        w.close();
+        $(".pagination").show();
+        return false;  
+    }
     
 </script>
 @stop

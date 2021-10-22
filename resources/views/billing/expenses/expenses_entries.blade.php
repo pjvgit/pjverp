@@ -618,9 +618,12 @@ if(isset($_GET['type'])){
                 url: baseUrl + "/bills/invoices/printExpenseEntry",
                 data :{ 'c' : '{{$c}}','type':'{{$type}}' ,'i':'{{$i}}','current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    window.open(res.url, '_blank');
-                    window.print();
+                    var w=window.open();
+                    w.document.write(res);
+                    w.print(res);
+                    w.close();
                     $("#preloader").hide();
+                    return false;
                 }
             })
         })

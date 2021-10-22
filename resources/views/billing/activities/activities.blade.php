@@ -338,8 +338,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 url: baseUrl + "/bills/invoices/printSavedActivity",
                 data :{ 'current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    window.open(res.url, '_blank');
+                    var w=window.open();
+                    w.document.write(res);
+                    w.print(res);
+                    w.close();
                     $("#preloader").hide();
+                    return false; 
                 }
             })
         })

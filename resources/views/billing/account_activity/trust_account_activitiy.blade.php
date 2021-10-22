@@ -42,10 +42,21 @@ if(isset($_GET['bank_account'])){
                                     title="" data-original-title="Print"></i>
                                 <span class="sr-only">Print This Page</span>
                             </button>
-                            <button onclick="exportCSV('csv');return false;" class="btn btn-link">
-                                <i class="fas fa-file-download text-black-50" data-toggle="tooltip" data-placement="top"
-                                    title="" data-original-title="Export Report"></i>
-                            </button>
+                            <div class="mx-2">
+                                <div class="btn-group show">
+                                    <button class="btn text-muted dropdown-toggle" data-toggle="dropdown"
+                                     aria-haspopup="true" aria-expanded="false" id="trustDropdown">
+                                        <i class="fas fa-file-download text-black-50" data-toggle="tooltip" data-placement="top"
+                                            title="" data-original-title="Export Report"></i>
+                                    </button>
+                                    <div class="dropdown-menu bg-transparent shadow-none p-0 m-0 ">
+                                        <div class="card">
+                                            <button onclick="exportCSV('csv');return false;" type="button" tabindex="-1" role="menuitem" class="dropdown-item btn">
+                                                as CSV</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom"
                             href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
@@ -140,6 +151,7 @@ if(isset($_GET['bank_account'])){
     "use strict";
     $(document).ready(function () {
         $("#button").removeAttr('disabled');
+        $("#trustDropdown").trigger('click');
         $('#daterange').daterangepicker({
             locale: {
                 applyLabel: 'Select'

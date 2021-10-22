@@ -16,10 +16,10 @@ $userTypes = unserialize(USER_TYPE);
             <div class="history-info col-8">
                 <span>Event updated by
                     <a class=""
-                        href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->created_by)}}">
+                        href="{{ route('contacts/attorneys/info', $value->createdByUser->decode_id) }}">
                         {{ @$value->createdByUser->full_name }}
                         {{-- ({{$userTypes[$value->user_type]}}) --}}
-                        ({{ @$value->createdByUser->user_type_text }})
+                        ({{ @$value->createdByUser->user_title }})
                     </a>
                 </span>
             </div>
@@ -41,10 +41,10 @@ $userTypes = unserialize(USER_TYPE);
         <div class="flex-grow-1">
             <p class="comment-user-link mt-1">
                 <a class=""
-                    href="{{ route('contacts/attorneys/info', base64_encode($value->id)) }}">
+                    href="{{ route('contacts/attorneys/info', $value->createdByUser->decode_id) }}">
                     {{ @$value->createdByUser->full_name }}
                     {{-- ({{$userTypes[$value->user_type]}}) --}}
-                    ({{ @$value->createdByUser->user_type_text }})
+                    ({{ @$value->createdByUser->user_title }})
                 </a> commented</p>
             <div class="comment-message mb-3">
                 <?php print $value->comment; ?>

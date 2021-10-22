@@ -224,7 +224,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                     {{date('m/d/Y',strtotime($v->entry_date))}}
                 </td>
                 <td class="time-entry-ee" style="vertical-align: top;">
-                    {{$v->first_name[0]}}{{$v->last_name[0]}}
+                    {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                 </td>
                 <td class="time-entry-activity" style="vertical-align: top;">
                     {{$v->activity_title}}

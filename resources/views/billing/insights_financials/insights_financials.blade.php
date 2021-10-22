@@ -32,7 +32,7 @@ if(isset($_GET['office'])){
                         <h3> Financial Insights</h3>
                         <input type="hidden" name="type" value="">
 
-                        <div class="ml-auto d-flex align-items-center d-print-none">
+                        <div class="ml-auto d-flex align-items-center ">
                             <button  onclick="printEntry();return false;"  class="btn btn-outline-secondary mr-1 btn-rounded">
                                 <i class="fas fa-print"></i><span
                                     class="sr-only">Print This Page</span></button>
@@ -280,7 +280,7 @@ if(isset($_GET['office'])){
                 </div>
             </div>
         </div>
-        <div class="court-cases-insights-feedback-box mt-3 d-print-none"
+        <div class="court-cases-insights-feedback-box mt-3 "
             style="border-width: 2px; border-radius: 5px; border-style: dashed; border-color: gainsboro; padding: 20px; text-align: center;">
             <div class="footer-info-text mb-2" style="font-weight: bold;">What other charts, graphs or insights do
                 you want to see here?</div><button type="button" class="feedback-button btn btn-secondary">Submit
@@ -509,7 +509,7 @@ if(isset($_GET['office'])){
         var chart = new ApexCharts(document.querySelector("#insightByBillingTypeEmpty"), options);
         chart.render(); 
     });
-    function printEntry()
+    function printEntryOld()
     {
         // var content = document.getElementById("table-responsive");
         // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
@@ -544,6 +544,16 @@ if(isset($_GET['office'])){
                 }
             })
         });
+    }
+    function printEntry()
+    {
+        var canvas = document.getElementById("table-responsive").innerHTML;
+        var w=window.open();
+        w.document.write(canvas);
+        w.print(canvas);
+        w.close();
+        $("#preloader").hide();
+        return false;  
     }
 </script>
 @stop

@@ -946,19 +946,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 url: baseUrl + "/bills/invoices/downloadInvoice",
                 data: {
-                    "id": id
+                    "id": id,
+                    "print" : 'yes'
                 },
                 success: function (res) {
-                    var anchor = document.createElement('a');
-                    anchor.href = res.url;
-                    anchor.target = '_blank';
-                    anchor.download = res.file_name;
-                    anchor.click();
-
-                    // window.open(res.url, '_blank');
-                    // window.print();
-                    // window.location.href=res.url;
+                    var w=window.open();
+                    w.document.write(res);
+                    w.print(res);
+                    w.close();
                     $("#preloader").hide();
+                    return false;                    
                 }
             })
         })
