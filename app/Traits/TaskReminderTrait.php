@@ -9,16 +9,16 @@ trait TaskReminderTrait {
  
     public function getTaskLinkedUser($item, $notifyType) {
         // return $notifyType;
-        $taskLinkedUser = [];
+        $taskLinkedUser = []; $caseLinkedUser = [];
         if(!empty($item->task->taskLinkedStaff)) {
             $taskLinkedUser = $item->task->taskLinkedStaff->pluck('id')->toArray();
         }
-        if($item->task->case_id) {
-            $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id')->toArray();
-        } else if(!empty($item->task->lead_id)) {
-            // if(!empty($item->task->lead->userLeadAdditionalInfo)) {
-                $caseLinkedUser = @$item->task->lead->userLeadAdditionalInfo->pluck("assigned_to")->toArray();
-            // }
+        if($item->task->case_id && $item->task->case) {
+            if(!empty($item->task->case->caseStaffAll)) {
+                $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id')->toArray();
+            }
+        } else if(!empty($item->task->lead_id) && $item->task->leadAdditionalInfo) {
+            $caseLinkedUser = @$item->task->leadAdditionalInfo->pluck("assigned_to")->toArray();
         } else {
             $caseLinkedUser = [];
         }

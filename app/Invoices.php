@@ -225,6 +225,7 @@ class Invoices extends Model
                 }
             }
         }
+
         return "When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders ".$msg;
     }
 
@@ -326,5 +327,15 @@ class Invoices extends Model
     public function leadAdditionalInfo()
     {
         return $this->belongsTo(LeadAdditionalInfo::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * The invoiceSharedUser that belong to the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function invoiceSharedUser()
+    {
+        return $this->belongsToMany(User::class, 'shared_invoice', 'invoice_id', 'user_id');
     }
 }

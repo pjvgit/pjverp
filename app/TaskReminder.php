@@ -6,6 +6,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
+
 class TaskReminder extends Authenticatable
 {
     use Notifiable;
@@ -38,14 +40,14 @@ class TaskReminder extends Authenticatable
      */
     public function setRemindAtAttribute($value)
     {
-        $eventStartDate = Carbon::parse($this->task->task_due_on);
+        $taskDueDate = Carbon::parse($this->task->task_due_on);
         if($this->reminder_frequncy == "week") {
-            $remindTime = $eventStartDate->subWeeks($this->reminer_number)->format('Y-m-d');
+            $remindTime = $taskDueDate->subWeeks($this->reminer_number)->format('Y-m-d');
         } else if($this->reminder_frequncy == "day") {
-            if($this->reminer_numbe == 0)
-                $remindTime = $eventStartDate->format('Y-m-d');
+            if($this->reminer_number == 0)
+                $remindTime = $taskDueDate->format('Y-m-d');
             else
-                $remindTime = $eventStartDate->subDays($this->reminer_number)->format('Y-m-d');
+                $remindTime = $taskDueDate->subDays($this->reminer_number)->format('Y-m-d');
         } else {
             $remindTime = $value;
         }

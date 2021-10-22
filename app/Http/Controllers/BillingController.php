@@ -5266,6 +5266,13 @@ class BillingController extends BaseController
                     }
                 }                       
             }
+
+            // Check if invouce due date changed then update invoice settings
+            if($request->bill_due_date && strtotime($request->bill_invoice_date) != strtotime($InvoiceSave->due_date)) {
+                // Update invoice settings
+                $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+            }
+
             $InvoiceSave->is_sent = ($request->bill_sent_status == "Sent") ? "yes" : "no";
             $InvoiceSave->firm_id = auth()->user()->firm_name; 
             $InvoiceSave->updated_by=Auth::User()->id; 
@@ -5276,19 +5283,6 @@ class BillingController extends BaseController
 
             $InvoiceSave->refresh();
             $this->updateInvoiceAmount($InvoiceSave->id);
-            /* $dueDate = ($InvoiceSave->invoiceFirstInstallment) ? $InvoiceSave->invoiceFirstInstallment->due_date : $InvoiceSave->due_date;
-            if($InvoiceSave->due_amount > 0 && $InvoiceSave->paid_amount > 0 && strtotime($dueDate) > strtotime(date('Y-m-d'))) {
-                $InvoiceSave->status = "Partial";
-                $InvoiceSave->save();
-            } else if($InvoiceSave->due_amount == 0 && $InvoiceSave->paid_amount == $InvoiceSave->total_amount) {
-                $InvoiceSave->status = "Paid";
-                $InvoiceSave->save();
-            } else if(strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-                $InvoiceSave->status = "Overdue";
-                $InvoiceSave->save();
-            } else {
-            } */
-
 
             $invoiceHistory=[];
             $invoiceHistory['invoice_id']=$InvoiceSave->id;
@@ -5440,6 +5434,8 @@ class BillingController extends BaseController
                     $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
                     $InvoiceInstallment->save();
                 }
+                // Update invoice settings
+                $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
             }
 
             if(!empty($request->forwarded_invoices)) {
@@ -5463,15 +5459,6 @@ class BillingController extends BaseController
                 $forwardInv = Invoices::whereIn("id", $syncedInvoices)->get();
                 if($forwardInv) {
                     foreach($forwardInv as $key => $item) {
-                        // if($item->paid_amount > 0 && Carbon::parse($item->due_date)->gt(Carbon::now()))
-                        //     $status = "Partial";
-                        // else if($item->due_date && Carbon::parse($item->due_date)->lt(Carbon::now()))
-                        //     $status = "Overdue";
-                        // else if($item->is_sent  == "yes")
-                        //     $status = "Sent";
-                        // else 
-                        //     $status = "Unsent";
-                        // $item->fill(["status" => $status])->save();
                         $this->updateInvoiceAmount(@$item->id);
                         InvoiceHistory::create([
                             "invoice_id" => @$item->id,
@@ -8814,6 +8801,7 @@ class BillingController extends BaseController
     }
     public function saveDepositIntoTrustPopup(Request $request)
     {
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
         if(isset($request->applied_to) && $request->applied_to!=0){
             $requestData=RequestedFund::find($request->applied_to);
@@ -8840,6 +8828,8 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+        try {
+            dbStart();
             if(isset($request->applied_to) && $request->applied_to!=0){
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);
@@ -8852,23 +8842,6 @@ class BillingController extends BaseController
                     LeadAdditionalInfo::where("user_id", $refundRequest->allocated_to_lead_case_id)->increment('allocated_trust_balance', $request->amount);
                 }
             }
-            // $deposit_into_trust=new DepositIntoTrust;
-            // $deposit_into_trust->user_id=$request->trust_account;
-            // $deposit_into_trust->invoice_id=NULL;
-            // if(isset($request->applied_to) && $request->applied_to!=0){
-            //     $deposit_into_trust->requested_id=$request->applied_to;
-            // }else{
-            //     $deposit_into_trust->requested_id=NULL;
-            // }
-            // $deposit_into_trust->credit_amount=$request->amount;
-            // $deposit_into_trust->debit_amount=0.00;
-            // $deposit_into_trust->payment_date=date('Y-m-d',strtotime($request->payment_date));
-            // $deposit_into_trust->status='unsent';                    
-            // $deposit_into_trust->notes=$request->notes;
-            // $deposit_into_trust->pay_type='trust';
-            // $deposit_into_trust->created_by=Auth::User()->id;                
-            // $deposit_into_trust->created_at=date('Y-m-d H:i:s');                
-            // $deposit_into_trust->save();
 
             //Deposit into trust account
             DB::table('users_additional_info')->where('user_id',$request->trust_account)->increment('trust_account_balance', $request['amount']);
@@ -8889,15 +8862,6 @@ class BillingController extends BaseController
             $TrustInvoice->allocated_to_lead_case_id = @$refundRequest->allocated_to_lead_case_id;
             $TrustInvoice->save();
 
-            
-            // $userDataForDeposit = UsersAdditionalInfo::select("trust_account_balance","user_id")->where("user_id",$request->trust_account)->first();
-            // DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-            //     'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] + $request->amount),
-            // ]);
-
-            // $deposit_into_trust->total_amount=$userDataForDeposit['trust_account_balance'] + $request->amount;
-            // $deposit_into_trust->save();
-
             // For allocated case trust balance
             if($request->case_id != '') {
                 CaseMaster::where('id', $request->case_id)->increment('total_allocated_trust_balance', $request['amount']);
@@ -8906,29 +8870,7 @@ class BillingController extends BaseController
 
             $this->updateNextPreviousTrustBalance($TrustInvoice->client_id);
 
-             //Get previous amount
-             /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
-             $activityHistory=[];
-             $activityHistory['user_id']=$request->trust_account;
-             $activityHistory['case_id']=NULL;
-             $activityHistory['credit_amount']=$request->amount;
-             $activityHistory['debit_amount']=0.00;
-             $activityHistory['total_amount']=$AccountActivityData['total_amount'] ?? 0 + $request->amount;
-             $activityHistory['entry_date']=date('Y-m-d');
-             $activityHistory['notes']=$request->notes;
-             $activityHistory['status']="unsent";
-             $activityHistory['pay_type']="trust";
-             $activityHistory['firm_id']=Auth::user()->firm_name;
-             if(isset($request->applied_to) && $request->applied_to!=0){
-                $activityHistory['section']="request";
-                $activityHistory['related_to']=$request->applied_to;
-             }else{
-                $activityHistory['section']="other";
-                $activityHistory['related_to']=NULL;
-            }
-             $activityHistory['created_by']=Auth::User()->id;
-             $activityHistory['created_at']=date('Y-m-d H:i:s');
-             $this->saveAccountActivity($activityHistory); */
+            // Account activity
             $request->request->add(["payment_type" => 'deposit']);
             $request->request->add(["trust_history_id" => $TrustInvoice->id]);
             $this->updateTrustAccountActivity($request);
@@ -8951,9 +8893,13 @@ class BillingController extends BaseController
             
             $firmData=Firm::find(Auth::User()->firm_name);
             $msg="Thank you. Your deposit of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
-            
+            dbCommit();
             return response()->json(['errors'=>'','msg'=>$msg]);
-            exit;   
+            exit;  
+        } catch (Exception $e) {
+            dbEnd();
+            return response()->json(['errors'=> $e->getMessage()]);
+        }
         }
     }
 

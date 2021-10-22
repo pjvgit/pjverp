@@ -332,6 +332,8 @@ $(document).ready(function () {
     });
     $('#bill_due_date').on("changeDate", function() {
         $("#bill_payment_terms").val("0");
+        $("#automated_reminders").prop("disabled",false);
+        $("#automated_reminders").prop("checked",true);
     });
 });
 

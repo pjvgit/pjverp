@@ -185,7 +185,6 @@
                                             style="display: inline; position: relative; top: -7px; left: 5px; color: rgb(0, 112, 187);"
                                             class="switch pr-5 switch-success mr-3">    
                                             <span data-toggle="tooltip" data-placement="bottom"
-                                                {{-- title="When a due date is entered and there is a balance due, all shared contacts will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date."> --}}
                                                 title="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['reminder']) ? $findInvoice->getReminderMessage() : ((isset($invoiceDefaultSetting) && $invoiceDefaultSetting->reminderSchedule) ? $invoiceDefaultSetting->getReminderMessage() : '' ) }}">
                                                 <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
 
@@ -1317,7 +1316,7 @@
                             <div class="mt-3">
                                 <h4>Applied Trust Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($appliedTrustFund) && count($appliedTrustFund))
+                                    @if(!empty($appliedTrustFund) && count($appliedTrustFund) && $appliedTrustFund->sum('applied_amount'))
                                     <div class="col-9">
                                         <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
                                             <thead>
