@@ -8,9 +8,14 @@ $CommonController= new App\Http\Controllers\CommonController();
         <div class="modal-body retainer-requests-popup-content">
             <div class="alert alert-info" role="alert">Automated Reminders {{ ($invoice->automated_reminder == "yes") ? "On" : "Off" }}
                 <div style="display: inline; position: relative; top: -1px; left: 0px; padding: 0px 0.5rem;">
+                    @php
+                        $content = '';
+                        if($invoice->automated_reminder == "no") {
+                            $content = "<br><br> To turn on/off Automated Reminders, from the invoice screen select edit and toggle the Automated Reminders setting.<br><br>Note: Automated reminders will be sent based on the next installment date. If Automatic Payment is On, reminders will show automatic payment status. ";
+                        }
+                    @endphp     
                     <span class="tooltip-wrapper" style="position: relative;"><span>
-                        {{-- <span data-toggle="tooltip" data-placement="top" title="When automated reminders are on, and this invoice has a balance due, all contacts listed will be sent automated reminders 7 days before the due date, on the due date, and 7 days after the due date.<br><br> To turn on/off Automated Reminders, from the invoice screen select edit and toggle the Automated Reminders setting.<br><br>Note: Automated reminders will be sent based on the next installment date. If Automatic Payment is On, reminders will show automatic payment status. " data-html="true"> --}}
-                        <span data-toggle="tooltip" data-placement="top" title="{{ (isset($invoice->invoice_setting) && $invoice->invoice_setting['reminder']) ? $invoice->getReminderMessage() : '' }}" data-html="true">
+                        <span data-toggle="tooltip" data-placement="top" title="{{ (isset($invoice->invoice_setting) && $invoice->invoice_setting['reminder']) ? $invoice->getReminderMessage().$content : '' }}" data-html="true">
                             <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
                         </span>
                     </span>

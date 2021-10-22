@@ -151,4 +151,14 @@ class Task extends Authenticatable
             $text = "Low";
         return $text;
     }
+
+    /**
+     * Get the leadAdditionalInfo that owns the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function leadAdditionalInfo()
+    {
+        return $this->belongsTo(LeadAdditionalInfo::class, 'lead_id', 'user_id');
+    }
 }

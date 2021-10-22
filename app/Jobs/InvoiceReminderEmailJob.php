@@ -47,7 +47,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
             'reminder_sent_counter' => $sharedInv->reminder_sent_counter + 1,
         ])->save();
 
-        // Update invoice
+        // Update invoice settings
         if($this->invoice->invoice_setting && $this->remindType && $this->days) {
             $invoiceSetting = $this->invoice->invoice_setting;
             foreach($invoiceSetting['reminder'] as $key => $item) {

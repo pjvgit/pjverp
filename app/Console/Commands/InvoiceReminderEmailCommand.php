@@ -42,8 +42,8 @@ class InvoiceReminderEmailCommand extends Command
      */
     public function handle()
     {
-        $result = Invoices::where("automated_reminder", "yes")/* ->whereNotNull("due_date") */->has("invoiceShared")
-                    ->where("status", "!=", "Paid")
+        $result = Invoices::where("automated_reminder", "yes")->whereNotNull("due_date")->has("invoiceShared")
+                    ->whereNotIn("status", ["Paid", "Forwarded"])
                     /* ->where(function($query) {
                         $query
                         ->whereRaw("due_date = '".Carbon::now()->subDays(7)->format("Y-m-d")."' OR due_date = '".Carbon::now()->format("Y-m-d")."' OR due_date = '".Carbon::now()->addDays(7)->format("Y-m-d")."'")
@@ -51,8 +51,8 @@ class InvoiceReminderEmailCommand extends Command
                             $q->whereRaw("due_date = '".Carbon::now()->subDays(7)->format("Y-m-d")."' OR due_date = '".Carbon::now()->format("Y-m-d")."' OR due_date = '".Carbon::now()->addDays(7)->format("Y-m-d")."'");
                         });
                     }) */
-                    // ->whereId(122)
-                    ->with("case", "case.caseBillingClient", "invoiceFirstInstallment", "firmDetail")
+                    // ->whereId(176)
+                    ->with("case", "invoiceSharedUser", "invoiceFirstInstallment", "firmDetail")
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
@@ -72,23 +72,25 @@ class InvoiceReminderEmailCommand extends Command
                     $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);
                     $remindSetting = collect($item->invoice_setting['reminder'] ?? []);
 
-                    if($dueDate->eq($currentDate)) { // For present
+                    if($dueDate->eq($currentDate)) { // For present due date
                         $onDue = $remindSetting->where("remind_type", "on the due date")->where('is_reminded', 'no');
                         if($onDue->count()) {
                             $remindDate = $currentDate;
                             $emailTemplateId = 23;
                             $remindType = "on the due date";
                         }
-                    } else if($dueDate->gt($currentDate)) { // For future
+                    } else if($dueDate->gt($currentDate)) { // For future due date
                         $dueIn = $remindSetting->where("remind_type", 'due in')->where('is_reminded', 'no');
+                        Log::info("Due ins:". $dueIn);
                         if($dueIn->count()) {
                             $dueIn = $dueIn->sortByDesc('days')->first();
                             $days = $dueIn['days'];
+                            Log::info("Due in days:". $days);
                             $remindDate = $dueDate->subDays($days);
                             $emailTemplateId = 24;
                             $remindType = "due in";
                         }
-                    } else if($dueDate->lt($currentDate)) { // For past
+                    } else if($dueDate->lt($currentDate)) { // For past due date
                         $overDue = $remindSetting->where("remind_type", 'overdue by')->where('is_reminded', 'no');
                         if($overDue->count()) {
                             $overDue = $overDue->sortBy('days')->first();
@@ -107,8 +109,8 @@ class InvoiceReminderEmailCommand extends Command
                 if($emailTemplate && $remindDate) {
                     $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $remindDate->format('Y-m-d'));
                     if($remindDate->eq($currentDate)) {
-                        if(count($item->case->caseBillingClient)) {
-                            foreach($item->case->caseBillingClient as $userkey => $useritem) {
+                        if(count($item->invoiceSharedUser)) {
+                            foreach($item->invoiceSharedUser as $userkey => $useritem) {
                                 $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                 Log::info($useritem->user_timezone."=".$date);
                                 if ($date->hour === 05) { 

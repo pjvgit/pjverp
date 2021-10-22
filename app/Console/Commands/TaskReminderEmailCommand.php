@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\EmailTemplate;
 use App\Jobs\TaskReminderEmailJob;
 use App\TaskReminder;
 use App\Traits\TaskReminderTrait;
@@ -49,20 +50,21 @@ class TaskReminderEmailCommand extends Command
                     // ->where("task_id", 90)
                     ->whereDate("remind_at", Carbon::now()) 
                     ->whereNull("reminded_at")
-                    ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.lead', 'task.case.caseStaffAll', 'task.firm', 'task.lead.userLeadAdditionalInfo')
+                    ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.leadAdditionalInfo', 'task.case.caseStaffAll', 'task.firm')
                     ->get();
         if($result) {
+            $emailTemplate = EmailTemplate::whereId(27)->first();
             foreach($result as $key => $item) {
                 Log::info("task id:". $item->task->id);
                 $users = $this->getTaskLinkedUser($item, "email");
                 Log::info("task users:". $users);
-                if(count($users)) {
+                if(count($users) && $emailTemplate) {
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
-                        if ($date->hour === 05) { 
-                            Log::info("task day time true");
-                            dispatch(new TaskReminderEmailJob($item, $useritem))->onConnection('database');
+                        if ($date->hour === 18) { 
+                            Log::info("task user email: ".$useritem->email.", task day time true");
+                            dispatch(new TaskReminderEmailJob($item, $useritem, $emailTemplate));
                         } else {
                             Log::info("task user email: ".$useritem->email.", time not match");
                         }

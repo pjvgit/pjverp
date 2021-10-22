@@ -103,5 +103,26 @@ trait InvoiceTrait {
 
         sleep(2);
     }
+
+    /**
+     * Update invoice reminder settings
+     */
+    public function updateInvoiceSetting($InvoiceSave)
+    {
+        // Update invoice settings
+        if($InvoiceSave->invoice_setting) {
+            $invoiceSetting = $InvoiceSave->invoice_setting;
+            foreach($invoiceSetting['reminder'] as $key => $item) {
+                $jsonData['reminder'][] = [
+                    'remind_type' => $item['remind_type'],
+                    'days' => $item['days'],
+                    'is_reminded' => "no",
+                ];
+            }
+            $invoiceSetting['reminder'] = $jsonData['reminder'];
+            return $invoiceSetting;
+        }
+        return '';
+    }
 }
  
