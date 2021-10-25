@@ -112,7 +112,6 @@ if(isset($_GET['bank_account'])){
         </div>
     </div>
 </div>
-
 <!--Over-->
 <style>
     .pagination {
@@ -327,10 +326,9 @@ if(isset($_GET['bank_account'])){
                 url: baseUrl + "/bills/invoices/printAccountActivity",
                 data :{ 'range': '{{$range}}','account': '{{$account}}','current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    var w=window.open();
-                    w.document.write(res);
-                    w.print(res);
-                    w.close();
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
                     $("#preloader").hide();
                     return false;                    
                 }

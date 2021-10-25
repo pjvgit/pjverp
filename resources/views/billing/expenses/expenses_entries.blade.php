@@ -617,11 +617,11 @@ if(isset($_GET['type'])){
                 type: "POST",
                 url: baseUrl + "/bills/invoices/printExpenseEntry",
                 data :{ 'c' : '{{$c}}','type':'{{$type}}' ,'i':'{{$i}}','current_page':current_page,'length':length,'orderon':orderon },
-                success: function (res) {
-                    var w=window.open();
-                    w.document.write(res);
-                    w.print(res);
-                    w.close();
+                success: function (res) {                    
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
+                    // w.close();
                     $("#preloader").hide();
                     return false;
                 }

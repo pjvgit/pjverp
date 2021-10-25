@@ -82,7 +82,7 @@
                 <?php } ?> --}}
                 @if($v->d_amt=="0.00" && $v->c_amt > 0)
                     ${{ $v->c_amt }}
-                @elseif($v->c_amt=="0.00" && $v->d_amt > 0) {
+                @elseif($v->c_amt=="0.00" && $v->d_amt > 0)
                     -${{ $v->d_amt }}
                 @else
                     <i class="table-cell-placeholder"></i>

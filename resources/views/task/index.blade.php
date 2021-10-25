@@ -189,7 +189,7 @@ if(isset($_GET['task_read'])){
 
                     </div>
                 </form>
-                <div id="printDiv" class="d-print-none">
+                <div id="printDiv">
                 <?php 
                 if(isset($_GET['sort_on']) && isset($_GET['defaultsor']) && $_GET['defaultsor']==''){
                    
@@ -393,7 +393,7 @@ if(isset($_GET['task_read'])){
                                             ?>
 
                             </td>
-                            <td class="task-actions-cell align-middle">
+                            <td class="task-actions-cell align-middle d-print-none">
                                 <div class="actions-cell float-right">
                                     <div class="d-flex align-item-center task-action-buttons-16333660">
                                         <div>
@@ -716,7 +716,7 @@ if(isset($_GET['task_read'])){
                                             ?>
 
                             </td>
-                            <td class="task-actions-cell align-middle">
+                            <td class="task-actions-cell align-middle d-print-none">
                                 <div class="actions-cell float-right">
                                     <div class="d-flex align-item-center task-action-buttons-16333660">
                                         <div>
@@ -1660,14 +1660,11 @@ if(isset($_GET['task_read'])){
     {
         $(".pagination").hide();
         var canvas = document.getElementById("printDiv").innerHTML;
-        var w=window.open();
-        w.document.write(canvas);
-        w.print(canvas);
-        w.close();
+        window.print(canvas);
+        // w.close();
         $(".pagination").show();
         return false;  
-    }
-    
+    }    
 </script>
 @stop
 

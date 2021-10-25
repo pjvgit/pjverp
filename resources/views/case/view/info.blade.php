@@ -284,8 +284,9 @@
             </div>
         </div>
     </div>
-    <div class="case-detail-case-information m-3">
+    <div class="case-detail-case-information m-3" id="printDiv">
         <div>
+            <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
             <div class="mb-2">
                 <h5 class="card-title">Case Information</h5>
                 <div class="row ">
@@ -650,6 +651,17 @@
         })
      
     }
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = document.getElementById("printDiv").innerHTML;
+        window.print(canvas);
+        // w.close();
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 
 </script>
 

@@ -143,6 +143,7 @@
     {{-- @include('layouts.large-sidebar-customizer') --}}
     <!-- ============ Large Sidebar Layout End ============= -->
     @endif
+    <div class="printDiv"></div>
     {{-- @include('layouts.customizer') --}}
     {{-- common js --}}
     <script src="{{  asset('assets/js/common-bundle-script.js')}}"></script>

@@ -216,10 +216,8 @@ function printEntry()
     $('#employee-grid_paginate').hide();
     $('#hiddenLable').show();
     var canvas = document.getElementById("printDiv").innerHTML;
-    var w=window.open();
-    w.document.write(canvas);
-    w.print(canvas);
-    w.close();
+    window.print(canvas);
+    // w.close();
     $('#hiddenLable').hide();
     $('#employee-grid_length').show();
     $('#employee-grid_info').show();

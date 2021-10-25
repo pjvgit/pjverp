@@ -63,6 +63,7 @@ class SolReminderEmailCommand extends Command
                     Log::info("SOL reminder Email sent to : ". $staff->email);
                 }    
                 CaseSolReminder::where('id',$item->id)->update(['reminded_at' => date('Y-m-d')]);
+                Log::info("SOL reminder Update Item Id : ". $item->id." for case of :".$caseDetails->case_title."(".$caseDetails->id.")");
             }
         }
         Log::info("SOL reminder Command End : ". date('Y-m-d H:i:s'));

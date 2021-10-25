@@ -90,7 +90,7 @@ if(isset($_GET['office'])){
                         </div>
                     </div>
                 </form>
-                <div class="table-responsive" id="table-responsive">
+                <div class="table-responsive" id="printDiv">
                     <div class="financial-insights-container container-fluid">
                         <div class="row ">
                             <div class="p-2 col" style="min-width: 400px;">
@@ -537,7 +537,7 @@ if(isset($_GET['office'])){
                         w=window.open();
                         w.document.write(res);
                         w.print();
-                        w.close();
+                        // w.close();
                         $("#preloader").hide();
                         return false;
                     }, 4000);
@@ -547,11 +547,9 @@ if(isset($_GET['office'])){
     }
     function printEntry()
     {
-        var canvas = document.getElementById("table-responsive").innerHTML;
-        var w=window.open();
-        w.document.write(canvas);
-        w.print(canvas);
-        w.close();
+        var canvas = document.getElementById("printDiv").innerHTML;
+        window.print(canvas);
+        // w.close();
         $("#preloader").hide();
         return false;  
     }

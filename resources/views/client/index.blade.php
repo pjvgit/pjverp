@@ -359,10 +359,8 @@ function printEntry()
     $('#ClientListGrid_paginate').hide();
     $('#hiddenLable').show();
     var canvas = document.getElementById("printDiv").innerHTML;
-    var w=window.open();
-    w.document.write(canvas);
-    w.print(canvas);
-    w.close();
+        window.print(canvas);
+            // w.close();
     $('#hiddenLable').hide();
     $('#ClientListGrid_length').show();
     $('#ClientListGrid_info').show();

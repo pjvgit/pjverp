@@ -427,10 +427,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 url: baseUrl + "/bills/invoices/printTimeEntry",
                 data :{ 'c' : '{{$c}}','from' : '{{$from}}','to' : '{{$to}}','type':'{{$type}}' ,'st':'{{$st}}','i':'{{$i}}','current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    var w=window.open();
-                    w.document.write(res);
-                    w.print(res);
-                    w.close();
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
+                    // w.close();
                     $("#preloader").hide();
                     return false;              
                 }

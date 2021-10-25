@@ -46,9 +46,12 @@ if(isset($_GET['i'])){
                     </ul>
                     <div class="ml-auto d-flex align-items-center d-print-none">
                         {{-- <a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button disabled class="btn btn-primary btn-rounded m-1" type="button" onclick="loadStep1();">Add Case</button></a> --}}
+                        <button onclick="printEntry();return false;" class="btn btn-link">
+                            <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Print"></i>
+                        </button>
+                        
                         <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" > <button disabled class="btn btn-primary btn-rounded m-1" type="button" onclick="loadAllStep();" >Add Case</button></a>
-                    
-                    
                         </div>   
 
                 </div>
@@ -97,7 +100,8 @@ if(isset($_GET['i'])){
                         
                     </div>
                 </form>
-                <div class="table-responsive">
+                <div class="table-responsive" id="printDiv">
+                    <h3 id="hiddenLable">Cases</h3>
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
                             <tr>
@@ -938,7 +942,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 
 
-                    $('td:eq(0)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a><small class="d-block practice-area">'+aData.practice_area_text+'</small></div>');
+                    $('td:eq(0)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a><br><small class="d-block practice-area">'+aData.practice_area_text+'</small></div>');
                     if(aData.case_number!=null){
                         $('td:eq(1)', nRow).html('<div class="text-left"><a class="case-number" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_number+'</a></div>');
                     }else{
@@ -1528,5 +1532,23 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#submit_with_user").hide();
     }
     $("#case_name").focus();
+
+    function printEntry()
+    {
+        $('#employee-grid_length').hide();
+        $('#employee-grid_info').hide();
+        $('#employee-grid_paginate').hide();
+        $('#hiddenLable').show();
+        var canvas = document.getElementById("printDiv").innerHTML;
+        window.print(canvas);
+        // w.close();
+        $('#hiddenLable').hide();
+        $('#employee-grid_length').show();
+        $('#employee-grid_info').show();
+        $('#employee-grid_paginate').show();
+        return false;  
+    }
+    $('#hiddenLable').hide();
+
 </script>
 @stop

@@ -421,5 +421,16 @@
             $('#'+divId).append('<tr><td colspan="6" class="text-center"><h4 class="all-pdng-cls">No record found</h4></td></tr>');
         });
     } */
+
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html();
+        window.print(canvas);
+        // w.close();
+        $('#hiddenLable').hide();
+        return false;  
+    }
 </script>
 @stop
