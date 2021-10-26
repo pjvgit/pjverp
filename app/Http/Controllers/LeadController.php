@@ -6428,7 +6428,7 @@ class LeadController extends BaseController
         //     $error = $pdf->getError();
         // }
 
-       return response()->json([ 'success' => true, "url"=>url('public/download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
+       return response()->json([ 'success' => true, "url"=>url('download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
         exit;
     }
     public function downloadIntakeForm(Request $request)
@@ -6457,7 +6457,7 @@ class LeadController extends BaseController
         // return response()->download($path);
         // exit;
 
-        return response()->json([ 'success' => true, "url"=>url('public/download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
+        return response()->json([ 'success' => true, "url"=>url('download_intakeform/pdf/'.$filename),"file_name"=>$filename], 200);
         exit;
     }
     /*********************** INTAKE FORMS ***************************** */

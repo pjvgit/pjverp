@@ -17,7 +17,7 @@ $userTitle = unserialize(USER_TITLE);
         <?php } ?>
     </h2>
     <div class="ml-auto d-flex align-items-center d-print-none">
-<button class="btn btn-link text-black-50 d-none d-md-block" onclick="window.print()">
+<button class="btn btn-link text-black-50 d-none d-md-block" onclick="printEntry(); return false;">
       <i class="fas fa-print"></i> Print
     </button>        <a data-toggle="modal" data-target="#DeleteModal" data-placement="bottom" href="javascript:;"> <button
                 class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="loadProfile();">Edit</button></a>
@@ -154,6 +154,7 @@ $userTitle = unserialize(USER_TITLE);
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/attorneys/info"){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
+                        <h3 id="hiddenLable">{{($userProfile->first_name.' '.$userProfile->last_name)??''}}</h3>
                         <div id="contact_info_page" style="display: block;">
                             <div class="d-md-flex align-items-md-start w-100">
                                 <div class="d-flex flex-column col-md-3 align-items-center d-print-none pb-4">
@@ -231,7 +232,8 @@ $userTitle = unserialize(USER_TITLE);
                                                 <button class="btn  btn-outline-danger  btn-rounded text-nowrap reactivate-user" type="button" ">Reactivate {{ $userProfile->user_title}}</button>
                                             </a>
                                         </div>
-                                        @endif                                        
+                                        @endif 
+                                        </br>                                       
                                         <div class="text-center">
                                             <a data-toggle="modal" data-target="#reassignTask" data-placement="bottom" href="javascript:;"> 
                                                     <button class="btn  btn-outline-info  btn-rounded text-nowrap reactivate-user" type="button">Reassign Tasks &amp; Events</button>
@@ -314,6 +316,8 @@ $userTitle = unserialize(USER_TITLE);
                     </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/attorneys/cases"){ echo "active show"; } ?>" id="contactBasic" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="table-responsive">
+                        <h3 id="hiddenLable">{{($userProfile->first_name.' '.$userProfile->last_name)??''}}</h3>
+
                         <?php if($userProfile->user_status!="3"){?>
                             <div class="d-flex align-items-center justify-content-end mb-2 d-print-none">
                                 <div>
@@ -483,9 +487,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="col-md-12">
                         <div class="alert alert-info"><b>What happens when I deactivate a user?</b><ul><li>Deactivated users will not be able to login to {{config('app.name')}} .</li><li>You will not be charged for deactivated users.</li><li>Once deactivated, you cannot reactivate a user for 30 days.</li><li>Documents, tasks, events, notes, and billing associated with this user will remain in {{config('app.name')}} .</li><li>Calendar events will stop syncing with integrated calendars.</li></ul><a href="#" target="_blank" rel="noopener noreferrer">Learn more about deactivating a user</a></div>
                         <div><span class="font-weight-bold">Note: </span>You can reassign this user's tasks and events on the next screen to any active user. Alternatively tasks and events can be reassigned after a user is deactivated.
-                            
                         </div>
-                       
                     </div>
                     <div class="col-md-12" >
                         <div class="d-flex justify-content-end mt-3">
@@ -501,7 +503,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-
 <div id='user_delete_dialog' style='display: none;'>
     <form id="user_delete_form"  name="user_delete_form" accept-charset="UTF-8" data-remote="true" method="post">
         @csrf
@@ -1681,6 +1682,18 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         }
     }
 
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("{{ (Route::currentRouteName()=='contacts/attorneys/cases') ? 'contactBasic' : 'profileBasic' }}").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        loadTimeEntriesBlock(); 
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 
 @stop

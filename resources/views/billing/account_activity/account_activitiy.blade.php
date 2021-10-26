@@ -329,6 +329,7 @@ if(isset($_GET['bank_account'])){
                     $(".printDiv").html(res);
                     var canvas = $(".printDiv").html();
                     window.print(canvas);
+                    $(".printDiv").html('');
                     $("#preloader").hide();
                     return false;                    
                 }

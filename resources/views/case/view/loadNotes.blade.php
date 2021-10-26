@@ -1,3 +1,4 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
 <div class="col-md-12">
     <div class="d-flex justify-content-end mb-2">
         <a href="javascript:void(0);" class="pt-2 pr-2" onclick="expandAllnote();" id="ex">
@@ -35,3 +36,18 @@
 
     </table>
 </div>
+@section('page-js-inner')
+<script type="text/javascript">
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
+</script>
+@endsection

@@ -1,14 +1,15 @@
-    <div class="col-md-12">
-        <div class="float-right">
-            <a href="#" target="_blank" class="mr-4"><i class="fas fa-question-circle" aria-hidden="true"></i> Learn
-                about Intake Forms</a>
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
+<div class="col-md-12">
+    <div class="float-right">
+        <a href="#" target="_blank" class="mr-4"><i class="fas fa-question-circle" aria-hidden="true"></i> Learn
+            about Intake Forms</a>
 
-            <a data-toggle="modal" data-target="#addIntakeFormFromCase" data-placement="bottom" href="javascript:;">
-                <button class="btn btn-primary btn-rounded m-1 px-3" type="button" onclick="addIntakeFormFromCase();">Add
-                    Intake Form</button>
-            </a>
-        </div>
+        <a data-toggle="modal" data-target="#addIntakeFormFromCase" data-placement="bottom" href="javascript:;">
+            <button class="btn btn-primary btn-rounded m-1 px-3" type="button" onclick="addIntakeFormFromCase();">Add
+                Intake Form</button>
+        </a>
     </div>
+</div>
 <?php if(isset($totalCaseIntakeForm) && $totalCaseIntakeForm<=0){ ?>
     <div class="col-md-12 m-5 text-center">
         <i class="fas fa-clipboard-list my-4 fa-5x" data-testid="empty-state-icon"></i>
@@ -32,3 +33,18 @@
         </table>
     </div>
 <?php } ?>
+@section('page-js-inner')
+<script type="text/javascript">
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
+</script>
+@endsection

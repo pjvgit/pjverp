@@ -622,6 +622,7 @@ if(isset($_GET['type'])){
                     var canvas = $(".printDiv").html();
                     window.print(canvas);
                     // w.close();
+                    $(".printDiv").html('');
                     $("#preloader").hide();
                     return false;
                 }

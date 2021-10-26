@@ -90,7 +90,7 @@ if(isset($_GET['office'])){
                         </div>
                     </div>
                 </form>
-                <div class="table-responsive" id="printDiv">
+                <div class="table-responsive" id="printHtml">
                     <div class="financial-insights-container container-fluid">
                         <div class="row ">
                             <div class="p-2 col" style="min-width: 400px;">
@@ -547,9 +547,10 @@ if(isset($_GET['office'])){
     }
     function printEntry()
     {
-        var canvas = document.getElementById("printDiv").innerHTML;
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
         window.print(canvas);
         // w.close();
+        $(".printDiv").html('');
         $("#preloader").hide();
         return false;  
     }

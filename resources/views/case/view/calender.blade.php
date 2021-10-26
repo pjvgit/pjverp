@@ -429,6 +429,7 @@
         var canvas = $(".printDiv").html();
         window.print(canvas);
         // w.close();
+        $(".printDiv").html('');
         $('#hiddenLable').hide();
         return false;  
     }

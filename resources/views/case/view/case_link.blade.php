@@ -1,4 +1,5 @@
-<div class="row ">
+<div class="row " id="printHtml">
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
     <div class="col-12 col-md-12 col-lg-8">
         <div class="d-flex align-items-center mb-2 mt-3">
             <h3 class="mb-0">Contacts</h3>
@@ -1016,5 +1017,17 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }
             })  
     }
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop

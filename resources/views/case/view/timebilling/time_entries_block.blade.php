@@ -58,7 +58,7 @@
                     <th width="5%" class="nosort">Total</th>
                     <th width="5%" class="nosort">Status</th>
                     <th width="15%" class="nosort">User</th>
-                    <th width="10%" class="text-center nosort" ></th>
+                    <th width="10%" class="d-print-none text-center nosort" ></th>
                 </tr>
             </thead>
 
@@ -139,7 +139,7 @@
                     $('td:eq(7)', nRow).html('<div class="text-left nowrap"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
 
                     if(aData.status=="unpaid"){
-                        $('td:eq(8)', nRow).html('<div class="text-center nowrap"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                        $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     }else{
                         $('td:eq(8)', nRow).html('<div class="text-center nowrap"></div>');
                     }

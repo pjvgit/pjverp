@@ -311,7 +311,7 @@ $adjustment_token=round(microtime(true) * 1000);
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade  <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","notes","tasks","intake_forms"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel"
+                    <div class="tab-pane fade  <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","documents","notes","tasks","intake_forms"])){ echo "active show"; } ?> " id="intemInfo" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item">
@@ -336,7 +336,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             </div>
 
                             <div class="nav-item">
-                                <a class="nav-link  pendo-case-documents" id="documentsButton" data-page="documents"
+                                <a class="nav-link  pendo-case-documents <?php if(Route::currentRouteName()=="documents"){ echo "active"; } ?>" id="documentsButton" data-page="documents"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/documents')}}"><span>
                                         <i class="i-Folder-With-Document text-16 mr-1"></i> Documents</span></a>
                             </div>
@@ -368,7 +368,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" <?php  if(Route::currentRouteName()=="notes" || Route::currentRouteName()=="intake_forms"){?> id="printHtml" <?php } ?>>
                             <?php if(Route::currentRouteName()=="info"){ ?>
                                     @include('case.view.info',['CaseMaster','practiceAreaList','caseStageList','lastStatusUpdate'])
                             <?php }?>
@@ -379,6 +379,10 @@ $adjustment_token=round(microtime(true) * 1000);
 
                             <?php if(Route::currentRouteName()=="calendars"){?>
                                 @include('case.view.calender',['CaseMaster'])
+                            <?php } ?>
+
+                            <?php if(Route::currentRouteName()=="documents"){?>
+                                @include('case.view.documents',['CaseMaster'])
                             <?php } ?>
 
                             <?php  if(Route::currentRouteName()=="notes"){?>
@@ -428,7 +432,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row"  <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","invoices","payment_activity"])){ ?> id="printHtml" <?php } ?>>
                             <?php if(Route::currentRouteName()=="overview"){ ?>
                                       @include('case.view.timebilling.overview')
                             <?php } ?>
@@ -470,7 +474,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                 </a>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row"  <?php if(in_array(Route::currentRouteName(),["communications/messages"])){ ?> id="printHtml" <?php } ?>>
                             <?php if(Route::currentRouteName()=="communications/messages"){ ?>
                                       @include('case.view.timebilling.communications')
                             <?php } ?>
@@ -840,6 +844,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             "orientation": "bottom",
             'todayHighlight': true
         });
+        $('.input-daterange').datepicker({
+            format : 'm/d/yyyy',
+            clearBtn: true,
+            keyboardNavigation: false,
+            forceParse: false,
+            todayBtn: "linked",
+            todayHighlight : true
+        }); 
         $("#statusEditor").show();
         $("#statusList").hide();
         $("#innerLoader").css('display', 'none');

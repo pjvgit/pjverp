@@ -1,4 +1,5 @@
-<div class="col-md-8">
+<div class="col-md-8" id="printHtml">
+    <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
     <h3>
         <p class="header">Status Updates</p>
     </h3>
@@ -43,7 +44,7 @@
                         data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i></a>
                 </a>
             </div> </div><p class="m-0 text-muted">
-                {{$v->update_status}}
+                {!! nl2br($v->update_status) !!}
             </p>
         </div>
       
@@ -157,6 +158,17 @@ function onClickDelete(id){
     });
 }
 
+function printEntry()
+{
+    $('#hiddenLable').show();
+    var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+    window.print(canvas);
+    // w.close();
+    $(".printDiv").html('');
+    $('#hiddenLable').hide();
+    return false;  
+}
+$('#hiddenLable').hide();
 </script>
 
 @stop

@@ -1,3 +1,5 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
+
 <div id="time_entries_page" class="case_info_page col-12 pt-2" style="">
     <div id="new-case-time-entries" data-court-case-id="14011629" data-show-ledes-info="false"
         data-can-add-time-entry="true" data-can-view-billing-rate="true">
@@ -83,12 +85,24 @@
                     }                    
                     $('td:eq(7)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
                     if(aData.status=="unpaid"){
-                        $('td:eq(8)', nRow).html('<div class="text-center nowrap"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteExpenseEntryCommon" data-placement="bottom" href="javascript:;"  onclick="deleteExpenseEntryCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                        $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteExpenseEntryCommon" data-placement="bottom" href="javascript:;"  onclick="deleteExpenseEntryCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     }else{
-                        $('td:eq(8)', nRow).html('<div class="text-center nowrap"></div>');
+                        $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"></div>');
                     }
                 }
         });
     });
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop

@@ -1080,6 +1080,8 @@ class CaseController extends BaseController
                 $totalCaseIntakeForm= $allForms = CaseIntakeForm::leftJoin('intake_form','intake_form.id','=','case_intake_form.intake_form_id')->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*")->where("case_id",$case_id)->count();
             }
             
+            if(\Route::current()->getName()=="documents"){
+            }
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
             return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','caseClients','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
@@ -5768,13 +5770,17 @@ class CaseController extends BaseController
             $task = $task->where("status","0");
         }else if(isset($request->status) && $request->status=="complete"){
             $task = $task->where("status","1");
-        }
+        }else if(isset($request->print_task_range_from)){
+            $task = $task->orWhereBetween("task_due_on",[date('Y-m-d',strtotime($request->print_task_range_from)),date('Y-m-d',strtotime($request->print_task_range_to))]);
+            if(isset($request->include_without_due_date)){
+                $task = $task->Where("task_due_on",'9999-12-30');
+            }     
+        }        
         $task = $task->where("task.created_by",Auth::user()->id);
         $task = $task->orderBy('task_due_on', 'ASC');
         $task = $task->paginate(10);
-
         
-        return view('case.view.taskDynamic',compact('task'));     
+        return view('case.view.taskDynamic',compact('task','request'));     
         exit;    
     }
 

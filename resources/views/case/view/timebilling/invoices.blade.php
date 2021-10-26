@@ -1,3 +1,4 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
 <div id="time_entries_page" class="case_info_page col-12 pt-2" style="">
     <div id="new-case-time-entries" data-court-case-id="14011629" data-show-ledes-info="false"
         data-can-add-time-entry="true" data-can-view-billing-rate="true">
@@ -132,9 +133,22 @@
                         var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
                     }
                     var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoiceCommon" data-placement="bottom" href="javascript:;"  onclick="deleteInvoiceCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
-                    $('td:eq(11)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
+                    $('td:eq(11)', nRow).html('<div class="text-center d-print-none" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                 }
         });
     });
+
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop

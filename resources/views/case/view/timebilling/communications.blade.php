@@ -1,3 +1,4 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
 <div class="container-fluid">
     <div class="justify-content-end pt-2 d-print-none row ">
         <div class="align-self-end text-right col-6">
@@ -63,5 +64,17 @@
             }
         });
     });
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop

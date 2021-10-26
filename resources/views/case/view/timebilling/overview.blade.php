@@ -1,3 +1,4 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
 <div id="overview_page" class="case_info_page col-12" style="">
     <div id="new-case-billing-overview">
         <div class="mt-2 row ">
@@ -570,5 +571,17 @@
     $('#depositIntoTrustAccount').on('hidden.bs.modal', function () {
         window.location.reload();
     });
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop

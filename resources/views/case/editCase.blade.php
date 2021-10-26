@@ -106,23 +106,43 @@
                         foreach($CaseSolReminder as $key=>$val){
             ?>
             <div class="row form-group fieldGroup" >
-                <div class="col-md-2 form-group mb-3">
+                <div class="col-md-3 form-group mb-3">
                     <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                     @foreach(getEventReminderTpe() as $k =>$v)
                         <option value="{{$k}}" <?php if($val->reminder_type==$k){ echo "selected=selected"; } ?>>{{$v}}</option>
                     @endforeach
                     </select>
                 </div>
-                <div class="col-md-2 form-group mb-3">
+                <div class="col-md-3 form-group mb-3">
                     <input class="form-control" id="reminder_days" value="{{$val->reminer_number}}" name="reminder_days[]" type="number"> 
                 </div> <span class="pt-2">Days</span>
-                <div class="col-md-2 form-group mb-3">   
+                <div class="col-md-3 form-group mb-3">   
                     <button class="btn remove" type="button"><i class="fa fa-trash" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
             <?php 
-                   }  }?>
+                   }  }else{?>
+                   
+                    @forelse (firmSolReminders() as $key => $item)
+                        <div class="row form-group fieldGroup">
+                            <div class="col-md-3 form-group mb-3">
+                                <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
+                                    @foreach(getEventReminderTpe() as $k =>$v)
+                                        <option value="{{$k}}" <?php if(@$item->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group mb-3">
+                                <input class="form-control" id="reminder_days" value="{{ @$item->reminer_days }}" name="reminder_days[]" type="number" min="0"> 
+                            </div> <span class="pt-2">Days</span>
+                            <div class="col-md-3 form-group mb-3">   
+                                <button class="btn remove" type="button"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                    @empty
+                    @endforelse
+                 <?php  } ?>
                 <div class="test-sol-reminders fieldGroup">
                     
                     <div>
@@ -132,17 +152,17 @@
             </div>
         </div>
        <div class="fieldGroupCopy copy hide" style="display: none;">
-            <div class="col-md-2 form-group mb-3">
+            <div class="col-md-3 form-group mb-3">
                 <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                     @foreach(getEventReminderTpe() as $k =>$v)
                         <option value="{{$k}}">{{$v}}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2 form-group mb-3">
+            <div class="col-md-3 form-group mb-3">
                 <input class="form-control" id="reminder_days" value="1" name="reminder_days[]" type="number" > 
             </div> <span class="pt-2">Days</span>
-            <div class="col-md-2 form-group mb-3">   
+            <div class="col-md-3 form-group mb-3">   
                 <button class="btn remove" type="button"><i class="fa fa-trash"
                 aria-hidden="true"></i>
                 </button>
@@ -176,7 +196,7 @@
         </div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
-            <div class="col-md-2 form-group mb-3">
+            <div class="col-md-3 form-group mb-3">
                 <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader1"></div>
             </div>
         </div>
@@ -256,6 +276,7 @@
                 }
             }
         });
+        
         $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';

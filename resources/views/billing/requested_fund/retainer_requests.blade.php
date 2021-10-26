@@ -593,6 +593,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     var canvas = $(".printDiv").html();
                     window.print(canvas);
                     // w.close();
+                    $(".printDiv").html('');
                     $("#preloader").hide();
                     return false;      
                 }

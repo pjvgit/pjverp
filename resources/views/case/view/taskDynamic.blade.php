@@ -16,6 +16,14 @@ foreach ($task as $element) {
     }
 }
 ?>
+@if(isset($request->print_task_range_from))
+<br>
+<div>
+  <span>{{ ucfirst($task[0]->created_by_name) }}(Attorney)</span>
+  <span style="float: right;" >Due: {{ date('D M d, Y', strtotime($request->print_task_range_from)) }} - {{ date('D M d, Y', strtotime($request->print_task_range_to)) }}</span>
+</div>    
+<br>
+@endif
 <div class="table-responsive">
     <table class="display table table-striped table-bordered" style="width:100%">
         <thead>
@@ -32,7 +40,7 @@ foreach ($task as $element) {
                 <th class="task-due-cell align-middle" style="cursor: pointer;width:10%;"> Due</th>
                 <th class="task-assigned-to-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;width:10%;">
                     Assigned To</th>
-                <th class="task-actions-cell align-middle YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;width:5%;"></th>
+                <th class="task-actions-cell align-middle YXd6tPOgoO-RylXVRzzZh  d-print-none" style="cursor: initial;width:5%;"></th>
             </tr>
         </thead>
         @foreach($result as $key=>$row)
@@ -184,7 +192,7 @@ foreach ($task as $element) {
                 }
                 ?>
             </td>
-            <td class="task-actions-cell align-middle">
+            <td class="task-actions-cell align-middle d-print-none">
                 <div class="actions-cell float-right">
                     <div class="d-flex align-item-center task-action-buttons-16333660">
                         <div>

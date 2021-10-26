@@ -1,3 +1,4 @@
+<h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
 <div id="time_entries_page" class="case_info_page col-12 pt-2" style="">
     <div id="new-case-time-entries" data-court-case-id="14011629" data-show-ledes-info="false"
         data-can-add-time-entry="true" data-can-view-billing-rate="true">
@@ -106,5 +107,17 @@
             }
         });
     });
+
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
 @stop
