@@ -32,6 +32,17 @@ $CommonController= new App\Http\Controllers\CommonController();
 
                     <?php 
                     foreach($getAllClientForSharing as $k=>$v){?>
+                    @if ($v->user_level=="4")
+                        <tr class="invoice-sharing-row">
+                            <td colspan="5"><strong>{{ucfirst($v->unm)}} (Company)</strong></td>
+                        </tr>
+                        <tr class="invoice-sharing-row">
+                            <td colspan="5" class="text-note"><i>No contacts from this company are linked to this case</i></td>
+                        </tr>
+                        <tr>
+                            <td colspan="5"></td>
+                        </tr>
+                    @else
                     <tr class="invoice-sharing-row" id="ClientRow_{{$v->user_id}}">
 
                         <td scope="row" class="text-center">
@@ -92,9 +103,47 @@ $CommonController= new App\Http\Controllers\CommonController();
                         }
                         ?></td>
                     </tr>
+                    @endif
                     <?php } ?>
                 </tbody>
             </table>
+            {{-- <table class="table table-bordered pt-2">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Share</th>
+                        <th>Contact Name</th>
+                        <th>Last Login</th>
+                        <th>Shared</th>
+                        <th>Viewed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="invoice-sharing-row">
+                        <td colspan="5"><strong>Roth and Irwin Trading (Company)</strong></td>
+                    </tr>
+                    <tr class="invoice-sharing-row">
+                        <th scope="row" class="text-center">
+                            <input type="checkbox" id="sharing-26709890" class="select-client" value="26709890">
+                        </th>
+                        <td class="client-name">Lee Quae excepteur omnis Vinson (Client)</td>
+                        <td class="last-login-date">Disabled</td>
+                        <td class="shared-on-date">Not Shared</td>
+                        <td class="viewed-on-date">Never</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"></td>
+                    </tr>
+                    <tr class="invoice-sharing-row">
+                        <th scope="row" class="text-center">
+                            <input type="checkbox" id="sharing-26530433" class="select-client" value="26530433">
+                        </th>
+                        <td class="client-name">[SAMPLE] John Doe (Client)</td>
+                        <td class="last-login-date">Never</td>
+                        <td class="shared-on-date">Not Shared</td>
+                        <td class="viewed-on-date">Never</td>
+                    </tr>
+                </tbody>
+            </table> --}}
 
         </div>
         </span>
