@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Http\Controllers\CommonController;
+use Illuminate\Support\Facades\DB;
+
 class TrustHistory extends Authenticatable
 {
     use Notifiable;
@@ -142,5 +144,15 @@ class TrustHistory extends Authenticatable
     public function leadAdditionalInfo()
     {
         return $this->belongsTo(LeadAdditionalInfo::class, 'allocated_to_lead_case_id', 'user_id');
+    }
+
+    /**
+     * Get the createdByUser that owns the TrustHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

@@ -19,6 +19,7 @@
                             <th class="text-nowrap" width="10%">Related To</th>
                             <th class="text-nowrap" width="10%">Entered By</th>
                             <th class="text-nowrap" width="30%">Notes</th>
+                            <th class="text-nowrap" width="10%">Payment Method</th>
                             <th class="text-nowrap" width="10%">Amount</th>
                         </tr>
                     </thead>
@@ -67,8 +68,10 @@
                 {data: 'id','sorting': false},
                 {data: 'id','sorting': false},
                 {data: 'id','sorting': false},
+                {data: 'id','sorting': false},
             ],
-            "fnCreatedRow": function (nRow, aData, iDataIndex) {
+            // Old code
+            /* "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date + '</div>');
 
                 if(aData.section=="invoice"){
@@ -98,7 +101,90 @@
                     $('td:eq(4)', nRow).html('<div class="text-left">$<span class="payRow">' + aData
                     .c_amt + '</span></div>');
                 }
+            }, */
+
+            "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date +'</div>');
+
+                if(aData.related_to_invoice_id || aData.invoice_id) {
+                    $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+ aData.invoice.decode_id+'" >#'+aData.invoice.invoice_id+'</a>');
+                } else if(aData.related_to_fund_request_id) {
+                    $('td:eq(1)', nRow).html(aData.fundRequest.padding_id);
+                } else {
+                    $('td:eq(1)', nRow).html('<i class="table-cell-placeholder"></i>');
+                }
+
+                var noteContent = '';
+                if(aData.notes != null) {
+                    noteContent += '<div class="position-relative">\
+                            <a class="test-note-callout d-print-none" tabindex="0" data-toggle="popover" data-html="true" data-placement="bottom" data-trigger="focus" title="Notes" data-content="<div>'+aData.notes+'</div>">\
+                                <img style="border: none;" src="'+imgBaseUrl+'icon/note.svg'+'">\
+                            </a>\
+                        </div>';
+                }
+                var enteredBy = '';
+                if(aData.responsible != null) {
+                    enteredBy = aData.responsible.full_name;
+                } else if(aData.created_by_user != null) {
+                    enteredBy = aData.created_by_user.full_name;
+                }
+                $('td:eq(2)', nRow).html('<div style="display: flex !important; justify-content: space-between !important;"><div class="text-left">' + enteredBy +'</div>'+ ' ' +noteContent+'</div>');
+
+                var isRefund = (aData.is_refunded == "yes") ? "(Refunded)" : (aData.status == 2 || aData.status == 3) ? "(Refunded)" : "";
+                var ftype = ''; var finalAmount = 0.00;
+                if(aData.payment_from == "trust" && aData.pay_method == "Trust"){
+                    ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "trust" && aData.pay_method == "Trust Refund"){
+                    ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+                    finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.pay_method=="Trust Refund"){
+                    ftype = "Refund Payment into Trust (Trust Account)";
+                    finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.pay_method=="Refund" && aData.deposit_into == "Operating Account"){
+                    ftype = "Refund Payment into Operating (Operating Account)";
+                    finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.acrtivity_title == "Payment Received" && aData.deposit_into == "Operating Account"){
+                    ftype = "Payment into Operating (Operating Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.acrtivity_title == "Payment Received" && aData.deposit_into == "Credit"){
+                    ftype = "Payment into Credit (Operating Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.acrtivity_title == "Payment Refund" && aData.deposit_into == "Credit"){
+                    ftype = "Refund Payment into Credit (Operating Account)";
+                    finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "offline" && aData.acrtivity_title == "Payment Received" && aData.deposit_into == "Trust Account"){
+                    ftype = "Payment into Trust (Trust Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "credit" && aData.acrtivity_title == "Payment Received"){
+                    ftype = "Payment from Credit (Operating Account)";
+                    finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.payment_from == "credit" && aData.acrtivity_title == "Payment Refund"){
+                    ftype = "Refund Payment from Credit (Operating Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
+                }else if(aData.fund_type=="diposit") {
+                    ftype="Deposit into Trust (Trust Account)";
+                    finalAmount = '$<span class="payRow">' + aData.amount_paid + '</span>';
+                }else{
+                    ftype="";
+                }
+                $('td:eq(3)', nRow).html('<div class="text-left nowrap">'+ftype +'</div>');
+
+                if(aData.pay_method)
+                    $('td:eq(4)', nRow).html('<div class="text-left nowrap">'+ aData.pay_method +' '+ isRefund +'</div>');
+                else if(aData.payment_method)
+                    $('td:eq(4)', nRow).html('<div class="text-left nowrap">'+ aData.payment_method +' '+ isRefund +'</div>');
+                else
+                    $('td:eq(4)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+
+
+                if(finalAmount == "0.00"){
+                    $('td:eq(5)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
+                }else{
+                    $('td:eq(5)', nRow).html('<div class="text-left">' + finalAmount + '</div>');
+                }
             },
+
             "initComplete": function (settings, json) {
                 $('[data-toggle="tooltip"]').tooltip();
                 $("[data-toggle=popover]").popover();

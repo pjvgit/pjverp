@@ -292,4 +292,17 @@ class User extends Authenticatable
     {
         return $this->apt_unit.', '.$this->street.', '.$this->city.', '.$this->state.', '.$this->postal_code.', '.$this->country;
     }
+
+    /**
+     * Get all of the companyContactList for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function companyContactList()
+    {
+        return DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+                ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
+                ->whereRaw("find_in_set(?,'multiple_compnay_id')", [$this->id])
+                ->get();
+    }
 }

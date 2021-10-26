@@ -26,7 +26,8 @@ class InvoiceHistory extends Authenticatable
         if(isset(auth()->user()->user_timezone) && $this->created_at!=null) 
         {
             $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
-            return date('M j, Y h:i a',strtotime($userTime));
+            // return date('M j, Y h:i a',strtotime($userTime));
+            return date('M j, Y',strtotime($userTime));
         }else{
             return null;
         }
@@ -111,5 +112,15 @@ class InvoiceHistory extends Authenticatable
         } else {
             $this->attributes['pay_method'] = $value;
         }
+    }
+
+    /**
+     * Get the invoice that owns the InvoiceHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_id');
     }
 }

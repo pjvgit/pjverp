@@ -24,6 +24,7 @@ use App\Traits\TrustAccountActivityTrait;
 use App\Traits\TrustAccountTrait;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -4433,9 +4434,18 @@ class BillingController extends BaseController
             $Invoices=Invoices::find($request->id);
             if(!empty($Invoices)){
                 
-                $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->get();
+                $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
+                    ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
+                    ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login","users_additional_info.multiple_compnay_id")
+                    ->where("case_client_selection.case_id",$Invoices['case_id'])->whereNull('users_additional_info.multiple_compnay_id')
+                    ->orderBy('user_level', 'desc')->with('user')->get();
+
+                // return $getAllClientForSharing=  User::whereHas("clientCases", function($q) use($Invoices) {
+                //         $q->where("id", $Invoices['case_id']);
+                // })->with('user', 'user.companyContactList')->get();
 
                 foreach($getAllClientForSharing as $k=>$v){
+                    // return $v->user->companyContactList();
                     $checkedUser=SharedInvoice::where("invoice_id",$Invoices['id'])->where("user_id",$v->user_id)->first();
                     if(!empty($checkedUser)){
                         $v['shared']="yes";
@@ -7409,7 +7419,7 @@ class BillingController extends BaseController
         );
         echo json_encode($json_data);  
     }
-    public function loadMixAccountActivity()
+    /* public function loadMixAccountActivityOld()
     {   
         $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
         $requestData= $_REQUEST;
@@ -7439,6 +7449,33 @@ class BillingController extends BaseController
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
             "data"            => $FetchQuery 
+        );
+        echo json_encode($json_data);  
+    } */
+
+    public function loadMixAccountActivity(Request $request)
+    {           
+        $FetchQuery = InvoiceHistory::whereHas("invoice", function($query) use($request) {
+                        $query->where("case_id", $request->case_id);
+                    })->whereIn('acrtivity_title', ['Payment Received','Payment Refund'])->orderBY("created_at", "desc")->with("invoice")->get();
+        $trustHistory = TrustHistory::where("allocated_to_case_id", $request->case_id)->where("fund_type", "diposit")
+                        ->orderBY("created_at", "desc")->with(['invoice', 'fundRequest', 'createdByUser'])->get();
+        // $all = $FetchQuery->merge($trustHistory);
+
+        $merged = array_merge($FetchQuery->toArray(), $trustHistory->toArray());
+        usort($merged, fn($a, $b) => strtotime($a['created_at']) < strtotime($b['created_at']));
+        // return $merged;
+        $result = collect($merged);
+
+        $totalData=$result->count();
+        $totalFiltered = $totalData; 
+        $result = $result->skip($request->start)->take($request->length);
+
+        $json_data = array(
+            "draw"            => intval( $request->draw ),   
+            "recordsTotal"    => intval( $totalData ),  
+            "recordsFiltered" => intval( $totalFiltered ), 
+            "data"            => $result 
         );
         echo json_encode($json_data);  
     }
