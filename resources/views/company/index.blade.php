@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Company')
 @section('main-content')
+@include('client.submenu')
 <?php
 $userTitle = unserialize(USER_TITLE); 
 $target=$group="";
@@ -30,10 +31,15 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </li>
                     </ul>
                     <div class="ml-auto d-flex align-items-center d-print-none">
+                        <button onclick="printEntry();return false;" class="btn btn-link">
+                            <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
+                                    title="" data-original-title="Print"></i>
+                        </button>
                         <a data-toggle="modal"  data-target="#addCompanyModel" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="addCompany();">Add Company</button></a>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive" id="printDiv">
+                    <h3 id="hiddenLable">Companies</h3>
                     <table class="display table table-striped table-bordered" id="Datatable-Grid" style="width:100%">
                         <thead>
                             <tr>
@@ -208,6 +214,23 @@ function EditCompany(id) {
             }
         })
     })
+} 
+
+function printEntry()
+{
+    $('#Datatable-Grid_length').hide();
+    $('#Datatable-Grid_info').hide();
+    $('#Datatable-Grid_paginate').hide();
+    $('#hiddenLable').show();
+    var canvas = document.getElementById("printDiv").innerHTML;
+    window.print(canvas);
+    // w.close();
+    $('#hiddenLable').hide();
+    $('#Datatable-Grid_length').show();
+    $('#Datatable-Grid_info').show();
+    $('#Datatable-Grid_paginate').show();
+    return false;  
 }
+$('#hiddenLable').hide();
 </script>
 @stop

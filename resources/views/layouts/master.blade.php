@@ -143,6 +143,7 @@
     {{-- @include('layouts.large-sidebar-customizer') --}}
     <!-- ============ Large Sidebar Layout End ============= -->
     @endif
+    <div class="printDiv"></div>
     {{-- @include('layouts.customizer') --}}
     {{-- common js --}}
     <script src="{{  asset('assets/js/common-bundle-script.js')}}"></script>
@@ -208,6 +209,7 @@
     <script src="{{asset('assets/js/plugins/apexcharts.min.js')}}"></script>
     <script src="{{asset('assets/js/action.js')}}"></script>
     <script src="{{asset('assets/js/rcrop.min.js')}}"></script>
+    <script src="{{asset('assets/js/tooltip.script.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
     <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
     {{-- <script src="{{asset('assets/js/scripts/apexPieDonutChart.script.min.js')}}"></script> --}}

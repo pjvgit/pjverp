@@ -23,8 +23,8 @@ if(isset($_GET['office'])){
 <div class="row">
     <div class="col-md-12">
         <div class="card text-left">
-     sdadad
-      
+     
+        </div>  
     </div>
 </div>
   

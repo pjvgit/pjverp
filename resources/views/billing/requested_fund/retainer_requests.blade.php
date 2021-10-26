@@ -589,9 +589,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 url: baseUrl + "/bills/invoices/printRequestFundEntry",
                 data :{ 'c' : '{{$c}}','type':'{{$type}}','current_page':current_page,'length':length,'orderon':orderon },
                 success: function (res) {
-                    window.open(res.url, '_blank');
-                    window.print();
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
+                    // w.close();
                     $("#preloader").hide();
+                    return false;      
                 }
             })
         })

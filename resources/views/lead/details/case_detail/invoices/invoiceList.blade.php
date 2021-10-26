@@ -177,7 +177,6 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
 <?php } ?>
 @include('client_dashboard.billing.modal')
 @section('page-js-inner')
-<script src="{{asset('assets/js/tooltip.script.js')}}"></script>
 <script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {

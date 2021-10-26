@@ -136,7 +136,7 @@
         $flatFeeEntryAmount=0;
         $totalFwdAmt = 0;
     ?>
-        @if(!empty($FlatFeeEntryForInvoice))
+        @if(count($FlatFeeEntryForInvoice) > 0)
             <div class="line-items-table">
                 <h3>Flat Fees</h3>
                 <table style="width: 100%; border-collapse: collapse;">

@@ -23704,7 +23704,22 @@ div.tab-border {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%; } }
+    width: 100%; } 
+  #printDiv, #printDiv * {
+      visibility: visible; }
+  #printDiv {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%; }     
+  .printDiv, .printDiv * {
+      visibility: visible; }
+  .printDiv {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%; }     
+  }
 
 [dir="rtl"] .invoice-summary {
   text-align: left !important; }

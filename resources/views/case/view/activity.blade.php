@@ -1,4 +1,6 @@
-<div>   
+<div id="printDiv">   
+
+    <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
     <?php 
     $t=0;
     $previous_date = null;
@@ -71,3 +73,20 @@
         </button>
     </ul>
 </div>
+
+@section('page-js-inner')
+<script type="text/javascript">
+    
+    function printEntry()
+    {
+        $('#hiddenLable').show();
+        var canvas = document.getElementById("printDiv").innerHTML;
+        window.print(canvas);
+        // w.close();
+        $('#hiddenLable').hide();
+        return false;  
+    }
+    $('#hiddenLable').hide();
+
+</script>
+@endsection

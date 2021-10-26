@@ -62,7 +62,7 @@ $adjustment_token=round(microtime(true) * 1000);
             onclick="onFeedbackClick()">
             Tell us what you think
         </button>
-        <button onclick="printCaseDetails()" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+        <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
             <i class="fas fa-print"></i> Print
         </button>
         <a data-toggle="modal" data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"> <button

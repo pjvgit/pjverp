@@ -719,14 +719,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 url: baseUrl + "/bills/invoices/downloadInvoice",
                 data: {
-                    "id": id
+                    "id": id,
+                    "print" : 'yes',
                 },
-                success: function (res) {
-                    printView(res.url)
-                    // window.open(res.url, '_blank');
-                    // window.print();
-                    // window.location.href=res.url;
+                success: function (res) {                    
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
+                    // w.close();
                     $("#preloader").hide();
+                    return false;                    
                 }
             })
         })

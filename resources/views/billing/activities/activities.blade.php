@@ -337,9 +337,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 url: baseUrl + "/bills/invoices/printSavedActivity",
                 data :{ 'current_page':current_page,'length':length,'orderon':orderon },
-                success: function (res) {
-                    window.open(res.url, '_blank');
+                success: function (res) {                    
+                    $(".printDiv").html(res);
+                    var canvas = $(".printDiv").html();
+                    window.print(canvas);
+                    // w.close();
                     $("#preloader").hide();
+                    return false; 
                 }
             })
         })
