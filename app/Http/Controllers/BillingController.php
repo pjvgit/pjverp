@@ -1471,6 +1471,9 @@ class BillingController extends BaseController
                 ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
                 ->groupBy("case_client_selection.selected_user")->get(); 
+
+                // return $trustAccounts->pluck('uid')->toArray();
+
                 $invoiceUserNotInCase = ''; 
                 if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5 && $invoiceData['case_id'] != 0) {
                     $invoiceUserNotInCase = UsersAdditionalInfo::where("user_id", $invoiceData->user_id)->with("user")->first();
@@ -4449,15 +4452,17 @@ class BillingController extends BaseController
                 $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                     ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
                     ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login","users_additional_info.multiple_compnay_id")
-                    ->where("case_client_selection.case_id",$Invoices['case_id'])->whereNull('users_additional_info.multiple_compnay_id')
-                    ->orderBy('user_level', 'desc')->with('user')->get();
-
-                // return $getAllClientForSharing=  User::whereHas("clientCases", function($q) use($Invoices) {
-                //         $q->where("id", $Invoices['case_id']);
-                // })->with('user', 'user.companyContactList')->get();
-
-                foreach($getAllClientForSharing as $k=>$v){
-                    // return $v->user->companyContactList();
+                    ->where("case_client_selection.case_id",$Invoices['case_id'])
+                    ->orderBy('user_level', 'desc')->get();
+                $companyClientIds = [];
+                foreach($getAllClientForSharing as $k=>$v) {
+                    if($v->user_level == 4) {
+                        $companyContacts = $v->companyContactList($v->user_id, $v->case_client_selection_id);
+                        $v["company_contacts"] = $companyContacts;
+                        array_push($companyClientIds, implode(",", $companyContacts->pluck("cid")->toArray()));
+                    } else {
+                        $v["company_contacts"] = [];
+                    }
                     $checkedUser=SharedInvoice::where("invoice_id",$Invoices['id'])->where("user_id",$v->user_id)->first();
                     if(!empty($checkedUser)){
                         $v['shared']="yes";
@@ -4469,9 +4474,14 @@ class BillingController extends BaseController
                         $v['sharedDate']=NULL;
                         $v['isViewd']=$checkedUser['is_viewed'] ?? "no";
                     }
+                    $v['is_company_contact']="no";
+                    if(in_array($v->id, $companyClientIds)) {
+                        $v['is_company_contact'] = "yes";
+                    }
                 }
-                $SharedInvoice=SharedInvoice::where("invoice_id",$Invoices['id'])->pluck("user_id");
-                return view('billing.invoices.shareInvoice',compact('Invoices','getAllClientForSharing','SharedInvoice'));     
+                // return $getAllClientForSharing;
+                // $SharedInvoice=SharedInvoice::where("invoice_id",$Invoices['id'])->pluck("user_id");
+                return view('billing.invoices.shareInvoice',compact('Invoices','getAllClientForSharing'/* ,'SharedInvoice' */));     
                 exit; 
             }else{
                 return view('pages.404');

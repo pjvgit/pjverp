@@ -168,11 +168,11 @@ $finalAmt=$invoice-$paid;
                         if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
-                        <?php } }else{ ?>
-                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
-                        <?php }  ?>
+                        <?php } }/* else{ */ ?>
+                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option> --}}
+                        {{-- <?php }  ?> --}}
                         @if (!empty($invoiceUserNotInCase))
-                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }}) Not in case</option>
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }})</option>
                         @endif
                     </select>  
                     <span id="contactin"></span>
@@ -204,11 +204,11 @@ $finalAmt=$invoice-$paid;
                             if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}})</option>
-                        <?php } }else{ ?>
-                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                        <?php } }/* else{ */ ?>
+                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                                 ${{number_format($userData['credit_account_balance'],2)}})
                             </option>
-                        <?php } ?>
+                        <?php } ?> --}}
                     </select>
                     <span id="caacount"></span>
                 </div>
@@ -249,13 +249,13 @@ $finalAmt=$invoice-$paid;
                             if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
-                        <?php } }else{ ?>
-                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
-                        <?php } ?>
+                        <?php } }/* else{ */ ?>
+                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
+                        <?php } ?> --}}
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) </option> -->
                         
                         @if (!empty($invoiceUserNotInCase))
-                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }}) Not in case</option>
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }})</option>
                         @endif
                     </select>
                     <span id="ttcaccount"></span>
@@ -360,16 +360,16 @@ $finalAmt=$invoice-$paid;
                         if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
-                        <?php } }else{ ?>
-                            <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
+                        <?php } }/* else{ */ ?>
+                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                                 ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
                             </option>
-                        <?php } ?>
+                        <?php } ?> --}}
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                             ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
                         </option> -->
                         @if (!empty($invoiceUserNotInCase))
-                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} (Balance {{number_format($invoiceUserNotInCase->credit_account_balance ?? 0,2)}})  - Operating (Operating Account) Not in case</option>
+                            <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} (Balance {{number_format($invoiceUserNotInCase->credit_account_balance ?? 0,2)}})  - Operating (Operating Account)</option>
                         @endif
                     </select>
                     <span id="ccaccount"></span>

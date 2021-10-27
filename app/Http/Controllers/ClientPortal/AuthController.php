@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 
 class AuthController extends Controller 
 {
@@ -19,8 +20,8 @@ class AuthController extends Controller
         $verifyUser = User::where('token', $token)->first();
         
         if(isset($verifyUser) ) {
-            if($verifyUser->user_status==1 && $verifyUser->verified == 1){
-                return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
+            if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
+                return redirect()->route('get/client/profile', $token);
             }else{
                 if($request->forgot_password) {
                     return view("client_portal.auth.forgot_password", ['user' => $verifyUser]);
@@ -82,21 +83,33 @@ class AuthController extends Controller
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
         }
     }
-    /* public function saveClientProfile(Request $request)
+
+    /**
+     * Get client profile setup view
+     */
+    public function getClientProfile($token)
+    {
+        $verifyUser = User::where('token', $token)->with('firmDetail')->first();
+        return view('client_portal.auth.setup_password', ['user'=>$verifyUser]);
+    }  
+
+    /**
+     * Check user password and login
+     */
+    public function updateClientProfile(Request $request)
     {
         $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
 
         if(isset($user) ) {
-            $user->fill([
+            /* $user->fill([
                 'password' => Hash::make(trim($request->password)),
                 'user_timezone'=>$request->user_timezone,
                 'verified'=>"1",
                 'user_status'=>"1"
-            ])->save();
+            ])->save(); */
  
             if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
-                $userStatus = Auth::User()->user_status;
-                if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
+                if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
                     session(['layout' => 'horizontal']);
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {
@@ -104,13 +117,18 @@ class AuthController extends Controller
                     session()->flush();
                     return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                 }
+            } else {
+                session()->flash('password_error', "Password doesn't match.");
+                // return redirect()->route('client/activate/account', $request->token);
+                return back()->withErrors(['password_error' => ["Password doesn't match."]]);
+                // return Redirect::back();
             }
         }else{
             Auth::logout();
             session()->flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
         }
-    } */
+    }
 
     /**
      * Get client portal terms and conditions

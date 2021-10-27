@@ -111,6 +111,8 @@ class ClientdashboardController extends BaseController
                 UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"0"]);
             }else{
                 UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
+                $request->request->add(['user_id' => $request->client_id]);
+                $this->ReSendWelcomeEmail($request);
             }
             return response()->json(['errors'=>'','user_id'=>$request->client_id]);
           exit;

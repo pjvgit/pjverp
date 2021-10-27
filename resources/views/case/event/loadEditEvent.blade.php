@@ -467,7 +467,7 @@
 
                         <div class="empty-sharing-list text-muted text-left hideUser" id="hideUser"><p>Select a case or lead to share this event with clients and firm members. Check "This event is not linked to a case or lead" to share only with firm members.</p></div> 
 
-                        <section class="sharing-list" id="loadTaskSection">
+                        <section class="sharing-list" id="edit_event_right_section">
                         </section>
                     </div>
                 </div>
@@ -1017,7 +1017,7 @@
             }
             $(".hideUser").hide();
         }else{
-            $("#loadTaskSection").html('');
+            $("#edit_event_right_section").html('');
             $("#HideShowNonlink").hide();
             $(".hideUser").show();
             loadDefaultContent();
@@ -1029,7 +1029,7 @@
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: { "case_id": case_id, "event_id":"{{ $evetData->id}}" },
             success: function (res) {
-                $("#loadEditEventPopup #loadTaskSection").html(res);
+                $("#edit_event_right_section").html(res);
             }
         })
     }
@@ -1040,7 +1040,7 @@
             url: baseUrl + "/leads/loadAllCaseStaffMember",
             data: "",
             success: function (res) {
-                $("#loadEditEventPopup #loadTaskSection").html(res);
+                $("#edit_event_right_section").html(res);
               
             }
         })
@@ -1083,10 +1083,10 @@
             $('#case_or_lead').prop('selectedIndex',0);
             $("#HideShowNonlink").hide();
             firmStaff();
-            $("#loadTaskSection").html('');
+            $("#edit_event_right_section").html('');
             $(".hideUser").hide();
         } else {
-            $("#loadTaskSection").html('');
+            $("#edit_event_right_section").html('');
             $(".hideUser").show();
             $('#case_or_lead').removeAttr("disabled");
         }
