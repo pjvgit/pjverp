@@ -2,7 +2,7 @@
 if($TaskTimeEntry->isEmpty()){?>
 <div style="max-height: 400px; height: 400px; overflow: auto;">
     <div class="d-flex flex-column flex-grow-0 align-items-center justify-content-center" style="height: 350px;">
-        <img class="d-block mx-auto mb-3" src="{{BASE_URL}}public/svg/time_entry.svg" width="42" height="42">
+        <img class="d-block mx-auto mb-3" src="{{BASE_URL}}svg/time_entry.svg" width="42" height="42">
         <span class="mb-3">No time entry hours were recorded today</span>
         <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
             <button class="btn btn-success btn-rounded m-1" onclick="loadTimeEntryPopup('{{$curDate}}');"> Add Time Entry

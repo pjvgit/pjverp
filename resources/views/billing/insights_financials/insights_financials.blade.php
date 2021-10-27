@@ -205,8 +205,7 @@ if(isset($_GET['office'])){
                         <div class="p-2 col" style="min-width: 400px;">
                             <div class="employee-hours-insights insights-card card" style="width: 100%;">
                                 <div class="card-body">
-                                    <h5 class="d-flex flex-row justify-content-between card-title"><strong>Hours
-                                            Recorded by Employee</strong></h5>
+                                    <h5 class="d-flex flex-row justify-content-between card-title"><strong>Hours Recorded by Employee</strong></h5>
                                     <div class="mt-4 p-0 card-body">
                                         <div class="recharts-responsive-container" style="width: 100%; height: auto;">
                                            <?php

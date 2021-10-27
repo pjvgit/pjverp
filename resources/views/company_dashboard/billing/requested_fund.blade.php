@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
 <div class="container-fluid">
     <div class="justify-content-end pt-2 d-print-none row ">
         <div class="align-self-end text-right col-5">
@@ -15,7 +16,7 @@ if($totalData<=0){
 <div class="col-lg-12 col-md-12 col-sm-12">
     <div class=" card-icon-bg card-icon-bg-primary o-hidden mb-4">
         <div class="card-body text-center just-inn">
-            <img alt="Expense Example" class="thumbnail" src="{{BASE_URL}}public/images/retainer_requests.png">
+            <img alt="Expense Example" class="thumbnail" src="{{BASE_URL}}images/retainer_requests.png">
             <div class="text-container mb-4">
                 <h2 class="">Manage your Requested Funds</h2>
                 <ul class="">

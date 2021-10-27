@@ -107,6 +107,10 @@
         <tr>
             <td style="vertical-align: top; width: 350px; word-wrap: break-word;" rowspan="2">
                 <span class="billing_user_name">
+                    @if(!empty($case_client_company))
+                    <a href="{{route('contacts/companies/view', $case_client_company->id) }}">{{$case_client_company->first_name}}
+                            {{$case_client_company->middle_name}} {{$case_client_company->last_name}}</a><br>
+                    @endif
                     @if($userMaster->user_level == 2)
                     <a href="{{route('contacts/clients/view', $userMaster->id) }}">{{$userMaster->first_name}}
                         {{$userMaster->middle_name}} {{$userMaster->last_name}}</a><br>

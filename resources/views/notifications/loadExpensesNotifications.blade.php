@@ -17,7 +17,7 @@ if(!$commentData->isEmpty()){
                     $imageLink["delete"]="activity_expense_deleted.png";
                     $image=$imageLink[$v->action];
                 ?>
-                    <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                    <img src="{{BASE_URL}}icon/{{$image}}" width="27" height="21">
                     <a class="name"
                         href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->first_name}}
                         {{$v->last_name}} ({{$v->user_title}})</a>   {{$v->activity}}  for <?php if($v->ExpenseEntry){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  <abbr

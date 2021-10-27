@@ -55,7 +55,7 @@
                                
                                 <?php if($clistVal->user_level==2){?>
                                     <?php if(file_exists(public_path().'/images/users/'.$clistVal->profile_image) && $clistVal->profile_image!="" && $clistVal->is_published=="yes"){
-                                        ?><img class="rounded-circle" alt="" src="{{BASE_URL}}public/profile/{{$clistVal->profile_image}}" width="32" height="25"><?php
+                                        ?><img class="rounded-circle" alt="" src="{{BASE_URL}}profile/{{$clistVal->profile_image}}" width="32" height="25"><?php
                                     }else{
                                         ?><i class="fas fa-2x fa-user-circle text-black-50"></i><?php
                                     }?>

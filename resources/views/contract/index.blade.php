@@ -274,7 +274,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
 
 function loadStep1() {
-    
     $("#preloader").show();
     $("#step-1").html('');
     $("#step-1").html('<img src="{{LOADER}}""> Loading...');

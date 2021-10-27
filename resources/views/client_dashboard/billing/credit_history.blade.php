@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
 <div class="container-fluid mb-12">
     <div class="justify-content-end pt-2 d-print-none row ">
         <input type="hidden" id="client_id" value="{{ $client_id }}">

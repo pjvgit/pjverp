@@ -28,6 +28,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
     <tbody>
         <tr>
             <td style="width: 60%;"><b>
+                    @if(!empty($case_client_company))
+                    {{$case_client_company->first_name}} {{$case_client_company->middle_name}} {{$case_client_company->last_name}} </br>
+                    @endif
                     {{ucfirst(substr($userData['first_name'],0,50))}}
                     {{ucfirst(substr($userData['middle_name'],0,50))}}
                     {{ucfirst(substr($userData['last_name'],0,50))}}</b><br>

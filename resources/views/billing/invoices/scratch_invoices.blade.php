@@ -375,7 +375,7 @@ if(!isset($adjustment_token)){
                             
                         </div>
                         <h3 id="payment-plan" class="invoice_header">
-                        <img src="{{BASE_URL}}public/svg/payment_plan.svg" width="28" height="28">
+                        <img src="{{BASE_URL}}svg/payment_plan.svg" width="28" height="28">
                         Payment Plan
                         </h3>
                     </div>
@@ -634,7 +634,7 @@ if(!isset($adjustment_token)){
                     <div id="bill_sharing_options" style=" padding-top: 15px; border-top: 1px dotted #9f9f9f;">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">
-                                <img src="{{BASE_URL}}public/svg/share.svg" width="28" height="28">
+                                <img src="{{BASE_URL}}svg/share.svg" width="28" height="28">
                                 Share Invoice via Client Portal
                             </h3>
                         </div>

@@ -291,7 +291,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                     <?php if($InvoiceCounter<=0){?>
                     <div class="empty-state">
                         <img alt="Invoice Example" class="thumbnail"
-                            src="{{BASE_URL}}public/images/invoice.png">
+                            src="{{BASE_URL}}images/invoice.png">
                         <div class="text-container">
                             <h2>Add your first invoice</h2>
                             <ul>

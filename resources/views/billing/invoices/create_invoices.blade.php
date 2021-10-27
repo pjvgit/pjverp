@@ -166,7 +166,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                         }
 
                         .arrow-right:after {
-                            content: url('{{BASE_URL}}public/images/arrow-left.png');
+                            content: url('{{BASE_URL}}images/arrow-left.png');
                             position: absolute;
                             pointer-events: none;
                             right: -120px;
@@ -477,7 +477,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 
 <style>
     #batch_billing_tab {
-        background: url('{{BASE_URL}}public/images/batch_billing_tab.png') 0 0 no-repeat;
+        background: url('{{BASE_URL}}images/batch_billing_tab.png') 0 0 no-repeat;
         cursor: pointer;
         height: 152px;
         position: absolute;
@@ -625,7 +625,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
     }
 
     i.question-mark-icon {
-        background-image: url("{{BASE_URL}}public/svg/question_mark_icon.svg");
+        background-image: url("{{BASE_URL}}svg/question_mark_icon.svg");
         height: 19px;
         width: 19px;
         display: inline-block;
@@ -635,7 +635,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
         font-size: 15px;
     }
     .payment-plan-tooltip {
-    background: url('{{BASE_URL}}public/svg/payment_plan_invoice_icon.svg') 0 0 no-repeat;
+    background: url('{{BASE_URL}}svg/payment_plan_invoice_icon.svg') 0 0 no-repeat;
 }
 </style>
 @section('page-js-inner')

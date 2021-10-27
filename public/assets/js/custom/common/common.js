@@ -22,6 +22,19 @@ function popupNotification() {
                 $("#notification_popup").modal('hide');
             }
         },
+        error: function (xhr, ajaxOptions, thrownError) {
+            if(xhr.status == 401)
+            {
+                swal({
+                    type: 'warning',
+                    title: 'Session alert!',
+                    html: 'Your session has expired!. You will be redirected to login page.',
+                }).then(function (result) {
+                    window.location.reload();
+                });
+                
+            }
+        },
         // complete: function() {
         //     // Schedule the next request when the current one's complete
         //     setTimeout(popupNotification(), 1000 * 60 * 5);

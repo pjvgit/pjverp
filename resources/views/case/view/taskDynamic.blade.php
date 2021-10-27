@@ -123,7 +123,7 @@ foreach ($task as $element) {
                 <?php
                 if($subrow->checklist_counter!=""){?>
                 <a href="#" onclick="loadChecklistView({{$subrow->id}});" data-toggle="dropdown" class="dropdown-toggle1" id="taskCounter_{{$subrow->id}}">
-                    <img src="{{BASE_URL}}public/images/checklist_icon_dark.png">
+                    <img src="{{BASE_URL}}images/checklist_icon_dark.png">
                     <span style=""> {{$subrow->checklist_counter}}</span>
                 </a>
                 <div class="dropdown-menu bg-transparent shadow-none p-0 m-0 " x-placement="bottom-start">

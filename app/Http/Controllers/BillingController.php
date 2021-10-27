@@ -4317,6 +4317,17 @@ class BillingController extends BaseController
                 $this->generateInvoicePdfAndSave($request);
             }
 
+            //check case client company is list out on contacts
+            $case_client_company = [];
+            $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.case_id",$findInvoice->case_id)->get()->pluck("selected_user");
+            foreach($caseCllientSelection as $key=>$val){
+                if(in_array($val,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ 
+                    $case_client_company = User::find($val);
+                }
+            }
+            //check case client company is list out on contacts
+
+
             $invoiceNo = sprintf('%06d', $findInvoice->id);
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
@@ -4324,7 +4335,7 @@ class BillingController extends BaseController
                 return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting'))->render();
             }
             // return $findInvoice->invoice_setting['flat_fee'];
-            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting'));     
+            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting','case_client_company'));     
             exit; 
         }
     }
@@ -4765,13 +4776,23 @@ class BillingController extends BaseController
         ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
         ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
         ->get();
+
+        //check case client company is list out on contacts
+        $case_client_company = [];
+        $caseCllientSelection = CaseClientSelection::select("*")->where("case_id",$Invoice->case_id)->get()->pluck("selected_user");
+        foreach($caseCllientSelection as $key=>$val){
+            if(in_array($val,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ 
+                $case_client_company = User::find($val);
+            }
+        }
+        //check case client company is list out on contacts
         
         if(isset($request->print)){
-            return view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
+            return view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company'));
         }else{
 
             $filename="Invoice_".$invoice_id.'.pdf';
-            $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
+            $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company'));
             /* $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){
                 $pdf->binary = EXE_PATH;
@@ -4908,8 +4929,19 @@ class BillingController extends BaseController
         $InvoiceInstallment=InvoiceInstallment::select("*")
         ->where("invoice_installment.invoice_id",$invoice_id)
         ->get();
+    
+        //check case client company is list out on contacts
+        $case_client_company = [];
+        $caseCllientSelection = CaseClientSelection::select("*")->where("case_id",$Invoice->case_id)->get()->pluck("selected_user");
+        foreach($caseCllientSelection as $key=>$val){
+            if(in_array($val,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ 
+                $case_client_company = User::find($val);
+            }
+        }
+        //check case client company is list out on contacts
+
         $filename="Invoice_".$invoice_id.'.pdf';
-        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment','FlatFeeEntryForInvoice'));
+        $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistoryTransaction','InvoiceInstallment','FlatFeeEntryForInvoice','case_client_company'));
         $pdf = new Pdf;
         $pdf->setOptions(['javascript-delay' => 5000]);
         if($_SERVER['SERVER_NAME']=='localhost'){
@@ -5013,10 +5045,20 @@ class BillingController extends BaseController
             ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
             ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry_for_invoice.invoice_id",$invoice_id)
-            ->get();
+            ->get();            
+    
+            //check case client company is list out on contacts
+            $case_client_company = [];
+            $caseCllientSelection = CaseClientSelection::select("*")->where("case_id",$Invoice->case_id)->get()->pluck("selected_user");
+            foreach($caseCllientSelection as $key=>$val){
+                if(in_array($val,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ 
+                    $case_client_company = User::find($val);
+                }
+            }
+            //check case client company is list out on contacts
             
             $filename="Invoice_".$invoice_id.'.pdf';
-            $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice'));
+            $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company'));
             $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
             // end
             foreach($request->client as $k=>$v){
@@ -7930,12 +7972,17 @@ class BillingController extends BaseController
 
 
             //Hours Recorded by Employee
-            $staffList = User::whereIn("user_level",[1,3])->where("firm_name",Auth::User()->firm_name)->orderBy("created_at","ASC")->get();
+            $staffList = User::whereIn("user_level",[1,3])->where("firm_name",Auth::User()->firm_name)->where('user_status','1')->orderBy("created_at","ASC")->get();
             $timeEntryList=[];
             foreach($staffList as $staffKey=>$staffVal){
                 
                 $expenseTotalBillable=$timeTotalBillable=$expenseTotalNonBillable=$timeTotalNonBillable=0;
-                $ExpenseEntry=ExpenseEntry::select("*")->where("user_id",$staffVal->id)->get();
+                $ExpenseEntry=ExpenseEntry::select("*")->where("user_id",$staffVal->id);
+                if(isset($_GET['date_range']) && $_GET['date_range']!=""){
+                    $dates=explode("-",$_GET['date_range']);
+                    $ExpenseEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
+                }
+                $ExpenseEntry->get();
                 foreach($ExpenseEntry as $kE=>$vE){
                     if($vE['time_entry_billable']=="yes"){
                         $expenseTotalBillable+=($vE->cost*$vE->duration);
@@ -7944,7 +7991,12 @@ class BillingController extends BaseController
                     }
                 }
 
-                $TimeEntry=TaskTimeEntry::select("*")->where("user_id",$staffVal->id)->get();
+                $TimeEntry=TaskTimeEntry::select("*")->where("user_id",$staffVal->id);                
+                if(isset($_GET['date_range']) && $_GET['date_range']!=""){
+                    $dates=explode("-",$_GET['date_range']);
+                    $TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
+                }
+                $TimeEntry->get();
                 foreach($TimeEntry as $TK=>$TE){
                     if($TE['rate_type']=="flat"){
                         if($TE['time_entry_billable']=="yes"){

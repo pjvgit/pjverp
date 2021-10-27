@@ -1,12 +1,13 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
 <div class="table-responsive">
-    <div class="d-flex align-items-center justify-content-end mb-2 d-print-none">
+    <div class="d-flex align-items-center justify-content-end mb-2">
         <a data-toggle="modal" data-target="#addClientLinkWithOption" data-placement="bottom" href="javascript:;">
             <button class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="">Add Contact</button>
         </a>
     </div>
     <?php if($clientLinkCount<=0 && $clientArchiveLinkCount<=0){ ?>
     <div class="no_items text-right test-no-company-contacts">
-        <img class="img-fluid" src="{{BASE_URL}}public/images/company_add_prompt.png">
+        <img class="img-fluid" src="{{BASE_URL}}images/company_add_prompt.png">
     </div>
     <?php  }else{ ?>
     <?php if($clientArchiveLinkCount>0){ ?> <h4 class="pl-4">Active</h4> <?php } ?>

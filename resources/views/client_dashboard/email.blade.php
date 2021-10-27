@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable">        {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Client)    </h2>
 <div class="d-flex flex-column h-100">
     <div class="d-flex flex-row align-items-center pagination-pane">
         <div class="py-2 mr-2">There are no threads in this folder/label.</div>

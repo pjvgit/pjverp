@@ -23,7 +23,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
             Tell us what you think
         </button>
 
-        <button class="btn btn-link text-black-50 d-none d-md-block" onclick="window.print()">
+        <button class="btn btn-link text-black-50 d-none d-md-block" onclick="printEntry(); return false;">
             <i class="fas fa-print"></i> Print
         </button>
         <a data-toggle="modal" data-target="#EditCompany" data-placement="bottom" href="javascript:;"> <button
@@ -205,6 +205,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/companies/view"){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
                         <div id="contact_info_page" style="display: block;">
+                            <h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
                             <div class="align-items-md-start w-100">
                                 <div class="p-2 contact-card">
                                     <div class="row">
@@ -290,22 +291,17 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('company_dashboard.clientlist')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_cases"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_cases"){ echo "active show"; } ?> " id="contactCases" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_cases"){ ?>
                             @include('company_dashboard.caselist')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
-                        <?php  if(Route::currentRouteName()=="contacts_clients_activity"){ ?>
-                            @include('company_dashboard.loadActivity')
-                        <?php } ?>                    
-                    </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?> " id="contactNotes" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_notes"){ ?>
                             @include('company_dashboard.loadNotes')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactBilling" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}">
@@ -336,7 +332,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             </div>
                         </div>
                         <hr class="mt-2">
-                        <div class="row">
+                        <div class="row" id="printHtml">
                             <?php if(Route::currentRouteName()=="contacts_company_billing_trust_history"){
                                 ?> 
                                 {{-- @include('company_dashboard.billing.trust_history') --}}
@@ -360,13 +356,13 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @endif
                         </div>             
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_messages"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_messages"){ echo "active show"; } ?> " id="contactMessages" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_messages"){ ?>
                             @include('company_dashboard.messages')
                         <?php } ?>                    
                     </div>
                    
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_email"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_company_email"){ echo "active show"; } ?> " id="contactEmails" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_company_email"){ ?>
                             @include('company_dashboard.email')
                         <?php } ?>                    
@@ -1174,7 +1170,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id',"orderable": false}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                    
-                    $('td:eq(0)', nRow).html('<div class="text-left"><div style="background-color: white;border: 0px solid black;border-radius: 2px;width: 32px;height: 32px;padding: 0px;display: inline-block;overflow: hidden;"><img class="" src="{{BASE_URL}}public/svg/default_avatar_32.svg" width="32" height="32"></div></div>');
+                    $('td:eq(0)', nRow).html('<div class="text-left"><div style="background-color: white;border: 0px solid black;border-radius: 2px;width: 32px;height: 32px;padding: 0px;display: inline-block;overflow: hidden;"><img class="" src="{{BASE_URL}}svg/default_avatar_32.svg" width="32" height="32"></div></div>');
 
                     $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.id+'">'+aData.name+'</a><br>Client</div>');
                     
@@ -1231,7 +1227,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id',"orderable": false}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                    
-                    $('td:eq(0)', nRow).html('<div class="text-left"><div style="background-color: white;border: 0px solid black;border-radius: 2px;width: 32px;height: 32px;padding: 0px;display: inline-block;overflow: hidden;"><img class="" src="{{BASE_URL}}public/svg/default_avatar_32.svg" width="32" height="32"></div></div>');
+                    $('td:eq(0)', nRow).html('<div class="text-left"><div style="background-color: white;border: 0px solid black;border-radius: 2px;width: 32px;height: 32px;padding: 0px;display: inline-block;overflow: hidden;"><img class="" src="{{BASE_URL}}svg/default_avatar_32.svg" width="32" height="32"></div></div>');
 
                     $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.id+'">'+aData.name+'</a><br>Client</div>');
                     
@@ -2470,6 +2466,32 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
 
+    function printEntry()
+    {
+        $('.hiddenLable').show();
+        <?php if(Route::currentRouteName()=="contacts/companies/view"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("profileBasic").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_company_client"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactStaff").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_company_cases"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactCases").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_company_notes"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactNotes").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_company_messages"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactMessages").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_company_email"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactEmails").innerHTML);
+        <?php }else if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice","contacts/company/billing/credit/history","contacts/companies/billing/trust/allocation"])){ ?>        
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        <?php } ?>
+        console.log(canvas);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('.hiddenLable').hide();
+        return false;  
+    }
+    $('.hiddenLable').hide();
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>

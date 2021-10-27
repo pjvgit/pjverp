@@ -25,7 +25,7 @@ $CommonController= new App\Http\Controllers\CommonController();
              <div class="note-row pt-3 pr-2 pb-3 pl-2  ">
                 <div class="note-created-by col-3">
                     <div class="d-flex flex-row"><img class="rounded-circle mr-2 small-circle-picture"
-                            src="{{BASE_URL}}public/svg/default_avatar_32.svg">
+                            src="{{BASE_URL}}svg/default_avatar_32.svg">
                         <div>
                             <div class="d-flex flex-row"><a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}"
                                     class="d-flex align-items-center user-link" title="{{$v->user_title}}">{{$v->createdByName}}</a></div>

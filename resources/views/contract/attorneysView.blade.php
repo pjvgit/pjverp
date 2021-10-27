@@ -1690,7 +1690,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         // w.close();
         $(".printDiv").html('');
         $('#hiddenLable').hide();
-        loadTimeEntriesBlock(); 
         return false;  
     }
     $('#hiddenLable').hide();

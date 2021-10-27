@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
 <div class="table-responsive">
     <div class="d-flex align-items-center justify-content-end mb-2 d-print-none">
         <a data-toggle="modal" data-target="#addCaseLinkWithOption" data-placement="bottom" href="javascript:;"> 

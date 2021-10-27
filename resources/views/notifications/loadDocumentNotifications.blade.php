@@ -19,7 +19,7 @@ if(!$commentData->isEmpty()){
                         $ImageArray['comment']="activity_document_commented.png";
                         $image=$ImageArray[$v->action];
                         ?>
-                        <img src="{{BASE_URL}}public/icon/{{$image}}" width="27" height="21">
+                        <img src="{{BASE_URL}}icon/{{$image}}" width="27" height="21">
                         <a class="name" href="{{BASE_URL}}contacts/attorneys/{{base64_encode($v->user_id)}}">{{$v->creator_name}} ({{$v->user_title}})</a> {{$v->activity}} </a>  <a href="#">{{$v->document_name}}</a>
                         <abbr class="timeago"
                             title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web  |

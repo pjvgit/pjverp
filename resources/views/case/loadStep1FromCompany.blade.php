@@ -70,7 +70,7 @@
 </form>
 <style>
     .empty-state {
-        background-image: url({{BASE_URL}}public/assets/images/arrow_top_left-327431b398.png);
+        background-image: url({{BASE_URL}}assets/images/arrow_top_left-327431b398.png);
         background-position: 69px 15px;
         background-repeat: no-repeat;
         background-size: 90px 55px;

@@ -115,7 +115,7 @@
 </form>
 <style>
     i.paylink-pdf-preview {
-        background-image: url('{{BASE_URL}}public/svg/paylink_pdf_preview.svg');
+        background-image: url('{{BASE_URL}}svg/paylink_pdf_preview.svg');
         height: 45px;
         width: 36px;
     }

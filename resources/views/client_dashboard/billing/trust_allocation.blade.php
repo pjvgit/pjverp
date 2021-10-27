@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable">        {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Client)    </h2>
 <div class="payment-settings-container container-fluid">
 	<div class="table-responsive">
 		<table class="trust-allocations-table border-top table table-md table-striped table-hover" style="table-layout: auto;">

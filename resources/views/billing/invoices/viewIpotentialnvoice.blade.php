@@ -646,34 +646,34 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     }
 
     i.invoice-banner-draft {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_draft.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_draft.png');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-sent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_sent.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_sent.png');
         height: 127px;
         width: 127px;
     }
 
     i.invoice-banner-unsent {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_unsent.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_unsent.png');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-partial {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_partial.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_partial.png');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-paid {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_paid.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_paid.png');
         height: 127px;
         width: 127px;
     }
     i.invoice-banner-overdue {
-        background-image: url('{{BASE_URL}}public/images/invoice_banner_overdue.png');
+        background-image: url('{{BASE_URL}}images/invoice_banner_overdue.png');
         height: 127px;
         width: 127px;
     }

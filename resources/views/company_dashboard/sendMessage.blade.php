@@ -41,7 +41,7 @@
 
                 <?php /* 
                 <div id="to_autocomplete_spinner" style="position: absolute; top: 28px; right: 0px; display: none;">
-                    <img src="{{BASE_URL}}public/images/ajax_arrows.gif">
+                    <img src="{{BASE_URL}}images/ajax_arrows.gif">
                 </div>
                 <ul id="searchResult" class="ui-menu"></ul>
                 <div class="clear"></div>
@@ -176,7 +176,7 @@
     /* .select2-results__group{ background-color:#4297d7 !important;color:white; } */
     .select2-results__group {
         border: 1px solid #4297d7;
-        background: #5c9ccc url('{{BASE_URL}}public/icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
+        background: #5c9ccc url('{{BASE_URL}}icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
         color: #fff;
         font-weight: 700;
     }
@@ -212,7 +212,7 @@
 
     .ui-widget-header {
         border: 1px solid #4297d7;
-        background: #5c9ccc url('{{BASE_URL}}public/icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
+        background: #5c9ccc url('{{BASE_URL}}icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
         color: #fff;
         font-weight: 700;
     }

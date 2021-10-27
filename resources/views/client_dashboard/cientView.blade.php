@@ -25,7 +25,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
             Tell us what you think
         </button>
 
-        <button class="btn btn-link text-black-50 d-none d-md-block" onclick="window.print()">
+        <button class="btn btn-link text-black-50 d-none d-md-block" onclick="printEntry();return false;">
             <i class="fas fa-print"></i> Print
         </button>
 
@@ -50,7 +50,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                 <div class="d-flex justify-content-center align-items-end">
                                     
                                     <?php if($userProfile->is_published=="yes" && $userProfile->profile_image!="" && file_exists(public_path().'/profile/'.$userProfile->profile_image) ){ ?>
-                                        <img class="rounded-circle" src="{{BASE_URL}}public/profile/{{$userProfile->profile_image}}" width="126" height="130">
+                                        <img class="rounded-circle" src="{{BASE_URL}}profile/{{$userProfile->profile_image}}" width="126" height="130">
                                     <?php } else{ ?> 
                                         <i class="fas fa-10x fa-user-circle text-black-50"></i>
                                     <?php } ?>
@@ -193,6 +193,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
                         aria-labelledby="profile-basic-tab">
                         <div id="contact_info_page" style="display: block;">
+                            <h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Client)    </h2>
                             <div class="align-items-md-start w-100">
                                 <div class="p-2 contact-card">
                                     <div class="row">
@@ -266,7 +267,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                                         <a href="javascript::void(0);" id="resend-welcome-email" >Send another welcome email</a>
                                                     </span>
                                                     <span id="send_welcome_active" style="display: none;">
-                                                        <img src="{{BASE_URL}}public/images/ajax_small_bar.gif">
+                                                        <img src="{{BASE_URL}}images/ajax_small_bar.gif">
                                                     </span>
                                                     <span id="sent_welcome" style="display: none;">
                                                         Welcome email has been resent
@@ -396,7 +397,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('client_dashboard.caselist')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?> " id="clientActivity" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_activity"){ ?>
                             <!-- @include('client_dashboard.loadActivity') -->
                             <div class="tab-pane fade active show" id="allEntry" role="tabpanel"
@@ -424,12 +425,12 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             </style>
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?> " id="contactNotes" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_notes"){ ?>
                             @include('client_dashboard.loadNotes')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice", "contacts/clients/billing/credit/history", "contacts/clients/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice", "contacts/clients/billing/credit/history", "contacts/clients/billing/trust/allocation"])){ echo "active show"; } ?> " id="contactBilling" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             <div class="nav-item mr-4">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_history"){ echo "active"; } ?>" data-page="workflows" href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}">
@@ -460,7 +461,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             </div>
                         </div>
                         <hr class="mt-2">
-                        <div class="row">
+                        <div class="row" id="printHtml">
                             <?php if(Route::currentRouteName()=="contacts_clients_billing_trust_history"){
                                 ?> @include('client_dashboard.billing.trust_history')
                             <?php } ?>
@@ -482,17 +483,17 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @endif
                         </div>             
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_messages"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_messages"){ echo "active show"; } ?> " id="contactMessages" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_messages"){ ?>
                             @include('client_dashboard.messages')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_text_messages"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_text_messages"){ echo "active show"; } ?> " id="contactTextMessage" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_text_messages"){ ?>
                             @include('client_dashboard.text_messages')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_email"){ echo "active show"; } ?> " id="contactStaff" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_email"){ echo "active show"; } ?> " id="contactEmails" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_email"){ ?>
                             @include('client_dashboard.email')
                         <?php } ?>                    
@@ -1373,7 +1374,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                     <img src="{{ asset('svg/default_avatar_256.svg') }}" width="256" height="256">
                             <?php } else{ ?> 
                                     <div class="current-profile-picture-container">
-                                        <img class="" src="{{BASE_URL}}public/profile/{{$userProfile->profile_image}}" width="256" height="256">
+                                        <img class="" src="{{BASE_URL}}profile/{{$userProfile->profile_image}}" width="256" height="256">
                                           <button class="btn btn-cta-light remove-client-picture-button position-absolute"  onclick="removeImage()" type="button">
                                             <i class="fas fa-trash"></i>
                                             <span class="sr-only">Remove Uploaded Picture</span>
@@ -3174,6 +3175,35 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         var srcResized = $(this).rcrop('getDataURL', 130,130);
         $('#imageCode').val(srcResized);
     });
+
+    function printEntry()
+    {
+        $('.hiddenLable').show();
+        <?php if(Route::currentRouteName()=="contacts/clients/view"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("profileBasic").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_cases"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactStaff").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_activity"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("clientActivity").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_notes"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactNotes").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_messages"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactMessages").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_text_messages"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactTextMessage").innerHTML);
+        <?php }else if(Route::currentRouteName()=="contacts_clients_email"){ ?>
+        var canvas = $(".printDiv").html(document.getElementById("contactEmails").innerHTML);
+        <?php }else if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice","contacts/clients/billing/credit/history","contacts/clients/billing/trust/allocation"])){ ?>        
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        <?php } ?>
+        console.log(canvas);
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('.hiddenLable').hide();
+        return false;  
+    }
+    $('.hiddenLable').hide();
 </script>
 <script src="{{ asset('assets\js\custom\client\viewclient.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\js\custom\client\creditfund.js?').env('CACHE_BUSTER_VERSION') }}" ></script>

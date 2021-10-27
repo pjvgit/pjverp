@@ -1,3 +1,4 @@
+<h2 class="mx-2 mb-0 text-nowrap hiddenLable">        {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Client)    </h2>
 <div class="text-conversations-empty-state text-center p-5">
     <i class="fas fa-comment my-4 fa-5x"></i>
     <h1 class="font-weight-bold">Connect quickly &amp; easily via text</h1>

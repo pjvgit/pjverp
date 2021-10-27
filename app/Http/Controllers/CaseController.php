@@ -585,6 +585,7 @@ class CaseController extends BaseController
     //Save step 3 data to database.
     public function saveStep3(Request $request)
     {
+        // dd($request->all());
         if(isset($request->default_rate)) {$request->default_rate=str_replace(",","",$request->default_rate); }
    
         $validator = \Validator::make([$request->default_rate], [
@@ -597,6 +598,8 @@ class CaseController extends BaseController
 
             $selectdUSerList = TempUserSelection::where("temp_user_selection.user_id",Auth::user()->id)->get();
             if(!$selectdUSerList->isEmpty()){
+                $CaseMaster = CaseMaster::find($request->case_id);
+                    
                 foreach($selectdUSerList as $key=>$val){
                     $CaseClientSelection = new CaseClientSelection;
                     $CaseClientSelection->case_id=$request->case_id; 
@@ -604,8 +607,16 @@ class CaseController extends BaseController
                     $CaseClientSelection->created_by=Auth::user()->id; 
                     if($val->selected_user == $request->billing_contact){
                         $CaseClientSelection->is_billing_contact='yes';
-                        if(isset($request->billingMethod)) { $CaseClientSelection->billing_method=$request->billingMethod; }
-                        if(isset($request->default_rate)) { $CaseClientSelection->billing_amount=$request->default_rate; }
+                        if(isset($request->billingMethod)) { 
+                            $CaseClientSelection->billing_method=$request->billingMethod; 
+                            $CaseMaster->billing_method=$request->billingMethod; 
+                            $CaseMaster->save();
+                        }
+                        if(isset($request->default_rate)) { 
+                            $CaseClientSelection->billing_amount=$request->default_rate; 
+                            $CaseMaster->billing_amount=$request->default_rate; 
+                            $CaseMaster->save();
+                        }                        
                     }   
                     $CaseClientSelection->save();
                     
