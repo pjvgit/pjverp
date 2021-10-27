@@ -36,13 +36,47 @@ $CommonController= new App\Http\Controllers\CommonController();
                         <tr class="invoice-sharing-row">
                             <td colspan="5"><strong>{{ucfirst($v->unm)}} (Company)</strong></td>
                         </tr>
-                        <tr class="invoice-sharing-row">
-                            <td colspan="5" class="text-note"><i>No contacts from this company are linked to this case</i></td>
-                        </tr>
+                        @if (count($v->company_contacts))
+                            @forelse ($v->company_contacts as $ckey => $citem)
+                                @php
+                                    $invShareDetail = $getAllClientForSharing->where('id', $citem->cid)->first();
+                                @endphp
+                                <tr class="invoice-sharing-row">
+                                    <th scope="row" class="text-center">                                        
+                                        <input type="checkbox" name="invoice_shared[{{$citem->cid}}]" value="{{$citem->cid}}" id="portalAccess_{{$citem->cid}}" class="invoiceSharingBox invoice-sharing-box"
+                                            uid="{{$citem->cid}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$citem->cid}})" @if($v->shared=="yes") checked="checked" @endif>
+                                    </th>
+                                    <td class="client-name">{{ $citem->fullname }} (Client)</td>
+                                    <td class="last-login-date">
+                                        @if($v->email=="")
+                                            Disabled
+                                        @else
+                                            @if($invShareDetail->last_login)
+                                                {{ date('F jS Y, h:i:s A',strtotime(convertUTCToUserTime($invShareDetail->last_login, Auth::User()->user_timezone))) }}
+                                            @else
+                                                Never
+                                            @endif
+                                        @endif
+                                    </td>
+                                    <td class="shared-on-date">
+                                        {{ ($invShareDetail->sharedDate) ? date('F jS Y, h:i a',strtotime(convertUTCToUserTime($invShareDetail->sharedDate,Auth::User()->user_timezone))) : "Not Shared" }}
+                                    </td>
+                                    <td class="viewed-on-date">
+                                        {{ ($invShareDetail->isViewd=="yes") ? "Yes" : "Never" }}
+                                    </td>
+                                </tr>
+                            @empty
+                            @endforelse
+                        @else
+                            <tr class="invoice-sharing-row">
+                                <td colspan="5" class="text-note"><i>No contacts from this company are linked to this case</i></td>
+                            </tr>
+                        @endif
                         <tr>
                             <td colspan="5"></td>
                         </tr>
                     @else
+                    @if($v->is_company_contact == "no")
                     <tr class="invoice-sharing-row" id="ClientRow_{{$v->user_id}}">
 
                         <td scope="row" class="text-center">
@@ -103,6 +137,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         }
                         ?></td>
                     </tr>
+                    @endif
                     @endif
                     <?php } ?>
                 </tbody>
@@ -235,7 +270,7 @@ $CommonController= new App\Http\Controllers\CommonController();
     function checkPortalAccess(id) {
         var em = pa = "";
         em = $("#portalAccess_" + id).attr("em");
-        pa = $("#portalAccess_" + id).attr("pa");
+        pa = $("#portalAccess_" + id).attr("pe");
 
         if ($("#portalAccess_" + id).prop('checked') == true && (em == "" || pa == "0")) {
             $("#portalAccess_" + id).prop('checked', false);

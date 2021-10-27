@@ -8,7 +8,7 @@
     </div>
     <div class="col-md-12">
         <div class="modal-content">
-            <form class="no_validate" id="activation_form" action="{{ route('save/client/profile', $user->token) }}" method="post">
+            <form class="no_validate" id="activation_form" action="{{ route('update/client/profile', $user->token) }}" method="post">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
@@ -16,6 +16,12 @@
                         <div class="form-text">{{ @$user->firmDetail->firm_name }} uses LegalCase to communicate with clients. Log in to your existing LegalCase account to access {{ @$user->firmDetail->firm_name }}. You can easily switch between different firms in LegalCase.</div>
                     </div>
                 
+                    @if (\Session::has('password_error'))
+                    <div class="alert alert-danger alert-block hide-alert">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <strong>{{ \Session::get('password_error') }}</strong>
+                    </div>
+                    @endif
                 
                     <div class="form-group row ">
                         <label class="col-12 col-sm-4 col-form-label">Email</label>
@@ -32,6 +38,12 @@
                             <div class="form-control-feedback invisible"></div>
                             <a href="{{ route('client/activate/account', $user->token) }}?forgot_password=true">Forgot password?</a>
                         </div>
+                        @if (\Session::get('password_error'))
+                            <p class="error">{{ \Session::get('password_error') }}</p>
+                        @endif
+                        @error('password_error')
+                            <p class="error">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-group row ">
                         <div class="col-12">

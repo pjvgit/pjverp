@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class CaseClientSelection extends Model
 {
@@ -31,5 +32,21 @@ class CaseClientSelection extends Model
     public function case()
     {
         return $this->belongsTo(CaseMaster::class, 'case_id');
+    }
+
+    /**
+     * Get all of the companyContactList for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function companyContactList($userId, $caseId)
+    {
+        return UsersAdditionalInfo::join('users',"users.id","=",'users_additional_info.user_id')
+                ->select("users.id as cid","users.email",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
+                ->whereRaw("find_in_set($userId,users_additional_info.multiple_compnay_id)")
+                ->whereHas("userCases", function($query) use($caseId) {
+                    $query->where("case_id", $caseId);
+                })
+                ->get();
     }
 }

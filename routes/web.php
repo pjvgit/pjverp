@@ -167,6 +167,8 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::get('activate_account/web_token/{token}', 'AuthController@activeClientAccount')->name("client/activate/account");
     Route::get('setup/client/profile/{token}', 'AuthController@setupClientProfile')->name("setup/client/profile");
     Route::post('save/client/profile/{token}', 'AuthController@saveClientProfile')->name("save/client/profile");
+    Route::get('get/client/profile/{token}', 'AuthController@getClientProfile')->name("get/client/profile");
+    Route::post('update/client/profile/{token}', 'AuthController@updateClientProfile')->name("update/client/profile");
     Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
     Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
 });
