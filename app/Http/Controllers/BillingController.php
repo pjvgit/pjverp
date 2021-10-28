@@ -7986,17 +7986,21 @@ class BillingController extends BaseController
             $timeEntryList=[];
             foreach($staffList as $staffKey=>$staffVal){
                 
-                $expenseTotalBillable=$timeTotalBillable=$expenseTotalNonBillable=$timeTotalNonBillable=0;
+                $expenseTotalBillable=$timeTotalBillable=$expenseTotalNonBillable=$timeTotalNonBillable=$billableHours=$nonBillableHours=0;
                 $ExpenseEntry=ExpenseEntry::select("*")->where("user_id",$staffVal->id);
                 if(isset($_GET['date_range']) && $_GET['date_range']!=""){
                     $dates=explode("-",$_GET['date_range']);
-                    $ExpenseEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
+                    $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
                 }
-                $ExpenseEntry->get();
+                $ExpenseEntry=$ExpenseEntry->get();
+                
+                // echo "<pre>";print_r($ExpenseEntry);die();
                 foreach($ExpenseEntry as $kE=>$vE){
                     if($vE['time_entry_billable']=="yes"){
+                        $billableHours+=$vE->duration;
                         $expenseTotalBillable+=($vE->cost*$vE->duration);
                     }else{
+                        $nonBillableHours+=$vE->duration;
                         $expenseTotalNonBillable+=($vE->cost*$vE->duration);
                     }
                 }
@@ -8004,20 +8008,26 @@ class BillingController extends BaseController
                 $TimeEntry=TaskTimeEntry::select("*")->where("user_id",$staffVal->id);                
                 if(isset($_GET['date_range']) && $_GET['date_range']!=""){
                     $dates=explode("-",$_GET['date_range']);
-                    $TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
+                    
+                    $TimeEntry=$TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($dates[0])), date('Y-m-d',strtotime($dates[1]))]);
                 }
-                $TimeEntry->get();
+                $TimeEntry=$TimeEntry->get();
+                // dd($TimeEntry);
                 foreach($TimeEntry as $TK=>$TE){
                     if($TE['rate_type']=="flat"){
                         if($TE['time_entry_billable']=="yes"){
+                                $billableHours+=$TE->duration;
                                 $timeTotalBillable+=$TE['entry_rate'];
                         }else{
+                                $nonBillableHours+=$TE->duration;
                                 $timeTotalNonBillable+=$TE['entry_rate'];
                         }
                     }else{
                             if($TE['time_entry_billable']=="yes"){
+                                $billableHours+=$TE->duration;
                                 $timeTotalBillable+=($TE['entry_rate']*$TE['duration']);
                             }else{
+                                $nonBillableHours+=$TE->duration;
                                 $timeTotalNonBillable+=($TE['entry_rate']*$TE['duration']);
                             }
                     }
@@ -8030,10 +8040,13 @@ class BillingController extends BaseController
                 $timeEntryList[$staffVal->id]['billable_entry']=($expenseTotalBillable+$timeTotalBillable);
                 $timeEntryList[$staffVal->id]['non_billable_entry']=($expenseTotalNonBillable+$timeTotalNonBillable);
                 $timeEntryList[$staffVal->id]['grand_total']=($expenseTotalNonBillable+$timeTotalNonBillable+$expenseTotalBillable+$timeTotalBillable);
+                $timeEntryList[$staffVal->id]['billableHours']=$billableHours;
+                $timeEntryList[$staffVal->id]['nonBillableHours']=$nonBillableHours;
+                $timeEntryList[$staffVal->id]['grand_total_hrs']=($billableHours + $nonBillableHours);
                 //Hours Recorded by Employee
             }
 
-            // print_r($timeEntryList);exit;
+            // echo "<pre>";print_r($timeEntryList);exit;
             $firmData=Firm::find(Auth::User()->firm_name);
 
             $getChildUsers=$this->getParentAndChildUserIds();

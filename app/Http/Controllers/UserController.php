@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
-use App\Traits\InvoiceSettingTrait;
+use App\Traits\InvoiceSettingTrait,App\FirmEventReminder;
 use Carbon\Carbon;
 use App\UserPreferanceReminder;
 use Exception;
@@ -129,6 +129,16 @@ class UserController extends BaseController
             array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $user->id, 'created_at' => date('Y-m-d')),
         );        
         CaseStage::insert($data);
+
+        // Insert defualt firm_event_reminder
+        FirmEventReminder::create([
+            "firm_id" => $user->id,
+            "reminder_type" => 'email',
+            "reminder_user_type" => 'client-lead',
+            "reminer_number" => '2',
+            "reminder_frequncy" => "day",
+            "created_by" => $user->id
+        ]);
 
         // //Create default plan for the user type is client or end user
         // $start_date = date('Y-m-d h:i:s');

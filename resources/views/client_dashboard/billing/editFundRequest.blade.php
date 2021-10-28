@@ -14,7 +14,7 @@
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span></div>
-                        <input id="amount" name="amount" class="form-control number" value="{{number_format($RequestedFund->amount_requested,2)}}" maxlength="50" min="{{$RequestedFund->amount_paid}}">
+                            <input id="amount" name="amount" class="form-control" value="{{number_format($RequestedFund->amount_requested,2)}}" maxlength="50" min="{{$RequestedFund->amount_paid}}">
                     </div>
                     <span id="amterror"></span>
                 </div>

@@ -211,11 +211,11 @@ if(isset($_GET['office'])){
                                            <?php
                                            foreach($timeEntryList as $key=>$val){ 
 
-                                                $nonBillEntry=$timeEntryList[$key]['non_billable_entry'] + $timeEntryList[$key]['time_total_non_billable']; 
+                                                $nonBillEntry=$timeEntryList[$key]['nonBillableHours'];
                                                 
-                                                $BillEntry=$timeEntryList[$key]['time_total_billable']+$timeEntryList[$key]['billable_entry'];
+                                                $BillEntry=$timeEntryList[$key]['billableHours'];
 
-                                                $Gtotal=$timeEntryList[$key]['grand_total'];
+                                                $Gtotal= $BillEntry + $nonBillEntry;
 
                                                 if($nonBillEntry>0){
                                                      $NB=$nonBillEntry/$Gtotal*100;
@@ -236,18 +236,18 @@ if(isset($_GET['office'])){
                                                     <div class="col-md-11">
                                                         <div class="progress mb-3"  style="height:35px;" >
                                                             <div class="progress-bar" role="progressbar" style="background-color:rgb(51, 101, 138);width:{{$B}}%"  data-toggle="tooltip" data-html="true" data-placement="top" title=""
-                                                            data-original-title="{{$timeEntryList[$key]['user_name']}}<br> Billable : {{$timeEntryList[$key]['billable_entry']}}">
+                                                            data-original-title="{{$timeEntryList[$key]['user_name']}}<br> Billable : {{$timeEntryList[$key]['billableHours']}}">
                                                             </div>
                                                             
                                                             <div class="progress-bar" role="progressbar" style="background-color:rgb(105, 182, 214);width:{{$NB}}%" data-html="true" data-toggle="tooltip" data-placement="top" title=""
-                                                            data-original-title=" {{$timeEntryList[$key]['user_name']}}<br> Non-Billable : {{$timeEntryList[$key]['non_billable_entry']}}" >
+                                                            data-original-title=" {{$timeEntryList[$key]['user_name']}}<br> Non-Billable : {{$timeEntryList[$key]['nonBillableHours']}}" >
                                                         </div>
                                                         
                                                         </div>
 
                                                     </div>
                                                     <div class="col-md-1 pt-1">
-                                                        {{$timeEntryList[$key]['grand_total']}}
+                                                        {{number_format($Gtotal,1)}}
                                                     </div>
                                                 </div>
                                             </div>

@@ -506,6 +506,8 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
      //Calender Module
      Route::get('events/', 'CalendarController@index')->name('events/');
      Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
+     Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
+     
      Route::get('item_categories', 'CalendarController@item_categories')->name('item_categorie/');
      Route::post('loadEventCalendar/load', 'CalendarController@loadEventCalendar')->name('loadEventCalendar/load');
      Route::post('court_cases/loadAddEventPageFromCalendar', 'CalendarController@loadAddEventPageFromCalendar')->name('court_cases/loadAddEventPageFromCalendar');

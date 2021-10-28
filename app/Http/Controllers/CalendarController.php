@@ -1286,5 +1286,84 @@ class CalendarController extends BaseController
         $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
         return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
     }
+
+    public function printEvents(Request $request){
+        // return $request->all();
+        $request->start = $request->start ?? date('Y-m-d');
+        $request->end = $request->end ?? date('Y-m-d');
+
+        $CommonController= new CommonController();
+
+        // $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
+        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
+        if($request->event_type){
+            $event_type=$request->event_type;
+            $CaseEvent=$CaseEvent->where('event_type',$event_type);
+        }
+        if($request->case_or_lead){
+            $CaseEvent=$CaseEvent->where('case_id',$request->case_or_lead);
+        }
+        $CaseEvent=$CaseEvent->whereBetween('start_date',  [date("Y-m-d", strtotime($request->start)), date("Y-m-d", strtotime($request->end))]);
+        $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->orderBy('case_events.start_date')->with('eventLinkedStaff','case','eventLinkedContact','leadUser')->get();
+        // dd($CaseEvent);
+        $newarray = array();
+
+        $timezone=Auth::User()->user_timezone;
+        foreach($CaseEvent as $k=>$v){
+            if($v->event_type!=""){
+            $typeEventText =  DB::table("event_type")->select('title','color_code')->where('status',"1")->where('id',$v->event_type)->first();
+                $v->etext=$typeEventText;
+            }else{
+                $v->etext="";
+            }
+            $v->caseTitle = $v->case->case_title ?? (isset($v->leadUser->first_name) ? "Potential Case: ".$v->leadUser->first_name.' '.$v->leadUser->last_name :  '');
+            $v->caseNumber = $v->case->case_number ?? (isset($v->leadUser->first_name) ? "Potential Case: ".$v->leadUser->first_name.' '.$v->leadUser->last_name :  '');
+            if(count($v->eventLinkedStaff) > 0){
+                $staffName = $caseAttend = [];
+                foreach($v->eventLinkedStaff as $i => $j){
+                    $caseAttend[$i] = ($j->attending =='yes') ? $j :'';            
+                    $staffName[$i] = $j->first_name.' '.$j->last_name;
+                }
+
+                $v->staffName = implode(",",$staffName);
+            }
+            if(count($v->eventLinkedContact) > 0){
+                $contactName = [];
+                foreach($v->eventLinkedContact as $i => $j){
+                    $contactName[$i] = $j->first_name.' '.$j->last_name;
+                }
+
+                $v->contactName = implode(",",$contactName);
+            }
+            $newarray[] = $v;
+        }
+        // print_r($CaseEvent);
+        if(isset($request->show_sol_checkbox) && $request->show_sol_checkbox=="on"){
+            $CaseEventSOL = CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')
+            ->select("case_master.case_number","case_master.sol_satisfied","case_events.*")
+            ->where('case_events.created_by',Auth::User()->id);
+            $CaseEventSOL=$CaseEventSOL->whereBetween('start_date', [date("Y-m-d", strtotime($request->start)), date("Y-m-d", strtotime($request->end))]);
+            $CaseEventSOL=$CaseEventSOL->where('is_SOL','yes');
+            $CaseEventSOL=$CaseEventSOL->whereNull('case_events.deleted_at')->orderBy('case_events.start_date')->get();
+        }else{
+            $CaseEventSOL='';
+        }
+        if(isset($request->show_task_checkbox) && $request->show_task_checkbox=="on"){
+            $Task=Task::leftJoin('case_master','case_master.id','=','task.case_id');
+            $Task=$Task->leftJoin('users','users.id','=','task.lead_id');
+            $Task=$Task->select('task.*','case_master.case_title','users.first_name','users.last_name');
+            $Task=$Task->where('task.created_by',Auth::User()->id);
+            $Task=$Task->whereBetween('task.task_due_on', [date("Y-m-d", strtotime($request->start)), date("Y-m-d", strtotime($request->end))]);
+            $Task=$Task->where('task.task_due_on',"!=",'9999-12-30');            
+            $Task=$Task->whereNull('task.deleted_at')->get();
+        }else{
+            $Task='';
+        }
+
+        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
+        $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+        return view('calendar.print', compact('newarray','CaseEventSOL','Task','caseLeadList','CaseMasterData','allEventType','request'));
+    }
 }
   
