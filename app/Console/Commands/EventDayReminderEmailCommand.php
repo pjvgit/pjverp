@@ -47,6 +47,9 @@ class EventDayReminderEmailCommand extends Command
         $result = CaseEventReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])/* ->where("event_id", "38439") */
                     ->whereDate("remind_at", Carbon::now())
                     ->whereNull("reminded_at")
+                    ->whereHas("event", function($query) {
+                        $query->where("is_SOL", "no");
+                    })
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {

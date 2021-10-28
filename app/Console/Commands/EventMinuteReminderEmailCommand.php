@@ -48,12 +48,16 @@ class EventMinuteReminderEmailCommand extends Command
                     ->where("reminder_frequncy", "minute")/* ->where("event_id", "38439") */
                     ->whereDate("remind_at", Carbon::now())
                     ->whereNull("reminded_at")
+                    ->whereHas("event", function($query) {
+                        $query->where("is_SOL", "no");
+                    })
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
             Log::info("Minute Event Reminder Email Command Started :". date('Y-m-d H:i:s'));
             Log::info("Minute Event Reminder total records :". count($result));
             foreach($result as $key => $item) {
+                Log::info("Event id :". $item->id);
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];

@@ -99,16 +99,8 @@ class AuthController extends Controller
     public function updateClientProfile(Request $request)
     {
         $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
-
-        if(isset($user) ) {
-            /* $user->fill([
-                'password' => Hash::make(trim($request->password)),
-                'user_timezone'=>$request->user_timezone,
-                'verified'=>"1",
-                'user_status'=>"1"
-            ])->save(); */
- 
-            if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
+        if(isset($user) ) { 
+            if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password_confirmation)])) {
                 if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
                     session(['layout' => 'horizontal']);
                     return redirect()->route('client/home')->with('success','Login Successfully');
@@ -119,9 +111,7 @@ class AuthController extends Controller
                 }
             } else {
                 session()->flash('password_error', "Password doesn't match.");
-                // return redirect()->route('client/activate/account', $request->token);
-                return back()->withErrors(['password_error' => ["Password doesn't match."]]);
-                // return Redirect::back();
+                return Redirect::back();
             }
         }else{
             Auth::logout();

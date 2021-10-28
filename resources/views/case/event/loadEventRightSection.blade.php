@@ -257,7 +257,8 @@
             $(".staff-table-nonlinked").toggle();
         });
 
-        $("#SelectAllLeadShare").click(function () {
+        $(document).on("change", "#SelectAllLeadShare", function () {
+        // $("#SelectAllLeadShare").click(function () {
             var multi = $('.lead_client_share_all_users');
             var winners_array = [];
             $.each(multi, function (index, item) {

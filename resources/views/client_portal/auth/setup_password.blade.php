@@ -38,12 +38,6 @@
                             <div class="form-control-feedback invisible"></div>
                             <a href="{{ route('client/activate/account', $user->token) }}?forgot_password=true">Forgot password?</a>
                         </div>
-                        @if (\Session::get('password_error'))
-                            <p class="error">{{ \Session::get('password_error') }}</p>
-                        @endif
-                        @error('password_error')
-                            <p class="error">{{ $message }}</p>
-                        @enderror
                     </div>
                     <div class="form-group row ">
                         <div class="col-12">
