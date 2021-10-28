@@ -622,11 +622,11 @@
         });
        
         $(".hide").hide();
-        $("#firstStep .add-more").click(function () {
+        /* $("#firstStep .add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
-        });
+        }); */
         $('#EditEventForm').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
@@ -837,7 +837,7 @@
         $("#add_new_label").show();
     }
 
-    function selectType() {
+    /* function selectType() {
         $(".innerLoader").css('display', 'block');
         var selectdValue = $("#event-frequency option:selected").val() // or
         if (selectdValue == 'DAILY') {
@@ -873,7 +873,7 @@
             $(".repeat_yearly").hide();
         }
         $(".innerLoader").css('display', 'none');
-    }
+    } */
     
     function selectTypeload(selectdValue) {
         $(".innerLoader").css('display', 'block');

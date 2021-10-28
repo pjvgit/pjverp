@@ -4465,7 +4465,7 @@ class BillingController extends BaseController
                     }
                     $checkedUser=SharedInvoice::where("invoice_id",$Invoices['id'])->where("user_id",$v->user_id)->first();
                     if(!empty($checkedUser)){
-                        $v['shared']="yes";
+                        $v['shared']=$checkedUser['is_shared'];
                         $v['sharedDate']=$checkedUser['created_at'];
                         $v['isViewd']=$checkedUser['is_viewed'];
 
@@ -4491,6 +4491,7 @@ class BillingController extends BaseController
 
     public function saveShareInvoice(Request $request)
     {
+        // return array_values($request->invoice_shared);
         $validator = \Validator::make($request->all(), [
             'invoice_id' => 'required',
         ]);
@@ -4499,13 +4500,15 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $Invoices=Invoices::find($request->invoice_id);
-            if(!empty($Invoices)){
+            if(!empty($Invoices)  && $request->invoice_shared){
+                $sharedUserIds = [];
                 foreach($request->invoice_shared as $k=>$v){
                     $SharedInvoice=SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->count();
                     if($SharedInvoice<=0){
                         $SharedInvoice=new SharedInvoice;
                         $SharedInvoice->invoice_id=$request->invoice_id;                    
                         $SharedInvoice->user_id =$k;
+                        $SharedInvoice->is_shared = 'yes';
                         $SharedInvoice->created_by=Auth::User()->id; 
                         $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
                         $SharedInvoice->save();
@@ -4545,8 +4548,12 @@ class BillingController extends BaseController
                             "mail_body" => $mail_body
                             ];
                         $sendEmail = $this->sendMail($userEmail);
+                    } else {
+                        SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->update(['is_shared' => "yes"]);
                     }
+                    $sharedUserIds[] = $k;
                 }
+                SharedInvoice::Where("invoice_id", $request->invoice_id)->whereNotIn("user_id", array_values($request->invoice_shared))->update(['is_shared' => "no"]);
                 $Invoices->fill([
                     'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
                     'bill_sent_status' => 'Sent',
@@ -4554,6 +4561,9 @@ class BillingController extends BaseController
                 session(['popup_success' => 'Sharing updated']);
                 return response()->json(['errors'=>'']);
             }else{
+                SharedInvoice::Where("invoice_id", $request->invoice_id)->update(['is_shared' => "no"]);
+                session(['popup_success' => 'Sharing updated']);
+                return response()->json(['errors'=>'']);
                 return response()->json(['errors'=>['Internal server error!']]);
                 exit;
             }

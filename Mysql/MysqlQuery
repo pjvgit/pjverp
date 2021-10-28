@@ -1,3 +1,6 @@
+------------------------------------ 28-OCT-2021 ------------------------------
+ALTER TABLE `shared_invoice` ADD `is_shared` enum('yes','no') NULL DEFAULT 'yes' AFTER `user_id`;
+
 ------------------------------------ 19-OCT-2021 ------------------------------
 ALTER TABLE `case_events` ADD INDEX `Indexing` (`case_id`, `lead_id`, `firm_id`); 
 ALTER TABLE `case_event_reminder` ADD INDEX `Indexing` (`event_id`);

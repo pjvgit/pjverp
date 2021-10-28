@@ -69,7 +69,7 @@
                     @endif
                 </div>
                 <div>
-                    <button type="button" class="btn btn-link p-0 add-more-reminder">Add a reminder</button>
+                    <button type="button" class="btn btn-link p-0 add-more-reminder" @if (isset($invSetting) && $invSetting->reminderSchedule && count($invSetting->reminderSchedule) >= 5) style="display: none;" @endif>Add a reminder</button>
                 </div>
                 <br>
                 <p><strong>Note:</strong> Automated reminders will be sent based on the next installment date. If Automatic Payment is On, reminders will show automatic payment status. We recommend keeping a “Due In” reminder to inform your client of pending automatic payment.</p>
@@ -154,9 +154,15 @@ $(document).ready(function () {
     $(".add-more-reminder").click(function () {
         var fieldHTML = $(".reminder-schedule-copy").html();
         $("#reminder_schedule_div").append(fieldHTML);
+        if($("#reminder_schedule_div div.reminder-schedule").length >= 5) {
+            $(".add-more-reminder").hide();
+        }
     });
     $('body').on('click', '.reminder-option-delete', function () {
-        var $row = $(this).parents('.reminder-schedule').remove();
+        $(this).parents('.reminder-schedule').remove();
+        if($("#reminder_schedule_div div.reminder-schedule").length < 5) {
+            $(".add-more-reminder").show();
+        }
     });
 
     $('#firm_default_message').keyup(function() {

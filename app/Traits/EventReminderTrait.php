@@ -11,10 +11,13 @@ trait EventReminderTrait {
         // return $notifyType;
         if($item->reminder_user_type == "attorney" || $item->reminder_user_type == "staff" || $item->reminder_user_type == "paralegal") {
             $eventLinkedUser = $item->event->eventLinkedStaff->pluck('id');
-            $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
+            if($item->event->case) {
+                $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
+            }
             $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
-            $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser)->where("user_type", $userType)->get();
+            $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? [])->where("user_type", $userType)->get();
             $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
+
         } else if($item->reminder_user_type == "client-lead") {
             $eventLinkContactIds = $item->event->eventLinkedContact->pluck('id');
             $eventLinkedLeadIds = $item->event->eventLinkedLead->pluck('user_id');

@@ -13,7 +13,7 @@ class SharedInvoice extends Authenticatable
     protected $table = "shared_invoice";
     public $primaryKey = 'id';
 
-    protected $fillable = ["last_reminder_sent_on", "reminder_sent_counter", "last_viewed_at", 'is_viewed'];
+    protected $fillable = ["last_reminder_sent_on", "reminder_sent_counter", "last_viewed_at", 'is_viewed', 'is_shared'];
 
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){

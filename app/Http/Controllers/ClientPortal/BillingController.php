@@ -21,7 +21,7 @@ class BillingController extends Controller
     public function index()
     {
         $invoices = Invoices::whereHas('invoiceShared', function($query) {
-                        $query->where("user_id", auth()->id());
+                        $query->where("user_id", auth()->id())->where("is_shared", "yes");
                     })->whereNotIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                     ->get();
         $forwardedInvoices = Invoices::whereHas('invoiceShared', function($query) {
@@ -40,24 +40,30 @@ class BillingController extends Controller
     public function show($id)
     {
         $invoiceId = base64_decode($id);
-        $invoice = Invoices::where("id",$invoiceId)->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
+        $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) {
+                        $query->where("user_id", auth()->id())->where("is_shared", "yes");
+                    })->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
                     'invoiceExpenseEntry', 'invoiceTimeEntry.taskActivity', 'invoiceExpenseEntry.expenseActivity', 'invoiceAdjustmentEntry', 
                     'forwardedInvoices', 'invoicePaymentHistory', 'invoiceInstallment', 'invoiceForwardedToInvoice', 'invoiceFirstInstallment')->first();
-        $sharedInv = SharedInvoice::where("user_id", auth()->id())->where("invoice_id", $invoiceId)->first();
-        if($sharedInv && !$sharedInv->last_viewed_at) {
-            $sharedInv->fill([
-                'last_viewed_at' => date('Y-m-d h:i:s'),
-                'is_viewed' => 'yes',
-            ])->save();
+        if($invoice) {
+            $sharedInv = SharedInvoice::where("user_id", auth()->id())->where("invoice_id", $invoiceId)->first();
+            if($sharedInv && !$sharedInv->last_viewed_at) {
+                $sharedInv->fill([
+                    'last_viewed_at' => date('Y-m-d h:i:s'),
+                    'is_viewed' => 'yes',
+                ])->save();
 
-            InvoiceHistory::create([
-                "invoice_id" => $invoiceId,
-                "acrtivity_title" => "Invoice Viewed",
-                "responsible_user" => auth()->id(),
-                "created_by" => auth()->id()
-            ]);
+                InvoiceHistory::create([
+                    "invoice_id" => $invoiceId,
+                    "acrtivity_title" => "Invoice Viewed",
+                    "responsible_user" => auth()->id(),
+                    "created_by" => auth()->id()
+                ]);
+            }
+            return view("client_portal.billing.invoice_detail", ["invoice" => $invoice]);
+        } else {
+            return redirect()->route("client/bills");
         }
-        return view("client_portal.billing.invoice_detail", ["invoice" => $invoice]);
     }
 
     /**
