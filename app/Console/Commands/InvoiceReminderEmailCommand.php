@@ -87,6 +87,7 @@ class InvoiceReminderEmailCommand extends Command
                             $days = $dueIn['days'];
                             Log::info("Due in days:". $days);
                             $remindDate = $dueDate->subDays($days);
+                            Log::info("Remind date:". $remindDate);
                             $emailTemplateId = 24;
                             $remindType = "due in";
                         }
@@ -113,7 +114,7 @@ class InvoiceReminderEmailCommand extends Command
                             foreach($item->invoiceSharedUser as $userkey => $useritem) {
                                 $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                 Log::info($useritem->user_timezone."=".$date);
-                                if ($date->hour === 05) { 
+                                if ($date->hour == 9 || $date->hour == 14) { 
                                     if($emailTemplate) {
                                         Log::info("invoice day time true");
                                         dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
