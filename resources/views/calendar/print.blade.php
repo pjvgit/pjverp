@@ -101,8 +101,12 @@
                 data-style="expand-left">Apply Filter</button>
             </div>
             <div>
-                <button class="btn btn-info example-button m-1 submit" onclick="window.print();return false;"
+                <button class="btn btn-info example-button m-1" onclick="window.print();return false;"
                 data-style="expand-left">Print</button>
+            </div>
+            <div>
+                <button class="btn m-1" onclick="window.location.href='{{ route("events/")}}';return false;"
+                data-style="expand-left">Back to Calendar</button>
             </div>
         </div>
     </form> 
@@ -117,7 +121,7 @@
 <div class="printDiv">
     <div class="m-4 p-2">
     <div>
-        <div><h4>Events for ({{ $request->start}} - {{ $request->end}})</h4></div>
+        <div><h4>Events for ({{  date("Y-m-d", strtotime($request->start)) }} - {{ date("Y-m-d", strtotime($request->end)) }})</h4></div>
         <div class="print-detail-header mb-1" style="font-size: 14px;">
             <div class="name-tag header-name-tag d-flex mr-2">
                 <div class="user-circle mr-1 d-inline-block" style="width: 15px; height: 15px; background-color: rgb(21, 157, 255);"></div>
@@ -177,7 +181,7 @@
                         @foreach ($newarray as $key => $value)
                         <tr class="mb-1 list-event-row">
                             <td style="width: 80px;">{{$value->start_date}}</td>
-                            <td style="width: 150px;">{{ date('h:iA',strtotime($value->start_time))}} - {{ date('h:iA',strtotime($value->end_time))}}</td>
+                            <td style="width: 150px;"> @if($value->all_day == "no") {{ $value->start_time_user }} - {{ $value->end_time_user }} @else All Day @endif</td>
                             <td class="event-text-format" style="width: 300px;">
                                 <div><div class="event-text-format agenda-title">
                                     <b class="word-break">{{$value->event_title}}</b><br>

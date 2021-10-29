@@ -59,9 +59,11 @@ if(isset($_GET['task_read'])){
                 <div class="d-flex align-items-center">
                     <h3 class="my-0 mr-1 font-weight-bold"><i class="fas fa-clipboard-list fa-sm mr-2"></i>Tasks</h3>
                     <h5 class="d-none d-print-inline mt-2 font-weight-bold text-muted">&nbsp;as of today 10/07/2020</h5>
-                    <div class="ml-auto d-flex d-print-none"><button type="button"
-                            class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button><span
-                            class="mt-2 text-muted">|</span>
+                    <div class="ml-auto d-flex d-print-none">
+                            <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript:;">
+                                <button onclick="setFeedBackForm('single','New Task Page');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+                            </a>
+                            <span class="mt-2 text-muted">|</span>
                         <div>
                             <a href="{{route('tasks/markasread')}}">
                                 <button type="button" class="mr-2 btn btn-link">Mark all as read</button>
@@ -1049,6 +1051,7 @@ if(isset($_GET['task_read'])){
 </style>
 
 @section('page-js')
+<script src="{{ asset('assets/js/custom/feedback.js')}}"></script>
 <script type="text/javascript">"use strict";
 
     $(document).ready(function () {
@@ -1664,7 +1667,8 @@ if(isset($_GET['task_read'])){
         // w.close();
         $(".pagination").show();
         return false;  
-    }    
+    }   
+
 </script>
 @stop
 

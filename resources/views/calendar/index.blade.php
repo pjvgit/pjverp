@@ -735,6 +735,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                    
                     $("#shuesuid").trigger('click');
                     $("#preloaderData").hide();
+                    $('[data-toggle="tooltip"]').tooltip();
                 },
                 eventClick: function(event) {
                     if(event.mytask=="yes"){

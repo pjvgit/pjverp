@@ -981,6 +981,69 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
+
+<div id="loadAddFeedBack" class="modal fade bd-example-modal-md " tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title feedback_title" id="exampleModalCenterTitle">Make a Suggestion about <span id="feedback_title"></span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                
+            <form id="feedback_form" name="feedback_form" method="post">
+                <div id="feedback_form_errors"></div>
+                @csrf
+                            
+                <input type="hidden" name="mailer_type" id="mailer_type" value="feedback">
+                <input type="hidden" name="topic" id="topic" value="">
+
+                <div class="modal-body">
+                    <p>Customer feedback helps us to improve our product!</p>
+                    <p>
+                        Please give us details about your idea and how it helps your business. If you need
+                        immediate help or assistance, please access our <a href="javascript::void(0);" target="_blank" rel="noreferrer noopener">support page</a>.
+                    </p>
+                    <div class="form-group">
+                    <label for="message">Details</label>
+                    <textarea name="message" id="message" class="form-control" placeholder="Please try to be as specific as possible." style="resize: none; height: 140px;"></textarea>
+                    </div>
+
+                    <div class="row">
+                    <div class="col-6">
+                        <label>Name</label>
+                    </div>
+                    <div class="col">
+                        <label>Email</label>
+                    </div>
+                    <div class="col-6">
+                        <input type="text" name="name" id="name" value="{{ Auth::user()->first_name.' '.Auth::user()->last_name }}" class="form-control">
+                    </div>
+                    <div class="col">
+                        <input type="text" name="email" id="email" value="{{ Auth::user()->email }}" class="form-control">
+                    </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div id="link_button">
+                    <button class="btn btn-cta-primary" type="submit">
+                                        <span class="ladda-label">Submit</span>
+                                    </button>
+                    </div>
+                    
+                    <div id="adding_box" style="display: none; width: 150px; text-align: center; height: 28px; padding-top: 7px;" class="standard adding ">
+                    <img style="vertical-align: middle;" class="retina" src="https://assets.mycase.com/packs/retina/ajax_arrows-0ba8e6a4d4.gif" width="16" height="16"> <span id="adding_box_text" style="line-height: 16px;">Submitting...</span>
+                    </div>
+                    
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     function payinvoice(id) {
         console.log("Popup_without_param_code.blade.php > payinvoice for " + id);

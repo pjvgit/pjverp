@@ -18,7 +18,7 @@ use App\CaseEvent,App\CaseEventLocation,App\EventType;
 use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
-use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory;
+use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory,App\Feedback;
 use App\Invoices,App\EmailTemplate;
 use App\Http\Requests\MultiuserRequest;
 use App\TaskReminder;
@@ -808,5 +808,33 @@ class HomeController extends BaseController
             ]);
         }
         return response()->json(["status" => "success"]);
+    }
+
+    public function saveFeedback(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'message' => 'required',
+            'name' => 'required',
+            'email' => 'required',
+            'topic' => 'required',
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $feedback = Feedback::create([
+                'feedback' => $request->message,
+                'created_by' => Auth::User()->id
+            ]);
+
+            // send mail to user for apply feedback
+            \Mail::send([], [], function ($message) use ($request, $feedback) {
+                $message->to('jignesh.prajapati@plutustec.com')
+                  ->subject('Your Legalcase Customer Feedback Request: Customer Feedback - '.$request->topic.', Case #'. sprintf('%06d', $feedback->id) .'(Thread ID)')
+                  ->setBody('Thank you for sending us your suggestion!  This is an automated response, however, we do read every comment and consider them in our product planning. If we need any clarifying information, we will reach out to you.
+                  '); 
+              });
+            return response()->json(['errors'=>'']);
+        }
     }
 }

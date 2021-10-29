@@ -1169,6 +1169,9 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     //messages
     Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('messages/info');
 
+    // feedback
+    Route::post('saveFeedback', 'HomeController@saveFeedback')->name('saveFeedback');
+
 });
 
 /**

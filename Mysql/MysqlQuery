@@ -1,4 +1,17 @@
 ------------------------------------ 28-OCT-2021 ------------------------------
+
+CREATE TABLE `feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `feedback` text COLLATE 'utf8mb4_general_ci' NULL,
+  `rating` tinyint(2) NULL,
+  `created_at` datetime NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `updated_by` int NULL,
+  `deleted_at` datetime NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
+------------------------------------ 28-OCT-2021 ------------------------------
 ALTER TABLE `shared_invoice` ADD `is_shared` enum('yes','no') NULL DEFAULT 'yes' AFTER `user_id`;
 
 ------------------------------------ 19-OCT-2021 ------------------------------

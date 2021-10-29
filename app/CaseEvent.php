@@ -21,7 +21,7 @@ class CaseEvent extends Authenticatable
         'daily_weekname', 'no_end_date_checkbox', 'event_interval_month', 'event_interval_year', 'monthly_frequency', 'yearly_frequency', 'end_on', 'event_read', 
         'firm_id', 'created_by', 'updated_by',
     ];    
-    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
+    protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
 
 
     public function getEventTyspeTexttAttribute(){
@@ -61,6 +61,18 @@ class CaseEvent extends Authenticatable
         $timezone=Auth::User()->user_timezone;
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
+            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
+            $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
+            return date('h:ia',strtotime($currentConvertedDate));
+        }else{
+            return "";
+        }
+    }
+    public function getEndTimeUserAttribute(){
+        // $CommonController= new CommonController();
+        $timezone=Auth::User()->user_timezone;
+        if($this->end_time!=''){
+            $tm=$this->start_date . $this->end_time;
             // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('h:ia',strtotime($currentConvertedDate));
