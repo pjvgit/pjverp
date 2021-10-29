@@ -8,9 +8,9 @@
     <div class="row">
         <div class="col-sm-8 col-sm-offset-2">
             <div class="alert alert-danger browser-warning">
-                <span class="fa fa-lg fa-exclamation-triangle"></span>
-                You are using an unsupported browser.
-                <a href="http://support.mycase.com/customer/portal/articles/646538-what-web-browser-should-i-use-for-running-mycase-">Learn More</a>
+                <div class="logo">
+                    <img src="{{ @firmDetail(auth()->user()->firm_name)->firm_logo_url }}" alt="" style="width: 120px; height: auto;">
+                </div>
             </div>
         </div>
     </div>

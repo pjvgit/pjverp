@@ -345,7 +345,7 @@
                     <div>
                         <div class="fieldGroup">
                         </div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
+                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-new-reminder add-more">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  

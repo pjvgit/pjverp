@@ -1,3 +1,7 @@
+------------------------------------ 29-OCT-2021 ------------------------------
+ALTER TABLE `all_history`
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
+
 ------------------------------------ 28-OCT-2021 ------------------------------
 ALTER TABLE `shared_invoice` ADD `is_shared` enum('yes','no') NULL DEFAULT 'yes' AFTER `user_id`;
 

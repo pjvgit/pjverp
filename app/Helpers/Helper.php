@@ -134,7 +134,7 @@ function convertTimeToUTCzone($str,$timezone){
 function convertUTCToUserTime($str, $timezone){
     $timestamp = $str;
     $date = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, "UTC");
-    $date->setTimezone($timezone);
+    $date->setTimezone($timezone ?? 'UTC');
     return $NewDate= $date->format("Y-m-d H:i:s");
 }
 

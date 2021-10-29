@@ -135,4 +135,14 @@ class AllHistory extends Authenticatable
     {
         return $this->belongsTo(User::class, 'deposit_for');
     }
+
+    /**
+     * Get the createdByUser that owns the AllHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
