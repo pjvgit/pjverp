@@ -62,10 +62,43 @@
 				<div class="mb-3">
 					<h1 class="primary-heading">Recent Activity </h1>
 					<ul class="list" id="notifications_list">
-						<li class="list-row"><a href="/documents/100306591"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">Dashboard-Reminder-Popup-MyCase.png</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:26 PM</span></div></a></li>
-						<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:25 PM</span></div></a></li>
-						<li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">Mary Dyer commented document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:24 PM</span></div></a></li>
+						@forelse ($recentActivity as $key => $item)
+							@if($item->type == "invoices" && $item->action == "share")
+							<li class="list-row">
+								<a href="/bills/15057828"><i class="fas fa-dollar-sign"></i>
+									<div class="list-row__body">
+										<span class="list-row__wrappable-content">{{ $item->createdByUser->full_name}} {{ $item->activity }} 
+											<span class="u-color-primary">
+												@if ($item->deleteInvoice == NULL)
+													<a href="{{ route('bills/invoices/view',base64_encode($item->activity_for)) }}"> #{{sprintf('%06d', $item->activity_for)}} </a>
+												@else
+													#{{sprintf('%06d', $item->activity_for)}}
+												@endif 
+											</span>
+										</span><br>
+										<span class="list-row__header-detail">{{ Oct 29, 2021 2:30 PM }}</span>
+									</div>
+								</a>
+							</li>
+							@endif
+							{{-- <li class="list-row">
+								<a href="/documents/100306591"><i class="list-row__icon">description</i>
+									<div class="list-row__body">
+										<span class="list-row__wrappable-content">R S updated document 
+											<span class="u-color-primary">Dashboard-Reminder-Popup-MyCase.png</span>
+										</span><br>
+										<span class="list-row__header-detail">Jul 21, 2021 11:26 PM</span>
+									</div>
+								</a>
+							</li> --}}
+						@empty
+							<div class="text-center p-4"><i>No Recent Activity</i></div>
+						@endforelse
+						{{-- <li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:25 PM</span></div></a></li> --}}
+						{{-- <li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">Mary Dyer commented document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:24 PM</span></div></a></li> --}}
+						@if(count($recentActivity))
 						<li class="list__view-all"><a href="/notifications">View all recent activity</a></li>
+						@endif
 					</ul>
 				</div>
 			</section>

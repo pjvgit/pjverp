@@ -9,12 +9,13 @@
 
 @php
     $content = str_replace('[TASK_TITLE]', $task->task_title, $template->content);
-    if($task->case_id)
-    $caseLead = '<a href="'.route('info', @$task->case->case_unique_number ?? $task->case_id).'">'.@$task->case->case_title.'</a>';
-    elseif($task->lead_id)
-    $caseLead = '<a href="'.route("case_details/info", $task->lead_id).'>'.$task->leadAdditionalInfo->potential_case_title.'</a>';
-    else
-    $caseLead = 'Not Specified';
+    if($task->case_id) {
+        $caseLead = '<a href="'.route('info', @$task->case->case_unique_number ?? $task->case_id).'">'.@$task->case->case_title.'</a>';
+    } else if($task->lead_id) {
+        $caseLead = '<a href="'.route("case_details/info", $task->lead_id).'">'.@$task->leadAdditionalInfo->potential_case_title.'</a>';
+    } else {
+        $caseLead = 'Not Specified';
+    }
     $content = str_replace('[CASE_TITLE]', $caseLead, $content);
     $date = date('M d, Y', strtotime(convertUTCToUserDate(@$task->task_due_on, @$user->user_timezone)));
     $content = str_replace('[DUE_DATE]', $date, $content);

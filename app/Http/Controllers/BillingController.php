@@ -4501,7 +4501,6 @@ class BillingController extends BaseController
         }else{
             $Invoices=Invoices::find($request->invoice_id);
             if(!empty($Invoices)  && $request->invoice_shared){
-                $sharedUserIds = [];
                 foreach($request->invoice_shared as $k=>$v){
                     $SharedInvoice=SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->count();
                     if($SharedInvoice<=0){
@@ -4548,12 +4547,40 @@ class BillingController extends BaseController
                             "mail_body" => $mail_body
                             ];
                         $sendEmail = $this->sendMail($userEmail);
+
+                        //Add history
+                        $data=[];
+                        $data['invoice_id']=$request->invoice_id;
+                        $data['user_id']=$k;
+                        $data['client_id']=$k;
+                        $data['activity']='shared invoice';
+                        $data['activity_for']=$request->invoice_id;
+                        $data['type']='invoices';
+                        $data['action']='share';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
                     } else {
                         SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->update(['is_shared' => "yes"]);
                     }
-                    $sharedUserIds[] = $k;
                 }
-                SharedInvoice::Where("invoice_id", $request->invoice_id)->whereNotIn("user_id", array_values($request->invoice_shared))->update(['is_shared' => "no"]);
+                $notSharedUser = SharedInvoice::Where("invoice_id", $request->invoice_id)->whereNotIn("user_id", array_values($request->invoice_shared))
+                                ->where("is_shared", "yes")->get();
+                if($notSharedUser) {
+                    foreach($notSharedUser as $key => $item) {
+                        $item->update(['is_shared' => "no"]);
+                        //Add history
+                        $data=[];
+                        $data['invoice_id']=$request->invoice_id;
+                        $data['user_id']=$k;
+                        $data['client_id']=$k;
+                        $data['activity']='unshared invoice ';
+                        $data['activity_for']=$request->invoice_id;
+                        $data['type']='invoices';
+                        $data['action']='unshare';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+                    }
+                }
                 $Invoices->fill([
                     'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
                     'bill_sent_status' => 'Sent',

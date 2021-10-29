@@ -36,7 +36,6 @@ class TaskReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("task job handle");
         if(!empty($this->user)) {
             Log::info("task mail job");
             Mail::to($this->user->email)->send((new TaskReminderMail($this->taskReminder->task, $this->taskReminder->task->firm, $this->user, $this->emailTemplate)));

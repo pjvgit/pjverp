@@ -1177,7 +1177,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 /**
  * For client portal
  */
-Route::group(['middleware' => ['auth', 'role:client'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
+Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
 
     // For billing > invoice

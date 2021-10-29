@@ -89,7 +89,7 @@ function loadGrantAccessModal(id) {
 }
 
 // For add reminder
-$(document).on("click", ".add-more", function () {
+$(document).on("click", ".add-more, .add-new-reminder", function () {
     var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +'</div>';
     $('body').find('.fieldGroup:last').before(fieldHTML);
 });
