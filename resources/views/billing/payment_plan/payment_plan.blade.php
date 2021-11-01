@@ -19,7 +19,9 @@ if(isset($_GET['include_paid_invoices']) && $_GET['include_paid_invoices']){
 <div class="border-top m-3"></div>
 <div class="d-flex align-items-center mt-0 mb-2">
     <h3 class="test-payment-plans-header my-0 font-weight-bold">Payment Plans</h3>
-    <button type="button" class="feedback-button ml-auto text-black-50 btn btn-link">Tell us what you think!</button>
+    <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);" class="ml-auto text-black-50 btn btn-link">
+        <button onclick="setFeedBackForm('single','Payment Plans');" type="button" class="feedback-button ml-auto text-black-50 btn btn-link">Tell us what you think!</button>
+    </a>
 </div>
 <div class="row pb-3">
     <div class="col-lg-12 col-md-12">
@@ -242,6 +244,7 @@ th td{
     </div>
 </div> -->
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#court_case").select2({

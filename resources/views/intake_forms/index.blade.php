@@ -15,7 +15,10 @@
                         <h3>Intake Form</h1>
                     </div>
                     <div class="col-sm-4 d-flex justify-content-end">
-                        <a class="btn btn-secondry  mr-4" type="submit">Tell us what you think</a>
+                        <!-- <a class="btn btn-secondry  mr-4" type="submit">Tell us what you think</a> -->
+                        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                            <button onclick="setFeedBackForm('single','Intake Form Management');" type="button" class="btn btn-secondry mr-4">Tell us what you think</button>
+                        </a>
                         <a href="{{route('form_templates/new')}}"> <button class="btn btn-primary" type="button"
                                 id="with-input">New Intake Form</button></a>
                     </div>
@@ -236,6 +239,7 @@
 
 @endsection
 @section('page-js')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('button').attr('disabled', false);

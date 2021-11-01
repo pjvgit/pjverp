@@ -17,7 +17,7 @@ class CheckForClientPortalAccess
     public function handle($request, Closure $next)
     {
         $user = Auth::user();
-        if($user->userAdditionalInfo->client_portal_enable == 1) {
+        if($user->userAdditionalInfo->client_portal_enable == '1') {
             return $next($request);
         } else {
             abort(403);

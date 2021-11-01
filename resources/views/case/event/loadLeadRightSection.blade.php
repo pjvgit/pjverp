@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input  class="lead_client_attend_all_users {{ ($val->client_portal_enable == 0) ? 'not-enable-portal' : '' }}"  id="attend_user_{{$val->id}}" 
+                        <input  class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}"  id="attend_user_{{$val->id}}" 
                         name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  
                         <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php }else{ ?>disabled="" <?php } ?>>
                     </label>

@@ -54,7 +54,7 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </select>
                     </div>
                 </div>
-                <div class="table-responsive" id="printDiv">
+                <div class="table-responsive" id="printHtml">
                     <h3 id="hiddenLable">Contacts</h3>
                     <table class="display table table-striped table-bordered" id="ClientListGrid" style="width:100%">
                         <thead>
@@ -255,7 +255,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }else{
                         $('td:eq(6)', nRow).html('Not Specified');
                     }
-                    $('td:eq(7)', nRow).html('<a data-toggle="modal"  title="Edit" data-target="#EditContactModal" data-placement="bottom" href="javascript:;"  onclick="loadClientEditBox('+aData.id+');"><i class="fas fa-pen pr-3  align-middle"></i> </a>'); 
+                    $('td:eq(7)', nRow).html('<a data-toggle="modal"  title="Edit" data-target="#EditContactModal" data-placement="bottom" href="javascript:;"  onclick="loadClientEditBox('+aData.id+');"><i class="fas fa-pen pr-3  align-middle d-print-none"></i> </a>'); 
                 },
             });
 
@@ -358,14 +358,12 @@ function printEntry()
     $('#ClientListGrid_info').hide();
     $('#ClientListGrid_paginate').hide();
     $('#hiddenLable').show();
-    var canvas = document.getElementById("printDiv").innerHTML;
-        window.print(canvas);
-            // w.close();
-    $('#hiddenLable').hide();
-    $('#ClientListGrid_length').show();
-    $('#ClientListGrid_info').show();
-    $('#ClientListGrid_paginate').show();
-    return false;  
+    var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+    $(".main-content-wrap").remove();
+    window.print(canvas);
+    // w.close();
+    window.location.reload();
+    return false;
 }
 $('#hiddenLable').hide();
 </script>

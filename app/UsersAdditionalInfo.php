@@ -32,7 +32,7 @@ class UsersAdditionalInfo extends Authenticatable
             return date('M j, Y h:i A',strtotime($convertedDate));
 
         }else{
-            if($this->client_portal_enable==1){
+            if($this->client_portal_enable=='1'){
                 return "Disabled";
             }else{
                 return "Never";

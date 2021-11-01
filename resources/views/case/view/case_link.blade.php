@@ -1022,11 +1022,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     {
         $('#hiddenLable').show();
         var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
-        $(".printDiv").html('');
-        $('#hiddenLable').hide();
-        return false;  
+        window.location.reload();
+        return false;
     }
     $('#hiddenLable').hide();
 </script>

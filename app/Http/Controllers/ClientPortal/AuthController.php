@@ -67,7 +67,7 @@ class AuthController extends Controller
  
             if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
                 $userStatus = Auth::User()->user_status;
-                if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
+                if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                     $user->save();
@@ -101,7 +101,7 @@ class AuthController extends Controller
         $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
         if(isset($user) ) { 
             if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password_confirmation)])) {
-                if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == 1) { 
+                if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
                     session(['layout' => 'horizontal']);
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {

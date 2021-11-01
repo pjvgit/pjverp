@@ -58,10 +58,9 @@ $adjustment_token=round(microtime(true) * 1000);
     </div>
 
     <div class="ml-auto d-print-none">
-        <button class="text-black-50 pr-0 feedback-button btn btn-link pendo-case-feedback-link"
-            onclick="onFeedbackClick()">
-            Tell us what you think
-        </button>
+        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+            <button onclick="setFeedBackForm('rating','Case Details');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+        </a>
         <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
             <i class="fas fa-print"></i> Print
         </button>
@@ -831,6 +830,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @include('commonPopup.popup_without_param_code')
 @endsection
 @section('page-js')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {

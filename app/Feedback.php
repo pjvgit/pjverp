@@ -14,6 +14,6 @@ class Feedback extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'feedback', 'rating', 'created_by', 'updated_by'
+        'topic', 'feedback', 'rating', 'created_by', 'updated_by'
     ];
 }

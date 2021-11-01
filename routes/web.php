@@ -1171,7 +1171,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
     // feedback
     Route::post('saveFeedback', 'HomeController@saveFeedback')->name('saveFeedback');
-
+    
 });
 
 /**

@@ -55,7 +55,7 @@ class UserController extends BaseController
                 // $user->last_login=date('Y-m-d h:i:s');
                 // $user->save();
                 if(in_array($user->user_level, [2, 4, 5])) {
-                    if($user->userAdditionalInfo->client_portal_enable == 1) {
+                    if($user->userAdditionalInfo->client_portal_enable == '1') {
                         $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                         $user->save();
                         session()->flash("firmCaseCount", count(userCaseList() ?? []));

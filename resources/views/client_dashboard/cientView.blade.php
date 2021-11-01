@@ -20,11 +20,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
         <?php } ?>
     </h2>
     <div class="ml-auto d-flex align-items-center d-print-none">
-        <button class="text-black-50 pr-0 feedback-button btn btn-link pendo-case-feedback-link"
-            onclick="MyCase.Clients.onFeedbackClick()">
-            Tell us what you think
-        </button>
-
+        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+            <button onclick="setFeedBackForm('single','Contact Details');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+        </a>
         <button class="btn btn-link text-black-50 d-none d-md-block" onclick="printEntry();return false;">
             <i class="fas fa-print"></i> Print
         </button>
@@ -1506,8 +1504,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </style>
 @include('commonPopup.popup_code')
 @endsection
-
 @section('page-js')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $isSet=localStorage.getItem("addTimeEntry");
@@ -3197,11 +3195,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
         <?php } ?>
         console.log(canvas);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
-        $(".printDiv").html('');
-        $('.hiddenLable').hide();
-        return false;  
+        window.location.reload();
+        return false;
     }
     $('.hiddenLable').hide();
 </script>

@@ -8,6 +8,7 @@
 ?>
 <div class="col-md-12">
     <div id="calendar_page" class="case_info_page" style="">
+    <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
         <div id="case-calendar-container" data-court-case-id="12126380" data-can-edit-events="true">
             <div class="case-calendar-view mt-2">
                 <div class="w-100 d-flex align-items-center">
@@ -351,12 +352,15 @@
     function printEntry()
     {
         $('#hiddenLable').show();
-        var canvas = $(".printDiv").html();
+        var canvas = $(".printDiv").html(document.getElementById("calendar_page").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
         $(".printDiv").html('');
         $('#hiddenLable').hide();
+        window.location.reload();
         return false;  
     }
+    $('#hiddenLable').hide();
 </script>
 @stop

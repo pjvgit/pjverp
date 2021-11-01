@@ -28,8 +28,9 @@
     <div class="ml-auto d-flex align-items-center d-print-none">
         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}lead_setting#Statuses">Customize</a>
 
-        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">Tell us what you
-            think</a>  
+        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+            <button onclick="setFeedBackForm('single','Lead Management');" type="button" class="btn btn-link pr-4 d-print-none text-black-50">Tell us what you think</button>
+        </a>
         <?php
         if(request()->is('leads/onlineleads') || request()->is('leads/statuses')){
             ?>
@@ -65,3 +66,6 @@
                 onclick="addLead();">Add Lead</button></a>
     </div>
 </div>
+@section('page-js')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+@stop

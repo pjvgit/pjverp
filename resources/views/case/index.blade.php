@@ -45,15 +45,15 @@ if(isset($_GET['i'])){
                         </li>
                     </ul>
                     <div class="ml-auto d-flex align-items-center d-print-none">
-                        {{-- <a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button disabled class="btn btn-primary btn-rounded m-1" type="button" onclick="loadStep1();">Add Case</button></a> --}}
+                        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                            <button onclick="setFeedBackForm('single','Cases Tab');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+                        </a>
                         <button onclick="printEntry();return false;" class="btn btn-link">
                             <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
                                     title="" data-original-title="Print"></i>
-                        </button>
-                        
+                        </button>                        
                         <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" > <button disabled class="btn btn-primary btn-rounded m-1" type="button" onclick="loadAllStep();" >Add Case</button></a>
-                        </div>   
-
+                    </div>   
                 </div>
                 <form class="filterBy" id="filterBy" name="filterBy" method="GET">
                     <div class="row pl-4 pb-4">
@@ -100,7 +100,7 @@ if(isset($_GET['i'])){
                         
                     </div>
                 </form>
-                <div class="table-responsive" id="printDiv">
+                <div class="table-responsive" id="printHtml">
                     <h3 id="hiddenLable">Cases</h3>
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
@@ -110,7 +110,7 @@ if(isset($_GET['i'])){
                                  <th width="15%">Case</th>
                                 <th width="10%">Number</th>
                                 <th width="10%">Case Stage</th>
-                                <th width="10%">Firm Member</th>
+                                <th width="10%">Firm Members</th>
                                 <th width="10%">Next Event</th>
                                 <th width="15%">Next Task</th>
                                 <th width="15%" class="text-center">Status Update</th>
@@ -874,7 +874,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @endsection
 
 @section('page-js')
-
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         var isAdded=localStorage.getItem("addedClient");
@@ -1027,7 +1027,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     $('td:eq(7)', nRow).html('<div class="text-left"><div class="details">'+aData.created_new_date+'<small> by <a href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a></small></div></div>');
                     
-                    $('td:eq(8)', nRow).html('<div class="text-left" style="white-space: nowrap;"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info"> <i class="fas fa-eye pr-2  align-middle" title="View Details"></i> <a data-toggle="modal"  data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"  onclick="updateCaseDetails('+aData.id+');"><i class="fas fa-pen align-middle"></i></a></a></div>');
+                    $('td:eq(8)', nRow).html('<div class="text-left" style="white-space: nowrap;"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info"> <i class="fas fa-eye pr-2  align-middle d-print-none"></i title="View Details"></i> <a data-toggle="modal"  data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"  onclick="updateCaseDetails('+aData.id+');"><i class="fas fa-pen align-middle d-print-none"></i></a></a></div>');
                 
                     //  $('td:eq(6)', nRow).html('<div class="text-center"><a data-toggle="tooltip" data-placement="bottom" title="View" class="btn btn-primary btn-sm" href="'+baseUrl+'/project?id='+ aData.decode_id +'"> View</a></div>');
                     //loadTaskView
@@ -1538,13 +1538,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $('#employee-grid_info').hide();
         $('#employee-grid_paginate').hide();
         $('#hiddenLable').show();
-        var canvas = document.getElementById("printDiv").innerHTML;
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
-        $('#hiddenLable').hide();
-        $('#employee-grid_length').show();
-        $('#employee-grid_info').show();
-        $('#employee-grid_paginate').show();
+        window.location.reload();
         return false;  
     }
     $('#hiddenLable').hide();

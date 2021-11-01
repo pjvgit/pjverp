@@ -823,17 +823,21 @@ class HomeController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $feedback = Feedback::create([
+                'topic' => $request->topic,
                 'feedback' => $request->message,
                 'created_by' => Auth::User()->id
             ]);
 
+            $mailHtml = 'Thank you for sending us your suggestion!  This is an automated response, however, we do read every comment and consider them in our product planning. If we need any clarifying information, we will reach out to you. <br/><br/> Your feedback helps us to continue to improve LegalCase. We appreciate you taking the time to help LegalCase get even better.<br/><br/> Thank you, <br/> Legalcase Product Team';
+
             // send mail to user for apply feedback
-            \Mail::send([], [], function ($message) use ($request, $feedback) {
-                $message->to('jignesh.prajapati@plutustec.com')
+            \Mail::send([], [], function ($message) use ($request, $feedback, $mailHtml) {
+                $message->to('jignesh.prajapati@plutustec.com') // $request->email
                   ->subject('Your Legalcase Customer Feedback Request: Customer Feedback - '.$request->topic.', Case #'. sprintf('%06d', $feedback->id) .'(Thread ID)')
-                  ->setBody('Thank you for sending us your suggestion!  This is an automated response, however, we do read every comment and consider them in our product planning. If we need any clarifying information, we will reach out to you.
-                  '); 
+                  ->setBody($mailHtml, 'text/html'); 
               });
+
+            session(['popup_success' => 'Thank you for the suggestion!']);
             return response()->json(['errors'=>'']);
         }
     }

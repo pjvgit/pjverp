@@ -18,7 +18,7 @@
                     onclick="showAllCourtCasesAutocomplete(); ">Browse All</a></div>
         </div>
         <hr>
-        <?php if($UserInfo->client_portal_enable==0){ ?>
+        <?php if($UserInfo->client_portal_enable=='0'){ ?>
             <label for="inputEmail3" class="col-sm-2 col-form-label"><b>Sharing </b></label>
             <table class="no_padding">
                 <tbody>

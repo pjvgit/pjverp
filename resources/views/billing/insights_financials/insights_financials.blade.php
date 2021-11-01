@@ -36,9 +36,9 @@ if(isset($_GET['office'])){
                             <button  onclick="printEntry();return false;"  class="btn btn-outline-secondary mr-1 btn-rounded">
                                 <i class="fas fa-print"></i><span
                                     class="sr-only">Print This Page</span></button>
-                            <button class="btn btn-outline-secondary m-1">
-                                Tell us what you think!
-                            </button>
+                            <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                                <button onclick="setFeedBackForm('single','Financial Insights');" type="button" class="btn btn-outline-secondary m-1">Tell us what you think</button>
+                            </a>
                         </div>
                     </div>
                     <div class="row pl-4 pb-4">
@@ -309,7 +309,7 @@ if(isset($_GET['office'])){
     </table>
 </div>
 -->
-
+</div>
 <iframe id="ifmcontentstoprint" style="height: 0px; width: 0px; position: absolute"></iframe>
 <style>
     .insights-card {
@@ -317,6 +317,7 @@ if(isset($_GET['office'])){
     }
 </style>
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
@@ -547,10 +548,10 @@ if(isset($_GET['office'])){
     function printEntry()
     {
         var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
-        $(".printDiv").html('');
-        $("#preloader").hide();
+        window.location.reload();
         return false;  
     }
 </script>

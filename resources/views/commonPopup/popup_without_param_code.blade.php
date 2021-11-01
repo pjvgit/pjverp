@@ -997,6 +997,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                             
                 <input type="hidden" name="mailer_type" id="mailer_type" value="feedback">
                 <input type="hidden" name="topic" id="topic" value="">
+                <input type="hidden" name="rating" id="rating" value="">
 
                 <div class="modal-body">
                     <p>Customer feedback helps us to improve our product!</p>
@@ -1008,7 +1009,17 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <label for="message">Details</label>
                     <textarea name="message" id="message" class="form-control" placeholder="Please try to be as specific as possible." style="resize: none; height: 140px;"></textarea>
                     </div>
-
+                    <div class="rating-section">
+                    <p class="mb-0">How easy or difficult was this feature to use?</p>
+                    <div role="group" class="d-flex btn-group">
+                        <button type="button" class="flex-fill rounded border mr-1 btn btn-secondary ratingButton">1</button>
+                        <button type="button" class="flex-fill rounded border mr-1 btn btn-secondary ratingButton">2</button>
+                        <button type="button" class="flex-fill rounded border mr-1 btn btn-secondary ratingButton">3</button>
+                        <button type="button" class="flex-fill rounded border mr-1 btn btn-secondary ratingButton">4</button>
+                        <button type="button" class="flex-fill rounded border mr-1 btn btn-secondary ratingButton">5</button>
+                    </div>
+                    <div class="d-flex"><p class="mr-auto"><em> Very Difficult </em></p><p><em>Very Easy </em></p></div>
+                    </div>
                     <div class="row">
                     <div class="col-6">
                         <label>Name</label>
@@ -1028,9 +1039,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                 <div class="modal-footer">
                     <div id="link_button">
-                    <button class="btn btn-cta-primary" type="submit">
-                                        <span class="ladda-label">Submit</span>
-                                    </button>
+                        <button class="btn btn-primary" type="submit">
+                            <span class="ladda-label">Submit Query</span>
+                        </button>
                     </div>
                     
                     <div id="adding_box" style="display: none; width: 150px; text-align: center; height: 28px; padding-top: 7px;" class="standard adding ">

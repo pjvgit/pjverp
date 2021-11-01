@@ -162,10 +162,10 @@ function printEntry()
 {
     $('#hiddenLable').show();
     var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+    $(".main-content-wrap").remove();
     window.print(canvas);
     // w.close();
-    $(".printDiv").html('');
-    $('#hiddenLable').hide();
+    window.location.reload();
     return false;  
 }
 $('#hiddenLable').hide();

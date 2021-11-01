@@ -2137,7 +2137,7 @@ class ClientdashboardController extends BaseController
                     ->get();
                     
                     foreach($clientLists as $k=>$v){
-                        if($v->client_portal_enable == 1){
+                        if($v->client_portal_enable == '1'){
                             $Messages=new Messages;
                             $Messages->user_id=$v->id;
                             $Messages->replies_is='private';

@@ -34,7 +34,10 @@ if(isset($_GET['type'])){
     <div class="col">
         <div class="float-right">
             <?php if($LeadData['do_not_hire_reason']==NULL){ ?>
-            <a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button onclick="loadStep1('{{$LeadData->user_id}}');" class="btn btn-primary btn-rounded m-1 px-5" type="button">Convert to Case</button></a>
+                <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                    <button onclick="setFeedBackForm('rating','Lead Details');" type="button" class="btn btn-link pr-4 d-print-none text-black-50">Tell us what you think</button>
+                </a>
+                <a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button onclick="loadStep1('{{$LeadData->user_id}}');" class="btn btn-primary btn-rounded m-1 px-5" type="button">Convert to Case</button></a>
             <?php } ?>
         </div>
     </div>
@@ -869,6 +872,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 @endsection
 
 @section('page-js')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets/js/custom/lead/converttocase.js') }}"></script>
 <script type="text/javascript">
   function myFunction(id) {

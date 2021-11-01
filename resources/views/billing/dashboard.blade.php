@@ -169,9 +169,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h4>My Timesheet</h4>
-                                    <a class="btn btn-link" rel="facebox"
-                                        href="{{BASE_URL}}/dashboard/load_feedback?mailer_type=feedback&amp;topic=timesheet_calendar">Tell
-                                        us what you think!</a>
+                                    <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                                        <button onclick="setFeedBackForm('single','Timesheet Calender');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+                                    </a>
                                 </div>
                                 <div class="card-body">
                                     <div class="timesheet-calendar-container">
@@ -391,6 +391,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
 </style>
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $(".country").select2({

@@ -14,7 +14,9 @@
                     <h3 class="my-0 font-weight-bold">Timesheet Calendar</h3>
                     <div class="d-flex flex-row align-items-center">
                         <a class="mr-2" href="/time_tracking">Find more billable time with the Smart Time Finder</a>
-                        <button type="button" class="btn btn-secondary">Tell us what you think!</button>
+                        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                            <button onclick="setFeedBackForm('rating','Timesheet Calendar');" type="button" class="btn btn-outline-secondary m-1">Tell us what you think</button>
+                        </a>
                     </div>
                 </div>
                 <br>
@@ -160,6 +162,7 @@
 }
 </style>
 @section('page-js-inner')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#staff_user_main_form").select2({

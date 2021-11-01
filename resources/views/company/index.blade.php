@@ -38,7 +38,7 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         <a data-toggle="modal"  data-target="#addCompanyModel" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="addCompany();">Add Company</button></a>
                     </div>
                 </div>
-                <div class="table-responsive" id="printDiv">
+                <div class="table-responsive" id="printHtml">
                     <h3 id="hiddenLable">Companies</h3>
                     <table class="display table table-striped table-bordered" id="Datatable-Grid" style="width:100%">
                         <thead>
@@ -174,7 +174,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }else{
                     $('td:eq(4)', nRow).html('Not Specified');
                 }
-                $('td:eq(5)', nRow).html('<a data-toggle="modal"  data-target="#EditCompany" data-placement="bottom" href="javascript:;"  onclick="EditCompany('+aData.id+');"><i class="fas fa-pen pr-3  align-middle"></i> </a>');
+                $('td:eq(5)', nRow).html('<a data-toggle="modal"  data-target="#EditCompany" data-placement="bottom" href="javascript:;"  onclick="EditCompany('+aData.id+');"><i class="fas fa-pen pr-3  align-middle d-print-none"></i> </a>');
             },
         });
         $('#addCompanyModel').on('hidden.bs.modal', function () {
@@ -222,14 +222,12 @@ function printEntry()
     $('#Datatable-Grid_info').hide();
     $('#Datatable-Grid_paginate').hide();
     $('#hiddenLable').show();
-    var canvas = document.getElementById("printDiv").innerHTML;
+    var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+    $(".main-content-wrap").remove();
     window.print(canvas);
     // w.close();
-    $('#hiddenLable').hide();
-    $('#Datatable-Grid_length').show();
-    $('#Datatable-Grid_info').show();
-    $('#Datatable-Grid_paginate').show();
-    return false;  
+    window.location.reload();
+    return false;
 }
 $('#hiddenLable').hide();
 </script>

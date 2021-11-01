@@ -18,7 +18,7 @@
                         <a data-toggle="modal"  data-target="#AddContactGroup" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactGroup();">Add Contact Groups</button></a>
                     </div>
                 </div>
-                <div class="table-responsive" id="printDiv">
+                <div class="table-responsive" id="printHtml">
                     <h3 id="hiddenLable">Contact Groups</h3>
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
@@ -120,7 +120,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                     $('td:eq(2)', nRow).html('<a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a>');
 
-                    $('td:eq(3)', nRow).html('<a data-toggle="modal"  data-target="#EditContactGroup" data-placement="bottom" href="javascript:;"  onclick="loadEditBox('+aData.id+');"><i class="fas fa-pen align-middle"></i> </a> &nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash ml-1" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" ></a>'); 
+                    $('td:eq(3)', nRow).html('<a data-toggle="modal"  data-target="#EditContactGroup" data-placement="bottom" href="javascript:;"  onclick="loadEditBox('+aData.id+');"><i class="fas fa-pen align-middle d-print-none"></i> </a> &nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash ml-1 d-print-none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" ></a>'); 
                 }
             },
         });
@@ -215,14 +215,12 @@ function printEntry()
     $('#employee-grid_info').hide();
     $('#employee-grid_paginate').hide();
     $('#hiddenLable').show();
-    var canvas = document.getElementById("printDiv").innerHTML;
+    var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+    $(".main-content-wrap").remove();
     window.print(canvas);
     // w.close();
-    $('#hiddenLable').hide();
-    $('#employee-grid_length').show();
-    $('#employee-grid_info').show();
-    $('#employee-grid_paginate').show();
-    return false;  
+    window.location.reload();
+    return false;
 }
 $('#hiddenLable').hide();
 </script>

@@ -24,7 +24,10 @@
                     </div> --}}
                     <div class="col-sm-4">
                         <a data-toggle="modal" data-target="#AddCaseStageModel" data-placement="bottom" class="btn btn-primary mr-4" href="javascript::void(0);"> Add New Stages</a>
-                        <button class="btn btn-secondry" type="submit">Tell us what you think</button>
+                        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                            <button onclick="setFeedBackForm('single','Case Stages');" type="button" class="btn btn-secondry">Tell us what you think</button>
+                        </a>
+
                     </div>
                 </div>
                 <br>
@@ -124,6 +127,7 @@
         </div>
     </div>
     @section('page-js')
+    <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $("#addCaseStageText").validate({

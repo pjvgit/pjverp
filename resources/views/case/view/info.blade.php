@@ -284,7 +284,7 @@
             </div>
         </div>
     </div>
-    <div class="case-detail-case-information m-3" id="printDiv">
+    <div class="case-detail-case-information m-3" id="printHtml">
         <div>
             <h3 id="hiddenLable">{{($CaseMaster->case_title)??''}}</h3>
             <div class="mb-2">
@@ -654,11 +654,14 @@
 
     function printEntry()
     {
-        $('#hiddenLable').show();
-        var canvas = document.getElementById("printDiv").innerHTML;
+        $('#hiddenLable').show();        
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
+        $(".printDiv").html('');
         $('#hiddenLable').hide();
+        window.location.reload();
         return false;  
     }
     $('#hiddenLable').hide();

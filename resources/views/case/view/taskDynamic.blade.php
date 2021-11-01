@@ -19,7 +19,7 @@ foreach ($task as $element) {
 @if(isset($request->print_task_range_from))
 <br>
 <div>
-  <span>{{ ucfirst($task[0]->created_by_name) }}(Attorney)</span>
+  <span>{{ ucfirst(Auth::user()->first_name.' '.Auth::user()->last_name) }}(Attorney)</span>
   <span style="float: right;" >Due: {{ date('D M d, Y', strtotime($request->print_task_range_from)) }} - {{ date('D M d, Y', strtotime($request->print_task_range_to)) }}</span>
 </div>    
 <br>

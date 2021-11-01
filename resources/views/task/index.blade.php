@@ -117,6 +117,8 @@ if(isset($_GET['task_read'])){
                         </div>
                     </div>
                 </div>
+                <div id="printHtml">
+                <h3 id="hiddenLable"></br>Tasks</br></h3>
                 <form class="filterBy" id="filterBy" name="filterBy" method="GET">
                     <input type="hidden" name="filter_type" id="filter_type" value="{{$filter_type}}">
                     <input type='hidden' name="sort" id='sort' value='{{$orderby}}'>
@@ -184,18 +186,15 @@ if(isset($_GET['task_read'])){
                                     name="task_read">
                                 <span class="slider "></span>
                             </label>
-                            <button class="btn btn-info btn-rounded m-1" type="submit">Apply Filters</button>
-                            <button type="button" class="test-clear-filters text-black-50 btn btn-link"><a
+                            <button class="btn btn-info btn-rounded m-1 d-print-none" type="submit">Apply Filters</button>
+                            <button type="button" class="test-clear-filters text-black-50 btn btn-link d-print-none"><a
                                     href="{{route('tasks')}}">Clear Filters</a></button>
                         </div>
 
                     </div>
                 </form>
-                <div id="printDiv">
-                <?php 
-                if(isset($_GET['sort_on']) && isset($_GET['defaultsor']) && $_GET['defaultsor']==''){
-                   
-                            ?>
+                
+                <?php  if(isset($_GET['sort_on']) && isset($_GET['defaultsor']) && $_GET['defaultsor']==''){ ?>
                     <div class="table-responsive">
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
@@ -1051,7 +1050,7 @@ if(isset($_GET['task_read'])){
 </style>
 
 @section('page-js')
-<script src="{{ asset('assets/js/custom/feedback.js')}}"></script>
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">"use strict";
 
     $(document).ready(function () {
@@ -1661,14 +1660,16 @@ if(isset($_GET['task_read'])){
 
    function printEntry()
     {
+        $('#hiddenLable').show();
         $(".pagination").hide();
-        var canvas = document.getElementById("printDiv").innerHTML;
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
         window.print(canvas);
         // w.close();
-        $(".pagination").show();
-        return false;  
+        window.location.reload();
+        return false;
     }   
-
+    $('#hiddenLable').hide();
 </script>
 @stop
 

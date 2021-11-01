@@ -124,6 +124,7 @@
                     window.print();
                     $("#loadPrint").modal('hide');
                     $("#preloader").hide();
+                    $(".printDiv").html('');
                     return false;
                 }
             })
