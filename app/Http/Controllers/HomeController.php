@@ -832,7 +832,7 @@ class HomeController extends BaseController
 
             // send mail to user for apply feedback
             \Mail::send([], [], function ($message) use ($request, $feedback, $mailHtml) {
-                $message->to('jignesh.prajapati@plutustec.com') // $request->email
+                $message->to($request->email) 
                   ->subject('Your Legalcase Customer Feedback Request: Customer Feedback - '.$request->topic.', Case #'. sprintf('%06d', $feedback->id) .'(Thread ID)')
                   ->setBody($mailHtml, 'text/html'); 
               });
