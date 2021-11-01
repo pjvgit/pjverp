@@ -1,8 +1,8 @@
 <?php
-// $upcoming_events=""; 
-// if(isset($_GET['upcoming_events'])){
-//     $upcoming_events=$_GET['upcoming_events'];
-// }
+$upcoming_events=""; 
+if(isset($_GET['upcoming_events'])){
+    $upcoming_events=$_GET['upcoming_events'];
+}
 // $CommonController= new App\Http\Controllers\CommonController();
 
 ?>
@@ -15,8 +15,8 @@
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
                                 <label class="switch pr-3 switch-success" style="margin-top: 10px;"><span>Only show upcoming events</span>
-                                    <input type="checkbox" id="mc" value="true" checked
-                                        {{-- <?php if(isset($upcoming_events) && $upcoming_events!=''){ echo "checked=checked";}?> --}}
+                                    <input type="checkbox" id="mc"
+                                        {{ (!isset($_GET['upcoming_events'])) ? "checked" : "" }} value="{{ (!isset($_GET['upcoming_events'])) ? "on" : "off" }}"
                                         name="upcoming_events"><span class="slider"></span>
                                 </label>
                                 <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="Recurring events are limited to 1 year from today"></i>
@@ -198,18 +198,18 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
-            // $('#submit').click();
-            tab1Page = 1;
-            loadMoreEvent(tab1Page, filter = 'true');
+            $('#submit').click();
+            // tab1Page = 1;
+            // loadMoreEvent(tab1Page, filter = 'true');
         });
 
         // For load more events
         loadMoreEvent(1, filter = null);
     });
     $('#loadEditEventPopup,#loadAddEventPopup').on('hidden.bs.modal', function () {
-        $("#preloader").show();
-        //   window.location.reload();  
-        loadMoreEvent(1, filter = 'true');      
+        // $("#preloader").show();
+          window.location.reload();  
+        // loadMoreEvent(1, filter = 'true');      
     });
     function loadReminderPopup(evnt_id) {
         $("#reminderDAta").html('Loading...');

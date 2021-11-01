@@ -44,7 +44,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 <tr class="invoice-sharing-row">
                                     <th scope="row" class="text-center">                                        
                                         <input type="checkbox" name="invoice_shared[{{$citem->cid}}]" value="{{$citem->cid}}" id="portalAccess_{{$citem->cid}}" class="invoiceSharingBox invoice-sharing-box"
-                                            uid="{{$citem->cid}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$citem->cid}})" @if($v->shared=="yes") checked="checked" @endif>
+                                            uid="{{$citem->cid}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}" onclick="checkPortalAccess({{$citem->cid}})" @if($v->shared=="yes") checked="checked" @endif {{  ($v->client_portal_enable == 0) ? 'disabled' : '' }}>
                                     </th>
                                     <td class="client-name">{{ $citem->fullname }} (Client)</td>
                                     <td class="last-login-date">
@@ -85,7 +85,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                             <input type="checkbox" name="invoice_shared[{{$v->user_id}}]" value="{{$v->user_id}}"
                                 id="portalAccess_{{$v->user_id}}" class="invoiceSharingBox invoice-sharing-box"
                                 uid="{{$v->user_id}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}"
-                                onclick="checkPortalAccess({{$v->user_id}})" checked="checked">
+                                onclick="checkPortalAccess({{$v->user_id}})" checked="checked" {{ ($v->client_portal_enable == 0) ? 'disabled' : '' }}>
 
                             <?php
                             }else{

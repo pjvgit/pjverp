@@ -34,7 +34,6 @@ $(document).on("change", ".load-default-reminder, .load-default-reminder-all", f
     } else {
         var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
         var checkedL = $('input[name="client-share-all"]:checked').length;
-        // alert(checkedLen +'='+ checkedL);
         if(checkedLen <= 0 && checkedL <= 0) {
             $(".reminder_user_type option[value='client-lead']:selected").parents('.fieldGroup').remove();
             reminderAdded = false;
@@ -92,6 +91,11 @@ function loadGrantAccessModal(id) {
 $(document).on("click", ".add-more, .add-new-reminder", function () {
     var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +'</div>';
     $('body').find('.fieldGroup:last').before(fieldHTML);
+    var checkedLen = $('input[name="ContactInviteClientCheckbox[]"]:checked').length;
+    var checkedL = $('input[name="client-share-all"]:checked').length;
+    if(checkedLen <= 0 && checkedL <= 0) {
+        $(".reminder_user_type option[value='client-lead']").hide();
+    }
 });
 
 /**
@@ -135,6 +139,6 @@ function selectType() {
     $(".innerLoader").css('display', 'none');
 }
 
-$('#loadEditEventPopup,#loadAddEventPopup').on('shown.bs.modal', function () {
+/* $('#loadEditEventPopup,#loadAddEventPopup').on('shown.bs.modal', function () {
     reminderAdded = false; 
-});
+}); */

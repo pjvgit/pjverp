@@ -1,3 +1,13 @@
+------------------------------------ 01-NOV-2021 ------------------------------
+ALTER TABLE `all_history` ADD `is_for_client` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `client_id`;
+ALTER TABLE `all_history`
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
+CREATE TABLE `client_additional_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `client_id` int(11) NOT NULL COMMENT 'id of users table',
+  `firm_id` int(11) NOT NULL COMMENT 'id of firm table'
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
 ------------------------------------ 29-OCT-2021 ------------------------------
 ALTER TABLE `all_history`
 CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;

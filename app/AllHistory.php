@@ -145,4 +145,12 @@ class AllHistory extends Authenticatable
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Get formated created at date
+     */
+    public function getFormatedCreatedAtAttribute()
+    {
+        return convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
+    }
 }
