@@ -60,7 +60,7 @@
         <div class="main-content-wrap  d-flex flex-column">
             <div class="main-content">
                 @yield('main-content')
-                @include('commonPopup.popup_without_param_code')
+                {{-- @include('commonPopup.popup_without_param_code') --}}
             </div>
         </div>
     </div>

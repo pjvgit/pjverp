@@ -1179,6 +1179,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
  */
 Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
+    Route::get('notifications', 'HomeController@allNotification')->name("client/notifications");
 
     // For billing > invoice
     Route::get('bills', 'BillingController@index')->name('client/bills');
@@ -1193,6 +1194,11 @@ Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'n
     Route::get('events/{id}', 'EventController@show')->name('client/events/detail');
     Route::post('events/save/comment', 'EventController@saveComment')->name('client/events/save/comment');
     Route::get('events/comment/history', 'EventController@eventCommentHistory')->name('client/events/comment/history');
+    
+    // For profile settings
+    Route::get('account', 'ProfileController@edit')->name('client/account');
+    Route::post('account/save', 'ProfileController@update')->name('client/account/save');
+    Route::post('account/change/password', 'ProfileController@changePassword')->name('client/change/password');
 });
 
 //Without login 

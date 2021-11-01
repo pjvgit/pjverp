@@ -974,7 +974,7 @@ class CaseController extends BaseController
 
                 //Get all event by 
                 $allEvents = CaseEvent::select("*")->where("case_id",$case_id);
-                if($request->upcoming_events) {
+                if($request->upcoming_events || isset($_GET['upcoming_events'])) {
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
                 $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')

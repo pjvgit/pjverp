@@ -63,11 +63,11 @@
 					<h1 class="primary-heading">Recent Activity </h1>
 					<ul class="list" id="notifications_list">
 						@forelse ($recentActivity as $key => $item)
-							@if($item->type == "invoices" && $item->action == "share")
+							@if($item->type == "invoices")
 							<li class="list-row">
-								<a href="/bills/15057828"><i class="fas fa-dollar-sign"></i>
+								<a href="/bills/15057828"><i class="fas fa-dollar-sign list-row__icon"></i>
 									<div class="list-row__body">
-										<span class="list-row__wrappable-content">{{ $item->createdByUser->full_name}} {{ $item->activity }} 
+										<span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }} 
 											<span class="u-color-primary">
 												@if ($item->deleteInvoice == NULL)
 													<a href="{{ route('bills/invoices/view',base64_encode($item->activity_for)) }}"> #{{sprintf('%06d', $item->activity_for)}} </a>
@@ -76,7 +76,7 @@
 												@endif 
 											</span>
 										</span><br>
-										<span class="list-row__header-detail">{{ Oct 29, 2021 2:30 PM }}</span>
+										<span class="list-row__header-detail">{{ date('M d, Y h:i A', strtotime($item->formated_created_at)) }}</span>
 									</div>
 								</a>
 							</li>
@@ -97,7 +97,7 @@
 						{{-- <li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">R S updated document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:25 PM</span></div></a></li> --}}
 						{{-- <li class="list-row"><a href="/documents/100306582"><i class="list-row__icon">description</i><div class="list-row__body"><span class="list-row__wrappable-content">Mary Dyer commented document <span class="u-color-primary">id card</span></span><br><span class="list-row__header-detail">Jul 21, 2021 11:24 PM</span></div></a></li> --}}
 						@if(count($recentActivity))
-						<li class="list__view-all"><a href="/notifications">View all recent activity</a></li>
+						<li class="list__view-all"><a href="{{ route('client/notifications') }}">View all recent activity</a></li>
 						@endif
 					</ul>
 				</div>

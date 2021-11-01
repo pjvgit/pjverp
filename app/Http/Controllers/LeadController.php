@@ -2503,23 +2503,8 @@ class LeadController extends BaseController
         }
         if(\Route::current()->getName()=="case_details/calendars"){
             //Load only upcoming events
-            // if(isset($_GET['upcoming_events'])){
-              
-            //     //Get all event by 
-            //     $allEvents = CaseEvent::select("*")->where("lead_id",$user_id)->where("start_date",">=",date('Y-m-d'))->orderBy('start_date','ASC')->orderBy('start_time','ASC')->get()
-            //     ->groupBy(function($val) {
-            //         return Carbon::parse($val->start_date)->format('Y');
-            //     });
-            // }else{
-
-            //     //Get all event by 
-            //     $allEvents = CaseEvent::select("*")->where("lead_id",$user_id)->orderBy('start_date','ASC')->orderBy('start_time','ASC')->get()
-            //     ->groupBy(function($val) {
-            //         return Carbon::parse($val->start_date)->format('Y');
-            //     });
-            // }
             $allEvents = CaseEvent::select("*")->where("lead_id",$user_id);
-            if($request->upcoming) {
+            if($request->upcoming || isset($_GET['upcoming_events'])) {
                 $allEvents = $allEvents->whereDate("start_date", ">=", date('Y-m-d'));
             }
             $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')

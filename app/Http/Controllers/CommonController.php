@@ -105,6 +105,7 @@ class CommonController extends BaseController {
        $AllHistory->type=($data['type'])??NULL;
        $AllHistory->action=($data['action'])??NULL;
        $AllHistory->client_id=($data['client_id'])??NULL;
+       $AllHistory->is_for_client = $data['is_for_client'] ?? 'no';
        $AllHistory->firm_id=Auth::User()->firm_name;
        $AllHistory->created_by=Auth::User()->id;
        $AllHistory->created_at=date('Y-m-d H:i:s');  

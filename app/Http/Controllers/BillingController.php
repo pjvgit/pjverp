@@ -4559,6 +4559,19 @@ class BillingController extends BaseController
                         $data['action']='share';
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
+
+                        // Add history for client
+                        $data=[];
+                        $data['invoice_id']=$request->invoice_id;
+                        $data['user_id']=$k;
+                        $data['client_id']=$k;
+                        $data['activity']='shared invoice';
+                        $data['activity_for']=$request->invoice_id;
+                        $data['type']='invoices';
+                        $data['action']='share';
+                        $data['is_for_client']='yes';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
                     } else {
                         SharedInvoice::where("user_id",$k)->Where("invoice_id",$request->invoice_id)->update(['is_shared' => "yes"]);
                     }
@@ -4577,6 +4590,19 @@ class BillingController extends BaseController
                         $data['activity_for']=$request->invoice_id;
                         $data['type']='invoices';
                         $data['action']='unshare';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+
+                        // Add history for client
+                        $data=[];
+                        $data['invoice_id']=$request->invoice_id;
+                        $data['user_id']=$k;
+                        $data['client_id']=$k;
+                        $data['activity']='unshared invoice';
+                        $data['activity_for']=$request->invoice_id;
+                        $data['type']='invoices';
+                        $data['action']='share';
+                        $data['is_for_client']='yes';
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
                     }
@@ -5109,7 +5135,9 @@ class BillingController extends BaseController
             $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
             // end
             foreach($request->client as $k=>$v){
-                $findUSer=User::find($v);
+                $findUSer = User::whereId($v)->with(["userAdditionalInfo" => function($query) {
+                    $query->select("user_id", "client_portal_enable");
+                }])->first();
                 if($findUSer['email'] == '' || $findUSer['email'] == NULL){
                     $findUSer->email = $request['new_email-'.$v];
                     $findUSer->save();
@@ -5155,6 +5183,33 @@ class BillingController extends BaseController
                 $invoiceHistory['created_by']=Auth::User()->id;
                 $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                 $this->invoiceHistory($invoiceHistory);
+
+                // Add history
+                $data=[];
+                $data['invoice_id']=$invoice_id;
+                $data['user_id']=$v;
+                $data['client_id']=$v;
+                $data['activity']='emailed invoice';
+                $data['activity_for']=$invoice_id;
+                $data['type']='invoices';
+                $data['action']='email';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+
+                // Add history for client
+                if($findUSer && $findUSer->userAdditionalInfo && $findUSer->userAdditionalInfo->client_portal_enable == 1) {
+                    $data=[];
+                    $data['invoice_id']=$invoice_id;
+                    $data['user_id']=$v;
+                    $data['client_id']=$v;
+                    $data['activity']='shared invoice';
+                    $data['activity_for']=$invoice_id;
+                    $data['type']='invoices';
+                    $data['action']='email';
+                    $data['is_for_client']='yes';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+                }
             }
             session(['popup_success' => 'Reminders have been sent']);
             return response()->json(['errors'=>'']);
