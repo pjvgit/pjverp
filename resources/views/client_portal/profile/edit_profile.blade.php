@@ -6,14 +6,14 @@
     <section class="settings" id="settings_view">
         <ul class="nav nav-tabs nav-justified text-center" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link @if(Route::currentRouteName() == "client/account") {{ "active" }} @endif" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab" aria-controls="profileBasic" aria-selected="false">My Profile</a>
+                <a class="nav-link @if(Route::currentRouteName() == "client/account") {{ "active" }} @endif" id="profile-basic-tab" href="{{ route('client/account') }}" role="tab" aria-controls="profileBasic" aria-selected="false">My Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="preference-basic-tab" data-toggle="tab" href="#preferenceBasic" role="tab" aria-controls="preferenceBasic" aria-selected="true">My Preferences</a>
+                <a class="nav-link @if(Route::currentRouteName() == "client/account/preferences") {{ "active" }} @endif" id="preference-basic-tab" href="{{ route('client/account/preferences') }}" role="tab" aria-controls="preferenceBasic" aria-selected="true">My Preferences</a>
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+            <div class="tab-pane fade @if(Route::currentRouteName() == "client/account") {{ "show active" }} @endif" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
                 <h1 class="primary-heading">Contact Info</h1>
                 <form class="p-3" action="{{ route('client/account/save') }}" method="POST" id="profile_form">
                     @csrf
@@ -78,23 +78,23 @@
                 </form>
                 <h1 class="primary-heading">Change Email</h1>
                 <form class="detail-view__background p-3">
-                    <div class="settings__input form-input u-font-small">
+                    <div class="col-md-4 form-group mb-3">
                         <label class="form-input__label" for="current">Current Email</label>
-                        <label>alice@mailinator.com</label>
+                        <label>{{ $user->email }}</label>
                     </div>
-                    <div class="settings__input u-font-small">
+                    <div class="col-md-4 form-group mb-3">
                         <div class="form-input is-required">
                             <label class="form-input__label" for="email">New Email</label>
                             <input id="email" name="login[email]" required="" type="email" class="form-control">
                         </div>
                     </div>
-                    <div class="settings__input u-font-small">
+                    <div class="col-md-4 form-group mb-3">
                         <div class="form-input is-required">
                             <label class="form-input__label" for="password">Current Password</label>
                             <input id="password" name="login[old_password]" required="" type="password" class="form-control">
                         </div>
                     </div>
-                    <input type="submit" class="settings__submit" value="Update Email">
+                    <input type="submit" class="btn btn-primary" value="Update Email">
                 </form>
                 <h1 class="primary-heading">Change Password</h1>
                 <form class="p-3" data-action="{{ route("client/change/password") }}" method="POST" id="chnage_password_form">
@@ -102,8 +102,8 @@
                     <div class="settings__input u-font-small">
                         <div class="col-md-4 form-group mb-3">
                             <label class="form-input__label" for="current_password">Current Password</label>
-                            <input id="current_password" name="old_password" type="password" class="form-control">
-                            <span class="error old_password_error"></span>
+                            <input id="current_password" name="current_password" type="password" class="form-control">
+                            <span class="error current_password_error"></span>
                         </div>
                     </div>
                     <div class="settings__input u-font-small">
@@ -123,16 +123,18 @@
                     <input type="submit" class="btn btn-primary" value="Update Password">
                 </form>
             </div>
-            <div class="tab-pane fade" id="preferenceBasic" role="tabpanel" aria-labelledby="preference-basic-tab">
-                <form class="p-3">
-                    <div class="form-input">
+            <div class="tab-pane fade @if(Route::currentRouteName() == "client/account/preferences") {{ "show active" }} @endif" id="preferenceBasic" role="tabpanel" aria-labelledby="preference-basic-tab">
+                <form class="p-3" action="{{ route('client/account/save/preferences') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ $user->id }}">
+                    <div class="col-md-4 form-group mb-3">
                         <label class="form-input__label" for="time_zone">Time Zone</label>
-                        <select name="preferences[time_zone]" class="form-control select2" placeholder="Select Timezone">
+                        <select name="user_timezone" class="form-control select2" placeholder="Select Timezone">
                             @php
                                 $timezoneData = unserialize(getTimezoneList()); //
                             @endphp
                             @forelse(array_flip($timezoneData) as $key=>$val)
-                                <option value="{{$key}}">{{$val}}</option>
+                                <option value="{{$key}}" {{ ($user->user_timezone == $key) ? 'selected' : '' }}>{{$val}}</option>
                             @empty
                             @endforelse
                         </select>
@@ -146,10 +148,19 @@
                         <h1 class="settings__title">Automatic Logout</h1>
                         <div class="form-check">
                             <label class="form-check-label">
-                                <input class="form-check-input mr-2" name="auto_logout_enabled" type="checkbox" value="true">Automatically log me out after a period of inactivity</label>
+                                <input type='hidden' value='off' name='auto_logout'>
+                                <input class="form-check-input mr-2" name="auto_logout" type="checkbox" {{ ($user->auto_logout == 'on') ? 'checked' : '' }}>Automatically log me out after a period of inactivity</label>
+                        </div>
+                        <div class="col-md-4 form-group mt-3" id="logout_after_div" style="display: {{ ($user->auto_logout == 'on') ? 'block' : 'none' }};">
+                            <label class="form-input__label" for="logout_minutes">Log me out after</label>
+                            <select class="form-control" id="logout_minutes" name="sessionTime">
+                                <option value="10" {{ ($user->sessionTime == 10) ? 'selected' : '' }}>10 minutes of inactivity</option>
+                                <option value="30" {{ ($user->sessionTime == 30) ? 'selected' : '' }}>30 minutes of inactivity</option>
+                                <option value="60" {{ ($user->sessionTime == 60) ? 'selected' : '' }}>60 minutes of inactivity</option>
+                            </select>
                         </div>
                     </div>
-                    <input type="submit" class="settings__submit" value="Save Preferences">
+                    <input type="submit" class="btn btn-primary" value="Save Preferences">
                 </form>
             </div>
         </div>
@@ -182,7 +193,7 @@ $(document).ready(function() {
 
     $("#chnage_password_form").validate({
         rules: {
-            "old_password": {
+            "current_password": {
                 required: true,      
             },
             "password": {
@@ -201,12 +212,11 @@ $(document).ready(function() {
                 data: $("#chnage_password_form").serialize(),
                 success: function( response ) {
                     if(response.success) {
-                        $("#event_comment").val('');
+                        $("#chnage_password_form")[0].reset();
                         toastr.success(response.message, "", {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });
-                        loadCommentHistory();
                     }
                 },
                 error: function(response) {
@@ -219,6 +229,14 @@ $(document).ready(function() {
             });
             return false;
         },
+    });
+
+    $("input[name='auto_logout']").on("change", function() {
+        if($(this).is(":checked")) {
+            $("#logout_after_div").show();
+        } else {
+            $("#logout_after_div").hide();
+        }
     });
 });
 </script>

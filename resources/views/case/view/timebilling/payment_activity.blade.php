@@ -108,9 +108,13 @@
                 $('td:eq(0)', nRow).html('<div class="text-left">' + aData.added_date +'</div>');
 
                 if(aData.related_to_invoice_id || aData.invoice_id) {
-                    $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+ aData.invoice.decode_id+'" >#'+aData.invoice.invoice_id+'</a>');
-                } else if(aData.related_to_fund_request_id) {
-                    $('td:eq(1)', nRow).html(aData.fundRequest.padding_id);
+                    if(aData.invoice) {
+                        $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/bills/invoices/view/'+ aData.invoice.decode_id+'" >#'+aData.invoice.invoice_id+'</a>');
+                    } else {
+                        $('td:eq(1)', nRow).html('#'+aData.related_to);
+                    }
+                } else if(aData.related_to_fund_request_id != null) {
+                    $('td:eq(1)', nRow).html(aData.related_to);
                 } else {
                     $('td:eq(1)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }

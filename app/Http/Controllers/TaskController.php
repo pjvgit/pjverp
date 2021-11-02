@@ -450,6 +450,7 @@ class TaskController extends BaseController
         }
         if(isset($request['linked_contact_checked_attend'])){
             for($i=0;$i<count($request['linked_contact_checked_attend']);$i++){
+                $clientId = $request['linked_contact_checked_attend'][$i];
                 $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
                 $CaseTaskLinkedStaff->task_id=$task_id; 
                 $CaseTaskLinkedStaff->user_id=$request['linked_contact_checked_attend'][$i];
@@ -459,6 +460,18 @@ class TaskController extends BaseController
                 $CaseTaskLinkedStaff->is_assign = "yes";
                 $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                 $CaseTaskLinkedStaff->save();
+
+                // Add history for client
+                $data=[];
+                $data['task_id']=$task_id;
+                $data['user_id'] = $clientId;
+                $data['client_id'] = $clientId;
+                $data['activity']='added task';
+                $data['type']='task';
+                $data['action']='add';
+                $data['is_for_client']='yes';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
         }
   }

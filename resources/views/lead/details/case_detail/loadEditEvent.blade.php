@@ -557,7 +557,7 @@
                                 </div>
                                 <div class="m-2">
                                     <label class="form-check-label">
-                                        <input type="radio" name="delete_event_type" class="pick-option mr-2" value="ALL_EVENTS" >
+                                        <input type="radio" name="delete_event_type" class="pick-option mr-2" value="ALL_EVENTS"  checked="checked">
                                         <span>All events</span>
                                     </label>
                                 </div>
@@ -789,7 +789,7 @@
                         $('#loadEditEventPopup').animate({ scrollTop: 0 }, 'slow');
                         return false;
                     } else {
-                        window.location.reload();
+                        // window.location.reload();
                         $(".innerLoader").css('display', 'none');
 
                     }
@@ -1074,6 +1074,9 @@
             $('.submit').removeAttr("disabled");
             return false;
         }
+        if(!$("#recuring_event").is(":checked")) {
+            $('#EditEventForm').trigger('submit');
+        } else {
         $("#confirmSave").css('display','block');
         $("#firstStep").css('display','none');
         $(".modal-dialog").removeClass("modal-xl");
@@ -1082,7 +1085,7 @@
         $("#editRtitle").show();
         $(".innerLoader").css('display', 'none');
         return false;
-
+        }
 
     }
     function goBack() {

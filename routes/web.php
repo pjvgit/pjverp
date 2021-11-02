@@ -1199,6 +1199,14 @@ Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'n
     Route::get('account', 'ProfileController@edit')->name('client/account');
     Route::post('account/save', 'ProfileController@update')->name('client/account/save');
     Route::post('account/change/password', 'ProfileController@changePassword')->name('client/change/password');
+    Route::get('account/preferences', 'ProfileController@edit')->name('client/account/preferences');
+    Route::post('account/save/preferences', 'ProfileController@savePreferences')->name('client/account/save/preferences');
+
+    // For tasks
+    Route::get('tasks', 'TaskController@index')->name('client/tasks');
+    Route::get('tasks/{id}', 'TaskController@show')->name('client/tasks/detail');
+    Route::post('tasks/save/comment', 'TaskController@saveComment')->name('client/tasks/save/comment');
+    Route::get('tasks/comment/history', 'TaskController@eventCommentHistory')->name('client/tasks/comment/history');
 });
 
 //Without login 
