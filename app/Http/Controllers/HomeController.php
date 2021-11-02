@@ -825,6 +825,7 @@ class HomeController extends BaseController
             $feedback = Feedback::create([
                 'topic' => $request->topic,
                 'feedback' => $request->message,
+                'rating' => $request->rating ?? null,
                 'created_by' => Auth::User()->id
             ]);
 

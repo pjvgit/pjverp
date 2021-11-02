@@ -27,9 +27,12 @@
 
     <div class="ml-auto d-flex align-items-center d-print-none">
         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">Customize</a>
-
-        <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#">Tell us what you
-            think</a>
+        <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+            <button onclick="setFeedBackForm('single','Lead Management');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+        </a>
+        <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+            <i class="fas fa-print"></i> Print
+        </button>
         <span id="settingicon" class="pr-2">
             <button class="btn btn-secondry dropdown-toggle settingButtons" id="shuesuid" type="button"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -38,17 +38,18 @@ if(isset($_GET['status'])){
                         </div>
                     </div>
                 </form>
-                <div class="table-responsive">
+                <div class="table-responsive" id="printHtml">
+                    <h3 id="hiddenLable">Leads</h3>
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
                         <thead>
                             <tr>
                                 <th width="1%">id</th>     
                                 <th width="10%"></th>
-                                <th width="15%">Name</th>
-                                <th width="15%">Lead</th>
+                                <th width="20%">Name</th>
+                                <th width="20%">Lead</th>
                                 <th width="10%">Due</th>
-                                <th width="10%">Assign To</th>
-                                <th width="39%" class="text-center"></th>
+                                <th width="20%">Assign To</th>
+                                <th width="19%" class="text-center"></th>
                             </tr>
                         </thead>
                     </table>
@@ -245,7 +246,7 @@ if(isset($_GET['status'])){
                 }
                 
 
-                $('td:eq(5)', nRow).html('<div class="d-flex align-items-center float-right"><a data-toggle="modal"  data-target="#editTask" onclick="editTask('+aData.id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt  m-2"></i><//a><a data-toggle="modal"  data-target="#deleteTask" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteTaskFunction('+aData.id+');"><i class="fas fa-trash"></i></a></div>');
+                $('td:eq(5)', nRow).html('<div class="d-flex align-items-center float-right d-print-none"><a data-toggle="modal"  data-target="#editTask" onclick="editTask('+aData.id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt  m-2"></i><//a><a data-toggle="modal"  data-target="#deleteTask" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteTaskFunction('+aData.id+');"><i class="fas fa-trash"></i></a></div>');
                         
             },
             "initComplete": function(settings, json) {
@@ -563,5 +564,21 @@ if(isset($_GET['status'])){
     setTimeout(function(){  
         $('#taskViewArea').addClass('afterLoadClass'); 
     }, 500);
+
+    function printEntry()
+    {
+        $('#employee-grid_length').hide();
+        $('#employee-grid_info').hide();
+        $('#employee-grid_paginate').hide();
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
+        window.print(canvas);
+        // w.close();
+        window.location.reload();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 </script>
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 @stop

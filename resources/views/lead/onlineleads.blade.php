@@ -419,5 +419,5 @@
         })
     }
 </script>
-
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 @stop

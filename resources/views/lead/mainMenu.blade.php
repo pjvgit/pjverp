@@ -34,11 +34,11 @@
         <?php
         if(request()->is('leads/onlineleads') || request()->is('leads/statuses')){
             ?>
-              <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#" onclick="printLead('{{\Route::current()->getName()}}')"> <i class="fas fa-print"></i> Print</a> 
+              <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="javascript:void(0);" onclick="printLead('{{\Route::current()->getName()}}')"> <i class="fas fa-print"></i> Print</a> 
        <?php
         }else{
             ?>
-              <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="#" onclick="printData();"> <i class="fas fa-print"></i> Print</a> 
+              <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="javascript:void(0);" onclick="printData();"> <i class="fas fa-print"></i> Print</a> 
        <?php
         }?>
         <span id="settingicon" class="pr-2">
@@ -66,6 +66,3 @@
                 onclick="addLead();">Add Lead</button></a>
     </div>
 </div>
-@section('page-js')
-<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
-@stop

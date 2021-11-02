@@ -22,7 +22,7 @@ if(isset($_GET['office'])){
 
 ?>
 <div class="separator-breadcrumb border-top"></div>
-<div class="row">
+<div class="row"  id="printHtml">
     <div class="col-md-12">
         <div class="card text-left">
             <div class="card-body">
@@ -32,7 +32,7 @@ if(isset($_GET['office'])){
                         <h3> Financial Insights</h3>
                         <input type="hidden" name="type" value="">
 
-                        <div class="ml-auto d-flex align-items-center ">
+                        <div class="ml-auto d-flex align-items-center d-print-none ">
                             <button  onclick="printEntry();return false;"  class="btn btn-outline-secondary mr-1 btn-rounded">
                                 <i class="fas fa-print"></i><span
                                     class="sr-only">Print This Page</span></button>
@@ -80,17 +80,17 @@ if(isset($_GET['office'])){
                                
                             </select>
                         </div>
-                        <div class="col-md- form-group mb-3 mt-3">
+                        <div class="col-md- form-group mb-3 mt-3 d-print-none">
                             <button class="btn btn-info btn-rounded m-1" type="submit">Apply Filters</button>
                         </div>
-                        <div class="col-md-1 form-group mb-3 mt-3 pt-1">
+                        <div class="col-md-1 form-group mb-3 mt-3 pt-1 d-print-none">
                             <button type="button" class="test-clear-filters text-black-50 btn btn-link">
                                 <a href="{{route('insights/financials')}}">Clear Filters</a>
                             </button>
                         </div>
                     </div>
                 </form>
-                <div class="table-responsive" id="printHtml">
+                <div class="table-responsive">
                     <div class="financial-insights-container container-fluid">
                         <div class="row ">
                             <div class="p-2 col" style="min-width: 400px;">

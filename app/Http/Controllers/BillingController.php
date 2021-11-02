@@ -5584,6 +5584,7 @@ class BillingController extends BaseController
                 $InvoicePaymentPlan->save();
                 // Invoice Installment entry
                 InvoiceInstallment::where("invoice_id",$InvoiceSave->id)->delete();
+                $paidAmt = $InvoiceSave->paid_amount;
                 foreach($request->new_payment_plans as $kk=>$vv){
                     $InvoiceInstallment=new InvoiceInstallment;
                     $InvoiceInstallment->invoice_id=$InvoiceSave->id;                    
@@ -5591,6 +5592,18 @@ class BillingController extends BaseController
                     $InvoiceInstallment->due_date=date('Y-m-d',strtotime($vv['due_date']));
                     $InvoiceInstallment->created_by=Auth::User()->id; 
                     $InvoiceInstallment->firm_id=Auth::User()->firm_name;
+                    if($paidAmt > 0){
+                        if($paidAmt > str_replace(",","",$vv['amount'])){
+                            $InvoiceInstallment->status = 'paid';
+                            $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
+                            $InvoiceInstallment->adjustment = str_replace(",","",$vv['amount']);
+                            $paidAmt = $paidAmt - str_replace(",","",$vv['amount']);
+                        }else{
+                            $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
+                            $InvoiceInstallment->adjustment = $paidAmt;
+                            $paidAmt = 0;
+                        }
+                    } 
                     $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
                     $InvoiceInstallment->save();
                 }

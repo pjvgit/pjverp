@@ -189,3 +189,33 @@
         </form>
     </div>
 </div>
+<!-- Payment Plan -->
+<div id="payment_plan_existing_dialog_bbox" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Warning</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div data-testid="warning-modal">
+                    <p>Are you sure you want to recalculate your payment plan?</p>
+                    <ul>
+                        <li>Previous Payments against the original balance will not be lost.</li>
+                        <li>Previous payment history will only be available on the invoice payment history. Individual installment payment history will no longer show here.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-10  text-center">
+                    <div class="form-group row float-right">
+                        <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Cancel</button>
+                        <input class="btn btn-primary ladda-button example-button m-1" name="action"
+                            value="Recalculate" onclick="allowPaymentPlan()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

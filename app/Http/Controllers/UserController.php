@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
 use App\Traits\InvoiceSettingTrait,App\FirmEventReminder;
 use Carbon\Carbon;
-use App\UserPreferanceReminder;
+use App\UserPreferanceReminder,App\NotificationSettings;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -998,4 +998,14 @@ class UserController extends BaseController
             ];
         $sendEmail = $this->sendMail($mailData);
     }
+
+    public function notificationSetting(){
+        $notificationSetting = NotificationSettings::all();
+        return view('user.notificationSetting', compact('notificationSetting'));
+    }
+
+    public function updateNotifications(Request $request){
+        dd($request->all());
+    }
+
 }

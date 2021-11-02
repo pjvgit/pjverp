@@ -16,7 +16,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
 }
 ?>
 <div class="separator-breadcrumb border-top"></div>
-<div class="row">
+<div class="row" id="printHtml">
     <div class="col-md-12">
         <div class="card text-left">
             <div class="card-body">
@@ -24,7 +24,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                 <form class="filterBy" id="filterBy" name="filterBy" method="GET">
                     <div class="d-flex align-items-center pl-4 pb-4">
                         <h3> Invoices</h3>
-                        <ul class="d-inline-flex nav nav-pills pl-4">
+                        <ul class="d-inline-flex nav nav-pills pl-4 d-print-none">
                             <input type="hidden" name="type" value="{{$_GET['type']}}">
                             <li class="d-print-none nav-item">
                                 <a href="{{route('bills/invoices')}}?type=all&global_search={{$_GET['global_search']}}"
@@ -66,10 +66,8 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                         </ul>
 
                         <div class="ml-auto d-flex align-items-center d-print-none">
-                            <button onclick="printEntry()" class="btn btn-link">
-                                <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
-                                    title="" data-original-title="Print"></i>
-                                <span class="sr-only">Print This Page</span>
+                            <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+                                <i class="fas fa-print"></i> Print
                             </button>
 
                             <a href="{{BASE_URL}}bills/invoices/open">
@@ -171,6 +169,21 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
             }
         });
     });
+
+    function printEntry()
+    {
+        $('#invoiceGrid_length').hide();
+        $('#invoiceGrid_info').hide();
+        $('#invoiceGrid_paginate').hide();
+        $('#hiddenLable').show();
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
+        window.print(canvas);
+        // w.close();
+        window.location.reload();
+        return false;  
+    }
+    $('#hiddenLable').hide();
 
 </script>
 @stop

@@ -1558,7 +1558,10 @@
                                                             </div>
                                                         </td>
                                                         <td style="vertical-align: middle;" class="tablePaymentPlanEdit">
-                                                            <p class="autopay-field m-0" data-testid="autopay-field" style="display: none; padding-left: 20px;">
+                                                            <p class="autopay-field m-0" data-testid="autopay-field" style="padding-left: 20px;">
+                                                            <?php if($value->status=="paid"){?>
+                                                                <i class="fas fa-check-circle" style="color: #40BC53"></i>&nbsp;&nbsp;Manual payment successful
+                                                            <?php } ?>
                                                             </p>
                                                         </td>
                                                     </tr>
@@ -2966,12 +2969,12 @@
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalInstalment += 1;
             }
-            $("#number_installment_field").val(Math.floor(totalInstalment));
+            $("#number_installment_field").val(Math.ceil(totalInstalment));
 
 
         }); 
         $("#number_installment_field").blur(function(){
-            var installmentNumber=Math.floor($(this).val());
+            var installmentNumber=Math.ceil($(this).val());
             var totalAmount= parseFloat($("#final_total_text").val());
             var totalInstalment=totalAmount/installmentNumber;
             $("#amount_per_installment_field").val(totalInstalment.toFixed(2));
@@ -2983,7 +2986,7 @@
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
             var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.floor(totalInstalment) + 1);
+            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
 
         });
         $("#SaveInvoiceButton").on("click",function(){
@@ -3093,7 +3096,7 @@
             var date = new Date(tt);
             var newdate = new Date(date);
             var countSum=0;
-            for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
+            for(var loopVar=1;loopVar<=Math.ceil(number_installment_field);loopVar++){
                
                 var dd = newdate.getDate();
                 var mm = newdate.getMonth()+1;
@@ -3112,7 +3115,7 @@
                     countSum+=parseFloat(firstInstallment);
                 }else{
                     firstInstallment=amount_per_installment_field;
-                    if(loopVar==Math.floor(number_installment_field)){
+                    if(loopVar==Math.ceil(number_installment_field)){
                         totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                         firstInstallment=totalAMT-countSum;
                     }else{
@@ -3174,7 +3177,12 @@
             if(buttonpressed=="saveinvoice"){
                 $("#saveInvoiceForm").submit();
             }else{
-                calculatePaymentPlansForm(x);
+                var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
+                if(PaymentPlanExits > 0){
+                    $("#payment_plan_existing_dialog_bbox").modal("show");
+                }else{
+                    calculatePaymentPlansForm(x);
+                }
             }
         });
         
@@ -4110,8 +4118,6 @@
         var amount_per_installment_field=$("#amount_per_installment_field").val();
         var installment_frequency_field=$("#installment_frequency_field").val();
         var start_date=$("#start_date").val();
-        var start_date=$("#start_date").val();
-        var start_date=$("#start_date").val();
         
         var headerHtml='<tr><th style="width: 30px; border-right: none;"> &nbsp;</th><th style="width: 150px; border-left: none;"> Due Date</th><th style="width: 120px; border-right: none;"> Amount</th><th style="width: 30px; border-left: none;"> &nbsp;</th><th><p style="display: none; padding-left: 20px;" class="autopay-field m-0">Status</p></th></tr>';
         var wrapper = $('.field_wrapper').html('').html(headerHtml); //Input field wrapper
@@ -4122,7 +4128,7 @@
         var date = new Date(tt);
         var newdate = new Date(date);
         var countSum=0;
-        for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
+        for(var loopVar=1;loopVar<=Math.ceil(number_installment_field);loopVar++){
         
             var dd = newdate.getDate();
             var mm = newdate.getMonth()+1;
@@ -4141,7 +4147,7 @@
                 countSum+=parseFloat(firstInstallment);
             }else{
                 firstInstallment=amount_per_installment_field;
-                if(loopVar==Math.floor(number_installment_field)){
+                if(loopVar==Math.ceil(number_installment_field)){
                     totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
                     firstInstallment=totalAMT-countSum;
                 }else{
@@ -4342,6 +4348,12 @@ function invoiceRestrict(){
     }else{
         return true;
     }   
+}
+
+function allowPaymentPlan(){
+    $("#payment_plan_existing_dialog_bbox").modal("hide");
+    calculatePaymentPlansForm(); 
+    return false;
 }
 </script>
 @stop

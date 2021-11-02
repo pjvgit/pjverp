@@ -1,3 +1,76 @@
+------------------------------------ 02-NOV-2021 ------------------------------
+CREATE TABLE `notification_setting` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `type` enum('cases','calendars','tasks','billings','contacts','firms') NULL,
+  `topic` varchar(255) NULL,
+  `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts') NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL,
+  `updated_by` int(11) NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
+NotificationSettings::create(["type"=>"cases","topic"=>"A new case is added to the system","action"=>'add']);
+NotificationSettings::create(["type"=>"cases","topic"=>"An existing case is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"cases","topic"=>"An open case is closed","action"=>'close']);
+NotificationSettings::create(["type"=>"cases","topic"=>"A closed case is reopened","action"=>'reopened']);
+NotificationSettings::create(["type"=>"cases","topic"=>"A closed case is deleted","action"=>'delete']);
+NotificationSettings::create(["type"=>"cases","topic"=>"A new note is added, edited, or deleted on a case you're linked to","action"=>'notes']);
+NotificationSettings::create(["type"=>"cases","topic"=>"You are added or removed from a case","action"=>'firm']);
+NotificationSettings::create(["type"=>"cases","topic"=>"A contact / company is added or removed from a case you're linked to","action"=>'contacts']);
+NotificationSettings::create(["type"=>"cases","topic"=>"A firm user is added or removed from a case you're linked to","action"=>'staff']);
+
+
+NotificationSettings::create(["type"=>"calendars","topic"=>"A new event is added to the system","action"=>'add']);
+NotificationSettings::create(["type"=>"calendars","topic"=>"An existing event is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"calendars","topic"=>"Someone deletes an event","action"=>'delete']);
+NotificationSettings::create(["type"=>"calendars","topic"=>"Someone comments on an event","action"=>'comments']);
+NotificationSettings::create(["type"=>"calendars","topic"=>"A contact views an event","action"=>'view']);
+
+
+NotificationSettings::create(["type"=>"documents","topic"=>"A new document is uploaded in the system","action"=>'add']);
+NotificationSettings::create(["type"=>"documents","topic"=>"An existing document is updated","action"=>'add']);
+NotificationSettings::create(["type"=>"documents","topic"=>"Someone deletes a document","action"=>'add']);
+NotificationSettings::create(["type"=>"documents","topic"=>"Someone comments on a document","action"=>'add']);
+NotificationSettings::create(["type"=>"documents","topic"=>"A contact views a document","action"=>'add']);
+
+
+NotificationSettings::create(["type"=>"tasks","topic"=>"A new task is added","action"=>'add']);
+NotificationSettings::create(["type"=>"tasks","topic"=>"An existing task is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"tasks","topic"=>"Someone deletes a task","action"=>'delete']);
+NotificationSettings::create(["type"=>"tasks","topic"=>"A task is completed","action"=>'complete']);
+NotificationSettings::create(["type"=>"tasks","topic"=>"A completed task is marked incomplete","action"=>'incomplete']);
+    
+NotificationSettings::create(["type"=>"billings","topic"=>"A new time entry / expense is added","action"=>'add']);
+NotificationSettings::create(["type"=>"billings","topic"=>"An existing time entry / expense is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"billings","topic"=>"Someone deletes a time entry / expense","action"=>'delete']);
+NotificationSettings::create(["type"=>"billings","topic"=>"A new invoice is added to a case you're linked to","action"=>'add']);
+NotificationSettings::create(["type"=>"billings","topic"=>"An existing invoice is updated on a case you're linked to","action"=>'update']);
+NotificationSettings::create(["type"=>"billings","topic"=>"A contact views an invoice","action"=>'view']);
+NotificationSettings::create(["type"=>"billings","topic"=>"Someone deletes an invoice on a case you're linked to","action"=>'delete']);
+NotificationSettings::create(["type"=>"billings","topic"=>"A payment is made on an invoice on a case you're linked to","action"=>'payment']);
+NotificationSettings::create(["type"=>"billings","topic"=>"A payment is refunded on an invoice on a case you're linked to","action"=>'refund']);
+NotificationSettings::create(["type"=>"billings","topic"=>"Someone shares an invoice on a case you're linked to","action"=>'share']);
+NotificationSettings::create(["type"=>"billings","topic"=>"Someone sends a reminder on a case you're linked to","action"=>'reminder']);
+
+    
+NotificationSettings::create(["type"=>"contacts","topic"=>"A new contact/company is added to the system","action"=>'add']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"An existing contact/company is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"Someone archives a contact/company","action"=>'archive']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"Someone unarchives a contact/company","action"=>'unarchive']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"Someone deletes a company","action"=>'delete']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"A contact logs in to MyCase","action"=>'login']);
+NotificationSettings::create(["type"=>"contacts","topic"=>"A new note is added, edited, or deleted on a contact","action"=>'notes']);
+
+
+NotificationSettings::create(["type"=>"firms","topic"=>"A new firm user is added","action"=>'add']);
+NotificationSettings::create(["type"=>"firms","topic"=>"Firm user contact information is updated","action"=>'update']);
+NotificationSettings::create(["type"=>"firms","topic"=>"A firm user is deactivated or reactivated","action"=>'inactive']);
+NotificationSettings::create(["type"=>"firms","topic"=>"Firm user permissions are changed","action"=>'add']);
+NotificationSettings::create(["type"=>"firms","topic"=>"Items are imported into MyCase","action"=>'add']);
+NotificationSettings::create(["type"=>"firms","topic"=>"Firm information is updated","action"=>'update']); 		
+
 ------------------------------------ 01-NOV-2021 ------------------------------
 ALTER TABLE `feedback`
 ADD `topic` varchar(100) NULL AFTER `id`;

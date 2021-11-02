@@ -189,6 +189,10 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('/account/preferences', 'UserController@preferences')->name('account/preferences');
     Route::post('/account/savePreferences', 'UserController@savePreferences')->name('account/savePreferences');
     
+    // user notifications
+    Route::get('/account/notifications', 'UserController@notificationSetting')->name('account/notifications');
+    Route::post('/account/update_notifications', 'UserController@updateNotifications')->name('account/update_notifications');
+
     // For Popup Notification
     Route::get('get/popup/notification', 'HomeController@popupNotification')->name('get/popup/notification');
     Route::get('update/popup/notification', 'HomeController@updatePopupNotification')->name('update/popup/notification');

@@ -5,7 +5,7 @@
     <thead>
         <tr>
             <th>Number</th>
-            <th class="col-md-auto"> Contact </th>
+            <th> Contact </th>
             <th>Account</th>
             <th> Amount </th>
             <th> Paid </th>
