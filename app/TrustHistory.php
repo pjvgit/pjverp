@@ -21,7 +21,7 @@ class TrustHistory extends Authenticatable
                 'current_trust_balance', 'refund_ref_id', 'is_refunded', 'refund_amount', 'related_to_invoice_id', 'created_by', 'updated_by', 'related_to_fund_request_id',
                 'allocated_to_case_id', 'related_to_invoice_payment_id', 'allocated_to_lead_case_id'];
 
-    protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund'];
+    protected $appends  = ['createdatnewformate','added_date','newduedate','invoice_amt','invoice_paid_amt','is_overdue','trust_balance','paid','withdraw','refund','related_to'];
     public function getCreatedatnewformateAttribute(){
         return date('M j, Y h:i A',strtotime($this->created_at));
     }
@@ -154,5 +154,16 @@ class TrustHistory extends Authenticatable
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function getRelatedToAttribute()
+    {
+        if($this->related_to_invoice_id) {
+            return sprintf("%06d", $this->id);
+        } else if($this->related_to_fund_request_id) {
+            return "#R-".sprintf('%05d', $this->id);
+        } else {
+            return "";
+        }
     }
 }

@@ -56,3 +56,30 @@
     </div>
 
 </div>
+
+<div id="logoutModel" class="modal fade text-danger" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <form id="logout-form" name="logout-form" action="{{ route('logout') }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title ">Logout Confirmation?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body bg-font-purpul">
+
+                    <p>Do you really want to logout from the system?</p>
+                </div>
+                <div class="modal-footer">
+                    <center>
+                        <a href="#">
+                            <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">No</button>
+                        </a>
+                        <button type="submit" name="sss" class="btn btn-success ">Yes, Sure</button>
+                    </center>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

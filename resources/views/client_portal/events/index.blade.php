@@ -16,7 +16,7 @@
                     </a>
                 </li>
             @empty
-                <div class="text-center p-4"><i>No Upcoming Events</i></div>
+                <div class="text-center p-4"><i>No Events</i></div>
             @endforelse
         </ul>
     </section>

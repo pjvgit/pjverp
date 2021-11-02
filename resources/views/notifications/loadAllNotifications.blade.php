@@ -292,6 +292,8 @@ if(!$commentData->isEmpty()){
                     </div>
                 </td>
             </tr>
+        @elseif($v->type == "user")
+            @include('dashboard.include.user_activity_data')
         @endif
         <?php 
         } ?>

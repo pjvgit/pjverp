@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Rules\MatchOldPassword;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,10 +27,15 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         // return $request->user;
-        $user = User::whereId($request->id)->first();
-        $user->fill($request->user)->save();
-
-        return redirect()->route("client/account")->with("success", "Contact info saved");
+        dbStart();
+        try {
+            $user = User::whereId($request->id)->first();
+            $user->fill($request->user)->save();
+            dbCommit();
+            return redirect()->route("client/account")->with("success", "Contact info saved");
+        } catch(Exception $e) {
+            return redirect()->back()->with("error", $e->getMessage());
+        }
     }
 
     /**
@@ -37,10 +43,36 @@ class ProfileController extends Controller
      */
     public function changePassword(Request $request)
     {
+        // return $request->all();
         $request->validate([
-            'old_password' => ['required', new MatchOldPassword],
+            'current_password' => ['required', new MatchOldPassword],
             'password' => 'required|confirmed',
         ]);
-        return $request->all();
+        try {
+            dbStart();
+            User::whereEmail(auth()->user()->email)->update(['password'=> Hash::make($request->password)]);
+            dbCommit();
+            return response()->json(["success" => true, "message" => "Password saved"]);
+        } catch(Exception $e) {
+            dbEnd();
+            return response()->json(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update client preferences
+     */
+    public function savePreferences(Request $request)
+    {
+        // return $request->all();
+        dbStart();
+        try {
+            $user = User::whereId($request->id)->first();
+            $user->fill($request->all())->save();
+            dbCommit();
+            return redirect()->route("client/account/preferences")->with("success", "Preferences saved");
+        } catch(Exception $e) {
+            return redirect()->back()->with("error", $e->getMessage());
+        }
     }
 }

@@ -58,7 +58,18 @@ class UserController extends BaseController
                     if($user->userAdditionalInfo->client_portal_enable == '1') {
                         $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                         $user->save();
-                        session()->flash("firmCaseCount", count(userCaseList() ?? []));
+                        
+                        // Add history
+                        $data=[];
+                        $data['user_id']= $user->id;
+                        $data['client_id']= $user->id;
+                        $data['activity']='logged in to LegalCase';
+                        $data['activity_for']=$request->invoice_id;
+                        $data['type']='user';
+                        $data['action']='login';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+                        
                         return redirect()->intended('client/home')->with('success','Login Successfully');
                     } else {
                         return abort(403);

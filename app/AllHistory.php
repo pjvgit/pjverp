@@ -153,4 +153,14 @@ class AllHistory extends Authenticatable
     {
         return convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
     }
+
+    /**
+     * Get the task that owns the AllHistory
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'task_id', 'id');
+    }
 }

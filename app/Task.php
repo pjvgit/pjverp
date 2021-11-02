@@ -161,4 +161,32 @@ class Task extends Authenticatable
     {
         return $this->belongsTo(LeadAdditionalInfo::class, 'lead_id', 'user_id');
     }
+
+    public static $withoutAppends = false;
+
+    public function scopeWithoutAppends($query)
+    {
+        self::$withoutAppends = true;
+
+        return $query;
+    }
+
+    protected function getArrayableAppends()
+    {
+        if (self::$withoutAppends){
+            return [];
+        }
+
+        return parent::getArrayableAppends();
+    }
+
+    /**
+     * The taskLinkedContact that belong to the Task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function taskLinkedContact()
+    {
+        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id')->wherePivot("is_contact", "yes")->whereNull("task_linked_staff.deleted_at");
+    }
 }

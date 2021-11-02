@@ -7622,7 +7622,7 @@ class BillingController extends BaseController
                         $query->where("case_id", $request->case_id);
                     })->whereIn('acrtivity_title', ['Payment Received','Payment Refund'])->orderBY("created_at", "desc")->with("invoice")->get();
         $trustHistory = TrustHistory::where("allocated_to_case_id", $request->case_id)->where("fund_type", "diposit")
-                        ->orderBY("created_at", "desc")->with(['invoice', 'fundRequest', 'createdByUser'])->get();
+                        ->orderBY("created_at", "desc")->with(['invoice', 'createdByUser'])->get();
         // $all = $FetchQuery->merge($trustHistory);
 
         $merged = array_merge($FetchQuery->toArray(), $trustHistory->toArray());
@@ -7632,13 +7632,13 @@ class BillingController extends BaseController
 
         $totalData=$result->count();
         $totalFiltered = $totalData; 
-        $result = $result->skip($request->start)->take($request->length);
+        $result1 = $result->skip($request->start)->take($request->length);
 
         $json_data = array(
             "draw"            => intval( $request->draw ),   
             "recordsTotal"    => intval( $totalData ),  
             "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $result 
+            "data"            => $result1->values()->toArray()
         );
         echo json_encode($json_data);  
     }
@@ -9194,7 +9194,8 @@ class BillingController extends BaseController
         ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
         ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID","users.*","all_history.*",
             "case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number",
-            "u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'), "u1.id as client_id")
+            "u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'), "u1.id as client_id")
+        ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)

@@ -70,6 +70,9 @@ NotificationSettings::create(["type"=>"firms","topic"=>"A firm user is deactivat
 NotificationSettings::create(["type"=>"firms","topic"=>"Firm user permissions are changed","action"=>'add']);
 NotificationSettings::create(["type"=>"firms","topic"=>"Items are imported into MyCase","action"=>'add']);
 NotificationSettings::create(["type"=>"firms","topic"=>"Firm information is updated","action"=>'update']); 		
+ALTER TABLE `all_history`
+CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`,
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','login') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
 
 ------------------------------------ 01-NOV-2021 ------------------------------
 ALTER TABLE `feedback`

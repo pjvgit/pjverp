@@ -24,7 +24,9 @@ class HomeController extends Controller
                         })->whereDate('start_date', '>=', Carbon::now())->orderBy('start_date', 'asc')->take(3)->get();
 
         $recentActivity = AllHistory::where("is_for_client", "yes")->where("client_id", $userId)
-                        ->orderBy("created_at", "desc")->with(["createdByUser"])->take(3)->get();
+                        ->orderBy("created_at", "desc")->with(["createdByUser", "task"/*  => function($query) {
+                            $query->select("task_title")->withoutAppends();
+                        } */])->take(3)->get();
 
         return view("client_portal.home", compact('totalInvoice', 'upcomingEvents', 'recentActivity'));
     }
@@ -36,7 +38,9 @@ class HomeController extends Controller
     {
         $userId = auth()->id();
         $recentActivity = AllHistory::where("is_for_client", "yes")->where("client_id", $userId)
-                        ->orderBy("created_at", "desc")->with(["createdByUser"])->get();
+                        ->orderBy("created_at", "desc")->with(["createdByUser", "task"/*  => function($query) {
+                            $query->select("task_title")->withoutAppends();
+                        } */])->get();
 
         return view("client_portal.all_notification", compact('recentActivity'));
     }

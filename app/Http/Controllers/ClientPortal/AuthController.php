@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\User;
 use Carbon\Carbon;
@@ -71,6 +72,17 @@ class AuthController extends Controller
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                     $user->save();
+
+                    // Add history
+                    $data=[];
+                    $data['user_id']= $user->id;
+                    $data['client_id']= $user->id;
+                    $data['activity']='logged in to LegalCase';
+                    $data['activity_for']=$request->invoice_id;
+                    $data['type']='user';
+                    $data['action']='login';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {
                     Auth::logout();
@@ -103,6 +115,19 @@ class AuthController extends Controller
             if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password_confirmation)])) {
                 if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
                     session(['layout' => 'horizontal']);
+                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $user->save();
+                    
+                    // Add history
+                    $data=[];
+                    $data['user_id']= $user->id;
+                    $data['client_id']= $user->id;
+                    $data['activity']='logged in to LegalCase';
+                    $data['activity_for']=$request->invoice_id;
+                    $data['type']='user';
+                    $data['action']='login';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {
                     Auth::logout();

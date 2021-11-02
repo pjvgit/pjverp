@@ -558,7 +558,7 @@
                             <div class="col-md-10 form-group mb-3">
                                 <div class="m-2">
                                     <label class="form-check-label">
-                                        <input type="radio" name="delete_event_type" checked="checked" class="pick-option mr-2" value="SINGLE_EVENT">
+                                        <input type="radio" name="delete_event_type" class="pick-option mr-2" value="SINGLE_EVENT">
                                             <span>This event only</span>
                                     </label>
                                 </div>
@@ -569,7 +569,7 @@
                                 </div>
                                 <div class="m-2">
                                     <label class="form-check-label">
-                                        <input type="radio" name="delete_event_type" class="pick-option mr-2" value="ALL_EVENTS" >
+                                        <input type="radio" name="delete_event_type" class="pick-option mr-2" value="ALL_EVENTS" checked="checked">
                                         <span>All events</span>
                                     </label>
                                 </div>
@@ -1073,7 +1073,9 @@
             $('.submit').removeAttr("disabled");
             return false;
         }
-
+        if(!$("#recuring_event").is(":checked")) {
+            $('#EditEventForm').trigger('submit');
+        } else {
         $("#confirmSave").css('display','block');
         $("#firstStep").css('display','none');
         $("#loadEditEventPopup .modal-dialog").removeClass("modal-xl");
@@ -1082,7 +1084,7 @@
         $("#editRtitle").show();
         $(".innerLoader").css('display', 'none');
         return false;
-
+        }
 
     }
     function goBack() {
