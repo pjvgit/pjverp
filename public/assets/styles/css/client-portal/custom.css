@@ -48,6 +48,9 @@
         padding: 0;
         position: static;
     }
+    .task-view-header {
+        margin-top: 1rem;
+    }
 }
 .header {
     background-color: #2c2c2c;
@@ -253,8 +256,15 @@
     text-decoration: none;
     width: 100%;
 }
+.list-row__wrappable-content {
+    font-size: 14px;
+    white-space: normal;
+}
+.u-color-primary {
+    color: #0070bb !important;
+}
 .u-color-dark-green {
-    color: #218739!important;
+    color: #218739 !important;
 }
 .list-row.is-unread .list-row__header, .list-row.is-unread .list-row__header-detail {
     font-weight: 700;
@@ -319,4 +329,54 @@
 .payable-detail__settled {
     color: #218739;
     padding-right: 5px;
+}
+
+.task-view-header {
+    display: flex;
+    justify-content: space-between;
+}
+.task-detail {
+    margin-bottom: 2rem;
+}
+.task-detail__status-row {
+    display: flex;
+    padding: 1rem;
+}
+.task-detail__info {
+    border-bottom: 1px solid #cbcccf;
+    padding: 1rem;
+    word-wrap: break-word;
+}
+.task-detail__checklist {
+    display: block;
+}
+.task-detail__checklist-header {
+    display: flex;
+}
+.task-detail__checklist-item {
+    display: flex;
+    list-style: none;
+    padding: 0.5rem;
+}
+.task-detail__info-row {
+    display: flex;
+    margin-bottom: 25px;
+}
+.task-detail__comments {
+    display: flex;
+    margin-bottom: 0;
+    padding: 1rem 1rem 0.5rem;
+}
+.task-detail .material-icons {
+    color: #636c72;
+    font-size: 26px;
+    margin-right: 1.5rem;
+}
+.detail-view__replies {
+    list-style-type: none;
+    margin-bottom: 0;
+    padding-left: 0;
+}
+.task-detail__status-row.needs-review, .task-detail__status-row.needs-review i{
+    color: #47ba58 !important;
 }

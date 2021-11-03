@@ -16,27 +16,7 @@
                             </div>
                         </a>
                         <div class="col-4 col-md-2 text-right">
-                            @php
-                            if(!$item->due_date) {
-                                $dueText = "No Due Date";
-                            } else {
-                                $dueDate = \Carbon\Carbon::parse($item->due_date);
-                                $currentDate = \Carbon\Carbon::now();
-                                $difference = $currentDate->diff($dueDate)->days;
-                                if($dueDate->isToday()) {
-                                    $dueText = "DUE TODAY";
-                                } else if($dueDate->isTomorrow()) {
-                                    $dueText = "DUE TOMORROW";
-                                } else if($difference > 1) {
-                                    $dueText = "DUE IN ".$difference." DAYS";
-                                } else if($dueDate->lt($currentDate)) {
-                                    $dueText = "OVERDUE";
-                                } else {
-                                    $dueText = "";
-                                }
-                            }
-                            @endphp
-                            <span class="list-row__alert-text">{{ $dueText }}</span>
+                            <span class="list-row__alert-text">{{ getDueText($item->due_date) }}</span>
                             <br>
                         </div>
                     </li>

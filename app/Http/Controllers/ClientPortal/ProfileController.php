@@ -34,6 +34,7 @@ class ProfileController extends Controller
             dbCommit();
             return redirect()->route("client/account")->with("success", "Contact info saved");
         } catch(Exception $e) {
+            dbEnd();
             return redirect()->back()->with("error", $e->getMessage());
         }
     }
@@ -72,6 +73,7 @@ class ProfileController extends Controller
             dbCommit();
             return redirect()->route("client/account/preferences")->with("success", "Preferences saved");
         } catch(Exception $e) {
+            dbEnd();
             return redirect()->back()->with("error", $e->getMessage());
         }
     }

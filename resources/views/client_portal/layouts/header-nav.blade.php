@@ -31,7 +31,7 @@
                         <a class="nav-link" href="{{ route('client/events') }}"><span class="nav-item__label">Events</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><span class="nav-item__label">Tasks</span></a>
+                        <a class="nav-link" href="{{ route('client/tasks') }}"><span class="nav-item__label">Tasks</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('client/bills') }}"><span class="nav-item__label">Billing</span></a>

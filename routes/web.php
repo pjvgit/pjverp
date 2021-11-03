@@ -1208,9 +1208,11 @@ Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'n
 
     // For tasks
     Route::get('tasks', 'TaskController@index')->name('client/tasks');
+    Route::get('tasks/completed', 'TaskController@index')->name('client/tasks/completed');
     Route::get('tasks/{id}', 'TaskController@show')->name('client/tasks/detail');
+    Route::get('tasks/update/detail', 'TaskController@updateDetail')->name('client/tasks/update/detail');
     Route::post('tasks/save/comment', 'TaskController@saveComment')->name('client/tasks/save/comment');
-    Route::get('tasks/comment/history', 'TaskController@eventCommentHistory')->name('client/tasks/comment/history');
+    Route::get('tasks/comment/history', 'TaskController@taskCommentHistory')->name('client/tasks/comment/history');
 });
 
 //Without login 
