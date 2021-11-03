@@ -4,36 +4,78 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\CaseEvent;
 use App\CaseEventComment;
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
-use App\Invoices;
 use App\Jobs\CommentEmail;
 use App\Task;
+use App\TaskComment;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
+use phpDocumentor\Reflection\Types\Null_;
 
 class TaskController extends Controller 
 {
     /**
-     * Get client portal billing
+     * Get client portal tasks
      */
     public function index()
     {
+        $status = (\Route::currentRouteName() == "client/tasks/completed") ? '1' : '0';
         $tasks = Task::whereHas("taskLinkedContact", function($query) {
                         $query->where('users.id', auth()->id());
-                    })->whereDate('start_date', '>=', Carbon::now())->orderBy('start_date', 'asc')->get();
+                    })->where("status", $status)->orderBy('created_at', 'asc')
+                    ->get();
         return view("client_portal.task.index", compact('tasks'));
     }
 
     /**
-     * Show invoice detail
+     * Show task detail
      */
     public function show($id)
     {
-        $eventId = base64_decode($id);
-        $event = CaseEvent::where("id",$eventId)->with('case', 'eventLocation', 'leadUser', 'clientReminder')->first();
-        $event->fill(['event_read' => 'yes'])->save();
-        $event->refresh();
-        return view("client_portal.events.detail", compact('event'));
+        $taskId = encodeDecodeId($id, 'decode');
+        $task = Task::where("id", $taskId)->with("taskCheckList")->first();
+        return view("client_portal.task.task_detail", compact('task'));
+    }
+
+    /**
+     * update task detail
+     */
+    public function updateDetail(Request $request)
+    {
+        // return $request->all();
+        try {
+            $authUser = auth()->user();
+            $task = Task::whereId($request->task_id)->first();
+            $task->fill([
+                'status' => $request->status ?? 0,
+                'task_completed_by' => $authUser->id,
+                'task_completed_date' => Carbon::now()
+            ])->save();
+            
+            $data=[];
+            $data['task_id'] = $task['id'];
+            $data['task_name'] = $task['task_title'];
+            $data['user_id'] = $authUser->id;
+            $data['task_for_case'] = $task['case_id'] ?? Null; 
+            $data['task_for_lead'] = $task['lead_id'] ?? Null;  
+            $data['activity'] = ($task->status == 1) ? 'completed task' : 'marked as incomplete task';
+            $data['type'] = 'task';
+            $data['action'] = ($task->status == 1) ? 'complete' : 'incomplete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            // For client portal activity
+            $data['client_id'] = $authUser->id;
+            $data['activity'] = 'marked task';
+            $data['is_for_client'] = 'yes';
+            $CommonController->addMultipleHistory($data);
+
+            return response()->json(['success'=> true, 'message' => "Task updated"]);
+        } catch(Exception $e) {
+            return response()->json(['error' => true, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -41,26 +83,29 @@ class TaskController extends Controller
      */
     public function saveComment(Request $request)
     {
-        $authUser = auth()->user();
-        $comment = CaseEventComment::create([
-            'event_id' => $request->event_id,
-            'comment' => $request->message,
-            'action_type' => 0,
-            'created_by' => $authUser->id,
-        ]);
+        try {
+            $authUser = auth()->user();
+            $comment = TaskComment::create([
+                'task_id' => $request->task_id,
+                'title' => $request->message,
+                'created_by' => $authUser->id,
+            ]);
 
-        dispatch(new CommentEmail($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
+            // dispatch(new CommentEmail($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
 
-        return response()->json(['success'=> true, 'message' => "Comment added"]);
+            return response()->json(['success'=> true, 'message' => "Comment added"]);
+        } catch(Exception $e) {
+            return response()->json(["error" => true, "message" => $e->getMessage()]);
+        }
     }
 
     /**
-     * Get event comment history
+     * Get task comment history
      */
-    public function eventCommentHistory(Request $request)
+    public function taskCommentHistory(Request $request)
     {
-        $commentData = CaseEventComment::where("event_id", $request->event_id)->where("action_type", 0)->orderBy('created_at')->with("createdByUser")->get();
-        $view = view('client_portal.events.load_comment_history',compact('commentData'))->render();
+        $commentData = TaskComment::where("task_id", $request->task_id)->orderBy('created_at')->with("createdByUser")->get();
+        $view = view('client_portal.task.load_comment_history',compact('commentData'))->render();
         return response()->json(['totalComment' => $commentData->count(), 'view' => $view]);
     }  
 }

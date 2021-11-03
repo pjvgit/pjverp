@@ -473,3 +473,40 @@ function getEventReminderTpe()
         "email" => "Email"
     ];
 }
+
+/**
+ * Get duein/overdue in days text
+ */
+function getDueText($dueDate)
+{
+    if(!$dueDate) {
+        $dueText = "No Due Date";
+    } else {
+        $dueDate = \Carbon\Carbon::parse($dueDate);
+        $currentDate = \Carbon\Carbon::now();
+        $difference = $currentDate->diff($dueDate)->days;
+        if($dueDate->isToday()) {
+            $dueText = "DUE TODAY";
+        } else if($dueDate->isTomorrow()) {
+            $dueText = "DUE TOMORROW";
+        } else if($difference > 1) {
+            $dueText = "DUE IN ".$difference." DAYS";
+        } else if($dueDate->lt($currentDate)) {
+            $dueText = "OVERDUE";
+        } else {
+            $dueText = "";
+        }
+    }
+    return $dueText;
+}
+
+/**
+ * Get encoded/decoded ids
+ */
+function encodeDecodeId($id, $type)
+{
+    if($type == "encode")
+        return base64_encode($id);
+    else
+        return base64_decode($id);
+}

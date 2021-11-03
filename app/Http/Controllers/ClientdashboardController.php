@@ -970,7 +970,7 @@ class ClientdashboardController extends BaseController
                         }else{
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
                         }
-                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
+                        if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && !$data->allocated_to_lead_case_id && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
                             $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                         } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
                             $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
@@ -1318,11 +1318,14 @@ class ClientdashboardController extends BaseController
         } 
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->client_id)->first();
         $lessAmount = $UsersAdditionalInfo->unallocate_trust_balance;
+        if($GetAmount->allocated_to_lead_case_id) {
+            $lessAmount = $UsersAdditionalInfo->trust_account_balance;
+        }
         if($GetAmount->allocated_to_case_id) {
             $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
             $lessAmount = $allocateAmount->allocated_trust_balance;
         }
-        
+        // return $lessAmount;
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt.'|lte:'.$lessAmount,
         ],[

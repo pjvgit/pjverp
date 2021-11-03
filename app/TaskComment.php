@@ -13,9 +13,26 @@ class TaskComment extends Authenticatable
     protected $table = "task_comment";
     public $primaryKey = 'id';
 
-    protected $fillable = ['status', 'title'];    
-    protected $appends  = ['decode_id'];
+    protected $fillable = ['status', 'title', 'task_id', 'created_by', 'updated_by'];    
+    protected $appends  = ['decode_id', 'comment_added_at'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
+
+    /**
+     * Get the createdByUser that owns the TaskComment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get comment added date time
+     */
+    public function getCommentAddedAtAttribute() {
+        return convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
+    }
 }
