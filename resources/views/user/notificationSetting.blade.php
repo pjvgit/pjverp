@@ -19,10 +19,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
       <div class="row">
         <div class="col-8">
           <h3>
-            
-  My Notifications
-
-            
+             My Notifications
           </h3>
         </div>
         <div class="col-4"></div>
@@ -32,9 +29,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
   <li class="nav-item">
     <a class="nav-link active" href="">Recent Activity</a>
   </li>
-  <li class="nav-item">
+  <!-- <li class="nav-item">
     <a class="nav-link " href="">Individual Notifications</a>
-  </li>
+  </li> -->
 </ul>
 
   <div class="row tabbed-card mb-4">
@@ -49,13 +46,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             <a class="help_tip" href="#" onclick="; return false;"><img src="https://assets.mycase.com/packs/svg/table_icons/question_mark_icon-abef3e2eca.svg"></a>
           </div>
           <div style="float: left; margin-left: 20px;">
-            <select name="notification_seconds" id="notification_seconds" class="custom-select">
-                <option value="">Turn off</option>
-                <option value="300">Send every 5 minutes</option>
-                <option value="900">Send every 15 minutes</option>
-                <option value="1800">Send every 30 minutes</option>
-                <option value="3600">Send every hour</option>
-                <option selected="selected" value="86400">Send once a day</option>
+            <select name="notification_email_interval" id="notification_email_interval" class="custom-select">
+                <option value="0" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 0) ? 'selected' : ''; ?> >Turn off</option>
+                <option value="5" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 5) ? 'selected' : ''; ?> >Send every 5 minutes</option>
+                <option value="15" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 15) ? 'selected' : ''; ?> >Send every 15 minutes</option>
+                <option value="30" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 30) ? 'selected' : ''; ?> >Send every 30 minutes</option>
+                <option value="60" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 60) ? 'selected' : ''; ?> >Send every hour</option>
+                <option value="1440" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 1440) ? 'selected' : ((!isset($UsersAdditionalInfo->notification_email_interval)) ? 'selected' : ''); ?> >Send once a day</option>
             </select>
           </div>
         </div>
@@ -69,13 +66,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-3-1" id="section-method-all-3-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-3-1" id="section-method-all-3-1" value="1" class="all-notifications-toggle email-toggle case-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-3-2" id="section-method-all-3-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-3-2" id="section-method-all-3-2" value="1" class="all-notifications-toggle case-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -83,119 +80,24 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new case is added to the system</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-1-1]" id="notifications_3-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-1-2]" id="notifications_3-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'cases')             
                 <tr>
-                  <td>An existing case is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[3-2-1]" id="notifications_3-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-case-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[3-2-2]" id="notifications_3-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>An open case is closed</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-13-1]" id="notifications_3-13-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-13-2]" id="notifications_3-13-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-case-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-                <tr>
-                  <td>A closed case is reopened</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-14-1]" id="notifications_3-14-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-14-2]" id="notifications_3-14-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A closed case is deleted</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-3-1]" id="notifications_3-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[3-3-2]" id="notifications_3-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>A new note is added, edited, or deleted on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1002-1-1]" id="notifications_1002-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1002-1-2]" id="notifications_1002-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>You are added or removed from a case</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[19-7-1]" id="notifications_19-7-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[19-7-2]" id="notifications_19-7-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>A contact / company is added or removed from a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-7-1]" id="notifications_7-7-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-7-2]" id="notifications_7-7-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>A firm user is added or removed from a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-7-1]" id="notifications_8-7-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-7-2]" id="notifications_8-7-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-1">
+                @endif
+                @endforeach
+                </tbody>
+                <thead class="bg-light" id="notifications-section-1">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Calendar
@@ -203,13 +105,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-1-1" id="section-method-all-1-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-1-1" id="section-method-all-1-1" value="1" class="all-notifications-toggle email-toggle calendar-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-1-2" id="section-method-all-1-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-1-2" id="section-method-all-1-2" value="1" class="all-notifications-toggle calendar-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -224,69 +126,24 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new event is added to the system</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-1-1]" id="notifications_1-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-1-2]" id="notifications_1-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-1-3]" id="notifications_1-1-3" value="1" class="in_app-toggle" data-method="3" checked="checked">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'calendars')             
                 <tr>
-                  <td>An existing event is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[1-2-1]" id="notifications_1-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-calendar-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[1-2-2]" id="notifications_1-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes an event</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-3-1]" id="notifications_1-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-3-2]" id="notifications_1-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-calendar-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-                <tr>
-                  <td>Someone comments on an event</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-9-1]" id="notifications_1-9-1" value="1" disabled="disabled" title="Email notifications are always sent for this activity." data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-9-2]" id="notifications_1-9-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-9-3]" id="notifications_1-9-3" value="1" disabled="disabled" title="In-App notifications are always sent for this activity." data-method="3" checked="checked">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A contact views an event</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-23-1]" id="notifications_1-23-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1-23-2]" id="notifications_1-23-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-12">
+                @endif
+                @endforeach
+                </tbody>
+                <thead class="bg-light" id="notifications-section-12">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Documents
@@ -294,13 +151,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-12-1" id="section-method-all-12-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-12-1" id="section-method-all-12-1" value="1" class="all-notifications-toggle email-toggle documents-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-12-2" id="section-method-all-12-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-12-2" id="section-method-all-12-2" value="1" class="all-notifications-toggle documents-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -315,69 +172,24 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new document is uploaded in the system</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-1-1]" id="notifications_12-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-1-2]" id="notifications_12-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-1-3]" id="notifications_12-1-3" value="1" class="in_app-toggle" data-method="3" checked="checked">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'documents')             
                 <tr>
-                  <td>An existing document is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[12-2-1]" id="notifications_12-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-documents-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[12-2-2]" id="notifications_12-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes a document</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-3-1]" id="notifications_12-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-3-2]" id="notifications_12-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-documents-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-                <tr>
-                  <td>Someone comments on a document</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-9-1]" id="notifications_12-9-1" value="1" disabled="disabled" title="Email notifications are always sent for this activity." data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-9-2]" id="notifications_12-9-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-9-3]" id="notifications_12-9-3" value="1" disabled="disabled" title="In-App notifications are always sent for this activity." data-method="3" checked="checked">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A contact views a document</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-23-1]" id="notifications_12-23-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[12-23-2]" id="notifications_12-23-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-11">
+                @endif
+                @endforeach                
+                </tbody>
+                <thead class="bg-light" id="notifications-section-11">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Tasks
@@ -385,13 +197,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-11-1" id="section-method-all-11-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-11-1" id="section-method-all-11-1" value="1" class="all-notifications-toggle email-toggle task-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-11-2" id="section-method-all-11-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-11-2" id="section-method-all-11-2" value="1" class="all-notifications-toggle task-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -406,69 +218,24 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new task is added</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-1-1]" id="notifications_11-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-1-2]" id="notifications_11-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-1-3]" id="notifications_11-1-3" value="1" class="in_app-toggle" data-method="3" checked="checked">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'tasks')             
                 <tr>
-                  <td>An existing task is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[11-2-1]" id="notifications_11-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-task-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[11-2-2]" id="notifications_11-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-2-3]" id="notifications_11-2-3" value="1" class="in_app-toggle" data-method="3" checked="checked">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes a task</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-3-1]" id="notifications_11-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-3-2]" id="notifications_11-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-task-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-                <tr>
-                  <td>A task is completed</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-10-1]" id="notifications_11-10-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-10-2]" id="notifications_11-10-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A completed task is marked incomplete</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-19-1]" id="notifications_11-19-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[11-19-2]" id="notifications_11-19-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-10">
+                @endif
+                @endforeach
+                </tbody>
+                <thead class="bg-light" id="notifications-section-10">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Time &amp; Billing
@@ -476,13 +243,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-10-1" id="section-method-all-10-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-10-1" id="section-method-all-10-1" value="1" class="all-notifications-toggle email-toggle time-billing-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-10-2" id="section-method-all-10-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-10-2" id="section-method-all-10-2" value="1" class="all-notifications-toggle time-billing-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -490,140 +257,24 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new time entry / expense is added</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[10-1-1]" id="notifications_10-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[10-1-2]" id="notifications_10-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'tasks')             
                 <tr>
-                  <td>An existing time entry / expense is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[10-2-1]" id="notifications_10-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-time-billing-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[10-2-2]" id="notifications_10-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes a time entry / expense</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[10-3-1]" id="notifications_10-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[10-3-2]" id="notifications_10-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-time-billing-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-
-                <tr>
-                  <td>A new invoice is added to a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-1-1]" id="notifications_15-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-1-2]" id="notifications_15-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>An existing invoice is updated on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-2-1]" id="notifications_15-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-2-2]" id="notifications_15-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A contact views an invoice</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-23-1]" id="notifications_15-23-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-23-2]" id="notifications_15-23-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes an invoice on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-3-1]" id="notifications_15-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-3-2]" id="notifications_15-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A payment is made on an invoice on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-11-1]" id="notifications_15-11-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-11-2]" id="notifications_15-11-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A payment is refunded on an invoice on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-12-1]" id="notifications_15-12-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-12-2]" id="notifications_15-12-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone shares an invoice on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-17-1]" id="notifications_15-17-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-17-2]" id="notifications_15-17-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone sends a reminder on a case you're linked to</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-24-1]" id="notifications_15-24-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[15-24-2]" id="notifications_15-24-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-7">
+                @endif
+                @endforeach
+                </tbody>
+                <thead class="bg-light" id="notifications-section-7">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Contacts &amp; Companies
@@ -631,106 +282,37 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-7-1" id="section-method-all-7-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-7-1" id="section-method-all-7-1" value="1" class="all-notifications-toggle email-toggle contact-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-7-2" id="section-method-all-7-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-7-2" id="section-method-all-7-2" value="1" class="all-notifications-toggle contact-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                     </th>
                   </tr>
                 </thead>
-
-                <tbody><tr>
-                  <td>A new contact/company is added to the system</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-1-1]" id="notifications_7-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-1-2]" id="notifications_7-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'contacts')             
                 <tr>
-                  <td>An existing contact/company is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[7-2-1]" id="notifications_7-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-contact-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[7-2-2]" id="notifications_7-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone archives a contact/company</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-13-1]" id="notifications_7-13-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-13-2]" id="notifications_7-13-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-contact-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-                <tr>
-                  <td>Someone unarchives a contact/company</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-14-1]" id="notifications_7-14-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-14-2]" id="notifications_7-14-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>Someone deletes a company</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-3-1]" id="notifications_7-3-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-3-2]" id="notifications_7-3-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A contact logs in to MyCase</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-4-1]" id="notifications_7-4-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[7-4-2]" id="notifications_7-4-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>A new note is added, edited, or deleted on a contact</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1001-1-1]" id="notifications_1001-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[1001-1-2]" id="notifications_1001-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                </tbody><thead class="bg-light" id="notifications-section-8">
+                @endif
+                @endforeach
+                </tbody>
+                <thead class="bg-light" id="notifications-section-8">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Firm Administration
@@ -738,13 +320,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Email</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-8-1" id="section-method-all-8-1" value="1" class="all-notifications-toggle email-toggle" data-method="1">
+                        <input type="checkbox" name="section-method-all-8-1" id="section-method-all-8-1" value="1" class="all-notifications-toggle email-toggle firm-email" data-method="1">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
                       <div class="text-center">In Activity Feed</div>
                       <div class="text-center mt-2">
-                        <input type="checkbox" name="section-method-all-8-2" id="section-method-all-8-2" value="1" class="all-notifications-toggle" data-method="2">
+                        <input type="checkbox" name="section-method-all-8-2" id="section-method-all-8-2" value="1" class="all-notifications-toggle firm-feed" data-method="2">
                       </div>
                     </th>
                     <th style="vertical-align: middle">
@@ -752,91 +334,36 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                   </tr>
                 </thead>
 
-                <tbody><tr>
-                  <td>A new firm user is added</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-1-1]" id="notifications_8-1-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-1-2]" id="notifications_8-1-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
+                <tbody>
+                @foreach($notificationSetting as $k => $v)   
+                @if($v->type == 'firms')             
                 <tr>
-                  <td>Firm user contact information is updated</td>
-
+                  <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[8-2-1]" id="notifications_8-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
+                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-firm-email" data-method="1" 
+                        <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?> >
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" name="notifications[8-2-2]" id="notifications_8-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-                <tr>
-                  <td>A firm user is deactivated or reactivated</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-13-1]" id="notifications_8-13-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-13-2]" id="notifications_8-13-2" value="1" class="feed-toggle" data-method="2" checked="checked">
+                        <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-firm-feed" data-method="2"
+                        <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?> >
                     </td>
                     <td class="text-center">
                     </td>
                 </tr>
-
-                <tr>
-                  <td>Firm user permissions are changed</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-6-1]" id="notifications_8-6-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[8-6-2]" id="notifications_8-6-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>Items are imported into MyCase</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[18-15-1]" id="notifications_18-15-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[18-15-2]" id="notifications_18-15-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-
-                <tr>
-                  <td>Firm information is updated</td>
-
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[4-2-1]" id="notifications_4-2-1" value="1" class="email-toggle" data-method="1" checked="checked">
-                    </td>
-                    <td class="text-center">
-                        <input type="checkbox" name="notifications[4-2-2]" id="notifications_4-2-2" value="1" class="feed-toggle" data-method="2" checked="checked">
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-        </tbody></table>
+                @endif
+                @endforeach
+                
+              </tbody>
+            </table>
         <div class="d-flex flex-row justify-content-end">
             <button type="submit" class="btn btn-outline-secondary btn-rounded m-1">Save Preferences</button>
         </div>
-</form>    </div>
+        </form>    
+      </div>
 
-  </div>
+        </div>
 
-  </div>
+        </div>
             </div>
         </div>
     </div>
@@ -844,8 +371,341 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
-        
-    });
+
+      //Case
+      //select all case email checkboxes
+        $(".case-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-case-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-case-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".case-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-case-email:checked').length == $('.all-case-email').length ){ 
+            $(".case-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all case feed checkboxes
+        $(".case-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-case-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-case-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".case-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-case-feed:checked').length == $('.all-case-feed').length ){ 
+            $(".case-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        if ($('.all-case-email:checked').length == $('.all-case-email').length ){ 
+          $(".case-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-case-feed:checked').length == $('.all-case-feed').length ){ 
+          $(".case-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+        //Calendar
+        //select all Calendar email checkboxes
+        $(".calendar-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-calendar-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-calendar-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".calendar-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-calendar-email:checked').length == $('.all-calendar-email').length ){ 
+            $(".calendar-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all Calendar feed checkboxes
+        $(".calendar-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-calendar-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-calendar-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".calendar-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-calendar-feed:checked').length == $('.all-calendar-feed').length ){ 
+            $(".calendar-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        if ($('.all-calendar-email:checked').length == $('.all-calendar-email').length ){ 
+          $(".calendar-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-calendar-feed:checked').length == $('.all-calendar-feed').length ){ 
+          $(".calendar-feed")[0].checked = true; //change "select all" checked status to true
+        }
+        //Documents
+        //select all Documents email checkboxes
+        $(".documents-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-documents-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-documents-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".documents-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-documents-email:checked').length == $('.all-documents-email').length ){ 
+            $(".documents-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all Documents feed checkboxes
+        $(".documents-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-documents-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-documents-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".documents-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-documents-feed:checked').length == $('.all-documents-feed').length ){ 
+            $(".documents-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+        if ($('.all-documents-email:checked').length == $('.all-documents-email').length ){ 
+          $(".documents-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-documents-feed:checked').length == $('.all-documents-feed').length ){ 
+          $(".documents-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+        //Tasks
+        //select all Tasks email checkboxes
+        $(".task-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-task-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-task-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".task-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-task-email:checked').length == $('.all-task-email').length ){ 
+            $(".task-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all tasks feed checkboxes
+        $(".task-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-task-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-task-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".task-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-task-feed:checked').length == $('.all-task-feed').length ){ 
+            $(".task-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+        if ($('.all-task-email:checked').length == $('.all-task-email').length ){ 
+          $(".task-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-task-feed:checked').length == $('.all-task-feed').length ){ 
+          $(".task-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+        //Time & Billing
+        //select all Time and billing email checkboxes
+        $(".time-billing-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-time-billing-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-time-billing-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".time-billing-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-time-billing-email:checked').length == $('.all-time-billing-email').length ){ 
+            $(".time-billing-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all Time and billing  feed checkboxes
+        $(".time-billing-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-time-billing-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-time-billing-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".time-billing-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-time-billing-feed:checked').length == $('.all-time-billing-feed').length ){ 
+            $(".time-billing-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+        if ($('.all-time-billing-email:checked').length == $('.all-time-billing-email').length ){ 
+          $(".time-billing-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-time-billing-feed:checked').length == $('.all-time-billing-feed').length ){ 
+          $(".time-billing-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+        //Contact
+        //select all contact email checkboxes
+        $(".contact-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-contact-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-contact-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".contact-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-contact-email:checked').length == $('.all-contact-email').length ){ 
+            $(".contact-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all contact feed checkboxes
+        $(".contact-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-contact-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-contact-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".contact-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-contact-feed:checked').length == $('.all-contact-feed').length ){ 
+            $(".contact-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+        if ($('.all-contact-email:checked').length == $('.all-contact-email').length ){ 
+          $(".contact-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-contact-feed:checked').length == $('.all-contact-feed').length ){ 
+          $(".contact-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+        //Firm
+        //select all firm email checkboxes
+        $(".firm-email").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-firm-email').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-firm-email').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".firm-email")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-firm-email:checked').length == $('.all-firm-email').length ){ 
+            $(".firm-email")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        //select all contact feed checkboxes
+        $(".firm-feed").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-firm-feed').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-firm-feed').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".firm-feed")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-firm-feed:checked').length == $('.all-firm-feed').length ){ 
+            $(".firm-feed")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
+        if ($('.all-firm-email:checked').length == $('.all-firm-email').length ){ 
+          $(".firm-email")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-firm-feed:checked').length == $('.all-firm-feed').length ){ 
+          $(".firm-feed")[0].checked = true; //change "select all" checked status to true
+        }
+
+
+
+});
 </script>
 @stop
 @endsection

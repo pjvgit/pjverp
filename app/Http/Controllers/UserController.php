@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
 use App\Traits\InvoiceSettingTrait,App\FirmEventReminder;
 use Carbon\Carbon;
-use App\UserPreferanceReminder,App\NotificationSettings;
+use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\UsersAdditionalInfo;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -1011,12 +1011,34 @@ class UserController extends BaseController
     }
 
     public function notificationSetting(){
-        $notificationSetting = NotificationSettings::all();
-        return view('user.notificationSetting', compact('notificationSetting'));
+        $notificationSetting = NotificationSetting::all();
+        $userNotificationSetting = DB::table('user_notification_settings')->where('user_id',auth()->id())->get();
+        $UsersAdditionalInfo = DB::table('user_notification_interval')->where('user_id',auth()->id())->first();
+        // dd($userNotificationSetting[0]->for_email);
+        return view('user.notificationSetting', compact('notificationSetting','userNotificationSetting','UsersAdditionalInfo'));
     }
 
     public function updateNotifications(Request $request){
-        dd($request->all());
-    }
+        // return $request->all();
+        DB::table('user_notification_settings')->where('user_id',auth()->id())->delete();
+        $user = User::whereId(auth()->id())->first();
+        
+        $notifications = NotificationSetting::pluck("topic", "id")->toArray();
+        
+        $email = $request->email;
+        $feed = $request->feed;
+        
+        $finalArray = [];
+        foreach ($notifications as $key => $item) {
+            $finalArray[$key] = [
+                'for_email' => (isset($email) && array_key_exists($key, $email) && $email[$key] == 1) ? "yes" : "no",
+                'for_feed' => (isset($feed) && array_key_exists($key, $feed) && $feed[$key] == 1) ? "yes" : "no",
+            ];
+        }
+        // return $finalArray;
+        $user->userNotificationSetting()->sync($finalArray);
 
+        DB::table('user_notification_interval')->updateOrInsert(['user_id' => auth()->id()],['user_id' => auth()->id(), 'notification_email_interval'=>$request->notification_email_interval]);
+        return redirect()->back()->with("success", "Settings saved"); 
+    }
 }

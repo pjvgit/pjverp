@@ -53,7 +53,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link " href="#account/notifications">My
+                        <a class="nav-link {{ request()->is('account/notifications*') ? 'active' : '' }} " 
+                            href="{{ route('account/notifications') }} ">My
                             Notifications</a>
                     </li>
                 </div>

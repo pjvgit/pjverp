@@ -309,4 +309,10 @@ class User extends Authenticatable
                 ->whereRaw("find_in_set(?,'multiple_compnay_id')", [$this->id])
                 ->get();
     }
+
+    // save notifications setting for email and feed
+    public function userNotificationSetting()
+    {
+        return $this->belongsToMany(NotificationSetting::class, 'user_notification_settings', 'user_id', 'notification_id');
+    }
 }

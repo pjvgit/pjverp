@@ -1,75 +1,83 @@
------------------------------------- 02-NOV-2021 ------------------------------
-CREATE TABLE `notification_setting` (
+------------------------------------ 03-NOV-2021 ------------------------------
+DROP TABLE IF EXISTS `user_notification_settings`;
+CREATE TABLE `user_notification_settings` (
+  `user_id` bigint(20) NOT NULL,
+  `notification_id` bigint(20) DEFAULT NULL,
+  `for_email` enum('yes','no') DEFAULT NULL,
+  `for_feed` enum('yes','no') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `user_notification_interval` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `type` enum('cases','calendars','tasks','billings','contacts','firms') NULL,
-  `topic` varchar(255) NULL,
-  `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts') NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `created_by` int(11) NOT NULL DEFAULT '0',
-  `updated_at` timestamp NULL,
-  `updated_by` int(11) NULL,
-  `deleted_at` timestamp NULL
+  `user_id` int(11) NULL,
+  `notification_email_interval` int(4) NULL DEFAULT '1440'
 ) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 
-NotificationSettings::create(["type"=>"cases","topic"=>"A new case is added to the system","action"=>'add']);
-NotificationSettings::create(["type"=>"cases","topic"=>"An existing case is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"cases","topic"=>"An open case is closed","action"=>'close']);
-NotificationSettings::create(["type"=>"cases","topic"=>"A closed case is reopened","action"=>'reopened']);
-NotificationSettings::create(["type"=>"cases","topic"=>"A closed case is deleted","action"=>'delete']);
-NotificationSettings::create(["type"=>"cases","topic"=>"A new note is added, edited, or deleted on a case you're linked to","action"=>'notes']);
-NotificationSettings::create(["type"=>"cases","topic"=>"You are added or removed from a case","action"=>'firm']);
-NotificationSettings::create(["type"=>"cases","topic"=>"A contact / company is added or removed from a case you're linked to","action"=>'contacts']);
-NotificationSettings::create(["type"=>"cases","topic"=>"A firm user is added or removed from a case you're linked to","action"=>'staff']);
+------------------------------------ 02-NOV-2021 ------------------------------
+DROP TABLE IF EXISTS `notification_settings`;
+CREATE TABLE `notification_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` enum('cases','calendars','tasks','billings','contacts','firms','documents') DEFAULT NULL,
+  `topic` varchar(255) DEFAULT NULL,
+  `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts') NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL DEFAULT 0,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT INTO `notification_settings` (`id`, `type`, `topic`, `action`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`) VALUES
+(1,	'cases',	'A new case is added to the system',	'add',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(2,	'cases',	'An existing case is updated',	'update',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(3,	'cases',	'An open case is closed',	'close',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(4,	'cases',	'A closed case is reopened',	'reopened',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(5,	'cases',	'A closed case is deleted',	'delete',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(6,	'cases',	'A new note is added, edited, or deleted on a case you\'re linked to',	'notes',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(7,	'cases',	'You are added or removed from a case',	'firm',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(8,	'cases',	'A contact / company is added or removed from a case you\'re linked to',	'contacts',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(9,	'cases',	'A firm user is added or removed from a case you\'re linked to',	'staff',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(10,	'calendars',	'A new event is added to the system',	'add',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(11,	'calendars',	'An existing event is updated',	'update',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(12,	'calendars',	'Someone deletes an event',	'delete',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(13,	'calendars',	'Someone comments on an event',	'comments',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(14,	'calendars',	'A contact views an event',	'view',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(15,	'documents',	'A new document is uploaded in the system',	'add',	'2021-11-02 07:25:07',	0,	'2021-11-02 07:25:07',	NULL,	NULL),
+(16,	'documents',	'An existing document is updated',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(17,	'documents',	'Someone deletes a document',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(18,	'documents',	'Someone comments on a document',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(19,	'documents',	'A contact views a document',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(20,	'tasks',	'A new task is added',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(21,	'tasks',	'An existing task is updated',	'update',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(22,	'tasks',	'Someone deletes a task',	'delete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(23,	'tasks',	'A task is completed',	'complete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(24,	'tasks',	'A completed task is marked incomplete',	'incomplete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(25,	'billings',	'A new time entry / expense is added',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(26,	'billings',	'An existing time entry / expense is updated',	'update',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(27,	'billings',	'Someone deletes a time entry / expense',	'delete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(28,	'billings',	'A new invoice is added to a case you\'re linked to',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(29,	'billings',	'An existing invoice is updated on a case you\'re linked to',	'update',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(30,	'billings',	'A contact views an invoice',	'view',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(31,	'billings',	'Someone deletes an invoice on a case you\'re linked to',	'delete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(32,	'billings',	'A payment is made on an invoice on a case you\'re linked to',	'payment',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(33,	'billings',	'A payment is refunded on an invoice on a case you\'re linked to',	'refund',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(34,	'billings',	'Someone shares an invoice on a case you\'re linked to',	'share',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(35,	'billings',	'Someone sends a reminder on a case you\'re linked to',	'reminder',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(36,	'contacts',	'A new contact/company is added to the system',	'add',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(37,	'contacts',	'An existing contact/company is updated',	'update',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(38,	'contacts',	'Someone archives a contact/company',	'archive',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(39,	'contacts',	'Someone unarchives a contact/company',	'unarchive',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(40,	'contacts',	'Someone deletes a company',	'delete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(41,	'contacts',	'A contact logs in to MyCase',	'login',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(42,	'contacts',	'A new note is added, edited, or deleted on a contact',	'notes',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(43,	'firms',	'A new firm user is added',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(44,	'firms',	'Firm user contact information is updated',	'update',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(45,	'firms',	'A firm user is deactivated or reactivated',	'inactive',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(46,	'firms',	'Firm user permissions are changed',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(47,	'firms',	'Items are imported into MyCase',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(48,	'firms',	'Firm information is updated',	'update',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL);
 
-NotificationSettings::create(["type"=>"calendars","topic"=>"A new event is added to the system","action"=>'add']);
-NotificationSettings::create(["type"=>"calendars","topic"=>"An existing event is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"calendars","topic"=>"Someone deletes an event","action"=>'delete']);
-NotificationSettings::create(["type"=>"calendars","topic"=>"Someone comments on an event","action"=>'comments']);
-NotificationSettings::create(["type"=>"calendars","topic"=>"A contact views an event","action"=>'view']);
-
-
-NotificationSettings::create(["type"=>"documents","topic"=>"A new document is uploaded in the system","action"=>'add']);
-NotificationSettings::create(["type"=>"documents","topic"=>"An existing document is updated","action"=>'add']);
-NotificationSettings::create(["type"=>"documents","topic"=>"Someone deletes a document","action"=>'add']);
-NotificationSettings::create(["type"=>"documents","topic"=>"Someone comments on a document","action"=>'add']);
-NotificationSettings::create(["type"=>"documents","topic"=>"A contact views a document","action"=>'add']);
-
-
-NotificationSettings::create(["type"=>"tasks","topic"=>"A new task is added","action"=>'add']);
-NotificationSettings::create(["type"=>"tasks","topic"=>"An existing task is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"tasks","topic"=>"Someone deletes a task","action"=>'delete']);
-NotificationSettings::create(["type"=>"tasks","topic"=>"A task is completed","action"=>'complete']);
-NotificationSettings::create(["type"=>"tasks","topic"=>"A completed task is marked incomplete","action"=>'incomplete']);
-    
-NotificationSettings::create(["type"=>"billings","topic"=>"A new time entry / expense is added","action"=>'add']);
-NotificationSettings::create(["type"=>"billings","topic"=>"An existing time entry / expense is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"billings","topic"=>"Someone deletes a time entry / expense","action"=>'delete']);
-NotificationSettings::create(["type"=>"billings","topic"=>"A new invoice is added to a case you're linked to","action"=>'add']);
-NotificationSettings::create(["type"=>"billings","topic"=>"An existing invoice is updated on a case you're linked to","action"=>'update']);
-NotificationSettings::create(["type"=>"billings","topic"=>"A contact views an invoice","action"=>'view']);
-NotificationSettings::create(["type"=>"billings","topic"=>"Someone deletes an invoice on a case you're linked to","action"=>'delete']);
-NotificationSettings::create(["type"=>"billings","topic"=>"A payment is made on an invoice on a case you're linked to","action"=>'payment']);
-NotificationSettings::create(["type"=>"billings","topic"=>"A payment is refunded on an invoice on a case you're linked to","action"=>'refund']);
-NotificationSettings::create(["type"=>"billings","topic"=>"Someone shares an invoice on a case you're linked to","action"=>'share']);
-NotificationSettings::create(["type"=>"billings","topic"=>"Someone sends a reminder on a case you're linked to","action"=>'reminder']);
-
-    
-NotificationSettings::create(["type"=>"contacts","topic"=>"A new contact/company is added to the system","action"=>'add']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"An existing contact/company is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"Someone archives a contact/company","action"=>'archive']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"Someone unarchives a contact/company","action"=>'unarchive']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"Someone deletes a company","action"=>'delete']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"A contact logs in to MyCase","action"=>'login']);
-NotificationSettings::create(["type"=>"contacts","topic"=>"A new note is added, edited, or deleted on a contact","action"=>'notes']);
-
-
-NotificationSettings::create(["type"=>"firms","topic"=>"A new firm user is added","action"=>'add']);
-NotificationSettings::create(["type"=>"firms","topic"=>"Firm user contact information is updated","action"=>'update']);
-NotificationSettings::create(["type"=>"firms","topic"=>"A firm user is deactivated or reactivated","action"=>'inactive']);
-NotificationSettings::create(["type"=>"firms","topic"=>"Firm user permissions are changed","action"=>'add']);
-NotificationSettings::create(["type"=>"firms","topic"=>"Items are imported into MyCase","action"=>'add']);
-NotificationSettings::create(["type"=>"firms","topic"=>"Firm information is updated","action"=>'update']); 		
 ALTER TABLE `all_history`
 CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`,
 CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','login') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;

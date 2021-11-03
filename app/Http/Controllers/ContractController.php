@@ -1024,7 +1024,9 @@ class ContractController extends BaseController
         //     $data['action']='add';
         //     $CommonController= new CommonController();
         //     $CommonController->addMultipleHistory($data);
-
+        
+            // defualt set user email notifications
+            DB::table('user_notification_interval')->updateOrInsert(['user_id' => $user->id],['user_id' => $user->id, 'notification_email_interval'=>1440]);
 
            if(!isset($request->fromCase)){ 
             session(['popup_success' => 'Your client has been created.']); 
