@@ -30,6 +30,7 @@ use App\CasePracticeArea,App\CaseStage,App\ClientCasesImportHistory,App\CaseNote
 use App\Traits\FundRequestTrait;
 use App\Traits\TrustAccountTrait;
 use Exception;
+use App\Http\Controllers\CommonController;
 
 class ClientdashboardController extends BaseController
 {
@@ -4318,6 +4319,14 @@ class ClientdashboardController extends BaseController
                             $data['case_id']=$CaseMaster->id;
                             $data['activity_type']='';
                             $this->caseActivity($data);
+                            
+                            $data=[];
+                            $data['case_id']=$CaseMaster->id;
+                            $data['activity']='added case';
+                            $data['type']='case';
+                            $data['action']='add';
+                            $CommonController= new CommonController();
+                            $CommonController->addMultipleHistory($data);
 
                             if($finalOperationVal['lead_attorney'] != ''){
                                 $leadName = explode(" ",$finalOperationVal['lead_attorney']);
@@ -4346,6 +4355,16 @@ class ClientdashboardController extends BaseController
                                     $datauser['case_id']=$CaseMaster->id;
                                     $datauser['staff_id']=Auth::user()->id;
                                     $this->caseActivity($datauser);
+
+                                    $data=[];
+                                    $data['user_id']=Auth::user()->id;
+                                    $data['client_id']=Auth::user()->id;
+                                    $data['case_id']=$CaseMaster->id;
+                                    $data['activity']='linked attorney';
+                                    $data['type']='contact';
+                                    $data['action']='link';
+                                    $CommonController= new CommonController();
+                                    $CommonController->addMultipleHistory($data);
                                 }else{
                                     $CaseStaff = new CaseStaff;
                                     $CaseStaff->case_id=$CaseMaster->id; 
@@ -4358,6 +4377,16 @@ class ClientdashboardController extends BaseController
                                     $datauser['case_id']=$CaseMaster->id;
                                     $datauser['staff_id']=Auth::user()->id;
                                     $this->caseActivity($datauser);  
+
+                                    $data=[];
+                                    $data['user_id']=Auth::user()->id;
+                                    $data['client_id']=Auth::user()->id;
+                                    $data['case_id']=$CaseMaster->id;
+                                    $data['activity']='linked attorney';
+                                    $data['type']='contact';
+                                    $data['action']='link';
+                                    $CommonController= new CommonController();
+                                    $CommonController->addMultipleHistory($data);
 
                                     $waringCount = $waringCount + 1;
                                     $errorString.='<li>Invalid Lead Attorney: '.$finalOperationVal['lead_attorney'] .' </li>';
@@ -4374,6 +4403,16 @@ class ClientdashboardController extends BaseController
                                 $datauser['case_id']=$CaseMaster->id;
                                 $datauser['staff_id']=Auth::user()->id;
                                 $this->caseActivity($datauser);  
+
+                                $data=[];
+                                $data['user_id']=Auth::user()->id;
+                                $data['client_id']=Auth::user()->id;
+                                $data['case_id']=$CaseMaster->id;
+                                $data['activity']='linked attorney';
+                                $data['type']='contact';
+                                $data['action']='link';
+                                $CommonController= new CommonController();
+                                $CommonController->addMultipleHistory($data);
                             }                            
 
                             $caseStageHistory = new CaseStageUpdate;

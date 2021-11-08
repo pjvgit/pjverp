@@ -15,10 +15,12 @@ use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Traits\UserRecentActivityTrait;
 
 class UserController extends BaseController
 {
     use InvoiceSettingTrait;
+    use UserRecentActivityTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -209,7 +211,19 @@ class UserController extends BaseController
             if($verifyUser->user_status==1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
-                
+                // insert recent notifications into user settings
+                $this->bulkInsertUserActivity($verifyUser->id);
+
+                //Insert default case stage 
+                $CaseStage =  CaseStage::where('user_id', $verifyUser->id)->get();
+                if(count($CaseStage) == 0){
+                    $data = array(
+                        array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                        array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                        array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                    );        
+                    CaseStage::insert($data);
+                }
 
                 // $case_practice_area = array(
                 //     array('title' => 'Bankruptcy','status' => '1',"created_by"=>$verifyUser->id),

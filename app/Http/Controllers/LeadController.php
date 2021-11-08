@@ -1046,6 +1046,14 @@ class LeadController extends BaseController
                 $data['case_id']=$CaseMaster->id;
                 $data['activity_type']='';
                 $this->caseActivity($data);
+
+                $data=[];
+                $data['case_id']=$CaseMaster->id;
+                $data['activity']='added case';
+                $data['type']='case';
+                $data['action']='add';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
             dbCommit();
             return response()->json(['errors'=>'','case_id'=>$CaseMaster->id,'id'=>$request->id,'user_id'=>$request->user_id]);
@@ -1157,6 +1165,16 @@ class LeadController extends BaseController
                 $datauser['case_id']=$request->case_id;
                 $datauser['staff_id']=$key;
                 $this->caseActivity($datauser);
+
+                $data=[];
+                $data['user_id']=$key;
+                $data['client_id']=$key;
+                $data['case_id']=$request->case_id;
+                $data['activity']='linked attorney';
+                $data['type']='contact';
+                $data['action']='link';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
             $caseStatusChange=CaseMaster::find($request->case_id);
             $caseStatusChange->is_entry_done="1";

@@ -3,10 +3,38 @@ $CommonController= new App\Http\Controllers\CommonController();
 if(!$commentData->isEmpty()){
 ?>
 <table class="display table table-striped table-bordered dataTable no-footer" id="caseHistoryGrid" style="width: 100%;"
-    role="grid">
+    role="grid" bladefile="resources/views/notifications/loadAllNotifications.blade.php">
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>
-            <?php if($v->type=="contact"){?>
+            <?php if($v->type=="case"){?>
+                <tr role="row" class="odd">
+                <td class="sorting_1" style="font-size: 13px;">
+                    <div class="text-left">
+                        <?php 
+                        $ImageArray=[];
+                        $ImageArray['add']="activity_client_added.png";
+                        $ImageArray['update']="activity_client_updated.png";
+                        $ImageArray['link']="activity_client_linked.png";
+                        $ImageArray['unlink']="activity_client_unlinked.png";
+                        $ImageArray["pay"]="activity_ledger_deposited.png";
+                        $image=$ImageArray[$v->action];
+                        ?>
+                        <img src="{{ asset('images/'.$image) }}" width="27" height="21">
+                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                            {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                            </a> {{$v->activity}} 
+                            <?php if($v->case_title!=""){?>
+                            <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
+                            <?php } ?>
+
+                            <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
+                            <?php if($v->case_title!=""){?>
+                            |       <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
+                            <?php } ?>
+                        </div>
+                </td>
+            </tr>
+            <?php }else if($v->type=="contact"){?>
             <tr role="row" class="odd">
                 <td class="sorting_1" style="font-size: 13px;">
                     <div class="text-left">
@@ -30,6 +58,9 @@ if(!$commentData->isEmpty()){
                             <?php if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
                             <?php } ?>
 
+                            <?php if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} ({{$v->user_title}})</a>
+                            <?php } ?>
+                            
                             <?php if($v->action=="link"){ ?> to case <?php } ?>
                             <?php if($v->action=="unlink"){ ?> from case <?php } ?>
                             

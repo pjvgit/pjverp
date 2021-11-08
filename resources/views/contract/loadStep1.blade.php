@@ -236,7 +236,7 @@ $userTitle = unserialize(USER_TITLE);
             return false;
         }
 
-        var dataString = $("form").serialize();
+        var dataString = $("#createNewUser").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/saveStep1", // json datasource

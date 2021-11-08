@@ -12,7 +12,7 @@ use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSe
 use App\CasePracticeArea,App\CaseStage,App\CaseTaskLinkedStaff;
 use Illuminate\Support\Str;
 use App\Jobs\ProcessPodcast;
-
+use App\Http\Controllers\CommonController;
 class ContractController extends BaseController
 {
     public function __construct()
@@ -1004,27 +1004,29 @@ class ContractController extends BaseController
                 }
            
             
-           $ClientActivityHistory=[];
-           $ClientActivityHistory['acrtivity_title']='added contact';
-           $ClientActivityHistory['activity_by']=Auth::User()->id;
-           $ClientActivityHistory['activity_for']=($user->id)??NULL;
-           $ClientActivityHistory['type']="2";
-           $ClientActivityHistory['task_id']=NULL;
-           $ClientActivityHistory['case_id']=NULL;
-           $ClientActivityHistory['created_by']=Auth::User()->id;
-           $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
-           $this->saveClientActivity($ClientActivityHistory);
+        //    $ClientActivityHistory=[];
+        //    $ClientActivityHistory['acrtivity_title']='added contact';
+        //    $ClientActivityHistory['activity_by']=Auth::User()->id;
+        //    $ClientActivityHistory['activity_for']=($user->id)??NULL;
+        //    $ClientActivityHistory['type']="2";
+        //    $ClientActivityHistory['task_id']=NULL;
+        //    $ClientActivityHistory['case_id']=NULL;
+        //    $ClientActivityHistory['created_by']=Auth::User()->id;
+        //    $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
+        //    $this->saveClientActivity($ClientActivityHistory);
            
 
-        //    $data=[];
-        //     $data['user_id']=$user->id;
-        //     $data['client_id']=$user->id;
-        //     $data['activity']='added contact';
-        //     $data['type']='contact';
-        //     $data['action']='add';
-        //     $CommonController= new CommonController();
-        //     $CommonController->addMultipleHistory($data);
-        
+            $data=[];
+            $data['user_id']=$request->user_type;
+            $data['client_id']=$request->user_type;
+            $data['case_id']=$request->case_id;
+            $data['activity']='linked Contact';
+            $data['type']='contact';
+            $data['action']='link';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            
             // defualt set user email notifications
             DB::table('user_notification_interval')->updateOrInsert(['user_id' => $user->id],['user_id' => $user->id, 'notification_email_interval'=>1440]);
 
@@ -1121,16 +1123,16 @@ class ContractController extends BaseController
             $UsersAdditionalInfo->created_by =Auth::User()->id;
             $UsersAdditionalInfo->save();
 
-            $ClientActivityHistory=[];
-            $ClientActivityHistory['acrtivity_title']='update contact';
-            $ClientActivityHistory['activity_by']=Auth::User()->id;
-            $ClientActivityHistory['activity_for']=($user->id)??NULL;
-            $ClientActivityHistory['type']="2";
-            $ClientActivityHistory['task_id']=NULL;
-            $ClientActivityHistory['case_id']=NULL;
-            $ClientActivityHistory['created_by']=Auth::User()->id;
-            $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
-            $this->saveClientActivity($ClientActivityHistory);
+            // $ClientActivityHistory=[];
+            // $ClientActivityHistory['acrtivity_title']='update contact';
+            // $ClientActivityHistory['activity_by']=Auth::User()->id;
+            // $ClientActivityHistory['activity_for']=($user->id)??NULL;
+            // $ClientActivityHistory['type']="2";
+            // $ClientActivityHistory['task_id']=NULL;
+            // $ClientActivityHistory['case_id']=NULL;
+            // $ClientActivityHistory['created_by']=Auth::User()->id;
+            // $ClientActivityHistory['created_at']=date('Y-m-d H:i:s');
+            // $this->saveClientActivity($ClientActivityHistory);
 
             $data=[];
             $data['user_id']=$user->id;
@@ -1646,6 +1648,16 @@ class ContractController extends BaseController
                     $datauser['case_id']=$v;
                     $datauser['staff_id']=$user_id;
                     $this->caseActivity($datauser);
+
+                    $data=[];
+                    $data['user_id']=$user_id;
+                    $data['client_id']=$user_id;
+                    $data['case_id']=$v;
+                    $data['activity']='linked attorney';
+                    $data['type']='contact';
+                    $data['action']='link';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                 }
             }
             return response()->json(['errors'=>'','user_id'=>$user_id]);

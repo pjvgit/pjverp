@@ -7,7 +7,7 @@
     <input class="form-control" value="{{$case_id}}" id="case_id" name="case_id" type="hidden" placeholder="M">
     <?php } ?>
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladename="resources/views/client/addClient.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-4">
@@ -378,7 +378,7 @@
                     return false;
                 }
                 var dataString = '';
-                dataString = $("form").serialize();
+                dataString = $("#createNewUser").serialize();
                 $.ajax({
                     type: "POST",
                     url: baseUrl + "/contacts/saveAddContact", // json datasource

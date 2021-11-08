@@ -163,4 +163,14 @@ class AllHistory extends Authenticatable
     {
         return $this->belongsTo(Task::class, 'task_id', 'id');
     }
+
+    /**
+     * Get the firm detials associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseFirm()
+    {
+        return $this->hasOne(Firm::class, 'id', 'firm_name');
+    }
 }

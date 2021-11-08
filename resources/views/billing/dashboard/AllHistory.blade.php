@@ -2,7 +2,7 @@
 $CommonController= new App\Http\Controllers\CommonController();
 if(!$commentData->isEmpty()){ ?>
 <table class="display table table-striped table-bordered dataTable no-footer" id="caseHistoryGrid" style="width: 100%;"
-    role="grid">
+    role="grid" bladename="resources/views/billing/dashboard/AllHistory.blade.php">
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>
         <?php if($v->type=="document"){?>

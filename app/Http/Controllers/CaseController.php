@@ -285,6 +285,13 @@ class CaseController extends BaseController
             $data['activity_type']='';
             $this->caseActivity($data);
 
+            $data=[];
+            $data['case_id']=$CaseMaster->id;
+            $data['activity']='added case';
+            $data['type']='case';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             
             $selectdUSerList = TempUserSelection::where("temp_user_selection.user_id",Auth::user()->id)->get();
             if(!$selectdUSerList->isEmpty()){
@@ -320,6 +327,16 @@ class CaseController extends BaseController
                     $datauser['case_id']=$CaseMaster->id;
                     $datauser['staff_id']=$val->selected_user;
                     $this->caseActivity($datauser);
+
+                    $data=[];
+                    $data['user_id']=$val->selected_user;
+                    $data['client_id']=$val->selected_user;
+                    $data['case_id']=$CaseMaster->id;
+                    $data['activity']='linked Contact';
+                    $data['type']='contact';
+                    $data['action']='link';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                 }
             }
 
@@ -349,7 +366,16 @@ class CaseController extends BaseController
                     $datauser['case_id']=$CaseMaster->id;
                     $datauser['staff_id']=$key;
                     $this->caseActivity($datauser);
-    
+
+                    $data=[];
+                    $data['user_id']=$key;
+                    $data['client_id']=$key;
+                    $data['case_id']=$CaseMaster->id;
+                    $data['activity']='linked attorney';
+                    $data['type']='contact';
+                    $data['action']='link';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);    
                 }
     
                 $caseStatusChange=CaseMaster::find($CaseMaster->id);
@@ -570,6 +596,13 @@ class CaseController extends BaseController
             $data['activity_type']='';
             $this->caseActivity($data);
 
+            $data=[];
+            $data['case_id']=$CaseMaster->id;
+            $data['activity']='added case';
+            $data['type']='case';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
         }
         return response()->json(['errors'=>'','case_id'=>$CaseMaster->id]);
@@ -626,6 +659,16 @@ class CaseController extends BaseController
                     $datauser['case_id']=$request->case_id;
                     $datauser['staff_id']=$val->selected_user;
                     $this->caseActivity($datauser);
+
+                    $data=[];
+                    $data['user_id']=$val->selected_user;
+                    $data['client_id']=$val->selected_user;
+                    $data['case_id']=$CaseMaster->id;
+                    $data['activity']='linked Contact';
+                    $data['type']='contact';
+                    $data['action']='link';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                 }
             }
             return response()->json(['errors'=>'','case_id'=>$request->case_id]);
@@ -671,6 +714,15 @@ class CaseController extends BaseController
                 $datauser['staff_id']=$key;
                 $this->caseActivity($datauser);
 
+                $data=[];
+                $data['user_id']=$key;
+                $data['client_id']=$key;
+                $data['case_id']=$request->case_id;
+                $data['activity']='linked attorney';
+                $data['type']='contact';
+                $data['action']='link';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
 
             $caseStatusChange=CaseMaster::find($request->case_id);
@@ -1811,6 +1863,16 @@ class CaseController extends BaseController
             $data1['activity_type']='';
             $data1['staff_id']=$request->user_type;
             $this->caseActivity($data1);
+
+            $data2=[];
+            $data2['user_id']=$request->user_type;
+            $data2['client_id']=$request->user_type;
+            $data2['case_id']=$request->case_id;
+            $data2['activity']='linked attorney';
+            $data2['type']='contact';
+            $data2['action']='link';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data2);
 
             if(!empty($request->client_links)){
                 foreach($request->client_links as $k=>$v ){

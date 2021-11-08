@@ -1,3 +1,7 @@
+------------------------------------ 08-NOV-2021 ------------------------------
+ALTER TABLE `all_history`
+CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user','case') COLLATE 'utf8mb4_general_ci' NULL AFTER `document_id`;
+
 ------------------------------------ 03-NOV-2021 ------------------------------
 DROP TABLE IF EXISTS `user_notification_settings`;
 CREATE TABLE `user_notification_settings` (
