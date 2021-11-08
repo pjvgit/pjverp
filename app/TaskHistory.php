@@ -13,7 +13,7 @@ class TaskHistory extends Authenticatable
     protected $table = "task_history";
     public $primaryKey = 'id';
 
-    protected $fillable = ['task_action'];    
+    protected $fillable = ['task_action', 'task_id', 'created_by'];    
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);

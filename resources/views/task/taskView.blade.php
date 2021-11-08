@@ -77,10 +77,17 @@
                                 <?php }else{ ?>
                                 <div class="h4 font-weight-bold mb-1 text-black-50">
                                     <div>
+                                        @if ($TaskData->is_need_review == 'yes')
+                                        <a href="javascript:;"
+                                            onclick="taskStatus({{$TaskData->id}},{{$TaskData->status}});">
+                                            <i class="fas fa-check-double text-warning" style=""></i> Needs Review
+                                        </a>
+                                        @else
                                         <a href="javascript:;"
                                             onclick="taskStatus({{$TaskData->id}},{{$TaskData->status}});">
                                             <i class="fas fa-check fa-sm  text-success" style=""></i> Complete
                                         </a>
+                                        @endif
                                     </div>
                                     <?php
                                              $OwnDate=$controllerLoad->convertUTCToUserTime($TaskData->task_completed_date,Auth::User()->user_timezone);

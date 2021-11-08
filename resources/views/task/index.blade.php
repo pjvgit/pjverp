@@ -303,13 +303,21 @@ if(isset($_GET['task_read'])){
                                     <i class="fas fa-check fa-2x text-muted" style="opacity: 0.2;"></i>
                                 </a>
                                 <?php }else{ ?>
+                                    @if ($subrow->is_need_review == 'yes')
+                                    <a class="align-items-center" data-toggle="popover" data-trigger="hover" title=""
+                                        data-content="Needs Review" data-html="true" data-original-title="" style="float:left;"
+                                        data-placement="top" href="javascript:;"
+                                        onclick="taskStatus({{$subrow->id}},{{$subrow->status}});">
+                                        <i class="fas fa-check-double fa-2x text-warning"></i>
+                                    </a>
+                                    @else
                                 <a class="align-items-center" data-toggle="popover" data-trigger="hover" title=""
                                     data-content="Complete" data-html="true" data-original-title="" style="float:left;"
                                     data-placement="top" href="javascript:;"
                                     onclick="taskStatus({{$subrow->id}},{{$subrow->status}});">
                                     <i class="fas fa-check fa-2x  text-success"></i>
                                 </a>
-
+                                    @endif
                                 <?php } ?>
                             </td>
                             <td class="task-name-cell align-middle">
@@ -623,13 +631,21 @@ if(isset($_GET['task_read'])){
                                     <i class="fas fa-check fa-2x text-muted" style="opacity: 0.2;"></i>
                                 </a>
                                 <?php }else{ ?>
+                                    @if ($subrow->is_need_review == 'yes')
+                                    <a class="align-items-center" data-toggle="popover" data-trigger="hover" title=""
+                                        data-content="Needs Review" data-html="true" data-original-title="" style="float:left;"
+                                        data-placement="top" href="javascript:;"
+                                        onclick="taskStatus({{$subrow->id}},{{$subrow->status}});">
+                                        <i class="fas fa-check-double fa-2x text-warning"></i>
+                                    </a>
+                                    @else
                                 <a class="align-items-center" data-toggle="popover" data-trigger="hover" title=""
                                     data-content="Complete" data-html="true" data-original-title="" style="float:left;"
                                     data-placement="top" href="javascript:;"
                                     onclick="taskStatus({{$subrow->id}},{{$subrow->status}});">
                                     <i class="fas fa-check fa-2x  text-success"></i>
                                 </a>
-
+                                    @endif
                                 <?php } ?>
                             </td>
                             <td class="task-name-cell align-middle">

@@ -16,7 +16,8 @@ class Task extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'case_id', 'no_case_link', 'task_title', 'task_due_on', 'description', 'task_priority', 'task_assign_to', 'time_tracking_enabled', 'firm_id', 'status', 'task_completed_by', 'task_completed_date'];    
+        'case_id', 'no_case_link', 'task_title', 'task_due_on', 'description', 'task_priority', 'task_assign_to', 'time_tracking_enabled', 'firm_id', 'status', 
+        'task_completed_by', 'task_completed_date', 'is_need_review'];    
     protected $appends  = ['task_user','task_completed','checklist_counter','decode_id','case_name','lead_name','task_due_date','assign_to', 'priority_text'];
 
 

@@ -1,3 +1,6 @@
+------------------------------------ 08-NOV-2021 ------------------------------
+ALTER TABLE `task` ADD `is_need_review` enum('no','yes') NOT NULL DEFAULT 'no' COMMENT 'If task completed by Client then firm needs to review' AFTER `firm_id`;
+
 ------------------------------------ 03-NOV-2021 ------------------------------
 DROP TABLE IF EXISTS `user_notification_settings`;
 CREATE TABLE `user_notification_settings` (

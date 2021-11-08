@@ -628,9 +628,20 @@ class TaskController extends BaseController
             $data['type']='task';
             $data['action']='complete';
         }else{
-            $Task->status="0";
+            if($request->status == "1" && $Task->is_need_review == "yes") {
+                $Task->status = $Task->status;
+                $Task->is_need_review = "no";
+                
+                $taskHistory['task_action']='Completed task';
+                $data['activity']='completed task';
+                $data['action']='complete';
+            } else {
+                $Task->status="0";
+                $taskHistory['task_action']='Marked task as incomplete';
+                $data['activity']='marked as incomplete task';
+                $data['action']='incomplete';
+            }
             $taskHistory['task_id']=$Task->id;
-            $taskHistory['task_action']='Marked task as incomplete';
 
             if($Task['case_id']!=NULL) { 
                 $data['task_for_case']=$Task['case_id'];  
@@ -641,9 +652,7 @@ class TaskController extends BaseController
             $data['task_id']=$Task['id'];
             $data['task_name']=$Task['task_title'];
             $data['user_id']=Auth::User()->id;
-            $data['activity']='marked as incomplete task';
             $data['type']='task';
-            $data['action']='incomplete';
         }
         $Task->task_completed_by=Auth::User()->id;
         $Task->task_completed_date=date('Y-m-d h:i:s');
@@ -1336,7 +1345,7 @@ class TaskController extends BaseController
   {
         $task_id=$request->task_id;
         $taskHistoryData=TaskHistory::leftJoin("users","task_history.created_by","=","users.id")
-        ->select("task_history.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.first_name","users.last_name","users.user_type")
+        ->select("task_history.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.first_name","users.last_name","users.user_type","users.user_title")
         ->where('task_id',$task_id)
         ->orderBy('task_history.id','DESC')->get();
         return view('task.loadTaskHistory',compact('taskHistoryData'));     
