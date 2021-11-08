@@ -1,6 +1,6 @@
 @if($item->type == "invoices")
 <li class="list-row">
-    <a href="{{ route('bills/invoices/view',base64_encode($item->activity_for)) }}">{{ $item->id }}<i class="fas fa-dollar-sign list-row__icon"></i>
+    <a href="{{ route('bills/invoices/view',base64_encode($item->activity_for)) }}"><i class="fas fa-dollar-sign list-row__icon"></i>
         <div class="list-row__body">
             <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }} 
                 <span class="u-color-primary">
@@ -17,12 +17,12 @@
 </li>
 @elseif($item->type == "task")
 <li class="list-row">
-    <a href="/tasks/22608721">{{ $item->id }}<i class="fas fa-sticky-note list-row__icon"></i>
+    <a href="{{ route('client/tasks/detail', encodeDecodeId($item->task_id, 'encode')) }}"><i class="fas fa-sticky-note list-row__icon"></i>
         <div class="list-row__body">
             <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }}
                 <span class="u-color-primary">
                     @if ($item->task)
-                    <a href="#">{{ $item->task->task_title }}</a>
+                    <a href="{{ route('client/tasks/detail', encodeDecodeId($item->task_id, 'encode')) }}">{{ $item->task->task_title }}</a>
                     @endif
                 </span>
                 @if ($item->action == 'complete')

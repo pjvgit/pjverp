@@ -14,7 +14,7 @@
                 <div class="col">
                     <div>
                         <strong>{{$value->task_action}}</strong>
-                        <span class="pl-1">– <span>{{substr($value->created_by_name,0,25)}} ({{$userTypes[$value->user_type]}})</span></span>
+                        <span class="pl-1">– <span>{{substr($value->created_by_name,0,25)}} ({{/* $userTypes[$value->user_type] */ $value->user_title}})</span></span>
                     </div>
                 </div>
             </div>

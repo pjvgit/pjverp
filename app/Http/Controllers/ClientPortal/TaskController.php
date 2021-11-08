@@ -8,7 +8,9 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\Jobs\CommentEmail;
 use App\Task;
+use App\TaskChecklist;
 use App\TaskComment;
+use App\TaskHistory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -48,30 +50,46 @@ class TaskController extends Controller
         try {
             $authUser = auth()->user();
             $task = Task::whereId($request->task_id)->first();
-            $task->fill([
-                'status' => $request->status ?? 0,
-                'task_completed_by' => $authUser->id,
-                'task_completed_date' => Carbon::now()
-            ])->save();
-            
-            $data=[];
-            $data['task_id'] = $task['id'];
-            $data['task_name'] = $task['task_title'];
-            $data['user_id'] = $authUser->id;
-            $data['task_for_case'] = $task['case_id'] ?? Null; 
-            $data['task_for_lead'] = $task['lead_id'] ?? Null;  
-            $data['activity'] = ($task->status == 1) ? 'completed task' : 'marked as incomplete task';
-            $data['type'] = 'task';
-            $data['action'] = ($task->status == 1) ? 'complete' : 'incomplete';
-            $CommonController= new CommonController();
-            $CommonController->addMultipleHistory($data);
+            if($request->task_type == 'subtask' && $request->sub_task_id) {
+                $subTask = TaskChecklist::whereId($request->sub_task_id)->whereTaskId($request->task_id)->first();
+                if($subTask) {
+                    $subTask->fill(['status' => ($subTask->status == "1") ? "0" : "1"])->save();
+                }
+                // return $subTask->refresh();
+            } else {
+                $task->fill([
+                    'status' => ($task->status == "1") ? "0" : "1",
+                    'is_need_review' => ($task->is_need_review == "no") ? "yes" : "no",
+                    'task_completed_by' => $authUser->id,
+                    'task_completed_date' => Carbon::now()
+                ])->save();
+                
+                $data=[];
+                $data['task_id'] = $task['id'];
+                $data['task_name'] = $task['task_title'];
+                $data['user_id'] = $authUser->id;
+                $data['task_for_case'] = $task['case_id'] ?? Null; 
+                $data['task_for_lead'] = $task['lead_id'] ?? Null;  
+                $data['activity'] = ($task->status == "1") ? 'completed task' : 'marked as incomplete task';
+                $data['type'] = 'task';
+                $data['action'] = ($task->status == "1") ? 'complete' : 'incomplete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
 
-            // For client portal activity
-            $data['client_id'] = $authUser->id;
-            $data['activity'] = 'marked task';
-            $data['is_for_client'] = 'yes';
-            $CommonController->addMultipleHistory($data);
+                // For client portal activity
+                $data['client_id'] = $authUser->id;
+                $data['activity'] = 'marked task';
+                $data['is_for_client'] = 'yes';
+                $CommonController->addMultipleHistory($data);
 
+                // For task history
+                TaskHistory::create([
+                    'task_id' => $task->id,
+                    'task_action' => ($task->status == "1") ? 'Completed task' : 'Marked task as incomplete',
+                    'created_by' => $authUser->id,
+                    'created_at' => $task->task_completed_date,
+                ]);
+            }
             return response()->json(['success'=> true, 'message' => "Task updated"]);
         } catch(Exception $e) {
             return response()->json(['error' => true, 'message' => $e->getMessage()]);

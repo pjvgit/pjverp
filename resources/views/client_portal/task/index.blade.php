@@ -27,7 +27,7 @@
                                 </a>
                             </li>
                         @empty
-                            
+                            <li style="list-style: none;"><div class="text-center p-4"><i>No Tasks</i></div></li>
                         @endforelse
                     </ul>
                 </div>
@@ -45,7 +45,7 @@
                                 </a>
                             </li>
                         @empty
-                            
+                            <li style="list-style: none;"><div class="text-center p-4"><i>No Tasks</i></div></li>
                         @endforelse
                     </ul>
                 </div>

@@ -20,7 +20,7 @@
                     <input type="radio" name="mark_as_complete" id="mark_as_complete" value="1"><span>Mark as complete</span><span class="checkmark"></span>
                 </label> --}}
                 <label class="checkbox checkbox-success">
-                    <input type="checkbox" name="mark_as_complete" id="mark_as_complete" value="1"><span>Mark as complete</span><span class="checkmark"></span>
+                    <input type="checkbox" name="mark_as_complete" id="mark_as_complete" value="1" data-task-type="task"><span>Mark as complete</span><span class="checkmark"></span>
                 </label>
             </div>
             @endif
@@ -30,8 +30,12 @@
 					<ul>
                         @forelse ($task->taskCheckList as $key => $item)
                             <li class="task-detail__checklist-item">
-                                <label class="radio radio-outline-dark">
+                                {{-- <label class="radio radio-outline-dark">
                                     <input type="radio" name="mark_as_complete" value="1"><span>{{ $item->title }}</span><span class="checkmark"></span>
+                                </label> --}}
+                                <label class="checkbox checkbox-success">
+                                    <input type="checkbox" class="subtask_as_complete" name="subtask_as_complete" id="subtask_as_complete_{{ $item->id }}" value="{{ $item->id }}" data-task-type="subtask" {{ ($item->status) ? "checked" : "" }}>
+                                    <span>{{ $item->title }}</span><span class="checkmark"></span>
                                 </label>
                             </li>
                         @empty
@@ -73,13 +77,14 @@ $(document).ready(function() {
     loadCommentHistory();
 });
 
-$("#mark_as_complete").on("change", function() {
+$("#mark_as_complete, .subtask_as_complete").on("click", function() {
     var taskId = $("#task_id").val();
-    var markCompleted = $(this).val();
+    var subTaskId = $(this).val();
+    var taskType = $(this).attr("data-task-type");
     $.ajax({
         url: baseUrl+"/client/tasks/update/detail",
         type: "get",
-        data: {task_id: taskId, status: markCompleted},
+        data: {task_id: taskId, sub_task_id: subTaskId, task_type: taskType},
         success: function( response ) {
             if(response.success) {
                 
