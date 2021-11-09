@@ -143,6 +143,17 @@ class ContractController extends BaseController
         //     $user->is_sent_welcome_email  = "1";  // Welcome email sent to user.
         //     $user->save();
         //   }
+
+            $data=[];
+            $data['user_id']=Auth::User()->id;
+            $data['client_id']=$user->id;
+            $data['case_id']=null;
+            $data['activity']='added '.$user->user_title;
+            $data['type']='contact';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             return response()->json(['errors'=>'','user_id'=>$user->id]);
           exit;
         }
@@ -258,6 +269,15 @@ class ContractController extends BaseController
         if(isset($request->manage_firm)) { $userPermission->manage_firm=$request->manage_firm; }
         
         $userPermission->save();
+        $data=[];
+        $data['user_id']=Auth::User()->id;
+        $data['client_id']=$user->id;
+        $data['case_id']=null;
+        $data['activity']='changed permission for attorney';
+        $data['type']='contact';
+        $data['action']='change';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
         exit;
     }
@@ -291,6 +311,15 @@ class ContractController extends BaseController
         if(isset($request->financialInsightsPermission)) { $userPermission->financialInsightsPermission="1"; }else { $userPermission->financialInsightsPermission="0"; }
 
         $userPermission->save();
+        $data=[];
+        $data['user_id']=Auth::User()->id;
+        $data['client_id']=$user->id;
+        $data['case_id']=null;
+        $data['activity']='changed permission for staff';
+        $data['type']='contact';
+        $data['action']='change';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
         exit;
     }
@@ -675,6 +704,16 @@ class ContractController extends BaseController
                 // CaseTaskLinkedStaff::where('user_id',$request->user_id)->delete();
             }
 
+            $data=[];
+            $data['user_id']=Auth::User()->id;
+            $data['client_id']=$user->id;
+            $data['case_id']=null;
+            $data['activity']='deactivated '.$user->user_title;
+            $data['type']='contact';
+            $data['action']='archive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Profile data has been updated.']);
 
             return response()->json(['errors'=>'']);
@@ -1017,8 +1056,8 @@ class ContractController extends BaseController
            
 
             $data=[];
-            $data['user_id']=$request->user_type;
-            $data['client_id']=$request->user_type;
+            $data['user_id']=$user->id;
+            $data['client_id']=$user->id;
             $data['case_id']=$request->case_id;
             $data['activity']='linked Contact';
             $data['type']='contact';
@@ -1026,7 +1065,15 @@ class ContractController extends BaseController
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
 
-            
+            $data=[];
+            $data['user_id']=$user->id;
+            $data['client_id']=$user->id;
+            $data['activity']='added Contact';
+            $data['type']='contact';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             // defualt set user email notifications
             DB::table('user_notification_interval')->updateOrInsert(['user_id' => $user->id],['user_id' => $user->id, 'notification_email_interval'=>1440]);
 
@@ -1390,6 +1437,15 @@ class ContractController extends BaseController
                 $CaseClientSelection->created_by=Auth::user()->id; 
                 $CaseClientSelection->save();
             }
+            
+            $data=[];
+            $data['user_id']=$user->id;
+            $data['client_id']=$user->id;
+            $data['activity']='added Company';
+            $data['type']='contact';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             
             session(['popup_success' => 'Your company has been created.']);
 

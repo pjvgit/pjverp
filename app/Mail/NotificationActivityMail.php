@@ -11,18 +11,19 @@ use Illuminate\Support\Facades\Log;
 class NotificationActivityMail extends Mailable
 {
     use Queueable, SerializesModels;
-    protected $history, $preparedFor, $preparedEmail, $firm;
+    protected $history, $preparedFor, $preparedEmail, $firm, $cases;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($history, $firm, $preparedFor, $preparedEmail)
+    public function __construct($history, $firm, $preparedFor, $preparedEmail, $cases)
     {
         $this->history = $history;
         $this->firm = $firm;
         $this->preparedFor = $preparedFor;
         $this->preparedEmail = $preparedEmail;
+        $this->cases = $cases;
     }
 
     /**
@@ -36,6 +37,6 @@ class NotificationActivityMail extends Mailable
         return $this
             // ->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))
             ->subject("Recent activity in ".env('APP_NAME'))
-            ->markdown('emails.recent_notification_email', ['history' => $this->history, 'firm' => $this->firm, 'preparedFor' => $this->preparedFor, 'preparedEmail' => $this->preparedEmail]);
+            ->markdown('emails.recent_notification_email', ['history' => $this->history, 'firm' => $this->firm, 'preparedFor' => $this->preparedFor, 'preparedEmail' => $this->preparedEmail, 'cases' => $this->cases]);
     }
 }

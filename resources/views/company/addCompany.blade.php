@@ -6,7 +6,7 @@
     if($case_id!=''){?>
     <input class="form-control" value="{{$case_id}}" id="case_id" name="case_id" type="hidden" placeholder="M">
     <?php } ?>
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/company/addCompany.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-10">

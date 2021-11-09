@@ -16,7 +16,7 @@
                     @if(in_array($v->action,["add","update","delete","pay","refund"]))
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
-                         <!-- for invoice -->
+                        @if($v->action == "pay") for invoice  @endif
                         @if ($v->deleteInvoice == NULL)
                             @if($v->type == 'lead_invoice')
                             <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
@@ -37,12 +37,18 @@
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                         {{$v->activity}} 
+                        
                         @if ($v->deleteInvoice == NULL)
-                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a>
+                            @if($v->type == 'lead_invoice')
+                            <a href="{{ route('bills/invoices/potentialview',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            @else
+                            <a href="{{ route('bills/invoices/view',base64_encode($v->activity_for)) }}"> #{{sprintf('%06d', $v->activity_for)}} </a> 
+                            @endif
                         @else
                             #{{sprintf('%06d', $v->activity_for)}}
                         @endif 
                         {{ ($v->action == "unshare") ? "from the portal with" : (($v->action == "share") ? "in the portal with" : "") }}
+                        @if($v->action == "email") to @endif
                         <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }}</a>
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
                     @else

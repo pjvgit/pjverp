@@ -4553,6 +4553,7 @@ class BillingController extends BaseController
                         $data['invoice_id']=$request->invoice_id;
                         $data['user_id']=$k;
                         $data['client_id']=$k;
+                        $data['case_id']=$Invoices->case_id;
                         $data['activity']='shared invoice';
                         $data['activity_for']=$request->invoice_id;
                         $data['type']='invoices';
@@ -4586,6 +4587,7 @@ class BillingController extends BaseController
                         $data['invoice_id']=$request->invoice_id;
                         $data['user_id']=$k;
                         $data['client_id']=$k;
+                        $data['case_id']=$Invoices->case_id;
                         $data['activity']='unshared invoice ';
                         $data['activity_for']=$request->invoice_id;
                         $data['type']='invoices';
@@ -5189,6 +5191,7 @@ class BillingController extends BaseController
                 $data['invoice_id']=$invoice_id;
                 $data['user_id']=$v;
                 $data['client_id']=$v;
+                $data['case_id']=$Invoice['case_id'];
                 $data['activity']='emailed invoice';
                 $data['activity_for']=$invoice_id;
                 $data['type']='invoices';
