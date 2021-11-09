@@ -245,6 +245,9 @@
     border-color: #cbcccf;
     color: #fff;
 }
+/* .list-row__body>a {
+    color: #000;
+} */
 .list-row__body {
     width: 100%;
     text-overflow: ellipsis;
@@ -254,14 +257,14 @@
     color: inherit;
     display: flex;
     text-decoration: none;
-    width: 100%;
+    /* width: 100%; */
 }
 .list-row__wrappable-content {
     font-size: 14px;
     white-space: normal;
 }
 .u-color-primary {
-    color: #0070bb !important;
+    color: #663399 !important;
 }
 .u-color-dark-green {
     color: #218739 !important;
@@ -326,6 +329,9 @@
     white-space: pre-line;
     word-wrap: break-word;
 }
+.comment__author, .comment__date {
+    margin-bottom: 0;
+}
 .payable-detail__settled {
     color: #218739;
     padding-right: 5px;
@@ -379,4 +385,10 @@
 }
 .task-detail__status-row.needs-review, .task-detail__status-row.needs-review i{
     color: #47ba58 !important;
+}
+.checkmark {
+border-radius: 15px !important;
+}
+.task-detail__checklist {
+    display: block;
 }

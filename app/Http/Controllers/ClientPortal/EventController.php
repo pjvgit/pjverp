@@ -6,7 +6,7 @@ use App\CaseEvent;
 use App\CaseEventComment;
 use App\Http\Controllers\Controller;
 use App\Invoices;
-use App\Jobs\CommentEmail;
+use App\Jobs\EventCommentEmailJob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -48,7 +48,7 @@ class EventController extends Controller
             'created_by' => $authUser->id,
         ]);
 
-        dispatch(new CommentEmail($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
+        dispatch(new EventCommentEmailJob($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
 
         return response()->json(['success'=> true, 'message' => "Comment added"]);
     }

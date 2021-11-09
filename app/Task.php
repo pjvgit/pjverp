@@ -99,7 +99,7 @@ class Task extends Authenticatable
      */
     public function taskLinkedStaff()
     {
-        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id')->whereNull("task_linked_staff.deleted_at");
+        return $this->belongsToMany(User::class, 'task_linked_staff', 'task_id', 'user_id')->wherePivot("is_contact", "no")->whereNull("task_linked_staff.deleted_at");
     }
 
     /**

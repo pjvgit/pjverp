@@ -5,22 +5,17 @@
 	<section class="detail-view" id="task_detail_view">
 		<div class="detail-view__header task-view-header">check CP activity
 			<div class="u-hidden-md-down">
-				<button class="desktop-new-button">Upload Document</button>
+				<button class="btn btn-primary">Upload Document</button>
 			</div>
 		</div>
 		<div class="task-detail">
-            <input type="text" name="task_id" id="task_id" value="{{ $task->id }}" >
+            <input type="hidden" name="task_id" id="task_id" value="{{ $task->id }}" >
             @if($task->status == 1)
-            <div class="task-detail__status-row needs-review alert-success" id="completed_div">
-                <i class="fas fa-check-circle material-icons"></i><span> Completed! </span>
-            </div>
+            <div class="task-detail__status-row complete"><i class="fas fa-check material-icons"></i><span> Completed! </span></div>
             @else
 			<div class="task-detail__status-row" id="mark_complete_div">
-                {{-- <label class="radio radio-outline-dark">
-                    <input type="radio" name="mark_as_complete" id="mark_as_complete" value="1"><span>Mark as complete</span><span class="checkmark"></span>
-                </label> --}}
                 <label class="checkbox checkbox-success">
-                    <input type="checkbox" name="mark_as_complete" id="mark_as_complete" value="1" data-task-type="task"><span>Mark as complete</span><span class="checkmark"></span>
+                    <input type="checkbox" class="mark_as_complete" name="mark_as_complete" value="1" data-task-type="task"><span id="check_label">Mark as complete</span><span class="checkmark"></span>
                 </label>
             </div>
             @endif
@@ -30,10 +25,7 @@
 					<ul>
                         @forelse ($task->taskCheckList as $key => $item)
                             <li class="task-detail__checklist-item">
-                                {{-- <label class="radio radio-outline-dark">
-                                    <input type="radio" name="mark_as_complete" value="1"><span>{{ $item->title }}</span><span class="checkmark"></span>
-                                </label> --}}
-                                <label class="checkbox checkbox-success">
+                                <label class="checkbox checkbox-secondary">
                                     <input type="checkbox" class="subtask_as_complete" name="subtask_as_complete" id="subtask_as_complete_{{ $item->id }}" value="{{ $item->id }}" data-task-type="subtask" {{ ($item->status) ? "checked" : "" }}>
                                     <span>{{ $item->title }}</span><span class="checkmark"></span>
                                 </label>
@@ -77,7 +69,7 @@ $(document).ready(function() {
     loadCommentHistory();
 });
 
-$("#mark_as_complete, .subtask_as_complete").on("click", function() {
+$(".mark_as_complete, .subtask_as_complete").on("click", function() {
     var taskId = $("#task_id").val();
     var subTaskId = $(this).val();
     var taskType = $(this).attr("data-task-type");
@@ -87,7 +79,13 @@ $("#mark_as_complete, .subtask_as_complete").on("click", function() {
         data: {task_id: taskId, sub_task_id: subTaskId, task_type: taskType},
         success: function( response ) {
             if(response.success) {
-                
+                if(taskType == 'task') {
+                    if(response.task_status == "1") {
+                        $("#check_label").text("Completed!");
+                    } else {
+                        $("#check_label").text("Mark as read");
+                    }
+                }
             }
         },
     });
