@@ -35,12 +35,12 @@
                         <label class="mb-0 loadEventRightSection">
                             <input class="lead_client_share_all_users" name="linked_contact_checked_attend[]" 
                             <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?>
-                            value="{{$val->id}}" id="linked_contact_checked_attend_{{$val->id}}"
+                            value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>
                         <?php }else{ ?>
                             <label class="mb-0 loadEventRightSection">
-                            <input class="lead_client_share_all_users"  name="linked_contact_checked_attend[]" value="{{$val->id}}" id="linked_contact_checked_attend_{{$val->id}}"
+                            <input class="lead_client_share_all_users"  name="linked_contact_checked_attend[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>
                         <?php } ?>    
@@ -172,6 +172,7 @@
     </div>
 </div>
 
+@include('calendar.partials.load_grant_access_modal')
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -189,6 +190,32 @@
 
         $("#SelectAllLeadShare").click(function () {
             $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+
+            var multi = $('.lead_client_share_all_users');
+            var winners_array = [];
+            $.each(multi, function (index, item) {
+                if($(item).attr('data-client_portal_enable') == 0){
+                    winners_array.push( {name: $(item).val(), value: $(item).attr('data-client_portal_enable')} );  
+                    $("#err_popover_"+item.value).show();
+                }
+            });
+
+            $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
+            if(winners_array.length > 0){
+                $.each(winners_array, function (index, item) {
+                    // $(".tooltip-alert").show();
+                    $("#cleintUSER_"+item.name).prop('checked',false);
+                });
+                $("#SelectAllLeadAttend").prop('checked', false);
+            }
+            $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
+            $(".not-enable-portal").prop('disabled', true);
+            if(!$(this).is(":checked")) {
+                $(".lead_client_attend_all_users").prop('checked', $(this).prop('checked'));
+                $("#SelectAllLeadAttend").prop('checked', $(this).prop('checked'));
+                $(".not-enable-portal").prop('checked', false);
+                $(".not-enable-portal").prop('disabled', true);
+            }  
         });
         
         $(".lead_client_share_all_users").click(function () {
@@ -298,4 +325,33 @@
         return array;
     }
 
+/**
+ * Load grant access modal
+ * @param {} id 
+ */
+function loadGrantAccessModal(id) {   
+    if($("#cleintUSER_"+id).prop('checked')==true && $("#cleintUSER_"+id).attr("data-client_portal_enable") == 0){
+        // alert(id);
+        $("#cleintUSER_"+id).prop('checked',false);
+        $("#loadGrantAccessModal").modal();
+        $("#innerLoader").css('display', 'none');
+        $("#preloader").show();
+        $("#grantCase").html('');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/court_cases/loadGrantAccessPage", // json datasource
+                data: {"client_id":id},
+                success: function (res) {
+                    $("#grantCase").html(res);
+                    $("#preloader").hide();
+                    $("#innerLoader").css('display', 'none');
+                    
+                    $(".add-more").trigger('click');
+                    return false;
+                }
+            })
+        })
+    }
+}
 </script>

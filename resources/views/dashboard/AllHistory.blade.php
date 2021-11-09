@@ -74,12 +74,19 @@
                         $imageLink["incomplete"]="activity_task_incomplete.png";
                         $imageLink["complete"]="activity_task_completed.png";
                         $imageLink["view"]="activity_bill_viewed.png";
+                        $imageLink["comment"]="activity_task_commented.png";
                         $image=$imageLink[$v->action];
                     ?>
                     <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                    <a class="name"
-                        href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
-                        {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} <a class="name"
+                        @php
+                            if($v->user_level == 2) {
+                                $url = route('contacts/clients/view', $v->user_id);   
+                            } else {                                
+                                $url = route('contacts/attorneys/info', base64_encode($v->user_id));
+                            }
+                        @endphp
+                        <a class="name" href="{{ $url }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a>    
+                        {{$v->activity}} <a class="name"
                         href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->task_name}} </a> </a> <abbr class="timeago"
                         title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
                     <?php  if($v->task_for_case!=NULL){  ?>

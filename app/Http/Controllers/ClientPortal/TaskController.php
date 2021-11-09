@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\CaseEvent;
-use App\CaseEventComment;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
-use App\Jobs\CommentEmail;
+use App\Jobs\TaskCommentEmailJob;
 use App\Task;
 use App\TaskChecklist;
 use App\TaskComment;
@@ -14,8 +12,6 @@ use App\TaskHistory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\Types\Null_;
-
 class TaskController extends Controller 
 {
     /**
@@ -37,8 +33,14 @@ class TaskController extends Controller
     public function show($id)
     {
         $taskId = encodeDecodeId($id, 'decode');
-        $task = Task::where("id", $taskId)->with("taskCheckList")->first();
-        return view("client_portal.task.task_detail", compact('task'));
+        $task = Task::where("id", $taskId)->whereHas("taskLinkedContact", function($query) {
+                    $query->where("users.id", auth()->id());
+                })->with("taskCheckList")->first();
+        if($task) {
+            return view("client_portal.task.task_detail", compact('task'));
+        } else {
+            return redirect()->route("client/tasks");
+        }
     }
 
     /**
@@ -49,7 +51,7 @@ class TaskController extends Controller
         // return $request->all();
         try {
             $authUser = auth()->user();
-            $task = Task::whereId($request->task_id)->first();
+            $task = Task::whereId($request->task_id)->with('taskLinkedContact')->first();
             if($request->task_type == 'subtask' && $request->sub_task_id) {
                 $subTask = TaskChecklist::whereId($request->sub_task_id)->whereTaskId($request->task_id)->first();
                 if($subTask) {
@@ -77,10 +79,15 @@ class TaskController extends Controller
                 $CommonController->addMultipleHistory($data);
 
                 // For client portal activity
-                $data['client_id'] = $authUser->id;
-                $data['activity'] = 'marked task';
-                $data['is_for_client'] = 'yes';
-                $CommonController->addMultipleHistory($data);
+                if($task && $task->taskLinkedContact) {
+                    foreach($task->taskLinkedContact as $key => $item) {
+                        $data['user_id'] = $item->id;
+                        $data['client_id'] = $item->id;
+                        $data['activity'] = 'marked task';
+                        $data['is_for_client'] = 'yes';
+                        $CommonController->addMultipleHistory($data);
+                    }
+                }
 
                 // For task history
                 TaskHistory::create([
@@ -90,7 +97,7 @@ class TaskController extends Controller
                     'created_at' => $task->task_completed_date,
                 ]);
             }
-            return response()->json(['success'=> true, 'message' => "Task updated"]);
+            return response()->json(['success'=> true, 'message' => "Task updated", 'task_status' => $task->status]);
         } catch(Exception $e) {
             return response()->json(['error' => true, 'message' => $e->getMessage()]);
         }
@@ -103,13 +110,37 @@ class TaskController extends Controller
     {
         try {
             $authUser = auth()->user();
+            $task = Task::whereId($request->task_id)->with('taskLinkedContact')->first();
             $comment = TaskComment::create([
                 'task_id' => $request->task_id,
                 'title' => $request->message,
                 'created_by' => $authUser->id,
             ]);
 
-            // dispatch(new CommentEmail($request->event_id, $authUser->firm_name, $comment->id, $authUser->id));
+            $data=[];
+            $data['task_id'] = $task['id'];
+            $data['task_name'] = $task['task_title'];
+            $data['user_id'] = $authUser->id;
+            $data['task_for_case'] = $task['case_id'] ?? Null; 
+            $data['task_for_lead'] = $task['lead_id'] ?? Null;  
+            $data['activity'] = 'commented on task';
+            $data['type'] = 'task';
+            $data['action'] = 'comment';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
+            // For client portal activity
+            if($task && $task->taskLinkedContact) {
+                foreach($task->taskLinkedContact as $key => $item) {
+                    $data['user_id'] = $item->id;
+                    $data['client_id'] = $item->id;
+                    $data['activity'] = 'commented task';
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+                }
+            }
+
+            dispatch(new TaskCommentEmailJob($request->task_id, $authUser->firm_name, $comment->id));
 
             return response()->json(['success'=> true, 'message' => "Comment added"]);
         } catch(Exception $e) {

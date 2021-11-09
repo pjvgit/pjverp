@@ -1187,12 +1187,12 @@ if(isset($_GET['task_read'])){
             //  $('#AddCaseModel').modal('hide');   
 
         });
-
-        $('#editTask,#loadAddTaskPopup').on('hidden.bs.modal', function () {
+        // After saving grant access > this code reload the page so commented
+        /* $('#editTask,#loadAddTaskPopup').on('hidden.bs.modal', function () {
             $("#preloader").show();
             window.location.reload();
 
-        });
+        }); */
         $('#changeStatus,#statusUpdate,#EditCaseModel').on('hidden.bs.modal', function () {
             $("#preloader").show();
 
@@ -1639,7 +1639,7 @@ if(isset($_GET['task_read'])){
     }
 
     function editTaskInView(id) {
-        alert("resources/views/task/index.blade.php");
+        // alert("resources/views/task/index.blade.php");
         console.log("editTaskInView > resources/views/task/index.blade.php > " + id);
         $("#preloader").show();
         $("#editTaskAreaInView").html('');

@@ -1216,7 +1216,7 @@ class CalendarController extends BaseController
       }else{
         $UserAdditionInfo=UsersAdditionalInfo::where("user_id",$client_id)->first();
       }
-      if($UserAdditionInfo->client_portal_enable=="0"){
+      if($UserAdditionInfo->client_portal_enable=="0" && !$UserMasterData->email){
         return view('case.event.loadGrantAccessPage',compact('UserMasterData'));  
       }else{
         return view('case.event.loadGrantConfirmPage',compact('UserMasterData'));  
@@ -1233,6 +1233,7 @@ class CalendarController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            User::where('id',$request->client_id)->update(['email'=> $request->email]);
             UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1",'grant_access'=>'yes']);
             LeadAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
             return response()->json(['errors'=>'','id'=>$request->client_id]);
@@ -1250,7 +1251,7 @@ class CalendarController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            UsersAdditionalInfo::where('user_id',$request->client_id)->update(['grant_access'=>'yes']);
+            UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1",'grant_access'=>'yes']);
             return response()->json(['errors'=>'','id'=>$request->client_id]);
             exit;
         }

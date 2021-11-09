@@ -26,7 +26,7 @@ use App\Jobs\CaseAllEventJob;
 use App\Jobs\CaseFollowingEventJob;
 use App\Jobs\CaseSingleEventJob;
 use Illuminate\Support\Str;
-use App\Jobs\CommentEmail;
+use App\Jobs\EventCommentEmailJob;
 use App\Jobs\EventReminderEmailJob;
 use App\Traits\CaseEventTrait;
 use Exception;
@@ -5368,10 +5368,10 @@ class CaseController extends BaseController
         // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
         // if(!$CaseEventLinkedContactLead->isEmpty()){
             Log::info("comment email job dispatched");
-            dispatch(new CommentEmail($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id));
-            // CommentEmail::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
+            dispatch(new EventCommentEmailJob($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id));
+            // EventCommentEmailJob::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
 
-            // CommentEmail::dispatch($request->event_id)->delay(now()->addMinutes(1));
+            // EventCommentEmailJob::dispatch($request->event_id)->delay(now()->addMinutes(1));
 
 
             // $CommonController= new CommonController();

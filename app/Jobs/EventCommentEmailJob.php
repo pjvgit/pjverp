@@ -12,7 +12,7 @@ use App\Mail\EventCommentMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class CommentEmail implements ShouldQueue
+class EventCommentEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

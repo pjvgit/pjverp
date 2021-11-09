@@ -159,9 +159,9 @@ class TrustHistory extends Authenticatable
     public function getRelatedToAttribute()
     {
         if($this->related_to_invoice_id) {
-            return sprintf("%06d", $this->id);
+            return sprintf("%06d", $this->related_to_invoice_id);
         } else if($this->related_to_fund_request_id) {
-            return "#R-".sprintf('%05d', $this->id);
+            return "#R-".sprintf('%05d', $this->related_to_fund_request_id);
         } else {
             return "";
         }

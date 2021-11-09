@@ -18,6 +18,8 @@ use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
 use App\FirmAddress,App\CaseEventLinkedContactLead;
+use App\Jobs\TaskCommentEmailJob;
+
 class TaskController extends BaseController
 {
     public function __construct()
@@ -609,8 +611,8 @@ class TaskController extends BaseController
     {      
         $data=[];
         $taskHistory=[];
-        $Task = Task::find($request->task_id);
-        if($request->status=="0"){
+        $Task = Task::whereId($request->task_id)->with('taskLinkedContact')->first();
+        if($Task->status=="0"){
             $Task->status="1";
             $taskHistory['task_id']=$Task->id;
             $taskHistory['task_action']='Completed task';
@@ -628,7 +630,7 @@ class TaskController extends BaseController
             $data['type']='task';
             $data['action']='complete';
         }else{
-            if($request->status == "1" && $Task->is_need_review == "yes") {
+            if($Task->status == "1" && $Task->is_need_review == "yes") {
                 $Task->status = $Task->status;
                 $Task->is_need_review = "no";
                 
@@ -666,6 +668,16 @@ class TaskController extends BaseController
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
 
+        // For client portal activity
+        if($Task && $Task->taskLinkedContact) {
+            foreach($Task->taskLinkedContact as $key => $item) {
+                $data['user_id'] = $item->id;
+                $data['client_id'] = $item->id;
+                $data['activity'] = 'marked task';
+                $data['is_for_client'] = 'yes';
+                $CommonController->addMultipleHistory($data);
+            }
+        }
 
         return response()->json(['errors'=>'','id'=>$Task->id]);
         exit;    
@@ -718,7 +730,7 @@ class TaskController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
 
-            $TaskMaster =Task::find($request->task_id);
+            $TaskMaster =Task::whereId($request->task_id)->with('taskLinkedContact')->first();
            
             // if(!isset($request->no_case_link)){
             //     if(isset($request->case_or_lead)) { $TaskMaster->case_id=$request->case_or_lead; } 
@@ -780,6 +792,19 @@ class TaskController extends BaseController
             $this->saveEditLinkedStaffToTask($request->all(),$TaskMaster->id); 
             $this->saveNonLinkedStaffToTask($request->all(),$TaskMaster->id); 
             $this->saveEditTaskChecklist($request->all(),$TaskMaster->id); 
+
+            // For client portal activity
+            $TaskMaster->refresh();
+            if($TaskMaster && $TaskMaster->taskLinkedContact) {
+                foreach($TaskMaster->taskLinkedContact as $key => $item) {
+                    $data['user_id'] = $item->id;
+                    $data['client_id'] = $item->id;
+                    $data['activity'] = 'updated task';
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+                }
+            }
+
             if($request->from_view=="yes"){
                 Session::put('task_id', $request->task_id);
             }
@@ -1302,11 +1327,39 @@ class TaskController extends BaseController
   } 
   public function saveTaskComment(Request $request)
   {
+        $task = Task::whereId($request->task_id)->with('taskLinkedContact')->first();
         $TaskComment = new TaskComment; 
         $TaskComment->task_id=$request->task_id;
         $TaskComment->title =$request->delta;
         $TaskComment->created_by=Auth::User()->id; 
         $TaskComment->save();
+
+        $authUser = auth()->user();
+        $data=[];
+        $data['task_id'] = $task['id'];
+        $data['task_name'] = $task['task_title'];
+        $data['user_id'] = $authUser->id;
+        $data['task_for_case'] = $task['case_id'] ?? Null; 
+        $data['task_for_lead'] = $task['lead_id'] ?? Null;  
+        $data['activity'] = 'commented on task';
+        $data['type'] = 'task';
+        $data['action'] = 'comment';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
+
+        // For client portal activity
+        if($task && $task->taskLinkedContact) {
+            foreach($task->taskLinkedContact as $key => $item) {
+                $data['user_id'] = $item->id;
+                $data['client_id'] = $item->id;
+                $data['activity'] = 'commented task';
+                $data['is_for_client'] = 'yes';
+                $CommonController->addMultipleHistory($data);
+            }
+        }
+
+        dispatch(new TaskCommentEmailJob($request->task_id, $authUser->firm_name, $TaskComment->id));
+
         return response()->json(['errors'=>'','id'=>$TaskComment->id]);
         exit;
   } 
@@ -1314,7 +1367,7 @@ class TaskController extends BaseController
   {
         $task_id=$request->task_id;
         $TaskCommentData=TaskComment::leftJoin("users","task_comment.created_by","=","users.id")
-        ->select("task_comment.*","users.first_name","users.last_name")
+        ->select("task_comment.*","users.first_name","users.last_name","users.user_level")
         ->where('task_id',$task_id)->get();
         return view('task.loadTaskComment',compact('TaskCommentData'));     
         exit;    
@@ -1426,7 +1479,8 @@ class TaskController extends BaseController
       $from=$request->from;
 
       //Load Lead And Client
-      $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id")->where("case_client_selection.case_id",$case_id)->orderBy('case_client_selection.selected_user',"ASC")->get();
+    //   $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id")->where("case_client_selection.case_id",$case_id)->orderBy('case_client_selection.selected_user',"ASC")->get();
+    $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","case_client_selection.case_id as case_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
 
       //Load Non link staff list
       $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
