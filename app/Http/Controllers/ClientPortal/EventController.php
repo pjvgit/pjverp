@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\CaseEvent;
 use App\CaseEventComment;
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\Invoices;
 use App\Jobs\EventCommentEmailJob;
@@ -29,10 +30,27 @@ class EventController extends Controller
     public function show($id)
     {
         $eventId = base64_decode($id);
-        $event = CaseEvent::where("id",$eventId)->with('case', 'eventLocation', 'leadUser', 'clientReminder')->first();
-        $event->fill(['event_read' => 'yes'])->save();
-        $event->refresh();
-        return view("client_portal.events.detail", compact('event'));
+        $event = CaseEvent::where("id",$eventId)->whereHas("eventLinkedContact", function($query) {
+                    $query->where('users.id', auth()->id());
+                })->with('case', 'eventLocation', 'leadUser', 'clientReminder')->first();
+        if($event) {
+            $event->fill(['event_read' => 'yes'])->save();
+            $event->refresh();
+
+            $data=[];
+            $data['event_id'] = $eventId;
+            $data['case_id'] = $event->case_id;
+            $data['user_id'] = auth()->id();
+            $data['activity']='has viewed event';
+            $data['type']='event';
+            $data['action']='view';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+            
+            return view("client_portal.events.detail", compact('event'));
+        } else {
+            return redirect()->route("client/events");
+        }
     }
 
     /**

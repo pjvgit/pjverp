@@ -1,3 +1,6 @@
+------------------------------------ 10-NOV-2021 ------------------------------
+ALTER TABLE `invoice_customization_setting_columns` CHANGE `expense` `expense` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `line_total`;
+
 ------------------------------------ 09-NOV-2021 ------------------------------
 ALTER TABLE `all_history`
 CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','login','change') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;

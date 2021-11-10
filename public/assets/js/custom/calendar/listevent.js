@@ -11,7 +11,8 @@ $(window).scroll(function() {
 // Load more events
 function loadMoreEvent(page, filter = null) {
     var divId = 'event_list_table tbody';
-    var upcoming = $("input:checkbox#mc:checked").val();
+    // var upcoming = $("input:checkbox#mc:checked").val();
+    var upcoming = $("#upcoming_event").val();
     $.ajax({
         url : '?page=' + page,
         data: {upcoming_events: upcoming},

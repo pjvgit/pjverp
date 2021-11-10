@@ -269,6 +269,7 @@ class CaseSingleEventJob implements ShouldQueue
                 $i++;
                 } while ($startDate < $endDate);
         }
+        $this->addCaseEventActivity((array)$request, $CaseEvent, $authUser, 'updated');
         Log::info("Case Single Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }

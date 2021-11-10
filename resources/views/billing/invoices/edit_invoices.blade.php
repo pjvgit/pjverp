@@ -1338,7 +1338,7 @@
                                                             <div>Trust (Trust Account)</div>
                                                         </td>
                                                         <td class="apply-funds-available-amount">
-                                                            <div>${{ @$item->userAdditionalInfo->trust_account_balance }} <span class="allocation-status">(Unallocated)</span></div>
+                                                            <div>${{ @$item->userAdditionalInfo->unallocate_trust_balance }} <span class="allocation-status">(Unallocated)</span></div>
                                                         </td>
                                                         <td class="apply-funds-applied-amount"><span>${{ number_format($item->applied_amount, 2) }}</span></td>
                                                     </tr>

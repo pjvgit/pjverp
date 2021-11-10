@@ -27,4 +27,16 @@
         </div>
     </a>
 </li>
+@elseif($item->type == "event")
+<li class="list-row">
+    <a href="{{ route('client/events/detail', encodeDecodeId($item->event_id, 'encode')) }}">
+        <i class="far fa-calendar-minus list-row__icon"></i>
+        <div class="list-row__body">
+            <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }}
+                <span class="u-color-primary">{{ $item->event_name }}</span>
+            </span><br>
+            <span class="list-row__header-detail">{{ date('M d, Y h:i A', strtotime($item->formated_created_at)) }}</span>
+        </div>
+    </a>
+</li>
 @endif

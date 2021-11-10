@@ -7,6 +7,7 @@
             $imageLink["update"]="activity_event_updated.png";
             $imageLink["delete"]="activity_event_deleted.png";
             $imageLink["comment"]="activity_event_commented.png";
+            $imageLink["view"]="activity_event_viewed.png";
             $image=$imageLink[$v->action];
         ?>
         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">

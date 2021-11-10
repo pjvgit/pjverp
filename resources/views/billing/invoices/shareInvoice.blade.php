@@ -52,17 +52,17 @@ $CommonController= new App\Http\Controllers\CommonController();
                                             Disabled
                                         @else
                                             @if($invShareDetail->last_login)
-                                                {{ date('F jS Y, h:i:s A',strtotime(convertUTCToUserTime($invShareDetail->last_login, Auth::User()->user_timezone))) }}
+                                                {{ date('F jS Y, h:i a',strtotime(convertUTCToUserTime($invShareDetail->last_login, Auth::User()->user_timezone))) }}
                                             @else
                                                 Never
                                             @endif
                                         @endif
                                     </td>
                                     <td class="shared-on-date">
-                                        {{ ($invShareDetail->sharedDate) ? date('F jS Y, h:i a',strtotime(convertUTCToUserTime($invShareDetail->sharedDate,Auth::User()->user_timezone))) : "Not Shared" }}
+                                        {{ ($invShareDetail->sharedDate) ? date('M jS Y, h:i a',strtotime(convertUTCToUserTime($invShareDetail->sharedDate,Auth::User()->user_timezone))) : "Not Shared" }}
                                     </td>
                                     <td class="viewed-on-date">
-                                        {{ ($invShareDetail->isViewd=="yes") ? "Yes" : "Never" }}
+                                        {{ ($invShareDetail->isViewd=="yes") ? date('M jS Y, h:i a',strtotime(convertUTCToUserTime($invShareDetail->viewed_at, Auth::User()->user_timezone))) : "Never" }}
                                     </td>
                                 </tr>
                             @empty
@@ -114,7 +114,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                                 
                                 if($v->last_login!=NULL){
                                     $loginDate=$CommonController->convertUTCToUserTime($v->last_login,Auth::User()->user_timezone);
-                                    echo date('F jS Y, h:i:s A',strtotime($loginDate));
+                                    echo date('M jS Y, h:i a',strtotime($loginDate));
                                 }else{
                                     echo "Never";
                                 }
@@ -123,7 +123,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         <td class="shared-on-date">
                             <?php if($v->sharedDate!=NULL){
                                 $sharedDate=$CommonController->convertUTCToUserTime($v->sharedDate,Auth::User()->user_timezone);
-                                echo date('F jS Y, h:i a',strtotime($sharedDate));
+                                echo date('M jS Y, h:i a',strtotime($sharedDate));
                             }else{
                                 echo "Not Shared";
                             }
@@ -131,7 +131,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         </td>
                         <td class="viewed-on-date">
                             <?php if($v->isViewd=="yes"){
-                            echo "Yes";
+                            echo date('M jS Y, h:i a',strtotime(convertUTCToUserTime($v->viewed_at, Auth::User()->user_timezone)));
                         }else{
                             echo "Never";
                         }

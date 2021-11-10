@@ -16,7 +16,7 @@
 						<label for="add_document" class="dashboard-actions__text" aria-hidden="true">Add Document</label>
 					</div>
 					<div class="dashboard-actions__button-container">
-						<button id="view_bills" class="dashboard-actions__button"><i class="fas fa-dollar-sign"></i></button>
+						<a href="{{ route('client/bills') }}" id="view_bills" class="dashboard-actions__button"><i class="fas fa-dollar-sign"></i></a>
 						<label for="view_bills" class="dashboard-actions__text" aria-hidden="true">View Bills</label>
 					</div>
 				</div>

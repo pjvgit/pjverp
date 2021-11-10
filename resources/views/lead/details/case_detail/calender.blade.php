@@ -14,10 +14,10 @@ $CommonController= new App\Http\Controllers\CommonController();
                     <div class="d-flex ml-auto align-items-center">
                         <form action="" method="get">
                             <div class="custom-control custom-switch mr-2 upcoming-toggle d-flex align-items-center">
-                                <label class="switch pr-3 switch-success"><span>Only show upcoming events</span>
-                                    <input type="checkbox" id="mc"
-                                        <?php if(isset($upcoming_events) && $upcoming_events!=''){ echo "checked=checked";}?>
-                                        name="upcoming_events"><span class="slider"></span>
+                                <input type="hidden" name="upcoming_events" id="upcoming_event" value="{{ (isset($_GET['upcoming_events']) && $_GET['upcoming_events'] == "off") ? 'off' : 'on' }}">
+                                <label class="switch pr-3 switch-success" style="margin-top: 10px;"><span>Only show upcoming events</span>
+                                    <input type="checkbox" id="mc" {{ (!isset($_GET['upcoming_events'])) ? "checked" : "" }} 
+                                        {{ (isset($_GET['upcoming_events']) && $_GET['upcoming_events'] == "on") ? "checked" : "" }} value="on"><span class="slider"></span>
                                 </label>
                                 <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="Recurring events are limited to 1 year from today"></i>
                             </div>
@@ -339,6 +339,11 @@ $CommonController= new App\Http\Controllers\CommonController();
 <script type="text/javascript">
     $(document).ready(function () {
         $("input:checkbox#mc").click(function () {
+            if($(this).is(":checked")) {
+                $("#upcoming_event").val('on');
+            } else {
+                $("#upcoming_event").val('off');
+            }
             $('#submit').click();
             // tab1Page = 1;
             // loadMoreEvent(tab1Page, filter = 'true');

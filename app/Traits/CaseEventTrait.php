@@ -545,7 +545,7 @@ trait CaseEventTrait {
         return $caseEvent;
     }
 
-    public function addCaseEventActivity($request, $CaseEvent, $authUser){
+    public function addCaseEventActivity($request, $CaseEvent, $authUser, $activity = 'added'){
         $data=[];
         if(!isset($request->no_case_link)){
             if(isset($request->case_or_lead)) { 
@@ -561,10 +561,28 @@ trait CaseEventTrait {
         $data['event_id']=$CaseEvent->id;
         $data['event_name']=$CaseEvent->event_title;
         $data['user_id']=$authUser->id;
-        $data['activity']='added event';
+        $data['activity'] = ($activity == 'updated') ? 'updated event' : 'added event';
         $data['type']='event';
         $data['action']='add';        
 
+        $this->addEventHistory($data, $authUser);
+
+        // For client recent activity
+        if($CaseEvent->eventLinkedContact) {
+            foreach($CaseEvent->eventLinkedContact as $key => $item) {
+                $data['user_id'] = $item->id;
+                $data['client_id'] = $item->id;
+                $data['is_for_client'] = 'yes';
+                $this->addEventHistory($data, $authUser);
+            }
+        }
+    }
+
+    /**
+     * Add event history to all history table
+     */
+    public function addEventHistory($data, $authUser)
+    {
         $AllHistory=new AllHistory;
         $AllHistory->case_id=($data['case_id'])??NULL;
         $AllHistory->user_id=($data['user_id'])??NULL;
@@ -588,6 +606,7 @@ trait CaseEventTrait {
         $AllHistory->type=($data['type'])??NULL;
         $AllHistory->action=($data['action'])??NULL;
         $AllHistory->client_id=($data['client_id'])??NULL;
+        $AllHistory->is_for_client=($data['is_for_client'])??'no';
         $AllHistory->firm_id=$authUser->firm_name;
         $AllHistory->created_by=$authUser->id;
         $AllHistory->created_at=date('Y-m-d H:i:s');  

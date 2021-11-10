@@ -176,7 +176,7 @@
             $timeEntryAmount = $invoice->invoiceTimeEntry->where("time_entry_billable", "yes")->sum('calculated_amt');
             $billableTimeEntry = $invoice->invoiceTimeEntry->where("time_entry_billable", "yes");
             $nonBillableTimeEntry = $invoice->invoiceTimeEntry->where("time_entry_billable", "no");
-            $timeEntryTime = $invoice->invoiceTimeEntry->sum('duration');
+            $timeEntryTime = $invoice->invoiceTimeEntry->where('rate_type', 'hr')->sum('duration');
         @endphp
         @if(!empty($billableTimeEntry) && count($billableTimeEntry))
         @forelse($billableTimeEntry as $k=>$v)
