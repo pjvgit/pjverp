@@ -390,6 +390,7 @@ class CaseFollowingEventJob implements ShouldQueue
                 }
             }
         }
+        $this->addCaseEventActivity((array)$request, $CaseEvent, $authUser, 'updated');
         Log::info("Case Following Event Job Ended :". date('Y-m-d H:i:s'));
     }
 }

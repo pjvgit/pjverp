@@ -1,4 +1,4 @@
-<div class="sharing-table clients-table">
+<div class="sharing-table clients-table"  bladename="case\event\loadLeadRightSection.blade.php">
     <div class="table-responsive">
         <table class="table table-lg" id="CaseClientSection">
             <tr style="background-color:#FBFBFC;">
@@ -40,7 +40,7 @@
                     <label class="mb-0">
                         <input  class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}"  id="attend_user_{{$val->id}}" 
                         name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  
-                        <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php }else{ ?>disabled="" <?php } ?>>
+                        <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php } ?> {{ (in_array($val->id,$caseLinkeSavedInviteLead)) ? "" : "disabled" }}>
                     </label>
                 </td>
 
@@ -234,6 +234,7 @@
             }else{
                 $("#attend_user_"+userId).prop('disabled', true);
                 $("#attend_user_"+userId).prop('checked', false);
+                $("#SelectAllLeadAttend").prop('checked', false);
             }
         });
         $("#SelectAllLeadAttend").click(function () {

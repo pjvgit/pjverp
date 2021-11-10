@@ -2525,7 +2525,7 @@ class LeadController extends BaseController
         if(\Route::current()->getName()=="case_details/calendars"){
             //Load only upcoming events
             $allEvents = CaseEvent::select("*")->where("lead_id",$user_id);
-            if($request->upcoming || isset($_GET['upcoming_events'])) {
+            if($request->upcoming_events && $request->upcoming_events == 'on') {
                 $allEvents = $allEvents->whereDate("start_date", ">=", date('Y-m-d'));
             }
             $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')

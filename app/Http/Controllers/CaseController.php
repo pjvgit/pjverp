@@ -1021,12 +1021,11 @@ class CaseController extends BaseController
                
             } 
             if(\Route::current()->getName()=="calendars"){
-                
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
                 //Get all event by 
                 $allEvents = CaseEvent::select("*")->where("case_id",$case_id);
-                if($request->upcoming_events || isset($_GET['upcoming_events'])) {
+                if($request->upcoming_events && $request->upcoming_events == 'on') {
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
                 $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
@@ -2856,6 +2855,16 @@ class CaseController extends BaseController
             
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
+
+            // For client recent activity
+            if($CaseEvent->eventLinkedContact) {
+                foreach($CaseEvent->eventLinkedContact as $key => $item) {
+                    $data['user_id'] = $item->id;
+                    $data['client_id'] = $item->id;
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+                }
+            }
 
         } else {
             $this->dispatch(new CaseAddEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser, $locationID));
@@ -4765,8 +4774,8 @@ class CaseController extends BaseController
         $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
         $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
 
-        $CaseEvent = CaseEvent::find($request->event_id);
         if($request->delete_event_type=='SINGLE_EVENT') {
+            $CaseEvent = CaseEvent::find($request->event_id);
             // $start_date = date("Y-m-d",  strtotime($request->start_date));
             // $end_date = date("Y-m-d",  strtotime($request->end_date));
             $start_date = convertDateToUTCzone(date("Y-m-d",  strtotime($request->start_date)), auth()->user()->user_timezone);
@@ -4928,28 +4937,39 @@ class CaseController extends BaseController
                 $this->dispatch(new CaseAllEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser, $locationID));
             }
         }
+        if(isset($CaseEvent) && $CaseEvent) {
+            $data=[];
+            if(!isset($request->no_case_link)){
+                if(isset($request->case_or_lead)) { 
+                    if($request->text_case_id!=''){
+                        $data['event_for_case']=$request->text_case_id;
+                    }    
+                    if($request->text_lead_id!=''){
+                        $data['event_for_lead']=$request->text_lead_id;                        
+                        $data['client_id']=$request->text_lead_id;
+                    }    
+                } 
+            }
+            $data['event_id']=$CaseEvent->id;
+            $data['event_name']=$CaseEvent->event_title;
+            $data['user_id']=Auth::User()->id;
+            $data['activity']='updated event';
+            $data['type']='event';
+            $data['action']='update';
+            
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
-        $data=[];
-        if(!isset($request->no_case_link)){
-            if(isset($request->case_or_lead)) { 
-                if($request->text_case_id!=''){
-                    $data['event_for_case']=$request->text_case_id;
-                }    
-                if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id;                        
-                    $data['client_id']=$request->text_lead_id;
-                }    
-            } 
+            // For client recent activity
+            if($CaseEvent->eventLinkedContact) {
+                foreach($CaseEvent->eventLinkedContact as $key => $item) {
+                    $data['user_id'] = $item->id;
+                    $data['client_id'] = $item->id;
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+                }
+            }
         }
-        $data['event_id']=$CaseEvent->id;
-        $data['event_name']=$CaseEvent->event_title;
-        $data['user_id']=Auth::User()->id;
-        $data['activity']='updated event';
-        $data['type']='event';
-        $data['action']='update';
-        
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
         sleep(5);
         return response()->json(['errors'=>'']);
         exit;

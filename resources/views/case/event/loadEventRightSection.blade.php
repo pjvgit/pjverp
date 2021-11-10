@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input disabled="" class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}" id="attend_user_{{$val->id}}" name="ContactAttendClientCheckbox[]" 
+                        <input {{ (in_array($val->id,$caseLinkeSavedInviteContact)) ? "" : "disabled" }} class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}" id="attend_user_{{$val->id}}" name="ContactAttendClientCheckbox[]" 
                         <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?> value="{{$val->id}}" 
                         type="checkbox">
                     </label>
@@ -297,6 +297,7 @@
             }else{
                 $("#attend_user_"+userId).prop('disabled', true);
                 $("#attend_user_"+userId).prop('checked', false);
+                $("#SelectAllLeadAttend").prop('checked', false);
             }            
         });
         $("#SelectAllLeadAttend").click(function () {

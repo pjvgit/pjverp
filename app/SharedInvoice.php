@@ -15,9 +15,17 @@ class SharedInvoice extends Authenticatable
 
     protected $fillable = ["last_reminder_sent_on", "reminder_sent_counter", "last_viewed_at", 'is_viewed', 'is_shared'];
 
-    protected $appends  = ['decode_id'];
+    protected $appends  = ['decode_id', 'viewed_date'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
    
+    public function getViewedDateAttribute(){
+        if($this->last_viewed_at!=NULL){
+            $userTime = convertUTCToUserTime($this->last_viewed_at, auth()->user()->user_timezone ?? 'UTC');
+            return date('M j, Y',strtotime($userTime));
+        }else{
+            return '';
+        }
+    }
 }

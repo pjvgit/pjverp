@@ -3910,7 +3910,10 @@ class ClientdashboardController extends BaseController
      */
     public function loadInvoices(Request $request)
     {
-        $data = Invoices::where("user_id", $request->client_id)->orderBy("created_at", "desc")->with('invoiceForwardedToInvoice')->get();
+        $data = Invoices::where("user_id", $request->client_id)->orderBy("created_at", "desc")
+                    ->with(['invoiceForwardedToInvoice', 'invoiceShared' => function($query) use($request) {
+                        $query->where('user_id', $request->client_id);
+                    }])->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) {
@@ -3928,10 +3931,10 @@ class ClientdashboardController extends BaseController
                 return $action;
             })
             ->addColumn('viewed', function ($data) {
-                if($data->is_viewed=="no"){
-                    return 'Never';
+                if(count($data->invoiceShared) && $data->invoiceShared[0]->is_viewed=="yes"){
+                    return date('M j, Y',strtotime(convertUTCToUserTime($data->invoiceShared[0]->last_viewed_at, Auth::User()->user_timezone)));
                 }else{
-                    return 'Yes';
+                    return 'Never';
                 }
             })
             ->editColumn('status', function ($data) {

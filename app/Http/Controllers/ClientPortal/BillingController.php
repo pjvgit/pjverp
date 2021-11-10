@@ -52,13 +52,23 @@ class BillingController extends Controller
                     'last_viewed_at' => date('Y-m-d h:i:s'),
                     'is_viewed' => 'yes',
                 ])->save();
-
+                $authUserId = auth()->id();
                 InvoiceHistory::create([
                     "invoice_id" => $invoiceId,
                     "acrtivity_title" => "Invoice Viewed",
-                    "responsible_user" => auth()->id(),
-                    "created_by" => auth()->id()
+                    "responsible_user" => $authUserId,
+                    "created_by" => $authUserId
                 ]);
+
+                $data=[];
+                $data['activity_for'] = $invoiceId;
+                $data['case_id'] = $invoice->case_id;
+                $data['user_id'] = $authUserId;
+                $data['activity']='has viewed invoice';
+                $data['type']='invoices';
+                $data['action']='view';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
             return view("client_portal.billing.invoice_detail", ["invoice" => $invoice]);
         } else {

@@ -1025,11 +1025,10 @@ td,th{
                         var curSetatus=aData.status;
                     }
                     $('td:eq(10)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
-
-                    if(aData.is_viewed=="no"){
-                        $('td:eq(11)', nRow).html('<div class="text-left">Never</div>');
+                    if(aData.invoice_shared.length && aData.invoice_shared[0].is_viewed=="yes"){
+                        $('td:eq(11)', nRow).html('<div class="text-left">'+aData.invoice_shared[0].viewed_date+'</div>');
                     }else{
-                        $('td:eq(11)', nRow).html('<div class="text-left">Yes</div>');
+                        $('td:eq(11)', nRow).html('<div class="text-left">Never</div>');
                     }
                     if(aData.status == "Forwarded") {
                         $('td:eq(12)', nRow).html('');

@@ -277,14 +277,67 @@ function reminderScheduleTypeList()
 /**
  * Check and get table column name if value is yes and remove null value from array
  */
-function getColumnsIfYes($array)
+function getColumnsIfYes($array, $is_for_view = 'no')
 {
-    $result = array_map(function ($ind, $val) {
+    $type = $array['billing_type'];
+    $result = array_map(function ($ind, $val) use($type, $is_for_view) {
         if($val == "yes") {
-            return $ind;
+            if($is_for_view == 'yes') {
+                if($ind == 'notes') {
+                    return $type.' '.$ind;
+                } else if($ind == 'line_total') {
+                    return 'line total';
+                } else if($ind == 'amount' && $type == 'time entry') {
+                    return 'rate';
+                } else if($ind == 'amount' && $type == 'expense') {
+                    return 'cost';
+                } else {
+                    return $ind;
+                }
+            } else {
+                return $ind;
+            }
         }
     }, array_keys($array), $array);
-    return array_filter($result, function($v) { return !is_null($v); });
+    $finalArr = array_filter($result, function($v) { return !is_null($v); });
+    if($is_for_view == 'yes' && $type != 'flat fee') {
+        $orderArr = ($type == "time entry") ? timeEntryColumnOrder() : expenseColumnOrder();
+        return array_intersect(array_flip($orderArr), $finalArr);
+    } else {
+        return $finalArr;
+    }
+}
+
+/**
+ * For time entry column display order
+ */
+function timeEntryColumnOrder()
+{
+    return [
+        'date' => 'date',
+        'employee' => 'employee',
+        'activity' => 'activity',
+        'time entry notes' => 'time entry notes',
+        'rate' => 'rate',
+        'hour' => 'hour',
+        'line total' => 'line total',
+    ];
+}
+
+/**
+ * For expense column display order
+ */
+function expenseColumnOrder()
+{
+    return [
+        'date' => 'date',
+        'employee' => 'employee',
+        'expense' => 'expense',
+        'expense notes' => 'expense notes',
+        'cost' => 'cost',
+        'quantity' => 'quantity',
+        'line total' => 'line total',
+    ];
 }
 
 /**

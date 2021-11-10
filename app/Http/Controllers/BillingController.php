@@ -1352,7 +1352,9 @@ class BillingController extends BaseController
          $totalFiltered = $totalData; 
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
         $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $Invoices = $Invoices->with("invoiceForwardedToInvoice")->get();
+        $Invoices = $Invoices->with(['invoiceForwardedToInvoice', 'invoiceShared' => function($query) {
+                        $query->where('is_viewed', 'yes')->whereNotNull('last_viewed_at')->orderBy('last_viewed_at', 'asc');
+                    }])->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
              "recordsTotal"    => intval( $totalData ),  
@@ -4468,11 +4470,13 @@ class BillingController extends BaseController
                         $v['shared']=$checkedUser['is_shared'];
                         $v['sharedDate']=$checkedUser['created_at'];
                         $v['isViewd']=$checkedUser['is_viewed'];
+                        $v['viewed_at']=$checkedUser['last_viewed_at'];
 
                     }else{
                         $v['shared']="no";
                         $v['sharedDate']=NULL;
                         $v['isViewd']=$checkedUser['is_viewed'] ?? "no";
+                        $v['viewed_at']=$checkedUser['last_viewed_at'] ?? Null;
                     }
                     $v['is_company_contact']="no";
                     if(in_array($v->id, $companyClientIds)) {

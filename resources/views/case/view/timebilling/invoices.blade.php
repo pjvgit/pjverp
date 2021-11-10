@@ -95,7 +95,14 @@
                     
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.total_amount_new+'</div>');
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.paid_amount_new+'</div>');
-                    $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.due_amount_new+'</div>');
+
+                    var fwd = "";
+                    if(aData.status == "Forwarded") {
+                        $.each(aData.invoice_forwarded_to_invoice, function(invkey, invitem) {
+                            fwd = '<div style="font-size: 11px;">Forwarded to <a href="'+baseUrl+'/bills/invoices/view/'+invitem.decode_id+'">'+invitem.invoice_id+'</a></div>'
+                        });
+                    }
+                    $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.due_amount_new+'</div><div>'+fwd+'</div>');
                     $('td:eq(7)', nRow).html('<div class="text-left">'+aData.due_date_new+'</div>');
                     $('td:eq(8)', nRow).html('<div class="text-left">'+aData.created_date_new+'</div>');
                     
@@ -105,23 +112,15 @@
                         var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-warning" style="display: inline;"></i>'+aData.status;
                     }else if(aData.status=="Overdue"){
                         var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-danger" style="display: inline;"></i>'+aData.status;
-                    }else if(aData.status=="Unsent"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Sent"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Forwarded"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Overdue"){
-                        var curSetatus=aData.status;
-                    }else if(aData.status=="Draft"){
+                    }else {
                         var curSetatus=aData.status;
                     }
                     $('td:eq(9)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
 
-                    if(aData.is_viewed=="no"){
-                        $('td:eq(10)', nRow).html('<div class="text-left">Never</div>');
+                    if(aData.invoice_shared.length && aData.invoice_shared[0].is_viewed=="yes"){
+                        $('td:eq(10)', nRow).html('<div class="text-left">'+aData.invoice_shared[0].viewed_date+'</div>');
                     }else{
-                        $('td:eq(10)', nRow).html('<div class="text-left">Yes</div>');
+                        $('td:eq(10)', nRow).html('<div class="text-left">Never</div>');
                     }
 
                     var reminder='';
