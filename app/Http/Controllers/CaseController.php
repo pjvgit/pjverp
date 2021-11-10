@@ -2041,6 +2041,19 @@ class CaseController extends BaseController
                 }
                 $CaseStaff->created_by=Auth::user()->id; 
                 $CaseStaff->save();
+
+                // add activity
+                $userInfo = User::find($request->staff_user_id);
+                $data=[];
+                $data['user_id']=$request->staff_user_id;
+                $data['client_id']=$request->staff_user_id;
+                $data['case_id']=$request->case_id;
+                $data['activity']='linked '.$userInfo->user_title;
+                $data['type']='contact';
+                $data['action']='link';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+
                 session(['popup_success' => 'Your contact has been added']);
                 return response()->json(['errors'=>''   ]);
                 exit;
@@ -5363,6 +5376,19 @@ class CaseController extends BaseController
         $CaseEventComment->action_type="0";
         $CaseEventComment->created_by=Auth::user()->id; 
         $CaseEventComment->save();
+
+        $eventId=$request->event_id;
+        $CaseEvent = CaseEvent::find($eventId); 
+        $data=[];
+        $data['event_for_case']=$CaseEvent->case_id;
+        $data['event_id']=$eventId;
+        $data['event_name']=$CaseEvent->event_title;
+        $data['user_id']=Auth::User()->id;
+        $data['activity']='commented on event';
+        $data['type']='event';
+        $data['action']='comment';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
 
         // $eventData=CaseEvent::find($request->event_id);
         // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();

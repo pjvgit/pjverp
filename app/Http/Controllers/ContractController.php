@@ -271,7 +271,7 @@ class ContractController extends BaseController
         $userPermission->save();
         $data=[];
         $data['user_id']=Auth::User()->id;
-        $data['client_id']=$user->id;
+        $data['client_id']=$request->user_id;
         $data['case_id']=null;
         $data['activity']='changed permission for attorney';
         $data['type']='contact';
@@ -313,7 +313,7 @@ class ContractController extends BaseController
         $userPermission->save();
         $data=[];
         $data['user_id']=Auth::User()->id;
-        $data['client_id']=$user->id;
+        $data['client_id']=$request->user_id;
         $data['case_id']=null;
         $data['activity']='changed permission for staff';
         $data['type']='contact';

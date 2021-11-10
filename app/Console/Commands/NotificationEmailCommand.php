@@ -56,9 +56,9 @@ class NotificationEmailCommand extends Command
             ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
             ->select("all_history.id as historyID","all_history.case_id as caseId","all_history.created_by as createdBy","task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", "all_history.*","users.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
             ->whereDate("all_history.created_at", date("Y-m-d"))
+            ->where('all_history.is_for_client','no')
             ->with('caseFirm')
             ->get();
-        // dd($commentData);
         Log::info("History data for ". date('Y-m-d').' : '. count($commentData));
         
         $arrData = [];
@@ -98,8 +98,8 @@ class NotificationEmailCommand extends Command
             echo $preparedEmail = $explodeKey[1];echo PHP_EOL;
             // dd($item);
             Log::info("Email send to >". $preparedEmail);
-            \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
-            // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
+            // \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
+            \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
         }
         
         

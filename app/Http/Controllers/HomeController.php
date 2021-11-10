@@ -419,7 +419,13 @@ class HomeController extends BaseController
             ->leftJoin('case_events','case_events.id','=','all_history.event_id')
             ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
             ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-            ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", "users.*","all_history.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('task','task.id','=','all_history.task_id')
+            ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
+                    "users.*","all_history.*","u1.user_level as ulevel",
+                    DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
+                    "case_master.case_title","case_master.id","task_activity.title",
+                    "all_history.created_at as all_history_created_at",
+                    "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name);
             if(isset($request->user_id)){
@@ -511,7 +517,7 @@ class HomeController extends BaseController
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
             ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-            ->select("case_events.id as eventID","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->select("case_events.id as eventID","case_events.event_title as eventTitle","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "case_events.deleted_at as deleteEvents")
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","event")
@@ -531,7 +537,8 @@ class HomeController extends BaseController
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
             ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
             ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('task','task.id','=','all_history.task_id')
+            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","task")

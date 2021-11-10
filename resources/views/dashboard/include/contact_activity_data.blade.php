@@ -10,6 +10,7 @@
             $ImageArray["pay"]="activity_ledger_deposited.png";
             $ImageArray["change"]="activity_attorney_permissions.png";
             $ImageArray["archive"]="activity_attorney_archived.png";
+            $ImageArray["unarchive"]="activity_lead_unarchived.png";            
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('images/'.$image) }}" width="27" height="21">
@@ -24,6 +25,9 @@
                 <?php } ?>
 
                 <?php if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} ({{$v->user_title}})</a>
+                <?php } ?>
+
+                <?php if($v->ulevel=="5"){?> <a class="name" href="{{route('case_details/info',$v->client_id) }}">{{$v->fullname}} (Lead)</a>
                 <?php } ?>
                 
                 <?php if($v->action=="link"){ ?> to case <?php

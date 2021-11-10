@@ -5755,7 +5755,7 @@ class BillingController extends BaseController
                 $FindInvoice->save();
             }
             if($FindInvoice) {
-                $FindInvoice->fill(['is_sent' => 'yes'])->save();
+                $FindInvoice->fill(['is_sent' => 'yes',"bill_sent_status"=>"Sent"])->save();
             }
             $invoice_id=$FindInvoice['id'];
             foreach($SharedInvoice as $k=>$v){

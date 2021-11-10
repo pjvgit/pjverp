@@ -77,13 +77,13 @@ INSERT INTO `notification_settings` (`id`, `type`, `topic`, `action`, `created_a
 (38,	'contacts',	'Someone archives a contact/company',	'archive',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
 (39,	'contacts',	'Someone unarchives a contact/company',	'unarchive',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
 (40,	'contacts',	'Someone deletes a company',	'delete',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
-(41,	'contacts',	'A contact logs in to MyCase',	'login',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
+(41,	'contacts',	'A contact logs in to LegalCase',	'login',	'2021-11-02 07:25:08',	0,	'2021-11-02 07:25:08',	NULL,	NULL),
 (42,	'contacts',	'A new note is added, edited, or deleted on a contact',	'notes',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
 (43,	'firms',	'A new firm user is added',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
 (44,	'firms',	'Firm user contact information is updated',	'update',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
 (45,	'firms',	'A firm user is deactivated or reactivated',	'inactive',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
 (46,	'firms',	'Firm user permissions are changed',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
-(47,	'firms',	'Items are imported into MyCase',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
+(47,	'firms',	'Items are imported into LegalCase',	'add',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL),
 (48,	'firms',	'Firm information is updated',	'update',	'2021-11-02 07:25:09',	0,	'2021-11-02 07:25:09',	NULL,	NULL);
 
 ALTER TABLE `all_history`

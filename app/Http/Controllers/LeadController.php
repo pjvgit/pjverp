@@ -373,6 +373,15 @@ class LeadController extends BaseController
             $noteHistory['activity_by']=Auth::User()->id;
             $noteHistory['for_lead']=$UserMaster->id;
             $this->noteActivity($noteHistory);
+
+            $data=[];
+            $data['user_id']=$UserMaster->id;
+            $data['client_id']=$UserMaster->id;
+            $data['activity']='added  lead';
+            $data['type']='contact';
+            $data['action']='add';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             session(['popup_success' => 'Your lead has been created.']);
 
         }
@@ -751,6 +760,16 @@ class LeadController extends BaseController
             $LeadAdditionalInfo->do_not_hire_on=date('Y-m-d');
             $LeadAdditionalInfo->user_status="2";  //2:Do Not Hire
             $LeadAdditionalInfo->save();
+
+            $data=[];
+            $data['user_id']=$LeadAdditionalInfo->user_id;
+            $data['client_id']=$LeadAdditionalInfo->user_id;
+            $data['activity']='marked no hire for lead';
+            $data['type']='contact';
+            $data['action']='archive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             return response()->json(['errors'=>'','LeadAdditionalInfo'=>$LeadAdditionalInfo->id]);
             exit;
         }
@@ -850,6 +869,16 @@ class LeadController extends BaseController
             $noteHistory['activity_by']=Auth::User()->id;
             $noteHistory['for_lead']=$request->id;
             $this->noteActivity($noteHistory);
+
+            $data=[];
+            $data['user_id']=$request->id;
+            $data['client_id']=$request->id;
+            $data['activity']='update lead';
+            $data['type']='contact';
+            $data['action']='update';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Your lead has been updated.']);
         }
         return response()->json(['errors'=>'','user_id'=>$UserMaster->id]);
@@ -879,6 +908,15 @@ class LeadController extends BaseController
                 Task::where('lead_id',$request->user_id)->delete();
                 CaseEvent::where('lead_id',$request->user_id)->delete();
                 session(['popup_success' => 'Lead deleted successfully.']);
+
+                $data=[];
+                $data['user_id']=$request->user_id;
+                $data['client_id']=$request->user_id;
+                $data['activity']='delete lead';
+                $data['type']='contact';
+                $data['action']='delete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
             }
             return response()->json(['errors'=>'','msg'=>'Lead deleted successfully.', 'id'=>$request->user_id]);
             exit; 
@@ -1539,7 +1577,23 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $reactivate_user_id=$request->reactivate_user_id;
-            LeadAdditionalInfo::where('id',$reactivate_user_id)->update(['user_status'=>"1",'do_not_hire_reason'=>NULL,'do_not_hire_on'=>NULL]);
+            // LeadAdditionalInfo::where('id',$reactivate_user_id)->update(['user_status'=>"1",'do_not_hire_reason'=>NULL,'do_not_hire_on'=>NULL]);
+            
+            $LeadAdditionalInfo = LeadAdditionalInfo::find($reactivate_user_id);
+            $LeadAdditionalInfo->user_status="1";
+            $LeadAdditionalInfo->do_not_hire_reason=null;
+            $LeadAdditionalInfo->do_not_hire_on=null;
+            $LeadAdditionalInfo->save();
+
+            $data=[];
+            $data['user_id']=$LeadAdditionalInfo->user_id;
+            $data['client_id']=$LeadAdditionalInfo->user_id;
+            $data['activity']='reactivated lead';
+            $data['type']='contact';
+            $data['action']='unarchive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+            
             return response()->json(['errors'=>'','msg'=>'Records successfully updated']);
             exit;  
         }
@@ -2610,6 +2664,16 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             LeadAdditionalInfo::where('user_id',$request->user_id)->update(['user_status'=>"1",'do_not_hire_reason'=>NULL,'do_not_hire_on'=>NULL]);
+            
+            $data=[];
+            $data['user_id']=$request->user_id;
+            $data['client_id']=$request->user_id;
+            $data['activity']='reactivated lead';
+            $data['type']='contact';
+            $data['action']='unarchive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             return response()->json(['errors'=>'','id'=>$request->user_id]);
             exit;
         }
