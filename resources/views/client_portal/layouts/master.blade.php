@@ -56,7 +56,7 @@
 <div class="app-admin-wrap layout-horizontal-bar clearfix">
     @include('client_portal.layouts.header-nav')
             
-    <div class="main-content-wrap  d-flex flex-column">
+    <div class="main-content-wrap  d-flex flex-column" style="margin-top: 0px !important;">
         <div class="main-content">
             @yield('main-content')
             {{-- @include('commonPopup.popup_without_param_code') --}}

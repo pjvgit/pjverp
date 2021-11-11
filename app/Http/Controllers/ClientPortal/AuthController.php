@@ -71,6 +71,8 @@ class AuthController extends Controller
                 if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $user->auto_logout = 'on';
+                    $user->sessionTime = 10;
                     $user->save();
 
                     // Add history

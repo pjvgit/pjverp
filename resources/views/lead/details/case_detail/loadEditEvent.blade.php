@@ -789,7 +789,7 @@
                         $('#loadEditEventPopup').animate({ scrollTop: 0 }, 'slow');
                         return false;
                     } else {
-                        // window.location.reload();
+                        window.location.reload();
                         $(".innerLoader").css('display', 'none');
 
                     }
@@ -820,13 +820,14 @@
             changeCaseUser();
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        // Duplicate code
+        /* $("input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').attr("disabled", false);
             }
-        });
+        }); */
 
         $("input:checkbox.recuring_event").click(function () {
             if ($(this).is(":checked")) {

@@ -838,14 +838,15 @@
             changeCaseUser();
         });
 
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        // Duplicate code
+        /* $("input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
                 $("#end_on").val('');
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').removeAttr("disabled");
             }
-        });
+        }); */
 
         $("input:checkbox.recuring_event").click(function () {
             if ($(this).is(":checked")) {

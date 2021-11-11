@@ -63,8 +63,10 @@ class CaseAllEventJob implements ShouldQueue
             $startDate = strtotime($oldFirstEvent->start_date);
             $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-            if(isset($request->end_on)) {
+            if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                 $endDate = strtotime($request->end_on);
+            } else {
+                $endDate =  strtotime('+ 1 year', $startDate);
             }
             $i=0;
             $event_interval_day=$request->event_interval_day;
@@ -129,8 +131,10 @@ class CaseAllEventJob implements ShouldQueue
             $startDate = strtotime($oldFirstEvent->start_date);
             $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-            if(isset($request->end_on)) {
+            if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                 $endDate = strtotime($request->end_on);
+            } else {
+                $endDate =  strtotime('+ 1 year', $startDate);
             }
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
@@ -208,9 +212,11 @@ class CaseAllEventJob implements ShouldQueue
             $startDate = strtotime($oldFirstEvent->start_date);
             $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-            if(isset($request->end_on)) {
+            if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                 $endDate = strtotime($request->end_on);
-            }                    
+            } else {
+                $endDate =  strtotime('+ 1 year', $startDate);
+            }                
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
                 if($OldCaseEvent->event_frequency == 'YEARLY') {
@@ -218,7 +224,7 @@ class CaseAllEventJob implements ShouldQueue
                     if($endDate < $endDateNew) {
                         $endDate = $endDateNew;
                     }
-                    if(isset($request->end_on)) {
+                    if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                         $endDate = strtotime($request->end_on);
                     }
                 }
@@ -273,7 +279,7 @@ class CaseAllEventJob implements ShouldQueue
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
             $start = new DateTime(date("Y-m-d", $startDate));
             $startClone = new DateTime(date("Y-m-d", $startDate));
-            if(isset($request->end_on)) {
+            if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                 $end=new DateTime($request->end_on);
             }else{
                 $end=$startClone->add(new DateInterval('P365D'));
@@ -284,7 +290,7 @@ class CaseAllEventJob implements ShouldQueue
                     if($endDate < $endDateNew) {
                         $end = new DateTime($endDateNew);
                     }
-                    if(isset($request->end_on)) {
+                    if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                         $end=new DateTime($request->end_on);
                     }
                 }
@@ -368,9 +374,11 @@ class CaseAllEventJob implements ShouldQueue
             $OldCaseEvent=CaseEvent::find($request->event_id);
             $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
             $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-            if(isset($request->end_on)) {
+            if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                 $endDate = strtotime($request->end_on);
-            }
+            } else {
+                $endDate =  strtotime('+ 1 year', $startDate);
+            }   
             
             if($OldCaseEvent->event_frequency != $request->event_frequency) {
                 if($OldCaseEvent->event_frequency == 'YEARLY') {
@@ -378,7 +386,7 @@ class CaseAllEventJob implements ShouldQueue
                     if($endDate < $endDateNew) {
                         $endDate = $endDateNew;
                     }
-                    if(isset($request->end_on)) {
+                    if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                         $endDate = strtotime($request->end_on);
                     }
                 }
@@ -497,7 +505,7 @@ class CaseAllEventJob implements ShouldQueue
                     $startDate = strtotime("last ".strtolower($Currentweekday)." of this month",$startDate);
                 }
                 $endDate =  strtotime('+ 1 year', $startDate);
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate = strtotime($request->end_on);
                 }
                 do {
@@ -528,8 +536,10 @@ class CaseAllEventJob implements ShouldQueue
                 $startDate = strtotime($oldFirstEvent->start_date);
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate = strtotime($request->end_on);
+                } else {
+                    $endDate =  strtotime('+ 1 year', $startDate);
                 }
                 
                 if($yearly_frequency != $OldCaseEvent->yearly_frequency) {
@@ -537,7 +547,7 @@ class CaseAllEventJob implements ShouldQueue
                     $endDate =  strtotime('+ 1 year', $startDate);
                     $endDate = strtotime(date("Y-m-t", $endDate ));
                     Log::info("last date of month: ". date('Y-m-d', $endDate));
-                    if(isset($request->end_on)) {
+                    if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                         $endDate = strtotime($request->end_on);
                     }
                     $editedId = [];

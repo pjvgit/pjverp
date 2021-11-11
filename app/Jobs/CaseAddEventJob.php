@@ -81,7 +81,7 @@ class CaseAddEventJob implements ShouldQueue
                 
                 $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
                 $i++;
-            } while ($startDate < $endDate);
+            } while ($startDate <= $endDate);
         }
         else if($request->event_frequency=='EVERY_BUSINESS_DAY')
         { 

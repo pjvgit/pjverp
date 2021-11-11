@@ -778,6 +778,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
 
         $("input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
+                $("#end_on").val('');
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').removeAttr("disabled");
