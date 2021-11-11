@@ -4864,8 +4864,8 @@ class CaseController extends BaseController
                 }
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
-            $CaseEvent=CaseEvent::find($request->event_id);
             if(!isset($request->recuring_event)){
+                $CaseEvent=CaseEvent::find($request->event_id);
                 $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id)->where('id',">",$request->event_id);
                 $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
                 $oldEvents->forceDelete();
@@ -4906,8 +4906,8 @@ class CaseController extends BaseController
                 $this->dispatch(new CaseFollowingEventJob($request->all(), $startDate, $endDate, $start_time, $end_time, $authUser, $locationID));
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
-            $CaseEvent=CaseEvent::find($request->event_id);
             if(!isset($request->recuring_event)){
+                $CaseEvent=CaseEvent::find($request->event_id);
                 $oldEvents = CaseEvent::where('parent_evnt_id',$CaseEvent->parent_evnt_id)->where('id',"!=",$request->event_id);
                 $CaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
                 $oldEvents->forceDelete();
@@ -5398,7 +5398,7 @@ class CaseController extends BaseController
         $CaseEventComment->save();
 
         $eventId=$request->event_id;
-        $CaseEvent = CaseEvent::find($eventId); 
+        $CaseEvent = CaseEvent::whereId($eventId)->with('eventLinkedContact')->first(); 
         $data=[];
         $data['event_for_case']=$CaseEvent->case_id;
         $data['event_id']=$eventId;
@@ -5410,60 +5410,19 @@ class CaseController extends BaseController
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
 
-        // $eventData=CaseEvent::find($request->event_id);
-        // $CaseEventLinkedContactLead=CaseEventLinkedContactLead::where("event_id",$request->event_id)->get();
-        // if(!$CaseEventLinkedContactLead->isEmpty()){
-            Log::info("comment email job dispatched");
-            dispatch(new EventCommentEmailJob($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id));
-            // EventCommentEmailJob::dispatch($request->event_id,Auth::User()->firm_name,$CaseEventComment->id,Auth::User()->id);
+        // For client recent activity
+        if($CaseEvent->eventLinkedContact) {
+            foreach($CaseEvent->eventLinkedContact as $key => $item) {
+                $data['user_id'] = $item->id;
+                $data['client_id'] = $item->id;
+                $data['activity']='commented event';
+                $data['is_for_client'] = 'yes';
+                $CommonController->addMultipleHistory($data);
+            }
+        }
 
-            // EventCommentEmailJob::dispatch($request->event_id)->delay(now()->addMinutes(1));
-
-
-            // $CommonController= new CommonController();
-            // foreach($CaseEventLinkedContactLead as $k=>$v){
-            //     $firmData=Firm::find(Auth::User()->firm_name); 
-            //     if($v->lead_id!=NULL){
-            //         $findUSer=User::find($v->lead_id);
-            //     }else{
-            //         $findUSer=User::find($v->contact_id);
-            //     }   
-            //     $getTemplateData = EmailTemplate::find(22);
-            //     $email=$findUSer['email'];
-            //     $fullName=$findUSer['first_name']." ".$findUSer['middle']." ".$findUSer['last_name'];
-            //     $sender=Auth::User()->first_name." ".Auth::User()->last_name;
-              
-            //     $timezone=$findUSer->user_timezone;
-            //     $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($eventData->start_date ." " .$eventData->start_time)),$timezone);
-            //     $Edates=date('m-d-Y h:i A',strtotime($convertedDate));
-
-
-            //     $mail_body = $getTemplateData->content;
-            //     $mail_body = str_replace('{email}', $email,$mail_body);
-            //     $mail_body = str_replace('{receiver}', $fullName,$mail_body);
-            //     $mail_body = str_replace('{sender}', $sender,$mail_body);
-            //     $mail_body = str_replace('{event_name}', $eventData->event_title,$mail_body);
-            //     $mail_body = str_replace('{date_time}', $Edates ,$mail_body);
-            //     $mail_body = str_replace('{comment}', $CaseEventComment->comment,$mail_body);
-            //     $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-            //     $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-            //     $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
-            //     $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-            //     $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-            //     $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-            //     $mail_body = str_replace('{url}', BASE_URL."login", $mail_body);  
-
-            //     $userEmail = [
-            //         "from" => FROM_EMAIL,
-            //         "from_title" => $firmData['firm_name'],
-            //         "subject" => $getTemplateData->subject,
-            //         "to" => $email,
-            //         "full_name" => $fullName,
-            //         "mail_body" => $mail_body
-            //         ];
-            //     $sendEmail = $this->sendMail($userEmail);
-            //}
-        // }
+        Log::info("comment email job dispatched");
+        dispatch(new EventCommentEmailJob($request->event_id, Auth::User()->firm_name, $CaseEventComment->id, Auth::User()->id));
         return response()->json(['errors'=>'']);
         exit;    
     }

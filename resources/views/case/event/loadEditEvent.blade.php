@@ -267,7 +267,7 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y')}}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->no_end_date_checkbox=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->no_end_date_checkbox=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>
@@ -776,15 +776,15 @@
             }
         });
         
-
-        $("input:checkbox#no_end_date_checkbox").click(function () {
+        // Code repeated 2 time so commented
+        /* $("input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
                 $('#end_on').val('');
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').removeAttr("disabled");
             }
-        });
+        }); */
 
 
 

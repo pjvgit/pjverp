@@ -20,7 +20,7 @@ class HomeController extends Controller
                             $query->where("user_id", $userId)->where("is_shared", "yes");
                         })->where('status', '!=', 'Paid')->count();
         $upcomingEvents = CaseEvent::whereHas("eventLinkedContact", function($query) use($userId) {
-                            $query->where('users.id', $userId);
+                            $query->where('users.id', $userId)->select("case_event_linked_contact_lead.is_view");
                         })->whereDate('start_date', '>=', Carbon::now())->orderBy('start_date', 'asc')->take(3)->get();
 
         $recentActivity = AllHistory::where("is_for_client", "yes")->where("client_id", $userId)

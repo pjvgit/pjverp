@@ -67,7 +67,7 @@ class CaseFollowingEventJob implements ShouldQueue
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
                 }
                 // Update previous record's (from current event) end date
@@ -78,7 +78,6 @@ class CaseFollowingEventJob implements ShouldQueue
                 if($startDate == strtotime($OldCaseEvent->start_date)) {
                     Log::info("Daily date matched");
                     do {
-                        Log::info("start_date : ".$startDate." <=  End date :".$endDate. " with request :". json_encode($request));
                         $start_date = date("Y-m-d", $startDate);
                         $end_date = date("Y-m-d", $startDate);
                         $CaseEvent = $this->updateCreateRecurringEvent($request, $start_date, $end_date, $start_time, $end_time, $authUser, $OldCaseEvent, null, $locationID);
@@ -109,7 +108,7 @@ class CaseFollowingEventJob implements ShouldQueue
                 // Update existing event with trashed and same event frequency
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
                 }
                 // Update previous record's (from current event) end date
@@ -152,7 +151,7 @@ class CaseFollowingEventJob implements ShouldQueue
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id', $OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
                 }
                 // Update previous record's (from current event) end date
@@ -188,7 +187,7 @@ class CaseFollowingEventJob implements ShouldQueue
                 $this->saveCustomEvent($request, $OldCaseEvent, $startDate, $endDate, $start_time, $end_time, $authUser, $start, $startClone, $locationID);
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $end = new DateTime($request->end_on);
                 }else{
                     $end =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
@@ -246,7 +245,7 @@ class CaseFollowingEventJob implements ShouldQueue
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
                 }
                 // Update previous record's (from current event) end date
@@ -323,7 +322,7 @@ class CaseFollowingEventJob implements ShouldQueue
             } else {
                 $Edate=CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->orderBy('end_date','desc')->first();
                 $endDate =  strtotime(date('Y-m-d',strtotime($Edate['end_date'])));
-                if(isset($request->end_on)) {
+                if(isset($request->end_on) && !isset($request->no_end_date_checkbox)) {
                     $endDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
                 }
                 // Update previous record's (from current event) end date

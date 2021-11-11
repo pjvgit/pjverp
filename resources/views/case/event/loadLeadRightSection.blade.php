@@ -3,7 +3,11 @@
         <table class="table table-lg" id="CaseClientSection">
             <tr style="background-color:#FBFBFC;">
                 <td><b>Contact & Leads </b></td>
-                <td>Invite</td>
+                <td>Invite<br>
+                    <span tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="bottom" title="Invite Contacts and Leads" data-content='<div class="popover-body"><strong>Contacts:</strong> When you invite a contact to an event, they will receive an email with event details and it will be shared on their client portal.<br><br><strong>Leads:</strong> When you invite a lead to an event, they will receive an email with event details.</div>'>
+                        <i class="fas fa-question-circle"></i>
+                    </span>
+                </td>
                 <td>Attend</td>
             </tr>
             <tr>
@@ -23,22 +27,22 @@
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
                     </a>
-                    <?php if($val->client_portal_enable == '0'){?> 
+                    {{-- <?php if($val->client_portal_enable == '0'){?> 
                     <i class="tooltip-alert" id="err_popover_{{ $val->id }}" data-toggle="popover" data-trigger="hover"  data-placement= "bottom"  title="" 
                         data-content='This user is not yet enabled for the Client Portal. Click the box next to their near to invite them and share this item.' 
                         data-html="true" data-original-title="" style="display: none;"></i>
-                    <?php } ?>
+                    <?php } ?> --}}
                 </td>
                 <td>
                     <label class="mb-0">
                         <input data-email-present="false" name="LeadInviteClientCheckbox[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}" <?php if(in_array($val->id,$caseLinkeSavedInviteLead)){ ?> checked="checked" <?php } ?> 
-                            onclick="loadGrantAccessModal({{$val->id}});" data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox"
+                            onclick="loadGrantAccessModal({{$val->id}});" {{-- data-client_portal_enable="{{$val->client_portal_enable}}" --}} type="checkbox"
                             class="lead_client_share_all_users client-login-not-enabled handler-attached load-default-reminder">
                     </label>
                 </td>
                 <td>
                     <label class="mb-0">
-                        <input  class="lead_client_attend_all_users {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }}"  id="attend_user_{{$val->id}}" 
+                        <input  class="lead_client_attend_all_users {{-- {{ ($val->client_portal_enable == '0') ? 'not-enable-portal' : '' }} --}}"  id="attend_user_{{$val->id}}" 
                         name="LeadAttendClientCheckbox[]" type="checkbox" value="{{$val->id}}"  
                         <?php if(in_array($val->id,$caseLinkeSavedAttendingLead)){ ?> checked="checked" <?php } ?> {{ (in_array($val->id,$caseLinkeSavedInviteLead)) ? "" : "disabled" }}>
                     </label>
@@ -67,7 +71,7 @@
                         type="checkbox">
                     
                     <?php }else{ ?>
-                    <input name="client_share_all" id="client_share_all"  type="checkbox">
+                    <input name="client_share_all" id="client_share_all"  type="checkbox" {{ (count($loadFirmUser) == 1) ? "checked" : "" }}>
                     <?php } ?>
                 </td>
                 <td>
@@ -76,7 +80,7 @@
                         type="checkbox">
                     
                     <?php }else{ ?>
-                        <input name="client-attend-all" id="client_attend_all" type="checkbox">                    
+                        <input name="client-attend-all" id="client_attend_all" type="checkbox" {{ (count($loadFirmUser) == 1) ? "checked" : "" }}>                    
                     <?php } ?>
                     
                 </td>
@@ -197,22 +201,22 @@
 
         $("#SelectAllLeadShare").click(function () {
             var multi = $('.lead_client_share_all_users');
-            var winners_array = [];
+            /* var winners_array = [];
             $.each(multi, function (index, item) {
                 if($(item).attr('data-client_portal_enable') == 0){
                     winners_array.push( {name: $(item).val(), value: $(item).attr('data-client_portal_enable')} );  
                     $("#err_popover_"+item.value).show();
                 }
-            });
+            }); */
 
             $(".lead_client_share_all_users").prop('checked', $(this).prop('checked'));
-            if(winners_array.length > 0){
+            /* if(winners_array.length > 0){
                 $.each(winners_array, function (index, item) {
                     // $(".tooltip-alert").show();
                     $("#cleintUSER_"+item.name).prop('checked',false);
                 });
                 $("#SelectAllLeadAttend").prop('checked', false);
-            }
+            } */
             $(".lead_client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             $(".not-enable-portal").prop('disabled', true);
             if(!$(this).is(":checked")) {

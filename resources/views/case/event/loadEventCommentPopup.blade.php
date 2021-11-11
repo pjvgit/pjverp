@@ -124,24 +124,6 @@
                                 <div>
                                     <div class="mb-2 sharing-user">
                                         <div class="row ">
-                                            {{-- <?php                                              
-                                                // $userTypes = unserialize(USER_TYPE);
-                                                // if(!$caseLinkedStaffList->isEmpty()){
-                                                //     foreach($caseLinkedStaffList as $kstaff=>$vstaff){?>
-                                                        <div class="col-8">
-                                                            <div class="d-flex flex-row">
-                                                                <a href="{{ route('contacts/attorneys/info', base64_encode($vstaff->id)) }}"
-                                                                    class="d-flex align-items-center user-link"
-                                                                    title="{{$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
-                                                                    {{substr($vstaff->last_name,0,15)}}
-                                                                    ({{$userTypes[$vstaff->user_type]}})</a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-4"><b
-                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
-                                                        </div>
-                                                <?php // } 
-                                                // }?> --}}
                                             @if(count($evetData->eventLinkedStaff))
                                                 @forelse ($evetData->eventLinkedStaff as $key => $item)
                                                 <div class="col-8">
@@ -156,23 +138,6 @@
                                             @endif
                                         </div>
                                         <div class="row ">
-                                            {{-- <?php                                              
-                                                // if(!$CaseEventLinkedContactLead->isEmpty()){
-                                                //     foreach($CaseEventLinkedContactLead as $kstaff=>$vstaff){?>
-                                                        <div class="col-8">
-                                                            <div class="d-flex flex-row">
-                                                                <a href="{{ route('contacts/clients/view', $vstaff->contact_id) }}"
-                                                                    class="d-flex align-items-center user-link"
-                                                                    title="{{@$userTypes[$vstaff->user_type]}}">{{substr($vstaff->first_name,0,15)}}
-                                                                    {{substr($vstaff->last_name,0,15)}}
-                                                                    (Client)</a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-4"><b
-                                                                style="color: rgb(99, 108, 114);"><?php if($vstaff->attending=='yes'){ echo "Attending"; } ?></b>
-                                                        </div>
-                                                <?php // } 
-                                                // }?> --}}
                                             @if(count($evetData->eventLinkedContact))
                                                 @forelse ($evetData->eventLinkedContact as $key => $item)
                                                 <div class="col-8">

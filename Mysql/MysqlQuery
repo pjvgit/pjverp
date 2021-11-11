@@ -1,6 +1,8 @@
 ------------------------------------ 11-NOV-2021 ------------------------------
 ALTER TABLE `case_stage`
 ADD `firm_id` int(11) NULL AFTER `stage_order`;
+
+ALTER TABLE `case_event_linked_contact_lead` ADD `is_view` enum('no','yes') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `invite`;
 ------------------------------------ 10-NOV-2021 ------------------------------
 ALTER TABLE `invoice_customization_setting_columns` CHANGE `expense` `expense` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `line_total`;
 

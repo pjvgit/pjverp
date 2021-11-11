@@ -27,7 +27,9 @@
 					<h1 class="primary-heading">What's New</h1>
 					<ul class="list">
 						<li class="list-row">
-							<a href="{{ route('client/bills') }}"><i class="fas fa-dollar-sign list-row__icon u-color-dark-green"></i>
+							<a href="{{ route('client/bills') }}">
+								{{-- <i class="fas fa-dollar-sign list-row__icon u-color-dark-green"></i> --}}
+								<img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
 								<div class="list-row__body"><span class="list-row__header mt-0">{{ $totalInvoice }} unpaid invoices</span></div>
 							</a>
 						</li>
@@ -40,7 +42,7 @@
 					<h1 class="primary-heading">Upcoming Events</h1>
 					<ul class="list">
 						@forelse ($upcomingEvents as $key => $item)
-							<li class="list-row @if($item->event_read == 'no') is-unread @endif">
+							<li class="list-row @if($item->is_view == 'no') is-unread @endif">
 								<a href="{{ route('client/events/detail', $item->decode_id) }}"><i class="fas fa-calendar-day list-row__icon"></i>
 									<div class="list-row__body">
 										<span class="list-row__header mt-0">{{ $item->event_title }}</span><br>
