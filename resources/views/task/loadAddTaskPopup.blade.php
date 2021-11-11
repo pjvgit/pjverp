@@ -678,5 +678,10 @@
             changeCaseUser111();
         },500);
     <?php } ?>
+
+
+    $('#loadAddTaskPopup').on('hidden.bs.modal', function () {
+        window.location.reload();
+    });
 </script>
 

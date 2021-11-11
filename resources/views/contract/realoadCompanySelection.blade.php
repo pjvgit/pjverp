@@ -4,7 +4,7 @@
         style="width:100%">
         <option value="">Select company</option>
         <?php foreach($CompanyList as $companyKey=>$companyVal){?>
-        <option <?php if(in_array($companyVal->id,$selectdCompany)){ echo "selected=selected"; }?> value="{{$companyVal->id}}"> {{$companyVal->first_name}} {{$companyVal->last_name}}</option>
+        <option <?php if(in_array($companyVal->id,$selectdCompany)){ echo "selected=selected"; }?> value="{{$companyVal->id}}"> {{$companyVal->name}}</option>
         <?php } ?>
     </select>
 </div>

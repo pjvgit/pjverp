@@ -143,9 +143,9 @@ class UserController extends BaseController
 
         //Insert default case stage 
         $data = array(
-            array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $user->id, 'created_at' => date('Y-m-d')),
-            array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $user->id, 'created_at' => date('Y-m-d')),
-            array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $user->id, 'created_at' => date('Y-m-d')),
+            array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000' ,'firm_id' => $firm->id ,'created_by' => $user->id, 'created_at' => date('Y-m-d')),
+            array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00' ,'firm_id' => $firm->id ,'created_by' => $user->id, 'created_at' => date('Y-m-d')),
+            array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF' ,'firm_id' => $firm->id ,'created_by' => $user->id, 'created_at' => date('Y-m-d')),
         );        
         CaseStage::insert($data);
 
@@ -215,12 +215,12 @@ class UserController extends BaseController
                 $this->bulkInsertUserActivity($verifyUser->id);
 
                 //Insert default case stage 
-                $CaseStage =  CaseStage::where('user_id', $verifyUser->id)->get();
+                $CaseStage =  CaseStage::where('firm_id', $verifyUser->firm_name)->get();
                 if(count($CaseStage) == 0){
                     $data = array(
-                        array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                        array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                        array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                        array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                        array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
+                        array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
                     );        
                     CaseStage::insert($data);
                 }
@@ -1025,6 +1025,7 @@ class UserController extends BaseController
     }
 
     public function notificationSetting(){
+        $this->bulkInsertUserActivity(auth()->id());
         $notificationSetting = NotificationSetting::all();
         $userNotificationSetting = DB::table('user_notification_settings')->where('user_id',auth()->id())->get();
         $UsersAdditionalInfo = DB::table('user_notification_interval')->where('user_id',auth()->id())->first();

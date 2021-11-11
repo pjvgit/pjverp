@@ -240,8 +240,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <div class="row">
                        
                         <div class="col-lg-6 col-md-6 col-sm-6">
-                            <a data-toggle="modal" data-target="#addContact" data-placement="bottom"
-                                onclick="addContact();" href="javascript:;">
+                            <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom"
+                                onclick="AddContactModal();" href="javascript:;">
 
                                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                                     <div class="card-body text-center"> 
@@ -1338,22 +1338,22 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         })
     }
     
-    function addContact() {  
-        $("#preloader").show();
-        $("#AddContact").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/loadAddContact", // json datasource
-                data: {},
-                success: function (res) {
-                    $("#AddContact").html('');
-                    $("#AddContact").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
+    // function addContact() {  
+    //     $("#preloader").show();
+    //     $("#AddContact").html('<img src="{{LOADER}}""> Loading...');
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             url: baseUrl + "/contacts/loadAddContact", // json datasource
+    //             data: {},
+    //             success: function (res) {
+    //                 $("#AddContact").html('');
+    //                 $("#AddContact").html(res);
+    //                 $("#preloader").hide();
+    //             }
+    //         })
+    //     })
+    // }
     function addCompany() {  
         $("#preloader").show();
         $("#AddCompany").html('<img src="{{LOADER}}""> Loading...');
@@ -1772,24 +1772,26 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function deleteTaskFunction(id) {
         $("#task_id").val(id);
     }
-    function AddContactModal() {
-        $("#innerLoader").css('display', 'none');
-        $("#preloader").show();
-        $("#step-1-again").html('');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
-                data: 'loadStep1',
-                success: function (res) {
-                    $("#step-1-again").html(res);
-                    $("#preloader").hide();
-                    $("#innerLoader").css('display', 'none');
-                    return false;
-                }
-            })
-        })
-    }
+    // function AddContactModal() {
+    //     alert("resources/views/commonPopup/popup_without_param_code.blade.php > AddContactModal");
+    //     $("#innerLoader").css('display', 'none');
+    //     $("#preloader").show();
+    //     $("#step-1-again").html('');
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             // url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
+    //             url:  baseUrl +"/contacts/loadAddContact", // json datasource
+    //             data: 'loadStep1',
+    //             success: function (res) {
+    //                 $("#step-1-again").html(res);
+    //                 $("#preloader").hide();
+    //                 $("#innerLoader").css('display', 'none');
+    //                 return false;
+    //             }
+    //         })
+    //     })
+    // }
     
     function typeSelection() {  
         $("#preloader").show();

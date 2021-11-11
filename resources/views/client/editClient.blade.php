@@ -159,7 +159,7 @@
                 <select id="company_name"  name="company_name[]"  multiple  class="form-control custom-select col" style="width:100%">
                     <option value="">Select company</option>
                     <?php foreach($CompanyList as $companyKey=>$companyVal){?>
-                        <option <?php if(in_array($companyVal->id,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ echo "selected=selected"; }?> value="{{$companyVal->id}}"> {{$companyVal->first_name}} {{$companyVal->last_name}}</option>
+                        <option <?php if(in_array($companyVal->id,explode(",",$UsersAdditionalInfo->multiple_compnay_id))){ echo "selected=selected"; }?> value="{{$companyVal->id}}"> {{$companyVal->name}}</option>
                         <?php } ?>
                 </select>
             </div>

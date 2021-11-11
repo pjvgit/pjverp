@@ -767,24 +767,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function addContact() {  
+    function AddContactModal() {
         $("#preloader").show();
-        
+        $("#step-1-again").html('');
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/loadAddContact", // json datasource
+                url:  baseUrl +"/contacts/loadAddContact", // json datasource
                 data: {'case_id':{{$CaseMaster->case_id}}
                 },
                 success: function (res) {
-                    $("#AddContact").html('');
+                    $("#step-1-again").html(res);
                     $('#typeSelect').modal('hide')
-                    $("#AddContact").html(res);
                     $("#preloader").hide();
                 }
             })
         })
     }
+    
     function addCompany() {  
         $("#preloader").show();
        

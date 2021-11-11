@@ -961,6 +961,7 @@ class LeadController extends BaseController
             $UserMaster->middle_name=$request->middle_name;
             $UserMaster->last_name=$request->last_name;
             $UserMaster->email=$request->email;
+            $UserMaster->user_title="Client";
             $UserMaster->mobile_number=$request->cell_phone;
             $UserMaster->work_phone=$request->work_phone;
             $UserMaster->home_phone=$request->home_phone;

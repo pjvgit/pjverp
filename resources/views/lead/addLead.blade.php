@@ -160,7 +160,7 @@
                         <?php
                         foreach($CaseMasterClient as $Clientkey=>$Clientval){
                         ?>
-                        <option value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->last_name}} (Client)</option>
+                        <option value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->last_name}} ({{$Clientval->user_title}})</option>
                         <?php } ?>
                     </optgroup>
                     <optgroup label="Company">

@@ -225,7 +225,7 @@
                                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                                 </a> {{$v->activity}} 
                                 
-                                <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
+                                <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
                                 <?php } ?>
                                 
                                 <?php if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
@@ -357,7 +357,7 @@
                                 <td style="font-size:12px">
                                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                                     {{$v->activity}}
-                                    @if($v->eventID) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->event_name}} </a> @else {{$v->event_name}} @endif
+                                    @if($v->deleteEvents == null) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->eventTitle}} </a> @else {{$v->eventTitle}} @endif
                                 </td>
                                 </tr>
                                 </tbody>
@@ -476,7 +476,7 @@
 
                                     <td style="font-size:12px">
 
-                                    <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }} (Client)</a>
+                                    <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }} {{"(".$v->utitle.")"}}</a>
                                     {{$v->activity}} 
                                     </td>
 
@@ -517,9 +517,9 @@
                                             {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                                             </a> {{$v->activity}} 
                                             
-                                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} (Client)</a>
+                                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
                                             <?php } if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
-                                            <?php } if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} ({{$v->user_title}})</a>
+                                            <?php } if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} {{"(".$v->user_title.")"}}</a>
                                             <?php } if($v->ulevel=="5"){?> <a class="name" href="{{route('case_details/info',$v->client_id) }}">{{$v->fullname}} (Lead)</a>
                                             <?php } if($v->case_title!=""){?>| <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
                                             <?php } ?>
@@ -564,7 +564,7 @@
                                             <?php if($v->deposit_id){ ?>
                                                 #R-{{sprintf('%05d', $v->deposit_id)}}
                                             <?php } if($v->ulevel=="2" && $v->deposit_for){?>
-                                                <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} (Client)</a>
+                                                <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
                                             <?php } if($v->ulevel=="4" && $v->deposit_for){?>
                                                 <a class="name" href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
                                             <?php } if($v->ulevel=="5"  && $v->deposit_for != ''){ ?>
@@ -608,7 +608,7 @@
                                                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                                             </a> 
                                             {{$v->activity}} 
-                                            <a class="name" href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->task_name}} </a> 
+                                            @if($v->deleteTasks == null) <a class="name" href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->taskTitle}} @else {{$v->taskTitle}} @endif</a> 
                                         </td>
                                         </tr>
                                     </tbody>
@@ -636,7 +636,7 @@
 
                 <td style="width:32px;text-align:center" width="32px" align="center">
 
-                <img src="https://assets.mycase.com/packs/notifications/gear-ca1074872e.png" width="16" height="16" class="CToWUd">
+                <img src="{{ asset('icon/gear.png') }}" width="16" height="16" class="CToWUd">
 
                 </td>
 

@@ -2,9 +2,14 @@
 <form class="createNewUser" id="createNewUser" name="createNewUser" method="POST">
     <span id="response"></span>
 
-    <?php 
-    if($case_id!=''){?>
-    <input class="form-control" value="{{$case_id}}" id="case_id" name="case_id" type="hidden" placeholder="M">
+    <?php if($case_id!=''){?>
+    <input class="form-control" value="{{$case_id}}" id="case_id" name="case_id" type="hidden" placeholder="case_id">
+    <?php } ?>
+    <?php if($adjustment_token!=''){?>
+    <input class="form-control" value="{{$adjustment_token}}" id="adjustment_token" name="adjustment_token" type="hidden" placeholder="adjustment_token">
+    <?php } ?>
+    <?php if($company_id!=''){?>
+    <input class="form-control" value="{{$company_id}}" id="company_id" name="company_id" type="hidden" placeholder="adjustment_token">
     <?php } ?>
     @csrf
     <div class="col-md-12" bladename="resources/views/client/addClient.blade.php">
@@ -161,7 +166,7 @@
                         class="company_name form-control custom-select col" style="width:100%">
                         <option value="">Select company</option>
                         <?php foreach($CompanyList as $companyKey=>$companyVal){?>
-                        <option value="{{$companyVal->id}}"> {{$companyVal->first_name}} {{$companyVal->last_name}}
+                        <option value="{{$companyVal->id}}" <?php if($companyVal->id==$company_id){ echo "selected=selected"; } ?> > {{$companyVal->name}}
                         </option>
                         <?php } ?>
                     </select>
@@ -435,6 +440,7 @@
                 }
                 var dataString = '';
                 dataString = $("#createNewUser").serialize();
+                $("#preloader").show();
                 $.ajax({
                     type: "POST",
                     url: baseUrl + "/contacts/saveAddContact", // json datasource
@@ -442,6 +448,7 @@
                     success: function (res) {
                         $("#innerLoader").css('display', 'block');
                         if (res.errors != '') {
+                            $("#preloader").hide();
                             $('#showError').html('');
                             var errotHtml =
                                 '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
@@ -460,12 +467,23 @@
 
                             return false;
                         } else {
+                            <?php if($adjustment_token !=''){?>
+                                var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token={{$adjustment_token}}&contact='+res.user_id;
+                                window.location.href=URLS;
+                            <?php }else{ ?>
+                            localStorage.setItem("addedClient", res.user_id);
+                            toastr.success('Your client has been created.', "", {
+                                progressBar: !0,
+                                positionClass: "toast-top-full-width",
+                                containerId: "toast-top-full-width"
+                            });
                             window.location.reload();
                             // $("#response").html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Success!</b> Changes saved.</div>');
                             // $("#response").show();
                             // $("#innerLoader").css('display', 'none');
                             // // $('#EditContactModal').modal('hide'); 
                             // $('#submit').removeAttr("disabled");                
+                            <?php } ?>
                         }
                     },complete: function() {
                         me.data('requestRunning', false);

@@ -560,18 +560,6 @@
             }
         })
     }
-
-    function firmStaff() {
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/tasks/loadAllStaffMember",
-            data: {"edit":"edit","task_id":{{$Task->id}}},
-            success: function (res) {
-                $("#loadTaskSection").html(res);
-                afterLoader();
-            }
-        })
-    }
     // function changeCaseUser() {
     //     var selectdValue = $("#case_or_lead option:selected").val() // or
      

@@ -11,7 +11,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
 <div class="d-flex align-items-center pl-1 pb-2">
     <i class="fas fa-user-circle fa-2x"></i>
     <h2 class="mx-2 mb-0 text-nowrap">
-        <?php echo ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name);?> (Client)
+        <?php echo ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name);?> {{ "(".$userProfile->user_title.")"}}
         <?php if($userProfile->user_status=="3"){?>
         <span class="text-danger">[ Inactive ]</span>
         <?php } 

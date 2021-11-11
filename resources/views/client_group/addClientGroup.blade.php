@@ -68,7 +68,7 @@
             return false;
         }
 
-        var dataString = $("form").serialize();
+        var dataString = $("#CreatGroup").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/saveAddContactGroup", // json datasource

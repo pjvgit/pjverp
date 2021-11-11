@@ -54,7 +54,15 @@ class NotificationEmailCommand extends Command
             ->leftJoin('case_events','case_events.id','=','all_history.event_id')
             ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
             ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-            ->select("all_history.id as historyID","all_history.case_id as caseId","all_history.created_by as createdBy","task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", "all_history.*","users.*","u1.user_level as ulevel",DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),"case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+            ->leftJoin('task','task.id','=','all_history.task_id')
+            ->select("all_history.id as historyID","all_history.case_id as caseId","all_history.created_by as createdBy",
+                    "task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
+                    "users.*","all_history.*","u1.user_level as ulevel","u1.user_title as utitle",
+                    DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
+                    "case_master.case_title","case_master.id","task_activity.title",
+                    "all_history.created_at as all_history_created_at",
+                    "case_master.case_unique_number", "case_events.event_title as eventTitle", 
+                    "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
             ->whereDate("all_history.created_at", date("Y-m-d"))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
@@ -77,8 +85,20 @@ class NotificationEmailCommand extends Command
                 $arrData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
             }
             
+            if($val->caseFirm->parent_user_id == $val->createdBy){
+                $firmUserDetails = User::select("first_name","last_name","email","id","user_level","user_title","default_rate","default_color")
+                        ->where("firm_name",$val->caseFirm->id)
+                        ->where("user_level","3")
+                        ->where("user_status","1")
+                        ->orWhere("id",$val->caseFirm->parent_user_id)
+                        ->orderBy('first_name','asc')->get();
+                foreach($firmUserDetails as $k => $staff) {
+                    $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email;
+                    $arrData[$preparedFor][$key] = $val;
+                    $arrData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
+                }
+            }
         }
-        // dd($arrData);
         // $notificationSetting = NotificationSetting::all();
         // $userNotificationSetting = DB::table('user_notification_settings')->where('user_id',auth()->id())->get();
         // $UsersAdditionalInfo = DB::table('user_notification_interval')->where('user_id',auth()->id())->first();
@@ -94,14 +114,13 @@ class NotificationEmailCommand extends Command
             }
             echo $key;echo PHP_EOL;
             $explodeKey = explode('|', $key);            
-            echo $preparedFor = $explodeKey[0];echo PHP_EOL;
-            echo $preparedEmail = $explodeKey[1];echo PHP_EOL;
+            $preparedFor = $explodeKey[0];
+            $preparedEmail = $explodeKey[1];
             // dd($item);
             Log::info("Email send to >". $preparedEmail);
-            // \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
+            \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
             \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
         }
-        
         
         Log::info("Activity notification reminder Command End : ". date('Y-m-d H:i:s'));
     }

@@ -416,28 +416,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         </div>
     </div>
 </div>
-
-<div id="AddContactModal" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
-aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div id="AddContactModalArea">
-                        </div>
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="addExistingContact" class="modal fade bd-example-modal-lg " tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -2034,14 +2012,15 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function AddContactModal() {
         $("#AddContactModal").modal("show");
         $("#preloader").show();
-        $("#AddContactModalArea").html('<img src="{{LOADER}}""> Loading...');
+        $("#step-1-again").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
-                url:  baseUrl +"/contacts/loadAddContactFromCompany", // json datasource
+                // url:  baseUrl +"/contacts/loadAddContactFromCompany", // json datasource
+                url:  baseUrl +"/contacts/loadAddContact", // json datasource
                 data: {"company_id": "{{$company_id}}"},
                 success: function (res) {
-                    $("#AddContactModalArea").html(res);
+                    $("#step-1-again").html(res);
                     $("#preloader").hide();
                 }
             })

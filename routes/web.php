@@ -431,9 +431,6 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('contacts/saveAddContact', 'ContractController@saveAddContact')->name('contacts/saveAddContact');
     Route::post('contacts/loadEditContact', 'ContractController@loadEditContact')->name('contacts/loadEditContact');
     Route::post('contacts/saveEditContact', 'ContractController@saveEditContact')->name('contacts/saveEditContact');
-    Route::post('contacts/loadAddContactFromCase', 'ContractController@loadAddContactFromCase')->name('contacts/loadAddContactFromCase');
-    Route::post('contacts/loadAddContactFromCompany', 'ContractController@loadAddContactFromCompany')->name('contacts/loadAddContactFromCompany');
-    Route::post('contacts/loadAddContactFromInvoice', 'ContractController@loadAddContactFromInvoice')->name('contacts/loadAddContactFromInvoice');
     Route::post('contacts/loadAllClient', 'ContractController@loadAllClient')->name('contacts/loadAllClient');
     
     //Company

@@ -9,7 +9,7 @@
     @csrf
     <input class="form-control" value="fromCase" id="fromCase" name="fromCase" type="hidden" placeholder="M">
 
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/client/addClientFromCase.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-4">
@@ -350,7 +350,7 @@
             return false;
         }
 
-        var dataString = $("form").serialize();
+        var dataString = $("#createNewUser").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/saveAddContact", // json datasource

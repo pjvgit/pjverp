@@ -2,7 +2,7 @@
 <div class="row">
             
     <div class="col-lg-4 col-md-6 col-sm-6">
-        <a data-toggle="modal" data-target="#addContact" data-placement="bottom"  onclick="addContact();" href="javascript:;" >
+        <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom"  onclick="AddContactModal();" href="javascript:;" >
    
             <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
             <div class="card-body text-center"><i class="i-Add-User"></i>

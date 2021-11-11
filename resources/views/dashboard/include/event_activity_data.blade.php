@@ -20,7 +20,7 @@
         @endphp
         <a class="name" href="{{ $url }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
         {{$v->activity}}
-        @if($v->deleteEvents == null) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->event_title}} </a> @else {{$v->eventTitle}} @endif
+        @if($v->deleteEvents == null) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->eventTitle}} </a> @else {{$v->eventTitle}} @endif
         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
         <?php  if($v->event_for_case!=NULL){  ?>
             <a class="name" href="{{ route('info', $v->events_for['case_unique_number']) }}">{{$v->events_for['case_title']}}</a>

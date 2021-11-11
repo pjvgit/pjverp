@@ -849,68 +849,29 @@ class ContractController extends BaseController
     }
     public function loadAddContact(Request $request)
     {
-       DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
-       $contractUserID=base64_decode($request->user_id);
-       $ClientGroup=ClientGroup::where("status","1");
-       $getChildUsers=$this->getParentAndChildUserIds();
-       $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
-
-       $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
-       $country = Countries::get();
-       $case_id='';
-       if(isset($request->case_id)){
-           $case_id=$request->case_id;
-       }
-       $client_portal_access=Firm::find(Auth::User()->firm_name);
-       return view('client.addClient',compact("country",'ClientGroup','CompanyList','case_id','client_portal_access'));
-    }
-    public function loadAddContactFromInvoice(Request $request)
-    {
-       DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
-       $contractUserID=base64_decode($request->user_id);
-       $ClientGroup=ClientGroup::where("status","1");
-       $getChildUsers=$this->getParentAndChildUserIds();
-       $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
-
-       $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
-       $country = Countries::get();
-       $case_id='';
-       if(isset($request->case_id)){
-           $case_id=$request->case_id;
-       }
-       $client_portal_access=Firm::find(Auth::User()->firm_name);
-       return view('client.addClientFromInvoice',compact("country",'ClientGroup','CompanyList','case_id','client_portal_access'));
-    }
-    public function loadAddContactFromCompany(Request $request)
-    {
         DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->delete();
-       $contractUserID=base64_decode($request->user_id);
-       $ClientGroup=ClientGroup::where("status","1");
-       $getChildUsers=$this->getParentAndChildUserIds();
-       $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
-       $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
-       $country = Countries::get();
-       $company_id=$request->company_id;
-       $client_portal_access=Firm::find(Auth::User()->firm_name);
+        $contractUserID=base64_decode($request->user_id);
+        $ClientGroup=ClientGroup::where("status","1");
+        $getChildUsers=$this->getParentAndChildUserIds();
+        $ClientGroup=$ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
 
-       return view('client.addClientFromCompany',compact("country",'ClientGroup','CompanyList','company_id','client_portal_access'));
-    }
-    public function loadAddContactFromCase(Request $request)
-    {
-       $contractUserID=base64_decode($request->user_id);
-       $ClientGroup=ClientGroup::where("status","1");
-       $getChildUsers=$this->getParentAndChildUserIds();
-       $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();          
-
-       $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
-       $country = Countries::get();
-       $case_id='';
-       if(isset($request->case_id)){
-           $case_id=$request->case_id;
-       }
-       $client_portal_access=Firm::find(Auth::User()->firm_name);
-
-       return view('client.addClientFromCase',compact("country",'ClientGroup','CompanyList','case_id','client_portal_access'));
+        $CompanyList= userCompanyList();
+        $country = Countries::get();
+        $case_id='';
+        if(isset($request->case_id)){
+            $case_id.=$request->case_id;
+        }
+        $company_id='';
+        if(isset($request->company_id)){
+            $company_id.=$request->company_id;
+        }
+        $adjustment_token = '';
+        if(isset($request->adjustment_token)){
+            $adjustment_token.=$request->adjustment_token;
+        }
+        
+        $client_portal_access=Firm::find(Auth::User()->firm_name);
+        return view('client.addClient',compact("country",'ClientGroup','CompanyList','case_id','company_id','client_portal_access','adjustment_token'));
     }
     public function saveAddContact(Request $request)
     {
@@ -940,12 +901,15 @@ class ContractController extends BaseController
             if(isset($request->country)) { $user->country=$request->country; }
             if(isset(Auth::User()->firm_name)) { $user->firm_name=Auth::User()->firm_name; }
             
+            if(isset($request->contact_group)) { 
+                $ClientGroup=ClientGroup::find($request->contact_group);
+                $user->user_title=$ClientGroup->group_name; 
+            } else { $user->user_title="Client";}
 
             $user->token  = Str::random(40);
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "1";  // Default status is active for client.
             $user->user_level  = "2";  // Default status is inactive once verified account it will activated.
-            $user->user_title = "Client";
             $user->created_by =Auth::User()->id;
             $user->save();
             session(['clientId' => $user->id]);
@@ -1098,7 +1062,7 @@ class ContractController extends BaseController
         $getChildUsers=$this->getParentAndChildUserIds();
         $ClientGroup = $ClientGroup->whereIn("created_by",$getChildUsers)->orWhere('created_by',"0")->get();   
        
-       $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
+        $CompanyList=userCompanyList();
        $country = Countries::get();
        $userData=User::find($user_id);
        $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$user_id)->first();
@@ -1574,7 +1538,7 @@ class ContractController extends BaseController
 
     public function realoadCompanySelection(Request $request)
     {
-        $CompanyList=User::where("user_level","4")->where("parent_user",Auth::User()->id)->get();
+        $CompanyList=userCompanyList();
         // $selectdCompany=User::select('id')->where("firm_name",Auth::User()->firm_name)->where("created_by",Auth::User()->id)->pluck("id")->toArray();    
         $selectdCompany=TempUserSelection::select("selected_user")->where("user_id",Auth::user()->id)->pluck("selected_user")->toArray();  
         if(isset($request->client_id)){

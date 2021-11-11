@@ -1168,28 +1168,6 @@
     </div>
 </div>
 
-
-<div id="AddContactModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Add Contact</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div id="step-1-again">
-                        </div>
-                    </div>
-                </div><!-- end of main-content -->
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="AddBulkUserModal" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-xl">
@@ -1560,7 +1538,8 @@
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/loadAddContactFromCase", // json datasource
+                // url: baseUrl + "/contacts/loadAddContactFromCase", // json datasource
+                url:  baseUrl +"/contacts/loadAddContact", // json datasource
                 data: 'loadStep1',
                 success: function (res) {
                     $("#step-1-again").html(res);
