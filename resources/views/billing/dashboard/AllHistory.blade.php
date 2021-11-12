@@ -5,30 +5,19 @@ if(!$commentData->isEmpty()){ ?>
     role="grid" bladename="resources/views/billing/dashboard/AllHistory.blade.php">
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>
-        <?php if($v->type=="document"){?>
-            @include('dashboard.include.document_activity_data')
-        <?php } else if($v->type=="deposit"){?>
+        <?php if($v->type=="invoices" || $v->type=="lead_invoice"){?>
+            @include('dashboard.include.invoice_activity_data')
+        <?php }else if($v->type=="deposit"){?>
             @include('dashboard.include.deposit_activity_data')
-        <?php } else if($v->type=="task"){?>
-            @include('dashboard.include.task_activity_data')
-        <?php }else if($v->type=="event"){?>
-            @include('dashboard.include.event_activity_data')
-        <?php }else if($v->type=="notes"){?>
-            @include('dashboard.include.notes_activity_data')
-        <?php } else if($v->type=="expenses"){ ?>
+        <?php }else if($v->type=="expenses"){ ?>
             @include('dashboard.include.expenses_activity_data')
         <?php }else if($v->type=="time_entry"){ ?>
             @include('dashboard.include.time_entry_activity_data')
-        <?php }else if($v->type=="invoices" || $v->type=="lead_invoice"){ ?>
-            @include('dashboard.include.invoice_activity_data')
-        <?php } ?>
-        @if($v->type == "credit")
+        <?php }else if($v->type=="credit"){ ?>
             @include('dashboard.include.credit_activity_data')
-        @elseif($v->type =="fundrequest")
+        <?php }else if($v->type=="fundrequest"){ ?>
             @include('dashboard.include.fundrequest_activity_data')
-        @elseif($v->type == "user")
-            @include('dashboard.include.user_activity_data')
-        @endif
+        <?php } ?>
     <?php } ?>
     </tbody>
 </table>

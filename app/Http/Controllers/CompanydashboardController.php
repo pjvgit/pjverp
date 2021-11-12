@@ -554,8 +554,7 @@ class CompanydashboardController extends BaseController
                 $LeadNotes->is_publish="yes";
                 $LeadNotes->is_draft="no";
                 $LeadNotes->save();
-
-                
+                                
                 $data=[];
                 $data['case_id']=NULL;
                 if($LeadNotes['client_id']!=NULL){

@@ -83,7 +83,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'cases')             
-                <tr>
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-case-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -129,7 +129,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'calendars')             
-                <tr>
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-calendar-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -175,7 +175,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'documents')             
-                <tr>
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-documents-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -221,7 +221,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'tasks')             
-                <tr>
+                <tr  srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-task-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -259,11 +259,11 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
-                @if($v->type == 'tasks')             
-                <tr>
+                @if($v->type == 'billings')             
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
-                        <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-time-billing-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
+                      <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-time-billing-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
                         <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-time-billing-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -298,7 +298,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'contacts')             
-                <tr>
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-contact-email" data-method="1" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_email == 'yes')  ? 'checked="checked"' :''; ?>>
@@ -337,7 +337,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                 <tbody>
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'firms')             
-                <tr>
+                <tr srid={{$k}}>
                   <td>{{$v->topic}}</td>
                     <td class="text-center">
                         <input type="checkbox" name="email[{{$v->id}}]" id="email_{{$v->id}}" value="1" class="email-toggle all-firm-email" data-method="1" 

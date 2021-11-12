@@ -94,19 +94,7 @@ if(!isset($adjustment_token)){
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
-                                                    <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
-                                                        class="custom-select select2Dropdown" style="width: 70%;">
-                                                        <option value=""></option>
-                                                        <option value="none">None</option>
-                                                        <?php foreach($caseListByClient as $key=>$val){ ?>
-                                                        <option
-                                                            <?php if($val->id==$client_id){ echo "selected=selected";} ?>
-                                                            value="{{$val->id}}"
-                                                            <?php if($val->id==$case_id){ echo "selected=selected";} ?>>
-                                                            {{substr($val->case_title,0,200)}}
-                                                        </option>
-                                                        <?php } ?>
-                                                    </select>
+                                                    Please select a client
                                                 </div>
                                                 <span id="2Error"></span>
                                             </div>

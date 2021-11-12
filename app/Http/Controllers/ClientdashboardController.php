@@ -2006,11 +2006,7 @@ class ClientdashboardController extends BaseController
         $clientLists=$user->get();
 
         //Get firm user list 
-        $loadFirmUser = User::select("first_name","last_name","id")
-        ->where("firm_name",Auth::user()->firm_name)
-        ->whereIn("user_level",['1','3'])
-        ->doesntHave("deactivateUserDetail")
-        ->orderBy("id","DESC")->get();
+        $loadFirmUser = firmUserList();
         
         //Get all active case list with client portal enabled.
         $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");

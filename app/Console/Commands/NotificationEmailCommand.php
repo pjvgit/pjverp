@@ -69,7 +69,8 @@ class NotificationEmailCommand extends Command
             ->get();
         Log::info("History data for ". date('Y-m-d').' : '. count($commentData));
         
-        $arrData = [];
+        $firmData = [];
+        $staffData = [];
         foreach($commentData as $key=>$val){            
             // echo $val->historyID;echo PHP_EOL;
             // echo $val->createdBy;echo PHP_EOL;
@@ -81,8 +82,8 @@ class NotificationEmailCommand extends Command
                 // echo $val->historyID;echo PHP_EOL;
                 // echo "*******************";echo PHP_EOL;
                 $preparedFor = substr($firmDetail->first_name,0,100).' '.substr($firmDetail->last_name,0,100).'|'.$firmDetail->email;
-                $arrData[$preparedFor][$key] = $val;
-                $arrData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
+                $firmData[$preparedFor][$key] = $val;
+                $firmData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
             }
             
             if($val->caseFirm->parent_user_id == $val->createdBy){
@@ -94,34 +95,50 @@ class NotificationEmailCommand extends Command
                         ->orderBy('first_name','asc')->get();
                 foreach($firmUserDetails as $k => $staff) {
                     $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email;
-                    $arrData[$preparedFor][$key] = $val;
-                    $arrData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
+                    $staffData[$preparedFor][$key] = $val;
+                    $staffData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
                 }
             }
         }
         // $notificationSetting = NotificationSetting::all();
         // $userNotificationSetting = DB::table('user_notification_settings')->where('user_id',auth()->id())->get();
         // $UsersAdditionalInfo = DB::table('user_notification_interval')->where('user_id',auth()->id())->first();
-
-        $arrData = array_map('array_values', $arrData);
-        $caseData = [];
-        foreach($arrData as $key => $item) {
-            foreach($item as $k => $v){
-                if($v->case_id !=NULL){
-                    $caseData[$v->case_title][] = $v;
-                }
-                $firmDetail = @$v->logo_url;
-            }
-            echo $key;echo PHP_EOL;
-            $explodeKey = explode('|', $key);            
-            $preparedFor = $explodeKey[0];
-            $preparedEmail = $explodeKey[1];
-            // dd($item);
-            Log::info("Email send to >". $preparedEmail);
-            \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
-            \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
-        }
         
+        $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
+        FROM user_notification_settings uns
+        left join notification_settings ns on ns.id = uns.notification_id 
+        where uns.user_id =11133');
+        
+        // for firm User
+        $firmData = array_map('array_values', $firmData);
+        $caseData = [];
+        foreach($firmData as $key => $item) {
+            if(count($item) > 0) {
+                foreach($item as $k => $v){
+                    // echo $v->action .'-->'. $v->type; echo PHP_EOL;
+                    // foreach($userNotificationSetting as $n => $setting){
+                    //     echo $v->type .'-->'. $setting->sub_type; echo PHP_EOL;
+                    //     if($v->type == $setting->sub_type)
+                    //     {
+                            
+                    //     }
+                    // }
+                    if($v->case_id !=NULL){
+                        $caseData[$v->case_title][] = $v;
+                    }
+                    $firmDetail = @$v->logo_url;
+                }
+                
+                echo $key;echo PHP_EOL;
+                $explodeKey = explode('|', $key);            
+                $preparedFor = $explodeKey[0];
+                $preparedEmail = $explodeKey[1];
+                // dd($item);
+                Log::info("Email send to >". $preparedEmail);
+                // \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
+                \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
+            }
+        }
         Log::info("Activity notification reminder Command End : ". date('Y-m-d H:i:s'));
     }
 }

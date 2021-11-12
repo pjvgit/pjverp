@@ -1025,7 +1025,6 @@ class UserController extends BaseController
     }
 
     public function notificationSetting(){
-        $this->bulkInsertUserActivity(auth()->id());
         $notificationSetting = NotificationSetting::all();
         $userNotificationSetting = DB::table('user_notification_settings')->where('user_id',auth()->id())->get();
         $UsersAdditionalInfo = DB::table('user_notification_interval')->where('user_id',auth()->id())->first();

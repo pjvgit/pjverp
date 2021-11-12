@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-
 </head>
 <body style="background-color: #ffff;margin: 0px;padding: 20px;border: 0px;">
     <table style="padding:30px;margin:0 auto;max-width:600px;background-color:#ffff;box-sizing:border-box;border-collapse:collapse">
@@ -51,24 +50,20 @@
 
                     </td>
                 </tr>
-
                 </tbody>
                 </table>
-
-
-
                 <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" width="619" cellpadding="0">
 
                 <tbody>
                     <tr height="75" style="margin:0;padding:0;border:0">
 
-                <td style="padding:0;border:0;margin:0;color:#ffffff;font-size:18px;background:#004475 url(&quot;{{ asset('images/mail/table_banner.jpg')}}&quot;);font-family:Helvetica,Arial,sans-serif" bgcolor="#004475" background="{{ asset('images/mail/table_banner.jpg')}}" align="left">        
+                        <td style="padding:0;border:0;margin:0;color:#ffffff;font-size:18px;background:#004475 url(&quot;{{ asset('images/mail/table_banner.jpg')}}&quot;);font-family:Helvetica,Arial,sans-serif" bgcolor="#004475" background="{{ asset('images/mail/table_banner.jpg')}}" align="left">        
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         {{ date('F d, Y')}} 
                         &nbsp;
                         <span style="color:#aaaaaa"> {{date('H:ia')}}</span>
                         </td>
-                </tr>
+                    </tr>
                 </tbody>
                 </table>
 
@@ -84,9 +79,9 @@
                             <tr style="margin:0;padding:0;border:0">
 
                             <td style="padding:0;border:0;margin:0" cellpadding="0">
-                <br>
+                        <br>
 
-                            
+                        <?php $timeEntryCount = $expenseEntryCount = $notesCount = 0; ?>
                         @foreach($cases as $k => $case)
                         <table width="100%" bgcolor="#e0e0e0" style="padding:0;border:0;margin:0;margin-bottom:5px;background-color:#e0e0e0">
 
@@ -131,7 +126,6 @@
                         </tr>
                         </tbody>
                         </table>
-                        <?php $timeEntryCount = $expenseEntryCount = $notesCount = 0; ?>
                         @foreach($case as $i => $v)                            
                             @if($v->type == 'case')
                             <?php 
@@ -153,8 +147,6 @@
 
                                 <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
 
-
-
                                 <tbody>
                                     <tr>
 
@@ -175,17 +167,11 @@
 
                                 </td>
 
-                                </tr>
-
-
-
+                                </tr> 
                                 </tbody>
                                 </table>
-
                                 </td>
-
                                 </tr>
-
                                 </tbody>
                                 </table>
                             @endif
@@ -207,24 +193,19 @@
                             <tbody>
                                 <tr style="margin:0;padding:0;border:0">
 
-                            <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
 
                                 <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
                                 <tbody>
-                                    <tr>
-
+                                <tr>
                                 <td style="width:25px" width="25px">
-
                                 <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
-
                                 </td>
-
                                 <td style="font-size:12px">
-
                                 <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
                                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                                 </a> {{$v->activity}} 
-                                
+                              
                                 <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
                                 <?php } ?>
                                 
@@ -372,11 +353,14 @@
                             }
                             if($v->type == 'expenses'){
                                 $expenseEntryCount += 1;
-                            } ?>
+                            } 
+                            if($v->type == 'notes'){
+                                $notesCount += 1;
+                            } 
+                            ?>
                             @endforeach
                             <?php if($timeEntryCount > 0 || $expenseEntryCount > 0) { ?>
                             <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
-
                             <tbody>
                                 <tr style="margin:0;padding:0;border:0">
 
@@ -393,7 +377,7 @@
                                 </td>
 
                                 <td style="font-size:12px">
-                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode('11133')) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                                     added 
                                     <?php  if($timeEntryCount > 0) {?>
                                     {{$timeEntryCount}} time entries 
@@ -411,10 +395,41 @@
                                 </tbody>
                             </table>
                             <?php } ?>
+                            @if($notesCount > 0)
+                            <?php 
+                                $imageLink=[];
+                                $imageLink["add"]="activity_note_added.png";
+                                $imageLink["update"]="activity_note_updated.png";
+                                $imageLink["delete"]="activity_note_deleted.png";
+                                $image=$imageLink[$v->action];
+                            ?>                            
+                            <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+                            <tbody>
+                                <tr style="margin:0;padding:0;border:0">
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                <tbody>
+                                    <tr>
+                                    <td style="width:25px" width="25px">
+                                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                    </td>
+                                    <td style="font-size:12px">
+                                        <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                        {{$v->action}} {{$notesCount}} notes     
+                                    </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                                </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                            @endif
                         @endforeach
 
                         <br><br>
 
+                        @if(count($history) > 0)
 
                         <table width="100%" bgcolor="#e0e0e0" style="padding:0;border:0;margin:0;margin-bottom:5px;background-color:#e0e0e0">
 
@@ -451,226 +466,341 @@
                         </tbody>
                         </table>
 
-                <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+                            <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
 
-                <tbody>
-                    @foreach($history as $k => $v)
-                        @if($v->type == 'user')
-                        @php
-                            $imageLink=[];
-                            $imageLink["login"]="activity_client_login.png";
-                            $image=$imageLink[$v->action];
-                        @endphp  
-                        <tr style="margin:0;padding:0;border:0">          
-                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                            <tbody>
+                                @foreach($history as $k => $v)
+                                    @if($v->type == 'user')
+                                @php
+                                    $imageLink=[];
+                                    $imageLink["login"]="activity_client_login.png";
+                                    $image=$imageLink[$v->action];
+                                @endphp  
+                                <tr style="margin:0;padding:0;border:0">          
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
 
-                            <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                <tbody>
-                                    <tr>
+                                    <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                        <tbody>
+                                            <tr>
 
-                                    <td style="width:25px" width="25px">
+                                            <td style="width:25px" width="25px">
 
-                                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
 
-                                    </td>
+                                            </td>
 
-                                    <td style="font-size:12px">
+                                            <td style="font-size:12px">
 
-                                    <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }} {{"(".$v->utitle.")"}}</a>
-                                    {{$v->activity}} 
-                                    </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                        </td>
-                        </tr>
-                        @endif
-                        @if($v->type == 'contact')
-                        @if($v->case_id == null)
-                        <?php 
-                        $ImageArray=[];
-                        $ImageArray['add']="activity_client_added.png";
-                        $ImageArray['update']="activity_client_updated.png";
-                        $ImageArray['link']="activity_client_linked.png";
-                        $ImageArray['unlink']="activity_client_unlinked.png";
-                        $ImageArray["pay"]="activity_ledger_deposited.png";
-                        $ImageArray["change"]="activity_attorney_permissions.png";
-                        $ImageArray["archive"]="activity_attorney_archived.png";
-                        $ImageArray["unarchive"]="activity_lead_unarchived.png"; 
-                        $image=$ImageArray[$v->action];
-                        ?>
-                        <tr style="margin:0;padding:0;border:0">          
-                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-
-                            <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                <tbody>
-                                    <tr>
-
-                                    <td style="width:25px" width="25px">
-
-                                    <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
-                                    </td>
-                                    <td style="font-size:12px">
-                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
-                                            {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
-                                            </a> {{$v->activity}} 
-                                            
-                                            <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
-                                            <?php } if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
-                                            <?php } if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} {{"(".$v->user_title.")"}}</a>
-                                            <?php } if($v->ulevel=="5"){?> <a class="name" href="{{route('case_details/info',$v->client_id) }}">{{$v->fullname}} (Lead)</a>
-                                            <?php } if($v->case_title!=""){?>| <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
-                                            <?php } ?>
-                                    </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                        </td>
-                        </tr>
-                        @endif
-                        @endif                        
-                    
-                        @if($v->type == 'deposit')
-                            @if($v->case_id == null)
-                            <?php 
-                            $ImageArray=[];
-                            $ImageArray['add']="activity_bill_added.png";
-                            $ImageArray['update']="activity_bill_updated.png";
-                            $ImageArray['share']="activity_bill_shared.png";
-                            $ImageArray['delete']="activity_bill_deleted.png";
-                            $ImageArray["view"]="activity_bill_viewed.png";
-                        $image=$ImageArray[$v->action];
-                            ?>
-                            <tr style="margin:0;padding:0;border:0">          
-                            <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-
-                                <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                    <tbody>
-                                        <tr>
-
-                                        <td style="width:25px" width="25px">
-
-                                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
-                                        </td>
-                                        <td style="font-size:12px">
-                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
-                                                {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
-                                            </a> 
-                                                {{$v->activity}} 
-                                            <?php if($v->deposit_id){ ?>
-                                                #R-{{sprintf('%05d', $v->deposit_id)}}
-                                            <?php } if($v->ulevel=="2" && $v->deposit_for){?>
-                                                <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
-                                            <?php } if($v->ulevel=="4" && $v->deposit_for){?>
-                                                <a class="name" href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
-                                            <?php } if($v->ulevel=="5"  && $v->deposit_for != ''){ ?>
-                                                for <a class="name" href="{{ route('case_details/invoices', @$v->deposit_for) }}">{{$v->fullname}} (Lead)</a>
-                                            <?php } ?>                                        
-                                        </td>
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </td>
-                            </tr>
-                            @endif
-                            @endif
-                            @if($v->type == 'task')
-                            @if($v->case_id == null)
-                            <?php 
-                            $imageLink=[];
-                            $imageLink["add"]="activity_task_added.png";
-                            $imageLink["update"]="activity_task_updated.png";
-                            $imageLink["delete"]="activity_task_deleted.png";
-                            $imageLink["incomplete"]="activity_task_incomplete.png";
-                            $imageLink["complete"]="activity_task_completed.png";
-                            $imageLink["view"]="activity_bill_viewed.png";
-                            $image=$imageLink[$v->action];
-                            ?>
-                            <tr style="margin:0;padding:0;border:0">          
-                            <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-
-                                <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                    <tbody>
-                                        <tr>
-
-                                        <td style="width:25px" width="25px">
-
-                                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
-                                        </td>
-                                        <td style="font-size:12px">
-                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
-                                                {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
-                                            </a> 
+                                            <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{ $v->fullname }} {{"(".$v->utitle.")"}}</a>
                                             {{$v->activity}} 
-                                            @if($v->deleteTasks == null) <a class="name" href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->taskTitle}} @else {{$v->taskTitle}} @endif</a> 
+                                            </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </td>
+                                </tr>
+                                @endif
+                                @if($v->type == 'contact')
+                                @if($v->case_id == null)
+                                <?php 
+                                $ImageArray=[];
+                                $ImageArray['add']="activity_client_added.png";
+                                $ImageArray['update']="activity_client_updated.png";
+                                $ImageArray['link']="activity_client_linked.png";
+                                $ImageArray['unlink']="activity_client_unlinked.png";
+                                $ImageArray["pay"]="activity_ledger_deposited.png";
+                                $ImageArray["change"]="activity_attorney_permissions.png";
+                                $ImageArray["archive"]="activity_attorney_archived.png";
+                                $ImageArray["unarchive"]="activity_lead_unarchived.png"; 
+                                $image=$ImageArray[$v->action];
+                                ?>
+                                <tr style="margin:0;padding:0;border:0">          
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+
+                                    <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                        <tbody>
+                                            <tr>
+
+                                            <td style="width:25px" width="25px">
+
+                                            <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            </td>
+                                            <td style="font-size:12px">
+                                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                                                    {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                                                    </a> {{$v->activity}} 
+                                                    
+                                                    <?php if($v->ulevel=="2"){?> <a class="name" href="{{ route('contacts/clients/view', $v->client_id) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
+                                                    <?php } if($v->ulevel=="4"){?> <a class="name" href="{{route('contacts/companies/view',$v->client_id) }}">{{$v->fullname}} (Company)</a>
+                                                    <?php } if($v->ulevel=="3"){?> <a class="name" href="{{route('contacts/attorneys/info',base64_encode($v->client_id)) }}">{{$v->fullname}} {{"(".$v->user_title.")"}}</a>
+                                                    <?php } if($v->ulevel=="5"){?> <a class="name" href="{{route('case_details/info',$v->client_id) }}">{{$v->fullname}} (Lead)</a>
+                                                    <?php } if($v->case_title!=""){?>| <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
+                                                    <?php } ?>
+                                            </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </td>
+                                </tr>
+                                @endif
+                                @endif                        
+                            
+                                @if($v->type == 'deposit')
+                                    @if($v->case_id == null)
+                                    <?php 
+                                    $ImageArray=[];
+                                    $ImageArray['add']="activity_bill_added.png";
+                                    $ImageArray['update']="activity_bill_updated.png";
+                                    $ImageArray['share']="activity_bill_shared.png";
+                                    $ImageArray['delete']="activity_bill_deleted.png";
+                                    $ImageArray["view"]="activity_bill_viewed.png";
+                                $image=$ImageArray[$v->action];
+                                    ?>
+                                    <tr style="margin:0;padding:0;border:0">          
+                                    <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+
+                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                            <tbody>
+                                                <tr>
+
+                                                <td style="width:25px" width="25px">
+
+                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                                </td>
+                                                <td style="font-size:12px">
+                                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                                                        {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                                                    </a> 
+                                                        {{$v->activity}} 
+                                                    <?php if($v->deposit_id){ ?>
+                                                        #R-{{sprintf('%05d', $v->deposit_id)}}
+                                                    <?php } if($v->ulevel=="2" && $v->deposit_for){?>
+                                                        <a class="name" href="{{ route('contacts/clients/view', $v->deposit_for) }}">{{$v->fullname}} {{"(".$v->utitle.")"}}</a>
+                                                    <?php } if($v->ulevel=="4" && $v->deposit_for){?>
+                                                        <a class="name" href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->fullname}} (Company)</a>
+                                                    <?php } if($v->ulevel=="5"  && $v->deposit_for != ''){ ?>
+                                                        for <a class="name" href="{{ route('case_details/invoices', @$v->deposit_for) }}">{{$v->fullname}} (Lead)</a>
+                                                    <?php } ?>                                        
+                                                </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </td>
+                                    </tr>
+                                    @endif
+                                    @endif
+                                    @if($v->type == 'task')
+                                    @if($v->case_id == null)
+                                    <?php 
+                                    $imageLink=[];
+                                    $imageLink["add"]="activity_task_added.png";
+                                    $imageLink["update"]="activity_task_updated.png";
+                                    $imageLink["delete"]="activity_task_deleted.png";
+                                    $imageLink["incomplete"]="activity_task_incomplete.png";
+                                    $imageLink["complete"]="activity_task_completed.png";
+                                    $imageLink["view"]="activity_bill_viewed.png";
+                                    $image=$imageLink[$v->action];
+                                    ?>
+                                    <tr style="margin:0;padding:0;border:0">          
+                                    <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+
+                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                            <tbody>
+                                                <tr>
+
+                                                <td style="width:25px" width="25px">
+
+                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                                </td>
+                                                <td style="font-size:12px">
+                                                    <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                                                        {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                                                    </a> 
+                                                    {{$v->activity}} 
+                                                    @if($v->deleteTasks == null) <a class="name" href="{{ route('tasks',['id'=>$v->task_id]) }}"> {{$v->taskTitle}} @else {{$v->taskTitle}} @endif</a> 
+                                                </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </td>
+                                    </tr>
+                                    @endif
+                                    @endif 
+                                    @if($v->type == 'event')
+                                    <?php 
+                                        $imageLink=[];
+                                        $imageLink["add"]="activity_event_added.png";
+                                        $imageLink["update"]="activity_event_updated.png";
+                                        $imageLink["delete"]="activity_event_deleted.png";
+                                        $imageLink["comment"]="activity_event_commented.png";
+                                        $image=$imageLink[$v->action];
+                                    ?>
+                                    
+                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+
+                                    <tbody>
+                                        <tr style="margin:0;padding:0;border:0">
+
+                                    <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+
+                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                        <tbody>
+                                            <tr>
+
+                                        <td style="width:25px" width="25px">
+
+                                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+
+                                        </td>
+
+                                        <td style="font-size:12px">
+                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                            {{$v->activity}}
+                                            @if($v->deleteEvents == null) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->eventTitle}} </a> @else {{$v->eventTitle}} @endif
+                                        </td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                    </td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                    @endif
+                                    <?php  if($v->type == 'time_entry'){
+                                        $timeEntryCount += 1;
+                                    }
+                                    if($v->type == 'expenses'){
+                                        $expenseEntryCount += 1;
+                                    } 
+                                    if($v->type == 'notes'){
+                                        $notesCount += 1;
+                                    } 
+                                    ?>
+                                    @endforeach
+                                    <?php if($timeEntryCount > 0 || $expenseEntryCount > 0) { ?>
+                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+
+                                    <tbody>
+                                        <tr style="margin:0;padding:0;border:0">
+
+                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+
+                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                        <tbody>
+                                            <tr>
+
+                                        <td style="width:25px" width="25px">
+
+                                        <img src="{{ asset('icon/activity_time-entry_added.png') }}" width="27" height="21" class="CToWUd">
+
+                                        </td>
+
+                                        <td style="font-size:12px">
+                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                            {{$v->action}} 
+                                            <?php  if($timeEntryCount > 0) {?>
+                                            {{$timeEntryCount}} time entries 
+                                            <?php } if($timeEntryCount > 0 && $expenseEntryCount > 0) { ?>
+                                                and
+                                            <?php } if($expenseEntryCount > 0) {?>
+                                            {{$expenseEntryCount}} expenses
+                                            <?php } ?>
+                                        </td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                    </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <?php } ?>           
+                                    @if($notesCount > 0)
+                                    <?php 
+                                        $imageLink=[];
+                                        $imageLink["add"]="activity_note_added.png";
+                                        $imageLink["update"]="activity_note_updated.png";
+                                        $imageLink["delete"]="activity_note_deleted.png";
+                                        $image=$imageLink[$v->action];
+                                    ?>                            
+                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+                                    <tbody>
+                                        <tr style="margin:0;padding:0;border:0">
+                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                        <tbody>
+                                            <tr>
+                                            <td style="width:25px" width="25px">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            </td>
+                                            <td style="font-size:12px">
+                                                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
+                                                {{$v->action}} {{$notesCount}} notes     
+                                            </td>
+                                            </tr>
+                                        </tbody>
+                                        </table>
                                         </td>
                                         </tr>
                                     </tbody>
+                                    </table>
+                                    @endif
+                        </tbody>
+                        </table>
+
+                        <br><br>
+                        @endif
+                        <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+
+                        <tbody><tr style="margin:0;padding:0;border:0">
+
+                        <td style="padding:0;border:0;margin:0;text-align:left;width:8px" cellpadding="0" align="left" width="8px">
+
+                        &nbsp;
+
+                        </td>
+
+                        <td style="width:32px;text-align:center" width="32px" align="center">
+
+                        <img src="{{ asset('icon/gear.png') }}" width="16" height="16" class="CToWUd">
+
+                        </td>
+
+                        <td>
+
+                        <p style="margin-top:15px;margin-bottom:10px;padding:0;font-size:13px;line-height:18px;font-family:Helvetica,Arial,sans-serif;color:#000000;margin:0px;padding:0px;font-size:12px">
+
+                        Change the content and/or frequency of these emails -
+
+                        <a href="{{route('account/notifications')}}" style="color:#0069be;text-decoration:none" target="_blank" data-saferedirecturl="{{route('account/notifications')}}">Edit your email settings</a>
+
+                        </p>
+
+                        </td>
+
+                        </tr>
+
+                                </tbody>
                                 </table>
-
                             </td>
+
                             </tr>
-                            @endif
-                            @endif                         
-                    @endforeach
-                </tbody>
-                </table>
 
-                <br><br>
+                        </tbody>
+                        </table>
 
-                <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+                        </td>
 
-                <tbody><tr style="margin:0;padding:0;border:0">
-
-                <td style="padding:0;border:0;margin:0;text-align:left;width:8px" cellpadding="0" align="left" width="8px">
-
-                &nbsp;
-
-                </td>
-
-                <td style="width:32px;text-align:center" width="32px" align="center">
-
-                <img src="{{ asset('icon/gear.png') }}" width="16" height="16" class="CToWUd">
-
-                </td>
-
-                <td>
-
-                <p style="margin-top:15px;margin-bottom:10px;padding:0;font-size:13px;line-height:18px;font-family:Helvetica,Arial,sans-serif;color:#000000;margin:0px;padding:0px;font-size:12px">
-
-                Change the content and/or frequency of these emails -
-
-                <a href="{{route('account/notifications')}}" style="color:#0069be;text-decoration:none" target="_blank" data-saferedirecturl="{{route('account/notifications')}}">Edit your email settings</a>
-
-                </p>
-
-                </td>
-
-                </tr>
+                    </tr>
 
                 </tbody>
-                </table>
-            </td>
-
-            </tr>
-
-          </tbody>
-        </table>
-
-                </td>
-
-        </tr>
-
-        </tbody>
-        </table>
-
-        
+                </table>        
                 <table cellspacing="0" border="0" style="padding: 0; border: 0; margin: 0; background-image: url(&quot;{{ asset('images/mail/table_footer.jpg') }}&quot;); background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; background-color: initial"
                     bgcolor="#ffffff" width="601" cellpadding="0">
 

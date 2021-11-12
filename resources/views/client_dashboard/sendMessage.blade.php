@@ -12,13 +12,13 @@
                         multiple>
                         <optgroup label="Contact">
                             <?php foreach($clientLists as $clientekey=>$clientval){ ?>
-                                <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo ($_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
+                                <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
                                     {{substr($clientval->first_name,0,100)}} {{substr($clientval->last_name,0,100)}} </option>
                                     <?php } ?>
                         </optgroup>
                         <optgroup label="Companies">
                             <?php foreach($CaseMasterCompany as $companykey=>$companyval){ ?>
-                            <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo ($_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
+                            <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
                                 {{substr($companyval->first_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
@@ -31,7 +31,7 @@
                         </optgroup>
                         <optgroup label="Firm Users">
                             <?php foreach($loadFirmUser as $staffkey=>$staffval){ ?>
-                            <option uType="staff" data-set="staff" value="staff-{{$staffval->id}}" <?php echo ($_REQUEST['id'] == $staffval->id) ? "selected" : ""; ?> >
+                            <option uType="staff" data-set="staff" value="staff-{{$staffval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $staffval->id) ? "selected" : ""; ?> >
                                 {{substr($staffval->first_name,0,100)}} {{substr($staffval->last_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
@@ -111,7 +111,7 @@
                     data-placeholder="Type a name">
                     <option></option>
                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                    <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo ($_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>
+                    <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>
                         {{substr($Caseval->case_title,0,100)}}
                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
                     <?php } ?>

@@ -152,7 +152,11 @@ trait CreditAccountTrait {
             if($invoice->is_sent  == "yes") {
                 $status = "Sent";    
             }else{
-                $status = $invoice->status;
+                if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                    $status="Overdue";
+                } else{
+                    $status = $invoice->status;
+                }
             }
         } elseif($invoice->total_amount == $remainPaidAmt) {
             $status = "Paid";
