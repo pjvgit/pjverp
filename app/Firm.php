@@ -26,4 +26,14 @@ class Firm extends Authenticatable
     {
         return !empty($this->firm_logo) ? asset('upload/firm/'.$this->firm_logo) : asset('images/logo-new.png');
     }
+
+    /**
+     * Get all of the user for the Firm
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function user()
+    {
+        return $this->hasMany(User::class, 'firm_name');
+    }
 }

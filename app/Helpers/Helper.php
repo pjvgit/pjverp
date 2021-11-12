@@ -13,6 +13,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * Get lead list for add task
@@ -559,7 +560,7 @@ function getDueText($dueDate)
 function encodeDecodeId($id, $type)
 {
     if($type == "encode")
-        return base64_encode($id);
+        return Crypt::encrypt($id);
     else
-        return base64_decode($id);
+        return Crypt::decrypt($id);
 }

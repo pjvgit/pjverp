@@ -8,7 +8,7 @@
             @if(count($invoices) || count($requestFunds))
                 @forelse ($invoices as $key => $item)
                     <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
-                        <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-8 col-md-10">
+                        <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-8 col-md-10 billing-list">
                             {{-- <span class="payable-row__icon payable-row__icon-unpaid"><i class="fas fa-dollar-sign"></i></span> --}}
                             <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                             <div class="list-row__body">
@@ -25,7 +25,7 @@
                 @endforelse
                 @forelse ($requestFunds as $key => $item)
                     <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
-                        <a href="{{ route('client/bills/request/detail', base64_encode($item->id)) }}" class="col-8 col-md-10">
+                        <a href="{{ route('client/bills/request/detail', base64_encode($item->id)) }}" class="col-8 col-md-10 billing-list">
                             {{-- <span class="payable-row__icon payable-row__icon-unpaid"><i class="fas fa-dollar-sign"></i></span> --}}
                             <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                             <div class="list-row__body">

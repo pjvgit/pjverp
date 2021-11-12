@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Firm;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -21,14 +22,25 @@ class AuthController extends Controller
         $verifyUser = User::where('token', $token)->first();
         
         if(isset($verifyUser) ) {
-            if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
+            $existVerifiedUser = User::whereEmail($verifyUser->email)->whereVerified(1)->whereNotNull('password')->first();
+            if($existVerifiedUser) {
+                $verifyUser->user_status = 1;
+                $verifyUser->verified = 1;
+                $verifyUser->password = $existVerifiedUser->password;
+                $verifyUser->user_timezone = $existVerifiedUser->user_timezone;
+                $verifyUser->save();
+
                 return redirect()->route('get/client/profile', $token);
-            }else{
-                if($request->forgot_password) {
-                    return view("client_portal.auth.forgot_password", ['user' => $verifyUser]);
-                } else {
-                    $status = EMAIL_VERIFIED;
-                    return redirect()->route('setup/client/profile', $token);
+            } else {
+                if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
+                    return redirect()->route('get/client/profile', $token);
+                }else{
+                    if($request->forgot_password) {
+                        return view("client_portal.auth.forgot_password", ['user' => $verifyUser]);
+                    } else {
+                        $status = EMAIL_VERIFIED;
+                        return redirect()->route('setup/client/profile', $token);
+                    }
                 }
             }
         }else{
@@ -63,7 +75,8 @@ class AuthController extends Controller
                 'password' => Hash::make(trim($request->password)),
                 'user_timezone'=>$request->user_timezone,
                 'verified'=>"1",
-                'user_status'=>"1"
+                'user_status'=>"1",
+                'is_primary_account' => "yes",
             ])->save();
  
             if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
@@ -130,6 +143,14 @@ class AuthController extends Controller
                     $data['action']='login';
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);
+
+                    $getUserFirms = User::whereEmail($user->email)->whereHas("userAdditionalInfo", function($query) {
+                                        $query->where("client_portal_enable", '1');
+                                    })->count();
+                    if($getUserFirms > 1) {
+                        return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
+                    }
+
                     return redirect()->route('client/home')->with('success','Login Successfully');
                 } else {
                     Auth::logout();
@@ -167,5 +188,42 @@ class AuthController extends Controller
         session()->put('local_timezone', $timezone_name);
         // Asia/Kolkata
         echo $timezone_name;
+    }
+
+    /**
+     * Get switch account view 
+     */
+    public function getSwitchAccount($id, Request $request)
+    {
+        Auth::logout();
+        $clientId = encodeDecodeId($id, 'decode');
+        $client = User::whereId($clientId)->first();
+        $firms = Firm::whereHas("user", function($query) use($client) {
+                    $query->whereEmail($client->email)->where("user_level", '2')
+                    ->whereHas("userAdditionalInfo", function($q) {
+                        $q->where("client_portal_enable", '1');
+                    });
+                })->with(['user' => function($query) use($client) {
+                    $query->whereEmail($client->email)->where("user_level", '2');
+                }])->get();
+        return view('client_portal.auth.switch_account', compact('client', 'firms'));
+    }
+
+    /**
+     * LOgin to selected user account
+     */
+    public function loginUserAccount(Request $request)
+    {
+        $clientId = encodeDecodeId($request->client_id, 'decode');
+        $client = User::whereId($clientId)->where("user_level", '2')->where("user_status", '1')->whereHas("userAdditionalInfo", function($q) {
+                        $q->where("client_portal_enable", '1');
+                    })->first();
+        if($client) {
+            Auth::login($client);
+            return redirect()->route('client/home')->with('success','Login Successfully');
+        } else {
+            session()->flush();
+            return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+        }
     }
 }

@@ -90,6 +90,7 @@
                     <label class="nav-link" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Account</label>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                         <a href="{{ route('client/account') }}" class="dropdown-item" >Settings</a>
+                        <a href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" class="dropdown-item" >Switch Account</a>
                         <a href="{{ route('terms/client/portal') }}" class="dropdown-item">Terms</a>
                         <a href="{{ route('privacy') }}" class="dropdown-item">Privacy Policy</a>
                         <a data-toggle="modal" data-target="#logoutModel" data-placement="bottom" href="javascript:;" class="dropdown-item">Sign out </a>

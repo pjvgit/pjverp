@@ -174,7 +174,8 @@
                     <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
                     data-placement="bottom" href="javascript:;"
                     onclick="loadEventComment({{$vv->id}});">
-                    <i class="fas fa-comment pr-2 align-middle"></i>
+                    {{-- <i class="fas fa-comment pr-2 align-middle"></i> --}}
+                    <i class="fas fa-comment-alt"></i>
                     @php
                         $commentCount = 0;
                         if(count($vv->eventLinkedStaff)) {
@@ -184,7 +185,7 @@
                         }
                     @endphp
                     @if($commentCount)
-                    <span class="badge badge-danger" style="right: 4px; top: -11px;">{{ $commentCount }}</span>
+                    <span class="badge badge-danger comment-count">{{ $commentCount }}</span>
                     @endif
                     </a>
                     <?php 

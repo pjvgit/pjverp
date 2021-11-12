@@ -23,7 +23,7 @@ class User extends Authenticatable
         'user_timezone', 'user_status', 'verified', 'firm_name', 'street', 'apt_unit', 'city', 'state', 'postal_code', 'country', 'work_phone', 'home_phone', 
         'link_user_to', 'sharing_setting_1', 'sharing_setting_2', 'sharing_setting_3', 'case_rate', 'rate_amount', 'default_color', 'last_login', 
         'is_sent_welcome_email', 'profile_image', 'remember_token', 'employee_no', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at',
-        'sessionTime', 'auto_logout'
+        'sessionTime', 'auto_logout', 'is_primary_account'
     ];
 
     /**
@@ -314,5 +314,17 @@ class User extends Authenticatable
     public function userNotificationSetting()
     {
         return $this->belongsToMany(NotificationSetting::class, 'user_notification_settings', 'user_id', 'notification_id');
+    }
+
+    /**
+     * Get user title attribute
+     */
+    public function getUserTitleAttribute()
+    {
+        if(!$this->attributes['user_title']) {
+            return ($this->attributes['user_level'] == 5) ? 'Lead' : (($this->attributes['user_level'] == 4) ? 'Company' : 'Client');
+        } else {
+            return $this->attributes['user_title'];
+        }
     }
 }

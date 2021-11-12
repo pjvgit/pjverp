@@ -13,6 +13,9 @@ use App\CasePracticeArea,App\CaseStage,App\CaseTaskLinkedStaff;
 use Illuminate\Support\Str;
 use App\Jobs\ProcessPodcast;
 use App\Http\Controllers\CommonController;
+use App\Rules\UniqueEmail;
+use Illuminate\Validation\Rule;
+
 class ContractController extends BaseController
 {
     public function __construct()
@@ -878,7 +881,10 @@ class ContractController extends BaseController
         $validator = \Validator::make($request->all(), [
             'first_name' => 'required|max:250',
             'last_name' => 'required|max:250',
-            'email' => 'nullable|unique:users,email',
+            'email' => ['nullable', new UniqueEmail()],
+            /* 'email' => ['nullable', Rule::unique('users')->where(function($query) {
+                $query->where('firm_name', auth()->user()->firm_name);
+            })], */
 
             // 'email' => 'required_if:client_portal_enable,on|unique:users,email',
         ]);
@@ -1074,7 +1080,10 @@ class ContractController extends BaseController
         $validator = \Validator::make($request->all(), [
             'first_name' => 'required|max:250',
             'last_name' => 'required|max:250',
-            'email' => 'nullable|unique:users,email,'.$user_id,
+            // 'email' => ['nullable', new UniqueEmail($user_id)],
+            'email' => ['nullable', Rule::unique('users')->where(function($query) use($user_id) {
+                $query->where('firm_name', auth()->user()->firm_name)->where('id', '!=', $user_id);
+            })],
         ]);
         if($validator->fails())
         {
