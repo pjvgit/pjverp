@@ -167,7 +167,7 @@ $finalAmt=$invoice-$paid;
                         <?php                        
                         if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
-                            <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
+                            <option value="{{$val->uid}}"> {{$val->user_name}} ({{ @$val->user_title }})</option>
                         <?php } }/* else{ */ ?>
                             {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option> --}}
                         {{-- <?php }  ?> --}}
@@ -248,7 +248,7 @@ $finalAmt=$invoice-$paid;
                         <?php
                             if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
-                            <option value="{{$val->uid}}"> {{$val->user_name}} (<?php if($val->user_level=="2") { echo "Client"; } else{ echo "Company" ;}  ?>)</option>
+                            <option value="{{$val->uid}}"> {{$val->user_name}} ({{ @$val->user_title }})</option>
                         <?php } }/* else{ */ ?>
                             {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
                         <?php } ?> --}}

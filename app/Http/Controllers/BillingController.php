@@ -1470,17 +1470,20 @@ class BillingController extends BaseController
                 $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance", "users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->first();
                 $trustAccounts = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                 ->join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
-                ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance")
+                ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"users.id as uid","users.user_level","users_additional_info.trust_account_balance","users.user_level","users_additional_info.credit_account_balance", "users.user_title")
                 ->where("case_client_selection.case_id",$invoiceData['case_id'])
                 ->groupBy("case_client_selection.selected_user")->get(); 
-
-                // return $trustAccounts->pluck('uid')->toArray();
 
                 $invoiceUserNotInCase = ''; 
                 if(!in_array($invoiceData->user_id, $trustAccounts->pluck('uid')->toArray()) && $userData->user_level != 5 && $invoiceData['case_id'] != 0) {
                     $invoiceUserNotInCase = UsersAdditionalInfo::where("user_id", $invoiceData->user_id)->with("user")->first();
                 }
                 // return $invoiceUserNotInCase;
+
+                if($userData->user_level == 5) {
+                    $trustAccounts = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid", "credit_account_balance", "users.user_level", "users.user_title")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$invoiceData['user_id'])->get();
+                }
+                // return $trustAccounts;
                 return view('billing.invoices.payInvoice',compact('userData','firmData','invoice_id','invoiceData','caseMaster','trustAccounts','invoiceUserNotInCase'));
                 exit;    
             }else{

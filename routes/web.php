@@ -160,19 +160,6 @@ Route::get('/setupuserpprofile/{token}', 'ContractController@setupuserpprofile')
 Route::post('/setupusersave', 'ContractController@setupusersave')->name('setupusersave');
 Route::get('/firmclient/verify/{token}', 'ContractController@verifyClient');
 
-/**
- * For client portal
- */
-Route::group(['namespace' => "ClientPortal"], function () {
-    Route::get('activate_account/web_token/{token}', 'AuthController@activeClientAccount')->name("client/activate/account");
-    Route::get('setup/client/profile/{token}', 'AuthController@setupClientProfile')->name("setup/client/profile");
-    Route::post('save/client/profile/{token}', 'AuthController@saveClientProfile')->name("save/client/profile");
-    Route::get('get/client/profile/{token}', 'AuthController@getClientProfile')->name("get/client/profile");
-    Route::post('update/client/profile/{token}', 'AuthController@updateClientProfile')->name("update/client/profile");
-    Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
-    Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
-});
-
 //After Login can access this routes
 Route::group(['middleware'=>['auth', 'role:user']], function () {
     // Route::get('/home', 'HomeController@index')->name('home');
@@ -1178,6 +1165,23 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 /**
  * For client portal
  */
+
+// For activate account, switch account, login etc
+Route::group(['namespace' => "ClientPortal"], function () {
+    Route::get('activate_account/web_token/{token}', 'AuthController@activeClientAccount')->name("client/activate/account");
+    Route::get('setup/client/profile/{token}', 'AuthController@setupClientProfile')->name("setup/client/profile");
+    Route::post('save/client/profile/{token}', 'AuthController@saveClientProfile')->name("save/client/profile");
+    Route::get('get/client/profile/{token}', 'AuthController@getClientProfile')->name("get/client/profile");
+    Route::post('update/client/profile/{token}', 'AuthController@updateClientProfile')->name("update/client/profile");
+    Route::get('terms/client/portal', 'AuthController@termsCondition')->name("terms/client/portal");
+    Route::post('get/timezone', 'AuthController@getTimezone')->name("get/timezone");
+
+    // For switch account
+    Route::get("login/sessions/launchpad/{id}", "AuthController@getSwitchAccount")->name("login/sessions/launchpad");
+    Route::post("login/sessions/selectuser", "AuthController@loginUserAccount")->name("login/sessions/selectuser");
+});
+
+// AUth routes of client portal
 Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
     Route::get('notifications', 'HomeController@allNotification')->name("client/notifications");

@@ -531,3 +531,9 @@ p {
     display: flex;
     align-items: center;
 }
+.comment-count {
+    font-size: 69% !important;
+    right: 4px; 
+    top: -11px; 
+    position: relative;
+}

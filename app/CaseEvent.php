@@ -58,7 +58,7 @@ class CaseEvent extends Authenticatable
     // }
     public function getStartTimeUserAttribute(){
         // $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
             // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
@@ -70,7 +70,7 @@ class CaseEvent extends Authenticatable
     }
     public function getEndTimeUserAttribute(){
         // $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
             $tm=$this->start_date . $this->end_time;
             // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
@@ -82,7 +82,7 @@ class CaseEvent extends Authenticatable
     }
     public function getStAttribute(){
         // $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
             // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
@@ -94,7 +94,7 @@ class CaseEvent extends Authenticatable
     }
     public function getEtAttribute(){
         // $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
             $tm=$this->end_date . $this->end_time;
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
@@ -266,13 +266,13 @@ class CaseEvent extends Authenticatable
      * Get start date in user timezone
      */
     public function getUserStartDateAttribute(){
-        return convertUTCToUserDate($this->start_date, auth()->user()->user_timezone);
+        return convertUTCToUserDate($this->start_date, auth()->user()->user_timezone ?? 'UTC');
     }
 
      /**
      * Get end date in user timezone
      */
     public function getUserEndDateAttribute(){
-        return convertUTCToUserDate($this->end_date, auth()->user()->user_timezone);
+        return convertUTCToUserDate($this->end_date, auth()->user()->user_timezone ?? 'UTC');
     }
 }

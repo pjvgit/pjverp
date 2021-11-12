@@ -1,3 +1,6 @@
+------------------------------------ 12-NOV-2021 ------------------------------
+ALTER TABLE `users` ADD `is_primary_account` enum('no','yes') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'no' AFTER `event_type_preferance`;
+
 ------------------------------------ 11-NOV-2021 ------------------------------
 ALTER TABLE `case_stage`
 ADD `firm_id` int(11) NULL AFTER `stage_order`;

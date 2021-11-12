@@ -343,6 +343,7 @@ border-radius: 15px !important;
 .green-dollar {
     width: 24px;
     margin-right: 15px;
+    height: 24px;
 }
 /* =============================== Header ================================= */
 .header__title {
@@ -484,4 +485,13 @@ padding-left: 0;
 .nav-item__label {
 font-size: 1rem;
 }
+}
+/* =============================== Header End ================================= */
+.billing-list {
+    align-items: center;
+}
+.header__firm-logo img {
+    object-fit: fill;
+    height: 50px;
+    width: 75px;
 }
