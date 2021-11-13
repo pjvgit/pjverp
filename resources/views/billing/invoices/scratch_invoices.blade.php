@@ -1602,7 +1602,12 @@ if(!isset($adjustment_token)){
     
     function fetchClientAddress(){
         var currentclient=$("#contact").val();
-
+        <?php if ($client_id == "" || $case_id == "") { ?>
+        $("#preloader").show();
+        http://127.0.0.1:8000/bills/invoices/load_new?court_case_id=none&contact=12608
+        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=none&contact='+currentclient;
+        window.location.href=URLS;
+        <?php }else{ ?>
         $.ajax({
             type: "POST",
             url: baseUrl + "/bills/invoices/getCaseList",
@@ -1653,7 +1658,7 @@ if(!isset($adjustment_token)){
                 afterLoader();
             }
         })
-       
+        <?php } ?>
     }
     function changeCase(){
         var case_id=$("#court_case_id").val();
