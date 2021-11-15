@@ -1179,6 +1179,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
     // For switch account
     Route::get("login/sessions/launchpad/{id}", "AuthController@getSwitchAccount")->name("login/sessions/launchpad");
     Route::post("login/sessions/selectuser", "AuthController@loginUserAccount")->name("login/sessions/selectuser");
+    Route::post("selectuser/primary/account", "AuthController@setPrimaryAccount")->name("selectuser/primary/account");
 });
 
 // AUth routes of client portal

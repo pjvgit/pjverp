@@ -1,11 +1,14 @@
 <header class="header">
     <div class="header__firm-details">
+        @php
+            $firm = @firmDetail(auth()->user()->firm_name);
+        @endphp
         <span class="header__firm-logo">
-            <img alt="Firm Logo" src="{{ @firmDetail(auth()->user()->firm_name)->firm_logo_url }}">
+            <img alt="Firm Logo" src="{{ @$firm->firm_logo_url }}">
         </span>
         <div class="header__title">
             <span class="header__active-section">Home</span>
-            <span class="header__firm-name">Le and Nash LLC</span>
+            <span class="header__firm-name">{{ @$firm->firm_name }}</span>
         </div>
     </div>
     <div class="header__icon">
@@ -93,7 +96,10 @@
                         <a href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" class="dropdown-item" >Switch Account</a>
                         <a href="{{ route('terms/client/portal') }}" class="dropdown-item">Terms</a>
                         <a href="{{ route('privacy') }}" class="dropdown-item">Privacy Policy</a>
-                        <a data-toggle="modal" data-target="#logoutModel" data-placement="bottom" href="javascript:;" class="dropdown-item">Sign out </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="dropdown-item">Log Out</button>
+                        </form>
                     </div>
                 </div>
             </div>

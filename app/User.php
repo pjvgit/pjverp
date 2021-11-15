@@ -327,4 +327,16 @@ class User extends Authenticatable
             return $this->attributes['user_title'];
         }
     }
+
+    /**
+     * Get all of the clientFirms for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function getClientFirms()
+    {
+        return User::whereEmail($this->email)->whereHas("userAdditionalInfo", function($query) {
+                    $query->where("client_portal_enable", '1');
+                })->count();
+    }
 }

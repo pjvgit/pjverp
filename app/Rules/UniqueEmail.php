@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\User;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -9,15 +10,14 @@ use Illuminate\Validation\Rule as ValidationRule;
 
 class UniqueEmail implements Rule
 {
-    protected $userId;
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($userId = null)
+    public function __construct()
     {
-        $this->userId = $userId;
+        // 
     }
 
     /**
@@ -29,17 +29,12 @@ class UniqueEmail implements Rule
      */
     public function passes($attribute, $value)
     {
-        $userId = $this->userId;
-        Log::info("unique email user id out: ".$userId);
-        $validator = Validator::make([$attribute], [
-            'email' => ['nullable', ValidationRule::unique('users')->where(function($query) use($userId){
-                // Log::info("unique email user id: ".$userId);
-                $query->where('firm_name', auth()->user()->firm_name);
-                // if($userId) {
-                //     $query->where('id', '!=', $userId);
-                // }
-            })/* ->ignore($this->userId) */],
-        ]);
+        $user = User::where('firm_name', auth()->user()->firm_name)->where('email', request('email'));
+        if(request('user_id')) {
+            $user = $user->where('id', '!=', request('user_id'));
+        }
+        return ($user->count()) ? false : true;
+
     }
 
     /**
