@@ -7,6 +7,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -62,6 +63,7 @@ class AuthController extends Controller
      */
     public function saveClientProfile(Request $request)
     {
+        // return $request->all();
         $request->validate([
             'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
             'confirm_password' => 'required|min:6',
@@ -78,8 +80,10 @@ class AuthController extends Controller
                 'user_status'=>"1",
                 'is_primary_account' => "yes",
             ])->save();
- 
-            if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
+            $user->refresh();
+            // return $user->password;
+            // if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password)])) {
+            if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password)])) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
                     session(['layout' => 'horizontal']);
@@ -104,6 +108,10 @@ class AuthController extends Controller
                     session()->flush();
                     return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                 }
+            } else {
+                // return $user;
+                session()->flush();
+                return redirect('login')->with('warning', INACTIVE_ACCOUNT);
             }
         }else{
             session()->flush();
@@ -144,10 +152,7 @@ class AuthController extends Controller
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);
 
-                    $getUserFirms = User::whereEmail($user->email)->whereHas("userAdditionalInfo", function($query) {
-                                        $query->where("client_portal_enable", '1');
-                                    })->count();
-                    if($getUserFirms > 1) {
+                    if($user->getClientFirms() > 1) {
                         return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
                     }
 
@@ -195,7 +200,7 @@ class AuthController extends Controller
      */
     public function getSwitchAccount($id, Request $request)
     {
-        Auth::logout();
+        // Auth::logout();
         $clientId = encodeDecodeId($id, 'decode');
         $client = User::whereId($clientId)->first();
         $firms = Firm::whereHas("user", function($query) use($client) {
@@ -214,16 +219,47 @@ class AuthController extends Controller
      */
     public function loginUserAccount(Request $request)
     {
+        // return $request->all();
         $clientId = encodeDecodeId($request->client_id, 'decode');
         $client = User::whereId($clientId)->where("user_level", '2')->where("user_status", '1')->whereHas("userAdditionalInfo", function($q) {
                         $q->where("client_portal_enable", '1');
                     })->first();
         if($client) {
-            Auth::login($client);
+            Auth::logout();
+            session()->flush();
+            Auth::loginUsingId($client->id);
             return redirect()->route('client/home')->with('success','Login Successfully');
         } else {
             session()->flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+        }
+    }
+
+    /**
+     * Set client's primary account
+     */
+    public function setPrimaryAccount(Request $request)
+    {
+        $clientId = encodeDecodeId($request->client_id, 'decode');
+        try {
+            $client = User::whereId($clientId)->where("user_level", '2')->where("user_status", '1')->whereHas("userAdditionalInfo", function($q) {
+                            $q->where("client_portal_enable", '1');
+                        })->first();
+            User::whereEmail($client->email)->update(["is_primary_account" => "no"]);
+            $client->fill(["is_primary_account" => 'yes'])->save();
+            $firms = Firm::whereHas("user", function($query) use($client) {
+                        $query->whereEmail($client->email)->where("user_level", '2')
+                        ->whereHas("userAdditionalInfo", function($q) {
+                            $q->where("client_portal_enable", '1');
+                        });
+                    })->with(['user' => function($query) use($client) {
+                        $query->whereEmail($client->email)->where("user_level", '2');
+                    }])->get();
+
+            $view = view('client_portal.auth.partial.load_user_account_list', compact('firms'))->render();
+            return response()->json(['view' => $view, 'success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['error' => true, 'message' => $e->getMessage()]);
         }
     }
 }

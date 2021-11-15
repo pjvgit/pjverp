@@ -916,6 +916,8 @@ class ContractController extends BaseController
             $user->parent_user =Auth::User()->id;
             $user->user_status  = "1";  // Default status is active for client.
             $user->user_level  = "2";  // Default status is inactive once verified account it will activated.
+            $user->auto_logout = 'on';
+            $user->sessionTime = 60;
             $user->created_by =Auth::User()->id;
             $user->save();
             session(['clientId' => $user->id]);
@@ -1080,10 +1082,10 @@ class ContractController extends BaseController
         $validator = \Validator::make($request->all(), [
             'first_name' => 'required|max:250',
             'last_name' => 'required|max:250',
-            // 'email' => ['nullable', new UniqueEmail($user_id)],
-            'email' => ['nullable', Rule::unique('users')->where(function($query) use($user_id) {
+            'email' => ['nullable', new UniqueEmail()],
+            /* 'email' => ['nullable', Rule::unique('users')->where(function($query) use($user_id) {
                 $query->where('firm_name', auth()->user()->firm_name)->where('id', '!=', $user_id);
-            })],
+            })], */
         ]);
         if($validator->fails())
         {

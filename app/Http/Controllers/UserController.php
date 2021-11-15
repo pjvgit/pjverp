@@ -56,7 +56,7 @@ class UserController extends BaseController
                 $user = User::find(Auth::User()->id);
                 // $user->last_login=date('Y-m-d h:i:s');
                 // $user->save();
-                if(in_array($user->user_level, [2, 4, 5])) {
+                if($user->user_level == "2") {
                     if($user->userAdditionalInfo->client_portal_enable == '1') {
                         $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                         $user->save();
@@ -71,13 +71,17 @@ class UserController extends BaseController
                         $data['action']='login';
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
+
+                        if($user->getClientFirms() > 1) {
+                            return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
+                        }
                         
                         return redirect()->intended('client/home')->with('success','Login Successfully');
                     } else {
                         return abort(403);
                     }
                     
-                } else {
+                } else if($user->user_level == "3") {
                     // Save invoice settings if user is old and has not invoice default setting
                     $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);
 
