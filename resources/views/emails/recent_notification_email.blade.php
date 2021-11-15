@@ -32,7 +32,7 @@
 
                     <div style="margin-top:20px;margin-left:15px;font-size:18px">
 
-                        <img src="{{@$firm}}"  class="CToWUd">
+                        <img src="{{@$firm}}" >
 
                     </div>
 
@@ -91,7 +91,7 @@
 
                         <td width="40px" style="width:40px;text-align:center" align="center">
 
-                        <img src="{{ asset('icon/briefcase_email.png') }}" class="CToWUd">
+                        <img src="{{ asset('icon/briefcase_email.png') }}">
 
                         </td>
 
@@ -116,7 +116,7 @@
 
                         <div style="padding-top:3px">
 
-                            <img alt="New Case" src="{{ asset('icon/case_status_new.png') }}" class="CToWUd">
+                            <img alt="New Case" src="{{ asset('icon/case_status_new.png') }}">
 
                         </div>
 
@@ -134,7 +134,10 @@
                             $ImageArray['update']="activity_client_updated.png";
                             $ImageArray['link']="activity_client_linked.png";
                             $ImageArray['unlink']="activity_client_unlinked.png";
-                            $ImageArray["pay"]="activity_ledger_deposited.png";
+                            $ImageArray["pay"]="activity_ledger_deposited.png";                                      
+                            $ImageArray["close"]="activity_case_archived.png";
+                            $ImageArray["reopen"]="activity_case_unarchived.png";
+                            $ImageArray["delete"]="activity_case_deleted.png";
                             $image=$ImageArray[$v->action];
                             ?>
                             
@@ -142,32 +145,24 @@
 
                             <tbody>
                                 <tr style="margin:0;padding:0;border:0">
-
-                            <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
                                 <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-
                                 <tbody>
                                     <tr>
-
-                                <td style="width:25px" width="25px">
-
-                                <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
-
-                                </td>
-
-                                <td style="font-size:12px">
-
-                                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
-                                {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
-                                </a> {{$v->activity}} 
-                                <?php if($v->case_title!=""){?>
-                                <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
-                                <?php } ?>
-
-                                </td>
-
-                                </tr> 
+                                        <td style="width:25px" width="25px">
+                                            <img src="{{ asset('images/'.$image) }}" width="27" height="21">
+                                        </td>
+                                        <td style="font-size:12px">
+                                            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+                                            {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
+                                            </a> {{$v->activity}} 
+                                            <?php if($v->deleteCase != NULL){?>
+                                            <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
+                                            <?php }else{?>
+                                                {{$v->case_title}}
+                                            <?php } ?>
+                                        </td>
+                                    </tr> 
                                 </tbody>
                                 </table>
                                 </td>
@@ -199,7 +194,7 @@
                                 <tbody>
                                 <tr>
                                 <td style="width:25px" width="25px">
-                                <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
+                                <img src="{{ asset('images/'.$image) }}" width="27" height="21">
                                 </td>
                                 <td style="font-size:12px">
                                 <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
@@ -261,7 +256,7 @@
 
                                 <td style="width:25px" width="25px">
 
-                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
 
                                 </td>
 
@@ -331,7 +326,7 @@
 
                                 <td style="width:25px" width="25px">
 
-                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
 
                                 </td>
 
@@ -372,7 +367,7 @@
 
                                 <td style="width:25px" width="25px">
 
-                                <img src="{{ asset('icon/activity_time-entry_added.png') }}" width="27" height="21" class="CToWUd">
+                                <img src="{{ asset('icon/activity_time-entry_added.png') }}" width="27" height="21">
 
                                 </td>
 
@@ -411,7 +406,7 @@
                                 <tbody>
                                     <tr>
                                     <td style="width:25px" width="25px">
-                                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                    <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                                     </td>
                                     <td style="font-size:12px">
                                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
@@ -437,7 +432,7 @@
 
                         <td width="40px" style="width:40px;text-align:center" align="center">
 
-                        <img src="{{ asset('icon/firm_email.png') }}" class="CToWUd">
+                        <img src="{{ asset('icon/firm_email.png') }}">
 
                         </td>
 
@@ -485,7 +480,7 @@
 
                                             <td style="width:25px" width="25px">
 
-                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
 
                                             </td>
 
@@ -512,8 +507,8 @@
                                 $ImageArray['unlink']="activity_client_unlinked.png";
                                 $ImageArray["pay"]="activity_ledger_deposited.png";
                                 $ImageArray["change"]="activity_attorney_permissions.png";
-                                $ImageArray["archive"]="activity_attorney_archived.png";
-                                $ImageArray["unarchive"]="activity_lead_unarchived.png"; 
+                                $ImageArray["archive"]="activity_client_archived.png";
+                                $ImageArray["unarchive"]="activity_client_unarchived.png";  
                                 $image=$ImageArray[$v->action];
                                 ?>
                                 <tr style="margin:0;padding:0;border:0">          
@@ -525,7 +520,7 @@
 
                                             <td style="width:25px" width="25px">
 
-                                            <img src="{{ asset('images/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            <img src="{{ asset('images/'.$image) }}" width="27" height="21">
                                             </td>
                                             <td style="font-size:12px">
                                                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
@@ -569,7 +564,7 @@
 
                                                 <td style="width:25px" width="25px">
 
-                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                                                 </td>
                                                 <td style="font-size:12px">
                                                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
@@ -616,7 +611,7 @@
 
                                                 <td style="width:25px" width="25px">
 
-                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                                                 </td>
                                                 <td style="font-size:12px">
                                                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
@@ -656,7 +651,7 @@
 
                                         <td style="width:25px" width="25px">
 
-                                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                        <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
 
                                         </td>
 
@@ -698,7 +693,7 @@
 
                                         <td style="width:25px" width="25px">
 
-                                        <img src="{{ asset('icon/activity_time-entry_added.png') }}" width="27" height="21" class="CToWUd">
+                                        <img src="{{ asset('icon/activity_time-entry_added.png') }}" width="27" height="21">
 
                                         </td>
 
@@ -737,7 +732,7 @@
                                         <tbody>
                                             <tr>
                                             <td style="width:25px" width="25px">
-                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21" class="CToWUd">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                                             </td>
                                             <td style="font-size:12px">
                                                 <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
@@ -768,7 +763,7 @@
 
                         <td style="width:32px;text-align:center" width="32px" align="center">
 
-                        <img src="{{ asset('icon/gear.png') }}" width="16" height="16" class="CToWUd">
+                        <img src="{{ asset('icon/gear.png') }}" width="16" height="16">
 
                         </td>
 

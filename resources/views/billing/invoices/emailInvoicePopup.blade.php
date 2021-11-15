@@ -27,10 +27,10 @@
                                             <td>
                                                 <label class="mb-0">
                                                     <input type="checkbox" class="mr-2 mb-1 checkMail" name="client[]"
-                                                        id="send-email-{{$v->user_id}}" value="{{$v->user_id}}" data-email="{{$v->email}}"></label></td>
-                                            <td class="pl-0 col-12"> {{substr($v->unm,0,100)}} (Client) </td>
+                                                        id="send-email-{{$v->user_id ?? $v->id}}" value="{{$v->user_id ?? $v->id}}" data-email="{{$v->email}}"></label></td>
+                                            <td class="pl-0 col-12"> {{substr($v->unm ?? ($v->first_name.' '.$v->last_name),0,100)}} (Client) </td>
                                         </tr>
-                                        <tr id="mailOpen_{{$v->user_id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id}}" class="col-12 form-control" name="new_email-{{$v->user_id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
+                                        <tr id="mailOpen_{{$v->user_id ?? $v->id}}" style="display: none;"><td></td><td>Please enter an email address for this contact:<input id="new-email-{{$v->user_id ?? $v->id}}" class="col-12 form-control" name="new_email-{{$v->user_id ?? $v->id}}" placeholder="Enter email" value="{{$v->email}}"></td></tr>
                                     
                                     </tbody>
                                 </table>

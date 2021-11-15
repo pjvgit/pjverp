@@ -2524,6 +2524,14 @@ class ClientdashboardController extends BaseController
             if(isset($request->disabledLogin)){
                 UsersAdditionalInfo::where('user_id',$request->contact_id)->update(['client_portal_enable'=>"0"]);
             }
+            $data=[];
+            $data['user_id']=$request->contact_id;
+            $data['client_id']=$request->contact_id;
+            $data['activity']='archived contact';
+            $data['type']='contact';
+            $data['action']='archive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             session(['popup_success' => 'Contact have been archived.']);
             return response()->json(['errors'=>'','contact_id'=>$request->contact_id]);
           exit;
@@ -2580,6 +2588,16 @@ class ClientdashboardController extends BaseController
                 ];
                 $sendEmail = $this->sendMail($userEmail);
             }
+
+            $data=[];
+            $data['user_id']=$request->contact_id;
+            $data['client_id']=$request->contact_id;
+            $data['activity']='unarchived contact';
+            $data['type']='contact';
+            $data['action']='unarchive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Contact have been unarchived.']);
             return response()->json(['errors'=>'','contact_id'=>$request->contact_id]);
           exit;

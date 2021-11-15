@@ -9,8 +9,8 @@
             $ImageArray['unlink']="activity_client_unlinked.png";
             $ImageArray["pay"]="activity_ledger_deposited.png";
             $ImageArray["change"]="activity_attorney_permissions.png";
-            $ImageArray["archive"]="activity_attorney_archived.png";
-            $ImageArray["unarchive"]="activity_lead_unarchived.png";            
+            $ImageArray["archive"]="activity_client_archived.png";
+            $ImageArray["unarchive"]="activity_client_unarchived.png";            
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('images/'.$image) }}" width="27" height="21">

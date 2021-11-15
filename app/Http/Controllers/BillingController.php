@@ -3798,7 +3798,7 @@ class BillingController extends BaseController
         }
         $paymentPlanAmount = 0;
         foreach($request->new_payment_plans as $k=>$v){
-            $paymentPlanAmount += $v['amount'];
+            $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
         }
         $paymentPlanAmount = (int) str_replace(',', '', number_format($paymentPlanAmount,2));
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
@@ -4460,6 +4460,9 @@ class BillingController extends BaseController
                     ->where("case_client_selection.case_id",$Invoices['case_id'])
                     ->orderBy('user_level', 'desc')->get();
                 $companyClientIds = [];
+                if(count($getAllClientForSharing) == 0){
+                    $getAllClientForSharing[] = User::find($Invoices['user_id']); 
+                }else{
                 foreach($getAllClientForSharing as $k=>$v) {
                     if($v->user_level == 4) {
                         $companyContacts = $v->companyContactList($v->user_id, $v->case_client_selection_id);
@@ -4485,6 +4488,7 @@ class BillingController extends BaseController
                     if(in_array($v->id, $companyClientIds)) {
                         $v['is_company_contact'] = "yes";
                     }
+                }
                 }
                 // return $getAllClientForSharing;
                 // $SharedInvoice=SharedInvoice::where("invoice_id",$Invoices['id'])->pluck("user_id");
@@ -5052,7 +5056,9 @@ class BillingController extends BaseController
             if(!empty($Invoices)){
                 $userData=User::find($Invoices['user_id']);
                 $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->get();
-
+                if(count($getAllClientForSharing) == 0){
+                    $getAllClientForSharing[] = User::find($Invoices['user_id']); 
+                }
 
                 $firmAddress = Firm::find($userData['firm_name']);
                 return view('billing.invoices.emailInvoicePopup',compact('Invoices','getAllClientForSharing','firmAddress'));     

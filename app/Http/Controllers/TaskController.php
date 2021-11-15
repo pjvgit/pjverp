@@ -1234,7 +1234,7 @@ class TaskController extends BaseController
           $drate="user_default";
       }else{
           $default_rate=($rateUsers['rate_amount'])??0.00;
-          $rate_type=$rateUsers['rate_type'];
+          $rate_type=($rateUsers['rate_type'])??0;
           $drate="case_default";
       }
 

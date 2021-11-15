@@ -212,7 +212,7 @@
                         </table>
                     </div>
 
-
+                    <?php if($findInvoice->case_id != 'none'){ ?>
                     <div id="invoice-date-range-filter" class="invoice_entry_header"
                         style="margin-top: 10px; position: relative;">
                         <div id="range_select_block"
@@ -238,11 +238,11 @@
                             </tbody>
                         </table>
                     </div>
-
+                    <?php } ?>
                     <div id="entries" style="margin: 5px;">
 
                         <div class="invoice_case_gradient">
-                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title']}} 
+                            <h2><i class="fas fa-briefcase mr-2"></i> {{@$caseMaster['case_title'] ?? 'None'}} 
                                 @if(isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['show_case_no_after_case_name'] == "yes")
                                     @if($caseMaster) ({{ $caseMaster->case_number }}) @endif
                                 @endif
@@ -798,7 +798,7 @@
                                         <td class="billable_toggle pr-2">
                                             <div class="locked row_total expenseentry_amount_{{$v->eid}} <?php if($v->time_entry_billable=="no"){ echo "strike"; } ?>" style="text-align: right;">
                                                 <?php 
-                                                echo $Total= (str_replace(",","",$v->duration) * $v->cost);
+                                                echo $Total= (str_replace(",","",$v->duration) * str_replace(",","",$v->cost));
                                                 if($v->time_entry_billable=="yes"){
                                                     $expenseAmount+=$Total;
                                                 }

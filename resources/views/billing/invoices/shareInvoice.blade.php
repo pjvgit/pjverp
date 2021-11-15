@@ -138,6 +138,66 @@ $CommonController= new App\Http\Controllers\CommonController();
                         ?></td>
                     </tr>
                     @endif
+                        <tr class="invoice-sharing-row" id="ClientRow_{{$v->id}}">
+
+                        <td scope="row" class="text-center">
+                            <?php if($v->shared=="yes"){
+                            ?>
+                            <input type="checkbox" name="invoice_shared[{{$v->id}}]" value="{{$v->id}}"
+                                id="portalAccess_{{$v->id}}" class="invoiceSharingBox invoice-sharing-box"
+                                uid="{{$v->id}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}"
+                                onclick="checkPortalAccess({{$v->id}})" checked="checked" {{ ($v->client_portal_enable == 0) ? 'disabled' : '' }}>
+
+                            <?php
+                            }else{
+                                ?>
+                            <input type="checkbox" name="invoice_shared[{{$v->id}}]" value="{{$v->id}}"
+                                id="portalAccess_{{$v->id}}" class="invoiceSharingBox invoice-sharing-box"
+                                uid="{{$v->id}}" em="{{$v->email}}" pe="{{$v->client_portal_enable}}"
+                                onclick="checkPortalAccess({{$v->id}})">
+                            <?php
+                            }
+                            ?>
+
+
+                        </td>
+                        <td class="client-name"> {{ucfirst($v->first_name.' '.$v->last_name)}}
+                            <?php 
+                            if($v->user_level=="2"){
+                                echo "(Client)";
+                            }else{
+                                echo "(Company)";
+                            }?></td>
+                        <td class="last-login-date">
+                            <?php if($v->email==""){
+                                echo "Disabled";
+                            }else{
+                                
+                                if($v->last_login!=NULL){
+                                    $loginDate=$CommonController->convertUTCToUserTime($v->last_login,Auth::User()->user_timezone);
+                                    echo date('M jS Y, h:i a',strtotime($loginDate));
+                                }else{
+                                    echo "Never";
+                                }
+                            }
+                        ?></td>
+                        <td class="shared-on-date">
+                            <?php if($v->sharedDate!=NULL){
+                                $sharedDate=$CommonController->convertUTCToUserTime($v->sharedDate,Auth::User()->user_timezone);
+                                echo date('M jS Y, h:i a',strtotime($sharedDate));
+                            }else{
+                                echo "Not Shared";
+                            }
+                            ?>
+                        </td>
+                        <td class="viewed-on-date">
+                            <?php if($v->isViewd=="yes"){
+                            echo date('M jS Y, h:i a',strtotime(convertUTCToUserTime($v->viewed_at, Auth::User()->user_timezone)));
+                        }else{
+                            echo "Never";
+                        }
+                        ?></td>
+                        </tr>
                     @endif
                     <?php } ?>
                 </tbody>

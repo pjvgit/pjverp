@@ -62,7 +62,8 @@ class NotificationEmailCommand extends Command
                     "case_master.case_title","case_master.id","task_activity.title",
                     "all_history.created_at as all_history_created_at",
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
-                    "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
+                    "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
+                    'task.task_title as taskTitle', "case_master.deleted_at as deleteCase")
             ->whereDate("all_history.created_at", date("Y-m-d"))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
@@ -107,24 +108,29 @@ class NotificationEmailCommand extends Command
         $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
         FROM user_notification_settings uns
         left join notification_settings ns on ns.id = uns.notification_id 
-        where uns.user_id =11133');
+        where uns.user_id =11133 and uns.for_email = "yes"');
         
         // for firm User
         $firmData = array_map('array_values', $firmData);
         $caseData = [];
+        $itemData = [];
         foreach($firmData as $key => $item) {
             if(count($item) > 0) {
-                foreach($item as $k => $v){
-                    // echo $v->action .'-->'. $v->type; echo PHP_EOL;
-                    // foreach($userNotificationSetting as $n => $setting){
-                    //     echo $v->type .'-->'. $setting->sub_type; echo PHP_EOL;
-                    //     if($v->type == $setting->sub_type)
-                    //     {
-                            
-                    //     }
-                    // }
-                    if($v->case_id !=NULL){
-                        $caseData[$v->case_title][] = $v;
+                foreach($item as $k => $v){                    
+                    $viewInMail = 0;
+                    foreach($userNotificationSetting as $n => $setting){
+                        
+                        if($setting->sub_type == $v->type && $setting->action == $v->action){
+                            echo $v->type ."-->". $v->action."--> 121 -->".$setting->sub_type.'--->'.$setting->action; echo PHP_EOL;
+                            $viewInMail = 1;
+                        }
+                    }                    
+                    if($viewInMail == 1){
+                        echo $v->type ."-->". $v->action; echo PHP_EOL;
+                        if($v->case_id !=NULL){
+                            $caseData[$v->case_title][] = $v;
+                        }
+                        $itemData[$k] = $v;
                     }
                     $firmDetail = @$v->logo_url;
                 }
@@ -135,8 +141,41 @@ class NotificationEmailCommand extends Command
                 $preparedEmail = $explodeKey[1];
                 // dd($item);
                 Log::info("Email send to >". $preparedEmail);
-                // \Mail::to($preparedEmail)->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData));
-                \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($item, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
+                // \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData));
+                \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
+            }
+        }
+
+        $caseStaffData = [];
+        $itemStaffData = [];
+        foreach($staffData as $key => $item) {
+            if(count($item) > 0) {
+                foreach($item as $k => $v){                    
+                    $viewInMail = 0;
+                    foreach($userNotificationSetting as $n => $setting){
+                        if($setting->sub_type == $v->type && $setting->action == $v->action){
+                            echo $v->type ."-->". $v->action."--> 121 -->".$setting->sub_type.'--->'.$setting->action; echo PHP_EOL;
+                            $viewInMail = 1;
+                        }
+                    }                    
+                    if($viewInMail == 1){
+                        echo $v->type ."-->". $v->action; echo PHP_EOL;
+                        if($v->case_id !=NULL){
+                            $caseStaffData[$v->case_title][] = $v;                            
+                        }
+                        $itemStaffData[$k] = $v;
+                    }
+                    $firmDetail = @$v->logo_url;
+                }
+                
+                echo $key;echo PHP_EOL;
+                $explodeKey = explode('|', $key);            
+                $preparedFor = $explodeKey[0];
+                $preparedEmail = $explodeKey[1];
+                // dd($item);
+                Log::info("Email send to >". $preparedEmail);
+                // \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData));
+                // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
             }
         }
         Log::info("Activity notification reminder Command End : ". date('Y-m-d H:i:s'));

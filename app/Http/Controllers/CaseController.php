@@ -946,6 +946,14 @@ class CaseController extends BaseController
             if($CaseMaster->case_statute_date != null) {
                 $this->saveSOLEventIntoCalender($request->case_id);
             } 
+
+            $data=[];
+            $data['case_id']=$request->case_id;
+            $data['activity']='updated case';
+            $data['type']='case';
+            $data['action']='update';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
         }
         session(['popup_success' => 'Case details has been updated.']);
         return response()->json(['errors'=>'','case_id'=>$request->case_id]);
@@ -5697,6 +5705,15 @@ class CaseController extends BaseController
                     $user->save();
                 }
             }
+
+            $data=[];
+            $data['case_id']=$caseMaster->id;
+            $data['activity']='closed case';
+            $data['type']='case';
+            $data['action']='close';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Case has been updated.']);
 
             return response()->json(['errors'=>'','id'=>'']);
@@ -5716,6 +5733,15 @@ class CaseController extends BaseController
             $caseMaster=CaseMaster::find($request->case_id);
             $caseMaster->case_close_date=NULL;
             $caseMaster->save();
+
+            $data=[];
+            $data['case_id']=$caseMaster->id;
+            $data['activity']='reopened case';
+            $data['type']='case';
+            $data['action']='reopen';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Case has been updated.']);
             return response()->json(['errors'=>'','id'=>'']);
             exit;
@@ -5753,6 +5779,14 @@ class CaseController extends BaseController
                 $userMaster->save();       
             }
             //if current zero case available then popup field enabled :: End
+
+            $data=[];
+            $data['case_id']=$request->case_id;
+            $data['activity']='deleted case';
+            $data['type']='case';
+            $data['action']='delete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
             session(['popup_success' => 'Case has been deleted.']);
             return response()->json(['errors'=>'']);

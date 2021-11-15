@@ -431,7 +431,9 @@ class HomeController extends BaseController
                     DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
                     "case_master.case_title","case_master.id","task_activity.title",
                     "all_history.created_at as all_history_created_at",
-                    "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
+                    "case_master.case_unique_number", "case_events.event_title as eventTitle", 
+                    "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',
+                    "case_master.deleted_at as deleteCase")
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name);
             if(isset($request->user_id)){

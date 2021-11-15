@@ -1029,7 +1029,7 @@ class ContractController extends BaseController
             $data['user_id']=$user->id;
             $data['client_id']=$user->id;
             $data['case_id']=$request->case_id;
-            $data['activity']='linked Contact';
+            $data['activity']='linked contact';
             $data['type']='contact';
             $data['action']='link';
             $CommonController= new CommonController();
@@ -1038,7 +1038,7 @@ class ContractController extends BaseController
             $data=[];
             $data['user_id']=$user->id;
             $data['client_id']=$user->id;
-            $data['activity']='added Contact';
+            $data['activity']='added contact';
             $data['type']='contact';
             $data['action']='add';
             $CommonController= new CommonController();
@@ -1157,7 +1157,7 @@ class ContractController extends BaseController
             $data=[];
             $data['user_id']=$user->id;
             $data['client_id']=$user_id;
-            $data['activity']='Update Contact';
+            $data['activity']='update contact';
             $data['type']='contact';
             $data['action']='update';
             $CommonController= new CommonController();
@@ -1414,7 +1414,7 @@ class ContractController extends BaseController
             $data=[];
             $data['user_id']=$user->id;
             $data['client_id']=$user->id;
-            $data['activity']='added Company';
+            $data['activity']='added company';
             $data['type']='contact';
             $data['action']='add';
             $CommonController= new CommonController();
