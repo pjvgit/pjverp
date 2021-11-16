@@ -1,8 +1,8 @@
-<form class="createNewUser" id="createNewUser" name="createNewUser" method="POST">
+<form class="editCompany" id="editCompany" name="editCompany" method="POST">
     <span id="response"></span>
     @csrf
 
-    <div class="col-md-12">
+    <div class="col-md-12" bladename="resources/views/company/editCompany.blade.php">
         <div id="showError" class="showError" style="display:none"></div>
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
@@ -151,7 +151,7 @@
         });
       
         $(".innerLoader").css('display', 'none');
-        $("#createNewUser").validate({
+        $("#editCompany").validate({
             rules: {
                 company_name: {
                     required: true,
@@ -200,16 +200,16 @@
             }
         });
     });
-    $('#createNewUser').submit(function (e) {
+    $('#editCompany').submit(function (e) {
       beforeLoader();
         e.preventDefault();
 
-        if (!$('#createNewUser').valid()) {
+        if (!$('#editCompany').valid()) {
             afterLoader();
             return false;
         }
 
-        var dataString = $("form").serialize();
+        var dataString = $("#editCompany").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/saveEditCompany", // json datasource

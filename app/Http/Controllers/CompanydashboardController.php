@@ -1576,7 +1576,14 @@ class CompanydashboardController extends BaseController
             $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->company_id)->delete();
             $CaseClientSelection=CaseClientSelection::where("selected_user",$request->company_id)->delete();
             session(['popup_success' => 'Company was deleted.']);
-
+            $data=[];
+            $data['user_id']=$request->company_id;
+            $data['client_id']=$request->company_id;
+            $data['activity']='deleted company';
+            $data['type']='contact';
+            $data['action']='delete';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             return response()->json(['errors'=>'','company_id'=>$request->company_id]);
           exit;
         }
@@ -1620,6 +1627,14 @@ class CompanydashboardController extends BaseController
                 }
                 session(['popup_success' => 'Company and '.count($request->client_links).' contacts have been archived.']);
             }
+            $data=[];
+            $data['user_id']=$request->company_id;
+            $data['client_id']=$request->company_id;
+            $data['activity']='archived company';
+            $data['type']='contact';
+            $data['action']='archive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             return response()->json(['errors'=>'','company_id'=>$request->company_id]);
           exit;
         }
@@ -1664,6 +1679,14 @@ class CompanydashboardController extends BaseController
                 }
                 session(['popup_success' => 'Company and '.count($request->client_links).' contacts have been unarchived.']);
             }
+            $data=[];
+            $data['user_id']=$request->company_id;
+            $data['client_id']=$request->company_id;
+            $data['activity']='unarchived company';
+            $data['type']='contact';
+            $data['action']='unarchive';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
             return response()->json(['errors'=>'','company_id'=>$request->company_id]);
           exit;
         }

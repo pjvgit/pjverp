@@ -73,7 +73,7 @@
 
                         return false;
                     } else {
-                        window.location.href = baseUrl + '/contacts/company';
+                        window.location.href = "{{route('contacts/company')}}?target=active";
                     }
                 },
                 error: function (xhr, status, error) {

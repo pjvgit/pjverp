@@ -1504,6 +1504,15 @@ class ContractController extends BaseController
             $UsersAdditionalInfo->save();
             session(['popup_success' => 'Your company has been updated.']);
 
+            $data=[];
+            $data['user_id']=$user->id;
+            $data['client_id']=$user->id;
+            $data['activity']='update company';
+            $data['type']='contact';
+            $data['action']='update';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             return response()->json(['errors'=>'','user_id'=>$user->user_id]);
             exit;
         }

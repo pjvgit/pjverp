@@ -1629,7 +1629,7 @@
                                                                     <div class="pr-1 col-md-3 offset-md-3">
                                                                         <div class="input-group">
                                                                             <input id="number_installment_field"
-                                                                                data-testid="number-installment-field"  min="2" type="number"
+                                                                                data-testid="number-installment-field"  min="2" step="1" type="number"
                                                                                 class="form-control" value="" name="number_installment_field"></div>
                                                                         <div class="d-flex invalid-feedback number_installment_field_error"></div>
                                                                     </div>
@@ -1672,6 +1672,7 @@
                                                                     <div class="col-md-12">
                                                                         <button type="button"  name="installmentBreak" class="submitbutton btn btn-outline-secondary btn-rounded m-1" style="width: 40%;"><strong>Recalculate</strong></button>
                                                                     </div>
+                                                                    <div class="d-flex invalid-feedback installmentBreak_error"></div>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -4102,8 +4103,17 @@
                 $(".first_payment_amount_error").html("Amount is required");
                 error = 1;
             }else{
-                error = 0;
-                $(".first_payment_amount_error").html("");
+                if($("#first_payment_amount").val() != '' && $("#first_payment_amount").val().replace(',', '') >= $("#final_total").html()){
+                    $(".first_payment_amount_error").html("Amount exceeds max payment amount (max: $"+$("#final_total").html()+")");
+                    if($("#number_installment_field").val() <= '2'){
+                        $(".number_installment_field_error").html("Number must be at least 2");
+                        error = 1;
+                    }
+                    error = 1;
+                }else{
+                    error = 0;
+                    $(".first_payment_amount_error").html("");
+                }
             }
         }else{
             error = 0;
@@ -4111,6 +4121,7 @@
         }
         console.log(error);
         if(error == 0){
+        $(".installmentBreak_error").html("");
         var dataString=firstInstallment = '';
         dataString = $("#paymentPlansForm").serialize();
     
@@ -4200,6 +4211,8 @@
         }
         $('.edit_payment_plan_amount').number(true, 2);
         installmentCalculation();
+        }else{
+            $(".installmentBreak_error").html("Unable to calculate payment schedule.");
         }
     }
 

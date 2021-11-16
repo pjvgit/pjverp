@@ -786,15 +786,15 @@ class ClientdashboardController extends BaseController
         }else{
             $dataNotes=ClientNotes::find($request->note_id);
             $data=[];
-            if($dataNotes['client_id']!=NULL){
-                $data['client_id']=$dataNotes['client_id'];
-                $data['notes_for_client']=$dataNotes['client_id'];
-            }else if($dataNotes['case_id']!=NULL){
-                $data['case_id']=$dataNotes['case_id'];
-                $data['notes_for_case']=$dataNotes['case_id'];
-            }else if($dataNotes['company_id']!=NULL){
-                $data['company_id']=$dataNotes['company_id'];
-                $data['notes_for_company']=$dataNotes['company_id'];
+            if($dataNotes->client_id != NULL){
+                $data['client_id']=$dataNotes->client_id;
+                $data['notes_for_client']=$dataNotes->client_id;
+            }else if($dataNotes->case_id != NULL){
+                $data['case_id']=$dataNotes->case_id;
+                $data['notes_for_case']=$dataNotes->case_id;
+            }else if($dataNotes->company_id != NULL){
+                $data['company_id']=$dataNotes->company_id;
+                $data['notes_for_company']=$dataNotes->company_id;
             }
             $data['user_id']=Auth::User()->id;
             $data['activity']='deleted a note';

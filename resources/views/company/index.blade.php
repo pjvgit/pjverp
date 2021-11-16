@@ -5,10 +5,7 @@
 <?php
 $userTitle = unserialize(USER_TITLE); 
 $target=$group="";
-if(isset($_GET['target']) && $_GET['target']=="active" || $_GET['target']==''){
-    $target="active";
-}
-
+$target="active";
 if(isset($_GET['target']) && $_GET['target']=="archived" ){
     $target="archived";
 }
