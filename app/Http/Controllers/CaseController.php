@@ -1396,123 +1396,6 @@ class CaseController extends BaseController
         exit;
     }
 
-    //Verify user once click on link shared by email.
-    public function verifyUser($token)
-    {
-        $verifyUser = User::where('token', $token)->first();
-        if(isset($verifyUser) ){
-            if($verifyUser->user_status==1){
-                return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
-            }else{
-                $status = EMAIL_VERIFIED;
-                return redirect('setupuserpprofile/'.$token);
-            }
-        }else{
-            return redirect('login')->with('warning', EMAIL_NOT_IDENTIFIED);
-        }
-    }
-
-     //open set password popup when verify email
-     public function setupuserpprofile($token)
-     {
-        $verifyUser = User::where('token', $token)->first();
-        return view('contract.setupprofile',['verifyUser'=>$verifyUser]);
-
-     }   
-     
-     //open set password popup when verify email
-     public function setupusersave(Request $request)
-     {
-        $request->validate([
-            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
-            'confirm_password' => 'required|min:6',
-            'user_timezone' => 'required',
-        ]);
-
-        $verifyUser =  User::where(["token" => $request->utoken])->first();
-    
-        if(isset($verifyUser) ){
-            $user = $verifyUser;
-            User::where('id',$user->id)->update(['password'=>Hash::make(trim($request->password)),
-            'user_timezone'=>$request->user_timezone,
-            'verified'=>"1",
-            'user_status'=>"1"
-            ]);
-
-             //Sent welcome email to user.
-             $getTemplateData = EmailTemplate::find(4);
-             $fullName = $user->first_name . ' ' . $user->last_name;
-
-             $mail_body = $getTemplateData->content;
-             $mail_body = str_replace('{name}', $fullName, $mail_body);
-             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-             $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-             $mail_body = str_replace('{regards}', REGARDS, $mail_body);
-             $mail_body = str_replace('{year}', date('Y'), $mail_body);     
-             $user = [
-                 "from" => FROM_EMAIL,
-                 "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => $getTemplateData->subject,
-                 "to" => $user->email,
-                 "full_name" => $fullName,
-                 "mail_body" => $mail_body
-             ];
-             $sendEmail = $this->sendMail($user);   
-            if (Auth::attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
-                $userStatus = Auth::User()->user_status;
-                if($userStatus=='1') { 
-                    session(['layout' => 'horizontal']);
-                    return redirect()->intended('dashboard')->with('success','Login Successfully');
-                }else{
-                    Auth::logout();
-                    Session::flush();
-                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
-                }
-            }
-        }else{
-            Auth::logout();
-            Session::flush();
-            return redirect('login')->with('warning', INACTIVE_ACCOUNT);
-        }
-     }
-
-     //Send welcome email to user as many times want to send.
-     public function SendWelcomeEmail(Request $request)
-     {
-            $user =  User::where(["id" => $request->user_id])->first();
-            $getTemplateData = EmailTemplate::find(6);
-             $fullName=$user->first_name. ' ' .$user->last_name;
-             $email=$user->email;
-             $token=url('firmuser/verify', $user->token);
-             $mail_body = $getTemplateData->content;
-             $mail_body = str_replace('{name}', $fullName, $mail_body);
-             $mail_body = str_replace('{email}', $email,$mail_body);
-             $mail_body = str_replace('{token}', $token,$mail_body);
-             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-             $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-             $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
-             $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-             $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
-             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
- 
-             $userEmail = [
-                 "from" => FROM_EMAIL,
-                 "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => $getTemplateData->subject,
-                 "to" => $user->email,
-                 "full_name" => $fullName,
-                 "mail_body" => $mail_body
-                 ];
-           $sendEmail = $this->sendMail($userEmail);
-           if($sendEmail=="1"){
-             $user->is_sent_welcome_email  = "1";  // Welcome email sent to user.
-             $user->save();
-           }
-            return response()->json(['errors'=>'','user_id'=>$user->id]);
-           exit;
-        }
-
      public function dashboard()
      {
         $lastLoginUsers = User::where("parent_user",Auth::User()->id)->orderBy('last_login','desc')->limit(5)->get();
@@ -1579,7 +1462,7 @@ class CaseController extends BaseController
                 $getTemplateData = EmailTemplate::find(6);
                 $fullName=$request->first_name. ' ' .$request->last_name;
                 $email=$request->email;
-                $token=url('firmuser/verify', $user->token);
+                $token=url('user/verify', $user->token);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{name}', $fullName, $mail_body);
                 $mail_body = str_replace('{email}', $email,$mail_body);
@@ -3002,7 +2885,7 @@ class CaseController extends BaseController
                     $CaseEvent->end_time=NULL;
                 }else{ $CaseEvent->all_day="no";} 
                 if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";} 
-                $CaseEvent->recuring_event=$CaseEvent->recurring_event; 
+                $CaseEvent->recuring_event=$CaseEvent->recuring_event; 
                 $CaseEvent->event_frequency=$request->event_frequency;
                 $CaseEvent->event_interval_day=$request->event_interval_day;
                 if(isset($request->no_end_date_checkbox)) { 
@@ -4839,7 +4722,7 @@ class CaseController extends BaseController
                     "end_time" => (!isset($request->all_day)) ? $end_time : NULL,
                     "all_day" => (isset($request->all_day)) ? "yes" : "no",
                     "event_description" => $request->description,
-                    "recuring_event" => $CaseEvent->recurring_event,
+                    "recuring_event" => $CaseEvent->recuring_event,
                     "event_frequency" => $request->event_frequency,
                     "event_interval_day" => $request->event_interval_day,
                     "daily_weekname" => $request->daily_weekname,

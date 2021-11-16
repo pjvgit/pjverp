@@ -40,8 +40,13 @@
                                 echo substr(Auth::user()->last_name,0,15);
                             }?>
                         </div>
-                        <a class="dropdown-item" href="{{ route('load_profile') }}" >Account Settings</a>
-                        <a class="dropdown-item">Billing history</a>
+                        <a class="dropdown-item" href="{{ route('account/dashboard') }}" >All Settings</a>
+                        <a class="dropdown-item" href="{{ route('load_profile') }}" >My Profile & Contact Info</a>
+                        <a class="dropdown-item" >Add Firm User</a>
+                        <a class="dropdown-item" href="{{ route('contacts/attorneys') }}" >Firm User Permissions</a>
+                        @if (auth()->user()->getUserFirms() > 1)
+                        <a class="dropdown-item" href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" >Switch Account</a>
+                        @endif
                         <a data-toggle="modal" data-target="#logoutModel" data-placement="bottom" href="javascript:;"
                             class="dropdown-item">Sign out </a>
 

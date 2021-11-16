@@ -297,7 +297,7 @@ class HomeController extends BaseController
                         $userData=User::find($user->id);
                         $fullName=$userData['first_name']. ' ' .$userData['last_name'];
                         $email=$userData['email'];
-                        $token=url('firmuser/verify', $user->token);
+                        $token=url('user/verify', $user->token);
                         $mail_body = $getTemplateData->content;
                         $mail_body = str_replace('{name}', $fullName, $mail_body);
                         $mail_body = str_replace('{email}', $email,$mail_body);

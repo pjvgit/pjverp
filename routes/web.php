@@ -155,9 +155,10 @@ Route::post('/setupsave', 'UserController@setupsave')->name('setup');
 Route::get('/setupprofile/{token}', 'UserController@setupprofile')->name('setupprofile');
 Route::get('/users/email_template', 'UserController@email_template')->name('users.email_template');
 Route::get('testmail', 'UserController@testmail')->name('users.testmail');
-Route::get('/firmuser/verify/{token}', 'ContractController@verifyUser');
-Route::get('/setupuserpprofile/{token}', 'ContractController@setupuserpprofile')->name('setupuserpprofile');
-Route::post('/setupusersave', 'ContractController@setupusersave')->name('setupusersave');
+// Duplicate code so commented
+// Route::get('/firmuser/verify/{token}', 'ContractController@verifyUser');
+// Route::get('/setupuserpprofile/{token}', 'ContractController@setupuserpprofile')->name('setupuserpprofile');
+// Route::post('/setupusersave', 'ContractController@setupusersave')->name('setupusersave');
 Route::get('/firmclient/verify/{token}', 'ContractController@verifyClient');
 
 //After Login can access this routes
