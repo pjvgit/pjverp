@@ -5,16 +5,17 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Firm;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
+use App\Traits\UserTrait;
 use App\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redirect;
 
 class AuthController extends Controller 
 {
+    use UserTrait;
     /**
      * Verify user email
      */
@@ -23,14 +24,7 @@ class AuthController extends Controller
         $verifyUser = User::where('token', $token)->first();
         
         if(isset($verifyUser) ) {
-            $existVerifiedUser = User::whereEmail($verifyUser->email)->whereVerified(1)->whereNotNull('password')->first();
-            if($existVerifiedUser) {
-                $verifyUser->user_status = 1;
-                $verifyUser->verified = 1;
-                $verifyUser->password = $existVerifiedUser->password;
-                $verifyUser->user_timezone = $existVerifiedUser->user_timezone;
-                $verifyUser->save();
-
+            if($this->updateSameEmailUserDetail($verifyUser)) {
                 return redirect()->route('get/client/profile', $token);
             } else {
                 if($verifyUser->user_status == 1 && $verifyUser->verified == 1 && $verifyUser->last_login){
@@ -131,36 +125,37 @@ class AuthController extends Controller
     /**
      * Check user password and login
      */
-    public function updateClientProfile(Request $request)
+    public function updateClientProfile($token, Request $request)
     {
-        $user =  User::where(["token" => $request->token])->with('userAdditionalInfo')->first();
+        $user =  User::where(["token" => $token])->with('userAdditionalInfo')->first();
         if(isset($user) ) { 
-            if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password_confirmation)])) {
-                if($user->user_status == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 
-                    session(['layout' => 'horizontal']);
-                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
-                    $user->save();
-                    
-                    // Add history
-                    $data=[];
-                    $data['user_id']= $user->id;
-                    $data['client_id']= $user->id;
-                    $data['activity']='logged in to LegalCase';
-                    $data['activity_for']=$request->invoice_id;
-                    $data['type']='user';
-                    $data['action']='login';
-                    $CommonController= new CommonController();
-                    $CommonController->addMultipleHistory($data);
+            if (Hash::check(trim($request->password_confirmation), $user->password) && $user->user_status == '1') {
+                auth()->login($user);
+                session(['layout' => 'horizontal']);
+                $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                $user->save();
+                
+                // Add history
+                $data=[];
+                $data['user_id']= $user->id;
+                $data['client_id']= $user->id;
+                $data['activity']='logged in to LegalCase';
+                $data['activity_for']=$request->invoice_id;
+                $data['type']='user';
+                $data['action']='login';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
 
-                    if($user->getClientFirms() > 1) {
-                        return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
-                    }
-
+                if($user->getUserFirms() > 1) {
+                    return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
+                } else if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') {
                     return redirect()->route('client/home')->with('success','Login Successfully');
+                } else if($user->user_level == '3') {
+                    return redirect()->route('dashboard')->with('success','Login Successfully');
                 } else {
                     Auth::logout();
                     session()->flush();
-                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
+                    return redirect('login')->with('error', 'Something went wrong, please try again later');
                 }
             } else {
                 session()->flash('password_error', "Password doesn't match.");
@@ -201,17 +196,15 @@ class AuthController extends Controller
     public function getSwitchAccount($id, Request $request)
     {
         // Auth::logout();
-        $clientId = encodeDecodeId($id, 'decode');
-        $client = User::whereId($clientId)->first();
-        $firms = Firm::whereHas("user", function($query) use($client) {
-                    $query->whereEmail($client->email)->where("user_level", '2')
-                    ->whereHas("userAdditionalInfo", function($q) {
-                        $q->where("client_portal_enable", '1');
-                    });
-                })->with(['user' => function($query) use($client) {
-                    $query->whereEmail($client->email)->where("user_level", '2');
-                }])->get();
-        return view('client_portal.auth.switch_account', compact('client', 'firms'));
+        // session()->flush();
+        $userId = encodeDecodeId($id, 'decode');
+        $client = User::whereId($userId)->whereIn("user_level", ['2','3'])->where("user_status", '1')->first();
+        if($client) {
+            $firms = $this->getUserFirms($client);
+            return view('client_portal.auth.switch_account', compact('client', 'firms'));
+        } else {
+            return redirect('login')->with('error', 'Something went wrong, please try again later');
+        }
     }
 
     /**
@@ -220,15 +213,24 @@ class AuthController extends Controller
     public function loginUserAccount(Request $request)
     {
         // return $request->all();
-        $clientId = encodeDecodeId($request->client_id, 'decode');
-        $client = User::whereId($clientId)->where("user_level", '2')->where("user_status", '1')->whereHas("userAdditionalInfo", function($q) {
-                        $q->where("client_portal_enable", '1');
-                    })->first();
-        if($client) {
+        $userId = encodeDecodeId($request->client_id, 'decode');
+        $user = User::whereId($userId)->whereIn("user_level", ['2','3'])->where("user_status", '1')
+                    ->with(['userAdditionalInfo' => function($query) {
+                        $query->where("client_portal_enable", '1')->select(["user_id","client_portal_enable"]);
+                    }])->first();
+        if($user) {
             Auth::logout();
             session()->flush();
-            Auth::loginUsingId($client->id);
-            return redirect()->route('client/home')->with('success','Login Successfully');
+            if($user->user_level == '2' && $user->userAdditionalInfo && $user->userAdditionalInfo->client_portal_enable == '1') {
+                Auth::loginUsingId($user->id);
+                return redirect()->route('client/home')->with('success','Login Successfully');
+            } else if($user->user_level == '3') {
+                Auth::loginUsingId($user->id);
+                return redirect()->route('dashboard')->with('success','Login Successfully');
+            } else {
+                session()->flush();
+                return redirect('login')->with('error', 'Something went wrong, please try again later');
+            }
         } else {
             session()->flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
@@ -240,22 +242,15 @@ class AuthController extends Controller
      */
     public function setPrimaryAccount(Request $request)
     {
-        $clientId = encodeDecodeId($request->client_id, 'decode');
+        $userId = encodeDecodeId($request->client_id, 'decode');
         try {
-            $client = User::whereId($clientId)->where("user_level", '2')->where("user_status", '1')->whereHas("userAdditionalInfo", function($q) {
+            $user = User::whereId($userId)->whereIn("user_level", ['2','3'])->where("user_status", '1')
+                        /* ->whereHas("userAdditionalInfo", function($q) {
                             $q->where("client_portal_enable", '1');
-                        })->first();
-            User::whereEmail($client->email)->update(["is_primary_account" => "no"]);
-            $client->fill(["is_primary_account" => 'yes'])->save();
-            $firms = Firm::whereHas("user", function($query) use($client) {
-                        $query->whereEmail($client->email)->where("user_level", '2')
-                        ->whereHas("userAdditionalInfo", function($q) {
-                            $q->where("client_portal_enable", '1');
-                        });
-                    })->with(['user' => function($query) use($client) {
-                        $query->whereEmail($client->email)->where("user_level", '2');
-                    }])->get();
-
+                        }) */->first();
+            User::whereEmail($user->email)->update(["is_primary_account" => "no"]);
+            $user->fill(["is_primary_account" => 'yes'])->save();
+            $firms = $this->getUserFirms($user);
             $view = view('client_portal.auth.partial.load_user_account_list', compact('firms'))->render();
             return response()->json(['view' => $view, 'success' => true]);
         } catch (Exception $e) {

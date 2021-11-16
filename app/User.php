@@ -329,14 +329,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the clientFirms for the User
+     * Get all of the user Firms for the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function getClientFirms()
+    public function getUserFirms()
     {
-        return User::whereEmail($this->email)->whereHas("userAdditionalInfo", function($query) {
+        return User::where('users.email', $this->email)->where('users.user_status', '1')
+                ->leftjoin("users_additional_info", function($join) {
+                    $join->on("users.id", '=', 'users_additional_info.user_id');
+                })
+                /* ->whereHas("userAdditionalInfo", function($query) {
                     $query->where("client_portal_enable", '1');
-                })->count();
+                }) */->count();
     }
 }

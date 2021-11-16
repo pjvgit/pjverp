@@ -120,7 +120,7 @@ class ContractController extends BaseController
             $getTemplateData = EmailTemplate::find(6);
             $fullName=$request->first_name. ' ' .$request->last_name;
             $email=$request->email;
-            $token=url('firmuser/verify', $user->token);
+            $token=url('user/verify', $user->token);
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{name}', $fullName, $mail_body);
             $mail_body = str_replace('{email}', $email,$mail_body);
@@ -405,15 +405,19 @@ class ContractController extends BaseController
     }
 
     //Verify user once click on link shared by email.
-    public function verifyUser($token)
+    /* public function verifyUser($token)
     {
         $verifyUser = User::where('token', $token)->first();
         if(isset($verifyUser) ){
             if($verifyUser->user_status==1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
-                $status = EMAIL_VERIFIED;
-                return redirect('setupuserpprofile/'.$token);
+                if($this->updateSameEmailUser($verifyUser)) {
+                    return redirect()->route('get/client/profile', $token);
+                } else {
+                    $status = EMAIL_VERIFIED;
+                    return redirect('setupuserpprofile/'.$token);
+                }
             }
         }else{
             return redirect('login')->with('warning', EMAIL_NOT_IDENTIFIED);
@@ -431,6 +435,7 @@ class ContractController extends BaseController
      //open set password popup when verify email
      public function setupusersave(Request $request)
      {
+        // return $request->all();
         $request->validate([
             'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
             'confirm_password' => 'required|min:6',
@@ -476,13 +481,16 @@ class ContractController extends BaseController
                     Session::flush();
                     return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                 }
+            } else {
+                Session::flush();
+                return redirect('login')->with('warning', INACTIVE_ACCOUNT);
             }
         }else{
             Auth::logout();
             Session::flush();
             return redirect('login')->with('warning', INACTIVE_ACCOUNT);
         }
-     }
+     } */
 
      //Send welcome email to user as many times want to send.
      public function SendWelcomeEmail(Request $request)
@@ -491,7 +499,7 @@ class ContractController extends BaseController
             $getTemplateData = EmailTemplate::find(6);
              $fullName=$user->first_name. ' ' .$user->last_name;
              $email=$user->email;
-             $token=url('firmuser/verify', $user->token);
+             $token=url('user/verify', $user->token);
              $mail_body = $getTemplateData->content;
              $mail_body = str_replace('{name}', $fullName, $mail_body);
              $mail_body = str_replace('{email}', $email,$mail_body);
@@ -618,7 +626,7 @@ class ContractController extends BaseController
                 $getTemplateData = EmailTemplate::find(6);
                 $fullName=$request->first_name. ' ' .$request->last_name;
                 $email=$request->email;
-                $token=url('firmuser/verify', $user->token);
+                $token=url('user/verify', $user->token);
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{name}', $fullName, $mail_body);
                 $mail_body = str_replace('{email}', $email,$mail_body);

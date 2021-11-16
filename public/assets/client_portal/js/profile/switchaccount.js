@@ -1,3 +1,5 @@
+
+var allowSubmit = false;
 /**
  * Chnage primary account
  */
@@ -5,6 +7,7 @@ $(".change-account").on("click", function() {
     $("#select-options").removeClass("d-none");
     $("#standard-options").addClass("d-none");
     $("#change_account").val("yes");
+    allowSubmit = false;
 });
 
 /**
@@ -14,16 +17,18 @@ $(".cancel-change-account").on("click", function() {
     $("#select-options").addClass("d-none");
     $("#standard-options").removeClass("d-none");
     $("#change_account").val("no");
+    allowSubmit = true;
 });
 
-$(".launchpad-select-user-form").on("submit", function(e) {
+// $(".launchpad-select-user-form").on("submit", function(e) {
+$(document).on("click", ".launchpad", function(e) {
     var changeAccount = $("#change_account").val();
-    if(changeAccount == 'yes') {
+    if(changeAccount == 'yes' && !allowSubmit) {
         e.preventDefault();
         $.ajax({
             url: baseUrl+"/selectuser/primary/account",
             type: "POST",
-            data: $(this).serialize(),
+            data: $(this).parents('form').serialize(),
             success: function(data) {
                 console.log(data);
                 if(data.success && data.view != '') {
@@ -31,8 +36,9 @@ $(".launchpad-select-user-form").on("submit", function(e) {
                     $(".cancel-change-account").trigger("click");
                 }
             }
-        })
+        });
+        return false;
     } else {
-        $(this).submit();
+        $(this).parents('form').submit();
     }
 });

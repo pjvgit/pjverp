@@ -17,7 +17,7 @@
                 <div class="form-group row">
                     <label class="col-sm-3 col-form-label " for="inputEmail3">Set Password</label>
                     <div class="col-sm-9">
-                        <input id="email" autofocus
+                        <input id="email" autofocus type="password"
                         class="form-control form-control-rounded {{ $errors->has('password') ? ' is-invalid' : '' }}"
                         name="password" value="{{ old('password') }}" required autocomplete="password" autofocus>
                         @if ($errors->has('password'))
@@ -30,7 +30,7 @@
                 <div class="form-group row">
                     <label class="col-sm-3 col-form-label " for="inputEmail3">Confirm Password</label>
                     <div class="col-sm-9">
-                        <input id="email" autofocus
+                        <input id="email" autofocus type="password"
                         class="form-control form-control-rounded {{ $errors->has('confirm_password') ? ' is-invalid' : '' }}"
                         name="confirm_password" value="{{ old('confirm_password') }}" required autocomplete="confirm_password" autofocus>
                         @if ($errors->has('confirm_password'))

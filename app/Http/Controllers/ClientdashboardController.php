@@ -2478,7 +2478,7 @@ class ClientdashboardController extends BaseController
             $getTemplateData = EmailTemplate::find(6);
             $fullName=$request->first_name. ' ' .$request->last_name;
             $email=$request->email;
-            $token=url('firmuser/verify', $user->token);
+            $token=url('user/verify', $user->token);
             $mail_body = $getTemplateData->content;
             $mail_body = str_replace('{name}', $fullName, $mail_body);
             $mail_body = str_replace('{email}', $email,$mail_body);

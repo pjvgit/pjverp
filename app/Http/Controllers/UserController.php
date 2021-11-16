@@ -15,12 +15,14 @@ use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Traits\UserRecentActivityTrait;
+use App\Traits\FirmDefaultSettingTrait;
+use App\Traits\UserTrait;
 
 class UserController extends BaseController
 {
     use InvoiceSettingTrait;
-    use UserRecentActivityTrait;
+    use FirmDefaultSettingTrait;
+    use UserTrait;
     public function __construct()
     {
         // $this->middleware("auth");
@@ -52,46 +54,35 @@ class UserController extends BaseController
             if (Auth::attempt(['email' => $email, 'password' => $password])) {
                 Auth::logoutOtherDevices($password);
 
-                $userStatus = Auth::User()->user_status;
                 $user = User::find(Auth::User()->id);
-                // $user->last_login=date('Y-m-d h:i:s');
-                // $user->save();
-                if($user->user_level == "2") {
-                    if($user->userAdditionalInfo->client_portal_enable == '1') {
-                        $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
-                        $user->save();
-                        
-                        // Add history
-                        $data=[];
-                        $data['user_id']= $user->id;
-                        $data['client_id']= $user->id;
-                        $data['activity']='logged in to LegalCase';
-                        $data['activity_for']=$request->invoice_id;
-                        $data['type']='user';
-                        $data['action']='login';
-                        $CommonController= new CommonController();
-                        $CommonController->addMultipleHistory($data);
-
-                        if($user->getClientFirms() > 1) {
-                            return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
-                        }
-                        
-                        return redirect()->intended('client/home')->with('success','Login Successfully');
-                    } else {
-                        return abort(403);
-                    }
+                if($user->getUserFirms() > 1) {
+                    return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
+                } else if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') {
                     
-                } else if($user->user_level == "3") {
+                    $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $user->save();
+                    
+                    // Add history
+                    $data=[];
+                    $data['user_id']= $user->id;
+                    $data['client_id']= $user->id;
+                    $data['activity']='logged in to LegalCase';
+                    $data['type']='user';
+                    $data['action']='login';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+                    return redirect()->route('client/home')->with('success','Login Successfully');
+                } else if($user->user_level == '3') {
                     // Save invoice settings if user is old and has not invoice default setting
                     $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);
 
-                    if($userStatus=='1') { //User status active then able to login
+                    if($user->user_status=='1') { //User status active then able to login
                         session(['layout' => 'horizontal']);
                         $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                         $user->save();
                         session()->flash("firmCaseCount", count(userCaseList() ?? []));
                         return redirect()->intended('dashboard')->with('success','Login Successfully');
-                    }else if($userStatus == "3") {
+                    }else if($user->user_status == "3") {
                         Auth::logout();
                         Session::flush();
                         return response()->make(view('errors.403'), 403);
@@ -101,6 +92,10 @@ class UserController extends BaseController
                         Session::flush();
                         return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                     }
+                } else {
+                    Auth::logout();
+                    session()->flush();
+                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
                 }
             }else{
                 return redirect('login')->with('error', ERROR_LOGIN_MESSAGE)->withInput();
@@ -215,58 +210,23 @@ class UserController extends BaseController
             if($verifyUser->user_status==1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
-                // insert recent notifications into user settings
-                $this->bulkInsertUserActivity($verifyUser->id);
-
-                //Insert default case stage 
-                $CaseStage =  CaseStage::where('firm_id', $verifyUser->firm_name)->get();
-                if(count($CaseStage) == 0){
-                    $data = array(
-                        array('stage_order' => 1, 'title'=>'Discovery', 'stage_color'=>'#FF0000','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                        array('stage_order' => 2, 'title'=>'In Trial', 'stage_color'=>'#00FF00','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                        array('stage_order' => 3, 'title'=>'On Hold', 'stage_color'=>'#0000FF','firm_id' => $verifyUser->firm_name,'created_by' => $verifyUser->id, 'created_at' => date('Y-m-d')),
-                    );        
-                    CaseStage::insert($data);
+                if($verifyUser->parent_user == 0) {
+                    // insert recent notifications into user settings
+                    $this->bulkInsertUserActivity($verifyUser->id);
+                    //Insert default case stage 
+                    $this->saveFirmDefaultCaseStages($verifyUser);
+                    // Insert default practice area
+                    $this->saveFirmDefaultPracticeArea($verifyUser);
+                    $status = EMAIL_VERIFIED;
+                    return redirect('setupprofile/'.$token);
+                } else {
+                    if($this->updateSameEmailUserDetail($verifyUser)) {
+                        return redirect()->route('get/client/profile', $token);
+                    } else {
+                        $status = EMAIL_VERIFIED;
+                        return redirect('setupuserpprofile/'.$token);
+                    }
                 }
-
-                // $case_practice_area = array(
-                //     array('title' => 'Bankruptcy','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Business','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Civil','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Criminal Defense','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Divorce/Separation','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'DUI/DWI','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Employment','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Estate Planning','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Family','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Foreclosure','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Immigration','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Landlord/Tenant','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Personal Injury','status' => '1',"created_by"=>$verifyUser->id),
-                //     array('title' => 'Real Estate','status' => '1',"created_by"=>$verifyUser->id)
-                //   );
-                //   CasePracticeArea::insert($case_practice_area);
-
-                $CasePracticeArea = array(
-                    array('title'=>'Bankruptcy','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Business','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Civil Party','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Criminal Defense','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Divorce/Separation','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'DUI/DWI','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Employment','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Estate Planning','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Family','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Foreclosure','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Immigration','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Landlord/Tenant','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Personal Injury','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Real Estate','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                    array('title'=>'Tax','status' => '1','firm_id' => $verifyUser->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $verifyUser->id),
-                );
-                CasePracticeArea::insert($CasePracticeArea);
-                $status = EMAIL_VERIFIED;
-                return redirect('setupprofile/'.$token);
             }
         }else{
             return redirect('login')->with('warning', EMAIL_NOT_IDENTIFIED);
@@ -949,7 +909,7 @@ class UserController extends BaseController
             User::where('id',$user->id)->update(['password'=>Hash::make(trim($request->password)),
             'user_timezone'=>$request->user_timezone,
             'verified'=>"1",
-            'user_status'=>"1"
+            'user_status'=>"1",
             ]);
 
              //Sent welcome email to user.
@@ -974,6 +934,8 @@ class UserController extends BaseController
             if (Auth::attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 
+                    $verifyUser->last_login = Carbon::now()->format('Y-m-d H:i:s');
+                    $verifyUser->save();
                     session(['layout' => 'horizontal']);
                     session()->flash("show_your_firm_popup", "yes");
                     return redirect()->intended('dashboard')->with('success','Login Successfully');
