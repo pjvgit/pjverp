@@ -7,7 +7,7 @@ use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission;
+use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
 use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity;
 use App\CaseEvent,App\CaseEventLocation,App\EventType;

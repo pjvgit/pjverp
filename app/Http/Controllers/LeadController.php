@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\LeadStatus,App\ReferalResource;
 use App\LeadAdditionalInfo,App\NotHireReasons;
-use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission;
+use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
 use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity,App\UsersAdditionalInfo;
 use App\CaseEvent,App\CaseEventLocation,App\EventType;

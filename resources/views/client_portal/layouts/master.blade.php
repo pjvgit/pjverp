@@ -63,6 +63,39 @@
         </div>
     </div>
 </div>
+{{-- Login modal --}}
+{{-- <div id="login_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Your session has expired</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form>
+                            <p>Please log in again to continue using the portal</p>
+                            <input type="hidden" name="login_session[email]" value="emma@mailinator.com">
+                            <div class="form-input mb-2">
+                                <div class="form-input__label">Email</div>
+                                <div class="u-word-wrap-break-word">emma@mailinator.com</div>
+                            </div>
+                            <div class="form-input is-required">
+                                <label class="form-input__label" for="login_session_password">Password</label>
+                                <input id="login_session_password" name="login_session[password]" required="" type="password" class="form-input__field">
+                            </div>
+                            <div class="mt-4">
+                                <button disabled="" type="submit" aria-label="Please fill out all required fields." class="form__submit tooltipped tooltipped-ne">Log In</button>
+                                <button class="btn btn-link form__cancel" type="button">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> --}}
 
 {{-- common js --}}
 <script src="{{  asset('assets/js/common-bundle-script.js')}}"></script>
@@ -200,7 +233,10 @@ $(document)
         });
     });
     @endif
-    
+
+// For Header menu dropdown
+$("#header-dd").trigger("click");
+
 </script>
 <style>
 .search-ui {background-color: #ffffff !important;}

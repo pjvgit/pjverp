@@ -102,7 +102,7 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client_share_all" id="client_share_all"
-                        <?php if(count($caseLinkeSaved)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
+                        <?php if(count(collect($caseLinkeSaved)->where('is_linked', 'no'))==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     <?php }else{ ?>
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">

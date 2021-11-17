@@ -195,7 +195,7 @@ class AuthController extends Controller
      */
     public function getSwitchAccount($id, Request $request)
     {
-        // Auth::logout();
+        Auth::logout();
         // session()->flush();
         $userId = encodeDecodeId($id, 'decode');
         $client = User::whereId($userId)->whereIn("user_level", ['2','3'])->where("user_status", '1')->first();

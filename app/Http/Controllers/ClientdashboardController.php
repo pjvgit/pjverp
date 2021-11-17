@@ -7,7 +7,7 @@ use DB,Validator,Session,Mail,Storage,Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission;
+use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\ClientGroup,App\UsersAdditionalInfo,App\CaseClientSelection,App\CaseStaff,App\TempUserSelection;
 use App\Firm,App\ClientActivity,App\ClientNotes;
 use Illuminate\Support\Facades\Crypt;
