@@ -48,10 +48,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
           <div style="float: left; margin-left: 20px;">
             <select name="notification_email_interval" id="notification_email_interval" class="custom-select">
                 <option value="0" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 0) ? 'selected' : ''; ?> >Turn off</option>
-                <option value="5" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 5) ? 'selected' : ''; ?> >Send every 5 minutes</option>
-                <option value="15" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 15) ? 'selected' : ''; ?> >Send every 15 minutes</option>
-                <option value="30" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 30) ? 'selected' : ''; ?> >Send every 30 minutes</option>
-                <option value="60" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 60) ? 'selected' : ''; ?> >Send every hour</option>
                 <option value="1440" <?php echo ( isset($UsersAdditionalInfo->notification_email_interval) && $UsersAdditionalInfo->notification_email_interval == 1440) ? 'selected' : ((!isset($UsersAdditionalInfo->notification_email_interval)) ? 'selected' : ''); ?> >Send once a day</option>
             </select>
           </div>

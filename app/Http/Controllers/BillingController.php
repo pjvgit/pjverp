@@ -598,43 +598,45 @@ class BillingController extends BaseController
             $lastKey = key(array_slice($request->case_or_lead, -1, 1, true));
             for($i=1;$i<=$lastKey;$i++){
                 if(isset($request->case_or_lead[$i])){
-                    $ExpenseEntry = new ExpenseEntry; 
-                    $ExpenseEntry->case_id =$request->case_or_lead[$i];
-                    $ExpenseEntry->user_id =$request->staff_user;
-                    $ExpenseEntry->activity_id=$request->activity[$i];
-                    if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
-                        $ExpenseEntry->time_entry_billable="yes";
-                    }else{
-                        $ExpenseEntry->time_entry_billable="no";
+                    if($request->cost[$i] != ''){
+                        $ExpenseEntry = new ExpenseEntry; 
+                        $ExpenseEntry->case_id =$request->case_or_lead[$i];
+                        $ExpenseEntry->user_id =$request->staff_user;
+                        $ExpenseEntry->activity_id=$request->activity[$i];
+                        if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
+                            $ExpenseEntry->time_entry_billable="yes";
+                        }else{
+                            $ExpenseEntry->time_entry_billable="no";
+                        }
+                        $ExpenseEntry->description=$request->description[$i];
+                        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                        $ExpenseEntry->cost=$request->cost[$i];
+                        $ExpenseEntry->duration =$request->duration[$i];
+                        $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
+                        $ExpenseEntry->created_by=Auth::User()->id; 
+                        $ExpenseEntry->save();
+
+                        //Add expense history
+                        $data=[];
+                        $data['case_id']=$ExpenseEntry->case_id;
+                        $data['user_id']=$ExpenseEntry->user_id;
+                        $data['activity']='added an expense';
+                        $data['activity_for']=$ExpenseEntry->activity_id;
+                        $data['expense_id']=$ExpenseEntry->id;
+                        $data['type']='expenses';
+                        $data['action']='add';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+
+                        //Case Activity
+                        $activity_text = TaskActivity::find($ExpenseEntry->activity_id);
+                        $data=[];
+                        $data['activity_title']='added an expense';
+                        $data['case_id']=$ExpenseEntry->case_id;
+                        $data['activity_type']='';
+                        $data['extra_notes']=$activity_text->title ?? NUll;
+                        $this->caseActivity($data);
                     }
-                    $ExpenseEntry->description=$request->description[$i];
-                    $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
-                    $ExpenseEntry->cost=$request->cost[$i];
-                    $ExpenseEntry->duration =$request->duration[$i];
-                    $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
-                    $ExpenseEntry->created_by=Auth::User()->id; 
-                    $ExpenseEntry->save();
-
-                    //Add expense history
-                    $data=[];
-                    $data['case_id']=$ExpenseEntry->case_id;
-                    $data['user_id']=$ExpenseEntry->user_id;
-                    $data['activity']='added an expense';
-                    $data['activity_for']=$ExpenseEntry->activity_id;
-                    $data['expense_id']=$ExpenseEntry->id;
-                    $data['type']='expenses';
-                    $data['action']='add';
-                    $CommonController= new CommonController();
-                    $CommonController->addMultipleHistory($data);
-
-                    //Case Activity
-                    $activity_text = TaskActivity::find($ExpenseEntry->activity_id);
-                    $data=[];
-                    $data['activity_title']='added an expense';
-                    $data['case_id']=$ExpenseEntry->case_id;
-                    $data['activity_type']='';
-                    $data['extra_notes']=$activity_text->title ?? NUll;
-                    $this->caseActivity($data);
                 }
             }
             
@@ -5241,6 +5243,14 @@ class BillingController extends BaseController
         {
             return view('pages.404');
         }else{
+            $bill_from_date='';
+            $bill_to_date='';
+            $filterByDate='';
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $bill_from_date=$request->bill_from_date;
+                $bill_to_date=$request->bill_to_date;
+                $filterByDate='yes';
+            }
             //Get all client related to firm
             // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
             $ClientList = userClientList();
@@ -5275,20 +5285,26 @@ class BillingController extends BaseController
             $caseMaster = CaseMaster::whereId($case_id)->with("caseAllClient")->first();
 
             //Get the Time Entry list
-            $TimeEntry=TimeEntryForInvoice::leftJoin("task_time_entry","time_entry_for_invoice.time_entry_id","=","task_time_entry.id")
-            ->leftJoin("users","users.id","=","task_time_entry.user_id")
-            ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
-            ->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")
-            ->where("time_entry_for_invoice.invoice_id",$invoiceID)
+            $TimeEntry=TimeEntryForInvoice::leftJoin("task_time_entry","time_entry_for_invoice.time_entry_id","=","task_time_entry.id");
+            $TimeEntry=$TimeEntry->leftJoin("users","users.id","=","task_time_entry.user_id");
+            $TimeEntry=$TimeEntry->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id");
+            $TimeEntry=$TimeEntry->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd");
+            $TimeEntry=$TimeEntry->where("time_entry_for_invoice.invoice_id",$invoiceID);
             // ->where("task_time_entry.remove_from_current_invoice","no")
-            ->get();
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $TimeEntry=$TimeEntry->whereBetween('time_entry_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+            }
+            $TimeEntry=$TimeEntry->get();
         
             //Get the Expense Entry list
-            $ExpenseEntry=ExpenseForInvoice::leftJoin("expense_entry","expense_for_invoice.expense_entry_id","=","expense_entry.id")
-            ->leftJoin("users","users.id","=","expense_entry.user_id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")->where("expense_entry.case_id",$case_id)
+            $ExpenseEntry=ExpenseForInvoice::leftJoin("expense_entry","expense_for_invoice.expense_entry_id","=","expense_entry.id");
+            $ExpenseEntry=$ExpenseEntry->leftJoin("users","users.id","=","expense_entry.user_id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")->where("expense_entry.case_id",$case_id);
             // ->where("expense_entry.remove_from_current_invoice","no")
-            ->where("expense_for_invoice.invoice_id",$invoiceID)
-            ->get();
+            $ExpenseEntry=$ExpenseEntry->where("expense_for_invoice.invoice_id",$invoiceID);
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $ExpenseEntry=$ExpenseEntry->whereBetween('expense_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+            }
+            $ExpenseEntry=$ExpenseEntry->get();
 
             //Get the Adjustment list
             $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
@@ -5302,15 +5318,16 @@ class BillingController extends BaseController
             $InvoiceInstallment=InvoiceInstallment::select("*")
             ->where("invoice_installment.invoice_id",$invoiceID)
             ->get();
-            
-
-            
+                        
             //Get the flat fee Entry list
-            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
-            ->leftJoin("users","users.id","=","flat_fee_entry.user_id")
-            ->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
-            ->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID)
-            ->get();
+            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id");
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->leftJoin("users","users.id","=","flat_fee_entry.user_id");
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd");
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID);
+            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+                $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereBetween('flat_fee_entry_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+            }
+            $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->get();
 
             $SharedInvoice=SharedInvoice::select("*")->where("invoice_id",$invoiceID)->get()->pluck('user_id')->toArray();
 
@@ -5327,7 +5344,7 @@ class BillingController extends BaseController
             }
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting'));
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting','bill_from_date','bill_to_date','filterByDate'));
         }
     }
 
@@ -5609,7 +5626,7 @@ class BillingController extends BaseController
                     $InvoiceInstallment->created_by=Auth::User()->id; 
                     $InvoiceInstallment->firm_id=Auth::User()->firm_name;
                     if($paidAmt > 0){
-                        if($paidAmt > str_replace(",","",$vv['amount'])){
+                        if($paidAmt >= str_replace(",","",$vv['amount'])){
                             $InvoiceInstallment->status = 'paid';
                             $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
                             $InvoiceInstallment->adjustment = str_replace(",","",$vv['amount']);

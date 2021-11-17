@@ -4,7 +4,7 @@
     <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
             aria-controls="profileBasic" aria-selected="false">Bulk</a></li>
 </ul>
-<div class="tab-content" id="myTabContent">
+<div class="tab-content" id="myTabContent" bladefile="resources/views/billing/expenses/loadExpenseEntryPopup.blade.php">
     <span id="showError" class="showError" style="display: none;"></span>
     <div class="tab-pane fade show active" id="homeBasic" role="tabpanel" aria-labelledby="home-basic-tab">
         <form class="savenewTimeEntry" id="savenewTimeEntry" name="savenewTimeEntry" method="POST">
@@ -219,7 +219,7 @@
                         </div>
                     </div>
                     <div class="pr-2 col-3">
-                        <input id="bulk-time-entry-row-description-0" name="description[1]"
+                        <input id="bulk-time-entry-row-description-1" name="description[1]"
                             class="form-control description-field"
                             value="">
                     </div>
@@ -435,6 +435,15 @@
                 '');
             $option3.attr('required', 'required');
 
+            $option32 = $clone.find('[name="cost[]"]');
+                $option32.attr('id', 'hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(
+                    1)) + '');
+                $option32.attr('required', 'required');
+
+            $option4 = $clone.find('[name="description[]"]');
+            $option4.attr('id', 'bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1)) +
+                '');
+
             $option33 = $clone.find('[name="billable[]"]');
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
@@ -461,6 +470,10 @@
             //For option 31
             $('#hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'cost[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+
+            //For option 4
+            $('#bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                            'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
 
             //For option 3
@@ -615,6 +628,10 @@
                     1)) + '');
                 $option32.attr('required', 'required');
 
+                $option4 = $clone.find('[name="description[]"]');
+                $option4.attr('id', 'bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1)) +
+                '');
+
 
                 $option22 = $clone.find('[class="billtext"]');
                 $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
@@ -646,6 +663,10 @@
                 //For option 3
                 $('#hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                     'cost[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                
+                //For option 4
+                $('#bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                    'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
                 //For option 3
                 $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 'billable[' +
@@ -927,6 +948,10 @@
             $option3x.attr('id', 'hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option3x.attr('required', 'required');
 
+            $option4 = $clone.find('[name="description[]"]');
+            $option4.attr('id', 'bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1)) +
+                '');
+
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
@@ -952,8 +977,13 @@
 
 
             //For option 3x
-            $('#hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(1))).attr('name','cost[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+            $('#hideoptioninput2cost' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'cost[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
+            //For option 4
+            $('#bulk-time-entry-row-description-' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                
             //For option 3
 
             $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 'billable[' + (parseInt(

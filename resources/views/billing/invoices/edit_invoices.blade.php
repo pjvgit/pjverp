@@ -227,13 +227,15 @@
                                     </td>
                                     <td style="color: black; vertical-align: middle;" class="range_select disabled">From:
                                     </td>
-                                    <td><input value="" class="date range_select disabled form-control  hasDatepicker"
-                                            style="width: 115px;" disabled="disabled" type="text" name="bill_from_date"
-                                            id="bill_from_date"></td>
-                                    <td style="color: black; vertical-align: middle;" class="range_select disabled">to</td>
-                                    <td><input value="" class="date range_select disabled  form-control  hasDatepicker"
-                                            style="width: 115px;" disabled="disabled" type="text" name="bill_to_date"
-                                            id="bill_to_date"></td>
+                                    <td style="width: 100%;">
+                                        <div class="input-daterange input-group" id="datepicker" style="display:ruby;">
+                                        <input style="width: 115px;" type="text" class="form-control" name="bill_from_date" value="{{$bill_from_date}}"
+                                        id="bill_from_date" disabled="disabled" />
+                                        <span class="input-group-addon">&nbsp;To&nbsp;</span>
+                                        <input style="width: 115px;"  disabled="disabled" type="text" class="form-control" name="bill_to_date" value="{{$bill_to_date}}"
+                                        id="bill_to_date" />
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1629,8 +1631,8 @@
                                                                     <div class="pr-1 col-md-3 offset-md-3">
                                                                         <div class="input-group">
                                                                             <input id="number_installment_field"
-                                                                                data-testid="number-installment-field"  min="2" step="1" type="number"
-                                                                                class="form-control" value="" name="number_installment_field"></div>
+                                                                                data-testid="number-installment-field"  min="2" type="number"
+                                                                                class="form-control" value="" name="number_installment_field" onkeydown="if(event.key==='.'){event.preventDefault();}"  oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');"></div>
                                                                         <div class="d-flex invalid-feedback number_installment_field_error"></div>
                                                                     </div>
                                                                     <div class="pl-0 col-md-6">
@@ -2713,6 +2715,33 @@
         }); */
         $('[data-toggle="tooltip"]').tooltip();
 
+        $('.input-daterange').datepicker({
+            format : 'm/d/yyyy',
+            clearBtn: true,
+            keyboardNavigation: false,
+            forceParse: false,
+            todayBtn: "linked",
+            todayHighlight : true
+        });                
+        $('#bill_from_date').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        }).on('change',function(e){
+            changeCase();
+        });       
+        $('#bill_to_date').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        }).on('change',function(e){
+            changeCase();
+        });
+
         $('.tdTime').hover(
             function () { //this is fired when the mouse hovers over
                 $(this).find('.image_link_sprite_cancel').show();
@@ -3494,7 +3523,12 @@
     }
     function changeCase(){
         var case_id=$("#court_case_id").val();
-        var URLS=baseUrl+'/bills/invoices/new?court_case_id='+case_id+'&token={{$adjustment_token}}';
+        var bill_from_date=$("#bill_from_date").val();
+        var bill_to_date=$("#bill_to_date").val();
+        var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
+        if(bill_from_date != '' && bill_to_date != ''){
+            URLS+='&bill_from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
+        }
         window.location.href=URLS;
     }
 
@@ -4368,6 +4402,26 @@ function allowPaymentPlan(){
     calculatePaymentPlansForm(); 
     return false;
 }
+<?php if(isset($filterByDate) && $filterByDate=="yes") {?>
+    $("input:checkbox#range_check_box").attr("checked","checked");
+    $('#bill_from_date').removeAttr("disabled");
+    $('#bill_to_date').removeAttr("disabled");
+<?php } ?>
+$("input:checkbox#range_check_box").click(function () {
+    if ($(this).is(":checked")) {
+        $('#bill_from_date').removeAttr("disabled");
+        $('#bill_to_date').removeAttr("disabled");
+    } else {
+        $("#bill_from_date").attr("disabled", true);
+        $("#bill_to_date").attr("disabled", true);
+        $('#bill_from_date').val('');
+        $('#bill_to_date').val('');
+        var case_id=$("#court_case_id").val();
+        var contact=$("#contact").val();
+        var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
+        window.location.href=URLS;
+    }
+});
 </script>
 @stop
 @endsection

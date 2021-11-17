@@ -931,6 +931,60 @@
                                         </tbody>
                                         </table>
                                     @endif
+                                    @if($v->type == 'notes')
+                                    <?php 
+                                        $imageLink=[];
+                                        $imageLink["add"]="activity_note_added.png";
+                                        $imageLink["update"]="activity_note_updated.png";
+                                        $imageLink["delete"]="activity_note_deleted.png";
+                                        $image=$imageLink[$v->action];
+                                    ?>                                    
+                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+                                    <tbody>
+                                        <tr style="margin:0;padding:0;border:0">
+                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                            <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                            <tbody>
+                                            <tr>
+                                            <td style="width:25px" width="25px">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                                            </td>
+                                            <td style="font-size:12px">
+                                                <?php if($v->notes_for_case!=NULL){?>
+                                                <a class="name"
+                                                    href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}}
+                                                    {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for case <a class="name"
+                                                    href="{{ route('info', $v->notes_for['case_unique_number']) }}"><?php echo $v->notes_for['case_title'];?>
+                                                </a> <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via
+                                                web |
+                                                <a class="name"
+                                                    href="{{ route('info', $v->notes_for['case_unique_number']) }}"><?php echo $v->notes_for['case_title'];?>
+                                                </a>
+                                                <?php } ?>
+
+                                                <?php if($v->notes_for_client!=NULL){?>
+                                                <a class="name"
+                                                    href="{{ route('contacts/attorneys/info', base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
+                                                    {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for client <a class="name"
+                                                    href="{{ route('contacts/clients/view', $v->notes_for['id']) }}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                                                    {{"(".$v->notes_for['user_title'].")"}}</a>
+                                                <?php } ?>
+                                                <?php if($v->notes_for_company!=NULL){?>
+                                                <a class="name"
+                                                    href="{{ route('contacts/attorneys/info',base64_encode($v->notes_for['id'])) }}">{{$v->first_name}}
+                                                    {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for company <a class="name"
+                                                    href="{{ route('contacts/companies/view', $v->notes_for_company) }}"><?php echo $v->notes_for['first_name'] .' '.$v->notes_for['last_name'];?>
+                                                    (Company)</a>
+                                                <?php } ?>
+                                            </td>
+                                            </tr>
+                                            </tbody>
+                                            </table>
+                                        </td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                    @endif
                                     <?php  if($v->type == 'time_entry'){
                                         switch ($v->action) {
                                             case 'update':
@@ -956,23 +1010,9 @@
                                                 $addExpenseEntryCount += 1;
                                                 break;
                                         }
-                                    }                                    
-                                    if($v->type == 'notes'){
-                                        switch ($v->action) {
-                                            case 'update':
-                                                $updateNotesCount += 1;
-                                                break;
-                                            case 'delete':
-                                                $deleteNotesCount += 1;
-                                                break;
-                                            default:
-                                                $addNotesCount += 1;
-                                                break;
-                                        }
                                     } 
                                     ?>
-                                    @endforeach
-                                    
+                                    @endforeach                                    
                                     <?php if($addTimeEntryCount > 0 || $addExpenseEntryCount > 0) { ?>
                                     <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
                                     <tbody>
@@ -1081,96 +1121,7 @@
                                         </tbody>
                                     </table>
                                     <?php } ?>          
-                                    @if($addNotesCount > 0)
-                                    <?php 
-                                        $imageLink=[];
-                                        $imageLink["add"]="activity_note_added.png";
-                                        $imageLink["update"]="activity_note_updated.png";
-                                        $imageLink["delete"]="activity_note_deleted.png";
-                                        $image=$imageLink[$v->action];
-                                    ?>                            
-                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
-                                    <tbody>
-                                        <tr style="margin:0;padding:0;border:0">
-                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                        <tbody>
-                                            <tr>
-                                            <td style="width:25px" width="25px">
-                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                                            </td>
-                                            <td style="font-size:12px">
-                                                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
-                                                added {{$addNotesCount}} notes     
-                                            </td>
-                                            </tr>
-                                        </tbody>
-                                        </table>
-                                        </td>
-                                        </tr>
-                                    </tbody>
-                                    </table>
-                                    @endif
-                                    @if($updateNotesCount > 0)
-                                    <?php 
-                                        $imageLink=[];
-                                        $imageLink["add"]="activity_note_added.png";
-                                        $imageLink["update"]="activity_note_updated.png";
-                                        $imageLink["delete"]="activity_note_deleted.png";
-                                        $image=$imageLink[$v->action];
-                                    ?>                            
-                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
-                                    <tbody>
-                                        <tr style="margin:0;padding:0;border:0">
-                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                        <tbody>
-                                            <tr>
-                                            <td style="width:25px" width="25px">
-                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                                            </td>
-                                            <td style="font-size:12px">
-                                                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
-                                                updated {{$updateNotesCount}} notes     
-                                            </td>
-                                            </tr>
-                                        </tbody>
-                                        </table>
-                                        </td>
-                                        </tr>
-                                    </tbody>
-                                    </table>
-                                    @endif
-                                    @if($deleteNotesCount > 0)
-                                    <?php 
-                                        $imageLink=[];
-                                        $imageLink["add"]="activity_note_added.png";
-                                        $imageLink["update"]="activity_note_updated.png";
-                                        $imageLink["delete"]="activity_note_deleted.png";
-                                        $image=$imageLink[$v->action];
-                                    ?>                            
-                                    <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
-                                    <tbody>
-                                        <tr style="margin:0;padding:0;border:0">
-                                        <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
-                                        <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
-                                        <tbody>
-                                            <tr>
-                                            <td style="width:25px" width="25px">
-                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-                                            </td>
-                                            <td style="font-size:12px">
-                                                <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
-                                                deleted {{$deleteNotesCount}} notes     
-                                            </td>
-                                            </tr>
-                                        </tbody>
-                                        </table>
-                                        </td>
-                                        </tr>
-                                    </tbody>
-                                    </table>
-                                    @endif
+                                    
                         </tbody>
                         </table>
 

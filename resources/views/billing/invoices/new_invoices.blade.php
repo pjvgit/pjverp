@@ -1758,8 +1758,8 @@ if(!isset($addition)){ $addition=0;}
                                                                     <div class="pr-1 col-md-3 offset-md-3">
                                                                         <div class="input-group">
                                                                             <input id="number_installment_field"
-                                                                                data-testid="number-installment-field" min="2" step="1" type="number"
-                                                                                class="form-control" value="" name="number_installment_field">
+                                                                                data-testid="number-installment-field" min="2" type="number"
+                                                                                class="form-control" value="" name="number_installment_field" onkeydown="if(event.key==='.'){event.preventDefault();}"  oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');">
                                                                                 <span class="d-flex invalid-feedback number_installment_field_error"></span>
                                                                             </div>
                                                                         <div class="d-flex invalid-feedback"></div>
@@ -3325,7 +3325,15 @@ if(!isset($addition)){ $addition=0;}
             todayBtn: "linked",
             todayHighlight : true
         });
-
+        $('#bill_from_date').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        }).on('change',function(e){
+            changeCase();
+        });
         $('#bill_to_date').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,

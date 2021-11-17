@@ -84,7 +84,6 @@
                         <?php
                         foreach($IntakeForm as $k=>$v){?>
                         <tr>
-
                             <td>
                                 <a href="{{ route('form_templates/view', $v->form_unique_id) }}">
                                     {{$v->form_name}}
