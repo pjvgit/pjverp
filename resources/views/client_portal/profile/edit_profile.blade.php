@@ -77,21 +77,23 @@
                     <input type="submit" class="btn btn-primary settings__submit" value="Save Changes">
                 </form>
                 <h1 class="primary-heading">Change Email</h1>
-                <form class="detail-view__background p-3">
+                <form class="detail-view__background p-3" data-action="{{ route('client/change/email') }}" method="POST" id="change_email_form">
                     <div class="col-md-4 form-group mb-3">
                         <label class="form-input__label" for="current">Current Email</label>
-                        <label>{{ $user->email }}</label>
+                        <label id="current_email">{{ $user->email }}</label>
                     </div>
                     <div class="col-md-4 form-group mb-3">
                         <div class="form-input is-required">
                             <label class="form-input__label" for="email">New Email</label>
-                            <input id="email" name="login[email]" required="" type="email" class="form-control">
+                            <input id="email" name="new_email" required="" type="email" class="form-control">
+                            <span class="error new_email_error"></span>
                         </div>
                     </div>
                     <div class="col-md-4 form-group mb-3">
                         <div class="form-input is-required">
                             <label class="form-input__label" for="password">Current Password</label>
-                            <input id="password" name="login[old_password]" required="" type="password" class="form-control">
+                            <input id="password" name="old_password" required="" type="password" class="form-control">
+                            <span class="error old_password_error"></span>
                         </div>
                     </div>
                     <input type="submit" class="btn btn-primary" value="Update Email">
@@ -171,73 +173,5 @@
 @endsection
 
 @section('page-js')
-<script>
-$(document).ready(function() {
-    $("#profile_form").validate({
-        rules: {
-            "user[first_name]": {
-                required: true,      
-            },
-            "user[last_name]": {
-                required: true,      
-            },
-        },
-        submitHandler: function (form) {
-            // Prevent double submission
-            if (!this.beenSubmitted) {
-                this.beenSubmitted = true;
-                form.submit();
-            }
-        },
-    });
-
-    $("#chnage_password_form").validate({
-        rules: {
-            "current_password": {
-                required: true,      
-            },
-            "password": {
-                required: true,      
-            },
-            "password_confirmation": {
-                required: true,      
-                equalTo: "#new_password"
-            },
-        },
-        submitHandler: function (form) {
-            var url = $("#chnage_password_form").attr('data-action'); 
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: $("#chnage_password_form").serialize(),
-                success: function( response ) {
-                    if(response.success) {
-                        $("#chnage_password_form")[0].reset();
-                        toastr.success(response.message, "", {
-                            positionClass: "toast-top-full-width",
-                            containerId: "toast-top-full-width"
-                        });
-                    }
-                },
-                error: function(response) {
-                    if(response.responseJSON) {
-                        $.each(response.responseJSON.errors, function(ind, item) {
-                            $("."+ind+"_error").text(item);
-                        });
-                    }
-                }
-            });
-            return false;
-        },
-    });
-
-    $("input[name='auto_logout']").on("change", function() {
-        if($(this).is(":checked")) {
-            $("#logout_after_div").show();
-        } else {
-            $("#logout_after_div").hide();
-        }
-    });
-});
-</script>
+<script src="{{ asset('assets\client_portal\js\profile\editprofile.js') }}"></script>
 @endsection

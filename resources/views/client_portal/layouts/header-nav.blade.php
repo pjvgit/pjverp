@@ -90,10 +90,12 @@
 
             <div class="dropdown">
                 <div  class="user col align-self-end">
-                    <label class="nav-link" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Account</label>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                    <label class="nav-link" id="header-dd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Account</label>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="header-dd" id="header-dd">
                         <a href="{{ route('client/account') }}" class="dropdown-item" >Settings</a>
+                        @if (auth()->user()->getUserFirms() > 1)
                         <a href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" class="dropdown-item" >Switch Account</a>
+                        @endif
                         <a href="{{ route('terms/client/portal') }}" class="dropdown-item">Terms</a>
                         <a href="{{ route('privacy') }}" class="dropdown-item">Privacy Policy</a>
                         <form method="POST" action="{{ route('logout') }}">

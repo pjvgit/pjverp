@@ -278,7 +278,7 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y')}}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->no_end_date_checkbox=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->no_end_date_checkbox=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>
@@ -666,11 +666,11 @@
         });
        
         $(".hide").hide();
-        $("#firstStep .add-more").click(function () {
+        /* $("#firstStep .add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
-        });
+        }); */
         $('#EditEventForm').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
@@ -806,7 +806,9 @@
                         $('#SubmitOk').removeAttr("disabled");
                         return false;
                     } else {
-                        // window.location.reload();
+                        @if(Route::currentRouteName() == 'events/detail')
+                            window.location.reload();
+                        @endif
                         $('#loadEditEventPopup').modal("hide");
                         $(".innerLoader").css('display', 'none');
 

@@ -335,12 +335,11 @@ class User extends Authenticatable
      */
     public function getUserFirms()
     {
-        return User::where('users.email', $this->email)->where('users.user_status', '1')
-                ->leftjoin("users_additional_info", function($join) {
-                    $join->on("users.id", '=', 'users_additional_info.user_id');
-                })
-                /* ->whereHas("userAdditionalInfo", function($query) {
-                    $query->where("client_portal_enable", '1');
-                }) */->count();
+        $firmPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '3')->count();
+        $clientPortal = User::where('users.email', $this->email)->where('users.user_status', '1')->where('user_level', '2')
+                        ->whereHas("userAdditionalInfo", function($query) {
+                            $query->where("client_portal_enable", '1');
+                        })->count();
+        return $firmPortal + $clientPortal;
     }
 }

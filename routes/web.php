@@ -1206,6 +1206,7 @@ Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'n
     Route::get('account', 'ProfileController@edit')->name('client/account');
     Route::post('account/save', 'ProfileController@update')->name('client/account/save');
     Route::post('account/change/password', 'ProfileController@changePassword')->name('client/change/password');
+    Route::post('account/change/email', 'ProfileController@changeEmail')->name('client/change/email');
     Route::get('account/preferences', 'ProfileController@edit')->name('client/account/preferences');
     Route::post('account/save/preferences', 'ProfileController@savePreferences')->name('client/account/save/preferences');
 

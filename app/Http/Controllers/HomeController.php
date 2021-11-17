@@ -11,7 +11,7 @@ use App\Firm;
 use App\ReferalResource,App\LeadStatus,App\NotHireReasons;
 use App\TaskActivity,App\UserRole,App\CaseIntakeForm;
 use App\User;
-use App\ContractUserCase,App\CaseMaster,App\ContractUserPermission,App\ContractAccessPermission;
+use App\ContractUserCase,App\CaseMaster;
 use App\DeactivatedUser,App\TempUserSelection,App\CasePracticeArea,App\CaseStage,App\CaseClientSelection;
 use App\CaseStaff,App\CaseUpdate,App\CaseStageUpdate,App\CaseActivity;
 use App\CaseEvent,App\CaseEventLocation,App\EventType;

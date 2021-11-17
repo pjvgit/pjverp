@@ -1351,7 +1351,8 @@ class CaseController extends BaseController
         exit;
     }
 
-    public function loadPermissionModel(Request $request)
+    // Duplicate code commented
+    /* public function loadPermissionModel(Request $request)
     {        
         $ContractUser = User::where("id",$request->user_id)->get();
         $ContractUserPermission = ContractUserPermission::where("user_id",$request->user_id)->get();
@@ -1394,7 +1395,7 @@ class CaseController extends BaseController
 
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
         exit;
-    }
+    } */
 
      public function dashboard()
      {
@@ -4645,7 +4646,7 @@ class CaseController extends BaseController
         // return $request->all();
         if(!isset($request->no_case_link)){
             $validator = \Validator::make($request->all(), [
-                'linked_staff_checked_share' => 'required'
+                'linked_staff_checked_share' => 'required_if:share_checkbox_nonlinked,=,null'
             ]);
             if($validator->fails())
             {
@@ -5467,7 +5468,7 @@ class CaseController extends BaseController
 
         //Non linked staff List
         $caseNoneLinkedStaffList = CaseStaff::select("case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get()->pluck('case_staff_user_id');
-        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
+        $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->where("user_level","3")->whereIn("user_status",["1",'2'])->whereNotIn('id',$caseNoneLinkedStaffList)->get();
         
         //Linked Staff List
         $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get();
