@@ -314,6 +314,7 @@
                             </div>
                         </div>
                     </li>
+                    @canany(['lead_add_edit', 'lead_view'])
                     <li class="{{ request()->is('leads*') ? 'open' : '' }}">
                         <div>
                             <div>
@@ -348,6 +349,7 @@
                             </div>
                         </div>
                     </li>
+                    @endcanany
                     <!-- end charts -->
 
 

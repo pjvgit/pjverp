@@ -260,7 +260,7 @@ class ContractController extends BaseController
     //Save step 3 data to database.
     public function saveStep3(Request $request)
     {
-        $userPermission = new ContractUserPermission;
+        /* $userPermission = new ContractUserPermission;
         
         if(isset($request->user_id)) { $userPermission->user_id=$request->user_id; }
         if(isset($request->access_case)) { $userPermission->access_case=$request->access_case; }
@@ -271,7 +271,19 @@ class ContractController extends BaseController
         if(isset($request->custome_fields)) { $userPermission->custome_fields=$request->custome_fields; }
         if(isset($request->manage_firm)) { $userPermission->manage_firm=$request->manage_firm; }
         
-        $userPermission->save();
+        $userPermission->save(); */
+        $user = User::whereId($request->user_id)->first();
+        $permissions = [
+            (isset($request->access_case) && $request->access_case == '0') ? 'access_all_cases' : 'access_only_linked_cases',
+            (isset($request->add_new) && $request->add_new == '0') ? 'add_firm_user' : 'no',
+            (isset($request->edit_permisssion) && $request->edit_permisssion == '0') ? 'edit_firm_user_permission' : '',
+            (isset($request->delete_item) && $request->delete_item == '0') ? 'delete_items' : '',
+            (isset($request->import_export) && $request->import_export == '0') ? 'edit_import_export_settings' : '',
+            (isset($request->custome_fields) && $request->custome_fields == '0') ? 'edit_custom_fields_settings' : '',
+            (isset($request->manage_firm) && $request->manage_firm == '0') ? 'manage_firm_and_billing_settings' : '',
+        ];
+        $user->givePermissionTo($permissions);
+
         $data=[];
         $data['user_id']=Auth::User()->id;
         $data['client_id']=$request->user_id;
@@ -296,7 +308,7 @@ class ContractController extends BaseController
 
     public function saveStep4(Request $request)
     {
-        $userPermission = new ContractAccessPermission;
+        /* $userPermission = new ContractAccessPermission;
         if(isset($request->user_id)) { $userPermission->user_id=$request->user_id; }
         if(isset($request->clientsPermission)) { $userPermission->clientsPermission=$request->clientsPermission; }
         if(isset($request->leadsPermission)) { $userPermission->leadsPermission=$request->leadsPermission; }
@@ -313,7 +325,27 @@ class ContractController extends BaseController
         if(isset($request->restrictBilling)) { $userPermission->restrictBilling="1"; }else { $userPermission->restrictBilling="0"; }
         if(isset($request->financialInsightsPermission)) { $userPermission->financialInsightsPermission="1"; }else { $userPermission->financialInsightsPermission="0"; }
 
-        $userPermission->save();
+        $userPermission->save(); */
+
+        $user = User::whereId($request->user_id)->first();
+        $permissions = [
+            (isset($request->clientsPermission)) ? 'client_add_edit' : 'client_view',
+            (isset($request->leadsPermission) && $request->leadsPermission == '3') ? 'lead_add_edit' : (($request->leadsPermission == '2') ? 'lead_view' : ''),
+            (isset($request->casesPermission) && $request->casesPermission == '3') ? 'case_add_edit' : (($request->casesPermission == '2') ? 'case_view' : ''),
+            (isset($request->eventsPermission) && $request->eventsPermission == '3') ? 'event_add_edit' : (($request->eventsPermission == '2') ? 'event_view' : ''),
+            (isset($request->documentsPermission) && $request->documentsPermission == '3') ? 'document_add_edit' : (($request->documentsPermission == '2') ? 'document_view' : ''),
+            (isset($request->commentingPermission) && $request->commentingPermission == '3') ? 'commenting_add_edit' : (($request->commentingPermission == '2') ? 'commenting_view' : ''),
+            (isset($request->textMessagingPermission) && $request->textMessagingPermission == '3') ? 'text_messaging_add_edit' : '',
+            (isset($request->messagesPermission) && $request->messagesPermission == '3') ? 'messaging_add_edit' : '',
+            (isset($request->billingPermission) && $request->billingPermission == '3') ? 'billing_add_edit' : (($request->billingPermission == '2') ? 'billing_view' : ''),
+            (isset($request->reportingPermission) && $request->reportingPermission == '3') ? 'reporting_entire_firm' : (($request->reportingPermission == '2') ? 'reporting_personal_only' : ''),
+            (isset($request->allMessagesFirmwide)) ? 'access_all_messages' : '',
+            (isset($request->canDeleteMessages)) ? 'can_delete_messages' : '',
+            (isset($request->restrictBilling)) ? 'billing_restrict_time_entry_and_expense' : '',
+            (isset($request->financialInsightsPermission)) ? 'billing_access_financial_insight' : '',
+        ];
+        $user->givePermissionTo($permissions);
+
         $data=[];
         $data['user_id']=Auth::User()->id;
         $data['client_id']=$request->user_id;
@@ -361,14 +393,43 @@ class ContractController extends BaseController
 
     public function loadPermissionModel(Request $request)
     {        
-        $ContractUser = User::where("id",$request->user_id)->get();
+        $ContractUser = User::where("id",$request->user_id)->first();
+        $userPermissions = $ContractUser->getPermissionNames()->toArray();
         $ContractUserPermission = ContractUserPermission::where("user_id",$request->user_id)->get();
         $ContractAccessPermission = ContractAccessPermission::where("user_id",$request->user_id)->get();
-        return view('contract.loadPermissionModel',compact('ContractUser','ContractUserPermission','ContractAccessPermission'));
+        return view('contract.loadPermissionModel',compact('ContractUser','ContractUserPermission','ContractAccessPermission','userPermissions'));
     }
     public function savePermissionModel(Request $request)
     {  
-        $userPermission = ContractAccessPermission::firstOrNew(array('user_id' => $request->user_id));
+        // return $request->all();
+        $user = User::whereId($request->user_id)->first();
+        $permissions = [
+            (isset($request->clientsPermission)) ? $request->clientsPermission : '',
+            (isset($request->leadsPermission) && $request->leadsPermission != 'hidden') ? $request->leadsPermission : '',
+            (isset($request->casesPermission) && $request->casesPermission != 'hidden') ? $request->casesPermission : '',
+            (isset($request->eventsPermission) && $request->eventsPermission != 'hidden') ? $request->eventsPermission : '',
+            (isset($request->documentsPermission) && $request->documentsPermission != 'hidden') ? $request->documentsPermission : '',
+            (isset($request->commentingPermission) && $request->commentingPermission != 'hidden') ? $request->commentingPermission : '',
+            (isset($request->textMessagingPermission) && $request->textMessagingPermission != 'hidden') ? $request->textMessagingPermission : '',
+            (isset($request->messagesPermission) && $request->messagesPermission != 'hidden') ? $request->messagesPermission : '',
+            (isset($request->billingPermission) && $request->billingPermission != 'hidden') ? $request->billingPermission : '',
+            (isset($request->reportingPermission) && $request->reportingPermission != 'hidden') ? $request->reportingPermission : '',
+            (isset($request->allMessagesFirmwide)) ? $request->allMessagesFirmwide : '',
+            (isset($request->canDeleteMessages)) ? $request->canDeleteMessages : '',
+            (isset($request->restrictBilling)) ? $request->restrictBilling : '',
+            (isset($request->financialInsightsPermission)) ? $request->financialInsightsPermission : '',
+
+            (isset($request->access_case)) ? $request->access_case : '',
+            (isset($request->add_new) && $request->add_new != 'no') ? $request->add_new : '',
+            (isset($request->edit_permisssion) && $request->edit_permisssion != 'no') ? $request->edit_permisssion : '',
+            (isset($request->delete_item) && $request->delete_item != 'no') ? $request->delete_item : '',
+            (isset($request->import_export) && $request->import_export != 'no') ? $request->import_export : '',
+            (isset($request->custome_fields) && $request->custome_fields != 'no') ? $request->custome_fields : '',
+            (isset($request->manage_firm) && $request->manage_firm != 'no') ? $request->manage_firm : '',
+        ];
+        $user->syncPermissions($permissions);
+
+        /* $userPermission = ContractAccessPermission::firstOrNew(array('user_id' => $request->user_id));
         if(isset($request->user_id)) { $userPermission->user_id=$request->user_id; }
         if(isset($request->clientsPermission)) { $userPermission->clientsPermission=$request->clientsPermission; }
         if(isset($request->leadsPermission)) { $userPermission->leadsPermission=$request->leadsPermission; }
@@ -397,7 +458,7 @@ class ContractController extends BaseController
         if(isset($request->manage_firm)) { $CurrentUserPermission->manage_firm=$request->manage_firm; }
 
         $CurrentUserPermission->updated_by =Auth::User()->id;
-        $CurrentUserPermission->save();
+        $CurrentUserPermission->save(); */
         session(['popup_success' => 'Permission rate has been saved.']);
 
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);

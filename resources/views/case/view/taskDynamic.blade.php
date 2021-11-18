@@ -174,9 +174,8 @@ foreach ($task as $element) {
                                 } ;
                             }
                         ?>
-                <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="javascript:;"
-                    data-toggle="popover" data-trigger="focus" title="" data-content="{{$userListHtml}}"
-                    data-html="true" data-original-title="" style="float:left;">{{count($subrow->task_user)}}
+                <a class="event-name d-flex align-items-center pop" href="javascript:;" data-container="body" data-toggle="popover" data-content="{{$userListHtml}}"
+                    data-html="true" data-original-title="" title="" style="float:left;">{{count($subrow->task_user)}}
                     Users</a>
                 <?php 
                     }else{
@@ -278,6 +277,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script>
     $(document).ready(function () {
         $("[data-toggle=popover]").popover();
+        $(".pop").popover({ trigger: "manual" , html: true, animation:false})
+            .on("mouseenter", function () {
+                var _this = this;
+                $(this).popover("show");
+                $(".popover").on("mouseleave", function () {
+                    $(_this).popover('hide');
+                });
+            }).on("mouseleave", function () {
+                var _this = this;
+                setTimeout(function () {
+                    if (!$(".popover:hover").length) {
+                        $(_this).popover("hide");
+                    }
+                }, 300);
+        });
         $('.dropdown-toggle').dropdown();  
         $('.dropdown-toggle1').dropdown();  
         $('#checkall').on('change', function () {

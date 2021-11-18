@@ -8,11 +8,13 @@ use DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CommonController;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use Notifiable;
     use SoftDeletes;
+    use HasRoles;
     /**
      * The attributes that are mass assignable.
      *

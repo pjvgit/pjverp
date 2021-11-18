@@ -1,6 +1,6 @@
 <form class="savePermission" id="savePermission" name="savePermission" method="POST">
     @csrf
-    <input type="hidden" name="user_id" value="{{$ContractUser->id}}">
+    <input type="hidden" name="user_id" value="{{$ContractUser[0]->id}}">
     
     <span id="response"></span>
     <div class="row">      
@@ -22,13 +22,13 @@
                             <td>Clients</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                <input type="radio" name="clientsPermission" {{ (in_array('client_add_edit', $userPermissions)) ? 'checked' : '' }} value="client_add_edit"><span
+                                <input type="radio" name="clientsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->clientsPermission == "3" ) { ?> checked="checked" <?php } ?> value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="clientsPermission" {{ (in_array('client_view', $userPermissions)) ? 'checked' : '' }} value="client_view"><span class="checkmark"></span>
+                                    <input type="radio" name="clientsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->clientsPermission == "2" ) { ?> checked="checked" <?php } ?>   value="2"><span class="checkmark"></span>
                                 </label>
                             </td>
                             <td>
@@ -40,18 +40,18 @@
                             <td>Leads</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="leadsPermission" {{ (in_array('lead_add_edit', $userPermissions)) ? 'checked' : '' }}  value="lead_add_edit"><span
+                                    <input type="radio" name="leadsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->leadsPermission == "3" ) { ?> checked="checked" <?php } ?>  value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="leadsPermission" {{ (in_array('lead_view', $userPermissions)) ? 'checked' : '' }} value="lead_view"><span class="checkmark"></span>
+                                    <input type="radio" name="leadsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->leadsPermission == "2" ) { ?> checked="checked" <?php } ?> value="2"><span class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="leadsPermission" {{ (!in_array('lead_add_edit', $userPermissions) && !in_array('lead_view', $userPermissions)) ? 'checked' : '' }} value="hidden"><span class="checkmark"></span>
+                                    <input type="radio" name="leadsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->leadsPermission == "1" ) { ?> checked="checked" <?php } ?> value="1"><span class="checkmark"></span>
                                 </label>
                             </td>
                             <td></td>
@@ -60,13 +60,13 @@
                             <td>Cases</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="casesPermission" {{ (in_array('case_add_edit', $userPermissions)) ? 'checked' : '' }}   checked="checked" value="case_add_edit"><span
+                                    <input type="radio" name="casesPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->casesPermission == "3" ) { ?> checked="checked" <?php } ?>   checked="checked" value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="casesPermission"  {{ (in_array('case_view', $userPermissions)) ? 'checked' : '' }}  value="case_view"><span class="checkmark"></span>
+                                    <input type="radio" name="casesPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->casesPermission == "2" ) { ?> checked="checked" <?php } ?>    value="2"><span class="checkmark"></span>
                                 </label>
                             </td>
                             <td>
@@ -78,19 +78,19 @@
                             <td>Events</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="eventsPermission"  {{ (in_array('event_add_edit', $userPermissions)) ? 'checked' : '' }}  checked="checked" value="event_add_edit"><span
+                                    <input type="radio" name="eventsPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->eventsPermission == "3" ) { ?> checked="checked" <?php } ?>  checked="checked" value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="eventsPermission" {{ (in_array('event_view', $userPermissions)) ? 'checked' : '' }}  value="event_view"><span
+                                    <input type="radio" name="eventsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->eventsPermission == "2" ) { ?> checked="checked" <?php } ?>  value="2"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="eventsPermission" {{ (!in_array('event_add_edit', $userPermissions) && !in_array('event_view', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="eventsPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->eventsPermission == "1" ) { ?> checked="checked" <?php } ?> value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -100,19 +100,19 @@
                             <td>Documents</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="documentsPermission" {{ (in_array('document_add_edit', $userPermissions)) ? 'checked' : '' }} checked="checked" value="document_add_edit"><span
+                                    <input type="radio" name="documentsPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->documentsPermission == "3" ) { ?> checked="checked" <?php } ?> checked="checked" value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="documentsPermission"  {{ (in_array('document_view', $userPermissions)) ? 'checked' : '' }} value="document_view"><span
+                                    <input type="radio" name="documentsPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->documentsPermission == "2" ) { ?> checked="checked" <?php } ?> value="2"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="documentsPermission"  {{ (!in_array('document_add_edit', $userPermissions) && !in_array('document_view', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="documentsPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->documentsPermission == "1" ) { ?> checked="checked" <?php } ?> value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -123,19 +123,19 @@
                             <td>Commenting</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="commentingPermission"  {{ (in_array('commenting_add_edit', $userPermissions)) ? 'checked' : '' }} checked="checked" value="commenting_add_edit"><span
+                                    <input type="radio" name="commentingPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->commentingPermission == "3" ) { ?> checked="checked" <?php } ?> checked="checked" value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="commentingPermission" {{ (in_array('commenting_view', $userPermissions)) ? 'checked' : '' }}   value="commenting_view"><span
+                                    <input type="radio" name="commentingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->commentingPermission == "2" ) { ?> checked="checked" <?php } ?>   value="2"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="commentingPermission" {{ (!in_array('commenting_add_edit', $userPermissions) && !in_array('commenting_view', $userPermissions)) ? 'checked' : '' }}  value="hidden"><span
+                                    <input type="radio" name="commentingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->commentingPermission == "1" ) { ?> checked="checked" <?php } ?>  value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -146,7 +146,7 @@
                             <td class="text-nowrap">Text Messaging</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="textMessagingPermission"  {{ (in_array('text_messaging_add_edit', $userPermissions)) ? 'checked' : '' }}  value="text_messaging_add_edit"><span
+                                    <input type="radio" name="textMessagingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->textMessagingPermission == "3" ) { ?> checked="checked" <?php } ?>  value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -155,7 +155,7 @@
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="textMessagingPermission"  {{ (!in_array('text_messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="hidden" ><span
+                                    <input type="radio" name="textMessagingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->textMessagingPermission == "1" ) { ?> checked="checked" <?php } ?> value="1" ><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -165,7 +165,7 @@
                             <td>Messages</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="messagesPermission"  {{ (in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="messaging_add_edit"><span
+                                    <input type="radio" name="messagesPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->messagesPermission == "3" ) { ?> checked="checked" <?php } ?> value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>  <td>
@@ -173,7 +173,7 @@
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="messagesPermission"  {{ (!in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="messagesPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->messagesPermission == "1" ) { ?> checked="checked" <?php } ?> value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -184,14 +184,9 @@
                                 <div>
                                     <label class="checkbox checkbox-outline-success">
                                         <input type="checkbox" id="allMessagesFirmwide"
-                                            name="allMessagesFirmwide" {{ (in_array('access_all_messages', $userPermissions)) ? 'checked' : '' }} value="access_all_messages" ><span>Allow
+                                            name="allMessagesFirmwide" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->allMessagesFirmwide == "1" ) { ?> checked="checked" <?php } ?>  ><span>Allow
                                             access to all
                                             messages.</span><span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label class="checkbox checkbox-outline-success">
-                                        <input type="checkbox" id="canDeleteMessages" name="canDeleteMessages" {{ (in_array('can_delete_messages', $userPermissions)) ? 'checked' : '' }} value="can_delete_messages" ><span> Can delete messages</span><span class="checkmark"></span>
                                     </label>
                                 </div>
                             </td>
@@ -200,19 +195,19 @@
                             <td>Billing</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_add_edit', $userPermissions)) ? 'checked' : '' }}  value="billing_add_edit"><span
+                                    <input type="radio" name="billingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->billingPermission == "3" ) { ?> checked="checked" <?php } ?>  value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="billing_view"><span
+                                    <input type="radio" name="billingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->billingPermission == "2" ) { ?> checked="checked" <?php } ?> value="2"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (!in_array('billing_add_edit', $userPermissions) && !in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="billingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->billingPermission == "1" ) { ?> checked="checked" <?php } ?> value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -221,12 +216,12 @@
                         <tr>
                             <td colspan="4">
                                 <label class="checkbox checkbox-outline-success">
-                                    <input type="checkbox" id="restrictBilling"  {{ (in_array('billing_restrict_time_entry_and_expense', $userPermissions)) ? 'checked' : '' }} value="billing_restrict_time_entry_and_expense" name="restrictBilling">Restrict to time
+                                    <input type="checkbox" id="restrictBilling"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->restrictBilling == "1" ) { ?> checked="checked" <?php } ?> name="restrictBilling">Restrict to time
                                     entries and expenses.<span class="checkmark"></span>
                                 </label>
                                 <label class="checkbox checkbox-outline-success">
                                     <input type="checkbox" id="financialInsightsPermission"
-                                        name="financialInsightsPermission"  {{ (in_array('billing_access_financial_insight', $userPermissions)) ? 'checked' : '' }} value="billing_access_financial_insight"><span>Allow
+                                        name="financialInsightsPermission"  <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->financialInsightsPermission == "1" ) { ?> checked="checked" <?php } ?> ><span>Allow
                                         access
                                         to Financial Insights screen.</span><span class="checkmark"></span>
                                 </label>
@@ -247,19 +242,19 @@
                             <td>Reporting</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="reportingPermission" {{ (in_array('reporting_entire_firm', $userPermissions)) ? 'checked' : '' }} value="reporting_entire_firm"><span
+                                    <input type="radio" name="reportingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->reportingPermission == "3" ) { ?> checked="checked" <?php } ?> value="3"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="reportingPermission" {{ (in_array('reporting_personal_only', $userPermissions)) ? 'checked' : '' }}  value="reporting_personal_only"><span
+                                    <input type="radio" name="reportingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->reportingPermission == "2" ) { ?> checked="checked" <?php } ?>  value="2"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="reportingPermission" {{ (!in_array('reporting_entire_firm', $userPermissions) && !in_array('reporting_personal_only', $userPermissions)) ? 'checked' : '' }}  value="hidden"><span
+                                    <input type="radio" name="reportingPermission" <?php if(!$ContractAccessPermission->isEmpty() && $ContractAccessPermission[0]->reportingPermission == "1" ) { ?> checked="checked" <?php } ?>  value="1"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -271,19 +266,21 @@
             </div>
         </div>
         <div class="col-md-6">
-            SHOULD {{$ContractUser->first_name}} USER BE ABLE TO...
+            SHOULD {{$ContractUser[0]->first_name}} USER BE ABLE TO...
             <div class=" mb-4">
                 <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-6 col-form-label">Access data from every case in the system or only those he/she is linked to?</label>
+                    <label for="inputEmail3" class="col-sm-6 col-form-label">Access data from every case in the system
+                        or only those
+                        he/she is linked to?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="access_case" {{ (in_array('access_all_cases', $userPermissions)) ? 'checked' : '' }} value="access_all_cases"><span> All firm
+                            <input type="radio" name="access_case" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->access_case == "0" ) { ?> checked="checked" <?php } ?>   value="0"><span> All firm
                                 cases</span><span class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="access_case" {{ (in_array('access_only_linked_cases', $userPermissions)) ? 'checked' : '' }} value="access_only_linked_cases"><span>Only linked cases</span><span
+                            <input type="radio" name="access_case" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->access_case == "1" ) { ?> checked="checked" <?php } ?> value="1"><span>Only linked cases</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -295,13 +292,13 @@
                         your firm's {{config('app.name')}} account?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="add_new" value="add_firm_user" {{ (in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span
+                            <input type="radio" name="add_new" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->add_new == "0" ) { ?> checked="checked" <?php } ?> ><span> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="add_new" {{ (!in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} value="no"><span>No</span><span class="checkmark"></span>
+                            <input type="radio" name="add_new" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->add_new == "1" ) { ?> checked="checked" <?php } ?> value="1"><span>No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -310,14 +307,14 @@
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Edit user permission settings?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" value="edit_firm_user_permission" {{ (in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span class="checkmark"></span>
+                            <input type="radio" name="edit_permisssion" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->edit_permisssion == "0" ) { ?> checked="checked" <?php } ?> ><span> Yes</span><span class="checkmark"></span>
 
                             
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" {{ (!in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} value="no"><span>No</span><span class="checkmark"></span>
+                            <input type="radio" name="edit_permisssion" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->edit_permisssion == "1" ) { ?> checked="checked" <?php } ?> value="1"><span>No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -328,13 +325,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="delete_items" {{ (in_array('delete_items', $userPermissions)) ? 'checked' : '' }}  ><span> Yes</span><span
+                            <input type="radio" name="delete_item" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->delete_item == "0" ) { ?> checked="checked" <?php } ?>  ><span> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="no" {{ (!in_array('delete_items', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="delete_item" value="1" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->delete_item == "1" ) { ?> checked="checked" <?php } ?>><span>No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -345,13 +342,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="import_export" value="edit_import_export_settings" {{ (in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span
+                            <input type="radio" name="import_export" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->import_export == "0" ) { ?> checked="checked" <?php } ?> ><span> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="import_export" value="no" {{ (!in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="import_export" value="1" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->import_export == "1" ) { ?> checked="checked" <?php } ?>><span>No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -362,13 +359,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="custome_fields" value="edit_custom_fields_settings" {{ (in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }}><span> Yes</span><span
+                            <input type="radio" name="custome_fields" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->custome_fields == "0" ) { ?> checked="checked" <?php } ?>><span> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="custome_fields" value="no" {{ (!in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="custome_fields" value="1" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->custome_fields == "1" ) { ?> checked="checked" <?php } ?>><span>No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -381,13 +378,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="manage_firm" value="manage_firm_and_billing_settings" {{ (in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span> Yes</span><span
+                            <input type="radio" name="manage_firm" value="0" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->manage_firm == "0" ) { ?> checked="checked" <?php } ?>><span> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="manage_firm" value="no" {{ (!in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span>No</span><span
+                            <input type="radio" name="manage_firm" value="1" <?php if(!$ContractUserPermission->isEmpty() && $ContractUserPermission[0]->manage_firm == "1" ) { ?> checked="checked" <?php } ?>><span>No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>

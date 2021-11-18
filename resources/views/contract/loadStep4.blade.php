@@ -168,6 +168,11 @@
                                 messages.</span><span class="checkmark"></span>
                         </label>
                     </div>
+                    <div>
+                        <label class="checkbox checkbox-outline-success">
+                            <input type="checkbox" id="canDeleteMessages" name="canDeleteMessages"><span> Can delete messages</span><span class="checkmark"></span>
+                        </label>
+                    </div>
                 </td>
             </tr>
             <tr>
