@@ -5381,7 +5381,6 @@ class BillingController extends BaseController
 
     public function updateInvoiceEntry(Request $request)
     {
-        // return $request->all();
         $InvoiceSave=Invoices::find($request->invoice_id);
         $rules = [
             'invoice_number_padded' => 'required|numeric',
@@ -5600,46 +5599,53 @@ class BillingController extends BaseController
 
             }
 
-            if(isset($request->payment_plan) && isset($request->amount_per_installment_field) && isset($request->number_installment_field)){
+            if(isset($request->payment_plan)){
+                if(isset($request->amount_per_installment_field) && isset($request->number_installment_field)){
+                    InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
+                    $InvoicePaymentPlan=new InvoicePaymentPlan;
+                    $InvoicePaymentPlan->invoice_id=$InvoiceSave->id;                    
+                    $InvoicePaymentPlan->start_date=date('Y-m-d',strtotime($request->start_date));
+                    $InvoicePaymentPlan->per_installment_amt=str_replace(",","",$request->amount_per_installment_field);                    
+                    $InvoicePaymentPlan->no_of_installment=$request->number_installment_field;                    
+                    $InvoicePaymentPlan->repeat_by=$request->installment_frequency_field;
+                    if(isset($request->with_first_payment)){                    
+                        $InvoicePaymentPlan->is_set_first_installment=$request->with_first_payment;                    
+                        $InvoicePaymentPlan->first_installment_amount=$request->first_payment_amount;                    
+                    }
+                    $InvoicePaymentPlan->created_by=Auth::User()->id; 
+                    $InvoicePaymentPlan->created_at=date('Y-m-d h:i:s'); 
+                    $InvoicePaymentPlan->save();
+                    // Invoice Installment entry
+                    InvoiceInstallment::where("invoice_id",$InvoiceSave->id)->delete();
+                    $paidAmt = $InvoiceSave->paid_amount;
+                    foreach($request->new_payment_plans as $kk=>$vv){
+                        $InvoiceInstallment=new InvoiceInstallment;
+                        $InvoiceInstallment->invoice_id=$InvoiceSave->id;                    
+                        $InvoiceInstallment->installment_amount=str_replace(",","",$vv['amount']);                                        
+                        $InvoiceInstallment->due_date=date('Y-m-d',strtotime($vv['due_date']));
+                        $InvoiceInstallment->created_by=Auth::User()->id; 
+                        $InvoiceInstallment->firm_id=Auth::User()->firm_name;
+                        if($paidAmt > 0){
+                            if($paidAmt >= str_replace(",","",$vv['amount'])){
+                                $InvoiceInstallment->status = 'paid';
+                                $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
+                                $InvoiceInstallment->adjustment = str_replace(",","",$vv['amount']);
+                                $paidAmt = $paidAmt - str_replace(",","",$vv['amount']);
+                            }else{
+                                $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
+                                $InvoiceInstallment->adjustment = $paidAmt;
+                                $paidAmt = 0;
+                            }
+                        } 
+                        $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
+                        $InvoiceInstallment->save();
+                    }
+                    // Update invoice settings
+                    $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
+                }
+            }else{
                 InvoicePaymentPlan::where("invoice_id",$InvoiceSave->id)->delete();
-                $InvoicePaymentPlan=new InvoicePaymentPlan;
-                $InvoicePaymentPlan->invoice_id=$InvoiceSave->id;                    
-                $InvoicePaymentPlan->start_date=date('Y-m-d',strtotime($request->start_date));
-                $InvoicePaymentPlan->per_installment_amt=str_replace(",","",$request->amount_per_installment_field);                    
-                $InvoicePaymentPlan->no_of_installment=$request->number_installment_field;                    
-                $InvoicePaymentPlan->repeat_by=$request->installment_frequency_field;
-                if(isset($request->with_first_payment)){                    
-                    $InvoicePaymentPlan->is_set_first_installment=$request->with_first_payment;                    
-                    $InvoicePaymentPlan->first_installment_amount=$request->first_payment_amount;                    
-                }
-                $InvoicePaymentPlan->created_by=Auth::User()->id; 
-                $InvoicePaymentPlan->created_at=date('Y-m-d h:i:s'); 
-                $InvoicePaymentPlan->save();
-                // Invoice Installment entry
                 InvoiceInstallment::where("invoice_id",$InvoiceSave->id)->delete();
-                $paidAmt = $InvoiceSave->paid_amount;
-                foreach($request->new_payment_plans as $kk=>$vv){
-                    $InvoiceInstallment=new InvoiceInstallment;
-                    $InvoiceInstallment->invoice_id=$InvoiceSave->id;                    
-                    $InvoiceInstallment->installment_amount=str_replace(",","",$vv['amount']);                                        
-                    $InvoiceInstallment->due_date=date('Y-m-d',strtotime($vv['due_date']));
-                    $InvoiceInstallment->created_by=Auth::User()->id; 
-                    $InvoiceInstallment->firm_id=Auth::User()->firm_name;
-                    if($paidAmt > 0){
-                        if($paidAmt >= str_replace(",","",$vv['amount'])){
-                            $InvoiceInstallment->status = 'paid';
-                            $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
-                            $InvoiceInstallment->adjustment = str_replace(",","",$vv['amount']);
-                            $paidAmt = $paidAmt - str_replace(",","",$vv['amount']);
-                        }else{
-                            $InvoiceInstallment->paid_date =  date('Y-m-d h:i:s');
-                            $InvoiceInstallment->adjustment = $paidAmt;
-                            $paidAmt = 0;
-                        }
-                    } 
-                    $InvoiceInstallment->created_at=date('Y-m-d h:i:s'); 
-                    $InvoiceInstallment->save();
-                }
                 // Update invoice settings
                 $InvoiceSave->invoice_setting = $this->updateInvoiceSetting($InvoiceSave) ?? $InvoiceSave->invoice_setting;
             }

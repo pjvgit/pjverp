@@ -1500,6 +1500,9 @@
                         Payment Plan
                         </h3>
                     </div>
+                    <div style="display:none;" class="error" id="invoice_payment_plan_error">
+                        Payment plans must add up to the same total as the invoice.<br>
+                    </div>
                     <div id="payment_plan_details" style="margin-top: 10px; margin-right: 10px; display: none;">
                         <table style="width: 100%;">
                             <tbody>
@@ -3205,7 +3208,20 @@
         $('.submitbutton').click(function () {
             buttonpressed = $(this).attr('name');
             if(buttonpressed=="saveinvoice"){
-                $("#saveInvoiceForm").submit();
+                var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
+                if(PaymentPlanExits > 0){
+                    var payment_plan_balance = $("#payment_plan_balance").text();
+                    if(payment_plan_balance == 0){
+                        $("#invoice_payment_plan_error").hide();
+                        $("#saveInvoiceForm").submit();
+                    }else{
+                        $("#invoice_payment_plan_error").show();
+                        afterLoader();
+                        return false;
+                    }
+                }else{
+                    $("#saveInvoiceForm").submit();
+                }
             }else{
                 var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
                 if(PaymentPlanExits > 0){
@@ -3605,8 +3621,12 @@
         $(".final_total").html(final_total);
         $('.final_total').number(true, 2);
 
-        $("#payment_plan_balance").html(final_total);
-        $('#payment_plan_balance').number(true, 2);
+        var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
+        if(PaymentPlanExits == 0){
+            $("#payment_plan_balance").html(final_total);
+            $('#payment_plan_balance').number(true, 2);
+        }
+        
     }
 
     function addSingleTimeEntry() {
@@ -4033,9 +4053,12 @@
     }
     // $('input[name=client_portal_enable]').attr("checked",false);
 
-    setTimeout(function(){  
-        $("#payment_plan_balance").html($(".final_total").html());
-        $('#payment_plan_balance').number(true, 2); 
+    setTimeout(function(){
+        var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
+        if(PaymentPlanExits == 0){
+            $("#payment_plan_balance").html($(".final_total").html());
+            $('#payment_plan_balance').number(true, 2); 
+        }        
     }, 1000);
 
     function editSingleFlatFeeEntry(id) {

@@ -152,9 +152,13 @@ trait CreditAccountTrait {
             if($invoice->is_sent  == "yes") {
                 $status = "Sent";    
             }else{
-                if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-                    $status="Overdue";
-                } else{
+                if($invoice->status == "forwarded"){
+                    if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                        $status="Overdue";
+                    } else{
+                        $status="Unsent";
+                    }
+                }else{
                     $status = $invoice->status;
                 }
             }
