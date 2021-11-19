@@ -28,6 +28,7 @@
                             </div>
                         </div>
                     </li>
+                    @canany(['event_add_edit', 'event_view'])
                     <li class="{{ request()->is('events*') ? 'open' : '' }}">
                         <div>
                             <div>
@@ -71,7 +72,7 @@
                         </div>
                     </li>
                     <!-- end ui kits -->
-
+                    @endcanany
                     <li class="{{ request()->is('tasks*') ? 'open' : '' }}">
                         <div>
                             <div>
@@ -141,7 +142,7 @@
                         </div>
                     </li>
                     <!-- end extra uikits -->
-
+                    @canany(['document_add_edit', 'document_view'])
                     <li class="{{ request()->is('apps/*') ? 'active' : '' }}">
 
                         <div>
@@ -173,7 +174,9 @@
                         </div>
                     </li>
                     <!-- end apps -->
+                    @endcanany
 
+                    @canany(['billing_add_edit', 'billing_view'])
                     <li class="{{ request()->is('bills*') ? 'open' : '' }} {{ request()->is('payment_plans*') ? 'open' : '' }}">
                         <div>
                             <div>
@@ -250,7 +253,7 @@
                         </div>
                     </li>
                     <!-- end Forms -->
-
+                    @endcanany
 
                     <li class="{{ request()->is('charts/*') ? 'active' : '' }}">
 

@@ -258,37 +258,32 @@
         
     <div class="action-buttons">
         <div>
-
-            <?php 
-                if($evetData->parent_evnt_id=="0"){
-                    ?>
-                        <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
-                        data-placement="bottom" href="javascript:;"
-                        onclick="deleteEventFromCommentFunction({{$evetData->id}},'single');">
-                        <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> </a>
-                    <?php
-                }else{?>
+            @can('delete_items')
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
+                <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
+                    data-placement="bottom" href="javascript:;"
+                    onclick="deleteEventFromCommentFunction({{$evetData->id}},'single');">
+                    <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> </a>
+            <?php }else{ ?>
                 <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                     data-placement="bottom" href="javascript:;"
                     onclick="deleteEventFromCommentFunction({{$evetData->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button></a>
-                <?php } ?>
-
-                <?php 
-                if($evetData->parent_evnt_id=="0"){
-                    ?>
+            <?php } ?>
+            @endcan
+            @can('event_add_edit')
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
-                data-placement="bottom" href="javascript:;"
-                onclick="editSingleEventFunction({{$evetData->id}});">
-                <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
-                <?php }else{?>
-                    <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                    data-placement="bottom" href="javascript:;"
+                    onclick="editSingleEventFunction({{$evetData->id}});">
+                    <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
+            <?php }else{?>
+                <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                     data-placement="bottom" href="javascript:;"
                     onclick="editEventFunction({{$evetData->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
-                <?php } ?>
-
-            
+            <?php } ?>
+            @endcan            
         </div>
     </div>
 </div>

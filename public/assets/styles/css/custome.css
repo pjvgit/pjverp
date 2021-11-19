@@ -537,3 +537,31 @@ p {
     top: -11px; 
     position: relative;
 }
+
+.radio .checkmark{
+    height: 12px !important;
+    width: 12px !important;
+    padding: 0px;
+}
+.radio{
+    display: inline-block !important;
+    height: 15px !important;
+    width: 15px !important;
+    margin: 0 !important;
+}
+.radio .checkmark:after {
+    height: 7px !important;
+    width: 7px !important;
+}
+.table-set td{
+    vertical-align: middle !important;
+}
+.radio-outline-success {
+    padding: 0 !important;
+}
+.text-space{
+    display: block;
+    max-width: 100px;
+    width: 100px;
+}
+

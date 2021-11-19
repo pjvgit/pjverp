@@ -29,10 +29,11 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
 
         <a href="{{ route('contacts/attorneys') }}"> <button class="btn btn-light btn-rounded  m-1 px-5"
                 type="button">Back</button></a>
-
+        @can('client_add_edit')
         <a data-toggle="modal" data-target="#EditContactModal" data-placement="bottom" href="javascript:;"> <button
                 class="btn btn-primary btn-rounded m-1 px-5" type="button"
                 onclick="loadClientEditBox({{$userProfile->id}});">Edit</button></a>
+        @endcan
     </div>
 </div>
 <div class="row">
@@ -52,6 +53,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     <?php } else{ ?> 
                                         <i class="fas fa-10x fa-user-circle text-black-50"></i>
                                     <?php } ?>
+                                    @can('client_add_edit')
                                     <button id="edit_client_picture_button" class="btn btn-link text-black-50 p-0 border-0">
                                         <?php if($userProfile->profile_image==NULL && $userProfile->is_published=="no"){ ?>
                                             <i class="fas fa-pencil-alt" onclick="changeProfileImage();"></i>
@@ -65,6 +67,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                             <i class="fas fa-pencil-alt" onclick="cropProfileImage();"></i>
                                         <?php } ?>
                                     </button>
+                                    @endcan
                                 </div>
                             </div>
                             <div class="p-1">
@@ -165,17 +168,21 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profile-basic-tab"
                             href="{{URL::to('contacts/clients/'.$client_id)}}"  aria-controls="profileBasic" aria-selected="true">Info</a>
                     </li>
+                    @canany(['case_add_edit', 'case_view'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_clients_cases"){ echo "active show"; } ?>" id="contact-basic-tab "  href="{{URL::to('contacts/clients/'.$client_id.'/cases')}}" aria-controls="contactBasic" aria-selected="false">Cases</a>
                     </li>
+                    @endcanany
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_clients_activity"){ echo "active show"; } ?>" id="contact-basic-tab "  href="{{URL::to('contacts/clients/'.$client_id.'/activity')}}" aria-controls="contactBasic" aria-selected="false">Activity</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/clients/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
+                    @canany(['billing_add_edit', 'billing_view'])
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice","contacts/clients/billing/credit/history","contacts/clients/billing/trust/allocation"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
+                    @endcanany
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/messages')}}" >Messages</a>
                     </li>
@@ -1713,10 +1720,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }else{
                         $('td:eq(2)', nRow).html('<div class="text-left">Closed</div>');
                     }
-
-
+                    var action = '';
+                    @can('case_add_edit')
                     var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
-                    $('td:eq(3)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    action = '<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
+                    @endcan
+                    $('td:eq(3)', nRow).html(action); 
                 },
                 //confirm_remove_user_link(21079660, '[SAMPLE] John Doe', 13087060, 'CASE1', false); return false;
                 "initComplete": function(settings, json) {

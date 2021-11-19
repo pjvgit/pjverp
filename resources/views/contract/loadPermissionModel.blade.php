@@ -6,7 +6,7 @@
     <div class="row">      
         <div class="col-md-6">
             <div class=" mb-4">
-                <table class="table">
+                <table class="table table-set">
                     <thead>
                         <tr>
                             <th></th>
@@ -31,7 +31,7 @@
                                     <input type="radio" name="clientsPermission" {{ (in_array('client_view', $userPermissions)) ? 'checked' : '' }} value="client_view"><span class="checkmark"></span>
                                 </label>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <i class="fas fa-ban text-black-50 disabled" sr-only="not allowed"></i>
                             </td>
                             <td></td>
@@ -69,7 +69,7 @@
                                     <input type="radio" name="casesPermission"  {{ (in_array('case_view', $userPermissions)) ? 'checked' : '' }}  value="case_view"><span class="checkmark"></span>
                                 </label>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <i class="fas fa-ban text-black-50 disabled" sr-only="not allowed"></i>
                             </td>
                             <td></td>
@@ -150,7 +150,7 @@
                                         class="checkmark"></span>
                                 </label>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <i class="fas fa-ban text-black-50 disabled" sr-only="not allowed"></i>
                             </td>
                             <td class="text-center">
@@ -168,7 +168,8 @@
                                     <input type="radio" name="messagesPermission"  {{ (in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="messaging_add_edit"><span
                                         class="checkmark"></span>
                                 </label>
-                            </td>  <td>
+                            </td>  
+                            <td class="text-center">
                                 <i class="fas fa-ban text-black-50 disabled" sr-only="not allowed"></i>
                             </td>
                             <td class="text-center">
@@ -276,14 +277,14 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Access data from every case in the system or only those he/she is linked to?</label>
                     <div class="col-sm-3">
-                        <label class="radio radio-outline-success">
-                            <input type="radio" name="access_case" {{ (in_array('access_all_cases', $userPermissions)) ? 'checked' : '' }} value="access_all_cases"><span> All firm
+                        <label class="radio radio-outline-success ">
+                            <input type="radio" name="access_case" {{ (in_array('access_all_cases', $userPermissions)) ? 'checked' : '' }} value="access_all_cases"><span class="text-space pl-3"> All firm
                                 cases</span><span class="checkmark"></span>
                         </label>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-3 p-0">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="access_case" {{ (in_array('access_only_linked_cases', $userPermissions)) ? 'checked' : '' }} value="access_only_linked_cases"><span>Only linked cases</span><span
+                            <input type="radio" name="access_case" {{ (in_array('access_only_linked_cases', $userPermissions)) ? 'checked' : '' }} value="access_only_linked_cases"><span class="text-space pl-3">Only linked cases</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -295,13 +296,13 @@
                         your firm's {{config('app.name')}} account?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="add_new" value="add_firm_user" {{ (in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span
+                            <input type="radio" name="add_new" value="add_firm_user" {{ (in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="add_new" {{ (!in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} value="no"><span>No</span><span class="checkmark"></span>
+                            <input type="radio" name="add_new" {{ (!in_array('add_firm_user', $userPermissions)) ? 'checked' : '' }} value="no"><span class="pl-3">No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -310,14 +311,14 @@
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Edit user permission settings?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" value="edit_firm_user_permission" {{ (in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span class="checkmark"></span>
+                            <input type="radio" name="edit_permisssion" value="edit_firm_user_permission" {{ (in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3"> Yes</span><span class="checkmark"></span>
 
                             
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" {{ (!in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} value="no"><span>No</span><span class="checkmark"></span>
+                            <input type="radio" name="edit_permisssion" {{ (!in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} value="no"><span class="pl-3">No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -328,13 +329,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="delete_items" {{ (in_array('delete_items', $userPermissions)) ? 'checked' : '' }}  ><span> Yes</span><span
+                            <input type="radio" name="delete_item" value="delete_items" {{ (in_array('delete_items', $userPermissions)) ? 'checked' : '' }}  ><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="no" {{ (!in_array('delete_items', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="delete_item" value="no" {{ (!in_array('delete_items', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3">No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -345,13 +346,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="import_export" value="edit_import_export_settings" {{ (in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span> Yes</span><span
+                            <input type="radio" name="import_export" value="edit_import_export_settings" {{ (in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="import_export" value="no" {{ (!in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="import_export" value="no" {{ (!in_array('edit_import_export_settings', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3">No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -362,13 +363,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="custome_fields" value="edit_custom_fields_settings" {{ (in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }}><span> Yes</span><span
+                            <input type="radio" name="custome_fields" value="edit_custom_fields_settings" {{ (in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }}><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="custome_fields" value="no" {{ (!in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }} ><span>No</span><span
+                            <input type="radio" name="custome_fields" value="no" {{ (!in_array('edit_custom_fields_settings', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3">No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
@@ -381,13 +382,13 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="manage_firm" value="manage_firm_and_billing_settings" {{ (in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span> Yes</span><span
+                            <input type="radio" name="manage_firm" value="manage_firm_and_billing_settings" {{ (in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="manage_firm" value="no" {{ (!in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span>No</span><span
+                            <input type="radio" name="manage_firm" value="no" {{ (!in_array('manage_firm_and_billing_settings', $userPermissions)) ? 'checked' : '' }}><span class="pl-3">No</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>

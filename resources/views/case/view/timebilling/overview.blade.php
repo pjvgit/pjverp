@@ -24,11 +24,13 @@
                             </div>
                            
                             <div class="pl-1 col-8">
+                                @can('case_add_edit')
                                 @if(!empty($caseBiller))
                                 <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid']}}">Add Invoice</a>
                                 @else
                                 <a class="btn btn-primary btn-rounded m-1" data-toggle="modal" data-target="#editBillingContactPopup" data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">Setup Case Billing Information</a>
                                 @endif
+                                @endcan
                             </div>
                         </div>
 
@@ -312,12 +314,14 @@
                                 </tbody>
                             </table>
                         </div>
+                        @can('case_add_edit')
                             <a data-toggle="modal" data-target="#editBillingContactPopup"
                         data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">
                         <button type="button" class="edit-court-case-billing btn btn-outline-secondary">Edit</button>
                             </a>
                             <a
                             href="{{ route('case_link',$CaseMaster['case_unique_number']) }}" class="ml-3 btn btn-outline-secondary">Change Case Rate</a>
+                        @endcan
                     </div>
                 </div>
             </div>

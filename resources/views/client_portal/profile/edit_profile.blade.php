@@ -15,7 +15,7 @@
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade @if(Route::currentRouteName() == "client/account") {{ "show active" }} @endif" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
                 <h1 class="primary-heading">Contact Info</h1>
-                <form class="p-3" action="{{ route('client/account/save') }}" method="POST" id="profile_form">
+                <form class="pt-3 pb-3" action="{{ route('client/account/save') }}" method="POST" id="profile_form">
                     @csrf
                     <input type="hidden" name="id" value="{{ $user->id }}">
                     <div class="u-font-small d-flex flex-wrap">
@@ -74,10 +74,10 @@
                             <input id="mobile_number" name="user[mobile_number]" class="form-control" value="{{ $user->mobile_number }}">
                         </div>
                     </div>
-                    <input type="submit" class="btn btn-primary settings__submit" value="Save Changes">
+                    <input type="submit" class="btn btn-primary settings__submit ml-3" value="Save Changes">
                 </form>
                 <h1 class="primary-heading">Change Email</h1>
-                <form class="detail-view__background p-3" data-action="{{ route('client/change/email') }}" method="POST" id="change_email_form">
+                <form class="detail-view__background pt-3 pb-3" data-action="{{ route('client/change/email') }}" method="POST" id="change_email_form">
                     <div class="col-md-4 form-group mb-3">
                         <label class="form-input__label" for="current">Current Email</label>
                         <label id="current_email">{{ $user->email }}</label>
@@ -96,10 +96,10 @@
                             <span class="error old_password_error"></span>
                         </div>
                     </div>
-                    <input type="submit" class="btn btn-primary" value="Update Email">
+                    <input type="submit" class="btn btn-primary ml-3" value="Update Email">
                 </form>
                 <h1 class="primary-heading">Change Password</h1>
-                <form class="p-3" data-action="{{ route("client/change/password") }}" method="POST" id="chnage_password_form">
+                <form class="pt-3 pb-3" data-action="{{ route("client/change/password") }}" method="POST" id="chnage_password_form">
                     @csrf
                     <div class="settings__input u-font-small">
                         <div class="col-md-4 form-group mb-3">
@@ -122,11 +122,11 @@
                             <span class="error password_confirmation_error"></span>
                         </div>
                     </div>
-                    <input type="submit" class="btn btn-primary" value="Update Password">
+                    <input type="submit" class="btn btn-primary ml-3" value="Update Password">
                 </form>
             </div>
             <div class="tab-pane fade @if(Route::currentRouteName() == "client/account/preferences") {{ "show active" }} @endif" id="preferenceBasic" role="tabpanel" aria-labelledby="preference-basic-tab">
-                <form class="p-3" action="{{ route('client/account/save/preferences') }}" method="POST">
+                <form class="pt-3 pb-3" action="{{ route('client/account/save/preferences') }}" method="POST">
                     @csrf
                     <input type="hidden" name="id" value="{{ $user->id }}">
                     <div class="col-md-4 form-group mb-3">
@@ -162,7 +162,7 @@
                             </select>
                         </div>
                     </div>
-                    <input type="submit" class="btn btn-primary" value="Save Preferences">
+                    <input type="submit" class="btn btn-primary ml-3" value="Save Preferences">
                 </form>
             </div>
         </div>

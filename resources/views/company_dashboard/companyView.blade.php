@@ -183,15 +183,19 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_client"){ echo "active show"; } ?>" id="profile-basic-tab"
                             href="{{URL::to('contacts/companies/'.$client_id.'/clients')}}"  aria-controls="profileBasic" aria-selected="true">Contacts</a>
                     </li>
+                    @canany(['case_add_edit', 'case_view'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_cases"){ echo "active show"; } ?>" id="contact-basic-tab "  href="{{URL::to('contacts/companies/'.$client_id.'/cases')}}" aria-controls="contactBasic" aria-selected="false">Cases</a>
                     </li>
+                    @endcanany
                     
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/companies/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
+                    @canany(['billing_add_edit', 'billing_view'])
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
+                    @endcanany
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/messages')}}" >Messages</a>
                     </li>
@@ -1323,8 +1327,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
 
 
+                    // var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
+                    // $('td:eq(3)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    var action = '';
+                    @can('case_add_edit')
                     var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
-                    $('td:eq(3)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    action = '<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
+                    @endcan
+                    $('td:eq(3)', nRow).html(action); 
                 },
                 //confirm_remove_user_link(21079660, '[SAMPLE] John Doe', 13087060, 'CASE1', false); return false;
                 "initComplete": function(settings, json) {

@@ -51,8 +51,10 @@ if(isset($_GET['i'])){
                         <button onclick="printEntry();return false;" class="btn btn-link">
                             <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top"
                                     title="" data-original-title="Print"></i>
-                        </button>                        
+                        </button>        
+                        @can('case_add_edit')                
                         <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" > <button disabled class="btn btn-primary btn-rounded m-1" type="button" onclick="loadAllStep();" >Add Case</button></a>
+                        @endcan
                     </div>   
                 </div>
                 <form class="filterBy" id="filterBy" name="filterBy" method="GET">

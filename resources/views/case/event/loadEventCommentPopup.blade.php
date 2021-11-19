@@ -200,6 +200,7 @@
     </div>
     <div class="action-buttons">
         <div>
+            @can('delete_items')
             <?php if($evetData->parent_evnt_id=="0"){ ?>
                     <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                         data-placement="bottom" href="javascript:;"
@@ -213,6 +214,7 @@
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button>
                     </a>
             <?php } ?>
+            @endcan
             <?php if(!empty($CaseMasterData)){?>
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                     <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$CaseMasterData->id}}');">
@@ -220,6 +222,7 @@
                     </button>
                 </a>
                 <?php } ?>
+            @can('event_add_edit')
             <?php if($evetData->parent_evnt_id=="0"){ ?>
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                 data-placement="bottom" href="javascript:;"
@@ -231,6 +234,7 @@
                     onclick="editEventFunction({{$evetData->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
             <?php } ?>
+            @endcan
         </div>
     </div>
 </div>

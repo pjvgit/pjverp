@@ -4,10 +4,11 @@
         <div class="d-flex align-items-center mb-2 mt-3">
             <h3 class="mb-0">Contacts</h3>
             <div class="ml-auto d-flex align-items-center d-print-none">
+                @can('case_add_edit')
                 <a data-toggle="modal" data-target="#typeSelect" data-placement="bottom" href="javascript:;"> <button
                         class="btn btn-primary btn-rounded m-1" type="button" onclick="typeSelection();">Add
                         Contact</button></a>
-
+                @endcan
             </div>
         </div>
         
@@ -42,8 +43,10 @@
                             </th>
                             <th class="text-left user-email align-middle YXd6tPOgoO-RylXVRzzZh"
                                 style="cursor: initial;">Email</th>
+                            @can('case_add_edit')
                             <th class="text-right user-edit d-print-none align-middle YXd6tPOgoO-RylXVRzzZh"
                                 style="cursor: initial;"></th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -96,16 +99,20 @@
                                     @if($clistVal->role_name=="")
                                     <div class="d-flex align-items-center">
                                         <i class="table-cell-placeholder" data-testid="default-placeholder"></i>
+                                        @can('case_add_edit')
                                         <a data-toggle="modal" data-target="#changeRole" data-placement="bottom" href="javascript:;" onclick="changeRole('{{$clistVal->uid}}','{{$clistVal->case_id}}');">
                                             <i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1"></i>
                                         </a>
+                                        @endcan
                                     </div>
                                     @else
                                     <div>{{$clistVal->role_name}} 
+                                        @can('case_add_edit')
                                         <a data-toggle="modal" data-target="#changeRole" data-placement="bottom" href="javascript:;" onclick="changeRole('{{$clistVal->uid}}','{{$clistVal->case_id}}');"> 
                                             <i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1"></i>
 
                                         </a>
+                                        @endcan
                                     </div>
                                     @endif   
                                 </div>
@@ -131,9 +138,10 @@
                                 <i class="table-cell-placeholder"></i>
                                 <?php }?>
                             </td>
-
+                            @can('case_add_edit')
                             <td class="text-right user-edit d-print-none align-middle"><span
                                     class="px-0 text-black-50 c-pointer"><a href="javascript:;" onclick="onClickDelete({{$clistVal->case_client_selection_id}},'{{$clistVal->first_name}} {{$clistVal->last_name}}');" ><i class="fas fa-times-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"  ></a></span></td>
+                            @endcan
                         </tr>
                         <?php } 
                       }else{
@@ -264,8 +272,10 @@
             <div class="d-flex align-items-center mb-2">
                 <h3 class="mb-0">Staff</h3>
                 <div class="ml-auto d-print-none">
+                    @can('add_firm_user')
                     <a data-toggle="modal" data-target="#staffSelect" data-placement="bottom" href="javascript:;"> <button
                         class="btn btn-primary btn-rounded m-1" type="button" >Add Staff</button></a>
+                    @endcan
                 </div>
             </div>
             <fieldset id="mc-table-fieldset">
@@ -286,8 +296,10 @@
                                     style="cursor: initial;">Name</th>
                                 <th class="user-rate align-middle px-0 YXd6tPOgoO-RylXVRzzZh" style="cursor: initial;">
                                     Rate</th>
+                                @can('case_add_edit')
                                 <th class="text-right user-edit d-print-none align-middle YXd6tPOgoO-RylXVRzzZh"
                                     style="cursor: initial;"></th>
+                                @endcan
                             </tr>
                         </thead>
                         <?php 
@@ -331,9 +343,11 @@
                                                 ?>${{($rate)??0}}/hr ({{ $rateType }})
                                                 </span></button></a></div>
                                 </td>
+                                @can('case_add_edit')
                                 <td class="text-right user-edit d-print-none align-middle">
                                     <a href="javascript:;" onclick="onClickUnlinkStaff({{$v->case_staff_id}},'{{$pName}}');"><i class="fas fa-times-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i></a>
                                 </td>
+                                @endcan
                             </tr>
                         <?php } ?>
                         </tbody>
@@ -414,6 +428,7 @@
                     </table>
                 </div>
             </fieldset>
+            @can('case_add_edit')
             <div class="ml-auto">
                 <a data-toggle="modal" data-target="#loadLeadAttorney" data-placement="bottom" href="javascript:;"> <button
                     class="btn btn-link" type="button" onclick="loadLeadAttorney();">
@@ -425,6 +440,7 @@
                 </a>
               
             </div>
+            @endcan
         </div>
     </div>
 </div>

@@ -177,7 +177,7 @@
 <div class="modal-footer">
     <div class="action-buttons">
         <div>
-            
+            @can('delete_items')
             <?php 
                 if($evetData->parent_evnt_id=="0"){
                     ?>
@@ -192,7 +192,8 @@
                     onclick="deleteEventFromCommentFunction({{$evetData->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button></a>
                 <?php } ?>
-
+            @endcan
+            @can('event_add_edit')
                 <?php 
                 if($evetData->parent_evnt_id=="0"){
                     ?>
@@ -206,8 +207,7 @@
                     onclick="editEventFunction({{$evetData->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
                 <?php } ?>
-
-            
+            @endcan            
         </div>
     </div>
 </div>
