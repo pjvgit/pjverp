@@ -64,8 +64,10 @@ $adjustment_token=round(microtime(true) * 1000);
         <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
             <i class="fas fa-print"></i> Print
         </button>
+        @can('case_add_edit')
         <a data-toggle="modal" data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"> <button
                 class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="updateCaseDetails({{$CaseMaster->case_id}});">Edit Case</button></a>
+        @endcan
     </div>
 </div>
 <div class="row">
@@ -164,8 +166,10 @@ $adjustment_token=round(microtime(true) * 1000);
                                                         
                                                         ?>
                                                         <span class="text-muted">{{$Stage}}</span>
+                                                        @can('case_add_edit')
                                                         <i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1"
                                                             onclick="ShowStatus();"></i>
+                                                        @endcan
                                                     </span>
                                                 </div>
                                             </div>
@@ -295,15 +299,19 @@ $adjustment_token=round(microtime(true) * 1000);
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["info","recent_activity","calendars","documents","notes","tasks","intake_forms","workflows"])){ echo "active show"; } ?> " id="profile-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/info')}}" >Items & Info</a>
                     </li>
+                    @canany(['billing_add_edit', 'billing_view'])
                     <li class="nav-item">
                         <a class="nav-link   <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","invoices","payment_activity"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}" >Time & Billing</a>
                     </li>
+                    @endcanany
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
                     </li>
+                    @canany(['client_add_edit', 'client_view', 'add_firm_user'])
                     <li class="nav-item">
                         <a class="nav-link  <?php if(Route::currentRouteName()=="case_link"){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/case_link')}}" >Contacts & Staff</a>
                     </li>
+                    @endcanany
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="status_updates"){ echo "active show"; } ?> id="contact-basic-tab"  href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/status_updates')}}" >Status
                             Updates</a>
@@ -327,19 +335,20 @@ $adjustment_token=round(microtime(true) * 1000);
                                         Timeline </span>
                                 </a>
                             </div>
-
+                            @canany(['event_add_edit', 'event_view'])
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="calendars"){ echo "active"; } ?>" data-page="calendar"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/calendars')}}"><span>
                                         <i class="i-Calendar-3  text-16 mr-1"></i>Calendar</span></a>
                             </div>
-
+                            @endcanany
+                            @canany(['document_add_edit', 'document_view'])
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-documents <?php if(Route::currentRouteName()=="documents"){ echo "active"; } ?>" id="documentsButton" data-page="documents"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/documents')}}"><span>
                                         <i class="i-Folder-With-Document text-16 mr-1"></i> Documents</span></a>
                             </div>
-
+                            @endcanany
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-tasks <?php if(Route::currentRouteName()=="tasks"){ echo "active"; } ?>" data-page="tasks"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/tasks')}}"><span><i

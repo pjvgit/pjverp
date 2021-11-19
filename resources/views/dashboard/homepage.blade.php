@@ -83,10 +83,12 @@
                                 bills, etc.,
                                 related to a client matter.</div>
                         </div>
+                        @can('case_add_edit')
                         <div class="card-footer bg-white border-top-0 mt-auto  mb-2">
                             <button type="button" data-toggle="modal" data-target="#AddCaseModelUpdate"
                                 data-placement="bottom" href="javascript:;" onclick="loadAllStep();"
                                 class="btn btn-outline-primary pendo-welcome-block-add-case">Add Case</button></div>
+                        @endcan
                     </div>
 
 
@@ -165,7 +167,7 @@
                             <span class="d-none d-lg-inline"> Contact</span>
                         </a>
                     </div>
-
+                    @can('case_add_edit')
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom"
                             href="javascript:;" onclick="loadAllStep();">
@@ -175,7 +177,7 @@
 
 
                     </div>
-
+                    @endcan
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#addNewMessagePopup" data-placement="bottom"
                             href="javascript:;" onclick="addNewMessagePopup();">

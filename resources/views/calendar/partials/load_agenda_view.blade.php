@@ -30,16 +30,20 @@
                         <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopupIndex" data-placement="bottom" href="javascript:;" onclick="loadReminderPopupIndex({{$item->id}});"> <i class="fas fa-bell pr-2 align-middle"></i> </a>
                         @endif
                         <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup" data-placement="bottom" href="javascript:;" onclick="loadEventComment({{$item->id}});"> <i class="fas fa-comment pr-2 align-middle"></i> </a>
+                        @can('event_add_edit')
                         @if($item->parent_evnt_id=="0")
                             <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editSingleEventFunction({{$item->id}});"> <i class="fas fa-pen pr-2  align-middle"></i> </a>
                         @else
                             <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->id}});"> <i class="fas fa-pen pr-2  align-middle"></i> </a>
                         @endif
+                        @endcan
+                        @can('delete_items')
                         @if($item->parent_evnt_id=="0")
                             <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent" data-placement="bottom" href="javascript:;" onclick="deleteEventFunction({{$item->id}},'single');"> <i class="fas fa-trash pr-2  align-middle"></i> </a>
                         @else
                             <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent" data-placement="bottom" href="javascript:;" onclick="deleteEventFunction({{$item->id}},'multiple');"> <i class="fas fa-trash pr-2  align-middle"></i> </a>
                         @endif
+                        @endcan
                     </div>
                     @endif
                 </td>

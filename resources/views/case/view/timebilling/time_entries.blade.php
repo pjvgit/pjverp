@@ -12,9 +12,11 @@
                             placeholder="" />
                     </div>
                 </div>
+                @can('case_add_edit')
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                     <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                         onclick="loadTimeEntryPopupByCase('{{$CaseMaster['case_id']}}');">Add Time Entry</button></a>
+                @endcan
             </div>
             <div id="loadDynamicEntries">
                 

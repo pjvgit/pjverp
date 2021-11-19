@@ -323,10 +323,11 @@ $userTitle = unserialize(USER_TITLE);
                                 <div>
                                     <a data-toggle="modal" data-target="#linkBulkCasesToStaff" data-placement="bottom" href="javascript:;" class="btn btn-link text-black-50 link_all_cases" >Link to All Active Cases</a>
                                   </div>
-
+                                @can('case_add_edit')
                                 <a data-toggle="modal" data-target="#addCaseLinkWithOption" data-placement="bottom" href="javascript:;"> 
                                     <button class="btn btn-primary btn-rounded m-1 px-5" type="button" >Add Case Link</button>
                                 </a> 
+                                @endcan
                             </div>
                         <?php } ?>
                             <table class="display table table-striped table-bordered" id="StaffLinkedCaseList" style="width:100%">

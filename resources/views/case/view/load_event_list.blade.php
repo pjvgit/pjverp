@@ -175,7 +175,6 @@
                     data-placement="bottom" href="javascript:;"
                     onclick="loadEventComment({{$vv->id}});">
                     {{-- <i class="fas fa-comment pr-2 align-middle"></i> --}}
-                    <i class="fas fa-comment-alt"></i>
                     @php
                         $commentCount = 0;
                         if(count($vv->eventLinkedStaff)) {
@@ -184,10 +183,12 @@
                                 $commentCount = $vv->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
                         }
                     @endphp
+                    <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
                     @if($commentCount)
                     <span class="badge badge-danger comment-count">{{ $commentCount }}</span>
                     @endif
                     </a>
+                    @can('event_add_edit')
                     <?php 
                     if($vv->parent_evnt_id=="0"){
                         ?>
@@ -201,7 +202,8 @@
                         onclick="editEventFunction({{$vv->id}});">
                         <i class="fas fa-pen pr-2  align-middle"></i> </a>
                     <?php } ?>
-                
+                    @endcan
+                    @can('delete_items')
                     <?php 
                     if($vv->parent_evnt_id=="0"){
                         ?>
@@ -216,6 +218,7 @@
                         onclick="deleteEventFunction({{$vv->id}},'multiple');">
                         <i class="fas fa-trash pr-2  align-middle"></i> </a>
                     <?php } ?>
+                    @endcan
                 </div>
                 <?php } ?>
             </td>

@@ -214,11 +214,13 @@ if(isset($_GET['type'])){
                                         <i class="i-Administrator text-16 mr-1" height="40"></i>&nbsp; Activity  </span>
                                 </a>
                             </div>
+                            @canany(['event_add_edit', 'event_view'])
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="case_details/calendars"){ echo "active"; } ?>" data-page="calendar"
                                     href="{{URL::to('leads/'.$user_id.'/case_details/calendars')}}"><span>
                                         <i class="i-Calendar-3  text-16 mr-1"></i>Calendar</span></a>
                             </div>
+                            @endcanany
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-recent-activity <?php if(Route::currentRouteName()=="case_details/tasks"){ echo "active"; } ?>"
                                     data-page="recent_activity"
