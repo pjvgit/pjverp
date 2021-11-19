@@ -6,12 +6,14 @@ if(!$commentData->isEmpty()){
     role="grid">
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>        
-            @include('dashboard.include.invoice_activity_data')
+                @include('dashboard.include.invoice_activity_data')
         <?php }
          ?>
     </tbody>
 </table>
-<span class="InvoiceNotify">{!! $commentData->links() !!}</span>
+@if(isset($request) && $request->ajax() && $request->per_page != '')
+<span class="InvoiceNotify">{!! $commentData->links() ?? '' !!}</span>
+@endif
 <?php } else { 
     echo  "No recent activity available.";
 }

@@ -3019,7 +3019,12 @@
             var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
             var debitedAmount=totalAmount-firstInstallment;
             var totalInstalment=debitedAmount/amount_per_installment_field;
-            $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
+            if(totalInstalment < 0) {
+                totalInstalment = 1;
+            }else{
+                totalInstalment = Math.floor(totalInstalment) + 1
+            }
+            $("#number_installment_field").val(totalInstalment);
 
         });
         $("#SaveInvoiceButton").on("click",function(){

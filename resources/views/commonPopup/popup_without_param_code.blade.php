@@ -1425,7 +1425,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#invoiceEntry").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/dashboard/loadInvoiceHistory",
+            url: baseUrl + "/notifications/loadInvoiceNotification",
             data: {
                 "id": null
             },
@@ -1467,7 +1467,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#allEntry").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/dashboard/loadAllHistoryForDashboard",
+            url: baseUrl + "/notifications/loadAllNotification",
             data: {
                 "id": null
             },
@@ -1507,7 +1507,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#eventEntry").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/dashboard/loadEventHistoryForDashboard",
+            url: baseUrl + "/notifications/loadEventsNotification",
             data: {
                 "id": null
             },
@@ -1550,7 +1550,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#taskActivity").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/dashboard/loadTaskHistoryForDashboard",
+            url: baseUrl + "/notifications/loadTasksNotification",
             data: {
                 "id": null
             },
@@ -1593,7 +1593,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#documentsEntry").html('<img src="{{LOADER}}""> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/dashboard/loadDocumentHistoryForDashboard",
+            url: baseUrl + "/notifications/loadDocumentNotification",
             data: {
                 "id": null
             },

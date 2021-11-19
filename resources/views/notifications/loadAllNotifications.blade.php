@@ -38,7 +38,9 @@ if(!$commentData->isEmpty()){
         } ?>
     </tbody>
 </table>
+@if(isset($request) && $request->ajax() && $request->per_page != '')
 <span class="AllNotify">{!! $commentData->links() !!}</span>
+@endif
 <?php } else { 
     echo  "No recent activity available.";
 }

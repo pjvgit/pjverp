@@ -501,7 +501,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#expensesEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/dashboard/loadExpenseHistory",
+            url: baseUrl + "/notifications/loadExpensesNotification",
             data: {
                 "id": null
             },
@@ -545,7 +545,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#timeEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/dashboard/loadTimeEntryHistory",
+            url: baseUrl + "/notifications/loadTimeEntryNotification",
             data: {
                 "id": null
             },
@@ -589,7 +589,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
         $("#invoiceEntry").html('<img src="{{ asset("images/ajax_arrows.gif") }}"> Loading...');
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/dashboard/loadInvoiceHistory",
+            url: baseUrl + "/notifications/loadInvoiceNotification",
             data: {
                 "id": null
             },

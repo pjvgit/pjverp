@@ -191,10 +191,6 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     //Dashboard
     Route::get('/dashboard', 'HomeController@index')->name('dashboard');
     Route::post('dashboard/dismissWidget', 'HomeController@dismissWidget')->name('dismissWidget');
-    Route::post('dashboard/loadAllHistoryForDashboard', 'HomeController@loadAllHistoryForDashboard')->name('dashboard/loadAllHistoryForDashboard');
-    Route::post('dashboard/loadEventHistoryForDashboard', 'HomeController@loadEventHistoryForDashboard')->name('dashboard/loadEventHistoryForDashboard');
-    Route::post('dashboard/loadTaskHistoryForDashboard', 'HomeController@loadTaskHistoryForDashboard')->name('dashboard/loadTaskHistoryForDashboard');
-    Route::post('dashboard/loadDocumentHistoryForDashboard', 'HomeController@loadDocumentHistoryForDashboard')->name('dashboard/loadTaskHistoryForDashboard');
     Route::post('dashboard/AddBulkUserModal', 'HomeController@addBulkUserPopup')->name('dashboard/AddBulkUserModal');
     Route::post('dashboard/saveBulkUserPopup', 'HomeController@saveBulkUserPopup')->name('dashboard/saveBulkUserPopup');
 
@@ -1072,9 +1068,6 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     
     Route::post('bills/dashboard/depositIntoTrustPopup', 'BillingController@depositIntoTrustPopup')->name('dashboard/depositIntoTrustPopup');
     Route::post('bills/dashboard/saveDepositIntoTrustPopup', 'BillingController@saveDepositIntoTrustPopup')->name('dashboard/saveDepositIntoTrustPopup');
-    Route::post('bills/dashboard/loadExpenseHistory', 'BillingController@loadExpenseHistory')->name('bills/dashboard/loadExpenseHistory');
-    Route::post('bills/dashboard/loadTimeEntryHistory', 'BillingController@loadTimeEntryHistory')->name('bills/dashboard/loadTimeEntryHistory');
-    Route::post('bills/dashboard/loadInvoiceHistory', 'BillingController@loadInvoiceHistory')->name('bills/dashboard/loadInvoiceHistory');
     Route::post('bills/dashboard/loadAllHistory', 'BillingController@loadAllHistory')->name('bills/dashboard/loadAllHistory');
     Route::post('bills/dashboard/loadTimeEntryOverview', 'BillingController@loadTimeEntryOverview')->name('bills/dashboard/loadTimeEntryOverview');
     Route::post('bills/dashboard/loadInvoiceOverview', 'BillingController@loadInvoiceOverview')->name('bills/dashboard/loadInvoiceOverview');

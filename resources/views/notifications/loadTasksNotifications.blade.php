@@ -9,9 +9,9 @@ if(!$commentData->isEmpty()){ ?>
         <?php } ?>
     </tbody>
 </table>
-<span class="TasksNotify">
-    {{ $commentData->links() }}
-</span>
+@if(isset($request) && $request->ajax() && $request->per_page != '')
+<span class="TasksNotify"> {{ $commentData->links() }} </span>
+@endif
 <?php 
 } else { 
     echo "No recent activity available.";

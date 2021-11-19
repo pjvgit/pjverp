@@ -315,7 +315,7 @@ class User extends Authenticatable
     // save notifications setting for email and feed
     public function userNotificationSetting()
     {
-        return $this->belongsToMany(NotificationSetting::class, 'user_notification_settings', 'user_id', 'notification_id');
+        return $this->belongsToMany(NotificationSetting::class, 'user_notification_settings', 'user_id', 'notification_id')->withPivot('for_feed');
     }
 
     /**

@@ -9165,65 +9165,14 @@ class BillingController extends BaseController
         }
         }
     }
-
-    public function loadExpenseHistory(Request $request)
-    {
-        
-        $commentData = AllHistory::join('users','users.id','=','all_history.created_by')
-        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
-        ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
-        ->where("all_history.type","expenses")
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        return view('billing.dashboard.expenseHistory',compact('commentData'));
-        exit;  
-            
-    }
-    public function loadTimeEntryHistory(Request $request)
-    {
-  
-        $commentData = AllHistory::join('users','users.id','=','all_history.created_by')
-        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-        ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
-        ->where("all_history.type","time_entry")
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        return view('billing.dashboard.TimeEntryHistory',compact('commentData'));
-        exit;  
-            
-    } 
-    
-    public function loadInvoiceHistory(Request $request)
-    {
-  
-        $commentData = AllHistory::join('users','users.id','=','all_history.created_by')
-        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
-        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
-        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
-        ->where("all_history.type","invoices")
-        ->orWhere("all_history.type","lead_invoice")
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        return view('billing.dashboard.InvoiceHistory',compact('commentData'));
-        exit;  
-            
-    }
     
     public function loadAllHistory(Request $request)
     {
-  
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->whereIn('sub_type', ['invoices','time_entry'])->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+
         $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
         ->leftJoin('users as u1','u1.id','=','all_history.client_id')
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
@@ -9239,13 +9188,8 @@ class BillingController extends BaseController
                 "all_history.created_at as all_history_created_at",
                 "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
         ->where('all_history.is_for_client','no')
-        ->where("all_history.type","invoices")
-        ->orWhere("all_history.type","lead_invoice")
-        ->orWhere("all_history.type","time_entry")
-        ->orWhere("all_history.type","expenses")
-        ->orWhere("all_history.type","credit")
-        ->orWhere("all_history.type","deposit")
-        ->orWhere("all_history.type","fundrequest")
+        ->whereIn("all_history.type", ["invoices", "lead_invoice","time_entry","expenses","credit","deposit","fundrequest"])
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->orderBy('all_history.id','DESC')
         ->limit(20)

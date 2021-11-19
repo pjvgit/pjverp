@@ -64,8 +64,8 @@ class NotificationEmailCommand extends Command
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
                     "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
                     'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-            ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
-            // ->whereDate("all_history.created_at", date('Y-m-d'))
+            // ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
+            ->whereDate("all_history.created_at", date('Y-m-d'))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
             ->get();
@@ -85,9 +85,9 @@ class NotificationEmailCommand extends Command
                 // echo "*******************";echo PHP_EOL;
                 $date = Carbon::now($firmDetail->user_timezone ?? 'UTC');
                 $utcDate = Carbon::now('UTC');
-                Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for time zone : '.$firmDetail->user_timezone." at ".$date);
+                // Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for time zone : '.$firmDetail->user_timezone." at ".$date);
                 if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
-                    if ($date->hour === 19) {
+                    if ($date->hour === 05) {
                         $preparedFor = substr($firmDetail->first_name,0,100).' '.substr($firmDetail->last_name,0,100).'|'.$firmDetail->email;
                         $firmData[$preparedFor][$key] = $val;
                         $firmData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url; 
@@ -104,9 +104,9 @@ class NotificationEmailCommand extends Command
                 foreach($firmUserDetails as $k => $staff) {
                     $date = Carbon::now($staff->user_timezone ?? 'UTC');
                     $utcDate = Carbon::now('UTC');
-                    Log::info("Staff notification Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);
+                    // Log::info("Staff notification Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);
                     if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
-                        if ($date->hour === 18) {
+                        if ($date->hour === 05) {
                             $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email.'|'.$staff->id;
                             $staffData[$preparedFor][$key] = $val;
                             $staffData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;
@@ -124,22 +124,21 @@ class NotificationEmailCommand extends Command
         // for firm User
         $firmData = array_map('array_values', $firmData);
         $caseData = [];
-        $itemData = [];
+        $itemData = [];        
         foreach($firmData as $key => $item) {
             if(count($item) > 0) {
-                $firmId = 0;
-                foreach($item as $k => $v){
-                    $firmId = $v->caseFirm->parent_user_id;
-                    echo $v->caseFirm->parent_user_id ."-->"; echo PHP_EOL;  
-                    $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
-                    FROM user_notification_settings uns
-                    left join notification_settings ns on ns.id = uns.notification_id 
-                    left join user_notification_interval uni on uni.user_id = uns.user_id 
-                    where uns.user_id = "'.$v->caseFirm->parent_user_id.'" and uns.for_email = "yes" and uni.notification_email_interval = "1440" ');   
+                $firmId = $item[0]->caseFirm->parent_user_id;
+                echo $firmId ."-->"; echo PHP_EOL;  
+                $userNotificationSetting =  DB::select('SELECT uns.notification_id, uns.for_email, ns.topic, ns.type, ns.action, ns.sub_type
+                FROM user_notification_settings uns
+                left join notification_settings ns on ns.id = uns.notification_id 
+                left join user_notification_interval uni on uni.user_id = uns.user_id 
+                where uns.user_id = "'.$firmId.'" and uns.for_email = "yes" and uni.notification_email_interval = "1440" ');   
+            
+                echo "Firm userNotificationSetting data > ". count($userNotificationSetting); echo PHP_EOL; 
+                Log::info("Firm userNotificationSetting data > ". count($userNotificationSetting)); 
                 
-                    echo "Firm userNotificationSetting data > ". count($userNotificationSetting); echo PHP_EOL; 
-                    Log::info("Firm userNotificationSetting data > ". count($userNotificationSetting)); 
-                    
+                foreach($item as $k => $v){                    
                     $viewInMail = 0;
                     // echo $v->type ."-->". $v->action; echo PHP_EOL;
                     foreach($userNotificationSetting as $n => $setting){                        
@@ -197,7 +196,7 @@ class NotificationEmailCommand extends Command
                 where uns.user_id = "'.$staffID.'" and uns.for_email = "yes" and uni.notification_email_interval = "1440" ');   
                 
                 echo "Staff userNotificationSetting data > ". count($userNotificationSetting); echo PHP_EOL;  
-                Log::info("Staff userNotificationSetting data > ". count($userNotificationSetting)); 
+                // Log::info("Staff userNotificationSetting data > ". count($userNotificationSetting)); 
                 foreach($item as $k => $v){ 
                     // echo $v->staff_id ."-->"; echo PHP_EOL;                   
                     $viewInMail = 0;

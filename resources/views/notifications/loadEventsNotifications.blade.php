@@ -10,7 +10,9 @@ if(!$commentData->isEmpty()){?>
         <?php  } ?>
     </tbody>
 </table>
+@if(isset($request) && $request->ajax() && $request->per_page != '')
 <span class="EventsNotify">{!! $commentData->links() !!}</span>
+@endif
 <?php } else { 
 echo "No recent activity available.";
 }?>

@@ -326,90 +326,7 @@ class HomeController extends BaseController
             exit;
         }
     } 
-    public function loadAllHistoryForDashboard(Request $request)
-    {
-        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
-        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('document_master','document_master.id','=','all_history.document_id')
-        ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-        ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
-        ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-        ->leftJoin('task','task.id','=','all_history.task_id')
-        ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
-                "users.*","all_history.*","document_master.*","u1.user_level as ulevel","u1.user_title as utitle",
-                DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
-                "case_master.case_title","case_master.id","task_activity.title",
-                "all_history.created_at as all_history_created_at",
-                "case_master.case_unique_number", "case_events.event_title as eventTitle", 
-                "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',
-                "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-        ->where('all_history.is_for_client','no')
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        return view('dashboard.AllHistory',compact('commentData'));
-        exit;  
-            
-    }
-    public function loadEventHistoryForDashboard(Request $request)
-    {
-  
-        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-        ->select('case_events.id as eventID',"users.*","all_history.*","case_master.case_title","case_master.id",
-        "all_history.created_at as all_history_created_at","case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents")
-        ->where('all_history.is_for_client','no')
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->where("all_history.type","event")
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        // print_r($commentData);exit;
-        return view('dashboard.EventHistory',compact('commentData'));
-        exit;  
-            
-    }
-    public function loadTaskHistoryForDashboard(Request $request)
-    {
-  
-        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-        ->leftJoin('task','task.id','=','all_history.task_id')
-        ->select("users.*","all_history.*","case_master.case_title","case_master.id","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
-        ->where('all_history.is_for_client','no')
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->where("all_history.type","task")
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        return view('dashboard.TaskHistory',compact('commentData'));
-        exit;  
-            
-    }
-    public function loadDocumentHistoryForDashboard(Request $request)
-    {
-  
-        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-        ->leftJoin('users as u1','u1.id','=','all_history.deposit_for')
-        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-        ->leftJoin('document_master','document_master.id','=','all_history.document_id')
-        ->select("users.*","all_history.*","document_master.*","case_master.case_title","case_master.case_unique_number","case_master.id","u1.user_level as ulevel","u1.user_title as utitle",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as creator_name'),"all_history.created_at as all_history_created_at")
-        ->where('all_history.is_for_client','no')
-        ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->where("all_history.type","document")
-        ->orderBy('all_history.id','DESC')
-        ->limit(20)
-        ->get();
-        // print_r($commentData);exit;
-        return view('dashboard.DocumentHistory',compact('commentData'));
-        exit;  
-            
-    }
+
     public function notification(Request $request)
     {
         return view('notifications.notifications');
@@ -418,148 +335,199 @@ class HomeController extends BaseController
 
     public function loadAllNotification(Request $request)
     {
-        if($request->ajax())
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('case_events','case_events.id','=','all_history.event_id')
+        ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
+        ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
+        ->leftJoin('task','task.id','=','all_history.task_id')
+        ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
+                "users.*","all_history.*","u1.user_level as ulevel","u1.user_title as utitle",
+                DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
+                "case_master.case_title","case_master.id","task_activity.title",
+                "all_history.created_at as all_history_created_at",
+                "case_master.case_unique_number", "case_events.event_title as eventTitle", 
+                "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',
+                "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->orderBy('all_history.id','DESC');
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('users as u1','u1.id','=','all_history.client_id')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-            ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
-            ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-            ->leftJoin('task','task.id','=','all_history.task_id')
-            ->select("task_time_entry.deleted_at as timeEntry","expense_entry.id as ExpenseEntry","case_events.id as eventID", 
-                    "users.*","all_history.*","u1.user_level as ulevel","u1.user_title as utitle",
-                    DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
-                    "case_master.case_title","case_master.id","task_activity.title",
-                    "all_history.created_at as all_history_created_at",
-                    "case_master.case_unique_number", "case_events.event_title as eventTitle", 
-                    "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',
-                    "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name);
             if(isset($request->user_id)){
                 $commentData=$commentData->where("all_history.user_id",$request->user_id);
             }
             if(isset($request->client_id)){
                 $commentData=$commentData->where("all_history.user_id",$request->client_id)->orWhere("all_history.client_id",$request->client_id);
-            }
-            $commentData=$commentData->orderBy('all_history.id','DESC');
+            }            
             // return $commentData->get();
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-        return view('notifications.loadAllNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadAllNotifications', compact('commentData','request'))->render();        
     }
     public function loadInvoiceNotification(Request $request)
     {
-        if($request->ajax())
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'invoices')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+        
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
+        ->leftJoin('users as u1','u1.id','=','all_history.client_id')
+        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->whereIn("all_history.type", ["invoices", "lead_invoice"])
+        ->whereIn("all_history.action", $authUserNotifyAction)
+        ->orderBy('all_history.id','DESC');
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
-            ->leftJoin('users as u1','u1.id','=','all_history.client_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","invoices")
-            ->orWhere("all_history.type","lead_invoice")
-            ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-            return view('notifications.loadInvoiceNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadInvoiceNotifications', compact('commentData','request'))->render();
     }
     public function loadTimeEntryNotification(Request $request)
     {
-        if($request->ajax())
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'time_entry')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+        
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
+        ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->where("all_history.type","time_entry")
+        ->whereIn("all_history.action", $authUserNotifyAction)
+        ->orderBy('all_history.id','DESC');
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-            ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","time_entry")
-            ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-            return view('notifications.loadTimeEntryNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadTimeEntryNotifications', compact('commentData','request'))->render();
+       
     }
     public function loadExpensesNotification(Request $request)
     {
-        if($request->ajax())
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'time_entry')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+        
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
+        ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->where("all_history.type","expenses")
+        ->whereIn("all_history.action", $authUserNotifyAction)
+        ->orderBy('all_history.id','DESC');
+
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
-            ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","expenses")
-            ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-            return view('notifications.loadExpensesNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadExpensesNotifications', compact('commentData','request'))->render();
+        
     }
     public function loadEventsNotification(Request $request)
     {
-        if($request->ajax())
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'event')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('case_events','case_events.id','=','all_history.event_id')
+        ->select("case_events.id as eventID","case_events.event_title as eventTitle","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "case_events.deleted_at as deleteEvents")
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->where("all_history.type","event")
+        ->whereIn("all_history.action", $authUserNotifyAction)
+        ->orderBy('all_history.id','DESC');
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-            ->select("case_events.id as eventID","case_events.event_title as eventTitle","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "case_events.deleted_at as deleteEvents")
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","event")
-            ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-            return view('notifications.loadEventsNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadEventsNotifications', compact('commentData', 'request'))->render();
     }
     public function loadTasksNotification(Request $request)
     {
-        if($request->ajax())
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'task')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+
+        $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
+        ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
+        ->leftJoin('case_master','case_master.id','=','all_history.case_id')
+        ->leftJoin('task','task.id','=','all_history.task_id')
+        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
+        ->where('all_history.is_for_client','no')
+        ->where("all_history.firm_id",Auth::User()->firm_name)
+        ->where("all_history.type","task")
+        ->whereIn("all_history.action", $authUserNotifyAction)
+        ->orderBy('all_history.id','DESC');
+        if($request->ajax() && $request->per_page != '')
         {
-            $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
-            ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
-            ->leftJoin('case_master','case_master.id','=','all_history.case_id')
-            ->leftJoin('task','task.id','=','all_history.task_id')
-            ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
-            ->where('all_history.is_for_client','no')
-            ->where("all_history.firm_id",Auth::User()->firm_name)
-            ->where("all_history.type","task")
-            ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
             }else{
                 $commentData=$commentData->paginate(10);
             }
-            return view('notifications.loadTasksNotifications', compact('commentData'))->render();
+        }else{
+            $commentData=$commentData->limit(20);
+            $commentData=$commentData->get();
         }
+        return view('notifications.loadTasksNotifications', compact('commentData','request'))->render();
+        
     }
     public function loadDepositRequestsNotification(Request $request)
     {
@@ -586,6 +554,11 @@ class HomeController extends BaseController
 
     public function loadDocumentNotification(Request $request)
     {
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyType = $authUserNotificationSetting->pluck('sub_type')->toArray();
+        $authUserNotifyAction = $authUserNotificationSetting->where('sub_type', 'document')->pluck('action')->toArray();
+        // return $authUserNotificationSettingArr;
+       
         if($request->ajax())
         {
             $commentData = AllHistory::leftJoin('users','users.id','=','all_history.created_by')
@@ -596,6 +569,7 @@ class HomeController extends BaseController
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","document")
+            ->whereIn("all_history.action", $authUserNotifyAction)
             ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
