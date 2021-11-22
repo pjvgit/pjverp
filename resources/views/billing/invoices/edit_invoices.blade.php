@@ -1146,7 +1146,7 @@
                                                 style="border: none; padding-bottom: 7px; ">
                                                 Flat Fee Sub-Total:
                                             </div>
-                                            <?php } ?>
+                                            <?php } if($case_id=="none"){ ?>
                                             <div id="time_entry_total_label" class="time-entries-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Time Entry Sub-Total:
@@ -1155,6 +1155,7 @@
                                                 class="expense-totals">
                                                 Expense Sub-Total:
                                             </div>
+                                            <?php } ?>
                                             <div id="sub_total_label" style="font-weight: bold; border: none;">
                                                 Sub-Total:
                                             </div>
@@ -1167,7 +1168,7 @@
                                                 style="border: none; padding-bottom: 7px; ">
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
-                                            <?php } ?>
+                                            <?php } if($case_id=="none"){ ?>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
                                                     class="time_entry_total_amount">{{number_format($timeEntryAmount,2)}}</span>
@@ -1176,6 +1177,7 @@
                                                 $<span id="expense_total_amount"
                                                     class="expense_total_amount">{{number_format($expenseAmount,2)}}</span>
                                             </div>
+                                            <?php } ?>
                                             <div style="border: none;">
                                                 $<span id="sub_total_amount" class="sub_total_amount">0.00</span>
                                             </div>

@@ -355,13 +355,64 @@
                     @endcanany
                     <!-- end charts -->
 
-
+                    <li class="nav-item px-3">
+                        <div id="timers_container" class="timers-container text-nowrap"><div>
+                            <div>
+                                <div class="nav-item">
+                                    <div class="js-timer-root">
+                                        <a href="#" class="startTimer">
+                                            <i class="far fa-clock fa-lg  timer-clock-icon"></i>
+                                            <span class="text-nowrap">Start Timer</span>
+                                            <span class="time-status"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="timerCounter" style="display: none;">
+                                    <div class="timer-panel mb-5" style="margin-left: -190px;background-color: #ccc;">
+                                        <div class="timer-row d-flex">
+                                            <div>
+                                                <a href="#">
+                                                    <i class="timerAction fas fa-pause" id='pauseCounter'>&nbsp;<span class="time-status"></span></i>
+                                                </a> 
+                                            </div>
+                                            <input type="hidden" name="smart_timer_id" id="smart_timer_id" value="">
+                                            <input type="hidden" name="pause_smart_timer_id" id="pause_smart_timer_id" value="">
+                                            <span class="timer-secondary-actions d-flex" style="margin-left: 40px;">
+                                                <a href="#" onclick="deleteTimer();" class="btn btn-link timer-delete-action">Delete</a>
+                                                <a href="#" onclick="saveTimer();" class="btn btn-secondary timer-save-action float-none">Save</a>
+                                            </span>
+                                        </div>
+                                        <div class="input-row">
+                                            <label><i class="fa fa-suitcase fa-2x"></i>
+                                            <div class="counting-textarea d-flex">
+                                                <select id="timer_case_id" name="timer_case_id" class="form-control">
+                                                    <option value="">Select case</option>    
+                                                    <option value="165">oct 27</option>
+                                                </select>
+                                            </div>
+                                            </label>
+                                        </div>
+                                        <div class="input-row">
+                                            <label>
+                                                <img alt="" class="mr-1" src="{{asset('/svg/note-.svg')}}" width="24" height="24">
+                                                <div class="counting-textarea d-flex">
+                                                    <textarea placeholder="Description" class="form-control timer-text-field" maxlength="1024" rows="1" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 39px;"></textarea>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
 
                 </ul>
 
-
+                
             </div>
         </div>
+
+        
     </div>
 
 </div>

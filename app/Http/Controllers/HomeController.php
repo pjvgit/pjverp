@@ -21,7 +21,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory,App\Feedback;
 use App\Invoices,App\EmailTemplate;
 use App\Http\Requests\MultiuserRequest;
-use App\TaskReminder;
+use App\TaskReminder,App\SmartTimer,App\PauseTimerEntrie;
 use App\Traits\EventReminderTrait;
 use App\Traits\TaskReminderTrait;
 use App\UserInterestedModule;
@@ -844,5 +844,42 @@ class HomeController extends BaseController
             session(['popup_success' => 'Thank you for the suggestion!']);
             return response()->json(['errors'=>'']);
         }
+    }
+
+    public function createTimer(Request $request){
+        $SmartTimer = new SmartTimer();
+        $SmartTimer->started_at = date("Y-m-d H:i:s");
+        $SmartTimer->user_id = Auth::User()->id;
+        $SmartTimer->save();
+
+        return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id]);
+    }
+
+    public function deleteTimer(Request $request){
+        $SmartTimer = SmartTimer::find($request->smart_timer_id)->forceDelete();
+        return response()->json(["status" => "success"]);
+    }
+
+    public function saveTimer(Request $request){
+        $SmartTimer = SmartTimer::find($request->smart_timer_id);
+        $SmartTimer->stopped_at = date("Y-m-d H:i:s");
+        $SmartTimer->case_id = $request->case_id;
+        $SmartTimer->save();
+        return response()->json(["status" => "success"]);
+    }
+
+    public function pauseTimer(Request $request){
+        $PauseTimerEntrie = new PauseTimerEntrie();
+        $PauseTimerEntrie->smart_timer_id = $request->smart_timer_id;
+        $PauseTimerEntrie->pause_start_time = date("Y-m-d H:i:s");
+        $PauseTimerEntrie->save();
+        return response()->json(["status" => "success", "pause_smart_timer_id" => $PauseTimerEntrie->id]);
+    }
+
+    public function resumeTimer(Request $request){
+        $PauseTimerEntrie = PauseTimerEntrie::find($request->pause_smart_timer_id);
+        $PauseTimerEntrie->pause_stop_time = date("Y-m-d H:i:s");
+        $PauseTimerEntrie->save();
+        return response()->json(["status" => "success"]);
     }
 }

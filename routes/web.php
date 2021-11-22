@@ -185,6 +185,14 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('get/popup/notification', 'HomeController@popupNotification')->name('get/popup/notification');
     Route::get('update/popup/notification', 'HomeController@updatePopupNotification')->name('update/popup/notification');
     
+    // For Smart Timer
+    Route::post('createTimer', 'HomeController@createTimer')->name('createTimer');
+    Route::post('deleteTimer', 'HomeController@deleteTimer')->name('deleteTimer');
+    Route::post('saveTimer', 'HomeController@saveTimer')->name('saveTimer');
+    Route::post('pauseTimer', 'HomeController@pauseTimer')->name('pauseTimer');
+    Route::post('resumeTimer', 'HomeController@resumeTimer')->name('resumeTimer');
+
+
     // Store user interest after profile setup
     Route::get('save/user/interested/detail', 'HomeController@saveUserInterestDetail')->name('save/user/interested/detail');
 

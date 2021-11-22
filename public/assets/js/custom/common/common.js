@@ -127,3 +127,176 @@ $(document).ready(function() {
         return value > 0;
     }, 'Should be greater than 0');
 });
+
+// Start smart timer Modules
+localStorage.setItem("counter", "0");
+
+let hour = 0;
+let minute = 0;
+let seconds = 0;
+let totalSeconds = 0;
+
+let intervalId = null;
+$(".startTimer").on('click', function() {
+    $(".timerCounter").show();
+    if (localStorage.getItem("counter") > 0) {
+        totalSeconds = localStorage.getItem("counter");
+        if (localStorage.getItem("pauseCounter") == 'no') {
+            intervalId = setInterval(timerstart, 1000);
+        } else {
+            timerstart();
+        }
+    } else {
+        $.ajax({
+            url: baseUrl + "/createTimer",
+            type: 'POST',
+            data: {},
+            success: function(data) {
+                if (data.status == "success") {
+                    $("#smart_timer_id").val(data.smart_timer_id);
+                    intervalId = setInterval(timerstart, 1000);
+                }
+            },
+        });
+    }
+});
+console.log("localStorage > counter :" + localStorage.getItem("counter"));
+console.log("localStorage > pauseCounter :" + localStorage.getItem("pauseCounter"));
+
+if (localStorage.getItem("counter") > 0) {
+    totalSeconds = localStorage.getItem("counter");
+    if (localStorage.getItem("pauseCounter") == 'no') {
+        intervalId = setInterval(timerstart, 1000);
+    } else {
+        timerstart();
+    }
+}
+
+$(document).on("click", "#startCounter", function() {
+    resumeTimer();
+    if (!intervalId) {
+        localStorage.setItem("pauseCounter", 'no');
+        intervalId = setInterval(timerstart, 1000);
+    }
+    $(".timerAction").removeClass("fa-play").addClass("fa-pause");
+    $(".timerAction").attr('id', 'pauseCounter');
+});
+
+$(document).on("click", "#pauseCounter", function() {
+    pauseTimer();
+    if (intervalId) {
+        clearInterval(intervalId);
+        localStorage.setItem("pauseCounter", 'yes');
+        intervalId = null;
+    }
+    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+    $(".timerAction").attr('id', 'startCounter');
+});
+
+function timerstart() {
+
+    $(".js-timer-root .text-nowrap .time-status").html("");
+    if (localStorage.getItem("pauseCounter") == 'no') {
+        $(".js-timer-root .text-nowrap").html(" 1 &nbsp; <i class='timer-status-dot active'></i> &nbsp;");
+    } else {
+        $(".js-timer-root .text-nowrap").html(" 1 &nbsp; <i class='timer-status-dot error'></i> &nbsp;");
+    }
+
+    ++totalSeconds;
+    hour = Math.floor(totalSeconds / 3600);
+    minute = Math.floor((totalSeconds - hour * 3600) / 60);
+    seconds = totalSeconds - (hour * 3600 + minute * 60);
+    $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
+    localStorage.setItem("counter", totalSeconds);
+}
+
+function pad(str, max) {
+    str = str.toString();
+    return str.length < max ? pad("0" + str, max) : str;
+}
+
+function deleteTimer() {
+    var smart_timer_id = $("#smart_timer_id").val();
+    swal({
+        title: 'Are you sure you want to delete this practice area?',
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0CC27E',
+        cancelButtonColor: '#FF586B',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+        confirmButtonClass: 'btn btn-success mr-5',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false
+    }).then(function() {
+        $(function() {
+            $.ajax({
+                url: baseUrl + "/deleteTimer",
+                type: 'POST',
+                data: { "smart_timer_id": smart_timer_id },
+                success: function(data) {
+                    if (data.status == "success") {
+                        $("#smart_timer_id").val("");
+                        window.location.reload();
+                    }
+                },
+            });
+        });
+
+    });
+
+}
+
+function saveTimer() {
+    pauseTimer();
+    var smart_timer_id = $("#smart_timer_id").val();
+    var case_id = $("#timer_case_id").val();
+    $.ajax({
+        url: baseUrl + "/saveTimer",
+        type: 'POST',
+        data: { "smart_timer_id": smart_timer_id, "case_id": case_id },
+        success: function(data) {
+            if (data.status == "success") {
+                localStorage.setItem("counter", "0");
+                $("#loadTimeEntryPopup").modal("show");
+                if (case_id > 0) {
+                    loadTimeEntryPopupByCase(case_id);
+                } else {
+                    loadTimeEntryPopup();
+                }
+            }
+        },
+    });
+}
+
+function pauseTimer() {
+    var smart_timer_id = $("#smart_timer_id").val();
+
+    $.ajax({
+        url: baseUrl + "/pauseTimer",
+        type: 'POST',
+        data: { "smart_timer_id": smart_timer_id },
+        success: function(data) {
+            if (data.status == "success") {
+                $("#pause_smart_timer_id").val(data.pause_smart_timer_id);
+            }
+        },
+    });
+}
+
+function resumeTimer() {
+    var smart_timer_id = $("#smart_timer_id").val();
+    var pause_smart_timer_id = $("#pause_smart_timer_id").val();
+    $.ajax({
+        url: baseUrl + "/resumeTimer",
+        type: 'POST',
+        data: { "smart_timer_id": smart_timer_id, "pause_smart_timer_id": pause_smart_timer_id },
+        success: function(data) {
+            if (data.status == "success") {
+                $("#pause_smart_timer_id").val("");
+            }
+        },
+    });
+}
+// End

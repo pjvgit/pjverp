@@ -2589,21 +2589,21 @@ class BillingController extends BaseController
             }
             if($case_id == "none"){
                 $totalFlatFee = FlatFeeEntry::where('case_id', 0)->where('user_id', auth()->id())->where("status","unpaid")->first();
-                if(empty($totalFlatFee)) {
-                    FlatFeeEntry::updateOrcreate([
-                        'case_id' => 0,
-                        'user_id' => auth()->id(),
-                        "status" => "unpaid"
-                    ],[
-                        'case_id' => 0,
-                        'user_id' => auth()->id(),
-                        'entry_date' => Carbon::now(),
-                        'cost' =>  0,
-                        'time_entry_billable' => 'yes',
-                        'token_id' => $request->token,
-                        'created_by' => auth()->id(), 
-                    ]);
-                }
+                // if(empty($totalFlatFee)) {
+                //     FlatFeeEntry::updateOrcreate([
+                //         'case_id' => 0,
+                //         'user_id' => auth()->id(),
+                //         "status" => "unpaid"
+                //     ],[
+                //         'case_id' => 0,
+                //         'user_id' => auth()->id(),
+                //         'entry_date' => Carbon::now(),
+                //         'cost' =>  0,
+                //         'time_entry_billable' => 'yes',
+                //         'token_id' => $request->token,
+                //         'created_by' => auth()->id(), 
+                //     ]);
+                // }
             }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
