@@ -19,23 +19,38 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             <table class="w-100 text-center">
                                 <tbody>
                                     <tr>
+                                        @can('billing_add_edit') 
                                         <td class="pb-4">
                                             <a class="add-invoice billing-dashboard-add-invoice"
                                                 href="{{route('bills/invoices/open')}}">
                                                 <img class="d-block mx-auto"
                                                     src="{{ asset('svg/invoice_add.svg') }}" width="42"
-                                                    height="42">Add Invoice</a>
+                                                    height="42">Create An Invoice</a>
                                         </td>
+                                        @else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/invoice_add__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Create An Invoice</div>
+                                        </td>
+                                        @endcan
 
+                                        @can('billing_add_edit') 
                                         <td class="pb-4">
                                             <a data-toggle="modal" data-target="#recordPayment" data-placement="bottom"
                                                 href="javascript:;" onclick="recordPayment();"
                                                 id="dashboard-record-payment">
                                                 <img class="d-block mx-auto" src="{{ asset('svg/payment.svg') }}"
-                                                    width="42" height="42">Record Payment
+                                                    width="42" height="42">Make Invoice Payment
                                             </a>
                                         </td>
+                                        @else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/payment__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Make Invoice Payment</div>
+                                        </td>
+                                        @endcan
 
+                                        @can('billing_add_edit') 
                                         <td class="pb-4">
                                             <a data-toggle="modal" data-target="#depositIntoTrust"
                                                 data-placement="bottom" href="javascript:;"
@@ -44,19 +59,32 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     width="42" height="42">Deposit Into Trust
                                             </a>
                                         </td>
+                                        @else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/trust__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Deposit Into Trust</div>
+                                        </td>
+                                        @endcan
 
+                                        @can('billing_add_edit') 
                                         <!-- TODO: change the checking here once we do ACH -->
                                         <td class="pb-4">
                                             <a request-funds-btn" data-toggle="modal" data-target="#addRequestFund"
                                                 onclick="addRequestFundPopup();" href="javascript:;">
                                                 <span><img class="d-block mx-auto"
                                                         src="{{ asset('svg/request.svg') }}" width="42" height="42">
-                                                    Request Funds
+                                                    Request Trust Fund
                                                 </span>
                                             </a>
+                                        </td>@else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/request__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Request Trust Fund</div>
                                         </td>
+                                        @endcan
                                     </tr>
                                     <tr>
+                                        @can('billing_add_edit') 
                                         <td>
                                             <a data-toggle="modal" data-target="#loadTimeEntryPopup"
                                                 data-placement="bottom" href="javascript:;"
@@ -67,7 +95,14 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     width="42" height="42">Add Time Entry
                                             </a>
                                         </td>
+                                        @else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/time_entry__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Add Time Entry</div>
+                                        </td>
+                                        @endcan
 
+                                        @can('billing_add_edit') 
                                         <td>
                                             <a data-toggle="modal" data-target="#loadExpenseEntryPopup"
                                                 data-placement="bottom" href="javascript:;"
@@ -76,10 +111,14 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     width="42" height="42">Add Expense
                                             </a>
                                         </td>
-                                        <?php 
-                                        // if(Auth::User()->credit_account==0){
-                                            ?>
-                                        @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                                        @else
+                                        <td class="pb-4">
+                                            <img class="d-block mx-auto" src="{{ asset('icon/expense__inactive.svg') }}" width="42" height="42">
+                                            <div class="text-muted">Add Expense</div>
+                                        </td>
+                                        @endcan
+
+                                        @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes" && auth()->user()->hasDirectPermission('billing_add_edit'))
                                             <td>
                                             
                                             <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;"
@@ -88,8 +127,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 <div >Deposit Into Credit</div>
                                                 </a>
                                             </td>
-                                        <?php
-                                        // }else{?>
                                         @else
                                         <td>
                                             <img class="d-block mx-auto" src="{{ asset('svg/credit__inactive.svg') }}" width="42"
@@ -97,8 +134,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <div class="text-muted">Deposit Into Credit</div>
                                         </td>
                                         @endif
-                                        <?php //}
-                                        ?>
                                     </tr>
                                 </tbody>
                             </table>

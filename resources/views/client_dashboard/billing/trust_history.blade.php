@@ -32,13 +32,14 @@
             <a data-toggle="modal" data-target="#exportPDFpopup" data-placement="bottom" href="javascript:;" onclick="exportPDFpopup();"> 
                 <button type="button" class="trust-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
             </a>
+            @can(['billing_add_edit','client_add_edit'])
             <a data-toggle="modal" data-target="#withdrawFromTrust" data-placement="bottom" href="javascript:;" onclick="withdrawFromTrust();">
                 <button type="button" class="mx-1 btn btn-outline-info">Withdraw from Trust</button>
             </a>
-            {{-- <a data-toggle="modal" data-target="#depositAmountPopup" data-placement="bottom" href="javascript:;" onclick="loadDepositPopup();">  --}}
             <a data-toggle="modal" data-target="#depositIntoTrust" data-placement="bottom" href="javascript:;" onclick="depositIntoTrust({{ $client_id }});"> 
                 <button type="button" class="mx-1 btn btn-primary">Deposit into Trust</button>
             </a>
+            @endcan
         </div>
     </div>
 </div>

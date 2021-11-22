@@ -375,6 +375,7 @@
                     </div>
                 </div>
                 <hr>
+                @if(auth()->user()->parent_user == 0 && $ContractUser->parent_user != 0)
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Manage your firm's preferences, billing,
                         and payment
@@ -393,6 +394,7 @@
                         </label>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
         <div class="col-md-12">

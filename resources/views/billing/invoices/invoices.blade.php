@@ -184,6 +184,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                             </li>
 
                         </ul>
+                        @can('billing_add_edit')
                         <div class="ml-auto d-flex align-items-center d-print-none">
                             <div id="bulk-dropdown" class="mr-2 actions-button btn-group">
                                 <div class="mx-2">
@@ -242,7 +243,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                     Invoice</button>
                             </a>
                         </div>
-
+                        @endcan
                     </div>
               
 
@@ -1030,6 +1031,7 @@ td,th{
                     }else{
                         $('td:eq(11)', nRow).html('<div class="text-left">Never</div>');
                     }
+                    @can('billing_add_edit')
                     if(aData.status == "Forwarded") {
                         $('td:eq(12)', nRow).html('');
                     } else {
@@ -1046,6 +1048,9 @@ td,th{
                         var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
                         $('td:eq(12)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     }
+                    @else
+                    $('td:eq(12)', nRow).html('');
+                    @endcan
                 },
                 "initComplete": function(settings, json) {
                     $('[data-toggle="tooltip"]').tooltip();

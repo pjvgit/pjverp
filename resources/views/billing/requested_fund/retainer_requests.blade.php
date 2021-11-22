@@ -51,10 +51,12 @@ if(isset($_GET['type'])){
                             <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"></i>
                             <span class="sr-only">Print This Page</span>
                           </button>
+                        @can('billing_add_edit') 
                         <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom"
                             href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                                 onclick="addRequestFundPopup();">Request Funds</button></a>
+                        @endcan
                     </div>
 
                 </div>
@@ -88,7 +90,9 @@ if(isset($_GET['type'])){
                                 <th> Date Sent</th>
                                 <th class="nosort"> Viewed </th>
                                 <th class="status-col-header nosort">Status</th>
+                                @can('billing_add_edit') 
                                 <th class="d-print-none nosort"></th>
+                                @endcan
                             </tr>
                         </thead>
                     </table>
@@ -334,7 +338,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id'},
                 { data: 'id','sorting':false},
                 { data: 'id','sorting':false},
-                { data: 'id','sorting':false}],
+                @can('billing_add_edit') 
+                { data: 'id','sorting':false}@endcan],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
 
                     $('td:eq(0)', nRow).html('<div class="text-left">'+aData.padding_id+'</div>');
@@ -396,6 +401,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(10)', nRow).html('<div class="text-left">'+curSetatus+'</div>');
                     // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     // $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');"><i class="fas fa-pen align-middle pr-3"></i></a> <a data-toggle="modal"  data-target="#sendFundReminder" data-placement="bottom" href="javascript:;"  onclick="sendFundReminder('+aData.id+');"><i class="fas fa-bell pr-3 align-middle"></i></a> <a data-toggle="modal"  data-target="#deleteRequestFund" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+');"><i class="fas fa-trash align-middle "></i></a></div>');
+                    @can('billing_add_edit') 
                     var action = '<div class="text-center">\
                         <a data-toggle="modal"  data-target="#editFundRequest" data-placement="bottom" href="javascript:;"  onclick="editFundRequest('+aData.id+');">\
                             <i class="fas fa-pen align-middle pr-3"></i>\
@@ -409,8 +415,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                             <i class="fas fa-trash align-middle "></i>\
                         </a>\
                     </div>';
-
+                    
                     $('td:eq(11)', nRow).html(action);
+                    @endcan
                 },
                 "initComplete": function(settings, json) {
                     $('[data-toggle="tooltip"]').tooltip();

@@ -25,7 +25,7 @@
                            
                             <div class="pl-1 col-8">
                                 @can('case_add_edit')
-                                @if(!empty($caseBiller))
+                                @if(!empty($caseBiller) && auth()->user()->hasDirectPermission('billing_add_edit'))
                                 <a class="btn btn-primary btn-rounded m-1 case-details-add-invoice" href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid']}}">Add Invoice</a>
                                 @else
                                 <a class="btn btn-primary btn-rounded m-1" data-toggle="modal" data-target="#editBillingContactPopup" data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">Setup Case Billing Information</a>
@@ -81,6 +81,7 @@
                                     <div class="pl-2 mb-2 row ">
                                         <div class="col-6">
                                             <h4 class="mb-1 font-weight-bold">Trust Balances</h4></div>
+                                        @can('billing_add_edit')
                                         <div id="retainer-request-trust-btns" class="pl-0 col-3">
                                             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;">
                                                 <button class="btn btn-primary btn-rounded m-1" type="button" id="button" onclick="addRequestFundPopup({{ $CaseMaster->case_id }});">Request Funds</button>
@@ -91,6 +92,7 @@
                                                 <button type="button" class="btn btn-primary btn-rounded m-1">Deposit Into Trust</button>
                                             </a>
                                         </div>
+                                        @endcan
                                     </div>
                                     <div class="pl-2 mb-2 row ">
                                         <div class="col-12">
@@ -168,6 +170,7 @@
                                     <div class="pl-2 mb-2 row ">
                                         <div class="col-6">
                                             <h4 class="mb-1 font-weight-bold">Credit Balances</h4></div>
+                                        @can('billing_add_edit')
                                         <div id="retainer-request-credit-btns" class="pl-0 col-3">
                                             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;">
                                                 <button class="btn btn-primary btn-rounded m-1" type="button" id="button" onclick="addRequestFundPopup({{ $CaseMaster->case_id }});">Request Funds</button>
@@ -178,6 +181,7 @@
                                                 <button type="button" class="btn btn-primary btn-rounded m-1" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}" data-case-id="{{ $CaseMaster->case_id }}">Deposit into Credit</button>
                                             </a>
                                         </div>
+                                        @endcan
                                     </div>
                                     <div class="pl-2 mb-2 row ">
                                         <div class="col-12">
@@ -210,59 +214,6 @@
                         </div>
                 </div>
 
-                {{-- <div class="mt-3 card">
-                    <div class="card-header">
-                        <h4><strong>Trust Balances</strong></h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="pl-2 mb-2 row ">
-                            <div class="col-4">
-                                <p class="mb-1">Trust Balance</p>
-                                <?php $TrustAmt=$trustUSers['totalTrustSum'];?>
-                                <h4 class="font-weight-bold">${{number_format($TrustAmt,2)}}</h4>
-                            </div>
-                            <div id="retainer-request-trust-btns" class="pl-0 col-4">
-                                <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom"
-                                    href="javascript:;">
-                                    <button class="btn btn-primary btn-rounded m-1" type="button" id="button"
-                                        onclick="addRequestFundPopup();">Request Funds</button></a>
-                            </div>
-                            <div class="pl-0 col-4">
-                                <a data-toggle="modal" data-target="#depositIntoTrustForCasePoppup"
-                                    data-placement="bottom" href="javascript:;" onclick="depositIntoTrustForCase();">
-                                    <button type="button" class="btn btn-primary btn-rounded m-1">Deposit Into
-                                        Trust</button>
-                                </a>
-
-
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <tbody>
-                                    <?php
-                                    array_pop($trustUSers);
-                                    foreach($trustUSers as $kk=>$vv){?>
-                                    <tr>
-                                        <td class="pl-1" style="width: 33%;">
-                                            <?php if($vv['user_level']=="2"){?>
-                                            <a
-                                                href="{{ route('contacts/clients/view',$vv['uid']) }}">{{$vv['user_name']}}</a>
-                                            <?php } else if($vv['user_level']=="4"){?>
-                                            <a
-                                                href="{{ route('contacts/companies/view',$vv['uid']) }}">{{$vv['user_name']}}</a>
-                                            <?php } ?>
-                                        </td>
-                                        <td class="pl-1" style="width: 33%;">
-                                            ${{number_format($vv['trust_account_balance'],2)}}</td>
-                                        <td class="pl-1" style="width: 33%;"></td>
-                                    </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div> --}}
                 <div class="mt-3 card">
                     <div class="card-header">
                         <h4><strong>Case Billing Information</strong></h4>
@@ -319,8 +270,10 @@
                         data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup();">
                         <button type="button" class="edit-court-case-billing btn btn-outline-secondary">Edit</button>
                             </a>
+                            @can('billing_add_edit')
                             <a
                             href="{{ route('case_link',$CaseMaster['case_unique_number']) }}" class="ml-3 btn btn-outline-secondary">Change Case Rate</a>
+                            @endcan
                         @endcan
                     </div>
                 </div>

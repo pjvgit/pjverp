@@ -9,9 +9,11 @@
                        
                     </div>
                 </div>
+                @can(['case_add_edit', 'billing_add_edit'])
                 <a  href="{{ route('bills/invoices/new') }}?court_case_id={{$CaseMaster['case_id']}}&token={{App\Http\Controllers\CommonController::getToken()}}&contact={{$caseBiller['uid']}}">
                 <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                    >Add Invoice</button></a>
+                @endcan
             </div>
             <div data-testid="mc-table-container" style="font-size: small;">
                 <table class="display table table-striped table-bordered" id="invoiceGrid" style="width:100%">
@@ -122,7 +124,7 @@
                     }else{
                         $('td:eq(10)', nRow).html('<div class="text-left">Never</div>');
                     }
-
+                    @can(['case_add_edit', 'billing_add_edit'])
                     var reminder='';
                     if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
                         var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
@@ -133,6 +135,9 @@
                     }
                     var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoiceCommon" data-placement="bottom" href="javascript:;"  onclick="deleteInvoiceCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
                     $('td:eq(11)', nRow).html('<div class="text-center d-print-none" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
+                    @else
+                    $('td:eq(11)', nRow).html('');
+                    @endcan
                 }
         });
     });

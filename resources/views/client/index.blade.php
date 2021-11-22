@@ -38,9 +38,11 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </button>
                         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}imports/contacts">Import Contact
                         </a>
+                        @can('client_add_edit')
                         <div class="ml-auto d-flex align-items-center d-print-none">
                             <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactModal();">Add Contact</button></a>
                         </div>
+                        @endcan
                     </div>
                 </div>
                 <div class="row">
@@ -234,7 +236,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }else{
                         $('td:eq(6)', nRow).html('Not Specified');
                     }
+                    @can('client_add_edit')
                     $('td:eq(7)', nRow).html('<a data-toggle="modal"  title="Edit" data-target="#EditContactModal" data-placement="bottom" href="javascript:;"  onclick="loadClientEditBox('+aData.id+');"><i class="fas fa-pen pr-3  align-middle d-print-none"></i> </a>'); 
+                    @else
+                    $('td:eq(7)', nRow).html('');
+                    @endcan
                 },
             });
 

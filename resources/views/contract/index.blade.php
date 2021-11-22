@@ -14,9 +14,11 @@ $userTitle = unserialize(USER_TITLE);
                 <span id="responseMain"></span>
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <h3>Firm Users</h3>
+                    @can('add_firm_user')
                     <div class="ml-auto d-flex align-items-center d-print-none">
                         <a data-toggle="modal"  data-target="#DeleteModal" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="loadStep1();">Add New User</button></a>
                     </div>
+                    @endcan
                 </div>
                 <div class="table-responsive">
                     <table class="display table table-striped table-bordered" id="employee-grid" style="width:100%">
@@ -196,8 +198,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(0)', nRow).html('<div class="text-center"><img class="rounded-circle m-0 avatar-sm-table" style="width: 25px !important;height: 25px !important;" src="{{URL::asset("/images/users/")}}/'+aData.profile_image+'" alt=""></div>');
                 }
                 $('td:eq(1)', nRow).html('<a href="'+baseUrl+'/contacts/attorneys/'+ aData.decode_id +'" >'+aData.name+'</a>');  
-
-                $('td:eq(3)', nRow).html('All firm cases  <a data-toggle="modal"  data-target="#loadPermission" data-placement="bottom" href="javascript:;"  onclick="loadPermission('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>');    
+                var editIcon = '';
+                @can('edit_firm_user_permission')
+                    editIcon = '<a data-toggle="modal"  data-target="#loadPermission" data-placement="bottom" href="javascript:;"  onclick="loadPermission('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>';
+                @endcan
+                $('td:eq(3)', nRow).html('All firm cases  '+editIcon);    
                 $('td:eq(4)', nRow).html('<div class="text-center"><a href="'+baseUrl+'/contacts/attorneys/'+ aData.decode_id +'/cases" >'+aData.active_case_counter+'</a></div>'); 
                 $('td:eq(5)', nRow).html("<a data-toggle='modal'  data-target='#ShowColorPicker' data-placement='bottom' href='javascript:;'  onclick='loadPicker("+aData.id+")' ccode='"+aData.default_color+"' ><div style='background-color:"+aData.default_color+";width: 22px;height: 22px;'>&nbsp;</div></a>"); 
                 

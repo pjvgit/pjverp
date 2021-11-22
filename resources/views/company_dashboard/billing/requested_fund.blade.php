@@ -2,10 +2,12 @@
 <div class="container-fluid">
     <div class="justify-content-end pt-2 d-print-none row ">
         <div class="align-self-end text-right col-5">
+            @can('billing_add_edit')
             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;"
                 onclick="addRequestFundPopup();">
                 <button type="button" class="mx-1 btn btn-primary">Request Fund</button>
             </a>
+            @endcan
         </div>
     </div>
 </div>

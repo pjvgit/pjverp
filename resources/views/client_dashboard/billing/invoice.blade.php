@@ -26,7 +26,9 @@
 <div class="container-fluid mb-12">
     <div class="justify-content-end pt-2 d-print-none row ">
         <div class="align-self-end text-right col-6">
-            <a class="btn btn-primary client-add-invoice-button" href="{{ route('bills/invoices/load_new', ['court_case_id' => 'none', 'contact' => $client_id]) }}">Add Invoice</a>
+            @can('billing_add_edit')
+                <a class="btn btn-primary client-add-invoice-button" href="{{ route('bills/invoices/load_new', ['court_case_id' => 'none', 'contact' => $client_id]) }}">Add Invoice</a>
+            @endcan
         </div>
     </div>
 </div>

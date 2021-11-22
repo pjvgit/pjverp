@@ -264,8 +264,10 @@
                     <div class="tab-pane fade show active" id="homeBasic" role="tabpanel"
                         aria-labelledby="home-basic-tab">
                         <div class="mt-2 pb-5">
+                            @canany(['commenting_add_edit', 'commenting_view'])
                             <div>
-                               <div id="loadComment"></div>
+                                <div id="loadComment"></div>
+                                @can('commenting_add_edit')
                                 <div class="w-100 mt-2">
                                     <form class="addComment" id="addComment" name="addComment" method="POST">
                                         @csrf
@@ -293,7 +295,21 @@
                                         class="mt-1 float-right btn btn-primary">Comment</button>
                                     </form>
                                 </div>
+                                @else
+                                <div class="mt-2 alert alert-warning fade show" role="alert">
+                                    <div class="d-flex align-items-start">
+                                        <div class="w-100">You do not have permission to add a comment for this task.</div>
+                                    </div>
+                                </div>
+                                @endcan
                             </div>
+                            @else
+                                <div class="mt-2 alert alert-warning fade show" role="alert">
+                                    <div class="d-flex align-items-start">
+                                        <div class="w-100">You do not have permission to view comments for this task.</div>
+                                    </div>
+                                </div>
+                            @endcanany
                         </div>
                     </div>
                     <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">

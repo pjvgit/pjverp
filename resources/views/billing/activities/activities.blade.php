@@ -20,10 +20,12 @@
                                 data-original-title="Print"></i>
                             <span class="sr-only">Print This Page</span>
                         </button>
+                        @can('billing_add_edit')
                         <a data-toggle="modal" data-target="#addActivity" data-placement="bottom"
                             href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                                 onclick="addActivity();">New Activity</button></a>
+                        @endcan
                     </div>
 
                 </div>
@@ -207,7 +209,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     $('td:eq(5)', nRow).html('<div class="text-left">'+ff+'</div>');
                     $('td:eq(6)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.contact_name+'</a></div>');
+                    @can('billing_add_edit')
                     $('td:eq(7)', nRow).html('<div class="text-center"><span data-toggle="tooltip" data-placement="top" title="Edit"><a data-toggle="modal"  data-target="#editActivity" data-placement="bottom" href="javascript:;"  onclick="editActivityOpen('+aData.id+');"><i class="fas fa-pen align-middle pr-3"></i></span></a> <span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteActivityPopup" data-placement="bottom" href="javascript:;"  onclick="deleteActivityPopupFun('+aData.id+');"> <i class="fas fa-trash align-middle "></i> </span></a></div>');
+                    @else
+                    $('td:eq(7)', nRow).html('');
+                    @endcan
 
                 },
                 "initComplete": function(settings, json) {

@@ -42,8 +42,12 @@
                         </div>
                         <a class="dropdown-item" href="{{ route('account/dashboard') }}" >All Settings</a>
                         <a class="dropdown-item" href="{{ route('load_profile') }}" >My Profile & Contact Info</a>
-                        <a class="dropdown-item" >Add Firm User</a>
+                        @can('add_firm_user')
+                        <a class="dropdown-item" >Add Firm User</a>    
+                        @endcan
+                        @can('edit_firm_user_permission')
                         <a class="dropdown-item" href="{{ route('contacts/attorneys') }}" >Firm User Permissions</a>
+                        @endcan
                         @if (auth()->user()->getUserFirms() > 1)
                         <a class="dropdown-item" href="{{ route('login/sessions/launchpad', encodeDecodeId(auth()->id(), 'encode')) }}" >Switch Account</a>
                         @endif

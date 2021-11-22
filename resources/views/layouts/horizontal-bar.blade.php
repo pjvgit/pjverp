@@ -236,12 +236,14 @@
                                             <span class="item-name">Account Activity</span>
                                         </a>
                                     </li>  
+                                    @can('billing_access_financial_insight')
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='insights/financials' ? 'open' : '' }}"
                                             href="{{route('insights/financials')}}">
                                             <span class="item-name">Financial Insights</span>
                                         </a>
                                     </li>
+                                    @endcan
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='time_entries/timesheet_calendar' ? 'open' : '' }}"
                                             href="{{route('time_entries/timesheet_calendar')}}">
@@ -254,7 +256,7 @@
                     </li>
                     <!-- end Forms -->
                     @endcanany
-
+                    @canany(['reporting_entire_firm', 'reporting_personal_only'])
                     <li class="{{ request()->is('charts/*') ? 'active' : '' }}">
 
                         <div>
@@ -292,11 +294,10 @@
                             </div>
                         </div>
                     </li>
+                    @endcanany
+                    @canany(['messaging_add_edit', 'text_messaging_add_edit', 'commenting_add_edit', 'commenting_view'])
                     <li class="{{ request()->is('forms/*') ? 'active' : '' }}">
-
                         <div>
-
-
                             <div>
                                 <label class="toggle" for="drop-2">
                                     Communications
@@ -305,18 +306,43 @@
                                     Communications
                                 </a><input type="checkbox" id="drop-2">
                                 <ul>
-
+                                    @canany(['messaging_add_edit', 'messaging_view'])
                                     <li class="nav-item">
-                                        <a class="{{ Route::currentRouteName()=='forms-basic' ? 'open' : '' }}"
-                                            href="{{route('forms-basic')}}">
+                                        <a class="" href="#">
                                             <i class="nav-icon mr-2 i-File-Clipboard-Text--Image"></i>
-                                            <span class="item-name">Basic Elements</span>
+                                            <span class="item-name">Mail Box</span>
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="" href="#">
+                                            <span class="item-name">Messages</span>
+                                        </a>
+                                    </li>
+                                    @endcanany
+                                    <li class="nav-item">
+                                        <a class="" href="#">
+                                            <span class="item-name">Call Log</span>
+                                        </a>
+                                    </li>
+                                    @canany(['text_messaging_add_edit'])
+                                    <li class="nav-item">
+                                        <a class="" href="#">
+                                            <span class="item-name">Text Messages</span>
+                                        </a>
+                                    </li>
+                                    @endcanany
+                                    @canany(['commenting_add_edit', 'commenting_view'])
+                                    <li class="nav-item">
+                                        <a class="" href="#">
+                                            <span class="item-name">Comments</span>
+                                        </a>
+                                    </li>
+                                    @endcanany
                                 </ul>
                             </div>
                         </div>
                     </li>
+                    @endcan
                     @canany(['lead_add_edit', 'lead_view'])
                     <li class="{{ request()->is('leads*') ? 'open' : '' }}">
                         <div>

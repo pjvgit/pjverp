@@ -170,11 +170,10 @@
                     <i class="fas fa-bell pr-2 align-middle"></i>
                     </a>
 
-
+                    @canany(['commenting_add_edit', 'commenting_view'])
                     <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
                     data-placement="bottom" href="javascript:;"
                     onclick="loadEventComment({{$vv->id}});">
-                    {{-- <i class="fas fa-comment pr-2 align-middle"></i> --}}
                     @php
                         $commentCount = 0;
                         if(count($vv->eventLinkedStaff)) {
@@ -188,6 +187,7 @@
                     <span class="badge badge-danger comment-count">{{ $commentCount }}</span>
                     @endif
                     </a>
+                    @endcanany
                     @can('event_add_edit')
                     <?php 
                     if($vv->parent_evnt_id=="0"){
