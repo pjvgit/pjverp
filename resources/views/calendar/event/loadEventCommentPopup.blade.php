@@ -232,9 +232,13 @@
                                     </div>
                                 </form>
                             </div>
+                            @can('commenting_add_edit')
                             <div class="mt-3 mb-3" id="linkArea" >
                                 <a id="addcomment"  onclick="toggelComment()" href="#">Add a comment...</a>
                             </div>
+                            @else
+                            <div class="mt-3 mb-3"><p id="cannot-post-comment">You cannot post comments on this item.</p></div>
+                            @endcan
                             <hr>
                             <div class="detail-label">History</div>
                             <div class="history-contents container-fluid" id="commentHistory">

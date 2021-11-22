@@ -25,9 +25,11 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
         <button class="btn btn-link text-black-50 d-none d-md-block" onclick="printEntry(); return false;">
             <i class="fas fa-print"></i> Print
         </button>
+        @can('client_add_edit')
         <a data-toggle="modal" data-target="#EditCompany" data-placement="bottom" href="javascript:;"> <button
                 class="btn btn-primary btn-rounded m-1 px-5" type="button"
                 onclick="EditCompany({{$userProfile->id}});">Edit</button></a>
+        @endcan
     </div>
 </div>
 <div class="row">
@@ -192,16 +194,17 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_company_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/companies/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
-                    @canany(['billing_add_edit', 'billing_view'])
+                    @if(auth()->user()->hasAnyPermission(['billing_add_edit', 'billing_view']) && auth()->user()->cannot('billing_restrict_time_entry_and_expense'))
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_billing_trust_history","contacts_company_billing_trust_request_fund","contacts_company_billing_invoice", "contacts/company/billing/credit/history", "contacts/companies/billing/trust/allocation"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
-                    @endcanany
+                    @endif
+                    @can(['messaging_add_edit'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/messages')}}" >Messages</a>
                     </li>
-                   
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_company_email"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/companies/'.$client_id.'/email')}}" >Emails</a>
                     </li>
+                    @endcan
                 </ul>
                 <div class="tab-content" id="myTabContent">
 
@@ -1170,10 +1173,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     
                     $('td:eq(3)', nRow).html('<div class="text-left">'+aData.lastloginnewformate+'</div>');
-                    
+                    var action = '';
+                    @can('client_add_edit')
                     var d="'"+aData.id+"','"+aData.name+"'";
-
-                    $('td:eq(4)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="unlinkClient('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    action = '<div class="text-center"><a  href="javascript:;"  onclick="unlinkClient('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
+                    @endcan
+                    $('td:eq(4)', nRow).html(action); 
                 },
               
                 "initComplete": function(settings, json) {
@@ -1227,10 +1232,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     
                     $('td:eq(3)', nRow).html('<div class="text-left">'+aData.lastloginnewformate+'</div>');
-                    
+                    var action = '';
+                    @can('case_add_edit')
                     var d="'"+aData.id+"','"+aData.name+"'";
-
-                    $('td:eq(4)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="unlinkClient('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
+                    action = '<div class="text-center"><a  href="javascript:;"  onclick="unlinkClient('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
+                    @endcan
+                    $('td:eq(4)', nRow).html(action); 
                 },
               
                 "initComplete": function(settings, json) {
@@ -1330,7 +1337,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     // var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
                     // $('td:eq(3)', nRow).html('<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
                     var action = '';
-                    @can('case_add_edit')
+                    @can('client_add_edit')
                     var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
                     action = '<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
                     @endcan

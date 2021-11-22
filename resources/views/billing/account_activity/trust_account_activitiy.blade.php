@@ -57,10 +57,12 @@ if(isset($_GET['bank_account'])){
                                     </div>
                                 </div>
                             </div>
+                            @can('billing_add_edit')
                             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom"
                             href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                                 onclick="addRequestFundPopup();">Request Funds</button></a>
+                            @endcan
                         </div>
 
                     </div>

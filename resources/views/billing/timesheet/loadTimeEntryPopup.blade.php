@@ -4,11 +4,12 @@ if($TaskTimeEntry->isEmpty()){?>
     <div class="d-flex flex-column flex-grow-0 align-items-center justify-content-center" style="height: 350px;">
         <img class="d-block mx-auto mb-3" src="{{BASE_URL}}svg/time_entry.svg" width="42" height="42">
         <span class="mb-3">No time entry hours were recorded today</span>
+        @can('billing_add_edit')
         <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
             <button class="btn btn-success btn-rounded m-1" onclick="loadTimeEntryPopup('{{$curDate}}');"> Add Time Entry
             </button>
         </a>
-
+        @endcan
       
     </div>
 </div>
@@ -75,6 +76,7 @@ if($TaskTimeEntry->isEmpty()){?>
                         <td>
                             <div class="d-flex invoice-row-buttons flex-row justify-content-around"
                                 data-testid="action-buttons">
+                                @can('billing_add_edit')
                                 <?php if($v->status=="unpaid"){ ?>
                                 <a data-toggle="modal" data-target="#loadEditTimeEntryPopup" data-placement="bottom"
                                     href="javascript:;" onclick="loadEditTimeEntryPopup('{{$v->id}}');"><i
@@ -83,6 +85,7 @@ if($TaskTimeEntry->isEmpty()){?>
                                     href="javascript:;" onclick="deleteTimeEntry('{{$v->id}}');"><i
                                         class="fas fa-trash align-middle p-2"></i></a>
                                 <?php } ?>
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -112,12 +115,12 @@ if($TaskTimeEntry->isEmpty()){?>
 </div>
 <div class="modal-footer">
  
-    
+    @can('billing_add_edit')
         <a class="mr-auto" data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
             <button class="btn btn-outline-secondary  btn-rounded m-1 " onclick="loadTimeEntryPopup('{{$curDate}}');"> Add Time Entry
             </button>
         </a>
-
+    @endcan
     <button class="btn btn-link text-black-50" onclick="loadTimeEntryByDate('{{$curDate}}','prev');return false;">
         <i class="fa fa-angle-left"></i>
         <span class="ml-2">Previous Day</span>

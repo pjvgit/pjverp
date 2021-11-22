@@ -21,6 +21,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
             <h4 class="card-header">Common Settings</h4>
             <div class="card-body">
                 <div class="row">
+                    @can('add_firm_user')
                     <div class="col-3 text-center common-shortcut p-2">
                         <a id="add-new-user-link" href="#add-new-user">
                             <i class="i-Administrator text-32 mr-3" height="40"></i>
@@ -34,26 +35,28 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                             <div class="mt-1">Add Multiple Users</div>
                         </a>
                     </div>
-
+                    @endcan
+                    @can('edit_firm_user_permission')
                     <div class="col-3 text-center common-shortcut p-2">
                         <a href="#">
                             <i class="i-Lock-2 text-32 mr-3" height="40"></i>
 
                             <div class="mt-1">Edit User Permissions</div>
                         </a> </div>
-
+                    @endcan
                     <div class="col-3 text-center common-shortcut p-2">
                         <a href="#">
                             <i class="i-Network text-32 mr-3" height="40"></i>
                             <div class="mt-1">Set Up Workflows</div>
                         </a> </div>
-
+                    @can('edit_custom_fields_settings')
                     <div class="col-3 text-center common-shortcut p-2">
                         <a href="#">
                             <i class="i-File-Clipboard-File--Text text-32 mr-3" height="40"></i>
                             <div class="mt-1">Set Up Custom Fields</div>
                         </a> </div>
-
+                    @endcan
+                    @can('manage_firm_and_billing_settings')
                     <div class="col-3 text-center common-shortcut p-2">
                         <a href="#">
                             <i class="i-Money-2 text-32 mr-3" height="40"></i>
@@ -64,6 +67,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                             <i class="i-Settings-Window text-32 mr-3" height="40"></i>
                             <div class="mt-1">Edit Firm Info &amp; Settings</div>
                         </a> </div>
+                    @endcan
                 </div>
             </div>
         </div>

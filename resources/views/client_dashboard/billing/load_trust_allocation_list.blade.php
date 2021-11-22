@@ -15,9 +15,13 @@
             }
         @endphp
         <td class="trust-allocation">
-            <a href="javascript:;" data-toggle="modal" data-target="#trust_allocation_modal" class="balance-allocation-link btn-link" data-case-id="{{ $citem->id }}" data-user-id="{{@$UsersAdditionalInfo->user_id}}" data-page="trust_allocation">
+            @can(['client_add_edit', 'billing_add_edit'])
+            <a href="javascript:;" data-toggle="modal" data-target="#trust_allocation_modal" class="balance-allocation-link btn-link" data-case-id="{{ $citem->id }}" data-user-id="{{@$UsersAdditionalInfo->user_id}}" data-page="trust_allocation" >
                 ${{ number_format($allocateTrustBalance, 2) }}
             </a>
+            @else                
+                ${{ number_format($allocateTrustBalance, 2) }}
+            @endcan
         </td>
         <td class="minimum-trust-balance">
             <div class="row col-md-12 setup-btn-div">
@@ -26,7 +30,7 @@
                 @else
                     <span>Setup Minimum Trust Balance</span>
                 @endif
-                <button type="button" class="edit-minimum-trust p-0 ml-2 btn btn-link"><i class="fas fa-pen text-black-50 c-pointer"></i></button>
+                <button type="button" class="edit-minimum-trust p-0 ml-2 btn btn-link" @cannot(['client_add_edit', 'billing_add_edit']) disabled @endcannot><i class="fas fa-pen text-black-50 c-pointer"></i></button>
             </div>
             <div class="row setup-input-div" style="display: none;">
                 <form class="setup-min-trust-balance-form">
@@ -78,7 +82,7 @@
                 @else
                     <span>Setup Minimum Trust Balance</span>
                 @endif
-                <button type="button" class="edit-minimum-trust p-0 ml-2 btn btn-link"><i class="fas fa-pen text-black-50 c-pointer"></i></button>
+                <button type="button" class="edit-minimum-trust p-0 ml-2 btn btn-link" @cannot(['client_add_edit', 'billing_add_edit']) disabled @endcannot><i class="fas fa-pen text-black-50 c-pointer"></i></button>
             </div>
             <div class="row setup-input-div" style="display: none;">
                 <form class="setup-min-trust-balance-form">

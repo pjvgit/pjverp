@@ -13,6 +13,7 @@
                     <h3> Invoice #{{$invoiceNo}} </h3>
                     <input type="hidden" value="{{ @$findInvoice->id }}" id="invoice_id">
                     <div class="ml-auto d-flex align-items-center flex-row-reverse">
+                        @can('billing_add_edit')
                         @if($findInvoice->status != "Forwarded" && $findInvoice->status != "Paid")
                         <div id="receive_payment_button" class="invoice-show-page-button pl-1">
                           <a class="btn btn-success receive-payment-action m-1" id="record-payment-btn" data-toggle="modal"  data-target="#payInvoice" onclick="payinvoice('{{$findInvoice->id}}');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link">Record Payment</a>
@@ -29,7 +30,7 @@
                                 data-target="#emailInvoicePopup" data-placement="bottom" href="javascript:;"
                                 onclick="emailInvoicePopup('{{$findInvoice->invoice_unique_token}}')">Email Invoice</a>
                         </div>
-
+                        @endcan
                         <div id="share-via-portal" class="pl-1">
                             <a id="delete-bill" class="btn btn-outline-secondary m-1" data-toggle="modal"
                                 data-target="#shareInvoicePopup" data-placement="bottom" href="javascript:;"
@@ -64,6 +65,7 @@
                             <i class="fas fa-print test-print-bill" id="print-bill-button" data-toggle="tooltip"
                                 data-original-title="Print"></i>
                         </a>
+                        @can('billing_add_edit')
                         @if($findInvoice->status != "Forwarded")
                         <a id="delete-bill" class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"
                             data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;">
@@ -72,6 +74,7 @@
                                 onclick="deleteInvoice({{$findInvoice->id}})"></i>
                         </a>
                         @endif
+                        @endcan
                     </div>
                 </div>
             </div>

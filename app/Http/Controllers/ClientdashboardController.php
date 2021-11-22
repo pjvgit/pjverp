@@ -3934,6 +3934,7 @@ class ClientdashboardController extends BaseController
                 $action = '';
                 if($data->status == "Forwarded") {
                 } else {
+                    if(auth()->user()->hasAllPermissions(['billing_add_edit'])) {
                     if($data->status=="Partial" || $data->status=="Draft" || $data->status=="Unsent"){
                         $action .='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('.$data->case_id.','.$data->id.');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
                     }
@@ -3941,6 +3942,7 @@ class ClientdashboardController extends BaseController
                         $action .='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('.$data->id.');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
                     }
                     $action .='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('.$data->id.');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                    }
                 }
                 return $action;
             })

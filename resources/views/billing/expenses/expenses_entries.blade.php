@@ -52,7 +52,7 @@ if(isset($_GET['type'])){
                                 data-original-title="Print"></i>
                             <span class="sr-only">Print This Page</span>
                         </button>
-                        
+                        @can('billing_add_edit') 
                         <div id="bulk-dropdown" class="mr-2 actions-button btn-group">
                             <div class="mx-2">
                                 <div class="btn-group show">
@@ -77,10 +77,13 @@ if(isset($_GET['type'])){
                             </div>
 
                         </div>
+                        @endcan
+                        @can('billing_add_edit') 
                         <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                             href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                                 onclick="loadExpenseEntryPopup();">Add Expense</button></a>
+                        @endcan
                     </div>
 
                 </div>
@@ -128,7 +131,9 @@ if(isset($_GET['type'])){
                                 <th>Status</th>
                                 <th> User </th>
                                 <th>Case</th>
+                                @can('billing_add_edit') 
                                 <th class="d-print-none">&nbsp;</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -357,7 +362,8 @@ if(isset($_GET['type'])){
                 { data: 'id','sorting':false},
                 { data: 'id'},
                 { data: 'id','sorting':false},
-                { data: 'id','sorting':false}],
+                @can('billing_add_edit') 
+                { data: 'id','sorting':false}@endcan],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     $('td:eq(0)', nRow).html('<div class="text-left"><input id="select-row-74" class="task_checkbox" onclick="changeAction()" type="checkbox" value="'+aData.id+'" class="task_checkbox" name="expenceId['+aData.id+']"></div>');
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.cost_value+'</div>');
@@ -372,8 +378,9 @@ if(isset($_GET['type'])){
                     }else{
                         $('td:eq(9)', nRow).html('<div class="text-left"></div>');
                     }
-
+                    @can('billing_add_edit') 
                     $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                    @endcan
                 },
                 "initComplete": function(settings, json) {
 

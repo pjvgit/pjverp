@@ -55,9 +55,11 @@ if(isset($_GET['st'])){
                             <i class="fas fa-print text-black-50" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"></i>
                             <span class="sr-only">Print This Page</span>
                           </button>
+                        @can('billing_add_edit') 
                             <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
                             <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                                 onclick="loadTimeEntryPopup();">Add Time Entry</button></a>
+                        @endcan
                     </div>
 
                 </div>
@@ -125,9 +127,11 @@ if(isset($_GET['st'])){
                                 <th width="5%">Status</th>
                                 <th width="15%">User</th>
                                 <th width="15%">Case</th>
+                                @can('billing_add_edit')
                                 <?php if($_REQUEST['i'] != 'i'){?>
                                 <th width="10%" class="text-center"></th>
                                 <?php } ?>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -271,9 +275,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 { data: 'id','sorting':false},
                 { data: 'id'},
                 { data: 'id','sorting':false},
+                @can('billing_add_edit')
                 <?php if($_REQUEST['i'] != 'i'){?>
                 { data: 'id','sorting':false},
                 <?php } ?>
+                @endcan
             ],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     if(aData.duration > 0.01){
@@ -309,11 +315,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                             $('td:eq(8)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                         }
                     }
+                    @can('billing_add_edit')
                     if(aData.invoice_link == null){
                         $('td:eq(9)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     }else{
                         $('td:eq(9)', nRow).html('<div class="text-left"></div>');
                     }
+                    @endcan
                 },
                 "initComplete": function(settings, json) {
                   

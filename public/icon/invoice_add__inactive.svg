@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="42px" height="42px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>invoice_add__inactive</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-6.2%" y="-3.7%" width="110.0%" height="107.3%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="0.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Iconsdeliverable-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="invoice_add__inactive">
+            <g id="Invoice" filter="url(#filter-1)" transform="translate(2.000000, 1.000000)">
+                <path d="M3.74106563,5.36163522 C1.67487508,5.36163522 0,7.04559748 0,9.10377358 L0,35.2987421 C0,37.3569182 1.67487508,39.0408805 3.74106563,39.0408805 L14.9642625,39.0408805 L18.7053281,39.0408805 L29.928525,39.0408805 C31.9954638,39.0408805 33.6695906,37.3569182 33.6695906,35.2987421 L33.6695906,9.10377358 C33.6695906,7.04559748 31.9954638,5.36163522 29.928525,5.36163522 L18.7053281,5.36163522 L14.9642625,5.36163522 L3.74106563,5.36163522 Z" id="Shape" fill="#C7C7C7"></path>
+                <path d="M3.74106563,0.871069182 C1.67487508,0.871069182 0,2.67672994 0,4.90426275 L0,33.1366177 C0,35.3649572 1.67487508,37.1698113 3.74106563,37.1698113 L14.9642625,37.1698113 L18.7053281,37.1698113 L29.928525,37.1698113 C31.9954638,37.1698113 33.6695906,35.3649572 33.6695906,33.1366177 L33.6695906,4.90426275 C33.6695906,2.67672994 31.9954638,0.871069182 29.928525,0.871069182 L18.7053281,0.871069182 L14.9642625,0.871069182 L3.74106563,0.871069182 Z" id="Shape" stroke="#DEDEDE" fill="#F6F6F6"></path>
+                <g id="Group" transform="translate(1.870533, 5.871069)">
+                    <polygon id="Shape" fill="#E0E0E0" points="0 25.0660377 0 26.9371069 28.0579922 26.9371069 28.0579922 25.0660377"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="16.8347953 20 16.8347953 21.8710692 28.0579922 21.8710692 28.0579922 20"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="0 6.22641509 0 26.0015723 1.87053281 26.0015723 1.87053281 6.22641509"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="28.0579922 6.22641509 28.0579922 26.9371069 29.928525 26.9371069 29.928525 6.22641509"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="22.4844055 11.8396226 22.4844055 20 24.3549383 20 24.3549383 11.8396226"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="16.8347953 11.8396226 16.8347953 25.0660377 18.7053281 25.0660377 18.7053281 11.8396226"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="0 9.96855346 0 11.8396226 26.1874594 11.8396226 26.1874594 9.96855346"></polygon>
+                    <polygon id="Shape" fill="#E8E8E8" transform="translate(14.964263, 8.097484) scale(1, -1) translate(-14.964263, -8.097484) " points="1.87053281 6.22641509 1.87053281 9.96855346 28.0579922 9.96855346 28.0579922 6.22641509"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="0 9.96855346 0 11.8396226 28.0579922 11.8396226 28.0579922 9.96855346"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="0 4.35534591 0 6.22641509 29.928525 6.22641509 29.928525 4.35534591"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="0 0.613207547 0 2.48427673 11.2231969 2.48427673 11.2231969 0.613207547"></polygon>
+                    <polygon id="Shape" fill="#E0E0E0" points="16.8347953 0.613207547 16.8347953 2.48427673 26.1874594 2.48427673 26.1874594 0.613207547"></polygon>
+                </g>
+                <polyline id="Fill-2" fill="#9B9B9B" points="39.5 34.2471333 33.2471333 34.2471333 33.2471333 40.5 28.5574833 40.5 28.5574833 34.2471333 22.3046165 34.2471333 22.3046165 29.5574833 28.5574833 29.5574833 28.5574833 23.3046165 33.2471333 23.3046165 33.2471333 29.5574833 39.5 29.5574833 39.5 34.2471333"></polyline>
+                <polyline id="Fill-2" fill="#BEBEBE" points="38.9789278 33.5365803 32.5365803 33.5365803 32.5365803 39.9789278 27.7048196 39.9789278 27.7048196 33.5365803 21.2624721 33.5365803 21.2624721 28.7048196 27.7048196 28.7048196 27.7048196 22.2624721 32.5365803 22.2624721 32.5365803 28.7048196 38.9789278 28.7048196 38.9789278 33.5365803"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

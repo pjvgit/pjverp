@@ -1,9 +1,11 @@
 <h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Company)    </h2>
 <div class="table-responsive">
     <div class="d-flex align-items-center justify-content-end mb-2">
+        @can('client_Add_edit')
         <a data-toggle="modal" data-target="#addClientLinkWithOption" data-placement="bottom" href="javascript:;">
             <button class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="">Add Contact</button>
         </a>
+        @endcan
     </div>
     <?php if($clientLinkCount<=0 && $clientArchiveLinkCount<=0){ ?>
     <div class="no_items text-right test-no-company-contacts">

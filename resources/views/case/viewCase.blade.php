@@ -408,12 +408,14 @@ $adjustment_token=round(microtime(true) * 1000);
                     </div>
                     <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","invoices","payment_activity"])){ echo "active show"; } ?>" id="timeBilling" role="tabpanel" aria-labelledby="contact-basic-tab">
                       <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
+                            @cannot('billing_restrict_time_entry_and_expense')
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-items-info <?php if(Route::currentRouteName()=="overview"){ echo "active"; } ?>" data-page="info"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/overview')}}">
                                     <span><i class="i-Calendar-3  text-16 mr-1"></i> Info</span>
                                 </a>
                             </div>
+                            @endcannot
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-items-info <?php if(Route::currentRouteName()=="time_entries"){ echo "active"; } ?>" data-page="info"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/time_entries')}}">
@@ -426,6 +428,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <span><i class="i-Info-Window  text-16 mr-1"></i> Expenses</span>
                                 </a>
                             </div>
+                            @cannot('billing_restrict_time_entry_and_expense')
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-items-info <?php if(Route::currentRouteName()=="invoices"){ echo "active"; } ?>" data-page="info"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/invoices')}}">
@@ -438,44 +441,53 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <span><i class="fas fa-dollar-sign align-middle  text-16 mr-1"></i>Payment Activity</span>
                                 </a>
                             </div>
+                            @endcannot
                         </div>
 
                         <div class="row"  <?php if(in_array(Route::currentRouteName(),["overview","time_entries","expenses","invoices","payment_activity"])){ ?> id="printHtml" <?php } ?>>
+                            @cannot('billing_restrict_time_entry_and_expense')
                             <?php if(Route::currentRouteName()=="overview"){ ?>
                                       @include('case.view.timebilling.overview')
                             <?php } ?>
+                            @endcannot
                             <?php if(Route::currentRouteName()=="time_entries"){ ?>
                                 @include('case.view.timebilling.time_entries')
                             <?php } ?>
                             <?php if(Route::currentRouteName()=="expenses"){ ?>
                                 @include('case.view.timebilling.expenses')
                             <?php } ?>
+                            @cannot('billing_restrict_time_entry_and_expense')
                             <?php if(Route::currentRouteName()=="invoices"){ ?>
                                 @include('case.view.timebilling.invoices')
                             <?php } ?>
                             <?php if(Route::currentRouteName()=="payment_activity"){ ?>
                                 @include('case.view.timebilling.payment_activity')
                             <?php } ?>
+                            @endcannot
                         </div>
                     </div>
                     <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
+                            @can(['messaging_add_edit'])
                             <div class="nav-item">
                                 <a class="nav-link pendo-case-recent-activity <?php if(Route::currentRouteName() =="communications/messages"){ echo "active"; } ?>" data-page="recent_activity"
                                     href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">
                                     <span class="d-flex"> <i class="i-Newspaper-2 text-16 mr-1"></i>&nbsp;Messages  </span>
                                 </a>
                             </div>
+                            @endcan
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/calls"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/calls')}}">
                                     <span> <i class="i-Old-Telephone text-16 mr-1"></i>Call Log</span>
                                 </a>
                             </div>
+                            @can(['messaging_add_edit'])
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/emails"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/emails')}}">
                                     <span> <i class="i-Email  text-16 mr-1"></i>Emails</span>
                                 </a>
                             </div>
+                            @endcan
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/chat_conversations"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/chat_conversations')}}">
                                     <span> <i class="far fa-comments fa-lg pr-11"></i> Chat Conversations</span><label class="badge badge-success p-1 ml-2 align-top">NEW</label>

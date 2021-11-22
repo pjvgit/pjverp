@@ -916,7 +916,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     // }else{
                     //     $('td:eq(2)', nRow).html('Not Specified <a data-toggle="modal"  data-target="#changeStatus" data-placement="bottom" href="javascript:;"  onclick="changeStatus('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>');
                     // }
-                    $('td:eq(2)', nRow).html('<span style="white-space: nowrap;"> '+aData.case_stage_text+' <a data-toggle="modal"  data-target="#changeStatus" data-placement="bottom" href="javascript:;"  onclick="changeStatus('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a></span>');
+                    $('td:eq(2)', nRow).html('<span style="white-space: nowrap;"> '+aData.case_stage_text+'@can("case_add_edit") <a data-toggle="modal"  data-target="#changeStatus" data-placement="bottom" href="javascript:;"  onclick="changeStatus('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>@endcan</span>');
                                 
                     var obj = JSON.parse(aData.caseuser);
                     var i;
@@ -985,9 +985,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(6)', nRow).html('<div class="text-left"><div class="status-update">No Status Update</div><a data-toggle="modal"  data-target="#statusUpdate" data-placement="bottom" href="javascript:;"  onclick="loadCaseUpdate('+aData.id+');"><small>Add New Update</small></a></div>');
                     }
                     $('td:eq(7)', nRow).html('<div class="text-left"><div class="details">'+aData.created_new_date+'<small> by <a href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a></small></div></div>');
-                    
+                    @can('case_add_edit')
                     $('td:eq(8)', nRow).html('<div class="text-left" style="white-space: nowrap;"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info"> <i class="fas fa-eye pr-2  align-middle d-print-none"></i title="View Details"></i> <a data-toggle="modal"  data-target="#EditCaseModel" data-placement="bottom" href="javascript:;"  onclick="updateCaseDetails('+aData.id+');"><i class="fas fa-pen align-middle d-print-none"></i></a></a></div>');
-                
+                    @else
+                    $('td:eq(8)', nRow).html('<div class="text-left" style="white-space: nowrap;"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info"> <i class="fas fa-eye pr-2  align-middle d-print-none"></i title="View Details"></i> </a></div>');
+                    @endcan
                     //  $('td:eq(6)', nRow).html('<div class="text-center"><a data-toggle="tooltip" data-placement="bottom" title="View" class="btn btn-primary btn-sm" href="'+baseUrl+'/project?id='+ aData.decode_id +'"> View</a></div>');
                     //loadTaskView
                     

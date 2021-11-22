@@ -9,17 +9,18 @@
                         <a class="nav-link {{ request()->is('account/dashboard*') ? 'active' : '' }} "
                             href="{{ route('account/dashboard') }}">Dashboard</a>
                     </li>
-
+                    @can('edit_import_export_settings')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('imports*') ? 'active' : '' }}"
                             href="{{ route('imports/contacts') }}">Import/Export</a>
                     </li>
-
+                    @endcan
+                    @can('edit_custom_fields_settings')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('custom_fields*') ? 'active' : '' }}"
                             href="{{ route('custom_fields') }}?group=court_case">Custom Fields</a>
                     </li>
-
+                    @endcan
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('form_templates*') ? 'active' : '' }}" href="{{ route('form_templates') }}">Intake Forms</a>
                      
@@ -66,8 +67,9 @@
                             href="{{ route('contacts/attorneys') }}">Users</a>
                     </li>
                     <?php
-                    if(Auth::User()->parent_user=="0"){; 
+                    // if(Auth::User()->parent_user=="0"){; 
                     ?>
+                    @can('manage_firm_and_billing_settings')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('firms/setting*')? 'active' : '' }} "
                             href="{{ route('firms/setting') }}">Firm Settings</a>
@@ -76,7 +78,8 @@
                     <li class="nav-item">
                         <a class="nav-link " href="{{ route('billing/settings') }}">Client Billing &amp; Invoice Settings</a>
                     </li>
-                <?php } ?>
+                    @endcan
+                <?php //} ?>
                 </div>
             </ul>
         </nav>

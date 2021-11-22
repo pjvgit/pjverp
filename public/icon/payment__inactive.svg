@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="42px" height="42px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>payment__inactive</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="3.51733398 9 32.3986816 9 35.7937012 29 0 29"></polygon>
+        <rect id="path-2" x="7" y="13" width="8" height="8"></rect>
+        <rect id="path-3" x="5" y="0" width="13" height="5"></rect>
+    </defs>
+    <g id="Iconsdeliverable-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="payment__inactive">
+            <g id="BILLING" transform="translate(3.000000, 2.000000)">
+                <path d="M0.0661803349,34.9215169 C-0.137395557,34.4125772 0.14342608,34 0.706290492,34 L34.9874406,34 C35.5445396,34 35.8939364,34.4304463 35.7666484,34.9664474 L35.1180007,37.6978593 C34.9912463,38.2316134 34.4425963,38.6643066 33.8911346,38.6643066 L2.56065313,38.6643066 C2.00982813,38.6643066 1.39772579,38.2503805 1.19468947,37.7427897 L0.0661803349,34.9215169 Z" id="Rectangle-22" fill="#DCDCDC"></path>
+                <g id="Rectangle-16">
+                    <use fill="#F6F6F6" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    <path stroke="#E1E1E1" stroke-width="1" d="M3.93707403,9.5 L31.9764044,9.5 L35.201673,28.5 L0.595606743,28.5 L3.93707403,9.5 Z"></path>
+                </g>
+                <rect id="Rectangle-18" fill="#E2E2E2" x="0" y="29" width="36" height="6"></rect>
+                <path d="M0,30.25 L36,30.25" id="Line" stroke="#FFFFFF" stroke-width="0.5" opacity="0.621793377" stroke-linecap="square"></path>
+                <rect id="Rectangle" fill="#DCDCDC" x="6" y="12" width="10" height="3"></rect>
+                <g id="Rectangle-2">
+                    <use fill="#F6F6F6" fill-rule="evenodd" xlink:href="#path-2"></use>
+                    <rect stroke="#CBCBCB" stroke-width="1" x="7.5" y="13.5" width="7" height="7"></rect>
+                </g>
+                <rect id="Rectangle" fill="#DCDCDC" x="6" y="12" width="10" height="2"></rect>
+                <g id="Rectangle">
+                    <use fill="#DCDCDC" fill-rule="evenodd" xlink:href="#path-3"></use>
+                    <rect stroke="#DCDCDC" stroke-width="1" x="5.5" y="0.5" width="12" height="4"></rect>
+                </g>
+                <rect id="Rectangle" fill="#DCDCDC" x="10" y="5" width="3" height="4"></rect>
+                <rect id="Rectangle-20" fill="#DCDCDC" x="18" y="12" width="13" height="6" rx="1"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="4" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="4" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="8" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="8" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="12" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="12" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="16" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="16" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="21" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="21" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="25" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="25" y="25" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="29" y="22" width="2" height="2"></rect>
+                <rect id="Rectangle-21" fill="#D6D6D6" x="29" y="25" width="2" height="2"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -10,10 +10,12 @@
                        
                     </div>
                 </div>
+                @can(['case_add_edit', 'billing_add_edit'])
                 <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                 href="javascript:;">
                 <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
                     onclick="loadExpenseEntryPopup({{$CaseMaster['case_id']}});">Add Expense</button></a>
+                @endcan
             </div>
             <div data-testid="mc-table-container" style="font-size: small;">
                 <table class="display table table-striped table-bordered" id="timeEntryGrid" style="width:100%">
@@ -84,11 +86,15 @@
                         $('td:eq(6)', nRow).html('<div class="text-left nowrap"><i class="fa fa-circle fa-sm text-success mr-1"></i><a href="{{BASE_URL}}bills/invoices/view/'+aData.decode_invoice_id+'">Invoiced</a></div>');
                     }                    
                     $('td:eq(7)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
+                    @can(['case_add_edit', 'billing_add_edit'])
                     if(aData.status=="unpaid"){
                         $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteExpenseEntryCommon" data-placement="bottom" href="javascript:;"  onclick="deleteExpenseEntryCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                     }else{
                         $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"></div>');
                     }
+                    @else
+                    $('td:eq(8)', nRow).html('');
+                    @endcan
                 }
         });
     });

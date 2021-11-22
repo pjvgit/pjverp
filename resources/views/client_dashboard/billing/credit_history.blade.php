@@ -6,6 +6,7 @@
             <a data-toggle="modal" data-target="#export_credit_popup" data-placement="bottom" href="javascript:;" onclick="exportCreditPDFpopup();"> 
                 <button type="button" class="credit-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
             </a>
+            @can(['billing_add_edit','client_add_edit'])
             @if(!empty($userProfile->userCreditAccountHistory) && count($userProfile->userCreditAccountHistory))
             <a data-toggle="modal" data-target="#withdrawFromCredit" data-placement="bottom" href="javascript:;" onclick="withdrawFromCredit();">
                 <button type="button" class="mx-1 btn btn-outline-info">Withdraw from Credit</button>
@@ -14,6 +15,7 @@
             <a data-toggle="modal" data-target="#loadDepositIntoCreditPopup" data-placement="bottom" href="javascript:;" onclick="loadDepositIntoCredit(this);" data-auth-user-id="{{ auth()->id() }}" data-client-id="{{ @$client_id }}"> 
                 <button type="button" class="mx-1 btn btn-primary">Deposit into Credit</button>
             </a>
+            @endcan
         </div>
     </div>
 </div>

@@ -179,19 +179,25 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     <li class="nav-item">
                         <a class="nav-link <?php if(Route::currentRouteName()=="contacts_clients_notes"){ echo "active show"; } ?>" id="contact-basic-tab"   href="{{URL::to('contacts/clients/'.$client_id.'/notes')}}" aria-controls="contactBasic" aria-selected="false">Notes</a>
                     </li>
-                    @canany(['billing_add_edit', 'billing_view'])
+                    @if(auth()->user()->hasAnyPermission(['billing_add_edit', 'billing_view']) && auth()->user()->cannot('billing_restrict_time_entry_and_expense'))
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_billing_trust_history","contacts_clients_billing_trust_request_fund","contacts_clients_billing_invoice","contacts/clients/billing/credit/history","contacts/clients/billing/trust/allocation"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/billing/trust_history')}}" >Billing</a>
                     </li>
-                    @endcanany
+                    @endif
+                    @can(['messaging_add_edit'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/messages')}}" >Messages</a>
                     </li>
+                    @endcan
+                    @can(['text_messaging_add_edit'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_text_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/text_messages')}}" >Text
                             Messages</a>
                     </li>
+                    @endcan
+                    @can(['messaging_add_edit'])
                     <li class="nav-item"><a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_email"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/email')}}" >Emails</a>
                     </li>
+                    @endcan
                 </ul>
                 <div class="tab-content" id="myTabContent">
 
@@ -1721,7 +1727,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(2)', nRow).html('<div class="text-left">Closed</div>');
                     }
                     var action = '';
-                    @can('case_add_edit')
+                    @can('client_add_edit')
                     var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
                     action = '<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
                     @endcan
