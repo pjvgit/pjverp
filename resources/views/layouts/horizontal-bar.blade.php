@@ -386,45 +386,52 @@
                             <div>
                                 <div class="nav-item">
                                     <div class="js-timer-root">
-                                        <a href="#" class="startTimer">
-                                            <i class="far fa-clock fa-lg  timer-clock-icon"></i>
+                                        <a href="javascript:void(0);" class="startTimer">
+                                            <i class="far fa-clock fa-lg  timer-clock-icon"></i>&nbsp;
                                             <span class="text-nowrap">Start Timer</span>
                                             <span class="time-status"></span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="timerCounter" style="display: none;">
-                                    <div class="timer-panel mb-5" style="margin-left: -190px;background-color: #ccc;">
-                                        <div class="timer-row d-flex">
-                                            <div>
-                                                <a href="#">
-                                                    <i class="timerAction fas fa-pause" id='pauseCounter'>&nbsp;<span class="time-status"></span></i>
+                                    <div class="timer-panel mb-5" style="margin-left: -190px;background-color: #efeaf5;">
+                                        <div class="timer-row d-flex design-set pt-3">
+                                            <div class="pl-0">
+                                                <a href="javascript:void(0);">
+                                                    <i class="timerAction fas fa-pause" id='pauseCounter'>&nbsp;<span class="time_status_0">00:00:00</span></i>
                                                 </a> 
                                             </div>
                                             <input type="hidden" name="smart_timer_id" id="smart_timer_id" value="">
                                             <input type="hidden" name="pause_smart_timer_id" id="pause_smart_timer_id" value="">
-                                            <span class="timer-secondary-actions d-flex" style="margin-left: 40px;">
-                                                <a href="#" onclick="deleteTimer();" class="btn btn-link timer-delete-action">Delete</a>
-                                                <a href="#" onclick="saveTimer();" class="btn btn-secondary timer-save-action float-none">Save</a>
+                                            <span class="timer-secondary-actions d-flex" style="margin-left: 24px;">
+                                                <a href="javascript:void(0);" onclick="deleteTimer();" class="btn btn-link timer-delete-action">Delete</a>
+                                                <a href="javascript:void(0);" onclick="saveTimer();" class="btn btn-secondary timer-save-action float-none set-designn">Save</a>
                                             </span>
                                         </div>
                                         <div class="input-row">
-                                            <label><i class="fa fa-suitcase fa-2x"></i>
+                                            <label>
+                                            <img class="mr-1" src="{{asset('/svg/court_case.svg')}}" width="30" height="30">
                                             <div class="counting-textarea d-flex">
                                                 <select id="timer_case_id" name="timer_case_id" class="form-control">
                                                     <option value="">Select case</option>    
-                                                    <option value="165">oct 27</option>
+                                                    @forelse (userCaseList() as $key => $item)
+                                                    <option value="{{ $item->id }}">{{substr($item->case_title,0,100)}} </option>
+                                                    @empty
+                                                    @endforelse
                                                 </select>
                                             </div>
                                             </label>
                                         </div>
                                         <div class="input-row">
                                             <label>
-                                                <img alt="" class="mr-1" src="{{asset('/svg/note-.svg')}}" width="24" height="24">
-                                                <div class="counting-textarea d-flex">
-                                                    <textarea placeholder="Description" class="form-control timer-text-field" maxlength="1024" rows="1" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 39px;"></textarea>
-                                                </div>
+                                                <img class="mr-1" src="{{asset('/svg/note-.svg')}}" width="30" height="30">
+                                                <div class="counting-textarea d-flex" style="width: 100%;">
+                                                    <textarea placeholder="Description" id="timer-text-field" class="form-control" maxlength="1024" rows="1" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 35px;"></textarea>
+                                                    </div>
                                             </label>
+                                        </div>
+                                        <div class="input-row">
+                                            <br>
                                         </div>
                                     </div>
                                 </div>
@@ -447,4 +454,10 @@
     .nav-item
     {width: auto !important;
     }
-    </style>
+    .timer-status-dot .active{
+        background-color: green !important;
+    }
+    .timer-status-dot .error{
+        background-color: red !important;
+    }
+</style>

@@ -1196,7 +1196,7 @@ if(!isset($addition)){ $addition=0;}
                                                 style="border: none; padding-bottom: 7px;">
                                                 Flat Fee Sub-Total:
                                             </div>
-                                            <?php } if($case_id=="none"){ ?>
+                                            <?php } if($case_id!="none"){ ?>
                                             <div id="time_entry_total_label" class="time-entries-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Time Entry Sub-Total:
@@ -1217,7 +1217,7 @@ if(!isset($addition)){ $addition=0;}
                                             <div id="flat_fee_bottom_total" class="flat-fee-totals" style="border: none; padding-bottom: 7px;">
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
-                                            <?php } if($case_id=="none"){ ?>
+                                            <?php } if($case_id!="none"){ ?>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
                                                     class="time_entry_total_amount">{{number_format($timeEntryAmount,2)}}</span>
@@ -1580,7 +1580,7 @@ if(!isset($addition)){ $addition=0;}
                         </div>
                     </div>
                     @endif
-
+                    <?php if($case_id!="none"){ ?>
                     <div class="invoice_option_header clearfix">
                         <div style="float: right;" class="mt-2">
                             <label class="switch switch-success"><span>Enabled</span>
@@ -1854,7 +1854,7 @@ if(!isset($addition)){ $addition=0;}
                             is On, reminders will show automatic payment status.
                         </p>
                     </div>
-                    
+                    <?php } ?>
                     <div id="bill_sharing_options" style=" padding-top: 15px; border-top: 1px dotted #9f9f9f;">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">
@@ -2953,6 +2953,20 @@ if(!isset($addition)){ $addition=0;}
                 return false;
             }else{
                 var alert = 0;
+                <?php if($case_id == "none"){ ?>
+                    var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
+                    var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
+                    var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
+                    if(flat_fee_sub_total_text >= 0)
+                        alert++;
+                    }
+                    if(discount_amount >= 0)
+                        alert++;
+                    }
+                    if(addition_amount >= 0)
+                        alert++;
+                    }                    
+                <?php } ?>
                 if($("#final_total_text").val() <= 0 && alert == 0){
                     swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
                     alert++;

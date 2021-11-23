@@ -865,7 +865,33 @@ class HomeController extends BaseController
         $SmartTimer->stopped_at = date("Y-m-d H:i:s");
         $SmartTimer->case_id = $request->case_id;
         $SmartTimer->save();
-        return response()->json(["status" => "success"]);
+        // $SmartTimer
+        $duration = 0;
+        if(isset($request->total_time) && $request->total_time != ''){
+            $duration = strtotime((string) $request->total_time, 0) / 60;
+            $duration = floor($duration /6); 
+            $duration = $duration * 0.1; 
+            $duration = $duration + 0.1; 
+        }else{     
+            $startTime = Carbon::parse($SmartTimer->started_at);
+            $finishTime = Carbon::parse($SmartTimer->stopped_at);
+            $duration += $finishTime->diffInSeconds($startTime);       
+
+            $PauseTimerEntrie = PauseTimerEntrie::where("smart_timer_id",$request->smart_timer_id)->where("pause_stop_time", '!=', NULL)->get();
+            if(count($PauseTimerEntrie) > 0){
+                foreach($PauseTimerEntrie as $k => $v){
+                    $startTime1 = Carbon::parse($v->pause_start_time);
+                    $finishTime1 = Carbon::parse($v->pause_stop_time);
+                    $duration += $finishTime1->diffInSeconds($startTime1);
+                }
+            }
+            echo $duration; echo PHP_EOL;
+            echo $duration =  $duration / 60; echo PHP_EOL;
+            echo $duration = floor($duration /6) ; echo PHP_EOL;
+            echo $duration = $duration * 0.1; echo PHP_EOL;
+            $duration = $duration + 0.1; 
+        }
+        return response()->json(["status" => "success", "duration" => $duration]);
     }
 
     public function pauseTimer(Request $request){

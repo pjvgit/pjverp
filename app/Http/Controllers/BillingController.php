@@ -174,7 +174,7 @@ class BillingController extends BaseController
             $default_rate=($rateUsers['rate_amount'])??0.00;
         }
 
-        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate"));     
+        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "request"));     
         exit;    
     } 
     public function loadTimeEntryPopupDontRefresh(Request $request)
@@ -2588,6 +2588,7 @@ class BillingController extends BaseController
                 }       
             }
             if($case_id == "none"){
+                // Fix for https://trello.com/c/3M7Dll9D/1032-invoice-from-scratch-matter-none-cant-delete-flat-fee
                 $totalFlatFee = FlatFeeEntry::where('case_id', 0)->where('user_id', auth()->id())->where("status","unpaid")->first();
                 // if(empty($totalFlatFee)) {
                 //     FlatFeeEntry::updateOrcreate([
@@ -3122,7 +3123,7 @@ class BillingController extends BaseController
             $data['activity']='added a time entry';
             $data['activity_for']=$TaskTimeEntry->id;
             $data['expense_id']=$TaskTimeEntry->id;
-            $data['type']='time_entry_id';
+            $data['type']='time_entry';
             $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
@@ -3787,7 +3788,7 @@ class BillingController extends BaseController
             'invoice_number_padded' => 'required|numeric|unique:invoices,id',
             'court_case_id' => 'required'/* |numeric */,
             'contact' => 'required|numeric',
-            'total_text' => 'required'
+            // 'total_text' => 'required'
         ];
         if(!empty($request->flatFeeEntrySelectedArray) && count($request->flatFeeEntrySelectedArray)) {
             $rules['timeEntrySelectedArray'] = 'nullable|array';
@@ -3799,8 +3800,10 @@ class BillingController extends BaseController
             }
         }
         $paymentPlanAmount = 0;
-        foreach($request->new_payment_plans as $k=>$v){
-            $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
+        if(isset($request->new_payment_plans)){
+            foreach($request->new_payment_plans as $k=>$v){
+                $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
+            }
         }
         $paymentPlanAmount = (int) str_replace(',', '', number_format($paymentPlanAmount,2));
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
@@ -3842,6 +3845,12 @@ class BillingController extends BaseController
                 $InvoiceSave->payment_plan_enabled="yes";
             }else{
                 $InvoiceSave->payment_plan_enabled="no";
+            }
+
+            if($request->court_case_id == "none"){
+                if(count($request->flatFeeEntrySelectedArray) > 0 || $request->final_total_text == 0){
+                    $InvoiceSave->status="Paid";
+                }
             }
             $InvoiceSave->status=$request->bill_sent_status;
             $InvoiceSave->bill_sent_status=$request->bill_sent_status;

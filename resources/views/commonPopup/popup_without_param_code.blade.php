@@ -1218,14 +1218,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function loadTimeEntryPopupByCase(case_id) {
+    function loadTimeEntryPopupByCase(case_id, description = null, duration = null, smart_timer_id = null) {
         $("#preloader").show();
         $("#addTimeEntry").html('<img src="{{LOADER}}"> Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
-                data: {"case_id":case_id},
+                data: {"case_id":case_id, "description" : description, "duration" : duration, "smart_timer_id" : smart_timer_id},
                 success: function (res) {
                     $("#addTimeEntry").html('');
                     $("#addTimeEntry").html(res);

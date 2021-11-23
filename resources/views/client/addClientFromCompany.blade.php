@@ -355,6 +355,7 @@
     });
 
     $('#createNewUser').submit(function (e) {
+        console.log("resources/views/client/addClientFromCompany.blade.php > 358");
         $("#submit").attr("disabled", true);
         $("#innerLoader").css('display', 'block');
         e.preventDefault();

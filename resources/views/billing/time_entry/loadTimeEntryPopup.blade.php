@@ -14,6 +14,7 @@
                 <input type="hidden" name="from" value="{{$from}}">
                 <input type="hidden" name="curDate" value="{{$curDate}}">
             <?php } ?>
+            <input type="hidden" name="smart_timer_id" value="{{$request->smart_timer_id ?? ''}}">
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Case</label>
                 <div class="col-10 form-group mb-3">
@@ -88,7 +89,7 @@
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Description</label>
                 <div class="col-md-10 form-group mb-3">
                     <textarea name="case_description" class="form-control"
-                        rows="5"></textarea>
+                        rows="5">{{ $request->description ?? '' }}</textarea>
                     <small>This description will appear on invoices.</small>
                 </div>
             </div>
@@ -150,7 +151,7 @@
                     </div>
                     <div class="pl-4 col-3">
                         <div class=""><input id="duration-field" maxlength="15" min="0" name="duration_field"
-                                class="form-control text-right" value=""></div>
+                                class="form-control text-right" value="{{ $request->duration ?? '' }}"></div>
                     </div>
                 </div>
                 <div class="row ">

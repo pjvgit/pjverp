@@ -17,7 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
-use App\FirmAddress,App\CaseEventLinkedContactLead;
+use App\FirmAddress,App\CaseEventLinkedContactLead,App\SmartTimer;
 use App\Jobs\TaskCommentEmailJob;
 
 class TaskController extends BaseController
@@ -1090,6 +1090,10 @@ class TaskController extends BaseController
             $from="";
         }
 
+        // remove smart_timer_id
+        if($request->smart_timer_id != ''){
+            SmartTimer::find($request->smart_timer_id)->forceDelete();
+        }
         return response()->json(['errors'=>'','id'=>$TaskTimeEntry->id,'from'=>$from]);
       exit;
     }

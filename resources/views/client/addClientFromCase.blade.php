@@ -340,6 +340,7 @@
 
     });
     $('#createNewUser').submit(function (e) {
+        console.log("resources/views/client/addClientFromCase.blade.php > 343")
         $("#submit").attr("disabled", true);
         $("#innerLoader").css('display', 'block');
         e.preventDefault();

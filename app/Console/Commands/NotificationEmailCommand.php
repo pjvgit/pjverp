@@ -64,8 +64,8 @@ class NotificationEmailCommand extends Command
                     "case_master.case_unique_number", "case_events.event_title as eventTitle", 
                     "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",
                     'task.task_title as taskTitle', "case_master.deleted_at as deleteCase","u1.deleted_at as deleteContact")
-            // ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
-            ->whereDate("all_history.created_at", date('Y-m-d'))
+            ->whereDate("all_history.created_at", date('Y-m-d', strtotime(date('Y-m-d').' - 1 day')))
+            // ->whereDate("all_history.created_at", date('Y-m-d'))
             ->where('all_history.is_for_client','no')
             ->with('caseFirm')
             ->get();
@@ -85,8 +85,8 @@ class NotificationEmailCommand extends Command
                 // echo "*******************";echo PHP_EOL;
                 $date = Carbon::now($firmDetail->user_timezone ?? 'UTC');
                 $utcDate = Carbon::now('UTC');
-                // Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for time zone : '.$firmDetail->user_timezone." at ".$date);
                 if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
+                    Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for time zone : '.$firmDetail->user_timezone." at ".$date);
                     if ($date->hour === 05) {
                         $preparedFor = substr($firmDetail->first_name,0,100).' '.substr($firmDetail->last_name,0,100).'|'.$firmDetail->email;
                         $firmData[$preparedFor][$key] = $val;
@@ -104,8 +104,8 @@ class NotificationEmailCommand extends Command
                 foreach($firmUserDetails as $k => $staff) {
                     $date = Carbon::now($staff->user_timezone ?? 'UTC');
                     $utcDate = Carbon::now('UTC');
-                    // Log::info("Staff notification Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);
                     if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
+                        Log::info("Staff notification Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);
                         if ($date->hour === 05) {
                             $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email.'|'.$staff->id;
                             $staffData[$preparedFor][$key] = $val;

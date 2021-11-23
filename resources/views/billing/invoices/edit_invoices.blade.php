@@ -4,7 +4,10 @@
 @include('billing.submenu')
 <div class="separator-breadcrumb border-top"></div>
 <div class="row">
-
+<?php
+$timeEntryTime=$timeEntryAmount=0;
+$expenseTime=0;$expenseAmount=0;
+?>
     <div class="col-md-12">
         <form class="saveInvoiceForm" id="saveInvoiceForm" name="saveInvoiceForm" method="POST" action="{{route('bills/invoices/updateInvoiceEntry')}}">
             @csrf
@@ -406,6 +409,8 @@
                             </tbody>
                         </table>
                         <br>
+
+                        <?php if($findInvoice->case_id != 'none'){ ?>
                         <div class="invoice_entry_header">
                             <table>
                                 <tr>
@@ -493,7 +498,7 @@
                                 </tr>
                                 <?php } ?>
                                 <?php 
-                                $timeEntryTime=$timeEntryAmount=0;
+                                
                                 foreach($TimeEntry as $k=>$v){
                                 ?>
                                 
@@ -728,8 +733,7 @@
                                     </tr>
                                     <?php } ?>
                                     <?php 
-                                    $expenseTime=0;
-                                    $expenseAmount=0;
+                                    
                                     foreach($ExpenseEntry as $k=>$v){
                                     ?>
 
@@ -844,7 +848,7 @@
                                 </tbody>
                             </table>
                         </div>
-
+                        <?php } ?>
                         @if(count($unpaidInvoices))
                         <div style="margin-top: 15px;">
                             <div class="invoice_entry_header">
@@ -1146,7 +1150,7 @@
                                                 style="border: none; padding-bottom: 7px; ">
                                                 Flat Fee Sub-Total:
                                             </div>
-                                            <?php } if($case_id=="none"){ ?>
+                                            <?php } if($case_id !="none"){ ?>
                                             <div id="time_entry_total_label" class="time-entries-totals"
                                                 style="border: none; padding-bottom: 7px;">
                                                 Time Entry Sub-Total:
@@ -1168,7 +1172,7 @@
                                                 style="border: none; padding-bottom: 7px; ">
                                                 $<span id="flat_fee_total_amount" class="flat_fee_total_amount">{{number_format($flateFeeTotal,2)}}</span>
                                             </div>
-                                            <?php } if($case_id=="none"){ ?>
+                                            <?php } if($case_id!= "none"){ ?>
                                             <div style="border: none; padding-bottom: 7px;" class="time-entries-totals">
                                                 $<span id="time_entry_total_amount"
                                                     class="time_entry_total_amount">{{number_format($timeEntryAmount,2)}}</span>
@@ -1489,7 +1493,7 @@
                     </div>
                     @endif
 
-
+                    <?php if($case_id !="none"){ ?>
                     <div class="invoice_option_header clearfix">
                         <div style="float: right;" class="mt-2">
                             <label class="switch switch-success"><span>Enabled</span>
@@ -1724,7 +1728,7 @@
                             is On, reminders will show automatic payment status.
                         </p>
                     </div>
-                    
+                    <?php } ?>
                     <div id="bill_sharing_options" style=" padding-top: 15px; border-top: 1px dotted #9f9f9f;">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">

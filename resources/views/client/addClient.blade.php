@@ -370,6 +370,7 @@
     });
 
     $(":submit").on('click', function () {
+        console.log("resources/views/client/addClient.blade.php > 373");
         // alert($(this).val());
         if ($(this).val() == 'savandaddcase') {
             $('#createNewUser').submit(function (e) {
@@ -420,6 +421,7 @@
             });
         } else {
             $('#createNewUser').submit(function (e) {
+            console.log("resources/views/client/addClient.blade.php > 424");
                 var me = $(this);
                 e.preventDefault();
 

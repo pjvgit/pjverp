@@ -364,6 +364,7 @@
 
     $(":submit").on('click', function () {       
         $('#createNewUser').submit(function (e) {
+        console.log("resources/views/client/addClientFromInvoice.blade.php > 367");
             var me = $(this);
             e.preventDefault();
 
