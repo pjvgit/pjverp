@@ -495,3 +495,13 @@ font-size: 1rem;
     height: 50px;
     width: 75px;
 }
+.standard-options {
+    display: flex  !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.task-list li{
+    display: block !important;
+    align-items: flex-start;
+    list-style: none;
+}

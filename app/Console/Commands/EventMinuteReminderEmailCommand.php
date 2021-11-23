@@ -51,6 +51,7 @@ class EventMinuteReminderEmailCommand extends Command
                     ->whereHas("event", function($query) {
                         $query->where("is_SOL", "no");
                     })
+                    // ->whereEventId(58119)
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
@@ -70,7 +71,7 @@ class EventMinuteReminderEmailCommand extends Command
                     Log::info("remind at:". $date2);
                     if($date1->eq($date2)) {
                         Log::info("EventMinuteReminderEmailCommand : minute time true");
-                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent))->onConnection('database');
+                        dispatch(new EventReminderEmailJob($item, $users, $attendEvent));
                     } else {
                         Log::info("EventMinuteReminderEmailCommand : event minute time not match");
                     }

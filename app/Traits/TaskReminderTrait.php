@@ -39,7 +39,7 @@ trait TaskReminderTrait {
         if($notifyType == "popup") {
             $users = $users->whereId(auth()->id());
         }
-        return $users = $users->get();
+        return $users = $users->withoutAppends()->get();
     }
  
 }

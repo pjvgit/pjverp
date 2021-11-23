@@ -2,7 +2,7 @@
 <h4 class="border-bottom border-gray pb-2">Firm Level Permissions</h4>
 
 
-<form class="createStep3" id="createStep3" name="createStep3" method="POST">
+<form class="createStep3 permission-div" id="createStep3" name="createStep3" method="POST">
     @csrf
     <input type="hidden" name="user_id" value="{{$user->id}}">
     <input type="hidden" name="case_id" value="{{$case_id}}">
@@ -67,13 +67,28 @@
         </label>
         <div class="col-sm-3">
             <label class="radio radio-outline-success">
-                <input type="radio" name="delete_item" value="0" checked="checked"><span> Yes</span><span
+                <input type="radio" name="delete_item" value="0" checked="checked" class="delete-item-permission"><span> Yes</span><span
                     class="checkmark"></span>
             </label>
         </div>
         <div class="col-sm-3">
             <label class="radio radio-outline-success">
-                <input type="radio" name="delete_item" value="1"><span>No</span><span class="checkmark"></span>
+                <input type="radio" name="delete_item" value="1" class="delete-item-permission"><span>No</span><span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+    <hr>
+    <div class="form-group row">
+        <label for="inputEmail3" class="col-sm-6 col-form-label">Permanetly delete documents from the trash bin?</label>
+        <div class="col-sm-3">
+            <label class="radio radio-outline-success">
+                <input type="radio" name="empty_trash_permission" value="0" checked="checked" class="empty-trash-permission"><span> Yes</span><span
+                    class="checkmark"></span>
+            </label>
+        </div>
+        <div class="col-sm-3">
+            <label class="radio radio-outline-success">
+                <input type="radio" name="empty_trash_permission" value="1" class="empty-trash-permission"><span>No</span><span class="checkmark"></span>
             </label>
         </div>
     </div>
@@ -152,6 +167,15 @@
     $(document).ready(function () {
         $("#innerLoader3").css('display', 'none');
         
+        // For delete item permission
+        $(document).on("change", '.delete-item-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == '0') {
+                $(".empty-trash-permission").prop("disabled", false);
+            } else {
+                $(".empty-trash-permission").prop("disabled", true);
+            }
+        });
     });
     $('#createStep3').submit(function (e) {
         $("#innerLoader3").css('display', 'block');

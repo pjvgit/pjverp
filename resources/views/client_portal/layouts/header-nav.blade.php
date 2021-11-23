@@ -54,12 +54,6 @@
                     <span class="nav-item__label">Billing</span>
                 </a>
             </li>
-            <li class="nav-item" data-app-section="Menu">
-                <a class="nav-link" href="/nav">
-                    <i class="nav-item__icon">menu</i>
-                    <span class="nav-item__label">Menu</span>
-                </a>
-            </li>
         </ul>
         <div class="main-navigation__account">
             {{-- <div class="main-navigation__account-button nav-item">
@@ -100,7 +94,7 @@
                         <a href="{{ route('privacy') }}" class="dropdown-item">Privacy Policy</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button class="dropdown-item">Log Out</button>
+                            <button class="dropdown-item" style="outline: none;">Log Out</button>
                         </form>
                     </div>
                 </div>

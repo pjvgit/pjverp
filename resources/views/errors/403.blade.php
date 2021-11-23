@@ -21,6 +21,9 @@
     <p> It's possible you've reached this page due to an out of date link or bookmark. If so, please update your link and try again. </p>
 
     <p>
+    <a href="{{ route('dashboard') }}">Home</a>
+    </p>
+    <p>
     <a href="{{ route('autologout') }}">Log out</a>
     </p>
 

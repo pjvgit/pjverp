@@ -12,7 +12,7 @@
                     <a class="btn btn-link nav-link @if(Route::currentRouteName() == "client/tasks/completed") {{ "active" }} @endif" id="completed-task-tab" href="{{ route('client/tasks/completed') }}" role="tab" aria-controls="completedTask" aria-selected="true">Completed</a>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent">
+            <div class="tab-content task-list" id="myTabContent">
                 <div class="tab-pane fade @if(Route::currentRouteName() == "client/tasks") {{ "show active" }} @endif" id="openTask" role="tabpanel" aria-labelledby="open-task-tab">
                     <ul class="list">
                         @forelse ($tasks as $key => $item)

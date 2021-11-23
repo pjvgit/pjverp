@@ -73,7 +73,8 @@ class ContractController extends BaseController
         $validator = \Validator::make($request->all(), [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|unique:users,email,NULL,id,deleted_at,NULL',
+            // 'email' => 'required|unique:users,email,NULL,id,deleted_at,NULL',
+            'email' => ['required', new UniqueEmail()],
             'user_type' => 'required',
         ]);
         if ($validator->fails())
@@ -278,6 +279,7 @@ class ContractController extends BaseController
             (isset($request->add_new) && $request->add_new == '0') ? 'add_firm_user' : 'no',
             (isset($request->edit_permisssion) && $request->edit_permisssion == '0') ? 'edit_firm_user_permission' : '',
             (isset($request->delete_item) && $request->delete_item == '0') ? 'delete_items' : '',
+            (isset($request->empty_trash_permission) && $request->empty_trash_permission == '0') ? 'empty_trash_permission' : '',
             (isset($request->import_export) && $request->import_export == '0') ? 'edit_import_export_settings' : '',
             (isset($request->custome_fields) && $request->custome_fields == '0') ? 'edit_custom_fields_settings' : '',
             (isset($request->manage_firm) && $request->manage_firm == '0') ? 'manage_firm_and_billing_settings' : '',
@@ -423,6 +425,7 @@ class ContractController extends BaseController
             (isset($request->add_new) && $request->add_new != 'no') ? $request->add_new : '',
             (isset($request->edit_permisssion) && $request->edit_permisssion != 'no') ? $request->edit_permisssion : '',
             (isset($request->delete_item) && $request->delete_item != 'no') ? $request->delete_item : '',
+            (isset($request->empty_trash_permission) && $request->empty_trash_permission != 'no') ? $request->empty_trash_permission : '',
             (isset($request->import_export) && $request->import_export != 'no') ? $request->import_export : '',
             (isset($request->custome_fields) && $request->custome_fields != 'no') ? $request->custome_fields : '',
             (isset($request->manage_firm) && $request->manage_firm != 'no') ? $request->manage_firm : '',

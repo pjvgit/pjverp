@@ -15,20 +15,20 @@ trait EventReminderTrait {
                 $caseLinkedUser = $item->event->case->caseStaffAll->pluck('user_id');
             }
             $userType = ($item->reminder_user_type == "attorney") ? 1 : (($item->reminder_user_type == "staff") ? 3 : 2);
-            $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? [])->where("user_type", $userType)->get();
+            $users = User::whereIn("id", $eventLinkedUser)->orWhereIn("id", $caseLinkedUser ?? [])->where("user_type", $userType)->withoutAppends()->get();
             $attendEvent = $item->event->eventLinkedStaff->pluck("pivot.attending", 'id')->toArray();
 
         } else if($item->reminder_user_type == "client-lead") {
             $eventLinkContactIds = $item->event->eventLinkedContact->pluck('id');
             $eventLinkedLeadIds = $item->event->eventLinkedLead->pluck('user_id');
-            $users = User::whereIn("id", $eventLinkContactIds)->orWhereIn("id", $eventLinkedLeadIds)->get();
+            $users = User::whereIn("id", $eventLinkContactIds)->orWhereIn("id", $eventLinkedLeadIds)->withoutAppends()->get();
             if(count($eventLinkContactIds)) {
                 $attendEvent = $item->event->eventLinkedContact->pluck("pivot.attending", 'id')->toArray();
             } else {
                 $attendEvent = $item->event->eventLinkedLead->pluck("pivot.attending", 'id')->toArray();
             }
         } else {
-            $users = User::whereId($item->created_by)->get();
+            $users = User::whereId($item->created_by)->withoutAppends()->get();
             $attendEvent = [$item->created_by => "yes"];
         }
         if($notifyType == "popup") {

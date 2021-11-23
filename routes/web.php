@@ -162,7 +162,7 @@ Route::get('testmail', 'UserController@testmail')->name('users.testmail');
 Route::get('/firmclient/verify/{token}', 'ContractController@verifyClient');
 
 //After Login can access this routes
-Route::group(['middleware'=>['auth', 'role:user']], function () {
+Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     // Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/execute', 'MysqlController@executeQuery');
     Route::get('/load_profile', 'UserController@profile_load')->name('load_profile');
@@ -497,6 +497,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
 
      //Calender Module
+    Route::middleware(['permission:event_add_edit|event_view'])->group(function () {
      Route::get('events/', 'CalendarController@index')->name('events/');
      Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
      Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
@@ -516,7 +517,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
      Route::post('loadEventCalendar/loadAgendaView', 'CalendarController@loadAgendaView')->name('loadEventCalendar/loadAgendaView');
      Route::post('loadEventCalendar/loadStaffView', 'CalendarController@loadStaffView')->name('loadEventCalendar/loadStaffView');
      Route::get('item_categories', 'CalendarController@itemCategories')->name('item_categories');
-     
+    }); 
 
      //Locations
      Route::get('locations','LocationController@index')->name('locations');
@@ -529,6 +530,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
      
 
      //Lead
+    Route::middleware(['permission:lead_add_edit|lead_view'])->group(function () {
      Route::get('leads/statuses','LeadController@index')->name('leads/statuses');
      Route::get('leads/active','LeadController@active')->name('leads/active');
      Route::get('leads/donthire','LeadController@donthire')->name('leads/donthire');
@@ -689,8 +691,8 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('pdf/downloadIntakeForm', 'PDFController@downloadIntakeForm')->name('pdf/downloadIntakeForm');
     Route::post('leads/printLead', 'LeadController@printLead')->name('leads/printLead');
 
-    // Route::post('leads/collectFormData', 'LeadController@collectFormData')->name('leads/collectFormData');
-
+    // Route::post('leads/collectFormData', 'LeadController@collectFormData')->name('leads/collectFormData');   
+    });
     //Invoice
     Route::post('leads/loadInvoices', 'LeadController@loadInvoices')->name('leads/loadInvoices');
     Route::post('leads/addNewInvoices', 'LeadController@addNewInvoices')->name('leads/addNewInvoices');
@@ -917,6 +919,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::post('firms/editPreferance', 'FirmController@editPreferance')->name('firms/editPreferance');
 
     //Billing Module
+    Route::middleware(['permission:billing_add_edit|billing_view'])->group(function () {
     Route::get('bills/dashboard', 'BillingController@dashboard')->name('bills/dashboard');
     Route::get('bills/time_entries', 'BillingController@time_entries')->name('bills/time_entries');
     Route::get('bills/expenses', 'BillingController@expenses')->name('bills/expenses');
@@ -973,11 +976,11 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('bills/invoices/activityHistory', 'BillingController@invoiceActivityHistory')->name('bills/invoices/activityHistory');
     Route::get('bills/invoices/refreshAccountHistory', 'BillingController@invoiceAccountHistory')->name('bills/invoices/refreshAccountHistory');
     
-    Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open');
+    Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open')->middleware('permission:billing_add_edit');
     Route::post('bills/invoices/loadUpcomingInvoices', 'BillingController@loadUpcomingInvoices')->name('bills/invoices/loadUpcomingInvoices');
     Route::post('bills/invoices/loadUpcomingInvoicesWithLoader', 'BillingController@loadUpcomingInvoicesWithLoader')->name('bills/invoices/loadUpcomingInvoicesWithLoader');
-    Route::get('bills/invoices/new', 'BillingController@newInvoiceScratch')->name('bills/invoices/new');
-    Route::get('bills/invoices/load_new', 'BillingController@newInvoice')->name('bills/invoices/load_new');
+    Route::get('bills/invoices/new', 'BillingController@newInvoiceScratch')->name('bills/invoices/new')->middleware('permission:billing_add_edit');
+    Route::get('bills/invoices/load_new', 'BillingController@newInvoice')->name('bills/invoices/load_new')->middleware('permission:billing_add_edit');
     Route::post('bills/invoices/deleteTimeEntry', 'BillingController@deleteTimeEntry')->name('bills/invoices/deleteTimeEntry');
     Route::post('bills/invoices/deleteAllTimeEntry', 'BillingController@deleteAllTimeEntry')->name('bills/invoices/deleteAllTimeEntry');
     Route::post('bills/invoices/addSingleTimeEntry', 'BillingController@addSingleTimeEntry')->name('bills/invoices/addSingleTimeEntry');
@@ -1031,7 +1034,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
     Route::get('bills/invoices/invoiceInlineView/{id}', 'BillingController@invoiceInlineView')->name('bills/invoices/invoiceInlineView');
 
-    Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/edit');
+    Route::get('bills/invoices/{id}/edit', 'BillingController@editInvoice')->name('bills/invoices/edit')->middleware('permission:billing_add_edit');
     Route::post('bills/invoices/resendUpdatedInvoice', 'BillingController@resendUpdatedInvoice')->name('bills/invoices/resendUpdatedInvoice');
     Route::post('bills/invoices/payInvoice', 'BillingController@payInvoice')->name('bills/invoices/payInvoice');
     Route::post('bills/invoices/saveTrustInvoicePaymentWithHistory', 'BillingController@saveTrustInvoicePaymentWithHistory')->name('bills/invoices/saveTrustInvoicePaymentWithHistory');
@@ -1063,9 +1066,11 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
 
 
     //Financial Insights
+    Route::middleware(['permission:billing_access_financial_insight'])->group(function () {
     Route::get('insights/financials', 'BillingController@insights_financials')->name('insights/financials');
     Route::post('insights/financials/printInsightActivity', 'BillingController@printInsightActivity')->name('insights/financials/printInsightActivity');
     Route::get('insights/financials/printInsightActivity', 'BillingController@printInsightActivity')->name('insights/financials/printInsightActivity');
+    });
     
     //Dashboard [Billing]
     Route::post('bills/dashboard/recordPayment', 'BillingController@recordPayment')->name('dashboard/recordPayment');
@@ -1117,7 +1122,7 @@ Route::group(['middleware'=>['auth', 'role:user']], function () {
     Route::get('bills/invoices/printTrustAccountActivity', 'BillingController@printTrustAccountActivity')->name('bills/invoices/printTrustAccountActivity');
     Route::post('bills/invoices/printAccountActivity', 'BillingController@printAccountActivity')->name('bills/invoices/printAccountActivity');
     Route::get('bills/invoices/printAccountActivity', 'BillingController@printAccountActivity')->name('bills/invoices/printAccountActivity');
-
+    });
 
     Route::get('imports/contacts', 'ClientdashboardController@imports_contacts')->name('imports/contacts');
     Route::get('imports/court_cases', 'ClientdashboardController@imports_cases')->name('imports/court_cases');
@@ -1185,7 +1190,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
 });
 
 // AUth routes of client portal
-Route::group(['middleware' => ['auth', 'role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
+Route::group(['middleware' => ['auth', 'user.role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
     Route::get('notifications', 'HomeController@allNotification')->name("client/notifications");
 

@@ -253,7 +253,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
 
                                         <div class="col-xs-12 col-md-4 pt-xs-3 pt-md-0 d-print-none">
                                             <h5>Client Portal Access</h5>
-                                            <label class="switch pr-5 switch-success mr-3">
+                                            <div class="client-portal-access-div" >
+                                            <label class="switch pr-5 switch-success pr-0 m-0">
                                                 <input value="{{$userProfile->email}}" type="checkbox"
                                                     name="client_portal_enable" id="client_portal_enable"
                                                     <?php if($UsersAdditionalInfo['client_portal_enable']=="1"){ echo "checked=checked"; } ?>><span
@@ -273,16 +274,19 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                             <div class="ml-2">
                                                 <div>
                                                     <?php if($userProfile->last_login==NULL){?>
-                                                        Last Login: <i>Never</i> &nbsp;|&nbsp;
-                                                    <span id="send_welcome_link" onclick="sentWelcomeEmail({{$userProfile->id}})" class="noprint">
-                                                        <a href="javascript::void(0);" id="resend-welcome-email" >Send another welcome email</a>
-                                                    </span>
-                                                    <span id="send_welcome_active" style="display: none;">
-                                                        <img src="{{BASE_URL}}images/ajax_small_bar.gif">
-                                                    </span>
-                                                    <span id="sent_welcome" style="display: none;">
-                                                        Welcome email has been resent
-                                                    </span>
+                                                        Last Login: 
+                                                        <div class="client-portal-login">
+                                                            <span><i>Never</i> &nbsp;|&nbsp;</span>
+                                                            <span id="send_welcome_link" onclick="sentWelcomeEmail({{$userProfile->id}})" class="noprint">
+                                                                <a href="javascript::void(0);" id="resend-welcome-email" >Send another welcome email</a>
+                                                            </span>
+                                                            <span id="send_welcome_active" style="display: none;">
+                                                                <img src="{{BASE_URL}}images/ajax_small_bar.gif">
+                                                            </span>
+                                                            <span id="sent_welcome" style="display: none;">
+                                                                Welcome email has been resent
+                                                            </span>
+                                                        </div>
                                                     <?php }else{ 
                                                           $loginDate=$CommonController->convertUTCToUserTime($userProfile->last_login,Auth::User()->user_timezone);
                                                           ?>
@@ -292,6 +296,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                                 </div>
                                             </div>
                                             <?php } ?>
+                                            </div>
                                         </div>
                                     </div>
                                     <hr>
@@ -1566,8 +1571,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
         }); */
 
-        $('input[name="client_portal_enable"]').click(function () {
+        $('input[name="client_portal_enable"]').click(function (e) {
             var vals = $(this).val();
+            @if(auth()->user()->can('client_add_edit'))
             if ($("#client_portal_enable").prop('checked') == true) {
                 if (vals == "") {
                     $("#dialog-message").dialog({
@@ -1587,6 +1593,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 $("#disabledAccess").modal("show");
                 $("#client_portal_enable").prop('checked', "checked");
             }
+            @else
+                e.preventDefault();
+                swal({
+                    title: 'Error',
+                    text: 'You do not have permission to change this setting.',
+                    type: 'error'
+                });
+            @endif
         });
 
         $('#EnableAccessForm').submit(function (e) {
