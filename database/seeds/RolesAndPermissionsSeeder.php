@@ -59,6 +59,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name'=>'add_firm_user', 'guard_name' => 'web'],
             ['name'=>'edit_firm_user_permission', 'guard_name' => 'web'], 
             ['name'=>'delete_items', 'guard_name' => 'web'],   // Delete items like events, documents etc
+            ['name'=>'empty_trash_permission', 'guard_name' => 'web'],   // Permanetly delete documents from the trash bin
             ['name'=>'edit_import_export_settings', 'guard_name' => 'web'],
             ['name'=>'edit_custom_fields_settings', 'guard_name' => 'web'],
             ['name'=>'edit_custom_fields_settings', 'guard_name' => 'web'],

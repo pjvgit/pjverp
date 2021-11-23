@@ -590,7 +590,7 @@ class HomeController extends BaseController
                         $query->whereDate("remind_at", Carbon::now()) 
                         ->orWhereDate("snooze_remind_at", Carbon::now());
                     })
-                    // ->whereId(8771)
+                    // ->whereEventId(57597)
                     ->where("is_dismiss", "no") 
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
@@ -619,7 +619,8 @@ class HomeController extends BaseController
                             }
                         } else if($item->reminder_frequncy == "minute") {
                             if(Carbon::parse($currentTime)->gte($remindTime) && Carbon::parse($eventTime)->gt(Carbon::parse($currentTime))) {
-                                // Log::info("event minute true");
+                                Log::info("event current time: ".$currentTime);
+                                Log::info("event remind time: ".$remindTime);
                                 $addEvent = true;
                             }
                         } else { }

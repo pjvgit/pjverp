@@ -41,5 +41,35 @@ trait UserTrait {
                 });
             })->select("firm.*", "users.id as user_id", "users_additional_info.client_portal_enable", "users.is_primary_account", "users.user_level")->get();
     }
+
+    /**
+     * Save parent user default permissions
+     */
+    public function saveUserDefaultPermission($user)
+    {
+        $permissions = [
+            'client_add_edit',
+            'lead_add_edit',
+            'case_add_edit',
+            'event_add_edit',
+            'document_add_edit',
+            'commenting_add_edit',
+            'text_messaging_add_edit',
+            'messaging_add_edit',
+            'billing_add_edit',
+            'billing_access_financial_insight',
+            'reporting_entire_firm',
+
+            'access_all_cases',
+            'add_firm_user',
+            'edit_firm_user_permission',
+            'delete_items',
+            'empty_trash_permission',
+            'edit_import_export_settings',
+            'edit_custom_fields_settings',
+            'manage_firm_and_billing_settings',
+        ];
+        $user->syncPermissions($permissions);
+    }
 }
  

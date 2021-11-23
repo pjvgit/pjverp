@@ -6,7 +6,7 @@
     <div class="row">      
         <div class="col-md-6">
             <div class=" mb-4">
-                <table class="table table-set">
+                <table class="table table-set design-permission">
                     <thead>
                         <tr>
                             <th></th>
@@ -162,10 +162,10 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Messages</td>
+                            <td>Messaging</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="messagesPermission"  {{ (in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="messaging_add_edit"><span
+                                    <input type="radio" name="messagesPermission"  {{ (in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="messaging_add_edit" class="messaging-permission"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>  
@@ -174,7 +174,7 @@
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="messagesPermission"  {{ (!in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="messagesPermission"  {{ (!in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="hidden" class="messaging-permission"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -185,14 +185,14 @@
                                 <div>
                                     <label class="checkbox checkbox-outline-success">
                                         <input type="checkbox" id="allMessagesFirmwide"
-                                            name="allMessagesFirmwide" {{ (in_array('access_all_messages', $userPermissions)) ? 'checked' : '' }} value="access_all_messages" ><span>Allow
-                                            access to all
-                                            messages.</span><span class="checkmark"></span>
+                                            name="allMessagesFirmwide" {{ (in_array('access_all_messages', $userPermissions)) ? 'checked' : '' }} value="access_all_messages" {{ (!in_array('messaging_add_edit', $userPermissions)) ? 'disabled' : '' }}>
+                                            <span>Allow access to all messages.</span><span class="checkmark"></span>
                                     </label>
                                 </div>
                                 <div>
                                     <label class="checkbox checkbox-outline-success">
-                                        <input type="checkbox" id="canDeleteMessages" name="canDeleteMessages" {{ (in_array('can_delete_messages', $userPermissions)) ? 'checked' : '' }} value="can_delete_messages" ><span> Can delete messages</span><span class="checkmark"></span>
+                                        <input type="checkbox" id="canDeleteMessages" name="canDeleteMessages" {{ (in_array('can_delete_messages', $userPermissions)) ? 'checked' : '' }} value="can_delete_messages" {{ (!in_array('messaging_add_edit', $userPermissions)) ? 'disabled' : '' }}>
+                                        <span> Can delete messages</span><span class="checkmark"></span>
                                     </label>
                                 </div>
                             </td>
@@ -201,19 +201,19 @@
                             <td>Billing</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_add_edit', $userPermissions)) ? 'checked' : '' }}  value="billing_add_edit"><span
+                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_add_edit', $userPermissions)) ? 'checked' : '' }}  value="billing_add_edit" class="billing-permission"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="billing_view"><span
+                                    <input type="radio" name="billingPermission"  {{ (in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="billing_view" class="billing-permission"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
-                                    <input type="radio" name="billingPermission"  {{ (!in_array('billing_add_edit', $userPermissions) && !in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="hidden"><span
+                                    <input type="radio" name="billingPermission"  {{ (!in_array('billing_add_edit', $userPermissions) && !in_array('billing_view', $userPermissions)) ? 'checked' : '' }} value="hidden" class="billing-permission"><span
                                         class="checkmark"></span>
                                 </label>
                             </td>
@@ -222,14 +222,14 @@
                         <tr>
                             <td colspan="4">
                                 <label class="checkbox checkbox-outline-success">
-                                    <input type="checkbox" id="restrictBilling"  {{ (in_array('billing_restrict_time_entry_and_expense', $userPermissions)) ? 'checked' : '' }} value="billing_restrict_time_entry_and_expense" name="restrictBilling">Restrict to time
-                                    entries and expenses.<span class="checkmark"></span>
+                                    <input type="checkbox" id="restrictBilling" name="restrictBilling" 
+                                        {{ (in_array('billing_restrict_time_entry_and_expense', $userPermissions)) ? 'checked' : '' }} value="billing_restrict_time_entry_and_expense" {{ (!in_array('billing_add_edit', $userPermissions)) ? 'disabled' : '' }}>
+                                        <span>Restrict to time entries and expenses.</span><span class="checkmark"></span>
                                 </label>
                                 <label class="checkbox checkbox-outline-success">
-                                    <input type="checkbox" id="financialInsightsPermission"
-                                        name="financialInsightsPermission"  {{ (in_array('billing_access_financial_insight', $userPermissions)) ? 'checked' : '' }} value="billing_access_financial_insight"><span>Allow
-                                        access
-                                        to Financial Insights screen.</span><span class="checkmark"></span>
+                                    <input type="checkbox" id="financialInsightsPermission" name="financialInsightsPermission" 
+                                        {{ (in_array('billing_access_financial_insight', $userPermissions)) ? 'checked' : '' }} value="billing_access_financial_insight"  {{ (!in_array('billing_add_edit', $userPermissions) && !in_array('billing_view', $userPermissions)) ? 'disabled' : '' }}>
+                                        <span>Allow access to Financial Insights screen.</span><span class="checkmark"></span>
                                 </label>
                             </td>
                         </tr>
@@ -273,7 +273,7 @@
         </div>
         <div class="col-md-6">
             SHOULD {{$ContractUser->first_name}} USER BE ABLE TO...
-            <div class=" mb-4">
+            <div class="design-permission mb-4">
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Access data from every case in the system or only those he/she is linked to?</label>
                     <div class="col-sm-3">
@@ -311,14 +311,15 @@
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Edit user permission settings?</label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" value="edit_firm_user_permission" {{ (in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3"> Yes</span><span class="checkmark"></span>
-
-                            
+                            <input type="radio" name="edit_permisssion" value="edit_firm_user_permission" {{ (in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }}  {{ ($ContractUser->parent_user == 0) ? 'disabled' : '' }} ><span class="pl-3"> Yes</span><span class="checkmark"></span>
                         </label>
+                            @if($ContractUser->parent_user == 0)
+                            <input type="hidden" name="edit_permisssion" value="edit_firm_user_permission" >
+                            @endif
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="edit_permisssion" {{ (!in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} value="no"><span class="pl-3">No</span><span class="checkmark"></span>
+                            <input type="radio" name="edit_permisssion" {{ (!in_array('edit_firm_user_permission', $userPermissions)) ? 'checked' : '' }} value="no" {{ ($ContractUser->parent_user == 0) ? 'disabled' : '' }} ><span class="pl-3">No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -329,14 +330,30 @@
                     </label>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="delete_items" {{ (in_array('delete_items', $userPermissions)) ? 'checked' : '' }}  ><span class="pl-3"> Yes</span><span
+                            <input type="radio" name="delete_item" value="delete_items" {{ (in_array('delete_items', $userPermissions)) ? 'checked' : '' }} class="delete-item-permission" ><span class="pl-3"> Yes</span><span
                                 class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-sm-3">
                         <label class="radio radio-outline-success">
-                            <input type="radio" name="delete_item" value="no" {{ (!in_array('delete_items', $userPermissions)) ? 'checked' : '' }} ><span class="pl-3">No</span><span
+                            <input type="radio" name="delete_item" value="no" {{ (!in_array('delete_items', $userPermissions)) ? 'checked' : '' }} class="delete-item-permission" ><span class="pl-3">No</span><span
                                 class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-6 col-form-label">Permanetly delete documents from the trash bin?</label>
+                    <div class="col-sm-3">
+                        <label class="radio radio-outline-success">
+                            <input type="radio" name="empty_trash_permission" value="empty_trash_permission" {{ (in_array('empty_trash_permission', $userPermissions)) ? 'checked' : '' }} class="empty-trash-permission" {{ (!in_array('delete_items', $userPermissions)) ? 'disabled' : '' }}>
+                            <span class="pl-3"> Yes</span><span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio radio-outline-success">
+                            <input type="radio" name="empty_trash_permission" value="no" {{ (!in_array('empty_trash_permission', $userPermissions)) ? 'checked' : '' }} class="empty-trash-permission"  {{ (!in_array('delete_items', $userPermissions)) ? 'disabled' : '' }}>
+                            <span class="pl-3">No</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -451,7 +468,47 @@
             });
 
         });
+        // For billing permission
+        $(document).on("change", '.billing-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == 'hidden') {
+                $("#restrictBilling").prop("checked", false);
+                $("#restrictBilling").prop("disabled", true);
+                $("#financialInsightsPermission").prop("checked", false);
+                $("#financialInsightsPermission").prop("disabled", true);
+            } else if(billPer == 'billing_view') {
+                $("#restrictBilling").prop("checked", false);
+                $("#restrictBilling").prop("disabled", true);
+                $("#financialInsightsPermission").prop("disabled", false);
+            } else {
+                $("#restrictBilling").prop("disabled", false);
+                $("#financialInsightsPermission").prop("disabled", false);
+            }
+        });
 
+        // For messages permission
+        $(document).on("change", '.messaging-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == 'hidden') {
+                $("#allMessagesFirmwide").prop("checked", false);
+                $("#allMessagesFirmwide").prop("disabled", true);
+                $("#canDeleteMessages").prop("checked", false);
+                $("#canDeleteMessages").prop("disabled", true);
+            } else {
+                $("#allMessagesFirmwide").prop("disabled", false);
+                $("#canDeleteMessages").prop("disabled", false);
+            }
+        });
+
+        // For delete item permission
+        $(document).on("change", '.delete-item-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == 'delete_items') {
+                $(".empty-trash-permission").prop("disabled", false);
+            } else {
+                $(".empty-trash-permission").prop("disabled", true);
+            }
+        });
     });
 
 </script>

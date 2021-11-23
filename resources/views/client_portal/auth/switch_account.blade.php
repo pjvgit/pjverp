@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
     <link rel="stylesheet" href="{{asset('assets/styles/css/themes/lite-purple.min.css')}}">
     <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/toastr.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets\styles\css\client-portal\custom.css')}}" />
     <script>
         var baseUrl = '<?php echo URL('/');?>';
         var loaderImage = '<?=LOADER?>';
@@ -42,11 +43,9 @@
             </div>
         </div>
         <div class="col-12 text-center">
-            <div id="standard-options">
-                <form action="" method="get">
+            <div id="standard-options" class="standard-options">
                     <input type="hidden" name="change_account" id="change_account" value="no">
                     <button type="button" class="btn btn-sm btn-link text-black-50 change-account"> Change Primary Account </button>
-                </form>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="btn btn-sm btn-secondary"> Log Out </button>

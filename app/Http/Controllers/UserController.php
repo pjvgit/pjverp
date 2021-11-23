@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Firm,App\CaseStage,App\CasePracticeArea;
+use App\FirmAddress;
 use App\Traits\InvoiceSettingTrait,App\FirmEventReminder;
 use Carbon\Carbon;
 use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\UsersAdditionalInfo;
@@ -210,22 +211,11 @@ class UserController extends BaseController
             if($verifyUser->user_status==1){
                 return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
             }else{
-                if($verifyUser->parent_user == 0) {
-                    // insert recent notifications into user settings
-                    $this->bulkInsertUserActivity($verifyUser->id);
-                    //Insert default case stage 
-                    $this->saveFirmDefaultCaseStages($verifyUser);
-                    // Insert default practice area
-                    $this->saveFirmDefaultPracticeArea($verifyUser);
-                    $status = EMAIL_VERIFIED;
-                    return redirect('setupprofile/'.$token);
+                if($this->updateSameEmailUserDetail($verifyUser)) {
+                    return redirect()->route('get/client/profile', $token);
                 } else {
-                    if($this->updateSameEmailUserDetail($verifyUser)) {
-                        return redirect()->route('get/client/profile', $token);
-                    } else {
-                        $status = EMAIL_VERIFIED;
-                        return redirect('setupuserpprofile/'.$token);
-                    }
+                    $status = EMAIL_VERIFIED;
+                    return redirect('setupuserpprofile/'.$token);
                 }
             }
         }else{
@@ -911,6 +901,23 @@ class UserController extends BaseController
             'verified'=>"1",
             'user_status'=>"1",
             ]);
+
+            if($verifyUser->parent_user == 0) {
+                // insert recent notifications into user settings
+                $this->bulkInsertUserActivity($verifyUser->id);
+                //Insert default case stage 
+                $this->saveFirmDefaultCaseStages($verifyUser);
+                // Insert default practice area
+                $this->saveFirmDefaultPracticeArea($verifyUser);
+                // Set user default permissions
+                $this->saveUserDefaultPermission($verifyUser);
+                
+                FirmAddress::create([
+                    'office_name' => 'Primary',
+                    'is_primary' => 'yes',
+                    'firm_id' => $verifyUser->firm_name,
+                ]);
+            }
 
              //Sent welcome email to user.
              $getTemplateData = EmailTemplate::find(4);

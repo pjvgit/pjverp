@@ -344,4 +344,15 @@ class User extends Authenticatable
                         })->count();
         return $firmPortal + $clientPortal;
     }
+
+    /**
+     * Set scope to not get appends into query result
+     */
+    public static $withoutAppends = false;
+    public function scopeWithoutAppends($query)
+    {
+        self::$withoutAppends = true;
+
+        return $query;
+    }
 }

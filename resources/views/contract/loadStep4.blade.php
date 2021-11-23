@@ -12,7 +12,7 @@
             <label for="inputEmail3" class="col-sm-6 col-form-label">   <h6>Should this user be able to...</h6></label>
             <a href="#" class="col text-right col-sm-6" target="_blank" rel="noopener noreferrer">Learn more about user permissions</a>
         </div>
-    <table class="table">
+    <table class="table permission-radio">
         <thead >
             <tr>
                 <th></th>
@@ -151,13 +151,13 @@
                 <td>Messages</td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="messagesPermission"  checked="checked" value="3"><span class="checkmark"></span>
+                        <input type="radio" name="messagesPermission"  checked="checked" value="3"  class="messaging-permission"><span class="checkmark"></span>
                     </label>
                 </td>
                 <td></td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="messagesPermission" value="1"><span class="checkmark"></span>
+                        <input type="radio" name="messagesPermission" value="1" class="messaging-permission"><span class="checkmark"></span>
                     </label>
                 </td>
                 <td>
@@ -179,17 +179,17 @@
                 <td>Billing</td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="billingPermission"  checked="checked" value="3"><span class="checkmark"></span>
+                        <input type="radio" name="billingPermission"  checked="checked" value="3" class="billing-permission"><span class="checkmark"></span>
                     </label>
                 </td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="billingPermission" value="2"><span class="checkmark"></span>
+                        <input type="radio" name="billingPermission" value="2"><span class="checkmark" class="billing-permission"></span>
                     </label>
                 </td>
                 <td class="text-center">
                     <label class="radio radio-outline-success">
-                        <input type="radio" name="billingPermission" value="1"><span class="checkmark"></span>
+                        <input type="radio" name="billingPermission" value="1"><span class="checkmark" class="billing-permission"></span>
                     </label>
                 </td>
 
@@ -295,6 +295,38 @@
                 } else {
                     loadStep4();
                 }
+            }
+        });
+
+        // For billing permission
+        $(document).on("change", '.billing-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == '1') {
+                $("#restrictBilling").prop("checked", false);
+                $("#restrictBilling").prop("disabled", true);
+                $("#financialInsightsPermission").prop("checked", false);
+                $("#financialInsightsPermission").prop("disabled", true);
+            } else if(billPer == '2') {
+                $("#restrictBilling").prop("checked", false);
+                $("#restrictBilling").prop("disabled", true);
+                $("#financialInsightsPermission").prop("disabled", false);
+            } else {
+                $("#restrictBilling").prop("disabled", false);
+                $("#financialInsightsPermission").prop("disabled", false);
+            }
+        });
+
+        // For messages permission
+        $(document).on("change", '.messaging-permission', function() {
+            var billPer = $(this).val();
+            if(billPer == '1') {
+                $("#allMessagesFirmwide").prop("checked", false);
+                $("#allMessagesFirmwide").prop("disabled", true);
+                $("#canDeleteMessages").prop("checked", false);
+                $("#canDeleteMessages").prop("disabled", true);
+            } else {
+                $("#allMessagesFirmwide").prop("disabled", false);
+                $("#canDeleteMessages").prop("disabled", false);
             }
         });
     });
