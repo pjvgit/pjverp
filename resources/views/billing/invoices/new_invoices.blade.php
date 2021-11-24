@@ -2957,13 +2957,13 @@ if(!isset($addition)){ $addition=0;}
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
                     var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
-                    if(flat_fee_sub_total_text >= 0){
+                    if(flat_fee_sub_total_text >= 0) {
                         alert++;
                     }
-                    if(discount_amount >= 0){
+                    if(discount_amount >= 0) {
                         alert++;
                     }
-                    if(addition_amount >= 0){
+                    if(addition_amount >= 0) {
                         alert++;
                     }                    
                 <?php } ?>
