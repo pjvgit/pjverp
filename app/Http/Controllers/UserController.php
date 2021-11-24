@@ -215,7 +215,7 @@ class UserController extends BaseController
                     return redirect()->route('get/client/profile', $token);
                 } else {
                     $status = EMAIL_VERIFIED;
-                    return redirect('setupuserpprofile/'.$token);
+                    return redirect('setupprofile/'.$token);
                 }
             }
         }else{
