@@ -5660,6 +5660,18 @@ class BillingController extends BaseController
             }
 
             if(!empty($request->forwarded_invoices)) {
+                // Get old synced invoices id
+                $syncedInvoices = $InvoiceSave->forwardedInvoices()->pluck('id')->toArray();
+                $unsyncedInvoicesId = array_diff($syncedInvoices, $request->forwarded_invoices);
+                if(count($unsyncedInvoicesId)) {
+                    $unsyncedInvoices = Invoices::whereIn("id", $unsyncedInvoicesId)->where('status', 'Forwarded')->get();
+                    if($unsyncedInvoices) {
+                        foreach($unsyncedInvoices as $key => $item) {
+                            $this->updateInvoiceAmount(@$item->id);
+                        }
+                    }
+                }
+                // Sync new/update invoices
                 $InvoiceSave->forwardedInvoices()->sync($request->forwarded_invoices);
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {

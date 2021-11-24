@@ -8,9 +8,11 @@
         <a href="javascript:void(0);" class="pt-2 pr-2" onclick="collapseAllnote();" id="co" style="display:none;">
             <i class="fas fa-compress-arrows-alt mr-1"></i>Collapse All Notes
         </a>
+        @can('case_add_edit')
         <a data-toggle="modal" data-target="#addNoteModal" data-placement="bottom" href="javascript:;"> <button
                 class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="loadAddNotBox();">Add
                 Note</button></a>
+        @endcan
     </div>
     <div class="d-flex justify-content-end">
         <span class="my-2">

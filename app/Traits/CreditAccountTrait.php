@@ -142,12 +142,7 @@ trait CreditAccountTrait {
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
-        Log::info("total paid amount: ".$totalPaid);
-        Log::info("total refund amount: ".$totalRefund);
-        Log::info("total remain paid amount: ".$remainPaidAmt);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-        Log::info("invoice due date: ".$dueDate);
-        // Log::info("compare date: ".strtotime($dueDate).' <= '.strtotime(date('Y-m-d')));
         if($remainPaidAmt == 0) {
             $status="Unsent";
             if($invoice->is_sent  == "yes") {
