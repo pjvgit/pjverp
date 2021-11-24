@@ -272,7 +272,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            SHOULD {{$ContractUser->first_name}} USER BE ABLE TO...
+            SHOULD {{ strtoupper($ContractUser->first_name) }} USER BE ABLE TO...
             <div class="design-permission mb-4">
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-6 col-form-label">Access data from every case in the system or only those he/she is linked to?</label>

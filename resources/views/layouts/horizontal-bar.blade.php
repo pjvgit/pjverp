@@ -380,7 +380,7 @@
                     </li>
                     @endcanany
                     <!-- end charts -->
-
+                    @can('billing_add_edit')
                     <li class="nav-item px-3">
                         <div id="timers_container" class="timers-container text-nowrap"><div>
                             <div>
@@ -438,7 +438,7 @@
                             </div>
                         </div>
                     </li>
-
+                    @endcan
                 </ul>
 
                 

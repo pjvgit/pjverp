@@ -127,21 +127,38 @@
 
             <div class="card-body p-1 text-nowrap">
                 <div class="dashboard-add-item-section d-flex">
+                    @canany(['event_add_edit','event_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('event_add_edit')
                         <a data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadAddEventPopup();"
                             class="dashboard-event test-add-event pendo-add-event pendo-exp2-add-event">
                             <img alt="" class="mr-1" src="{{ asset('svg/calendar.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline">Event</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/calendar__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Event</span>
+                        </div>
+                        @endcan
                     </div>
-
+                    @endcanany
+                    @canany(['document_add_edit','document_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('document_add_edit')
                         <a class="pendo-add-document" rel="facebox" href="#">
                             <img alt="" class="mr-1" src="{{ asset('svg/document.svg') }}" width="24" height="24">
-                            <span class="d-none d-lg-inline error">Document[Pending]</span>
+                            <span class="d-none d-lg-inline error">Document</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/document__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Document</span>
+                        </div>
+                        @endcan
                     </div>
+                    @endcanany
 
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#loadAddTaskPopup" data-placement="bottom"
@@ -151,33 +168,56 @@
                         </a>
                     </div>
 
-
+                    @canany(['lead_add_edit','lead_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('lead_add_edit')
                         <a data-toggle="modal" data-target="#addLead" data-placement="bottom" href="javascript:;"
                             onclick="addLead();">
                             <img alt="" class="mr-1" src="{{ asset('svg/Add_Lead.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Lead</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/lead_inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Lead</span>
+                        </div>
+                        @endcan
                     </div>
-
+                    @endcanany
+                    @canany(['client_add_edit','client_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('client_add_edit')
                         <a data-toggle="modal" data-target="#typeSelectDashboard" data-placement="bottom"
                             href="javascript:;" onclick="typeSelectDashboard();" class="typeSelectDashboard">
                             <img alt="" class="mr-1" src="{{ asset('svg/contact.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Contact</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/contact__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Contact</span>
+                        </div>
+                        @endcan
                     </div>
-                    @can('case_add_edit')
+                    @endcanany
+                    @canany(['case_add_edit','case_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('case_add_edit')
                         <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom"
                             href="javascript:;" onclick="loadAllStep();">
                             <img alt="" class="mr-1" src="{{ asset('svg/court_case.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Case</span>
                         </a>
-
-
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/court_case__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Case</span>
+                        </div>
+                        @endcan
                     </div>
-                    @endcan
+                    @endcanany
+
+                    @can('messaging_add_edit')
                     <div class="flex-fill p-3 text-center border-right">
                         <a data-toggle="modal" data-target="#addNewMessagePopup" data-placement="bottom"
                             href="javascript:;" onclick="addNewMessagePopup();">
@@ -185,38 +225,70 @@
                             <span class="d-none d-lg-inline">Message</span>
                         </a>
                     </div>
-
+                    @endcan
+                    @canany(['billing_add_edit','billing_view'])
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('billing_add_edit')
                         <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadTimeEntryPopup();">
                             <img alt="" class="mr-1" src="{{ asset('svg/time_entry.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Time Entry</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/time_entry__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Time Entry</span>
+                        </div>
+                        @endcan
                     </div>
-
+                    
+                    
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('billing_add_edit')
                         <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadExpenseEntryPopup();">
                             <img alt="" class="mr-1" src="{{ asset('svg/expense.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Expense</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/expense__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Expense</span>
+                        </div>
+                        @endcan
                     </div>
 
                     <div class="flex-fill p-3 text-center border-right">
+                        @can('billing_add_edit')
                         <a class="pendo-add-invoice" href="{{ route('bills/invoices/open') }}">
                             <img alt="" class="mr-1" src="{{ asset('svg/invoice_add.svg') }}" width="24"
                                 height="24">
                             <span class="d-none d-lg-inline"> Invoice</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/invoice_add__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Invoice</span>
+                        </div>
+                        @endcan
                     </div>
-
+                    @endcanany
+                    @canany(['client_add_edit', 'client_view', 'case_add_edit', 'case_view'])
                     <div class="flex-fill p-3 text-center">
+                        @canany(['client_add_edit', 'case_add_edit'])
                         <a data-toggle="modal" data-target="#addNoteModal" data-placement="bottom" href="javascript:;"
                             onclick="loadAddNotBox();">
                             <img alt="" class="mr-1" src="{{ asset('svg/note-.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Note</span>
                         </a>
+                        @else
+                        <div class="text-muted">
+                            <img alt="" class="mr-1" src="{{ asset('icon/note__inactive.svg') }}" width="24" height="24">
+                            <span class="d-none d-lg-inline">Note</span>
+                        </div>
+                        @endcanany
                     </div>
+                    @endcanany
                 </div>
             </div>
         </div>
@@ -408,7 +480,7 @@
                         <h4>Upcoming Events</h4>
                         <button data-toggle="modal" data-target="#loadAddEventPopup" data-placement="bottom"
                             href="javascript:;" onclick="loadAddEventPopup();"
-                            class="ml-auto btn btn-link p-0 add-event pendo-add-event-upcoming pendo-exp2-add-event text-black-50 ">
+                            class="ml-auto btn btn-link p-0 add-event pendo-add-event-upcoming pendo-exp2-add-event text-black-50 " @cannot('event_add_edit') disabled @endcannot>
                             <i class="far fa-calendar-alt fa-lg p-2"></i>Add Event
                         </button>
                     </div>

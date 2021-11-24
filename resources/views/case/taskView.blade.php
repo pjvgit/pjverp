@@ -7,9 +7,11 @@ $controllerLoad = new App\Http\Controllers\CommonController();
         <span class="sr-only">Back</span>
     </a>
     <div class="ml-auto d-flex align-items-center flex-row-reverse">
+        @can('billing_add_edit')
           <a id="add-time-entry-task-details" class="btn btn-rounded btn-sm btn-outline-primary ml-1" data-toggle="modal" data-target="#loadTimeEntryPopup" onclick="loadTimeEntryPopupByCaseWithoutRefreshTask({{$TaskData->case_id}});">
             <span class="time-entry-button">Add Time Entry</span>
           </a>
+        @endcan
           <a class="btn btn-sm btn-rounded btn-outline-secondary edit-task-button ml-1 task-form-link" data-toggle="modal"  data-target="#editTask"
                                                 data-placement="bottom" href="javascript:;"
                                                 onclick="editTask({{$TaskData->id}});">
@@ -211,8 +213,10 @@ $controllerLoad = new App\Http\Controllers\CommonController();
             <div class="tab-pane fade show active" id="homeBasic" role="tabpanel"
                 aria-labelledby="home-basic-tab">
                 <div class="mt-2 pb-5">
+                    @canany(['commenting_add_edit', 'commenting_view'])
                     <div>
                         <div id="loadComment"></div>
+                        @can('commenting_add_edit')
                         <div class="w-100 mt-2">
                             <form class="addComment" id="addComment" name="addComment" method="POST">
                                 @csrf
@@ -240,7 +244,21 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                 class="mt-1 float-right btn btn-primary">Post Comment</button>
                             </form>
                         </div>
+                        @else
+                            <div class="mt-2 alert alert-warning fade show" role="alert">
+                                <div class="d-flex align-items-start">
+                                    <div class="w-100">You do not have permission to add a comment for this task.</div>
+                                </div>
+                            </div>
+                        @endcan
                     </div>
+                    @else
+                        <div class="mt-2 alert alert-warning fade show" role="alert">
+                            <div class="d-flex align-items-start">
+                                <div class="w-100">You do not have permission to view comments for this task.</div>
+                            </div>
+                        </div>
+                    @endcanany
                 </div>
             </div>
             <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
