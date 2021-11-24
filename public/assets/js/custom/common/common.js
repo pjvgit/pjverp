@@ -137,16 +137,43 @@ let seconds = 0;
 let totalSeconds = 0;
 
 let intervalId = null;
-
+$(".logoutTimerAlert").hide();
 if (localStorage.getItem("counter") > 0) {
     totalSeconds = localStorage.getItem("counter");
-    if (localStorage.getItem("pauseCounter") == 'no') {
+    if (localStorage.getItem("pauseCounter") != 'yes') {
+        $(".logoutTimerAlert").show();
         intervalId = setInterval(timerstart, 1000);
     } else {
+        $(".logoutTimerAlert").hide();
         timerstart();
+        $(".js-timer-root .text-nowrap").html("&nbsp;1&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
         $(".timerAction").removeClass("fa-pause").addClass("fa-play");
         $(".timerAction").attr('id', 'startCounter');
     }
+} else {
+    $.ajax({
+        url: baseUrl + "/checkTimerExits",
+        type: 'GET',
+        data: {},
+        success: function(data) {
+            if (data.status == "success" && data.smartTimer.id > 0) {
+                localStorage.setItem("pauseCounter", 'no');
+                localStorage.setItem("smart_timer_id", data.smartTimer.id);
+                totalSeconds = data.smartTimer.paused_at;
+                hour = Math.floor(totalSeconds / 3600);
+                minute = Math.floor((totalSeconds - hour * 3600) / 60);
+                seconds = totalSeconds - (hour * 3600 + minute * 60);
+                $(".time_status_0").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
+                $("#smart_timer_id").val(data.smartTimer.id);
+                if (data.smartTimer.stopped_at != null) {
+                    $(".js-timer-root .text-nowrap").html("&nbsp;1&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                    $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                } else {
+                    intervalId = setInterval(timerstart, 1000);
+                }
+            }
+        }
+    });
 }
 
 $(".startTimer").on('click', function() {
@@ -158,24 +185,25 @@ $(".startTimer").on('click', function() {
             data: {},
             success: function(data) {
                 if (data.status == "success") {
+                    $(".logoutTimerAlert").show();
+                    localStorage.setItem("pauseCounter", 'no');
                     localStorage.setItem("smart_timer_id", data.smart_timer_id);
                     $("#smart_timer_id").val(data.smart_timer_id);
                     intervalId = setInterval(timerstart, 1000);
                 }
-            },
+            }
         });
     } else {
         $("#smart_timer_id").val(localStorage.getItem("smart_timer_id"));
     }
 });
-console.log("localStorage > smart_timer_id :" + localStorage.getItem("smart_timer_id"));
-console.log("localStorage > counter :" + localStorage.getItem("counter"));
-console.log("localStorage > pauseCounter :" + localStorage.getItem("pauseCounter"));
-
-
+console.log("localStorage > smart_timer_id : " + localStorage.getItem("smart_timer_id"));
+console.log("localStorage > counter : " + localStorage.getItem("counter"));
+console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
 
 $(document).on("click", "#startCounter", function() {
     // resumeTimer();
+    $(".logoutTimerAlert").show();
     if (!intervalId) {
         localStorage.setItem("pauseCounter", 'no');
         intervalId = setInterval(timerstart, 1000);
@@ -185,7 +213,8 @@ $(document).on("click", "#startCounter", function() {
 });
 
 $(document).on("click", "#pauseCounter", function() {
-    // pauseTimer();
+    pauseTimer();
+    $(".logoutTimerAlert").hide();
     if (intervalId) {
         clearInterval(intervalId);
         localStorage.setItem("pauseCounter", 'yes');
@@ -238,14 +267,16 @@ function deleteTimer() {
                 success: function(data) {
                     if (data.status == "success") {
                         $("#preloader").show();
-                        localStorage.setItem("counter", "0");
+                        localStorage.removeItem("counter");
+                        localStorage.removeItem("pauseCounter");
                         $("#smart_timer_id").val("");
                         window.location.reload();
                     }
                 },
                 error: function(xhr, status, error) {
                     $("#preloader").show();
-                    localStorage.setItem("counter", "0");
+                    localStorage.removeItem("counter");
+                    localStorage.removeItem("pauseCounter");
                     window.location.reload();
                 }
             });
@@ -274,7 +305,7 @@ function saveTimer() {
                 if (case_id > 0) {
                     loadTimeEntryPopupByCase(case_id, timer_text_field, data.duration, smart_timer_id);
                 } else {
-                    loadTimeEntryPopup();
+                    loadTimeEntryPopup(timer_text_field, data.duration, smart_timer_id);
                 }
             }
         }
@@ -283,14 +314,14 @@ function saveTimer() {
 
 function pauseTimer() {
     var smart_timer_id = $("#smart_timer_id").val();
-
+    var total_time = $(".time_status_0").html();
     $.ajax({
         url: baseUrl + "/pauseTimer",
         type: 'POST',
-        data: { "smart_timer_id": smart_timer_id },
+        data: { "smart_timer_id": smart_timer_id, "total_time": total_time },
         success: function(data) {
             if (data.status == "success") {
-                $("#pause_smart_timer_id").val(data.pause_smart_timer_id);
+                // $("#pause_smart_timer_id").val(data.pause_smart_timer_id);
             }
         },
     });
@@ -314,6 +345,19 @@ function resumeTimer() {
 $(document).mouseup(function(e) {
     if ($(e.target).closest(".timerCounter").length === 0) {
         $(".timerCounter").hide();
+    }
+});
+
+$('#logout-form').submit(function(e) {
+    if (localStorage.getItem("counter") > 0 && localStorage.getItem("pauseCounter") != 'yes') {
+        // alert("You have a timer running right now. If you logout, your active timer will be paused.");
+        localStorage.removeItem("counter");
+        localStorage.removeItem("pauseCounter");
+        // $("#preloader").show();
+        $("#pauseCounter").trigger('click');
+        return false;
+    } else {
+        return true;
     }
 });
 // End

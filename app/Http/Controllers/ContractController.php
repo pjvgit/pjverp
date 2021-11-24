@@ -142,11 +142,11 @@ class ContractController extends BaseController
                 "full_name" => $fullName,
                 "mail_body" => $mail_body
                 ];
-        //   $sendEmail = $this->sendMail($userEmail);
-        //   if($sendEmail=="1"){
-        //     $user->is_sent_welcome_email  = "1";  // Welcome email sent to user.
-        //     $user->save();
-        //   }
+            $sendEmail = $this->sendMail($userEmail);
+            if($sendEmail=="1"){
+                $user->is_sent_welcome_email  = "1";  // Welcome email sent to user.
+                $user->save();
+            }
 
             $data=[];
             $data['user_id']=Auth::User()->id;

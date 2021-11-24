@@ -191,6 +191,7 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('saveTimer', 'HomeController@saveTimer')->name('saveTimer');
     Route::post('pauseTimer', 'HomeController@pauseTimer')->name('pauseTimer');
     Route::post('resumeTimer', 'HomeController@resumeTimer')->name('resumeTimer');
+    Route::get('checkTimerExits', 'HomeController@checkTimerExits')->name('checkTimerExits');    
 
 
     // Store user interest after profile setup

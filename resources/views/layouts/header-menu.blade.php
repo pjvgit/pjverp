@@ -60,7 +60,7 @@
         </div>
 
     </div>
-    <div id="logoutModel" class="modal fade text-danger" role="dialog">
+    <div id="logoutModel" class="modal fade" role="dialog">
         <div class="modal-dialog ">
             <!-- Modal content-->
             <form id="logout-form" name="logout-form" action="{{ route('logout') }}" method="POST">
@@ -71,9 +71,11 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body bg-font-purpul">
-
                         <p>Do you really want to logout from the system?</p>
+                        <p class="logoutTimerAlert">You have a timer running right now. If you logout, your active timer will be paused.</p>
+                        
                     </div>
+
                     <div class="modal-footer">
                         <center>
                             <a href="#">

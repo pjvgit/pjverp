@@ -149,14 +149,13 @@ trait CreditAccountTrait {
         Log::info("invoice due date: ".$dueDate);
         // Log::info("compare date: ".strtotime($dueDate).' <= '.strtotime(date('Y-m-d')));
         if($remainPaidAmt == 0) {
+            $status="Unsent";
             if($invoice->is_sent  == "yes") {
                 $status = "Sent";    
             }else{
                 if($invoice->status == "forwarded"){
                     if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
                         $status="Overdue";
-                    } else{
-                        $status="Unsent";
                     }
                 }else{
                     $status = $invoice->status;

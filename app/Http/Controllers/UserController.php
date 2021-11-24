@@ -961,6 +961,7 @@ class UserController extends BaseController
         }
      }
      public function autoLogout(Request $request) {
+        dd(session('smart_timer_id'));
         Auth::logout();
         Session::flush();
         return redirect('login');

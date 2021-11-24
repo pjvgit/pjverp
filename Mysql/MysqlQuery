@@ -1,3 +1,6 @@
+------------------------------------ 24-NOV-2021 ------------------------------
+ALTER TABLE `smart_timers`
+ADD `paused_at` varchar(15) COLLATE 'utf8mb4_general_ci' NULL AFTER `stopped_at`;
 ------------------------------------ 22-NOV-2021 ------------------------------
 CREATE TABLE `pause_timer_entries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

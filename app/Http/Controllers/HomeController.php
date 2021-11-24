@@ -852,12 +852,13 @@ class HomeController extends BaseController
         $SmartTimer->started_at = date("Y-m-d H:i:s");
         $SmartTimer->user_id = Auth::User()->id;
         $SmartTimer->save();
-
+        session(["smart_timer_id" => $SmartTimer->id]);
         return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id]);
     }
 
     public function deleteTimer(Request $request){
         $SmartTimer = SmartTimer::find($request->smart_timer_id)->forceDelete();
+        \Session::forget('smart_timer_id');
         return response()->json(["status" => "success"]);
     }
 
@@ -892,21 +893,38 @@ class HomeController extends BaseController
             echo $duration = $duration * 0.1; echo PHP_EOL;
             $duration = $duration + 0.1; 
         }
-        return response()->json(["status" => "success", "duration" => $duration]);
+        \Session::forget('smart_timer_id');
+        return response()->json(["status" => "success", "duration" => number_format($duration,1)]);
     }
 
     public function pauseTimer(Request $request){
-        $PauseTimerEntrie = new PauseTimerEntrie();
-        $PauseTimerEntrie->smart_timer_id = $request->smart_timer_id;
-        $PauseTimerEntrie->pause_start_time = date("Y-m-d H:i:s");
-        $PauseTimerEntrie->save();
-        return response()->json(["status" => "success", "pause_smart_timer_id" => $PauseTimerEntrie->id]);
+        // $PauseTimerEntrie = new PauseTimerEntrie();
+        // $PauseTimerEntrie->smart_timer_id = $request->smart_timer_id;
+        // $PauseTimerEntrie->pause_start_time = date("Y-m-d H:i:s");
+        // $PauseTimerEntrie->save();
+        // return response()->json(["status" => "success", "pause_smart_timer_id" => $PauseTimerEntrie->id]);
+        
+        $SmartTimer = SmartTimer::find($request->smart_timer_id);
+        $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+        $SmartTimer->save();
+        return response()->json(["status" => "success"]);
     }
 
     public function resumeTimer(Request $request){
         $PauseTimerEntrie = PauseTimerEntrie::find($request->pause_smart_timer_id);
-        $PauseTimerEntrie->pause_stop_time = date("Y-m-d H:i:s");
+        $PauseTimerEntrie->paused_at = date("Y-m-d H:i:s");
         $PauseTimerEntrie->save();
         return response()->json(["status" => "success"]);
+    }
+
+    public function checkTimerExits(Request $request){
+        $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
+        if(!empty($SmartTimer)){
+            session(["smart_timer_id" => $SmartTimer->id]);
+            return response()->json(["status" => "success","smartTimer" => $SmartTimer]);
+        }else{
+            return response()->json(["status" => "error","smart_timer_id" => "", "counter" => 0]);
+        }
+        
     }
 }

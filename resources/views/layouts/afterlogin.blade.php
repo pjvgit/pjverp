@@ -113,7 +113,7 @@
             </div>
             <!-- /.sidebar -->
         </aside>
-        <div id="logoutModel" class="modal fade text-danger" role="dialog">
+        <div id="logoutModel" class="modal fade" role="dialog">
             <div class="modal-dialog ">
                 <!-- Modal content-->
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" >
@@ -126,6 +126,9 @@
                         <div class="modal-body">
                            
                             <p>Do you really want to logout from the system?</p>
+                            
+                            <p class="logoutTimerAlert">You have a timer running right now. If you logout, your active timer will be paused.</p>
+                            
                         </div>
                         <div class="modal-footer">
                             <center>

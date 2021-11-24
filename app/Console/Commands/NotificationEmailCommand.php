@@ -171,6 +171,7 @@ class NotificationEmailCommand extends Command
                 // dd($item);
                 if(count($itemData) > 0 || count($caseData) > 0){
                     echo"Firm user email send to > ". $preparedEmail. " & firm id : ".$firmId;echo PHP_EOL;
+                    Log::info("Firm user > itemData > ". count($itemData). " & caseData > ".count($caseData));
                     Log::info("Firm user email send to > ". $preparedEmail. " & firm id : ".$firmId);
                     \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
                     // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemData, $firmDetail, $preparedFor, $preparedEmail, $caseData, "yes"));
@@ -226,6 +227,7 @@ class NotificationEmailCommand extends Command
                 // dd($item);
                 if(count($itemStaffData) > 0 || count($caseStaffData) > 0){
                     echo "Staff email send to > ". $preparedEmail. " & staff id : ".$staffID;echo PHP_EOL;
+                    Log::info("Staff > itemStaffData > ". count($itemStaffData). " & staff > caseStaffData > ".count($caseStaffData));
                     Log::info("Staff email send to > ". $preparedEmail. " & staff id : ".$staffID);
                     \Mail::to($preparedEmail)->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
                     // \Mail::to('jignesh.prajapati@plutustec.com')->send(new NotificationActivityMail($itemStaffData, $firmDetail, $preparedFor, $preparedEmail, $caseStaffData, "yes"));
