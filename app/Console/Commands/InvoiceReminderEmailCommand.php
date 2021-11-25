@@ -118,12 +118,14 @@ class InvoiceReminderEmailCommand extends Command
                                     Log::info("invoice day time true");
                                     dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
                                 }
+                                if($item->id == 247) {
                                 // Set job dispatch time
                                 $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
                                 $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, 'Pacific/Midway');
                                 $dispatchDate->setTimezone('UTC');
                                 Log::info("user time to utc time: ". $dispatchDate);
                                 dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
+                                }
                             }
                         } else {
                             Log::info("no billing client:". $item->id);
