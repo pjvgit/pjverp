@@ -879,40 +879,6 @@ class ClientdashboardController extends BaseController
         }
     } 
 
-    public function savebulkTimeEntry(Request $request)
-    {
-        
-        $validator = \Validator::make($request->all(), [
-            'case_or_lead' => 'required',
-            'staff_user' => 'required',
-        ]);
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            for($i=1;$i<=count($request->case_or_lead)-1;$i++){
-                $TaskTimeEntry = new TaskTimeEntry; 
-                $TaskTimeEntry->case_id =$request->case_or_lead[$i];
-                $TaskTimeEntry->user_id =$request->staff_user;
-                $TaskTimeEntry->activity_id=$request->activity[$i];
-                if($request->billable[$i]=="on"){
-                    $TaskTimeEntry->time_entry_billable="yes";
-                }else{
-                    $TaskTimeEntry->time_entry_billable="no";
-                }
-                $TaskTimeEntry->description=$request->description[$i];
-                $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
-                $TaskTimeEntry->entry_rate=Auth::User()->default_rate;
-                $TaskTimeEntry->rate_type='hr';
-                $TaskTimeEntry->duration =$request->duration[$i];
-                $TaskTimeEntry->created_by=Auth::User()->id; 
-                $TaskTimeEntry->save();
-            }
-            return response()->json(['errors'=>'','id'=>$TaskTimeEntry->id]);
-        exit;
-        }
-    } 
-
     /* public function loadTrustHistory()
     {   
         $requestData= $_REQUEST;
@@ -3095,7 +3061,7 @@ class ClientdashboardController extends BaseController
                         
                         $user_level="2";
                         unset($csv_data[0]);
-                        if(trim($val[0]) != ""){
+                        if(trim($csv_data[1][0]) == ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
                             return response()->json(['errors'=>$errorString,'contact_id'=>'']);
                             exit;
@@ -3104,6 +3070,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->save();                        
                         try {                        
                         foreach($csv_data as $key=>$val){
+                            if($val[0] != ''){
                             $UserArray[$key]['first_name']=$val[0];
                             $UserArray[$key]['middle_name']=$val[1];
                             $UserArray[$key]['last_name']=$val[2];
@@ -3145,7 +3112,7 @@ class ClientdashboardController extends BaseController
                             $UserArray[$key]['driver_license']=$val[23];
                             $UserArray[$key]['license_state']=$val[24];
                             $UserArray[$key]['user_level']=$user_level;
-
+                            }
                             
                         }
                         $ic=0;
@@ -3230,6 +3197,15 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->total_imported=$ic;
                         $ClientCompanyImport->total_warning=$waringCount;
                         $ClientCompanyImport->save();
+
+                        $data=[];
+                        $data['user_id']=Auth::User()->id;
+                        $data['activity']='imported '.$ic.' Contacts';
+                        $data['type']='staff';
+                        $data['action']='import';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+
                         } catch (\Exception $e) {
                             $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
                             $ClientCompanyImport->error_code=$errorString;
@@ -3241,7 +3217,7 @@ class ClientdashboardController extends BaseController
                         if($csv_data[0][0]=="Company" || $csv_data[0][0]=="company" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="4";
                         unset($csv_data[0]);
-                        if(trim($val[0]) != ""){
+                        if(trim($csv_data[1][0]) != ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data passed into import.</li></ui>';
                             return response()->json(['errors'=>$errorString,'contact_id'=>'']);
                             exit;
@@ -3250,6 +3226,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->save();
                         try {
                         foreach($csv_data as $key=>$val){
+                            if($val[0] != ''){
                             $UserArray[$key]['first_name']=$val[0];
                             $UserArray[$key]['street']=$val[1];
                             $UserArray[$key]['apt_unit']=$val[2];
@@ -3268,6 +3245,7 @@ class ClientdashboardController extends BaseController
                             }
                             $UserArray[$key]['notes']=$val[13];
                             $UserArray[$key]['user_level']=$user_level;
+                            }
                         }
                         $ic=0;
                         foreach($UserArray as $finalOperationKey=>$finalOperationVal){
@@ -3324,7 +3302,15 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->status="1";
                         $ClientCompanyImport->total_imported=$ic;
                         $ClientCompanyImport->total_warning=$waringCount;
-                        $ClientCompanyImport->save();                        
+                        $ClientCompanyImport->save();    
+                        
+                        $data=[];
+                        $data['user_id']=Auth::User()->id;
+                        $data['activity']='imported '.$ic.' Contacts';
+                        $data['type']='staff';
+                        $data['action']='import';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
                             
                         } catch (\Exception $e) {
                             $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';
@@ -3466,6 +3452,14 @@ class ClientdashboardController extends BaseController
                     $ClientCompanyImport->status="1";
                     $ClientCompanyImport->total_imported=$ic;
                     $ClientCompanyImport->save();   
+
+                    $data=[];
+                    $data['user_id']=Auth::User()->id;
+                    $data['activity']='imported '.$ic.' Contacts';
+                    $data['type']='staff';
+                    $data['action']='import';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                 }else{
                     $ClientCompanyImport->error_code="<ul><li>Worng file selected, Column of selected files are list below </li></ui></br>".implode(", ",$csv_data[0]);
                     $ClientCompanyImport->status=2;
@@ -4503,6 +4497,13 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->total_warning=$waringCount;
                         $ClientCompanyImport->save();
 
+                        $data=[];
+                        $data['user_id']=Auth::User()->id;
+                        $data['activity']='imported '.$ic.' Cases';
+                        $data['type']='staff';
+                        $data['action']='import';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
 
                     }  catch (\Exception $e) {
                         $errorString='<ul><li>'.$e->getMessage().' on line number '.$e->getLine().'</li></ui>';

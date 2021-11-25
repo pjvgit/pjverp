@@ -82,35 +82,45 @@ class CommonController extends BaseController {
         return $Title;
     }
     public function addMultipleHistory($data){
-       $AllHistory=new AllHistory;
-       $AllHistory->case_id=($data['case_id'])??NULL;
-       $AllHistory->user_id=($data['user_id'])??NULL;
-       $AllHistory->expense_id=($data['expense_id'])??NULL;
-       $AllHistory->time_entry_id=($data['time_entry_id'])??NULL;
-       $AllHistory->activity=($data['activity'])??NULL;
-       $AllHistory->activity_for=($data['activity_for'])??NULL;
-       $AllHistory->notes_for_client=($data['notes_for_client'])??NULL;
-       $AllHistory->notes_for_company=($data['notes_for_company'])??NULL;
-       $AllHistory->notes_for_case=($data['notes_for_case'])??NULL;
-       $AllHistory->event_for_case=($data['event_for_case'])??NULL;
-       $AllHistory->event_for_lead=($data['event_for_lead'])??NULL;
-       $AllHistory->event_id=($data['event_id'])??NULL;
-       $AllHistory->event_name=($data['event_name'])??NULL;
-       $AllHistory->task_for_case=($data['task_for_case'])??NULL;
-       $AllHistory->task_for_lead=($data['task_for_lead'])??NULL;
-       $AllHistory->task_id=($data['task_id'])??NULL;
-       $AllHistory->task_name=($data['task_name'])??NULL;
-       $AllHistory->deposit_id=($data['deposit_id'])??NULL;
-       $AllHistory->deposit_for=($data['deposit_for'])??NULL;
-       $AllHistory->type=($data['type'])??NULL;
-       $AllHistory->action=($data['action'])??NULL;
-       $AllHistory->client_id=($data['client_id'])??NULL;
-       $AllHistory->is_for_client = $data['is_for_client'] ?? 'no';
-       $AllHistory->firm_id=Auth::User()->firm_name;
-       $AllHistory->created_by=Auth::User()->id;
-       $AllHistory->created_at=date('Y-m-d H:i:s');  
-       $AllHistory->save();
-       return true;
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
+        $authUserNotifyTypeAction = $authUserNotificationSetting->pluck('sub_type','action')->toArray();
+        
+        $authUserActivity = [];
+        foreach($authUserNotifyTypeAction as $key => $item){
+            $authUserActivity[] = $key.'_'.$item;
+        }
+                   
+        $AllHistory=new AllHistory;
+        $AllHistory->case_id=($data['case_id'])??NULL;
+        $AllHistory->user_id=($data['user_id'])??NULL;
+        $AllHistory->expense_id=($data['expense_id'])??NULL;
+        $AllHistory->time_entry_id=($data['time_entry_id'])??NULL;
+        $AllHistory->activity=($data['activity'])??NULL;
+        $AllHistory->activity_for=($data['activity_for'])??NULL;
+        $AllHistory->notes_for_client=($data['notes_for_client'])??NULL;
+        $AllHistory->notes_for_company=($data['notes_for_company'])??NULL;
+        $AllHistory->notes_for_case=($data['notes_for_case'])??NULL;
+        $AllHistory->event_for_case=($data['event_for_case'])??NULL;
+        $AllHistory->event_for_lead=($data['event_for_lead'])??NULL;
+        $AllHistory->event_id=($data['event_id'])??NULL;
+        $AllHistory->event_name=($data['event_name'])??NULL;
+        $AllHistory->task_for_case=($data['task_for_case'])??NULL;
+        $AllHistory->task_for_lead=($data['task_for_lead'])??NULL;
+        $AllHistory->task_id=($data['task_id'])??NULL;
+        $AllHistory->task_name=($data['task_name'])??NULL;
+        $AllHistory->deposit_id=($data['deposit_id'])??NULL;
+        $AllHistory->deposit_for=($data['deposit_for'])??NULL;
+        $AllHistory->type=($data['type'])??NULL;
+        $AllHistory->action=($data['action'])??NULL;
+        $AllHistory->client_id=($data['client_id'])??NULL;
+        $AllHistory->is_for_client = $data['is_for_client'] ?? 'no';
+        $AllHistory->firm_id=Auth::User()->firm_name;
+        $AllHistory->created_by=Auth::User()->id;
+        $AllHistory->created_at=date('Y-m-d H:i:s');  
+        if(in_array($data['type'].'_'.$data['action'], $authUserActivity)){ 
+            $AllHistory->save();
+        }
+        return true;
     }
 
     

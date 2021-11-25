@@ -10,6 +10,8 @@ if(!$commentData->isEmpty()){
             @include('dashboard.include.case_activity_data   ')    
         <?php }else if($v->type=="contact"){?>
             @include('dashboard.include.contact_activity_data')
+        <?php }else if($v->type=="staff"){?>
+            @include('dashboard.include.contact_activity_data')
         <?php }else if($v->type=="document"){?>
             @include('dashboard.include.document_activity_data')
         <?php } else if($v->type=="deposit"){?>

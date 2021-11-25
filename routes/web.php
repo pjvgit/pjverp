@@ -763,7 +763,6 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('contacts/clients/discardDeleteNote', 'ClientdashboardController@discardDeleteNote')->name('contacts/clients/discardDeleteNote');
     Route::post('contacts/clients/deleteNote', 'ClientdashboardController@deleteNote')->name('contacts/clients/deleteNote');
     Route::post('contacts/clients/loadTimeEntryPopup', 'ClientdashboardController@loadTimeEntryPopup')->name('contacts/clients/loadTimeEntryPopup');
-    Route::post('contacts/clients/savebulkTimeEntry', 'ClientdashboardController@savebulkTimeEntry')->name('contacts/clients/savebulkTimeEntry');
     Route::post('contacts/clients/saveTimeEntryPopup', 'ClientdashboardController@saveTimeEntryPopup')->name('contacts/clients/saveTimeEntryPopup');
     
     Route::post('contacts/clients/loadTrustHistory', 'ClientdashboardController@loadTrustHistory')->name('contacts/clients/loadTrustHistory');
@@ -866,7 +865,6 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('contacts/companies/discardDeleteNote', 'CompanydashboardController@discardDeleteNote')->name('contacts/companies/discardDeleteNote');
     Route::post('contacts/companies/deleteNote', 'CompanydashboardController@deleteNote')->name('contacts/companies/deleteNote');
     Route::post('contacts/companies/loadTimeEntryPopup', 'CompanydashboardController@loadTimeEntryPopup')->name('contacts/companies/loadTimeEntryPopup');
-    Route::post('contacts/companies/savebulkTimeEntry', 'CompanydashboardController@savebulkTimeEntry')->name('contacts/companies/savebulkTimeEntry');
     Route::post('contacts/companies/saveTimeEntryPopup', 'CompanydashboardController@saveTimeEntryPopup')->name('contacts/companies/saveTimeEntryPopup');
     
     

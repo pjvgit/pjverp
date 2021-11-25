@@ -30,6 +30,8 @@
             @include('dashboard.include.case_activity_data   ')    
         @elseif($v->type == "contact")                                
             @include('dashboard.include.contact_activity_data')
+        @elseif($v->type == "staff")                                
+            @include('dashboard.include.contact_activity_data')
         @endif
     <?php } ?>
     </tbody>

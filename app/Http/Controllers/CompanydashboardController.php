@@ -677,40 +677,7 @@ class CompanydashboardController extends BaseController
         }
     } 
 
-    public function savebulkTimeEntry(Request $request)
-    {
-        
-        $validator = \Validator::make($request->all(), [
-            'case_or_lead' => 'required',
-            'staff_user' => 'required',
-        ]);
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            for($i=1;$i<=count($request->case_or_lead)-1;$i++){
-                $TaskTimeEntry = new TaskTimeEntry; 
-                $TaskTimeEntry->case_id =$request->case_or_lead[$i];
-                $TaskTimeEntry->user_id =$request->staff_user;
-                $TaskTimeEntry->activity_id=$request->activity[$i];
-                if($request->billable[$i]=="on"){
-                    $TaskTimeEntry->time_entry_billable="yes";
-                }else{
-                    $TaskTimeEntry->time_entry_billable="no";
-                }
-                $TaskTimeEntry->description=$request->description[$i];
-                $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
-                $TaskTimeEntry->entry_rate=Auth::User()->default_rate;
-                $TaskTimeEntry->rate_type='hr';
-                $TaskTimeEntry->duration =$request->duration[$i];
-                $TaskTimeEntry->created_by=Auth::User()->id; 
-                $TaskTimeEntry->save();
-            }
-            return response()->json(['errors'=>'','id'=>$TaskTimeEntry->id]);
-        exit;
-        }
-    } 
-
+    
     public function loadTrustHistory()
     {   
         $requestData= $_REQUEST;

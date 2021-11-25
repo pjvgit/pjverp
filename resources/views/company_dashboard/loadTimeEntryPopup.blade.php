@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="myTab" role="tablist"  bladefilename="resources/views/company_dashboard/loadTimeEntryPopup.blade.php">
     <li class="nav-item">
         <a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#singletimeentry" role="tab"
             aria-controls="singletimeentry" aria-selected="true">Single
@@ -757,7 +757,11 @@
                 },
                 success: function (res) {
                     console.log(f);
-                    $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                    if(res.data > 0){
+                        $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                    }else{
+                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                    }
                     console.log("#replaceAmt" + f);
                 }
             })

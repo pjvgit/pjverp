@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="myTab" role="tablist" bladefilename="resources/views/billing/time_entry/loadTimeEntryPopupDontRefresh.blade.php">
     <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
             aria-controls="homeBasic" aria-selected="true">Single</a></li>
     <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
@@ -846,7 +846,11 @@
                 },
                 success: function (res) {
                     console.log(f);
-                    $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                    if(res.data > 0){
+                        $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                    }else{
+                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                    }
                     console.log("#replaceAmt" + f);
                 }
             })

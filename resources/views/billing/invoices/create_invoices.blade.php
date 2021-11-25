@@ -445,10 +445,10 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                 Successfully created <span id="createdBill"></span> bill.
             </div>
             <div class="modal-footer  pb-1">
-                <a href="{{BASE_URL}}/bills/invoices/open">
+                <a href="{{ route('bills/invoices/open') }}">
                     <button class="btn btn-secondary  m-1" type="button">Continue Billing</button>
                 </a>
-                <a href="{{BASE_URL}}/bills/invoices?type=all">
+                <a href="{{route('bills/invoices')}}?type=all">
                     <button class="btn btn-secondary  m-1" type="button">View Bills</button>
                 </a>
             </div>

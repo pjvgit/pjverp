@@ -2608,7 +2608,7 @@ class BillingController extends BaseController
             }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
-            ->where("flat_fee_entry.user_id",auth()->id())
+            // ->where("flat_fee_entry.user_id",auth()->id())
             ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
@@ -2620,7 +2620,7 @@ class BillingController extends BaseController
                 $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
             }
             $FlatFeeEntry=$FlatFeeEntry->get();
-
+            
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
             ->where("invoice_adjustment.case_id",$case_id)
@@ -7292,27 +7292,26 @@ class BillingController extends BaseController
                         $Applied=FALSE;   
                     } 
                 }
-                if($discount_applied_to=="sub_total"){                    
+                if($discount_applied_to=="sub_total"){  
+                    //forwarded invoices applied or not
+                    $forwardedInvoicesTotal = 0;
+                    foreach($forwardedInvoices->forwardedInvoices as $inv){
+                        $forwardedInvoicesTotal+= str_replace(",","",$inv['total_amount']);
+                    }   
+                    $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','sub_total')->get();
+                                       
                     if($subTotal>0){
-                        //forwarded invoices applied or not
-                        $forwardedInvoicesTotal = 0;
-                        foreach($forwardedInvoices->forwardedInvoices as $inv){
-                            $forwardedInvoicesTotal+= str_replace(",","",$inv['total_amount']);
+                        $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
+                        if($amountType=="percentage"){
+                            $finalAmount=($amount/100)*$subTotal;
+                            $Applied=TRUE;
+                        }else{
+                            $finalAmount=$amount;
+                            $Applied= ($amount > $subTotal) ? FALSE : TRUE;
                         }
-                        $balanceForwardInvoice = InvoiceAdjustment::where("invoice_id",$v1)->where('applied_to','sub_total')->get();
-                        if($forwardedInvoicesTotal > 0 && (count($balanceForwardInvoice) > 0 || $forwardedInvoicesTotal >= $subTotal) ) {
-                            $Applied=FALSE;
-                        }else{    
-                            $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
-                            if($amountType=="percentage"){
-                                $finalAmount=($amount/100)*$subTotal;
-                                $Applied=TRUE;
-                            }else{
-                                $finalAmount=$amount;
-                                $Applied= ($amount > $subTotal) ? FALSE : TRUE;
-                            }
-                        }
-                    }else{
+                    }else if(count($balanceForwardInvoice) == 0 || $forwardedInvoicesTotal <= $subTotal){
+                        $Applied=TRUE;
+                    }else{ 
                         $Applied=FALSE;
                     }                    
                 }
@@ -8782,7 +8781,7 @@ class BillingController extends BaseController
             $InvoiceBatch->draft_invoice=$totalDraft;
             $InvoiceBatch->unsent_invoice=$totalUnsent;
             $InvoiceBatch->sent_invoice=$totalSent;
-            $InvoiceBatch->batch_code=date('M, d Y')."-".count($totalInvoice);
+            $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s"), auth()->user()->user_tiezone)))."-".count($totalInvoice);
             $InvoiceBatch->firm_id=Auth::User()->firm_name; 
             $InvoiceBatch->created_by=Auth::User()->id; 
             $InvoiceBatch->save();

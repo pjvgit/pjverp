@@ -155,7 +155,7 @@
         </form>
     </div>
     <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
-        <form class="savebulkTimeEntry" id="savebulkTimeEntry" name="savebulkTimeEntry" method="POST">
+        <form class="savebulkExpenses" id="savebulkExpenses" name="savebulkExpenses" method="POST">
             @csrf
             <div class="row pb-3 mb-3 " style="border-bottom: 1px solid #e1e1e1 !important;">
 
@@ -453,7 +453,7 @@
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             // Add new field
-            $('#savebulkTimeEntry').validate('add-more', $option);
+            $('#savebulkExpenses').validate('add-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -515,16 +515,16 @@
                 }
             });
             
-            $("#savebulkTimeEntry").validate();
+            $("#savebulkExpenses").validate();
         });
 
-        $('#savebulkTimeEntry').on('click', '.remove', function () {
+        $('#savebulkExpenses').on('click', '.remove', function () {
             defaultValidation();
             var $row = $(this).parents('.maturity_div'),
                 $option = $row.find('[name="case_or_lead[]"]');
 
             $row.remove();
-            $('#savebulkTimeEntry').validate('removeField', $option);
+            $('#savebulkExpenses').validate('removeField', $option);
             var count = $('#hideinputcount2').val();
 
             count--;
@@ -533,19 +533,19 @@
         });
 
 
-        $('#savebulkTimeEntry').on('click', '.remove', function () {
+        $('#savebulkExpenses').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
-        $('#savebulkTimeEntry').submit(function (e) {
+        $('#savebulkExpenses').submit(function (e) {
             e.preventDefault();
             $("#innerLoader").css('display', 'block');
-            if (!$('#savebulkTimeEntry').valid()) {
+            if (!$('#savebulkExpenses').valid()) {
                 $("#innerLoader").css('display', 'none');
                 $('.submitbutton').removeAttr("disabled");
                 return false;
             }
             var dataString = '';
-            dataString = $("#savebulkTimeEntry").serialize();
+            dataString = $("#savebulkExpenses").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/bills/expenses/saveExpenseBulkEntryPopup", // json datasource
@@ -646,7 +646,7 @@
                     1)) + '');
 
                 // Add new field
-                $('#savebulkTimeEntry').validate('add-more', $option);
+                $('#savebulkExpenses').validate('add-more', $option);
                 $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                     'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -711,7 +711,7 @@
                         number: " Cost is invalid"
                     }
                 });
-                $("#savebulkTimeEntry").validate();
+                $("#savebulkExpenses").validate();
             }
 
         });
@@ -961,7 +961,7 @@
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
             // Add new field
-            $('#savebulkTimeEntry').validate('add-more', $option);
+            $('#savebulkExpenses').validate('add-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -1024,7 +1024,7 @@
                    number: "Quantity is invalid"
                 }
             });
-            $("#savebulkTimeEntry").validate();
+            $("#savebulkExpenses").validate();
         }
     }
 

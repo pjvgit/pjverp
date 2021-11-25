@@ -153,7 +153,7 @@ class ContractController extends BaseController
             $data['client_id']=$user->id;
             $data['case_id']=null;
             $data['activity']='added '.$user->user_title;
-            $data['type']='contact';
+            $data['type']='staff';
             $data['action']='add';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
@@ -291,7 +291,7 @@ class ContractController extends BaseController
         $data['client_id']=$request->user_id;
         $data['case_id']=null;
         $data['activity']='changed permission for attorney';
-        $data['type']='contact';
+        $data['type']='staff';
         $data['action']='change';
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
@@ -353,7 +353,7 @@ class ContractController extends BaseController
         $data['client_id']=$request->user_id;
         $data['case_id']=null;
         $data['activity']='changed permission for staff';
-        $data['type']='contact';
+        $data['type']='staff';
         $data['action']='change';
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
@@ -462,6 +462,17 @@ class ContractController extends BaseController
 
         $CurrentUserPermission->updated_by =Auth::User()->id;
         $CurrentUserPermission->save(); */
+        
+        $data=[];
+        $data['user_id']=Auth::User()->id;
+        $data['client_id']=$request->user_id;
+        $data['case_id']=null;
+        $data['activity']='changed permission for '.$user->user_title;
+        $data['type']='staff';
+        $data['action']='change';
+        $CommonController= new CommonController();
+        $CommonController->addMultipleHistory($data);
+
         session(['popup_success' => 'Permission rate has been saved.']);
 
         return response()->json(['errors'=>'','user_id'=>$request->user_id]);
@@ -715,6 +726,16 @@ class ContractController extends BaseController
                 if($sendEmail=="1"){
                     $user->is_sent_welcome_email  = "1";  // Welcome email sent to user.
                     $user->save();
+
+                    $data=[];
+                    $data['user_id']=Auth::User()->id;
+                    $data['client_id']=$user->id;
+                    $data['case_id']=null;
+                    $data['activity']='updated '.$user->user_title;
+                    $data['type']='staff';
+                    $data['action']='update';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
                 }
              }
             session(['popup_success' => 'Profile data has been updated.']);
@@ -784,7 +805,7 @@ class ContractController extends BaseController
             $data['client_id']=$user->id;
             $data['case_id']=null;
             $data['activity']='deactivated '.$user->user_title;
-            $data['type']='contact';
+            $data['type']='staff';
             $data['action']='archive';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);

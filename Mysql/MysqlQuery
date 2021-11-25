@@ -1,3 +1,15 @@
+------------------------------------ 25-NOV-2021 ------------------------------
+ALTER TABLE `notification_settings`
+CHANGE `sub_type` `sub_type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user','case','staff') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `type`;
+
+ALTER TABLE `notification_settings`
+CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import') COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `topic`;
+
+ALTER TABLE `all_history`
+CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','user','lead_invoice','case','staff') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`;
+
+ALTER TABLE `all_history`
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','login','change','close','reopen','import') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
 ------------------------------------ 24-NOV-2021 ------------------------------
 ALTER TABLE `smart_timers`
 ADD `paused_at` varchar(15) COLLATE 'utf8mb4_general_ci' NULL AFTER `stopped_at`;

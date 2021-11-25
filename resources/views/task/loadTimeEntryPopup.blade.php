@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="myTab" role="tablist  bladefilename="resources/views/task/loadTimeEntryPopup.blade.php">
     <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic111" role="tab"
             aria-controls="homeBasic" aria-selected="true">Single</a></li>
     <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic1111" role="tab"
@@ -765,7 +765,11 @@
             data: {'case_id':$(this).attr('value')},
             success: function (res) {
                 console.log(f);
-                $("#replaceAmt"+f).text("Billable - Rate :"+ res.data);
+                if(res.data > 0){
+                    $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                }else{
+                    $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                }
                 console.log("#replaceAmt"+f);
             }
         })

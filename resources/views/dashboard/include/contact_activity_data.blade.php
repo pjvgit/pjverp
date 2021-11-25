@@ -11,7 +11,8 @@
             $ImageArray["change"]="activity_attorney_permissions.png";
             $ImageArray["archive"]="activity_client_archived.png";
             $ImageArray["unarchive"]="activity_client_unarchived.png"; 
-            $ImageArray["delete"]="activity_company_deleted.png";            
+            $ImageArray["delete"]="activity_company_deleted.png";               
+            $ImageArray["import"]="activity_import_imported.png";          
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('images/'.$image) }}" width="27" height="21">

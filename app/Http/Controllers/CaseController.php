@@ -1665,7 +1665,7 @@ class CaseController extends BaseController
         $CommonController->addMultipleHistory($data);
 
         $data1=[];
-        $data1['activity_title']='unlinked staff';
+        $data1['activity_title']='unlinked contact';
         $data1['case_id']=$CaseClientSelection->case_id;
         $data1['activity_type']='';
         $data1['staff_id']=$CaseClientSelection->selected_user;

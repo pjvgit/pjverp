@@ -225,7 +225,7 @@
                                     name="case_or_lead[1]" data-placeholder="Search for an existing contact or company">
                                     <option value="">Select case</option>
                                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                    <option <?php if($case_id==$Caseval->id){ echo "selected=selected"; } ?> 
+                                    <option <?php //if($case_id==$Caseval->id){ echo "selected=selected"; } ?> 
                                         value="{{$Caseval->id}}">{{$Caseval->case_title}}
                                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
                                     </option>
@@ -272,13 +272,15 @@
                                     <input type="checkbox" name="billable[1]" class="billable-field form-check-input"
                                         checked="checked">
 
-                                    <?php if($default_rate>"0.00"){?>
+                                    <?php if($default_rate<"0.00"){?>
                                             <div class="billtext" id="replaceAmt1"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
                                             <div class="billtext" id="replaceAmt1"> Billable - Rate will be calculated once court case is selected</div>
                                         <?php }?>
-                                    
+                                    <div>
+                                        <input type="text" name="defaultrate[1]" id="hideoptioninput2defaultrate1" value="" style="display: none;"/>
+                                    </div>
 
                                 </label>
                             </div>
@@ -297,7 +299,7 @@
                                     data-placeholder="Search for an existing contact or company">
                                     <option value="">Select case</option>
                                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                    <option  <?php if($case_id==$Caseval->id){ echo "selected=selected"; } ?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
+                                    <option  <?php //if($case_id==$Caseval->id){ echo "selected=selected"; } ?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
                                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
                                     </option>
                                     <?php } ?>
@@ -341,13 +343,16 @@
                                 <label class="form-check-label ">
                                     <input type="checkbox" name="billable[]" class="billable-field form-check-input"
                                         checked="">
-                                        <?php if($default_rate>"0.00"){?>
+                                        <?php if($default_rate<"0.00"){?>
                                             <div class="billtext"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
                                             <div class="billtext"> Billable - Rate will be calculated once court case is selected</div>
                                         <?php }?>
-                                    
+                                    <div>
+                                        <input type="text" name="defaultrate[]" value="" style="display: none;"/>
+                                    </div>
+
 
                                 </label>
                             </div>
@@ -431,6 +436,11 @@
             $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('required', 'required');
 
+            $option12 = $clone.find('[name="defaultrate[]"]');
+            $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +
+                '');
+            $option12.attr('required', 'required');
+
             $option2 = $clone.find('[name="activity[]"]');
             $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
@@ -456,6 +466,10 @@
             $('#hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'case_or_lead[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
+            //For option 12
+            $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'defaultrate[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+
             //For option 2
             $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'activity[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
@@ -475,6 +489,16 @@
                 required: true,
                 messages: {
                     required: " Please select a case"
+                }
+            });
+            $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
+                required: true,
+                number: true,
+                min: 1,
+                messages: {
+                    required: " This court case has no default rate",
+                    number: " This court case has no default rate",
+                    min: " This court case has no default rate"
                 }
             });
             $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
@@ -594,6 +618,11 @@
 
                 $option.attr('required', 'required');
 
+                $option12 = $clone.find('[name="defaultrate[]"]');
+                $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +
+                    '');
+                $option12.attr('required', 'required');
+
                 $option2 = $clone.find('[name="activity[]"]');
                 $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(
                     1)) + '');
@@ -622,6 +651,10 @@
                 //For option 1
                 $('#hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                     'case_or_lead[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                
+                //For option 12
+                $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                                'defaultrate[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
                 //For option 2
                 $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
@@ -678,6 +711,16 @@
                 required: "Please select a case"
             }
         });
+        $('#hideoptioninput2defaultrate1').rules("add", {
+                required: true,
+                number: true,
+                min: 1,
+                messages: {
+                    required: " This court case has no default rate",
+                    number: " This court case has no default rate",
+                    min: " This court case has no default rate"
+                }
+            });
         $('#hideoptioninput2activity1').rules("add", {
             required: true,
             messages: {
@@ -844,14 +887,17 @@
                 },
                 success: function (res) {
                     console.log(f);
-                    $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
+                    $("#hideoptioninput2defaultrate"+f).val("");
+                    if(res.data > 0){
+                        $("#replaceAmt" + f).text("Billable - "+ res.data);
+                        $("#hideoptioninput2defaultrate"+f).val(res.data);
+                    }else{
+                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                    }                    
                     console.log("#replaceAmt" + f);
                 }
             })
         });
-
-
-
     });
     showDropdown();
 
@@ -912,6 +958,11 @@
 
             $option.attr('required', 'required');
 
+            $option12 = $clone.find('[name="defaultrate[]"]');
+            $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +
+                '');
+            $option12.attr('required', 'required');
+
             $option2 = $clone.find('[name="activity[]"]');
             $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option2.attr('required', 'required');
@@ -934,7 +985,11 @@
             //For option 1
             $('#hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'case_or_lead[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
-
+            
+            //For option 12
+            $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'defaultrate[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                
             //For option 2
             $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'activity[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
@@ -954,6 +1009,12 @@
                 required: true,
                 messages: {
                     required: " Please select a case"
+                }
+            });
+            $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
+                required: true,
+                messages: {
+                    required: " This court case has no default rate"
                 }
             });
             $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
@@ -979,6 +1040,16 @@
             required: true,
             messages: {
                 required: "Please select a case"
+            }
+        });
+        $('#hideoptioninput2defaultrate1').rules("add", {
+            required: true,
+            number: true,
+            min: 1,
+            messages: {
+                required: " This court case has no default rate",
+                number: " This court case has no default rate",
+                min: " This court case has no default rate"
             }
         });
         $('#hideoptioninput2activity1').rules("add", {
@@ -1010,7 +1081,7 @@
 
     $("#activity").on("select2:select", function(e) {
         $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
-        $("#rate_type_field_id").val('flat');
+        // $("#rate_type_field_id").val('flat');
         
         $("#activity").select2({
             placeholder: "Select activity",

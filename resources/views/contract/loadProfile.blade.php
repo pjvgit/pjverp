@@ -7,7 +7,7 @@ $userTitle = unserialize(USER_TITLE);
 <form class="updateProfile" id="updateProfile" name="updateProfile" method="POST">
     @csrf
     <input type="hidden" name="uid" value="{{base64_encode($userProfile->id)}}">
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/contract/loadProfile.blade.php"> 
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-4">
