@@ -227,9 +227,11 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                                         type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="downloadBulkInvoice();">Export as PDF</button><button
                                                         type="button" tabindex="0" role="menuitem"
-                                                        class="dropdown-item" onclick="setBulkEnableOnlinePaymentPopup();">Enable Online Payments</button><button
-                                                        type="button" tabindex="0" role="menuitem"
-                                                        class="dropdown-item" onclick="deleteBulkInvoice();" >Delete Invoices</button><button
+                                                        class="dropdown-item" onclick="setBulkEnableOnlinePaymentPopup();">Enable Online Payments</button>
+                                                        @can('delete_items')
+                                                        <button type="button" tabindex="0" role="menuitem" class="dropdown-item" onclick="deleteBulkInvoice();" >Delete Invoices</button>
+                                                        @endcan
+                                                        <button
                                                         type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="adjustmentBulkInvoice();">Adjustments</button>
                                                 </div>
@@ -1045,7 +1047,10 @@ td,th{
                         if(aData.status!="Paid"){
                             var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
                         }
-                        var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                        var deletes = '';
+                        @can('delete_items')
+                            deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                        @endcan
                         $('td:eq(12)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     }
                     @else

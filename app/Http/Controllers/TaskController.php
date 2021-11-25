@@ -220,15 +220,15 @@ class TaskController extends BaseController
     {
         $case_id=$request->case_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
-        }
-
+        } */
+        $CaseMasterData = userCaseList();
         /* $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
                             ->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")
                             ->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")

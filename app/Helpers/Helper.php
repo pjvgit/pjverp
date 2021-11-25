@@ -194,7 +194,10 @@ function userCaseList()
     $authUser = auth()->user();
     $cases = CaseMaster::where("firm_id", $authUser->firm_name)->where('is_entry_done',"1");
     if($authUser->parent_user != 0) {
-        $cases = $cases->where('created_by', $authUser->id);
+    // if($authUser->can('access_only_linked_cases')) {
+        $cases = $cases->where('created_by', $authUser->id)/* ->orWhereHas('caseStaffAll', function($query) use($authUser) {
+            $query->where('id', $authUser->id);
+        }) */;
     }
     return $cases->select('id', 'case_title', 'case_number', 'case_close_date')->get();
 }

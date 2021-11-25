@@ -126,11 +126,12 @@
                                         </a>
                                     </li>
 
-
+                                    @can('access_all_cases')
                                     <li><a class="{{ Route::currentRouteName()=='apexAreaCharts' ? 'open' : '' }}"
                                             href="{{route('apexAreaCharts')}}"> Firm Open Cases </a></li>
                                     <li><a class="{{ Route::currentRouteName()=='apexBarCharts' ? 'open' : '' }}"
                                             href="{{route('apexBarCharts')}}"> Firm Close Cases </a></li>
+                                    @endcan
                                     <li><a class="{{ Route::currentRouteName()=='apexBubbleCharts' ? 'open' : '' }}"
                                             href="{{route('practice_areas')}}"> Practice Areas </a></li>
                                     <li><a class="{{ Route::currentRouteName()=='apexColumnCharts' ? 'open' : '' }}"

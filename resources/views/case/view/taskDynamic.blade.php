@@ -211,6 +211,7 @@ foreach ($task as $element) {
                                     data-placement="top" data-html="true"> <i class="fas fa-pen pr-3  align-middle"></i>
                                 </span></a>
                         </div>
+                        @can(['case_add_edit','delete_items'])
                         <div>
                             <a class="align-items-center" data-original-title="" data-toggle="modal"
                                 data-target="#deleteTask" data-placement="bottom"
@@ -220,6 +221,7 @@ foreach ($task as $element) {
                                         class="fas fa-trash pr-3  align-middle"></i> </span></a>
 
                         </div>
+                        @endcan
                     </div>
                 </div>
             </td>

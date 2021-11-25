@@ -379,7 +379,11 @@ if(isset($_GET['type'])){
                         $('td:eq(9)', nRow).html('<div class="text-left"></div>');
                     }
                     @can('billing_add_edit') 
-                    $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                        var deleteAction = '';
+                        @can('delete_items')
+                            deleteAction = '<a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a>';
+                        @endcan
+                    $('td:eq(10)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a>'+deleteAction+'</div>');
                     @endcan
                 },
                 "initComplete": function(settings, json) {

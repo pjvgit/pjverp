@@ -203,7 +203,7 @@
                         <i class="fas fa-pen pr-2  align-middle"></i> </a>
                     <?php } ?>
                     @endcan
-                    @can('delete_items')
+                    @can(['case_add_edit','delete_items'])
                     <?php 
                     if($vv->parent_evnt_id=="0"){
                         ?>
