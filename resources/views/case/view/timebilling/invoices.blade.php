@@ -133,7 +133,10 @@
                     if(aData.status!="Paid"){
                         var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
                     }
-                    var deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoiceCommon" data-placement="bottom" href="javascript:;"  onclick="deleteInvoiceCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                    var deletes = '';
+                    @can('delete_items')
+                    deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoiceCommon" data-placement="bottom" href="javascript:;"  onclick="deleteInvoiceCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                    @endcan
                     $('td:eq(11)', nRow).html('<div class="text-center d-print-none" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     @else
                     $('td:eq(11)', nRow).html('');

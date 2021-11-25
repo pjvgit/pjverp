@@ -119,8 +119,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     // $('td:eq(2)', nRow).html(aData.created_by_name); 
 
                     $('td:eq(2)', nRow).html('<a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a>');
-
-                    $('td:eq(3)', nRow).html('<a data-toggle="modal"  data-target="#EditContactGroup" data-placement="bottom" href="javascript:;"  onclick="loadEditBox('+aData.id+');"><i class="fas fa-pen align-middle d-print-none"></i> </a> &nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash ml-1 d-print-none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" ></a>'); 
+                    var deleteAction = '';
+                    @can(['client_add_edit','delete_items'])
+                    deleteAction = '&nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash ml-1 d-print-none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" ></a>';
+                    @endcan
+                    $('td:eq(3)', nRow).html('<a data-toggle="modal"  data-target="#EditContactGroup" data-placement="bottom" href="javascript:;"  onclick="loadEditBox('+aData.id+');"><i class="fas fa-pen align-middle d-print-none"></i> </a> '+deleteAction); 
                 }
             },
         });

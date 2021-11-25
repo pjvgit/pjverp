@@ -51,7 +51,7 @@ class InvoiceReminderEmailCommand extends Command
                             $q->whereRaw("due_date = '".Carbon::now()->subDays(7)->format("Y-m-d")."' OR due_date = '".Carbon::now()->format("Y-m-d")."' OR due_date = '".Carbon::now()->addDays(7)->format("Y-m-d")."'");
                         });
                     }) */
-                    // ->whereId(176)
+                    // ->whereId(177)
                     ->with("case", "invoiceSharedUser", "invoiceFirstInstallment", "firmDetail")
                     ->get();
         if($result) {
@@ -105,7 +105,7 @@ class InvoiceReminderEmailCommand extends Command
                     }
                 }
                 Log::info("remind date: ".$remindDate.', emailTemplateId: '.$emailTemplateId);
-                // return $remindDate;
+                
                 $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
                 if($emailTemplate && $remindDate) {
                     $remindDate = \Carbon\Carbon::createFromFormat('Y-m-d', $remindDate->format('Y-m-d'));
@@ -117,6 +117,14 @@ class InvoiceReminderEmailCommand extends Command
                                 if ($date->hour === 05) { 
                                     Log::info("invoice day time true");
                                     dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
+                                }
+                                if($item->id == 247) {
+                                // Set job dispatch time
+                                $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
+                                $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, 'Pacific/Midway');
+                                $dispatchDate->setTimezone('UTC');
+                                Log::info("user time to utc time: ". $dispatchDate);
+                                dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
                                 }
                             }
                         } else {

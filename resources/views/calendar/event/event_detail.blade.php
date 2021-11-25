@@ -9,7 +9,7 @@
     </div>
     <div class="action-buttons">
         <div>
-            @can('delete_items')
+            @can(['event_add_edit','delete_items'])
             <?php 
                 if($evetData->parent_evnt_id=="0"){
                     ?>

@@ -17,7 +17,9 @@ $controllerLoad = new App\Http\Controllers\CommonController();
                                                 onclick="editTask({{$TaskData->id}});">
             Edit
         </a>
+        @can('case_add_edit','delete_items')
         <a class="btn btn-sm  btn-rounded btn-outline-danger" data-toggle="modal" data-target="#deleteTask" data-placement="bottom" onclick="deleteTaskFunction({{$TaskData->id}});" >Delete</a>
+        @endcan
     </div>
 </div>
 <div class="row p-2 m-0">

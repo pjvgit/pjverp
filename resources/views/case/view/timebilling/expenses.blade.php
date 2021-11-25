@@ -88,7 +88,11 @@
                     $('td:eq(7)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.user_name+'</a></div>');
                     @can(['case_add_edit', 'billing_add_edit'])
                     if(aData.status=="unpaid"){
-                        $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteExpenseEntryCommon" data-placement="bottom" href="javascript:;"  onclick="deleteExpenseEntryCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                        var deleteAction = '';
+                        @can('delete_items')
+                        deleteAction = '<a data-toggle="modal"  data-target="#deleteExpenseEntryCommon" data-placement="bottom" href="javascript:;"  onclick="deleteExpenseEntryCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a>';
+                        @endcan
+                        $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a>'+deleteAction+'</div>');
                     }else{
                         $('td:eq(8)', nRow).html('<div class="text-center nowrap d-print-none"></div>');
                     }

@@ -151,7 +151,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     ?>
                                 <a class="client-delete btn btn-block btn-outline-danger client-detail-left-button" data-toggle="modal"  data-target="#archivContact" data-placement="bottom" href="javascript:;"  onclick="archiveContact({{$client_id}});">Archive Contact</a>
                                 <?php } ?>
+                                @can(['client_add_edit','delete_items'])
                                 <a class="client-delete btn btn-block btn-outline-danger client-detail-left-button" data-toggle="modal"  data-target="#deleteContact" data-placement="bottom" href="javascript:;"  onclick="deleteContact({{$client_id}});">Delete Contact</a>
+                                @endcan
                             </div>
                     </ul>
                 </nav>

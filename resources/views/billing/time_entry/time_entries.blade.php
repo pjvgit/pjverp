@@ -317,7 +317,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     @can('billing_add_edit')
                     if(aData.invoice_link == null){
-                        $('td:eq(9)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
+                        var deleteAction = '';
+                        @can('delete_items')
+                            deleteAction = '<a data-toggle="modal"  data-target="#deleteTimeEntry" data-placement="bottom" href="javascript:;"  onclick="deleteTimeEntry('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a>';
+                        @endcan
+                        $('td:eq(9)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#loadEditTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditTimeEntryPopup('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a>'+deleteAction+'</div>');
                     }else{
                         $('td:eq(9)', nRow).html('<div class="text-left"></div>');
                     }

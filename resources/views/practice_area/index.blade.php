@@ -116,7 +116,14 @@
                     }else{
                         $('td:eq(2)', nRow).html('<div class="text-left"><a href="'+baseUrl+'/contacts/attorneys/'+aData.decode_id+'">'+aData.created_by_name+'</a></div>'); 
                     }
-                    $('td:eq(3)', nRow).html('<a data-toggle="modal"  data-target="#EditModal" data-placement="bottom" href="javascript:;"  onclick="EditModel('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i> </a> &nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash text-black-50 ml-1" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"  ></a>'); 
+                    var action = '';
+                    @can('case_add_edit')
+                        action = '<a data-toggle="modal"  data-target="#EditModal" data-placement="bottom" href="javascript:;"  onclick="EditModel('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i> </a>';
+                        @can('delete_items')
+                            action += ' &nbsp; <a href="javascript:;" onclick="onClickDelete('+aData.id+');" ><i class="fas fa-fw fa-trash text-black-50 ml-1" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"  ></a>';
+                        @endcan
+                    @endcan
+                    $('td:eq(3)', nRow).html(action); 
             },
         });
         $('#AddContactModal,#EditContactModal').on('hidden.bs.modal', function () {

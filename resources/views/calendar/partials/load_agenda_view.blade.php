@@ -37,7 +37,7 @@
                             <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->id}});"> <i class="fas fa-pen pr-2  align-middle"></i> </a>
                         @endif
                         @endcan
-                        @can('delete_items')
+                        @can(['event_add_edit','delete_items'])
                         @if($item->parent_evnt_id=="0")
                             <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent" data-placement="bottom" href="javascript:;" onclick="deleteEventFunction({{$item->id}},'single');"> <i class="fas fa-trash pr-2  align-middle"></i> </a>
                         @else

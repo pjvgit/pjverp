@@ -165,8 +165,9 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                                     ?>
                                 <a class="client-delete btn btn-block btn-outline-danger client-detail-left-button" data-toggle="modal"  data-target="#archiveCompany" data-placement="bottom" href="javascript:;"  onclick="archiveCompany();">Archive Company</a>
                                 <?php } ?>
+                                @can(['client_add_edit','delete_items'])
                                 <a class="client-delete btn btn-block btn-outline-danger client-detail-left-button" data-toggle="modal"  data-target="#deleteCompany" data-placement="bottom" href="javascript:;"  onclick="deleteCompany();">Delete Company</a>
-                   
+                                @endcan
                 </nav>
             </div>
         </div>

@@ -81,9 +81,11 @@ if($TaskTimeEntry->isEmpty()){?>
                                 <a data-toggle="modal" data-target="#loadEditTimeEntryPopup" data-placement="bottom"
                                     href="javascript:;" onclick="loadEditTimeEntryPopup('{{$v->id}}');"><i
                                         class="fas fa-pen align-middle p-2"></i></a>
+                                @can('delete_items')
                                 <a data-toggle="modal" data-target="#deleteTimeEntry" data-placement="bottom"
                                     href="javascript:;" onclick="deleteTimeEntry('{{$v->id}}');"><i
                                         class="fas fa-trash align-middle p-2"></i></a>
+                                @endcan
                                 <?php } ?>
                                 @endcan
                             </div>

@@ -60,6 +60,7 @@
                                 class="btn btn-primary pendo-schedule-demo-welcome-block test-welcome-block-schedule-demo">Schedule
                                 a Demo</button></div>
                     </div>
+                    @can('add_firm_user')
                     <div class="card text-center ">
                         <div class="card-highlight bg-dark"></div>
                         <div class="card-body">
@@ -74,6 +75,8 @@
                             class="btn btn-outline-primary pendo-welcome-block-add-case">Invite Firm Members</button>
                         </div>
                     </div>
+                    @endcan
+                    @can('case_add_edit')
                     <div class="card text-center ">
                         <div class="card-highlight bg-dark"></div>
                         <div class="card-body">
@@ -83,13 +86,12 @@
                                 bills, etc.,
                                 related to a client matter.</div>
                         </div>
-                        @can('case_add_edit')
                         <div class="card-footer bg-white border-top-0 mt-auto  mb-2">
                             <button type="button" data-toggle="modal" data-target="#AddCaseModelUpdate"
                                 data-placement="bottom" href="javascript:;" onclick="loadAllStep();"
                                 class="btn btn-outline-primary pendo-welcome-block-add-case">Add Case</button></div>
-                        @endcan
                     </div>
+                    @endcan
 
 
                     <div class="card text-center ">

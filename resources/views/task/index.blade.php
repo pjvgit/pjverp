@@ -433,6 +433,7 @@ if(isset($_GET['task_read'])){
                                                     data-content="Edit" data-placement="top" data-html="true"> <i
                                                         class="fas fa-pen pr-3  align-middle"></i> </span></a>
                                         </div>
+                                        @can('delete_items')
                                         <div>
                                             <a class="align-items-center" data-original-title="" data-toggle="modal"
                                                 data-target="#deleteTask" data-placement="bottom"
@@ -442,6 +443,7 @@ if(isset($_GET['task_read'])){
                                                         class="fas fa-trash pr-3  align-middle"></i> </span></a>
 
                                         </div>
+                                        @endcan
                                     </div>
                                 </div>
                             </td>
@@ -764,6 +766,7 @@ if(isset($_GET['task_read'])){
                                                     data-content="Edit" data-placement="top" data-html="true"> <i
                                                         class="fas fa-pen pr-3  align-middle"></i> </span></a>
                                         </div>
+                                        @can('delete_items')
                                         <div>
                                             <a class="align-items-center" data-original-title="" data-toggle="modal"
                                                 data-target="#deleteTask" data-placement="bottom"
@@ -773,6 +776,7 @@ if(isset($_GET['task_read'])){
                                                         class="fas fa-trash pr-3  align-middle"></i> </span></a>
 
                                         </div>
+                                        @endcan
                                     </div>
                                 </div>
                             </td>
