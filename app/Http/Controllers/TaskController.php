@@ -79,6 +79,11 @@ class TaskController extends BaseController
                 $taskAssigneTouser=CaseTaskLinkedStaff::select('task_id')->where("user_id",$_GET['at'])->get()->pluck('task_id');
                 $task = $task->whereIn("task.id",$taskAssigneTouser);
             }
+        } 
+        else {
+            $task = $task->whereHas('taskLinkedStaff', function($query) {
+                $query->where('users.id', auth()->id());
+            });
         }
 
         //Filter applied on case/lead column
@@ -101,7 +106,7 @@ class TaskController extends BaseController
             $getChildUsers[]=Auth::user()->id;
             $task = $task->whereIn("task.created_by",$getChildUsers);
         }else{
-            $task = $task->where("task.created_by",Auth::user()->id);
+            // $task = $task->where("task.created_by",Auth::user()->id);
         }
  
         if(isset($_GET['sort'])){
@@ -114,8 +119,8 @@ class TaskController extends BaseController
         if(isset($_GET['task_read']) && $_GET['task_read']!=''){
             $task = $task->where("task.task_read",'yes');
         }
-        $task = $task->paginate(25);
-        // $task = $task->orderBy('task_due_on', 'ASC')->groupBy('task_due_on')->get();
+        $task = $task->with('taskLinkedStaff', 'taskLinkedContact')->paginate(25);
+        // return $task = $task->get();
      
         $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->where("id","!=",Auth::user()->id)->get();
         $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
@@ -689,14 +694,15 @@ class TaskController extends BaseController
         $task_id=$request->task_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
-        }
+        } */
+        $CaseMasterData = userCaseList();
         $Task = Task::find($request->task_id);
         $TaskChecklist = TaskChecklist::select("*")->where("task_id",$task_id)->orderBy('checklist_order','ASC')->get();
         $taskReminderData = TaskReminder::select("*")->where("task_id",$task_id)->get();

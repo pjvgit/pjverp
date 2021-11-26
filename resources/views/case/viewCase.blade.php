@@ -269,14 +269,17 @@ $adjustment_token=round(microtime(true) * 1000);
                                         {{substr($CaseMaster->first_name,0,15)}} {{substr($CaseMaster->last_name,0,15)}}</a>
                                 </div>
                                 <hr>
+                                @can('case_add_edit')
                                 <?php if($CaseMaster->case_close_date!=NULL){?>
                                     <div class="p-2 mt-2">
                                         <div>
                                             <a data-toggle="modal" data-target="#ReopenCaseModel" data-placement="bottom" href="javascript:;"> <button class="mb-3 btn btn-primary btn-block " type="button" >Reopen Case</button></a>
                                         </div>
+                                        @can('delete_items')
                                         <div>
                                             <a data-toggle="modal" data-target="#DeleteCaseModel" data-placement="bottom" href="javascript:;"> <button class="mb-3 btn  btn-outline-danger btn-block " type="button" >Delete Case</button></a>
                                         </div>
+                                        @endcan
                                     </div>
                                 <?php }else{ ?>
                                     <div class="p-2 mt-2">
@@ -285,6 +288,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                         </div>
                                     </div>
                                 <?php } ?>
+                                @endcan
                             </div>
                     </ul>
                 </nav>

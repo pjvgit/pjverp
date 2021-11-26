@@ -38,7 +38,7 @@ class CalendarController extends BaseController
         $CommonController= new CommonController();
 
         // $CaseEvent = DB::table("case_events")->select("*")->where('created_by',Auth::User()->id);
-        $CaseEvent = CaseEvent::where('created_by',Auth::User()->id);
+        $CaseEvent = CaseEvent::/* where('created_by',Auth::User()->id) */whereBetween('start_date',  [$request->start, $request->end]);
         if($request->event_type!="[]"){
             $event_type=json_decode($request->event_type, TRUE);
             $CaseEvent=$CaseEvent->whereIn('event_type',$event_type);
@@ -54,8 +54,6 @@ class CalendarController extends BaseController
         if($request->taskLoad=='unread'){
             $CaseEvent=$CaseEvent->where('event_read','no');
         }
-
-        $CaseEvent=$CaseEvent->whereBetween('start_date',  [$request->start, $request->end]);
         $CaseEvent=$CaseEvent->whereNull('case_events.deleted_at')->with('eventLinkedStaff')->get();
         $newarray = array();
 
@@ -106,8 +104,12 @@ class CalendarController extends BaseController
             $CaseEventSOL='';
         }
         if(isset($request->searchbymytask) && $request->searchbymytask=="true"){
-            $Task = Task::where('created_by',Auth::User()->id);
-            $Task=$Task->whereBetween('task_due_on', [$request->start, $request->end]);
+            // $Task = Task::where('created_by',Auth::User()->id);
+            // $Task=$Task->whereBetween('task_due_on', [$request->start, $request->end]);
+            $Task = Task::whereBetween('task_due_on', [$request->start, $request->end])
+                    ->whereHas('taskLinkedStaff', function($query) {
+                        $query->where('users.id', auth()->id());
+                    });
             $Task=$Task->where('task_due_on',"!=",'9999-12-30');
             
             $Task=$Task->whereNull('deleted_at')->get();
@@ -151,7 +153,9 @@ class CalendarController extends BaseController
         $endDate = date("Y-m-d", strtotime($request->end));
         $events = CaseEvent::/* where('created_by', auth()->id())-> */whereBetween('start_date',  [$startDate, $endDate]);
         if($request->byuser) {
-            $events = $events->whereIn("created_by", $request->byuser);
+            $events = $events->whereHas('eventLinkedStaff', function($query) use($request){
+                        $query->whereIn('users.id', $request->byuser);
+                    });
         }
         if($request->event_type) {
             $events = $events->whereIn("event_type", $request->event_type);
@@ -1233,21 +1237,16 @@ class CalendarController extends BaseController
     public function eventDetail($event_id)
     {
         $event_id=base64_decode($event_id);
-        $evetData=CaseEvent::whereId($event_id)->with("eventLocation", "case", "eventLinkedStaff")->first();
-        $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
-        /* $eventLocation='';
-        if($evetData->event_location_id!="0"){
-            $eventLocation = CaseEventLocation::leftJoin('countries','countries.id','=','case_event_location.country')->where('case_event_location.id',$evetData->event_location_id)->first();
-        } */
-        /* $CaseMasterData='';
-        if($evetData->case_id!=NULL){
-            $case_id=$evetData->case_id;
-            $CaseMasterData = CaseMaster::where('id',$case_id)->first();
-        } */
-        // $caseLinkedStaffList = CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","case_event_linked_staff.attending")->where("case_event_linked_staff.event_id",$event_id)->get();
-
-        $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
-        return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
+        $evetData = CaseEvent::whereId($event_id)->whereHas('eventLinkedStaff', function($query) {
+            $query->where('users.id', auth()->id());
+        })->with("eventLocation", "case", "eventLinkedStaff")->first();
+        if($evetData) {
+            $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
+            $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
+            return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
+        } else {
+            abort(403);
+        }
     }
 
     public function printEvents(Request $request){

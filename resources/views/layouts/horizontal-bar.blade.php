@@ -127,9 +127,9 @@
                                     </li>
 
                                     @can('access_all_cases')
-                                    <li><a class="{{ Route::currentRouteName()=='apexAreaCharts' ? 'open' : '' }}"
+                                    <li class="m2"><a class="{{ Route::currentRouteName()=='apexAreaCharts' ? 'open' : '' }}"
                                             href="{{route('apexAreaCharts')}}"> Firm Open Cases </a></li>
-                                    <li><a class="{{ Route::currentRouteName()=='apexBarCharts' ? 'open' : '' }}"
+                                    <li class="m2"><a class="{{ Route::currentRouteName()=='apexBarCharts' ? 'open' : '' }}"
                                             href="{{route('apexBarCharts')}}"> Firm Close Cases </a></li>
                                     @endcan
                                     <li><a class="{{ Route::currentRouteName()=='apexBubbleCharts' ? 'open' : '' }}"
@@ -144,7 +144,7 @@
                     </li>
                     <!-- end extra uikits -->
                     @canany(['document_add_edit', 'document_view'])
-                    <li class="{{ request()->is('apps/*') ? 'active' : '' }}">
+                    <li class="{{ request()->is('apps/*') ? 'active' : '' }} m2">
 
                         <div>
 

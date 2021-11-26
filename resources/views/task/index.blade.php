@@ -131,7 +131,7 @@ if(isset($_GET['task_read'])){
 
                                 <option <?php if($at=="allfirmuser"){ echo "selected=selected"; }?> value="allfirmuser">
                                     All Firm User</option>
-                                <option <?php if($at=="me"){ echo "selected=selected"; }?> value="me">Me</option>
+                                <option <?php if($at=="me"){ echo "selected=selected"; }?> {{ (!isset($at) || $at == '') ? 'selected' : '' }} value="me">Me</option>
                                 <option <?php if($at=="everyoneelse"){ echo "selected=selected"; }?>
                                     value="everyoneelse">Everyone else</option>
                                 <optgroup label="Staff">
@@ -375,7 +375,7 @@ if(isset($_GET['task_read'])){
                             </td>
                             <td class="task-assigned-to-cell align-middle">
 
-                                <?php
+                                {{-- <?php
                                             if($subrow->task_user){
                                                 if(count($subrow->task_user)>1){
                                                     $userListHtml="";
@@ -399,8 +399,8 @@ if(isset($_GET['task_read'])){
                                                 ?> <i class="table-cell-placeholder mt-3"></i>
                                 <?php
                                             }
-                                            ?>
-
+                                            ?> --}}
+                                @include('task.partial.load_task_users_list', ['task' => $subrow])
                             </td>
                             <td class="task-actions-cell align-middle d-print-none">
                                 <div class="actions-cell float-right">
@@ -459,7 +459,7 @@ if(isset($_GET['task_read'])){
                         <?php 
                                     }?>
                     </table>
-                    {!! $task->links() !!}
+                    {!! $task->withQueryString()->links() !!}
                 </div>
                 <?php
 
@@ -708,7 +708,7 @@ if(isset($_GET['task_read'])){
                             </td>
                             <td class="task-assigned-to-cell align-middle">
 
-                                <?php
+                                {{-- <?php
                                             if($subrow->task_user){
                                                 if(count($subrow->task_user)>1){
                                                     $userListHtml="";
@@ -732,8 +732,9 @@ if(isset($_GET['task_read'])){
                                                 ?> <i class="table-cell-placeholder mt-3"></i>
                                 <?php
                                             }
-                                            ?>
-
+                                            ?> --}}
+                                
+                                @include('task.partial.load_task_users_list', ['task' => $subrow])
                             </td>
                             <td class="task-actions-cell align-middle d-print-none">
                                 <div class="actions-cell float-right">
@@ -793,7 +794,7 @@ if(isset($_GET['task_read'])){
                         <?php 
                                     }?>
                     </table>
-                    {!! $task->links() !!}
+                    {!! $task->withQueryString()->links() !!}
                 </div>
 
                 <?php 
