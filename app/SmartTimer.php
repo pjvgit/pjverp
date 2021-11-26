@@ -7,7 +7,7 @@ class SmartTimer extends Authenticatable
 {
     public $timestamps = false;
     protected $fillable = [
-        'case_id', 'comments', 'started_at', 'stopped_at', 'paused_at', 'user_id'
+        'case_id', 'comments', 'started_at', 'stopped_at', 'paused_at', 'user_id', 'is_pause', 'paused_seconds'
     ];    
     
     /**

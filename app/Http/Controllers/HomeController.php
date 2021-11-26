@@ -905,15 +905,29 @@ class HomeController extends BaseController
         // return response()->json(["status" => "success", "pause_smart_timer_id" => $PauseTimerEntrie->id]);
         
         $SmartTimer = SmartTimer::find($request->smart_timer_id);
+        session(["paused_time" => date("Y-m-d H:i:s")]);                
         $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+        $SmartTimer->is_pause = 1;
         $SmartTimer->save();
         return response()->json(["status" => "success"]);
     }
 
     public function resumeTimer(Request $request){
-        $PauseTimerEntrie = PauseTimerEntrie::find($request->pause_smart_timer_id);
-        $PauseTimerEntrie->paused_at = date("Y-m-d H:i:s");
-        $PauseTimerEntrie->save();
+        // $PauseTimerEntrie = PauseTimerEntrie::find($request->pause_smart_timer_id);
+        // $PauseTimerEntrie->paused_at = date("Y-m-d H:i:s");
+        // $PauseTimerEntrie->save();
+        // return response()->json(["status" => "success"]);
+
+        
+        $startTime1 = Carbon::parse(session("paused_time"));
+        $finishTime1 = Carbon::now();
+        $pausedSeconds = $finishTime1->diffInSeconds($startTime1);
+
+        $SmartTimer = SmartTimer::find($request->smart_timer_id);
+        $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+        $SmartTimer->is_pause = 0;        
+        $SmartTimer->paused_seconds = $SmartTimer->paused_seconds + $pausedSeconds;
+        $SmartTimer->save();
         return response()->json(["status" => "success"]);
     }
 

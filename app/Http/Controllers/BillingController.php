@@ -166,15 +166,27 @@ class BillingController extends BaseController
             $curDate=$request->curDate;
         }
 
-        $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
-        if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
-            $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
-            $default_rate=($defaultRate['default_rate'])??0.00;
-        }else{
-            $default_rate=($rateUsers['rate_amount'])??0.00;
-        }
+        // $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
+        // if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
+        //     $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
+        //     $default_rate=($defaultRate['default_rate'])??0.00;
+        // }else{
+        //     $default_rate=($rateUsers['rate_amount'])??0.00;
+        // }
 
-        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "request"));     
+        $caseStaffRates = [];
+        $default_rate=0.00;
+        $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
+        if(count($caseStaffData) > 0){
+            foreach($caseStaffData as $k => $v){
+                $caseStaffRates[$v->user_id] = $v->rate_amount;
+                if($v->lead_attorney != NULL){
+                    $default_rate=$v->rate_amount;
+                }
+            }
+        }
+        
+        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "caseStaffRates", "request"));     
         exit;    
     } 
     public function loadTimeEntryPopupDontRefresh(Request $request)

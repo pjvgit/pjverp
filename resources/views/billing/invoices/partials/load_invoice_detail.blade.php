@@ -369,7 +369,7 @@
                     } ?>
 
                     <?php
-                    if(!empty($nonBillData) && isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
+                    if(!empty($nonBillData) && isset($invoiceSetting) && !empty($invoiceSetting) && @$invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
                         ?>
                         <tr class="invoice_info_row nonbillable-title">
                             <td class="invoice_info_bg" colspan="7">
@@ -539,7 +539,7 @@
                     }
                     } ?>
                 <?php
-                if(!empty($expenseNonBill) && isset($invoiceSetting) && $invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
+                if(!empty($expenseNonBill) && isset($invoiceSetting) && @$invoiceSetting['non_billable_time_entries_and_expenses'] == "yes"){
                     ?>
                     <tr class="invoice_info_row nonbillable-title">
                         <td class="invoice_info_bg" colspan="7">
@@ -547,6 +547,7 @@
                         </td>
                         </tr>
                     <?php 
+                    dd($expenseNonBill);
                     foreach($expenseNonBill as $k=>$v){
                         ?>
                         <tr class="invoice_info_row ">

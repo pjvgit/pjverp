@@ -58,6 +58,7 @@ class EventCommentEmailJob implements ShouldQueue
                 Log::info("event linked staff");
                 $getTemplateData = EmailTemplate::find(26);
                 foreach($caseEvent->eventLinkedStaff as $key => $item) {
+                    Log::info("event linked staff > email > " . $item->email);
                     Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'staff')));        
                 }
             }
@@ -65,12 +66,14 @@ class EventCommentEmailJob implements ShouldQueue
             if($caseEvent->eventLinkedContact) {
                 Log::info("event contact staff");
                 foreach($caseEvent->eventLinkedContact as $key => $item) {
+                    Log::info("event contact staff > email > " . $item->email);
                     Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
                 }
             }
             if($caseEvent->eventLinkedLead) {
                 Log::info("event linked lead");
                 foreach($caseEvent->eventLinkedLead as $key => $item) {
+                    Log::info("event linked lead > email > " . $item->email);
                     Mail::to($item->email)->send((new EventCommentMail($eventData, $firmData, $item, $getTemplateData, $caseEventComment->createdByUser, 'client')));        
                 }
             }

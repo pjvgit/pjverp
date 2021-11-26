@@ -1,3 +1,8 @@
+------------------------------------ 26-NOV-2021 ------------------------------
+ALTER TABLE `smart_timers`
+ADD `is_pause` tinyint(1) NOT NULL DEFAULT '0' AFTER `paused_at`,
+ADD `paused_seconds` int(11) NOT NULL DEFAULT '0' AFTER `is_pause`;
+
 ------------------------------------ 25-NOV-2021 ------------------------------
 ALTER TABLE `notification_settings`
 CHANGE `sub_type` `sub_type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user','case','staff') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `type`;

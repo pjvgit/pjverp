@@ -296,8 +296,9 @@
         function ResetTimers(){
             $("#timeoutPopup").modal("hide");
         }
-        <?php
-        if(Auth::User()->auto_logout=="on"){?>
+       
+        <?php if(Auth::User()->auto_logout=="on"){?>
+        if (localStorage.getItem("counter") == 0 && localStorage.getItem("pauseCounter") != 'yes') {
         $(document).ready(function () {
             setTimeout(function(){
                 IdleWarning();
@@ -323,8 +324,9 @@
                 ResetTimers()
             });
         });
+        }
         <?php } ?>
-       
+        
     </script>
 <style>
 .search-ui {background-color: #ffffff !important;}

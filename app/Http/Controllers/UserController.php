@@ -12,7 +12,7 @@ use App\Firm,App\CaseStage,App\CasePracticeArea;
 use App\FirmAddress;
 use App\Traits\InvoiceSettingTrait,App\FirmEventReminder;
 use Carbon\Carbon;
-use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\UsersAdditionalInfo;
+use App\UserPreferanceReminder,App\NotificationSetting,App\UserNotification,App\UsersAdditionalInfo,App\SmartTimer;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -54,7 +54,17 @@ class UserController extends BaseController
             $password=$request->password;
             if (Auth::attempt(['email' => $email, 'password' => $password])) {
                 Auth::logoutOtherDevices($password);
-
+                // checkSmartTimer on or off
+                $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
+                if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){
+                    $startTime1 = Carbon::parse($SmartTimer->started_at);
+                    $finishTime1 = Carbon::now();
+                    $duration = $finishTime1->diffInSeconds($startTime1);
+                    $duration = $duration - $SmartTimer->paused_seconds - 10;
+                    $SmartTimer->paused_at = $duration;
+                    $SmartTimer->is_pause = 1;
+                    $SmartTimer->save();
+                }
                 $user = User::find(Auth::User()->id);
                 if($user->getUserFirms() > 1) {
                     return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
@@ -961,7 +971,6 @@ class UserController extends BaseController
         }
      }
      public function autoLogout(Request $request) {
-        dd(session('smart_timer_id'));
         Auth::logout();
         Session::flush();
         return redirect('login');

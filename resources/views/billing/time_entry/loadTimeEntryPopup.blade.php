@@ -39,7 +39,7 @@
                 <div class="col-10 form-group mb-3">
                     <select class="form-control staff_user dropdownSelect2" id="staff_user" name="staff_user">
                         <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
-                        <option <?php if($CasevloadFirmStaffvalal->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
+                        <option <?php if($CasevloadFirmStaffvalal->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$CasevloadFirmStaffvalal->id}}" data-flatfees="{{$caseStaffRates[$CasevloadFirmStaffvalal->id] ?? 0}}" >{{$CasevloadFirmStaffvalal->first_name}}
                             {{$CasevloadFirmStaffvalal->last_name}}  <?php if($CasevloadFirmStaffvalal->user_title){ echo "(".$CasevloadFirmStaffvalal->user_title.")"; } ?></option>
                         <?php } ?>
                     </select>
@@ -852,6 +852,9 @@
 
                         return false;
                     } else {
+                        localStorage.removeItem("counter");
+                        localStorage.removeItem("pauseCounter");
+                        localStorage.removeItem("smart_timer_id");
                         toastr.success('Your time entry has been created', "", {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
@@ -1080,8 +1083,10 @@
     });
 
     $("#activity").on("select2:select", function(e) {
-        $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
-        // $("#rate_type_field_id").val('flat');
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            $("#rate_type_field_id").val('flat');
+        }
         
         $("#activity").select2({
             placeholder: "Select activity",
@@ -1090,4 +1095,19 @@
             dropdownParent: $("#loadTimeEntryPopup"),
         });
     });
+
+    $("#staff_user").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            $("#rate_type_field_id").val('hr');
+        }
+        
+        $("#staff_user").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#loadTimeEntryPopup"),
+        });
+    });
+    
 </script>

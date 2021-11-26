@@ -129,7 +129,7 @@ $(document).ready(function() {
 });
 
 // Start smart timer Modules
-// localStorage.setItem("counter", "0");
+localStorage.setItem("counter", "0");
 
 let hour = 0;
 let minute = 0;
@@ -168,9 +168,20 @@ if (localStorage.getItem("counter") > 0) {
                 if (data.smartTimer.stopped_at != null) {
                     $(".js-timer-root .text-nowrap").html("&nbsp;1&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
                     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                    $(".timerAction").attr('id', 'startCounter');
                 } else {
-                    intervalId = setInterval(timerstart, 1000);
+                    if (data.smartTimer.is_pause == 0) {
+                        intervalId = setInterval(timerstart, 1000);
+                    } else {
+                        $(".js-timer-root .text-nowrap").html("&nbsp;1&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
+                        $(".timerAction").removeClass("fa-pause").addClass("fa-play");
+                        $(".timerAction").attr('id', 'startCounter');
+                    }
                 }
+            } else {
+                localStorage.removeItem("counter");
+                localStorage.removeItem("pauseCounter");
+                localStorage.removeItem("smart_timer_id");
             }
         }
     });
@@ -202,7 +213,7 @@ console.log("localStorage > counter : " + localStorage.getItem("counter"));
 console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
 
 $(document).on("click", "#startCounter", function() {
-    // resumeTimer();
+    resumeTimer();
     $(".logoutTimerAlert").show();
     if (!intervalId) {
         localStorage.setItem("pauseCounter", 'no');
@@ -269,6 +280,8 @@ function deleteTimer() {
                         $("#preloader").show();
                         localStorage.removeItem("counter");
                         localStorage.removeItem("pauseCounter");
+                        localStorage.removeItem("smart_timer_id");
+
                         $("#smart_timer_id").val("");
                         window.location.reload();
                     }
@@ -277,6 +290,7 @@ function deleteTimer() {
                     $("#preloader").show();
                     localStorage.removeItem("counter");
                     localStorage.removeItem("pauseCounter");
+                    localStorage.removeItem("smart_timer_id");
                     window.location.reload();
                 }
             });
@@ -329,14 +343,14 @@ function pauseTimer() {
 
 function resumeTimer() {
     var smart_timer_id = $("#smart_timer_id").val();
-    var pause_smart_timer_id = $("#pause_smart_timer_id").val();
+    var total_time = $(".time_status_0").html();
     $.ajax({
         url: baseUrl + "/resumeTimer",
         type: 'POST',
-        data: { "smart_timer_id": smart_timer_id, "pause_smart_timer_id": pause_smart_timer_id },
+        data: { "smart_timer_id": smart_timer_id, "total_time": total_time },
         success: function(data) {
             if (data.status == "success") {
-                $("#pause_smart_timer_id").val("");
+                // $("#pause_smart_timer_id").val("");
             }
         },
     });
