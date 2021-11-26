@@ -54,19 +54,23 @@ class EventDayReminderEmailCommand extends Command
                     ->get();
         if($result) {
             foreach($result as $key => $item) {
+                Log::info("Event id :". $item->id);
                 // return $firmDetail = firmDetail($item->event
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
                 if(count($users)) {
+                    Log::info("user found:".$users);
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
                         if ($date->hour === 05) { 
                             Log::info("EventDayReminderEmailCommand : day time true");
-                            dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"))->onConnection('database');
+                            dispatch(new EventReminderEmailJob($item, $useritem, $attendEvent, "day"));
                         }
                     }
+                } else {
+                    Log::info("EventDayReminderEmailCommand : user not found");
                 }
             }
         }

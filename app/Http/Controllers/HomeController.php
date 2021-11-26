@@ -196,10 +196,20 @@ class HomeController extends BaseController
 
         //Get 15 upcoming events for dashboard
         // $upcomingTenEvents=CaseEvent::leftJoin('case_master','case_master.id','=','case_events.case_id')->leftJoin('users','users.id','=','case_events.lead_id')->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","case_events.*")->where('start_date','>=',date('Y-m-d'))->where('case_events.created_by',Auth::User()->id)->orderBy("start_date", "ASC")->limit(15)->get();
-        $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))->where('case_events.created_by',Auth::User()->id)->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get();
+        $upcomingTenEvents=CaseEvent::where('start_date','>=',date('Y-m-d'))/* ->where('case_events.created_by',Auth::User()->id) */
+                ->whereHas('eventLinkedStaff', function($query) {
+                    $query->where('users.id', auth()->id());
+                })
+                ->orderBy("start_date", "ASC")->with("case", "leadUser", 'eventLinkedStaff')->limit(15)->get();
 
         //Get 15 upcoming task for dashboard
-        $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","task.*")->where("task_due_on","!=","9999-12-30")->where('task.created_by',Auth::User()->id)->orderBy("task_due_on","ASC")->where('status','0')->limit(15)->get();
+        $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')
+                ->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","task.*")
+                ->where("task_due_on","!=","9999-12-30")/* ->where('task.created_by',Auth::User()->id) */
+                ->whereHas('taskLinkedStaff', function($query) {
+                    $query->where('users.id', auth()->id());
+                })
+                ->orderBy("task_due_on","ASC")->where('status','0')->limit(15)->get();
         
         //For Alter widget (Overdue invoice)
         $InvoicesOverdue=Invoices::leftJoin('case_master','case_master.id','=','invoices.case_id')->select("invoices.*","case_master.case_title","case_master.case_unique_number")->where("invoices.created_by",Auth::User()->id)->where('due_date',"!=",NULL)->where("invoices.status",'Overdue');

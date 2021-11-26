@@ -680,3 +680,6 @@ p {
     display: flex;
     align-items: center;
 }
+.m2{
+    display: none !important;
+}

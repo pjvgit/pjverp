@@ -193,11 +193,11 @@ function userCaseList()
 {
     $authUser = auth()->user();
     $cases = CaseMaster::where("firm_id", $authUser->firm_name)->where('is_entry_done',"1");
-    if($authUser->parent_user != 0) {
-    // if($authUser->can('access_only_linked_cases')) {
-        $cases = $cases->where('created_by', $authUser->id)/* ->orWhereHas('caseStaffAll', function($query) use($authUser) {
-            $query->where('id', $authUser->id);
-        }) */;
+    // if($authUser->parent_user != 0) {
+    if($authUser->hasPermissionTo('access_only_linked_cases')) {
+        $cases = $cases/* ->where('created_by', $authUser->id) */->whereHas('caseStaffAll', function($query) use($authUser) {
+            $query->where('user_id', $authUser->id);
+        });
     }
     return $cases->select('id', 'case_title', 'case_number', 'case_close_date')->get();
 }

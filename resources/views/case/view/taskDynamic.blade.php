@@ -159,7 +159,7 @@ foreach ($task as $element) {
             </td>
 
             <td class="task-assigned-to-cell align-middle">
-                <?php
+                {{-- <?php
                     if($subrow->task_user){
                         if(count($subrow->task_user)>1){
                             $userListHtml="";
@@ -189,7 +189,8 @@ foreach ($task as $element) {
                     ?> <i class="table-cell-placeholder"></i>
                 <?php
                 }
-                ?>
+                ?> --}}
+                @include('task.partial.load_task_users_list', ['task' => $subrow])
             </td>
             <td class="task-actions-cell align-middle d-print-none">
                 <div class="actions-cell float-right">

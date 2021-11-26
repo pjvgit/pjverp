@@ -966,7 +966,12 @@ class CaseController extends BaseController
         $allEvents=$taskCountNextDays=$taskCompletedCounter=$overdueTaskList=$upcomingTaskList=$eventCountNextDays=$upcomingEventList='';
         $InvoicesOverdueCase=0;
 
-        $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("case_master.*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")->where("case_unique_number",$request->id)->with('caseOffice')->first();
+        $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("case_master.*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")
+                        ->where("case_unique_number",$request->id)
+                        ->whereHas('caseStaffAll', function($query) {
+                            $query->where('user_id', auth()->id());
+                        })
+                        ->with('caseOffice')->first();
         if(!empty($CaseMaster)){
             $case_id= $CaseMaster->case_id;
             // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');
@@ -1036,7 +1041,9 @@ class CaseController extends BaseController
                 if($request->upcoming_events && $request->upcoming_events == 'on') {
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
-                $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
+                $allEvents = $allEvents->whereHas('eventLinkedStaff', function($query) {
+                    $query->where('users.id', auth()->id());
+                })->orderBy('start_date','ASC')->orderBy('start_time','ASC')
                 ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 ->paginate(15)
                 /* ->groupBy(function($val) {
@@ -1155,6 +1162,8 @@ class CaseController extends BaseController
             //Get total number of case avaulable in system 
             $caseCount = CaseMaster::where("created_by",Auth::User()->id)->where('is_entry_done',"1")->count();
             return view('case.viewCase',compact("CaseMaster","caseCllientSelection","practiceAreaList","caseStageList","leadAttorney","originatingAttorney","staffList","lastStatusUpdate","caseStatusHistory","caseStageListArray","allStatus","mainArray","caseCreatedDate","allEvents","caseCount","taskCountNextDays","taskCompletedCounter","overdueTaskList","upcomingTaskList","eventCountNextDays","upcomingEventList",'flatFeeEntryData','timeEntryData','expenseEntryData','caseClients','InvoicesTotal','InvoicesPendingTotal','InvoicesCollectedTotal','caseBiller','getAllFirmUser','totalCalls','caseStat','InvoicesOverdueCase','totalCaseIntakeForm','linkedCompany','CompanyList'));
+        } else {
+            abort(404);
         }
     }
 
@@ -1883,14 +1892,14 @@ class CaseController extends BaseController
         
         if(count($CaseEventData) > 0) {
             foreach ($CaseEventData as $k=>$v){
-                CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->selected_user)->where('event_id',$v->id)->delete();
-                CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->selected_user)->where('event_id',$v->id)->delete();
+                CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
             }
         }
         $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
         if(count($TaskData) > 0) {
             foreach ($TaskData as $k=>$v){
-                CaseTaskLinkedStaff::where('user_id',$CaseStaffSelection->selected_user)->where('task_id',$v->id)->delete();
+                CaseTaskLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('task_id',$v->id)->delete();
             }
         }
         CaseStaff::where("id", $id)->delete();
