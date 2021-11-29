@@ -10,7 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" 
+                <td><input name="client-share-all" id="SelectAllLeadShare" class="load-client-reminder"
                 <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>
                 type="checkbox"></td>
             </tr>
@@ -33,14 +33,14 @@
                     <td>
                         <?php if(isset($from) && $from=="edit"){?>
                         <label class="mb-0 loadEventRightSection">
-                            <input class="lead_client_share_all_users" name="linked_contact_checked_attend[]" 
+                            <input class="lead_client_share_all_users load-client-reminder" name="linked_contact_checked_attend[]" 
                             <?php if(in_array($val->id,$caseLinkeSavedAttendingContact)){ ?> checked="checked" <?php } ?>
                             value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
                             <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>
                         <?php }else{ ?>
                             <label class="mb-0 loadEventRightSection">
-                            <input class="lead_client_share_all_users"  name="linked_contact_checked_attend[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}"
+                            <input class="lead_client_share_all_users load-client-reminder"  name="linked_contact_checked_attend[]" value="{{$val->id}}" id="cleintUSER_{{$val->id}}" 
                             <?php if($val->client_portal_enable=='0'){?> onclick="loadGrantAccessModal({{$val->id}});" <?php } ?> data-client_portal_enable="{{$val->client_portal_enable}}" type="checkbox">
                         </label>
                         <?php } ?>    

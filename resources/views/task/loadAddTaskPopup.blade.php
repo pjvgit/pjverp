@@ -139,15 +139,15 @@
                 <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                 <div class="col">
                     <div>
-                        <div class="fieldGroup">
+                        <div class="task-fieldGroup">
                         </div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
+                        <div><button type="button" class="btn btn-link p-0 add-more-task-reminder">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
         
-            
-            <div class="fieldGroupCopy copy hide" style="display: none;">
+            @include('task.partial.add_more_reminder_div')
+            {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
                 <div class="">
                     <div class="d-flex col-12 pl-0 align-items-center">
                         <div class="pl-0 col-2">
@@ -181,7 +181,7 @@
                                     <select id="reminder_time_unit" name="reminder_time_unit[]"
                                         class="form-control custom-select  ">
                                         {{-- <option value="minute">minutes</option>
-                                        <option value="hour">hours</option> --}}
+                                        <option value="hour">hours</option>
                                         <option value="day">days</option>
                                         <option value="week">weeks</option>
                                     </select>
@@ -194,7 +194,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div id="loadUserAjax"></div>
             <div class="form-group row">
@@ -235,6 +235,7 @@
         </div>
     </div>
 </form>
+<script src="{{ asset('assets\js\custom\task\addtask.js') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $( "#sortable" ).sortable();
@@ -268,14 +269,14 @@
             $("#dropdown-menu").toggle();
         });
         // $(".hide").hide();
-        $(".add-more").click(function () {
+        /* $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('#addTaskArea .fieldGroup:last').before(fieldHTML);
         });
         $('#CreateTask').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
-        });
+        }); */
 
 
         // $(".hide").hide();

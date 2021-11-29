@@ -72,8 +72,11 @@
                     @endif 
                 </div>
             </td>
+            @php
+                $isAuthUserLinked = $vv->eventLinkedStaff()->where('users.id', auth()->id())->first();
+            @endphp
             <td class="c-pointer">
-                @if(!empty($vv->eventType))
+                @if(!empty($vv->eventType) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
                 <div class="d-flex align-items-center mt-3">
                     <div class="mr-1"
                         style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$vv->eventType->color_code }}">
@@ -84,7 +87,7 @@
                 @endif
             </td>
             <td class="event-users">
-                    @if(!empty($vv->eventLinkedStaff))
+                @if(!empty($vv->eventLinkedStaff) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
                     @php
                         $totalUser = count($vv->eventLinkedStaff) + count($vv->eventLinkedContact) + count($vv->eventLinkedLead);    
                     @endphp
@@ -161,9 +164,9 @@
             </td>
             @else
             <td class="event-users">
-                <?php if($vv->is_event_private=='no'){?>
+                @if($vv->is_event_private=='no')
                 <div class="mt-3 float-right">
-
+                    @if($isAuthUserLinked || auth()->user()->parent_user == 0)
                     <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopupIndex"
                     data-placement="bottom" href="javascript:;"
                     onclick="loadReminderPopupIndex({{$vv->id}});">
@@ -219,8 +222,9 @@
                         <i class="fas fa-trash pr-2  align-middle"></i> </a>
                     <?php } ?>
                     @endcan
+                    @endif
                 </div>
-                <?php } ?>
+                @endif
             </td>
             @endif
         </tr>

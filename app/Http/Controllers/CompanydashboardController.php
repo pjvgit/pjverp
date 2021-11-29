@@ -137,6 +137,7 @@ class CompanydashboardController extends BaseController
         $totalData=$clientList->count();
         $totalFiltered = $totalData; 
         
+        
         $clientList = $clientList->offset($requestData['start'])->limit($requestData['length']);
         $clientList = $clientList->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $clientList = $clientList->get();

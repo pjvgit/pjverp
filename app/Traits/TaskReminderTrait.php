@@ -9,9 +9,12 @@ trait TaskReminderTrait {
  
     public function getTaskLinkedUser($item, $notifyType) {
         // return $notifyType;
-        $taskLinkedUser = []; $caseLinkedUser = [];
+        $taskLinkedUser = []; $caseLinkedUser = []; $taskLinkContact = [];
         if(!empty($item->task->taskLinkedStaff)) {
             $taskLinkedUser = $item->task->taskLinkedStaff->pluck('id')->toArray();
+        }
+        if(!empty($item->task->taskLinkedContact)) {
+            $taskLinkContact = $item->task->taskLinkedContact->pluck('id')->toArray();
         }
         if($item->task->case_id && $item->task->case) {
             if(!empty($item->task->case->caseStaffAll)) {
@@ -24,8 +27,8 @@ trait TaskReminderTrait {
         }
         // Log::info("Task linked user:". $taskLinkedUser);
         // Log::info("Task assigned user:". $caseLinkedUser);
-        $users = User::where(function($query) use($taskLinkedUser, $caseLinkedUser) {
-            $query->whereIn("id", $taskLinkedUser)->orWhereIn("id", $caseLinkedUser);
+        $users = User::where(function($query) use($taskLinkedUser, $caseLinkedUser, $taskLinkContact) {
+            $query->whereIn("id", $taskLinkedUser)->orWhereIn("id", $caseLinkedUser)->orWhereIn("id", $taskLinkContact);
         });
         if($item->reminder_user_type == "attorney") {
             $users = $users->where("user_type", "1");
@@ -33,6 +36,8 @@ trait TaskReminderTrait {
             $users = $users->where("user_type", "3");
         } else if($item->reminder_user_type == "paralegal") {
             $users = $users->where("user_type", "2");
+        } else if($item->reminder_user_type == "client-lead") {
+            $users = $users->whereIn("user_level", ["2",'4','5']);
         } else {
             $users = User::whereId($item->created_by);
         }

@@ -428,7 +428,7 @@ class ContractController extends BaseController
             (isset($request->empty_trash_permission) && $request->empty_trash_permission != 'no') ? $request->empty_trash_permission : '',
             (isset($request->import_export) && $request->import_export != 'no') ? $request->import_export : '',
             (isset($request->custome_fields) && $request->custome_fields != 'no') ? $request->custome_fields : '',
-            (isset($request->manage_firm) && $request->manage_firm != 'no') ? $request->manage_firm : '',
+            ($user->parent_user == 0) ? 'manage_firm_and_billing_settings' : ((isset($request->manage_firm) && $request->manage_firm != 'no') ? $request->manage_firm : ''),
         ];
         $user->syncPermissions($permissions);
 
@@ -897,14 +897,14 @@ class ContractController extends BaseController
         $requestData= $_REQUEST;
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id");
         $user = $user->where("user_level","2"); //Load all client 
-
-        if(Auth::user()->parent_user==0){
+        // According to user permission show all clients and allow access of liked cases of client
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $user = $user->whereIn("parent_user",$getChildUsers);
         }else{
             $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        }
+        } */
         if($requestData['tab']=="active"){
             $user = $user->whereIn("users.user_status",[1,2]);
         }else{
@@ -1409,13 +1409,13 @@ class ContractController extends BaseController
             $user = User::select('*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'));
             $user = $user->where("user_level","4");  //4=Company
           
-            if(Auth::user()->parent_user==0){
+            /* if(Auth::user()->parent_user==0){
                 $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
                 $getChildUsers[]=Auth::user()->id;
                 $user = $user->whereIn("parent_user",$getChildUsers);              
             }else{
                 $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-            }
+            } */
             if($requestData['tab']=="active"){
                 $user = $user->whereIn("users.user_status",["1","2"]);
             }else{
@@ -1433,7 +1433,7 @@ class ContractController extends BaseController
             if( !empty($requestData['search']['value']) ) { 
                 $totalFiltered = $user->count(); 
             }
-
+            $user = $user->with("clientCases");
             $user = $user->offset($requestData['start'])->limit($requestData['length']);
             $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
             $user = $user->get();

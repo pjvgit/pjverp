@@ -184,16 +184,18 @@
                                 <label class="toggle" for="drop-2">
                                     Billing
                                 </label>
-                                <a href="{{route('bills/dashboard')}}">
+                                <a href="@can('billing_restrict_time_entry_and_expense') {{route('bills/time_entries')}} @else {{ route('bills/dashboard') }} @endcan">
                                     Billing
                                 </a><input type="checkbox" id="drop-2">
                                 <ul>
+                                    @cannot('billing_restrict_time_entry_and_expense')
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='bills/dashboard' ? 'open' : '' }}"
                                             href="{{route('bills/dashboard')}}">
                                             <span class="item-name">Dashboard</span>
                                         </a>
                                     </li>
+                                    @endcannot
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='bills/time_entries' ? 'open' : '' }}"
                                             href="{{route('bills/time_entries')}}?i=o&type=own">
@@ -206,6 +208,7 @@
                                             <span class="item-name">Expenses</span>
                                         </a>
                                     </li>
+                                    @cannot('billing_restrict_time_entry_and_expense')
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='bills/retainer_requests' ? 'open' : '' }}"
                                             href="{{route('bills/retainer_requests')}}">
@@ -224,19 +227,21 @@
                                             <span class="item-name">Payment Plans</span>
                                         </a>
                                     </li>
+                                    @endcannot
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='bills/activities' ? 'open' : '' }}"
                                             href="{{route('bills/activities')}}">
                                             <span class="item-name">Saved Activities</span>
                                         </a>
                                     </li>
-                                   
+                                    @cannot('billing_restrict_time_entry_and_expense')
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='bills/account_activity' ? 'open' : '' }}"
                                             href="{{route('bills/account_activity')}}">
                                             <span class="item-name">Account Activity</span>
                                         </a>
                                     </li>  
+                                    @endcannot
                                     @can('billing_access_financial_insight')
                                     <li class="nav-item">
                                         <a class="{{ Route::currentRouteName()=='insights/financials' ? 'open' : '' }}"

@@ -112,19 +112,37 @@ class InvoiceReminderEmailCommand extends Command
                     if($remindDate->eq($currentDate)) {
                         if(count($item->invoiceSharedUser)) {
                             foreach($item->invoiceSharedUser as $userkey => $useritem) {
-                                $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
-                                Log::info($useritem->user_timezone."=".$date);
+                                Log::info($useritem->user_timezone."=".$remindDate);
+                                /* $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                                 if ($date->hour === 05) { 
                                     Log::info("invoice day time true");
                                     dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days));
                                 }
-                                if($item->id == 247) {
+                                if($item->id == 247) { */
                                 // Set job dispatch time
                                 $timestamp = $remindDate->format('Y-m-d').' 05:00:00';
-                                $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, 'Pacific/Midway');
+                                $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
                                 $dispatchDate->setTimezone('UTC');
                                 Log::info("user time to utc time: ". $dispatchDate);
                                 dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
+                                // }
+
+                                // Update invoice settings
+                                if($item->invoice_setting && $remindType && $days) {
+                                    $invoiceSetting = $item->invoice_setting;
+                                    foreach($invoiceSetting['reminder'] as $key1 => $item1) {
+                                        $is_reminded = $item1['is_reminded'] ?? "no";
+                                        if($remindType == $item1['remind_type'] && $days == $item1['days']) {
+                                            $is_reminded = "yes";
+                                        }
+                                        $jsonData['reminder'][] = [
+                                            'remind_type' => $item1['remind_type'],
+                                            'days' => $item1['days'],
+                                            'is_reminded' => $is_reminded,
+                                        ];
+                                    }
+                                    $invoiceSetting['reminder'] = $jsonData['reminder'];
+                                    $item->fill(['invoice_setting' => $invoiceSetting])->save();
                                 }
                             }
                         } else {
