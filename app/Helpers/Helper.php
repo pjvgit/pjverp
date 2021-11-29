@@ -24,9 +24,10 @@ function userLeadList()
     $leades = User::where("firm_name", $authUser->firm_name)->where("user_type", 5)->where("user_level","5")->whereHas("userLeadAdditionalInfo", function($query) {
         $query->where("is_converted", "no")->where("user_status", 1);
     });
-    if($authUser->parent_user != 0) {
+    // As per user permission all user can access all lead
+    /* if($authUser->parent_user != 0) {
         $leades = $leades->where("parent_user", $authUser->id);
-    }
+    } */
     return $leades->get()->pluck("full_name", "id");
     // LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
 }
@@ -39,10 +40,10 @@ function userClientList()
     $authUser = auth()->user();
     $clients = User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level')->where("firm_name", $authUser->firm_name)
                 ->where('user_level', 2)->whereIn("user_status", [1,2]);
-    if($authUser->parent_user != 0) {
+    // As per user permission, user can view all client/company
+    /* if($authUser->parent_user != 0) {
         $clients = $clients->where("parent_user", $authUser->id);
-    }
-    // return $clients->pluck("name", "id");
+    } */
     return $clients->get();
     // User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->whereIn("user_status",[1,2])->where("parent_user",Auth::user()->id)->get();
 }
@@ -54,10 +55,10 @@ function userCompanyList()
 {
     $authUser = auth()->user();
     $company = User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4);
-    if($authUser->parent_user != 0) {
+    // As per user permission, user can view all client/company
+    /* if($authUser->parent_user != 0) {
         $company = $company->where("parent_user", $authUser->id);
-    }
-    // return $company->get()->pluck("full_name", "id");
+    } */
     return $company->get();
     // User::select("email","first_name","last_name","id","user_level")->whereIn("user_status",[1,2])->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
 }

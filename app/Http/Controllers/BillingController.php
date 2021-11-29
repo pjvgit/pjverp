@@ -154,7 +154,8 @@ class BillingController extends BaseController
     public function loadTimeEntryPopup(Request $request)
     {  
         $case_id=$request->case_id;
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = userCaseList();
         // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         $loadFirmStaff = firmUserList();
         
@@ -224,7 +225,8 @@ class BillingController extends BaseController
         {  
             $updatedBy=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as updated_by_name'))->where("id",$TaskTimeEntry['updated_by'])->first();
         }
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = userCaseList();
         // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
@@ -520,7 +522,8 @@ class BillingController extends BaseController
     {   
         $case_id=$request->case_id;
         $getChildUsers=$this->getParentAndChildUserIds();
-        $CaseMasterData = CaseMaster::whereIn('created_by',$getChildUsers)->where('is_entry_done',"1")->get();
+        // $CaseMasterData = CaseMaster::whereIn('created_by',$getChildUsers)->where('is_entry_done',"1")->get();
+        $CaseMasterData = userCaseList();
         // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
@@ -665,7 +668,8 @@ class BillingController extends BaseController
         if($TaskTimeEntry['updated_by']!=NULL){
             $updatedBy=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as updated_by_name'))->where("id",$TaskTimeEntry['updated_by'])->first();
         }
-        $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = userCaseList();
         // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
         $loadFirmStaff = firmUserList();
         $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
@@ -4290,9 +4294,13 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
+        $caseMaster=CaseMaster::whereId($findInvoice->case_id)->whereHas('caseStaffAll', function($query) {
+                        $query->where('user_id', auth()->id());
+                    })
+                    ->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
+        if(empty($findInvoice) || empty($caseMaster))
         {
-            return view('pages.404');
+            return abort(403);
         }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
         {
             return \Redirect::route('bills/invoices/potentialview', [$request->id]);

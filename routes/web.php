@@ -919,7 +919,9 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
 
     //Billing Module
     Route::middleware(['permission:billing_add_edit|billing_view'])->group(function () {
+        // Route::middleware(['permission:!billing_restrict_time_entry_and_expense'])->group(function () {
     Route::get('bills/dashboard', 'BillingController@dashboard')->name('bills/dashboard');
+        // });
     Route::get('bills/time_entries', 'BillingController@time_entries')->name('bills/time_entries');
     Route::get('bills/expenses', 'BillingController@expenses')->name('bills/expenses');
     Route::get('bills/retainer_requests', 'BillingController@retainer_requests')->name('bills/retainer_requests');

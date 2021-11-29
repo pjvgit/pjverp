@@ -139,7 +139,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 var companyLink='<a href="'+baseUrl+'/contacts/companies/'+aData.id+'">'+aData.first_name+'</a>';
                 $('td:eq(1)', nRow).html('<div class="text-left">'+companyLink+'</div>');
 
-                var obj = JSON.parse(aData.caselist);
+                // var obj = JSON.parse(aData.caselist);
+                var obj = aData.client_cases;
                 var i;
                 var urlList='';
                 for (i = 0; i < obj.length; ++i) {
