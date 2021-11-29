@@ -2522,7 +2522,19 @@ class BillingController extends BaseController
             ->first();
 
 
-            $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id","case_client_selection.is_billing_contact")->where("case_client_selection.case_id",$case_id)->get();
+            if($case_id == "none"){
+                CaseClientSelection::updateOrcreate([
+                    'case_id' => 0,
+                    'selected_user' => $client_id,
+                ],[
+                    'case_id' => 0,
+                    'selected_user' => $client_id,
+                    'created_by' => Auth::user()->id, 
+                ]);
+                $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id","case_client_selection.is_billing_contact")->where("case_client_selection.case_id",0)->where("case_client_selection.selected_user",$client_id)->get();
+            }else{
+                $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users_additional_info.multiple_compnay_id","case_client_selection.is_billing_contact")->where("case_client_selection.case_id",$case_id)->get();
+            }
             
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
 
@@ -4476,12 +4488,17 @@ class BillingController extends BaseController
         }else{
             $Invoices=Invoices::find($request->id);
             if(!empty($Invoices)){
-                
                 $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
                     ->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')
                     ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login","users_additional_info.multiple_compnay_id")
-                    ->where("case_client_selection.case_id",$Invoices['case_id'])
-                    ->orderBy('user_level', 'desc')->get();
+                    ->where("case_client_selection.case_id",$Invoices['case_id']);
+                    
+                if($Invoices['case_id'] == 0){
+                    $getAllClientForSharing=$getAllClientForSharing->where("case_client_selection.selected_user",$Invoices['user_id']);
+                    $getAllClientForSharing=$getAllClientForSharing->orderBy('user_level', 'desc')->get();
+                }else{
+                    $getAllClientForSharing=$getAllClientForSharing->orderBy('user_level', 'desc')->get();
+                }
                 $companyClientIds = [];
                 if(count($getAllClientForSharing) == 0){
                     $getAllClientForSharing[] = User::find($Invoices['user_id']); 
@@ -4771,6 +4788,8 @@ class BillingController extends BaseController
                     $emailTemplateId = 24;
                 } else if($request->email_type == "present") {
                     $emailTemplateId = 23;
+                }else{
+                    $emailTemplateId = 29;
                 }
                 $emailTemplate = EmailTemplate::whereId($emailTemplateId)->first();
                 if($emailTemplate) {

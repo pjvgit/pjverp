@@ -40,6 +40,7 @@ class InvoiceReminderMail extends Mailable
             $txt = $date->isTomorrow() ? "tomorrow" : "soon";
             $subject = str_replace('[TOMO_SOON]', $txt, $subject);
         }
+        Log::info("Mail send");
         return $this
             ->subject($subject)
             ->markdown('emails.invoice_reminder_email', ['invoice' => $this->invoice, 'firm' => $this->firm, 'user' => $this->user, 'template' => $this->template]);

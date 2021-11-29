@@ -305,7 +305,7 @@ $expenseTime=0;$expenseAmount=0;
                                         <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
                                         @endif
                                     </th>
-                                    <th> Falt Fee Notes
+                                    <th> Flat Fee Notes
                                         @if (count(getFlatFeeColumnArray()) && !in_array('notes', getFlatFeeColumnArray()))
                                         <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
                                         @endif

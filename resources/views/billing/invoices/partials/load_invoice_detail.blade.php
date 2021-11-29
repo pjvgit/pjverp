@@ -785,8 +785,10 @@
                     <?php if(!$FlatFeeEntryForInvoice->isEmpty()){?>
                     Flat Fee Sub-Total:<br>
                     <?php } ?>
+                    @if($findInvoice->case_id != 0)
                     Time Entry Sub-Total:<br>
                     Expense Sub-Total:<br>
+                    @endif
                     <span style="font-weight: bold;">Sub-Total:</span><br>
                     <br>
 
@@ -811,8 +813,10 @@
                     <?php if(!$FlatFeeEntryForInvoice->isEmpty()){?>
                     ${{number_format($flatFeeEntryAmount,2)}}<br>
                     <?php } ?>
+                    @if($findInvoice->case_id != 0)
                     ${{number_format($timeEntryAmount,2)}}<br>
                     ${{number_format($expenseAmount,2)}}<br>
+                    @endif
                     ${{number_format($timeEntryAmount+$expenseAmount+$flatFeeEntryAmount,2)}}<br>
                     <br>
 

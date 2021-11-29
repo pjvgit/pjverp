@@ -334,7 +334,7 @@ if(!isset($addition)){ $addition=0;}
                                         <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
                                         @endif
                                     </th>
-                                    <th> Falt Fee Notes
+                                    <th> Flat Fee Notes
                                         @if (count(getFlatFeeColumnArray()) && !in_array('notes', getFlatFeeColumnArray()))
                                         <img class="help_tip tiny-icon opacity-50" src="{{ asset('images/eye-off.svg') }}" data-toggle="tooltip" data-placement="bottom" title="This invoice column should not be shown.">
                                         @endif
@@ -2957,17 +2957,17 @@ if(!isset($addition)){ $addition=0;}
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
                     var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
-                    if(flat_fee_sub_total_text >= 0) {
+                    if(flat_fee_sub_total_text > 0) {
                         alert++;
                     }
-                    if(discount_amount >= 0) {
+                    if(discount_amount > 0) {
                         alert++;
                     }
-                    if(addition_amount >= 0) {
+                    if(addition_amount > 0) {
                         alert++;
                     }                    
                 <?php } ?>
-                if($("#final_total_text").val() <= 0 && alert == 0){
+                if($("#final_total_text").val() == 0 && alert == 0){
                     swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
                     alert++;
                     afterLoader();
@@ -3673,23 +3673,29 @@ if(!isset($addition)){ $addition=0;}
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-
+    var arr = {};
     function forwardedInvoicesCalculate(){
+        
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {
             if($(this).is(":checked")) {
                 dueAmt = $(this).attr("data-due-amount");
                 $("#unpaid_amt_"+$(this).val()).text(dueAmt);
                 lineTotal += parseFloat(dueAmt);
+                arr[$(this).val()] = 'checked';
             }else{
                 $("#unpaid_amt_"+$(this).val()).text("");
+                arr[$(this).val()] = '';
             }
+            console.log("forwardedInvoicesCalculate > "+ $(this).val());
         });
         $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
         $("#forwarded_total_amount").text(lineTotal.toFixed(2));
         $("#forwarded_total_text").val(lineTotal.toFixed(2));
+        console.log("arr > "+ JSON.stringify(arr));
+        localStorage.setItem('forwarded_invoices', JSON.stringify(arr))
     }
-
+    
     function recalculate() {          
         // $(".forwarded-invoices-check").trigger("change");
         forwardedInvoicesCalculate();

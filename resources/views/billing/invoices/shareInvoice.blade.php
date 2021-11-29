@@ -137,7 +137,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         }
                         ?></td>
                     </tr>
-                    @endif
+                    @else
                         <tr class="invoice-sharing-row" id="ClientRow_{{$v->id}}">
 
                         <td scope="row" class="text-center">
@@ -198,6 +198,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         }
                         ?></td>
                         </tr>
+                    @endif
                     @endif
                     <?php } ?>
                 </tbody>
