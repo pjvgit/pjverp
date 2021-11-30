@@ -23,13 +23,14 @@ function popupNotification() {
         },
         error: function(xhr, ajaxOptions, thrownError) {
             if (xhr.status == 401) {
-                swal({
-                    type: 'warning',
-                    title: 'Session alert!',
-                    html: 'Your session has expired!. You will be redirected to login page.',
-                }).then(function(result) {
-                    window.location.reload();
-                });
+                window.location = baseUrl + '/autologout';
+                // swal({
+                //     type: 'warning',
+                //     title: 'Session alert!',
+                //     html: 'Your session has expired!. You will be redirected to login page.',
+                // }).then(function(result) {
+                //     window.location.reload();
+                // });
 
             }
         },
@@ -128,25 +129,25 @@ $(document).ready(function() {
     }, 'Should be greater than 0');
 
     // For popover
-    $(".pop").popover({ trigger: "manual" , html: true, animation:false})
-        .on("mouseenter", function () {
+    $(".pop").popover({ trigger: "manual", html: true, animation: false })
+        .on("mouseenter", function() {
             var _this = this;
             $(this).popover("show");
-            $(".popover").on("mouseleave", function () {
+            $(".popover").on("mouseleave", function() {
                 $(_this).popover('hide');
             });
-        }).on("mouseleave", function () {
+        }).on("mouseleave", function() {
             var _this = this;
-            setTimeout(function () {
+            setTimeout(function() {
                 if (!$(".popover:hover").length) {
                     $(_this).popover("hide");
                 }
             }, 300);
-    });
+        });
 });
 
 // Start smart timer Modules
-localStorage.setItem("counter", "0");
+// localStorage.setItem("counter", "0");
 
 let hour = 0;
 let minute = 0;
@@ -155,7 +156,9 @@ let totalSeconds = 0;
 
 let intervalId = null;
 $(".logoutTimerAlert").hide();
-if (localStorage.getItem("counter") > 0) {
+var smart_timer_id = $("#smart_timer_id").val();
+
+if (localStorage.getItem("counter") > 0 && smart_timer_id != '') {
     totalSeconds = localStorage.getItem("counter");
     if (localStorage.getItem("pauseCounter") != 'yes') {
         $(".logoutTimerAlert").show();
@@ -206,7 +209,7 @@ if (localStorage.getItem("counter") > 0) {
 
 $(".startTimer").on('click', function() {
     $(".timerCounter").show();
-    if (totalSeconds == 0) {
+    if (totalSeconds == 0 && smart_timer_id == '') {
         $.ajax({
             url: baseUrl + "/createTimer",
             type: 'POST',

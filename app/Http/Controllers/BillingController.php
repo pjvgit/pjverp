@@ -2525,7 +2525,7 @@ class BillingController extends BaseController
             ->where("user_id",$client_id)
             ->first();
 
-
+            // if case is none then insert record in case_client_selection for showing client detail
             if($case_id == "none"){
                 CaseClientSelection::updateOrcreate([
                     'case_id' => 0,
@@ -7411,10 +7411,10 @@ class BillingController extends BaseController
                         $Invoices->due_amount=$subTotalSave;
                         $Invoices->save();
                     }else{
-                        $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';    
+                        $notSavedInvoice .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';    
                     }
                 }else{
-                    $notSavedInvoice ='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
+                    $notSavedInvoice .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$CaseMaster['case_title'].')</li>';
                 }
             }
             return response()->json(['errors'=>'','list'=> $notSavedInvoice]);
@@ -8539,7 +8539,7 @@ class BillingController extends BaseController
             // print_r($allCases);exit;
             foreach($allCases as $caseVal){
                 $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$caseVal)->where('case_client_selection.is_billing_contact','yes')->select("*")->first();
-
+                if(!empty($caseClient)){
                 $InvoiceSave=new Invoices;
                 $InvoiceSave->id=$request->invoice_number_padded;
                 $InvoiceSave->user_id=$caseClient['selected_user'];
@@ -8810,6 +8810,7 @@ class BillingController extends BaseController
                 $InvoiceSave->due_amount=$subTotal;
                 $InvoiceSave->save();
                 $totalInvoice[]=$InvoiceSave->id;
+                }
             }
 
             $InvoiceBatch=new InvoiceBatch;
@@ -8820,7 +8821,7 @@ class BillingController extends BaseController
             $InvoiceBatch->draft_invoice=$totalDraft;
             $InvoiceBatch->unsent_invoice=$totalUnsent;
             $InvoiceBatch->sent_invoice=$totalSent;
-            $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s"), auth()->user()->user_tiezone)))."-".count($totalInvoice);
+            $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s", strtotime($request->batch['invoice_date'])), auth()->user()->user_tiezone ?? 'UTC')))."-".count($totalInvoice);
             $InvoiceBatch->firm_id=Auth::User()->firm_name; 
             $InvoiceBatch->created_by=Auth::User()->id; 
             $InvoiceBatch->save();
@@ -9117,6 +9118,7 @@ class BillingController extends BaseController
                 return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case','request'));
                 exit;  
             }else{
+                checkLeadInfoExists($user_id);
                 return response()->json(['errors'=>'error']);
             }
         }

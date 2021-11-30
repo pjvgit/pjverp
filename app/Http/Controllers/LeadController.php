@@ -3064,7 +3064,7 @@ class LeadController extends BaseController
 
     public function updateCaseNotePopup(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $validator = \Validator::make($request->all(), [
             'note_date' => 'required',
             'notes' => 'required'

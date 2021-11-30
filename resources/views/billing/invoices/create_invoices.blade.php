@@ -1184,13 +1184,18 @@ var start = 0;
                     // aData.id + ','+ aData.case_id +')" id="checkAllClientCase"class="allSelect case_id' + aData.case_id + ' ' + aData.id +
                     // ' mainBox_' + aData.id + ' "> <a class="name" href="' + baseUrl +
                     // '/contacts/clients/'+aData.selected_user+'">'+aData.contact_name+'</a></td></tr>';
-                                    
-                    resultHtml +='<tr><td><div class="text-left pl-3"><input id="select-row-74" client_id=' + aData
+                                   
+                    
+                    resultHtml +='<tr><td><div class="text-left pl-3">';
+                    if(aData.setup_billing == 'yes') {
+                    resultHtml +='<input id="select-row-74" client_id=' + aData
                     .selected_user + '  case_id="' + aData.case_id + '"  class="client_box allSelect case_id' + aData.case_id + ' task_checkbox ' + aData
                     .selected_user + '  client_' + aData.selected_user +
                     '" type="checkbox" value="' + aData.id + '" name="expenceId[' + aData.id +
-                    ']"  >&nbsp;<a class="name" href="' + baseUrl + '/court_cases/' + aData
-                    .case_unique_number + '/info">' + aData.ctitle + '</a></div></td>';
+                    ']"  >&nbsp;';
+                    } 
+                    resultHtml +='<a class="name" href="' + baseUrl + '/court_cases/' + aData
+                    .case_unique_number + '/info">' + aData.ctitle + aData.setup_billing + '</a></div></td>';
 
                     resultHtml +='<td><div class="text-left">' + aData.lead_attorney_name +
                     '</div></td>';

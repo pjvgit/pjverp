@@ -511,9 +511,11 @@
             $('#hideoptioninput2duration' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
                 required: true,
                 number: true,
+                min: 0.1,
                 messages: {
                     required: " Invalid",
-                    number: " Invalid"
+                    number: " Invalid",
+                    min: " Duration must be greater than 0"
                 }
             });
             $("#savebulkTimeEntry").validate();
@@ -691,9 +693,11 @@
                     "add", {
                         required: true,
                         number: true,
+                        min: 0.1,
                         messages: {
                             required: " Invalid",
-                            number: " Invalid"
+                            number: " Invalid",
+                            min: " Duration must be greater than 0"
                         }
                     });
                 $("#savebulkTimeEntry").validate();
@@ -731,9 +735,11 @@
         $('#hideoptioninput2duration1').rules("add", {
             required: true,
             number: true,
+            min: 0.1,
             messages: {
                 required: " Invalid",
-                number: " Invalid"
+                number: " Invalid",
+                min: " Duration must be greater than 0"
             }
         });
 
@@ -1029,8 +1035,12 @@
 
             $('#hideoptioninput2duration' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
                 required: true,
+                number: true,
+                min: 0.1,
                 messages: {
-                    required: " Invalid"
+                    required: " Invalid",
+                    number: " Invalid",
+                    min: " Duration must be greater than 0"
                 }
             });
             $("#savebulkTimeEntry").validate();
@@ -1064,8 +1074,12 @@
 
         $('#hideoptioninput2duration1').rules("add", {
             required: true,
+            number: true,
+            min: 0.1,
             messages: {
-                required: " Invalid"
+                required: " Invalid",
+                number: " Invalid",
+                min: " Duration must be greater than 0"
             }
         });
     }
@@ -1085,9 +1099,8 @@
     $("#activity").on("select2:select", function(e) {
         if($(this).select2().find(":selected").data("flatfees") > 0) {
             $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
-            $("#rate_type_field_id").val('flat');
         }
-        
+        $("#rate_type_field_id").val('flat');
         $("#activity").select2({
             placeholder: "Select activity",
             theme: "classic",

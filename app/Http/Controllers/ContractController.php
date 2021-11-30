@@ -1667,7 +1667,7 @@ class ContractController extends BaseController
     }
     public function removeCompany(Request $request)
     {
-        dd($request);
+        // dd($request);
         DB::table('temp_user_selection')->where("user_id",Auth::user()->id)->whereNotIn("selected_user",$request->unselected_value)->delete();
 
     }

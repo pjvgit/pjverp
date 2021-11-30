@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Validator, Response, Mail,Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\AllHistory,App\InvoiceHistory;
 use Illuminate\Support\Str;
 
@@ -82,14 +83,8 @@ class CommonController extends BaseController {
         return $Title;
     }
     public function addMultipleHistory($data){
-        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes');
-        $authUserNotifyTypeAction = $authUserNotificationSetting->pluck('sub_type','action')->toArray();
+        $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes')->get();
         
-        $authUserActivity = [];
-        foreach($authUserNotifyTypeAction as $key => $item){
-            $authUserActivity[] = $key.'_'.$item;
-        }
-                   
         $AllHistory=new AllHistory;
         $AllHistory->case_id=($data['case_id'])??NULL;
         $AllHistory->user_id=($data['user_id'])??NULL;
@@ -117,9 +112,29 @@ class CommonController extends BaseController {
         $AllHistory->firm_id=Auth::User()->firm_name;
         $AllHistory->created_by=Auth::User()->id;
         $AllHistory->created_at=date('Y-m-d H:i:s');  
-        if(in_array($data['type'].'_'.$data['action'], $authUserActivity)){ 
+        Log::info("History Type > ". $data['type'] ." and action > ".$data['action']);
+        $viewInMail = 0;
+        // echo $data['type'] ."-->". $data['action']; echo PHP_EOL;
+        foreach($authUserNotificationSetting as $n => $setting){
+            if($setting->sub_type == $data['type'] && $setting->action == $data['action']){
+                // echo $data['type'] ."-->". $data['action']."--> 121 -->".$setting->sub_type.'--->'.$setting->action; echo PHP_EOL;
+                $viewInMail = 1;
+            }
+            if($setting->sub_type == 'notes' && $data['type'] == 'notes'){
+                $viewInMail = 1;
+            }
+            if($setting->sub_type == 'time_entry' && $data['type'] == 'expenses'){
+                $viewInMail = 1;
+            }
+        }                    
+        $ignoreTypes = ['fundrequest','credit','deposit'];
+        if($viewInMail == 1){
             $AllHistory->save();
-        }
+        }else{
+            if(in_array($data['type'],$ignoreTypes)){
+                $AllHistory->save();
+            }
+        }        
         return true;
     }
 

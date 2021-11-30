@@ -740,9 +740,11 @@
         $('#hideoptioninput2cost1').rules("add", {
             required: true,
             number: true,
+            min: 0.1,
             messages: {
                 required: "Cost can't be blank",
-                number: " Cost is invalid"
+                number: " Cost is invalid",
+                min: "Unit must be greater than 0",
             }
         });
 
@@ -763,7 +765,8 @@
                 },
                 duration_field: {
                     required: true,
-                    number: true
+                    number: true,
+                    min: 0.1,
                 }
             },
 
@@ -784,7 +787,8 @@
                 },
                 duration_field: {
                     required: "Quantity can't be blank",
-                    number: "Quantity is invalid"
+                    number: "Quantity is invalid",
+                    min: "Quantity must be greater than 0",
                 }
             },
             errorPlacement: function (error, element) {
@@ -1045,9 +1049,11 @@
         $('#hideoptioninput2cost1').rules("add", {
             required: true,
             number: true,
+            min: 0.1,
             messages: {
                 required: "Cost can't be blank",
-                number: "Cost is invalid"
+                number: "Cost is invalid",
+                min: "Unit must be greater than 0",
             }
         });
         $('#hideoptioninput2duration1').rules("add", {
