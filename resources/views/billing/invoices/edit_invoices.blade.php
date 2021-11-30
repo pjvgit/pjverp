@@ -1324,7 +1324,7 @@ $expenseTime=0;$expenseAmount=0;
                             <div class="mt-3">
                                 <h4>Applied Trust Funds</h4>
                                 <div class="row ">
-                                    @if(!empty($appliedTrustFund) && count($appliedTrustFund) && $appliedTrustFund->sum('applied_amount'))
+                                    @if(!empty($appliedTrustFund) && count($appliedTrustFund) && ($appliedTrustFund->sum('applied_amount') + $appliedTrustFund->sum('allocate_applied_amount')))
                                     <div class="col-9">
                                         <table class="apply-trust-funds-table border-top border-bottom table table-md table-hover" style="table-layout: auto;">
                                             <thead>

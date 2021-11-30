@@ -126,24 +126,24 @@ class InvoiceReminderEmailCommand extends Command
                                 Log::info("user time to utc time: ". $dispatchDate);
                                 dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
                                 // }
+                            }
 
-                                // Update invoice settings
-                                if($item->invoice_setting && $remindType && $days) {
-                                    $invoiceSetting = $item->invoice_setting;
-                                    foreach($invoiceSetting['reminder'] as $key1 => $item1) {
-                                        $is_reminded = $item1['is_reminded'] ?? "no";
-                                        if($remindType == $item1['remind_type'] && $days == $item1['days']) {
-                                            $is_reminded = "yes";
-                                        }
-                                        $jsonData['reminder'][] = [
-                                            'remind_type' => $item1['remind_type'],
-                                            'days' => $item1['days'],
-                                            'is_reminded' => $is_reminded,
-                                        ];
+                            // Update invoice settings
+                            if($item->invoice_setting && $remindType && $days) {
+                                $invoiceSetting = $item->invoice_setting;
+                                foreach($invoiceSetting['reminder'] as $key1 => $item1) {
+                                    $is_reminded = $item1['is_reminded'] ?? "no";
+                                    if($remindType == $item1['remind_type'] && $days == $item1['days']) {
+                                        $is_reminded = "yes";
                                     }
-                                    $invoiceSetting['reminder'] = $jsonData['reminder'];
-                                    $item->fill(['invoice_setting' => $invoiceSetting])->save();
+                                    $jsonData['reminder'][] = [
+                                        'remind_type' => $item1['remind_type'],
+                                        'days' => $item1['days'],
+                                        'is_reminded' => $is_reminded,
+                                    ];
                                 }
+                                $invoiceSetting['reminder'] = $jsonData['reminder'];
+                                $item->fill(['invoice_setting' => $invoiceSetting])->save();
                             }
                         } else {
                             Log::info("no billing client:". $item->id);

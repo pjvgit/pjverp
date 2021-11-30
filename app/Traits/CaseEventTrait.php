@@ -71,6 +71,7 @@ trait CaseEventTrait {
         $oldEvents->forceDelete();
         // Create new events for new frequency
         $event_interval_day=$request->event_interval_day;
+        $CaseEvent = '';
         do {
             $start_date = date("Y-m-d", $startDate);
             $end_date = date("Y-m-d", $startDate);
@@ -91,6 +92,7 @@ trait CaseEventTrait {
             $startDate = strtotime('+'.$event_interval_day.' day',$startDate); 
             $i++;
         } while ($startDate <= $endDate);
+        return $CaseEvent;
     }
 
     /**
@@ -110,6 +112,7 @@ trait CaseEventTrait {
         $oldEvents->forceDelete();
         // Create new events for new frequency
         $elseFist = true; $currentI = 0;  
+        $CaseEvent = '';
         do {
             $timestamp = $startDate;
             $weekday= date("l", $timestamp );            
@@ -140,6 +143,7 @@ trait CaseEventTrait {
             $i++;
             $startDate = strtotime('+1 day',$startDate); 
         } while ($startDate <= $endDate);
+        return $CaseEvent;
     }
 
     /**
@@ -157,6 +161,7 @@ trait CaseEventTrait {
         $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id);
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
+        $CaseEvent = '';
         // Create new events for new frequency
         do {
             $start_date = date("Y-m-d", $startDate);
@@ -178,6 +183,7 @@ trait CaseEventTrait {
             $i++;
             $startDate = strtotime('+7 day',$startDate); 
         } while ($startDate <= $endDate);
+        return $CaseEvent;
     }
 
     /**
@@ -195,7 +201,7 @@ trait CaseEventTrait {
         $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id);
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
-        // dd($request);
+        $CaseEvent = '';
         if(isset($request->end_on)) {
             $end=new DateTime($request->end_on);
         }else{
@@ -240,6 +246,7 @@ trait CaseEventTrait {
                 $this->saveContactLeadData((array)$request,$CaseEvent->id, $authUser); 
             }
         }
+        return $CaseEvent;
     }
 
     /**
@@ -257,6 +264,7 @@ trait CaseEventTrait {
         $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id);
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
+        $CaseEvent = '';
         // Create new events for new frequency
         do {
             $monthly_frequency=$request->monthly_frequency;
@@ -288,6 +296,7 @@ trait CaseEventTrait {
             $startDate = strtotime('+'.$event_interval_month.' months',$startDate);
             $i++;
         } while ($startDate < $endDate);
+        return $CaseEvent;
     }
 
     /**
@@ -306,6 +315,7 @@ trait CaseEventTrait {
         $oldEvents = CaseEvent::where('parent_evnt_id',$OldCaseEvent->parent_evnt_id)->where('id',">=",$OldCaseEvent->id);
         $OldCaseEvent->deleteChildTableRecords($oldEvents->pluck("id")->toArray());
         $oldEvents->forceDelete();
+        $CaseEvent = '';
         // Create new events for new frequency
         // $endDate =  strtotime(date('Y-m-d',strtotime('+25 years')));
         $endDate =  strtotime(date("Y-m-d", strtotime($startDate)) . " + 1 year");
@@ -340,6 +350,7 @@ trait CaseEventTrait {
             $startDate = strtotime('+'.$event_interval_year.' years',$startDate);
             $i++;
         } while ($startDate < $endDate);
+        return $CaseEvent;
     }
 
     /**

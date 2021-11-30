@@ -547,7 +547,7 @@
                         </td>
                         </tr>
                     <?php 
-                    dd($expenseNonBill);
+                    // dd($expenseNonBill);
                     foreach($expenseNonBill as $k=>$v){
                         ?>
                         <tr class="invoice_info_row ">

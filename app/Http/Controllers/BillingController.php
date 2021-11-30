@@ -1342,7 +1342,8 @@ class BillingController extends BaseController
          $requestData= $_REQUEST;
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
-         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")->where("invoices.created_by",Auth::user()->id);
+         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
+         ->where("invoices.created_by",Auth::user()->id);
       
          if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
             $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));
@@ -4306,13 +4307,13 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        $caseMaster=CaseMaster::whereId($findInvoice->case_id)->whereHas('caseStaffAll', function($query) {
+        $caseMaster=CaseMaster::whereId($findInvoice->case_id)/* ->whereHas('caseStaffAll', function($query) {
                         $query->where('user_id', auth()->id());
-                    })
+                    }) */
                     ->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
         if(empty($findInvoice) || empty($caseMaster))
         {
-            return abort(403);
+            return view('errors.invoice_403');
         }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
         {
             return \Redirect::route('bills/invoices/potentialview', [$request->id]);

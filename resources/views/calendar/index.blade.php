@@ -173,7 +173,29 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <span>My Tasks</span>
                                 <span class="checkmark"></span>
                                 <span class="ml-1 calendar-help-bubble" style="cursor: pointer;">
-                                <i id="help-bubble-1" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"  tabindex="0" role="button" href="javascript:;" data-toggle="popover" data-trigger="hover"  title="New task icons" data-content='<div style="Width:150px; class="popover-inner w-100" role="tooltip"><h3 class="popover-header"></h3><div class="popover-body"><div><div class="line-help-bubble"><span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(202, 66, 69);float:left; width: 30px;"><div>DUE</div></span><div style="float:left;margin-left: 5px;padding-left:3px;">High priority</div></div><br><br><div class="line-help-bubble"><span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(254, 193, 8); width: 30px;float:left;"><div>DUE</div></span><div style="margin-left: 5px;padding-right:3px;float:left;"> Medium priority</div></div><br><br><div class="line-help-bubble"><span class="calendar-badge d-inline-block undefined badge badge-secondary" style="background-color: rgb(40, 167, 68); width: 30px;float:left;"><div>DUE</div></span><div style="margin-left: 5px;float:left;;padding-left:3px;">Low/No priority</div></div><br></div></div></div>' data-html="true" data-original-title="" style="float:revert;"></i>
+                                <a class="mt-3 event-name align-items-center" style="float: none;" tabindex="0" role="button" href="javascript:;" data-toggle="popover" data-trigger="focus" title="New task icons" 
+                                    data-content="<table><tbody>
+                                    <tr><td>
+                                        <div class='line-help-bubble'> 
+                                            <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(202, 66, 69);float:left; width: 30px;'>
+                                            DUE</span>
+                                            <div style='float:left;margin-left: 5px;padding-left:3px;'>High priority</div>
+                                        </div>
+                                    </td></tr>
+                                    <tr><td>
+                                        <div class='line-help-bubble'> 
+                                            <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(254, 193, 8);float:left; width: 30px;'>
+                                            DUE</span>
+                                            <div style='float:left;margin-left: 5px;padding-left:3px;'>Medium priority</div>
+                                        </div>
+                                    </td></tr>
+                                    <tr><td>
+                                        <div class='line-help-bubble'> 
+                                            <span class='calendar-badge d-inline-block undefined badge badge-secondary' style='background-color: rgb(40, 167, 68);float:left; width: 30px;'>
+                                            DUE</span>
+                                            <div style='float:left;margin-left: 5px;padding-left:3px;'>Low/No priority</div>
+                                        </div>
+                                    </td></tr></tbody></table>" data-html="true" style="float:left;" data-original-title=""><i aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"></i></a>
                                 </span>
                         </label>
                     </div>

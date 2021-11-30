@@ -166,11 +166,11 @@
                                         <div class="pl-0 col-2">
                                             <div>
                                                 <div class="">
-                                                    <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
-                                                        <option <?php if($rval->reminder_user_type=="me"){ echo "selected=selected"; } ?>  value="me">Me</option>
-                                                        <option <?php if($rval->reminder_user_type=="attorney"){ echo "selected=selected"; } ?> value="attorney">Attorneys</option>
-                                                        <option <?php if($rval->reminder_user_type=="paralegal"){ echo "selected=selected"; } ?>  value="paralegal">Paralegals</option>
-                                                        <option <?php if($rval->reminder_user_type=="staff"){ echo "selected=selected"; } ?>  value="staff">Staff</option>
+                                                    <select id="reminder_user_type" name="reminder_user_type[]" class="reminder_user_type form-control custom-select  ">
+                                                        @forelse (reminderUserType() as $key => $item)
+                                                        <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? 'selected' : '' }}>{{ $item }}</option>
+                                                        @empty
+                                                        @endforelse
                                                     </select>
                                                 </div>
                                             </div>
