@@ -2,7 +2,6 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\UserRoleMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -69,5 +68,6 @@ class Kernel extends HttpKernel
         'clientportal.access' => \App\Http\Middleware\CheckForClientPortalAccess::class,
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'not.has.permission' => \App\Http\Middleware\NotHasPermission::class,
     ];
 }

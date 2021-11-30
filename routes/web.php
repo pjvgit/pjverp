@@ -919,17 +919,15 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
 
     //Billing Module
     Route::middleware(['permission:billing_add_edit|billing_view'])->group(function () {
-        // Route::middleware(['permission:!billing_restrict_time_entry_and_expense'])->group(function () {
-    Route::get('bills/dashboard', 'BillingController@dashboard')->name('bills/dashboard');
-        // });
-    Route::get('bills/time_entries', 'BillingController@time_entries')->name('bills/time_entries');
-    Route::get('bills/expenses', 'BillingController@expenses')->name('bills/expenses');
-    Route::get('bills/retainer_requests', 'BillingController@retainer_requests')->name('bills/retainer_requests');
-    Route::get('bills/activities', 'BillingController@activities')->name('bills/activities');
-    Route::get('bills/invoices', 'BillingController@invoices')->name('bills/invoices');
-    Route::post('bills/getrate', 'BillingController@getRate')->name('bills/getrate');
-
-
+        Route::middleware(['not.has.permission:billing_restrict_time_entry_and_expense'])->group(function () {
+            Route::get('bills/dashboard', 'BillingController@dashboard')->name('bills/dashboard');
+            Route::get('bills/retainer_requests', 'BillingController@retainer_requests')->name('bills/retainer_requests');
+            Route::get('bills/activities', 'BillingController@activities')->name('bills/activities');
+            Route::get('bills/invoices', 'BillingController@invoices')->name('bills/invoices');
+            Route::post('bills/getrate', 'BillingController@getRate')->name('bills/getrate');
+        });
+        Route::get('bills/time_entries', 'BillingController@time_entries')->name('bills/time_entries');
+        Route::get('bills/expenses', 'BillingController@expenses')->name('bills/expenses');
 
     Route::post('bills/time_entries/loadTimeEntry', 'BillingController@loadTimeEntry')->name('bills/time_entries/loadTimeEntry');
     Route::post('bills/loadTimeEntryPopup', 'BillingController@loadTimeEntryPopup')->name('bills/loadTimeEntryPopup');
@@ -952,7 +950,7 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('bills/expenses/saveBulkAssignCase', 'BillingController@saveBulkAssignCase')->name('bills/expenses/saveBulkAssignCase');
     Route::post('bills/expenses/bulkAssignUser', 'BillingController@bulkAssignUser')->name('bills/expenses/bulkAssignUser');
     Route::post('bills/expenses/saveBulkAssignUser', 'BillingController@saveBulkAssignUser')->name('bills/expenses/saveBulkAssignUser');
-    
+    Route::middleware(['not.has.permission:billing_restrict_time_entry_and_expense'])->group(function () {
     Route::post('bills/retainer_requests/loadRetainerRequestsEntry', 'BillingController@loadRetainerRequestsEntry')->name('bills/retainer_requests/loadRetainerRequestsEntry');
     
     Route::post('bills/activities/loadActivity', 'BillingController@loadActivity')->name('bills/activities/loadActivity');
@@ -1061,7 +1059,7 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('bills/activities/loadMixAccountActivity', 'BillingController@loadMixAccountActivity')->name('bills/activities/loadMixAccountActivity');
     Route::get('bills/trust_account_activity', 'BillingController@trust_account_activity')->name('bills/trust_account_activity');
     Route::post('bills/activities/loadTrustAccountActivity', 'BillingController@loadTrustAccountActivity')->name('bills/activities/loadTrustAccountActivity');
-
+    });
     //Potentail case invoice
     Route::get('bills/invoices/potentialview/{id}', 'BillingController@viewPotentailInvoice')->name('bills/invoices/potentialview');
 
@@ -1099,7 +1097,7 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
      Route::get('time_entries/timesheet_calendar', 'BillingController@viewTimesheet')->name('time_entries/timesheet_calendar');
      Route::post('time_entries/timesheet_calendar/loadAllSavedTimeEntry', 'BillingController@loadAllSavedTimeEntry')->name('time_entries/timesheet_calendar/loadAllSavedTimeEntry');
      Route::post('time_entries/timesheet_calendar/reloadTimeEntry', 'BillingController@reloadTimeEntry')->name('time_entries/timesheet_calendar/reloadTimeEntry');
-     
+    Route::middleware(['not.has.permission:billing_restrict_time_entry_and_expense'])->group(function () {
     Route::post('bills/invoices/createInvoiceBatch', 'BillingController@createInvoiceBatch')->name('bills/invoices/createInvoiceBatch');
 
     //Payment Plan
@@ -1109,12 +1107,13 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::post('payment_plans/PaymentInstallmentsOverTime', 'BillingController@PaymentInstallmentsOverTime')->name('payment_plans/PaymentInstallmentsOverTime');
     Route::post('payment_plans/loadAllPlans', 'BillingController@loadAllPlans')->name('payment_plans/loadAllPlans');
 
-    
+    });
     //Prints
     Route::post('bills/invoices/printTimeEntry', 'BillingController@printTimeEntry')->name('bills/invoices/printTimeEntry');
     Route::get('bills/invoices/printTimeEntry', 'BillingController@printTimeEntry')->name('bills/invoices/printTimeEntry');
     Route::post('bills/invoices/printExpenseEntry', 'BillingController@printExpenseEntry')->name('bills/invoices/printExpenseEntry');
     Route::get('bills/invoices/printExpenseEntry', 'BillingController@printExpenseEntry')->name('bills/invoices/printExpenseEntry');
+    Route::middleware(['not.has.permission:billing_restrict_time_entry_and_expense'])->group(function () {
     Route::post('bills/invoices/printRequestFundEntry', 'BillingController@printRequestFundEntry')->name('bills/invoices/printRequestFundEntry');
     Route::get('bills/invoices/printRequestFundEntry', 'BillingController@printRequestFundEntry')->name('bills/invoices/printRequestFundEntry');
     Route::post('bills/invoices/printSavedActivity', 'BillingController@printSavedActivity')->name('bills/invoices/printSavedActivity');
@@ -1123,6 +1122,7 @@ Route::group(['middleware'=>['auth', 'user.role:user']], function () {
     Route::get('bills/invoices/printTrustAccountActivity', 'BillingController@printTrustAccountActivity')->name('bills/invoices/printTrustAccountActivity');
     Route::post('bills/invoices/printAccountActivity', 'BillingController@printAccountActivity')->name('bills/invoices/printAccountActivity');
     Route::get('bills/invoices/printAccountActivity', 'BillingController@printAccountActivity')->name('bills/invoices/printAccountActivity');
+    });
     });
 
     Route::get('imports/contacts', 'ClientdashboardController@imports_contacts')->name('imports/contacts');

@@ -895,7 +895,10 @@ class ContractController extends BaseController
     {   
         $columns = array('users.id','users.id','first_name','last_name', 'email', 'email', 'user_title','users.user_status','last_login','users.created_at');
         $requestData= $_REQUEST;
-        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id");
+        $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
+                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id")
+                ->where('firm_name', auth()->user()->firm_name);
         $user = $user->where("user_level","2"); //Load all client 
         // According to user permission show all clients and allow access of liked cases of client
         /* if(Auth::user()->parent_user==0){
@@ -1406,7 +1409,7 @@ class ContractController extends BaseController
             $columns = array('id','first_name','user_title', 'email', 'email', 'user_title','user_status','last_login','created_at');
             $requestData= $_REQUEST;
             
-            $user = User::select('*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'));
+            $user = User::select('*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'))->where('firm_name', auth()->user()->firm_name);
             $user = $user->where("user_level","4");  //4=Company
           
             /* if(Auth::user()->parent_user==0){
