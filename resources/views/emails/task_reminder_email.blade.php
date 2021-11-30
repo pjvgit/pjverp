@@ -20,7 +20,11 @@
     $date = date('M d, Y', strtotime(convertUTCToUserDate(@$task->task_due_on, @$user->user_timezone)));
     $content = str_replace('[DUE_DATE]', $date, $content);
     $content = str_replace('[PRIORITY]', @$task->priority_text ?? "", $content);
-    $content = str_replace('[TASK_URL]', route("tasks", ['id' => $task->id]), $content);
+    if(in_array($user->user_level, ['2','4'])) {
+        $content = str_replace('[TASK_URL]', route('client/tasks/detail', encodeDecodeId($task->id, 'encode')), $content);
+    } else {
+        $content = str_replace('[TASK_URL]', route("tasks", ['id' => $task->id]), $content);
+    }
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
 @endphp
 {!! $content !!}

@@ -47,7 +47,7 @@ class TaskReminderEmailCommand extends Command
     {
         Log::info("task command enter");
         $result = TaskReminder::where("reminder_type", "email")->whereIn("reminder_frequncy", ["day", "week"])
-                    // ->where("task_id", 90)
+                    // ->where("task_id", 61)
                     ->whereDate("remind_at", Carbon::now())
                     ->whereNull("reminded_at")
                     ->with('task', 'task.taskLinkedStaff', 'task.case', 'task.leadAdditionalInfo', 'task.case.caseStaffAll', 'task.firm', 'task.taskLinkedContact')
@@ -59,7 +59,7 @@ class TaskReminderEmailCommand extends Command
             foreach($result as $key => $item) {
                 Log::info("task id:". $item->task->id);
                 $users = $this->getTaskLinkedUser($item, "email");
-                Log::info("task users:". $users);
+                // Log::info("task users:". $users);
                 if(count($users) && $emailTemplate) {
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
