@@ -1195,7 +1195,7 @@ var start = 0;
                     ']"  >&nbsp;';
                     } 
                     resultHtml +='<a class="name" href="' + baseUrl + '/court_cases/' + aData
-                    .case_unique_number + '/info">' + aData.ctitle + aData.setup_billing + '</a></div></td>';
+                    .case_unique_number + '/info">' + aData.ctitle + '</a></div></td>';
 
                     resultHtml +='<td><div class="text-left">' + aData.lead_attorney_name +
                     '</div></td>';

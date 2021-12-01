@@ -848,6 +848,7 @@ if(!isset($adjustment_token)){
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
+        localStorage.setItem('forwarded_invoices', '');
         @if(!empty($caseMaster))
         $("#court_case_id").trigger("change");
         @endif

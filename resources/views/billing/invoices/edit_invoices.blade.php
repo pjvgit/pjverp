@@ -881,7 +881,7 @@ $expenseTime=0;$expenseAmount=0;
                                     @endphp
                                     @forelse ($unpaidInvoices as $invkey => $invitem)
                                         <tr>
-                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" data-token_id="{{$adjustment_token}}" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}" @if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) checked @endif></td>
+                                            <td style="text-align: center"><input type="checkbox" id="forwarded_invoices_check_{{ $invitem->id }}" class="forwarded-invoices-check" name="forwarded_invoices[]" data-token_id="{{$adjustment_token}}" value="{{ $invitem->id }}" data-due-amount="{{ $invitem->due_amount }}" @if(isset($findInvoice->forwardedInvoices) && in_array($invitem->id, $selectedFwdInv)) checked @endif></td>
                                             <td>{{ $invitem->invoice_id }}</td>
                                             <td>{{ $invitem->total_amount }}</td>
                                             <td>{{ $invitem->paid_amount }}</td>
@@ -1716,7 +1716,11 @@ $expenseTime=0;$expenseAmount=0;
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="pl-2 text-right"><a href="#">Tell us what you think!</a></div>
+                                            <div class="pl-2 text-right">
+                                                <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                                                    <button onclick="setFeedBackForm('single','Payment Plans');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -2692,6 +2696,7 @@ $expenseTime=0;$expenseAmount=0;
 
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         <?php if($findInvoice->payment_plan_enabled=="yes"){?>
@@ -3575,10 +3580,19 @@ $expenseTime=0;$expenseAmount=0;
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-
+    var arr = {};
     function forwardedInvoicesCalculate(){
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {
+            var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
+            console.log(jsObj);
+            if ($(this).val() in jsObj) {
+                console.log($(this).val() +" exists");
+                $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                arr[$(this).val()] = 'checked';
+            }else{
+                delete arr[$(this).val()];
+            }
             if($(this).is(":checked")) {
                 dueAmt = $(this).attr("data-due-amount");
                 $("#unpaid_amt_"+$(this).val()).text(dueAmt);
@@ -3591,6 +3605,7 @@ $expenseTime=0;$expenseAmount=0;
         $("#forwarded_total_amount").text(lineTotal.toFixed(2));
         $("#forwarded_total_text").val(lineTotal.toFixed(2));
     }
+    console.log("localStorage > forwarded_invoices > "+ localStorage.getItem("forwarded_invoices"));
     
     function recalculate() {
         // $(".forwarded-invoices-check").trigger("change");
@@ -4350,12 +4365,15 @@ $expenseTime=0;$expenseAmount=0;
         if($(this).is(":checked")) {
             finaltotal = parseFloat(finaltotal) + parseFloat(due);
             isCheck = "yes";
+            arr[$(this).val()] = 'checked';
         } else {
+            delete arr[$(this).val()];
             finaltotal = parseFloat(finaltotal) - parseFloat(due);
         }
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
-        
+        localStorage.setItem('forwarded_invoices', JSON.stringify(arr));
+
         if($("#forwardedInvoicesAdjustment").val() > 0){
             $("#preloader").show();
             var id = $(this).val();

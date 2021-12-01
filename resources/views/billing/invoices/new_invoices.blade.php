@@ -917,7 +917,7 @@ if(!isset($addition)){ $addition=0;}
                                 <tbody>
                                     @forelse ($unpaidInvoices as $invkey => $invitem)
                                         <tr>
-                                            <td style="text-align: center"><input type="checkbox" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-token_id="{{$adjustment_token}}" data-due-amount="{{ $invitem->due_amount }}"></td>
+                                            <td style="text-align: center"><input type="checkbox"  id="forwarded_invoices_check_{{ $invitem->id }}" class="forwarded-invoices-check" name="forwarded_invoices[]" value="{{ $invitem->id }}" data-token_id="{{$adjustment_token}}" data-due-amount="{{ $invitem->due_amount }}"></td>
                                             <td>{{ $invitem->invoice_id }}</td>
                                             <td>{{ $invitem->total_amount }}</td>
                                             <td>{{ $invitem->paid_amount }}</td>
@@ -1842,7 +1842,11 @@ if(!isset($addition)){ $addition=0;}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="pl-2 text-right"><a href="#">Tell us what you think!</a></div>
+                                            <div class="pl-2 text-right">
+                                                <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                                                    <button onclick="setFeedBackForm('single','Payment Plans');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -2454,6 +2458,28 @@ if(!isset($addition)){ $addition=0;}
         </div>
     </div>
 </div>
+<div id="warningModal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="EnableAccessForm" id="EnableAccessForm" name="EnableAccessForm" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="depostifundtitle">Warning</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>Are you sure you want to proceed?<br><br>Any changes you have made to the invoice entries below will be lost.</div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-primary" type="button" data-dismiss="modal" aria-label="Close">Cancel</button>
+                    <button class="btn btn-primary mc-confirmation-confirm-button">Proceed</button>
+                </div>
+            </form>
+        </div>      
+    </div>
+</div>
 
 <style>
     .strike{
@@ -2589,6 +2615,7 @@ if(!isset($addition)){ $addition=0;}
 
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#payment_plan").prop('checked',false);
@@ -3576,6 +3603,7 @@ if(!isset($addition)){ $addition=0;}
     }
     
     function fetchClientAddress(){
+        // $("#warningModal").modal('show');
         var currentclient=$("#contact").val();
 
         $.ajax({
@@ -3632,6 +3660,31 @@ if(!isset($addition)){ $addition=0;}
     }
 
     function changeCase(){
+        // $("#warningModal").modal('show');
+        var pageReload = true;
+        if($("#final_total_text").val() < 0){
+            swal({
+                title: 'warning',
+                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0CC27E',
+                cancelButtonColor: '#FF586B',
+                cancelButtonText: 'Close',
+                confirmButtonText: 'Proceed',
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-danger  mr-2',
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function(isConfirm){
+                if (isConfirm){
+                    pageReload = true;
+                }
+            });
+        }else{
+            pageReload = true;
+        }
+        if(pageReload){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var bill_payment_terms = $("#bill_payment_terms").val();
@@ -3658,6 +3711,7 @@ if(!isset($addition)){ $addition=0;}
             URLS+='&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
         }
         window.location.href=URLS;
+        }
     }
     
     function installmentCalculation(){
@@ -3673,29 +3727,34 @@ if(!isset($addition)){ $addition=0;}
             $('#payment_plan_balance').number($("#payment_plan_balance").text(), 2); 
      
     }
-    var arr = {};
+    var arr = {};    
     function forwardedInvoicesCalculate(){
         
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {
+            var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
+            console.log(jsObj);
+            if ($(this).val() in jsObj) {
+                console.log($(this).val() +" exists");
+                $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                arr[$(this).val()] = 'checked';
+            }else{
+                delete arr[$(this).val()];
+            }
             if($(this).is(":checked")) {
                 dueAmt = $(this).attr("data-due-amount");
                 $("#unpaid_amt_"+$(this).val()).text(dueAmt);
                 lineTotal += parseFloat(dueAmt);
-                arr[$(this).val()] = 'checked';
             }else{
                 $("#unpaid_amt_"+$(this).val()).text("");
-                arr[$(this).val()] = '';
             }
             console.log("forwardedInvoicesCalculate > "+ $(this).val());
         });
         $("#unpaid_invoice_total").text(lineTotal.toFixed(2));
         $("#forwarded_total_amount").text(lineTotal.toFixed(2));
         $("#forwarded_total_text").val(lineTotal.toFixed(2));
-        console.log("arr > "+ JSON.stringify(arr));
-        localStorage.setItem('forwarded_invoices', JSON.stringify(arr))
     }
-    
+    console.log("localStorage > forwarded_invoices > "+ localStorage.getItem("forwarded_invoices"));
     function recalculate() {          
         // $(".forwarded-invoices-check").trigger("change");
         forwardedInvoicesCalculate();
@@ -4324,12 +4383,15 @@ if(!isset($addition)){ $addition=0;}
         if($(this).is(":checked")) {
             finaltotal = parseFloat(finaltotal) + parseFloat(due);
             isCheck = "yes";
+            arr[$(this).val()] = 'checked';
         } else {
+            delete arr[$(this).val()];
             finaltotal = parseFloat(finaltotal) - parseFloat(due);
         }
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
         
+        localStorage.setItem('forwarded_invoices', JSON.stringify(arr));
         if($("#forwardedInvoicesAdjustment").val() > 0){
 
             $("#preloader").show();
