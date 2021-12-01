@@ -4307,11 +4307,7 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        $caseMaster=CaseMaster::whereId($findInvoice->case_id)/* ->whereHas('caseStaffAll', function($query) {
-                        $query->where('user_id', auth()->id());
-                    }) */
-                    ->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
-        if(empty($findInvoice) || empty($caseMaster))
+        if(empty($findInvoice))
         {
             return view('errors.invoice_403');
         }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
