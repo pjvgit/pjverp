@@ -108,14 +108,14 @@ class BillingController extends BaseController
             $case = $case->where("case_master.id",$requestData['c']);
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to']!=''){
-            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime($requestData['from'])))
-                           ->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime($requestData['to'])));
+            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))))
+                           ->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC'))));
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to'] ==''){
-            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime($requestData['from'])));
+            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))));
         }
         if(isset($requestData['from']) && $requestData['from'] =='' && isset($requestData['to']) && $requestData['to'] !=''){
-            $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime($requestData['to'])));
+            $case = $case->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC'))));
         }
         
         if(isset($requestData['type']) && $requestData['type']=='own'){
