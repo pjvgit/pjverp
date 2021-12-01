@@ -967,11 +967,13 @@ class CaseController extends BaseController
         $InvoicesOverdueCase=0;
 
         $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("case_master.*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")
-                        ->where("case_unique_number",$request->id)
-                        ->whereHas('caseStaffAll', function($query) {
+                        ->where("case_unique_number",$request->id);
+        if(auth()->user()->parent_user != 0) {
+            $CaseMaster = $CaseMaster->whereHas('caseStaffAll', function($query) {
                             $query->where('user_id', auth()->id());
-                        })
-                        ->with('caseOffice')->first();
+                        });
+        }
+        $CaseMaster = $CaseMaster->with('caseOffice')->first();
         if(!empty($CaseMaster)){
             $case_id= $CaseMaster->case_id;
             // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');
@@ -1041,9 +1043,15 @@ class CaseController extends BaseController
                 if($request->upcoming_events && $request->upcoming_events == 'on') {
                     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
                 }
-                $allEvents = $allEvents->whereHas('eventLinkedStaff', function($query) {
+                /* $allEvents = $allEvents->whereHas('eventLinkedStaff', function($query) {
                     $query->where('users.id', auth()->id());
-                })->orderBy('start_date','ASC')->orderBy('start_time','ASC')
+                }) */
+                if(auth()->user()->parent_user != 0) {
+                    $allEvents = $allEvents->whereHas('case.caseStaffAll', function($query) {
+                        $query->where('user_id', auth()->id());
+                    });
+                }
+                $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
                 ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 ->paginate(15)
                 /* ->groupBy(function($val) {

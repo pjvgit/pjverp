@@ -84,11 +84,11 @@ $(document).ready(function () {
         rules: {
             password: {
                 required: true,
-                maxlength: 20,
+                // maxlength: 20,
             },
             confirm_password: {
                 required: true,
-                maxlength: 20,
+                // maxlength: 20,
                 equalTo: "#activation_form_password",
             },
             client_terms_acknowledgement: {

@@ -86,7 +86,7 @@
                         $("#innerLoader1").css('display', 'none');
                         return false;
                     } else {
-                        // window.location.reload();
+                        window.location.reload();
                         $('#deleteFromCommentBox').modal("hide");
                         $('#loadCommentPopup').modal("hide");
                         $("#innerLoader1").css('display', 'none');

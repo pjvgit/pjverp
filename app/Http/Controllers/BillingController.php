@@ -9148,9 +9148,9 @@ class BillingController extends BaseController
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
+        }
+        dbStart();
         try {
-            dbStart();
             if(isset($request->applied_to) && $request->applied_to!=0){
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);
@@ -9220,7 +9220,6 @@ class BillingController extends BaseController
         } catch (Exception $e) {
             dbEnd();
             return response()->json(['errors'=> $e->getMessage()]);
-        }
         }
     }
     

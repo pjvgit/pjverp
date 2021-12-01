@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use App\Jobs\ProcessPodcast;
 use App\Http\Controllers\CommonController;
 use App\Rules\UniqueEmail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ContractController extends BaseController
@@ -974,6 +975,7 @@ class ContractController extends BaseController
     }
     public function saveAddContact(Request $request)
     {
+        // return $request->all();
         $validator = \Validator::make($request->all(), [
             'first_name' => 'required|max:250',
             'last_name' => 'required|max:250',
@@ -1078,36 +1080,9 @@ class ContractController extends BaseController
                 $TempUserSelection->user_id=Auth::user()->id;
                 $TempUserSelection->save();
             }
-            
+            $UsersAdditionalInfo->refresh();
             if($UsersAdditionalInfo->client_portal_enable=="1"){
-                    $firmData=Firm::find(Auth::User()->firm_name);
-                    $getTemplateData = EmailTemplate::find(21);
-                    $fullName=$request->first_name. ' ' .$request->last_name;
-                    $email=$request->email;
-                    // $token=url('firmclient/verify', $user->token);
-                    $token=url('activate_account/web_token', $user->token);
-                    $mail_body = $getTemplateData->content;
-                    $mail_body = str_replace('{name}', $fullName, $mail_body);
-                    $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);
-                    $mail_body = str_replace('{email}', $email,$mail_body);
-                    $mail_body = str_replace('{token}', $token,$mail_body);
-                    $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                    $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-                    $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
-                    $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-                    $mail_body = str_replace('{refuser}', $firmData['firm_name'], $mail_body);                          
-                    $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                    $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
-                    $mail_body = str_replace('{cell}', CELL, $mail_body);       
-                    $userEmail = [
-                        "from" => FROM_EMAIL,
-                        "from_title" => FROM_EMAIL_TITLE,
-                        "subject" => $getTemplateData->subject. " ". $firmData['firm_name'],
-                        "to" => $request->email,
-                        "full_name" => $fullName,
-                        "mail_body" => $mail_body
-                        ];
-                    $sendEmail = $this->sendMail($userEmail);
+                    $this->sendClientPortalEnableEmailToClient($request, $user);
                 }
            
             
@@ -1156,6 +1131,38 @@ class ContractController extends BaseController
            return response()->json(['errors'=>'','user_id'=>$user->id]);
             exit;
         }
+    }
+
+    public function sendClientPortalEnableEmailToClient($request, $user)
+    {
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $getTemplateData = EmailTemplate::find(21);
+        $fullName=$request->first_name. ' ' .$request->last_name;
+        $email=$request->email;
+        // $token=url('firmclient/verify', $user->token);
+        $token=url('activate_account/web_token', $user->token);
+        $mail_body = $getTemplateData->content;
+        $mail_body = str_replace('{name}', $fullName, $mail_body);
+        $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);
+        $mail_body = str_replace('{email}', $email,$mail_body);
+        $mail_body = str_replace('{token}', $token,$mail_body);
+        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+        $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+        $mail_body = str_replace('{regards}', $firmData['firm_name'], $mail_body);  
+        $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+        $mail_body = str_replace('{refuser}', $firmData['firm_name'], $mail_body);                          
+        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
+        $mail_body = str_replace('{cell}', CELL, $mail_body);       
+        $userEmail = [
+            "from" => FROM_EMAIL,
+            "from_title" => FROM_EMAIL_TITLE,
+            "subject" => $getTemplateData->subject. " ". $firmData['firm_name'],
+            "to" => $request->email,
+            "full_name" => $fullName,
+            "mail_body" => $mail_body
+            ];
+        $sendEmail = $this->sendMail($userEmail);
     }
 
     public function loadEditContact(Request $request)
@@ -1237,7 +1244,15 @@ class ContractController extends BaseController
             if(isset($request->case_name)) { $UsersAdditionalInfo->case_name=$request->case_name; }
             if(isset($request->notes)) { $UsersAdditionalInfo->notes=$request->notes; }
             if(isset($request->dob)) { $UsersAdditionalInfo->dob=date('Y-m-d',strtotime($request->dob)); }else{$UsersAdditionalInfo->dob=NULL;}
-            if(isset($request->client_portal_enable)) { $UsersAdditionalInfo->client_portal_enable="1"; }else{$UsersAdditionalInfo->client_portal_enable="0";}
+            if(isset($request->client_portal_enable)) { 
+                Log::info("client_portal_enable: ". $UsersAdditionalInfo->client_portal_enable);
+                if($UsersAdditionalInfo->client_portal_enable == '0') {
+                    $this->sendClientPortalEnableEmailToClient($request, $user);
+                }
+                $UsersAdditionalInfo->client_portal_enable="1"; 
+            } else {
+                $UsersAdditionalInfo->client_portal_enable="0";
+            }
             $UsersAdditionalInfo->created_by =Auth::User()->id;
             $UsersAdditionalInfo->save();
 

@@ -537,7 +537,7 @@ function getEventReminderTpe()
  */
 function getDueText($dueDate)
 {
-    if(!$dueDate) {
+    if(!$dueDate || $dueDate == '9999-12-30') {
         $dueText = "No Due Date";
     } else {
         $dueDate = \Carbon\Carbon::parse($dueDate);
