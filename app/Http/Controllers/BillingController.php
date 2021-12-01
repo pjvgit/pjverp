@@ -4307,11 +4307,7 @@ class BillingController extends BaseController
     {
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        $caseMaster=CaseMaster::whereId($findInvoice->case_id)/* ->whereHas('caseStaffAll', function($query) {
-                        $query->where('user_id', auth()->id());
-                    }) */
-                    ->with("caseAllClient", "caseAllClient.userAdditionalInfo", "caseAllClient.userTrustAccountHistory")->first();
-        if(empty($findInvoice) || empty($caseMaster))
+        if(empty($findInvoice))
         {
             return view('errors.invoice_403');
         }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
@@ -9170,9 +9166,9 @@ class BillingController extends BaseController
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
+        }
+        dbStart();
         try {
-            dbStart();
             if(isset($request->applied_to) && $request->applied_to!=0){
                 $refundRequest=RequestedFund::find($request->applied_to);
                 $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);
@@ -9242,7 +9238,6 @@ class BillingController extends BaseController
         } catch (Exception $e) {
             dbEnd();
             return response()->json(['errors'=> $e->getMessage()]);
-        }
         }
     }
     

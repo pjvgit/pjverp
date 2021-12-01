@@ -30,6 +30,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                         } else {
                             $dueDate = "";
                         }
+                        $remindDate = ""; $emailType = "";
                         if($dueDate) {
                             $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $currentDate);
                             $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);

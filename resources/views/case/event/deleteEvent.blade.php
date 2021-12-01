@@ -90,9 +90,9 @@
                         $("#innerLoader1").css('display', 'none');
                         return false;
                     } else {
-                        // window.location.reload();
-                        $('#deleteEvent').modal('hide');
-                        loadMoreEvent(1, filter = 'true'); 
+                        window.location.reload();
+                        // $('#deleteEvent').modal('hide');
+                        // loadMoreEvent(1, filter = 'true'); 
                     }
                 }
             });

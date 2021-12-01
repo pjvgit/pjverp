@@ -1243,15 +1243,23 @@ class CalendarController extends BaseController
     public function eventDetail($event_id)
     {
         $event_id=base64_decode($event_id);
-        $evetData = CaseEvent::whereId($event_id)->whereHas('eventLinkedStaff', function($query) {
-            $query->where('users.id', auth()->id());
-        })->with("eventLocation", "case", "eventLinkedStaff")->first();
-        if($evetData) {
-            $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
-            $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
-            return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
+        $evetData = CaseEvent::whereId($event_id);
+        if($evetData->first()) {
+            if(auth()->user()->parent_user != 0) {
+                $evetData = $evetData->whereHas('eventLinkedStaff', function($query) {
+                    $query->where('users.id', auth()->id());
+                });
+            }
+            $evetData = $evetData->with("eventLocation", "case", "eventLinkedStaff")->first();
+            if($evetData) {
+                $eventReminderData=CaseEventReminder::where('event_id',$event_id)->get();
+                $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$event_id)->get();
+                return view('calendar.index', compact('evetData', 'CaseEventLinkedContactLead'));
+            } else {
+                abort(403);
+            }
         } else {
-            abort(403);
+            return redirect()->route('events/');
         }
     }
 
