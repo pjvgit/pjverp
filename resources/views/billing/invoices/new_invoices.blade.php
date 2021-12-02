@@ -1410,14 +1410,14 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-client">
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][case_id]" value="{{ @$citem->pivot->case_id }}" >
-                                                                    @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0)
+                                                                    {{-- @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0) --}}
                                                                     <span>{{ $citem->full_name ?? "" }}</span>
-                                                                    @endif
+                                                                    {{-- @endif --}}
                                                                 </td>
                                                                 <td class="apply-funds-account">
-                                                                    @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0)
+                                                                    {{-- @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0) --}}
                                                                     <div>Trust (Trust Account)</div>
-                                                                    @endif
+                                                                    {{-- @endif --}}
                                                                 </td>
                                                                 <td class="apply-funds-available-amount">
                                                                     <div>$<span class="trust-balance">{{ number_format($citem->pivot->allocated_trust_balance ?? 0.00, 2) }}</span> <span class="allocation-status">(Allocated)</span></div>

@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller {
 
+    protected $redirectTo = '/admin';
+
+    public function __construct()
+    {
+        $this->middleware('guest:admin', ['except' => ['logout']]);
+    }
+
     /**
      * Get admin login form
      */
@@ -23,14 +30,27 @@ class AuthController extends Controller {
     {
         // return $request->all();
         $this->validate($request, [
-            'email'   => 'required|email',
+            'email'    => 'required|email|exists:admins',
             'password' => 'required'
         ]);
 
-        if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
-
-            return redirect()->intended('admin/');
+        // if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::guard('admin')->attempt(['email' => strtolower($request->email), 'password' => $request->password])) {
+            return redirect()->intended(route('admin/dashboard'))->with('status','You are Logged in as Admin!');;
         }
-        return back()->withInput($request->only('email'));
+        return back()->withInput($request->only('email'))->with('error', 'These credentials do not match with our records.');
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+
+        return redirect()->route('admin/login');
     }
 }

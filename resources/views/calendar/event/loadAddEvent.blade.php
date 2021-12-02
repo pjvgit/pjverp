@@ -25,15 +25,24 @@
                         data-placeholder="Search for an existing contact or company">
                         <option value="">Search for an existing Case or Lead</option>
                         <optgroup label="Court Cases">
-                            <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
+                            {{-- <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
                             <option uType="case" <?php if($case_id==$Caseval->id){ echo "selected=selected"; }?>
                                 value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
-                            <?php } ?>
+                            <?php } ?> --}}
+                            @forelse ($CaseMasterData as $key => $item)
+                            <option uType="case" value="{{ $item->id }}">
+                                {{substr($item->case_title,0,100)}} @if($item->case_number!='') {{ "(".$item->case_number.")" }} @endif @if($item->case_close_date!=NULL) {{ "[Closed]" }} @endif </option>
+                            @empty
+                            @endforelse
                         </optgroup>
                         <optgroup label="Leads">
-                            <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
+                            {{-- <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
                             <option uType="lead" <?php if($lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
-                            <?php } ?>
+                            <?php } ?> --}}
+                            @forelse ($caseLeadList as $key => $item)
+                            <option uType="lead" value="{{ $key }}" >{{ $item }}</option>
+                            @empty
+                            @endforelse
                         </optgroup>
                     </select>
 

@@ -21,7 +21,7 @@
                                     <img src="{{asset('assets/images/logo.png')}}" alt="">
                                 </div>
                                 <h1 class="mb-3 text-18">Sign In</h1>
-                                <form method="POST" action="{{ route('admin/login') }}">
+                                <form method="POST" action="{{ route('admin/login/post') }}">
                                     @csrf
                                     <div class="form-group">
                                         <label for="email">Email address</label>

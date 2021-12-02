@@ -1355,14 +1355,14 @@ $expenseTime=0;$expenseAmount=0;
                                                     <tr class="apply-funds-row">
                                                         <td class="apply-funds-client">
                                                             <input type="hidden" name="trust[{{ $item->client_id }}][id]" value="{{ $item->id }}" >
-                                                            @if($item->applied_amount <= 0)
+                                                            {{-- @if($item->applied_amount <= 0) --}}
                                                             <span>{{ @$item->client->full_name }}</span>
-                                                            @endif
+                                                            {{-- @endif --}}
                                                         </td>
                                                         <td class="apply-funds-account">
-                                                            @if($item->applied_amount <= 0)
+                                                            {{-- @if($item->applied_amount <= 0) --}}
                                                                 Trust (Trust Account)
-                                                            @endif
+                                                            {{-- @endif --}}
                                                         </td>
                                                         <td class="apply-funds-available-amount">
                                                             @php

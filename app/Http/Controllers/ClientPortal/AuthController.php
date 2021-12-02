@@ -76,7 +76,6 @@ class AuthController extends Controller
             ])->save();
             $user->refresh();
             // return $user->password;
-            // if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password)])) {
             if (Auth::attempt(['email' => $user->email, 'password' => trim($request->password)])) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus == '1' && $user->userAdditionalInfo->client_portal_enable == '1') { 

@@ -162,7 +162,7 @@ Route::get('testmail', 'UserController@testmail')->name('users.testmail');
 Route::get('/firmclient/verify/{token}', 'ContractController@verifyClient');
 
 //After Login can access this routes
-Route::group(['middleware'=>['auth', 'user.role:user']], function () {
+Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/execute', 'MysqlController@executeQuery');
     Route::get('/load_profile', 'UserController@profile_load')->name('load_profile');
@@ -1191,7 +1191,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
 });
 
 // AUth routes of client portal
-Route::group(['middleware' => ['auth', 'user.role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
+Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
     Route::get('notifications', 'HomeController@allNotification')->name("client/notifications");
 
