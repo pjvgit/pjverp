@@ -71,7 +71,7 @@ if(!isset($addition)){ $addition=0;}
                                         <div>
                                             <div class="clearfix">
                                                 <select class="form-control" id="contact"
-                                                    onchange="fetchClientAddress()" name="contact" style="width: 70%;"
+                                                    onchange="fetchClientAddresss()" name="contact" style="width: 70%;"
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
@@ -120,7 +120,7 @@ if(!isset($addition)){ $addition=0;}
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
-                                                    <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
+                                                    <select onchange="changeCases()"   name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
                                                         <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
@@ -3659,10 +3659,8 @@ if(!isset($addition)){ $addition=0;}
        
     }
 
-    function changeCase(){
-        // $("#warningModal").modal('show');
-        var pageReload = true;
-        if($("#final_total_text").val() < 0){
+    $("#contact").on("change", function() {
+        if($("#final_total_text").val() > 0){
             swal({
                 title: 'warning',
                 text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -3678,13 +3676,44 @@ if(!isset($addition)){ $addition=0;}
                 reverseButtons: true
             }).then(function(isConfirm){
                 if (isConfirm){
-                    pageReload = true;
+                    fetchClientAddress();
                 }
+            }, function (dismiss) {
+                $("#court_case_id").val('{{$case_id}}');
             });
         }else{
-            pageReload = true;
-        }
-        if(pageReload){
+            fetchClientAddress();
+        }    
+    });
+
+    $("#court_case_id").on("change", function() {
+        if($("#final_total_text").val() > 0){
+            swal({
+                title: 'warning',
+                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0CC27E',
+                cancelButtonColor: '#FF586B',
+                cancelButtonText: 'Close',
+                confirmButtonText: 'Proceed',
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-danger  mr-2',
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function(isConfirm){
+                if (isConfirm){
+                    changeCase();
+                }
+            }, function (dismiss) {
+                $("#court_case_id").val('{{$case_id}}');
+            });
+        }else{
+            changeCase();
+        }    
+    });
+
+    function changeCase(){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var bill_payment_terms = $("#bill_payment_terms").val();
@@ -3711,7 +3740,6 @@ if(!isset($addition)){ $addition=0;}
             URLS+='&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
         }
         window.location.href=URLS;
-        }
     }
     
     function installmentCalculation(){
@@ -3732,14 +3760,16 @@ if(!isset($addition)){ $addition=0;}
         
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {
-            var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
-            console.log(jsObj);
-            if ($(this).val() in jsObj) {
-                console.log($(this).val() +" exists");
-                $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
-                arr[$(this).val()] = 'checked';
-            }else{
-                delete arr[$(this).val()];
+            if(localStorage.getItem("forwarded_invoices")){
+                var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
+                console.log(jsObj);
+                if ($(this).val() in jsObj) {
+                    console.log($(this).val() +" exists");
+                    $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                    arr[$(this).val()] = 'checked';
+                }else{
+                    delete arr[$(this).val()];
+                }
             }
             if($(this).is(":checked")) {
                 dueAmt = $(this).attr("data-due-amount");

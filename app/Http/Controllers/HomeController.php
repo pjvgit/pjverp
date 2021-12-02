@@ -399,8 +399,8 @@ class HomeController extends BaseController
         ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
-        ->whereIn("all_history.type", ["invoices", "lead_invoice"])
-        ->whereIn("all_history.action", $authUserNotifyAction)
+        // ->whereIn("all_history.type", ["invoices", "lead_invoice"])
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
         if($request->ajax() && $request->per_page != '')
         {
@@ -430,7 +430,7 @@ class HomeController extends BaseController
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","time_entry")
-        ->whereIn("all_history.action", $authUserNotifyAction)
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
         if($request->ajax() && $request->per_page != '')
         {
@@ -461,7 +461,7 @@ class HomeController extends BaseController
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","expenses")
-        ->whereIn("all_history.action", $authUserNotifyAction)
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
 
         if($request->ajax() && $request->per_page != '')
@@ -493,7 +493,7 @@ class HomeController extends BaseController
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","event")
-        ->whereIn("all_history.action", $authUserNotifyAction)
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
         if($request->ajax() && $request->per_page != '')
         {
@@ -523,7 +523,7 @@ class HomeController extends BaseController
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","task")
-        ->whereIn("all_history.action", $authUserNotifyAction)
+        // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
         if($request->ajax() && $request->per_page != '')
         {
@@ -579,7 +579,7 @@ class HomeController extends BaseController
             ->where('all_history.is_for_client','no')
             ->where("all_history.firm_id",Auth::User()->firm_name)
             ->where("all_history.type","document")
-            ->whereIn("all_history.action", $authUserNotifyAction)
+            // ->whereIn("all_history.action", $authUserNotifyAction)
             ->orderBy('all_history.id','DESC');
             if(isset($request->per_page)){
                 $commentData=$commentData->paginate($request->per_page);
@@ -897,10 +897,9 @@ class HomeController extends BaseController
                     $duration += $finishTime1->diffInSeconds($startTime1);
                 }
             }
-            echo $duration; echo PHP_EOL;
-            echo $duration =  $duration / 60; echo PHP_EOL;
-            echo $duration = floor($duration /6) ; echo PHP_EOL;
-            echo $duration = $duration * 0.1; echo PHP_EOL;
+            $duration =  $duration / 60;
+            $duration = floor($duration /6) ;
+            $duration = $duration * 0.1;
             $duration = $duration + 0.1; 
         }
         \Session::forget('smart_timer_id');

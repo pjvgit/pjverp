@@ -1,3 +1,11 @@
+------------------------------------ 02-DEC-2021 ------------------------------
+ALTER TABLE `notification_settings`
+CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import','pay') COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `topic`;
+
+UPDATE `notification_settings` SET `action` = 'pay' WHERE `id` = '32';
+
+ALTER TABLE `all_history`
+CHANGE `action` `action` enum('add','update','delete','none','pay','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','login','change','close','reopen','import','pay_delete') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'none' AFTER `type`;
 ------------------------------------ 01-DEC-2021 ------------------------------
 CREATE TABLE `admins` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

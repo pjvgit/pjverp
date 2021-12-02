@@ -125,6 +125,10 @@ class NotificationEmailCommand extends Command
         $firmData = array_map('array_values', $firmData);
         $caseData = [];
         $itemData = [];        
+                                        
+        $ignoreTypes = ['fundrequest','credit','deposit'];
+        $ignoreActions = ['pay_delete'];  
+
         foreach($firmData as $key => $item) {
             if(count($item) > 0) {
                 $firmId = $item[0]->caseFirm->parent_user_id;
@@ -152,7 +156,14 @@ class NotificationEmailCommand extends Command
                         if($setting->sub_type == 'time_entry' && $v->type == 'expenses'){
                             $viewInMail = 1;
                         }
-                    }                    
+                        if(in_array($v->type,$ignoreTypes)){
+                            $viewInMail = 1;
+                        }
+                        if(in_array($v->action,$ignoreActions)){
+                            $viewInMail = 1;
+                        }
+                    }                     
+                    
                     if($viewInMail == 1){
                         echo $v->type ."-->". $v->action; echo PHP_EOL;
                         if($v->case_id !=NULL){
@@ -211,6 +222,12 @@ class NotificationEmailCommand extends Command
                             $viewInMail = 1;
                         }
                         if($setting->sub_type == 'time_entry' && $v->type == 'expenses'){
+                            $viewInMail = 1;
+                        }
+                        if(in_array($v->type,$ignoreTypes)){
+                            $viewInMail = 1;
+                        }
+                        if(in_array($v->action,$ignoreActions)){
                             $viewInMail = 1;
                         }
                     }                    

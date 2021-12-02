@@ -323,6 +323,7 @@
                                 $imageLink["share"]="activity_bill_shared.png";
                                 $imageLink["unshare"]="activity_bill_unshared.png";
                                 $imageLink["email"]="activity_bill_email_shared.png";
+                                $imageLink["pay_delete"]="activity_ledger_deleted.png";
                                 $image=$imageLink[$v->action];
                             ?>
                             
@@ -344,7 +345,7 @@
                                 </td>
 
                                 <td style="font-size:12px">
-                                @if(in_array($v->action,["add","update","delete","pay","refund"]))
+                                @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
                                     <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                                     @if($v->action == "pay") for invoice  @endif
                                     @if ($v->deleteInvoice == NULL)
@@ -860,6 +861,7 @@
                                     $imageLink["share"]="activity_bill_shared.png";
                                     $imageLink["unshare"]="activity_bill_unshared.png";
                                     $imageLink["email"]="activity_bill_email_shared.png";
+                                    $imageLink["pay_delete"]="activity_ledger_deleted.png";
                                     $image=$imageLink[$v->action];
                                 ?>
                                 
@@ -881,7 +883,7 @@
                                     </td>
 
                                     <td style="font-size:12px">
-                                    @if(in_array($v->action,["add","update","delete","pay","refund"]))
+                                    @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
                                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                                         @if($v->action == "pay") for invoice  @endif
                                         @if ($v->deleteInvoice == NULL)

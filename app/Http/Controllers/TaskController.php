@@ -1238,7 +1238,7 @@ class TaskController extends BaseController
   public function getAndCheckDefaultCaseRate(Request $request)
   {
       $case_id=$request->case_id;
-      $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
+      $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->first();
       if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
           $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
           $default_rate=($defaultRate['default_rate'])??0.00;

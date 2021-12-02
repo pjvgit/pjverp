@@ -165,6 +165,7 @@ console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounte
 
 if (localStorage.getItem("counter") > 0 && smart_timer_id != '') {
     totalSeconds = localStorage.getItem("counter");
+    totalSeconds = totalSeconds - 1;
     if (localStorage.getItem("pauseCounter") != 'yes') {
         $(".logoutTimerAlert").show();
         intervalId = setInterval(timerstart, 1000);
@@ -188,7 +189,7 @@ if (localStorage.getItem("counter") > 0 && smart_timer_id != '') {
                 hour = Math.floor(totalSeconds / 3600);
                 minute = Math.floor((totalSeconds - hour * 3600) / 60);
                 seconds = totalSeconds - (hour * 3600 + minute * 60);
-                $(".time_status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
+                $(".time-status").html(pad(hour, 2) + ":" + pad(minute, 2) + ":" + pad(seconds, 2));
                 $("#smart_timer_id").val(data.smartTimer.id);
                 $("#timer_case_id").val(data.smartTimer.case_id);
                 $("#timer_text_field").val(data.smartTimer.comments);
@@ -330,7 +331,8 @@ function deleteTimer() {
 
 function saveTimer() {
     $("#pauseCounter").trigger('click');
-    var total_time = $(".time_status").html();
+    var total_time = $(".time-status").html();
+    alert(total_time);
     var smart_timer_id = $("#smart_timer_id").val();
     var timer_text_field = $("#timer_text_field").val();
     var case_id = $("#timer_case_id").val();
@@ -356,7 +358,7 @@ function saveTimer() {
 
 function pauseTimer() {
     var smart_timer_id = $("#smart_timer_id").val();
-    var total_time = $(".time_status").html();
+    var total_time = $(".time-status").html();
     $.ajax({
         url: baseUrl + "/pauseTimer",
         type: 'POST',
@@ -371,7 +373,7 @@ function pauseTimer() {
 
 function resumeTimer() {
     var smart_timer_id = $("#smart_timer_id").val();
-    var total_time = $(".time_status").html();
+    var total_time = $(".time-status").html();
     $.ajax({
         url: baseUrl + "/resumeTimer",
         type: 'POST',

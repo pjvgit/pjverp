@@ -128,13 +128,18 @@ class CommonController extends BaseController {
             }
         }                    
         $ignoreTypes = ['fundrequest','credit','deposit'];
+        $ignoreActions = ['pay_delete'];
         if($viewInMail == 1){
             $AllHistory->save();
         }else{
             if(in_array($data['type'],$ignoreTypes)){
                 $AllHistory->save();
             }
+            if(in_array($data['action'],$ignoreActions)){
+                $AllHistory->save();
+            }
         }        
+        // $AllHistory->save();
         return true;
     }
 

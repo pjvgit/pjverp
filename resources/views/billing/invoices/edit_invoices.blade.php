@@ -3584,14 +3584,16 @@ $expenseTime=0;$expenseAmount=0;
     function forwardedInvoicesCalculate(){
         var lineTotal = 0.00;
         $(".forwarded-invoices-check").each(function(ind, item) {
-            var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
-            console.log(jsObj);
-            if ($(this).val() in jsObj) {
-                console.log($(this).val() +" exists");
-                $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
-                arr[$(this).val()] = 'checked';
-            }else{
-                delete arr[$(this).val()];
+            if(localStorage.getItem("forwarded_invoices")){
+                var jsObj = JSON.parse(localStorage.getItem("forwarded_invoices"));
+                console.log(jsObj);
+                if ($(this).val() in jsObj) {
+                    console.log($(this).val() +" exists");
+                    $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                    arr[$(this).val()] = 'checked';
+                }else{
+                    delete arr[$(this).val()];
+                }
             }
             if($(this).is(":checked")) {
                 dueAmt = $(this).attr("data-due-amount");

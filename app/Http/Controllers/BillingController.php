@@ -179,14 +179,11 @@ class BillingController extends BaseController
         $default_rate=0.00;
         $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
         if(count($caseStaffData) > 0){
+            $default_rate=$caseStaffData[0]->rate_amount;
             foreach($caseStaffData as $k => $v){
                 $caseStaffRates[$v->user_id] = $v->rate_amount;
-                if($v->lead_attorney != NULL){
-                    $default_rate=$v->rate_amount;
-                }
             }
         }
-        
         return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "caseStaffRates", "request"));     
         exit;    
     } 
@@ -345,10 +342,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAdjustTotal = $v->basis - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }   
                     }
                 }}
             }
@@ -698,10 +699,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                         $invoiceAdjustTotal = $v->basis - $totalTime;                        
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }}
             }
@@ -2716,10 +2721,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAdjustTotal = $v->basis - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }}
             }
@@ -2761,10 +2770,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
                         $invoiceAdjustTotal = $v->basis - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]); 
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        } 
                     }
                 }}
             }
@@ -2799,10 +2812,14 @@ class BillingController extends BaseController
                     foreach($InvoiceAdjustment as $k=>$v){                        
                         $invoiceAdjustTotal = $totalTime - $v->basis;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);                       
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }
                 TaskTimeEntry::where('case_id',$id)->where('invoice_link',$request->invoice_id)->delete();
@@ -2832,10 +2849,14 @@ class BillingController extends BaseController
                     foreach($InvoiceAdjustment as $k=>$v){                        
                         $invoiceAdjustTotal = $totalTime - $v->basis;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);                       
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }                     
                     }
                 }
                 FlatFeeEntry::where('case_id',$id)->where('status','paid')->delete();
@@ -2866,10 +2887,14 @@ class BillingController extends BaseController
                     foreach($InvoiceAdjustment as $k=>$v){                        
                         $invoiceAdjustTotal = $totalTime - $v->basis;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);                       
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }                       
                     }
                 }
                 ExpenseForInvoice::where("invoice_id", $request->invoice_id)->delete();
@@ -2959,10 +2984,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
                         $invoiceAdjustTotal = $totalTime + $v->basis;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]); 
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }
             }
@@ -3021,10 +3050,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'flat_fees'){
                         $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100;
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]); 
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }}
             }
@@ -3137,10 +3170,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAdjustTotal = $totalTime + $v->basis;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }
             }
@@ -3227,10 +3264,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'time_entries'){
                         $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }}
             }
@@ -3316,10 +3357,14 @@ class BillingController extends BaseController
                     if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                         $invoiceAdjustTotal = $v->basis - $totalTime;
                         $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                        InvoiceAdjustment::where("id",$v->id)->update([
-                            'basis' => $invoiceAdjustTotal,
-                            'amount'=> $invoiceAmount
-                        ]);
+                        if($invoiceAmount <= 0){
+                            InvoiceAdjustment::where("id",$v->id)->delete();
+                        }else{                             
+                            InvoiceAdjustment::where("id",$v->id)->update([
+                                'basis' => $invoiceAdjustTotal,
+                                'amount'=> $invoiceAmount
+                            ]);
+                        }
                     }
                 }}
             }
@@ -3430,10 +3475,14 @@ class BillingController extends BaseController
                 if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                     $invoiceAdjustTotal = $totalExpense + $v->basis;
                     $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                    InvoiceAdjustment::where("id",$v->id)->update([
-                        'basis' => $invoiceAdjustTotal,
-                        'amount'=> $invoiceAmount
-                    ]);
+                    if($invoiceAmount <= 0){
+                        InvoiceAdjustment::where("id",$v->id)->delete();
+                    }else{                             
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
                 }
             }
         }
@@ -3522,10 +3571,14 @@ class BillingController extends BaseController
                 if($v->applied_to == 'sub_total' || $v->applied_to == 'expenses'){
                     $invoiceAdjustTotal = $v->basis + $totalNewTime - $totalTime;
                     $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                    InvoiceAdjustment::where("id",$v->id)->update([
-                        'basis' => $invoiceAdjustTotal,
-                        'amount'=> $invoiceAmount
-                    ]);
+                    if($invoiceAmount <= 0){
+                        InvoiceAdjustment::where("id",$v->id)->delete();
+                    }else{                             
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
                 }
             }}
         }
@@ -3831,13 +3884,13 @@ class BillingController extends BaseController
         $paymentPlanAmount = 0;
         if(isset($request->new_payment_plans)){
             foreach($request->new_payment_plans as $k=>$v){
-                $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
+                $paymentPlanAmount += (float) str_replace(',', '', $v['amount']);
             }
         }
-        $paymentPlanAmount = (int) str_replace(',', '', number_format($paymentPlanAmount,2));
+        $paymentPlanAmount = (float) str_replace(',', '', number_format($paymentPlanAmount,2));
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
-        }        
+        }       
         $request->validate($rules,
         [
             "invoice_number_padded.unique"=>"Invoice number is already taken",
@@ -5453,10 +5506,10 @@ class BillingController extends BaseController
         $paymentPlanAmount = 0;
         if(isset($request->new_payment_plans)){
             foreach($request->new_payment_plans as $k=>$v){
-                $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
+                $paymentPlanAmount += (float) str_replace(',', '', $v['amount']);
             }
         }
-        $paymentPlanAmount = (int) str_replace(',', '', number_format($paymentPlanAmount,2));
+        $paymentPlanAmount = (float) str_replace(',', '', number_format($paymentPlanAmount,2));
         if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
             $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
         }        
@@ -6990,6 +7043,19 @@ class BillingController extends BaseController
                 $this->deleteTrustAccountActivity($PaymentMaster->id);
 
                 InvoiceHistory::where('id',$request->payment_id)->delete();
+
+                //Add Invoice history
+                $Invoices = Invoices::find($PaymentMaster->invoice_id);
+                $data=[];
+                $data['case_id']=$Invoices['case_id'];
+                $data['user_id']=$Invoices['user_id'];
+                $data['activity']='deleted a payment from invoice';
+                $data['activity_for']=$Invoices['id'];
+                $data['type']='invoices';
+                $data['action']='pay_delete';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+                
                 dbCommit();
                 session(['popup_success' => 'Entry was deleted']);
                 return response()->json(['errors'=>'']);
@@ -10272,10 +10338,14 @@ class BillingController extends BaseController
                             }
                             $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
                         
-                            InvoiceAdjustment::where("id",$v->id)->update([
-                                'basis' => $invoiceAdjustTotal,
-                                'amount'=> $invoiceAmount
-                            ]);
+                            if($invoiceAmount <= 0){
+                                InvoiceAdjustment::where("id",$v->id)->delete();
+                            }else{                             
+                                InvoiceAdjustment::where("id",$v->id)->update([
+                                    'basis' => $invoiceAdjustTotal,
+                                    'amount'=> $invoiceAmount
+                                ]);
+                            }
                         }
                     }
                 }                
@@ -10294,10 +10364,14 @@ class BillingController extends BaseController
                                 $invoiceAdjustTotal = $v->basis + $totalTime;
                             }
                             $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                            InvoiceAdjustment::where("id",$v->id)->update([
-                                'basis' => $invoiceAdjustTotal,
-                                'amount'=> $invoiceAmount
-                            ]);
+                            if($invoiceAmount <= 0){
+                                InvoiceAdjustment::where("id",$v->id)->delete();
+                            }else{                             
+                                InvoiceAdjustment::where("id",$v->id)->update([
+                                    'basis' => $invoiceAdjustTotal,
+                                    'amount'=> $invoiceAmount
+                                ]);
+                            }
                         }
                     }
                 }                
@@ -10316,10 +10390,14 @@ class BillingController extends BaseController
                                 $invoiceAdjustTotal = $v->basis + $totalTime;
                             }
                             $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                            InvoiceAdjustment::where("id",$v->id)->update([
-                                'basis' => $invoiceAdjustTotal,
-                                'amount'=> $invoiceAmount
-                            ]);
+                            if($invoiceAmount <= 0){
+                                InvoiceAdjustment::where("id",$v->id)->delete();
+                            }else{                             
+                                InvoiceAdjustment::where("id",$v->id)->update([
+                                    'basis' => $invoiceAdjustTotal,
+                                    'amount'=> $invoiceAmount
+                                ]);
+                            }
                         }
                     }
                 }                
@@ -10347,10 +10425,14 @@ class BillingController extends BaseController
                         $invoiceAdjustTotal = $v->basis + $totalTime;
                     }
                     $invoiceAmount = ($invoiceAdjustTotal * $v->percentages ) / 100; 
-                    InvoiceAdjustment::where("id",$v->id)->update([
-                        'basis' => $invoiceAdjustTotal,
-                        'amount'=> $invoiceAmount
-                    ]);
+                    if($invoiceAmount <= 0){
+                        InvoiceAdjustment::where("id",$v->id)->delete();
+                    }else{                             
+                        InvoiceAdjustment::where("id",$v->id)->update([
+                            'basis' => $invoiceAdjustTotal,
+                            'amount'=> $invoiceAmount
+                        ]);
+                    }
                 }
             }
             if($request->page == 'edit'){

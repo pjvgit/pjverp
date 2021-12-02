@@ -12,9 +12,10 @@
                     $imageLink["unshare"]="activity_bill_unshared.png";
                     $imageLink["email"]="activity_bill_email_shared.png";
                     $imageLink["view"]="activity_bill_viewed.png";
+                    $imageLink["pay_delete"]="activity_ledger_deleted.png";
                     $image=$imageLink[$v->action];
                     ?>
-                    @if(in_array($v->action,["add","update","delete","pay","refund"]))
+                    @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} 
                         @if($v->action == "pay") for invoice  @endif

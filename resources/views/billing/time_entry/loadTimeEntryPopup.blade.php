@@ -135,7 +135,7 @@
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
                                         id="rate-field-id" name="rate_field_id" maxlength="15"
-                                        class="form-control" min="0" value="">
+                                        class="form-control" min="0" value="{{$default_rate ?? ''}}">
                                 </div>
                             </div>
                         </div>
