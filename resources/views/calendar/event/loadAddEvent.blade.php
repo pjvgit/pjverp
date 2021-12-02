@@ -30,7 +30,7 @@
                                 value="{{$Caseval->id}}">{{substr($Caseval->case_title,0,100)}} <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> <?php if($Caseval->case_close_date!=NULL){  echo "[Closed]"; }?> </option>
                             <?php } ?> --}}
                             @forelse ($CaseMasterData as $key => $item)
-                            <option uType="case" {{ ($evetData->case_id == $item->id) ? "selected" : "" }} value="{{ $item->id }}">
+                            <option uType="case" value="{{ $item->id }}">
                                 {{substr($item->case_title,0,100)}} @if($item->case_number!='') {{ "(".$item->case_number.")" }} @endif @if($item->case_close_date!=NULL) {{ "[Closed]" }} @endif </option>
                             @empty
                             @endforelse
@@ -40,7 +40,7 @@
                             <option uType="lead" <?php if($lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                             <?php } ?> --}}
                             @forelse ($caseLeadList as $key => $item)
-                            <option uType="lead" value="{{ $key }}" {{ ($evetData->lead_id == $key) ? "selected" : "" }} >{{ $item }}</option>
+                            <option uType="lead" value="{{ $key }}" >{{ $item }}</option>
                             @empty
                             @endforelse
                         </optgroup>
