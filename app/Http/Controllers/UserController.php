@@ -53,7 +53,7 @@ class UserController extends BaseController
             $email=$request->email;
             $password=$request->password;
             if (Auth::attempt(['email' => $email, 'password' => $password])) {
-                Auth::logoutOtherDevices($password);
+                // Auth::logoutOtherDevices($password);
                 // checkSmartTimer on or off
                 $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
                 if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){
@@ -67,7 +67,7 @@ class UserController extends BaseController
                 }
                 $user = User::find(Auth::User()->id);
                 if($user->getUserFirms() > 1) {
-                    return redirect()->route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode'));
+                    return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));
                 } else if($user->user_level == '2' && $user->userAdditionalInfo->client_portal_enable == '1') {
                     
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
@@ -82,7 +82,7 @@ class UserController extends BaseController
                     $data['action']='login';
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);
-                    return redirect()->route('client/home')->with('success','Login Successfully');
+                    return redirect()->intended(route('client/home'))->with('success','Login Successfully');
                 } else if($user->user_level == '3') {
                     // Save invoice settings if user is old and has not invoice default setting
                     $this->saveDefaultInvoicePreferences($user->firm_name, $user->id);

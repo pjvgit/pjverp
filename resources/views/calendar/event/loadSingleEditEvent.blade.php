@@ -12,7 +12,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
 <div class="modal-body">
     <div class="row">
         <div class="col-md-12" >
-        <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
+        <form class="SingleEditEventForm" id="SingleEditEventForm" name="SingleEditEventForm" method="POST">
             <input class="form-control" id="event_id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
             <input type="radio" style="display:none;" name="delete_event_type" class="pick-option mr-2" checked="checked" value="SINGLE_EVENT">
@@ -559,6 +559,18 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         // loadCaseClient({{@$case_id}});
         // loadCaseNoneLinkedStaff({{@$case_id}});
         // loadCaseLinkedStaff({{@$case_id}});
+
+        @if($evetData->recuring_event=='no')
+        if(!$("#recuring_event").is(":checked")) {
+            $("#endondiv").hide();
+            $('#repeat_dropdown').hide();
+            $('#repeat_custom').hide();
+            $('#repeat_monthly').hide();
+            $('#repeat_yearly').hide();
+            $('#repeat_daily').hide();
+        }
+        @endif
+
         $('#dateInputPanel .input-time').timepicker({
             'showDuration': false,
             'timeFormat': 'g:i A',
@@ -621,11 +633,11 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
         });
-        $('#EditEventForm').on('click', '.remove', function () {
+        $('#SingleEditEventForm').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });
 
-        $("#EditEventForm").validate({
+        $("#SingleEditEventForm").validate({
             rules: {
                 case_or_lead: {
                     required: {
@@ -692,17 +704,17 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         });
 
 
-        $('#EditEventForm').submit(function (e) {
+        $('#SingleEditEventForm').submit(function (e) {
             e.preventDefault();
             // $(".submit").attr("disabled", true);
             $(".innerLoader").css('display', 'block');
-            if (!$('#EditEventForm').valid()) {
+            if (!$('#SingleEditEventForm').valid()) {
                 $(".innerLoader").css('display', 'none');
                 $('.submit').removeAttr("disabled");
                 return false;
             }
             var dataString ='';
-             dataString = $("form").serialize();
+             dataString = $("#SingleEditEventForm").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveEditEventPage", // json datasource

@@ -14,14 +14,18 @@
 /**
  * Guest routes
  */
-Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
+
+use Illuminate\Support\Facades\Route;
+
+Route::group(['middleware' => ['guest:admin'], 'namespace' => 'Admin'], function () {
     Route::get("login", "AuthController@showLoginForm")->name('admin/login');
-    Route::post("login", "AuthController@login")->name('admin/login');
+    Route::post("login", "AuthController@login")->name('admin/login/post');
+    Route::post('logout', 'AuthController@logout')->name('admin/logout');
 });
 
 /**
  * After login routes
  */
-Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
-    Route::get("dashboard", "DashboardController@index")->name('admin/dashboard');
+Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Admin'], function () {
+    Route::get("/", "DashboardController@index")->name('admin/dashboard');
 });

@@ -4723,6 +4723,7 @@ class CaseController extends BaseController
                     "firm_id" => $authUser->firm_name,
                     "updated_by" => $authUser->id,
                 ])->save();
+                $CaseEvent->refresh();
                 $this->saveEventReminder($request->all(),$CaseEvent->id); 
                 $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
                 $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
