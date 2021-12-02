@@ -404,7 +404,7 @@
                                         <div class="timer-row d-flex design-set pt-3">
                                             <div class="pl-0">
                                                 <a href="javascript:void(0);">
-                                                    <i class="timerAction fas fa-pause" id='pauseCounter'>&nbsp;<span class="time_status_0">00:00:00</span></i>
+                                                    <i class="timerAction fas fa-pause" id='pauseCounter'>&nbsp;<span class="time-status">00:00:00</span></i>
                                                 </a> 
                                             </div>
                                             <input type="hidden" name="smart_timer_id" id="smart_timer_id" value="">
@@ -432,7 +432,7 @@
                                             <label>
                                                 <img class="mr-1" src="{{asset('/svg/note-.svg')}}" width="30" height="30">
                                                 <div class="counting-textarea d-flex" style="width: 100%;">
-                                                    <textarea placeholder="Description" id="timer-text-field" class="form-control" maxlength="1024" rows="1" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 35px;"></textarea>
+                                                    <textarea placeholder="Description" id="timer_text_field" class="form-control" maxlength="1024" rows="1" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 35px;"></textarea>
                                                     </div>
                                             </label>
                                         </div>

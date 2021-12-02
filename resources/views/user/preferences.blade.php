@@ -92,8 +92,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             <?php if($user->auto_logout=="on"){ ?>
                                 Automatically log me out after {{$user->sessionTime}} minutes of inactivity.
                                 <br>
+                                <?php if($user->dont_logout_while_timer_runnig=="on"){ ?>
                                 Do not automatically log me out if I have a timer running.
                                 <br>                                
+                                <?php } ?>
                             <?php }else{ ?>
                                 Do not automatically log me out. 
                                 <br>

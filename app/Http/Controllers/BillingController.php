@@ -5102,7 +5102,12 @@ class BillingController extends BaseController
             $Invoices=Invoices::where("invoice_unique_token",$request->id)->first();
             if(!empty($Invoices)){
                 $userData=User::find($Invoices['user_id']);
-                $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->get();
+                if($Invoices['case_id'] == 0){
+                    $getAllClientForSharing=CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->where("case_client_selection.selected_user",$Invoices['user_id'])->get();
+                }else{
+                    $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable","users.last_login")->where("case_client_selection.case_id",$Invoices['case_id'])->get();
+                }
+                
                 if(count($getAllClientForSharing) == 0){
                     $getAllClientForSharing[] = User::find($Invoices['user_id']); 
                 }
@@ -5445,13 +5450,24 @@ class BillingController extends BaseController
         if($InvoiceSave->status == "Paid" && $request->final_total_text < $InvoiceSave->total_amount) {
             $rules['final_total_text'] = 'gte:'.$InvoiceSave->total_amount;
         }
+        $paymentPlanAmount = 0;
+        if(isset($request->new_payment_plans)){
+            foreach($request->new_payment_plans as $k=>$v){
+                $paymentPlanAmount += (int) str_replace(',', '', $v['amount']);
+            }
+        }
+        $paymentPlanAmount = (int) str_replace(',', '', number_format($paymentPlanAmount,2));
+        if($request->payment_plan == "on" && $request->final_total_text != $paymentPlanAmount){
+            $rules['new_payment_plans'] = 'required|min:'.$request->final_total_text;
+        }        
         $request->validate($rules, [
             "invoice_number_padded.required"=>"Invoice number must be greater than 0",
             "invoice_number_padded.numeric"=>"Invoice number must be greater than 0",
             "contact.required"=>"Billing user can't be blank",
             "timeEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add time entries activity.",
             "expenseEntrySelectedArray.required"=>"You are attempting to save a blank invoice, please add expenses activity",
-            "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount."
+            "final_total_text.gte" => "You cannot lower the amount of this invoice below $".$InvoiceSave->total_amount." because payments have already been received for that amount.",
+            "new_payment_plans.min"=>"Payment plans must add up to the same total as the invoice."
         ]);
         
             // print_r($request->all());exit;
@@ -7351,6 +7367,7 @@ class BillingController extends BaseController
                         $Applied=FALSE;
                     }                    
                 }
+                
                 if($discount_applied_to=="balance_forward_total"){
                     //forwarded invoices applied or not
                     $forwardedInvoices = Invoices::whereId($v1)->with("forwardedInvoices")->first();
@@ -7361,12 +7378,12 @@ class BillingController extends BaseController
                     if($forwardedInvoicesTotal > 0.01) {
                         $InvoiceAdjustment->basis =str_replace(",","",$forwardedInvoicesTotal);
                         if($amountType=="percentage"){
-                            $finalAmount=($amount/100)*$subTotal;
+                            $finalAmount=($amount/100)*$forwardedInvoicesTotal;
                             $Applied=TRUE;
                         }else{
-                            $finalAmount=$amount;
-                            if($subTotal >= 0.01 && $forwardedInvoicesGrandTotal > 0.01){
+                            if($forwardedInvoicesGrandTotal > 0.01){
                                 $Applied= TRUE;
+                                $finalAmount=$amount;
                             }else{
                                 $Applied= ($amount >= $subTotal) ? FALSE : TRUE;
                             }
@@ -7383,7 +7400,7 @@ class BillingController extends BaseController
                         }
                     }
                 }
-                
+               
                 $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
                 $InvoiceAdjustment->notes =$notes;
                 $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
@@ -7391,6 +7408,7 @@ class BillingController extends BaseController
                 }
                 
                 if($Applied==TRUE){
+                    
                     if($Invoices->payment_plan_enabled == 'no'){
                         $InvoiceAdjustment->save();
                         // echo $InvoiceAdjustmentTotal.'---->'.$forwardedInvoicesGrandTotal.'---->'.$subTotal.'---->'.$finalAmount;
