@@ -409,10 +409,9 @@ class UserController extends BaseController
         $id=Auth::user()->id;
         $user = User::find($id);
         $country = Countries::get();
-        $UserPreferanceEventReminder=UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","event")->get();
-        $UserPreferanceTaskReminder=UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","task")->get();
+        $UserPreferanceReminder = UserPreferanceReminder::where("user_id",Auth::User()->id)->get();
         if(!empty($user)){
-            return view('user.preferences', compact('user','country','UserPreferanceEventReminder','UserPreferanceTaskReminder'));
+            return view('user.preferences', compact('user','country','UserPreferanceReminder'));
         }else{
             return redirect('login');
         }

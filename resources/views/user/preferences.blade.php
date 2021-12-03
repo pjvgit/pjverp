@@ -37,11 +37,15 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             <div class="col form-control-plaintext default-appt-reminders">
                                 <span style="font-style: italic;"> 
                                 <?php
-                                if(count($UserPreferanceEventReminder) > 0){ 
-                                    echo ucwords($UserPreferanceEventReminder[0]['reminder_type']).' '.
-                                    $UserPreferanceEventReminder[0]['reminer_number'].' '.
-                                    $UserPreferanceEventReminder[0]['reminder_frequncy'].' before '.
-                                    $UserPreferanceEventReminder[0]['type'];
+                                if(count($UserPreferanceReminder) > 0){ 
+                                foreach($UserPreferanceReminder as $k =>$v){
+                                    if($v['type'] != 'task'){
+                                        echo ucwords($v['reminder_type']).' '.
+                                        $v['reminer_number'].' '.
+                                        $v['reminder_frequncy'].' before '.
+                                        $v['type'].'</br>';
+                                    }
+                                }
                                 }else{
                                     echo "None";
                                 }?>
@@ -54,15 +58,20 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                             </div>
                             <div class="col form-control-plaintext default-task-reminders">
                                 <span style="font-style: italic;"> 
-                                <?php 
-                                if(count($UserPreferanceTaskReminder) > 0){ 
-                                    echo ucwords($UserPreferanceTaskReminder[0]['reminder_type']).' '.
-                                    $UserPreferanceTaskReminder[0]['reminer_number'].' '.
-                                    $UserPreferanceTaskReminder[0]['reminder_frequncy'].' before '.
-                                    $UserPreferanceTaskReminder[0]['type'].' due date ';
-                                }else{
-                                    echo "None";
-                                }?></span>
+                                <?php
+                                if(count($UserPreferanceReminder) > 0){ 
+                                    foreach($UserPreferanceReminder as $k =>$v){
+                                        if($v['type'] == 'task'){
+                                            echo ucwords($v['reminder_type']).' '.
+                                            $v['reminer_number'].' '.
+                                            $v['reminder_frequncy'].' before '.
+                                            $v['type'].' due date '.'</br>';
+                                        }
+                                    }
+                                    }else{
+                                        echo "None";
+                                    }?>
+                                </span>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -124,7 +133,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             </label>
                                             <div class="form-control-plaintext col-9">
                                                 <div>
-                                                    <?php foreach($UserPreferanceEventReminder as $rkey=>$rval){ ?>
+                                                    <?php foreach($UserPreferanceReminder as $rkey=>$rval){ 
+                                                        if($rval['type'] != 'task'){?>
                                                     <div class="row form-group fieldGroup">
                                                         <div class="">
                                                             <div class="d-flex col-10 pl-0 align-items-center">
@@ -178,7 +188,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <?php } ?>
+                                                    <?php } }?>
                                                     <div class="fieldGroup"></div>
                                                     <div>                                                        <img src="{{ asset('svg/add-sign.svg') }}">
 
@@ -237,7 +247,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             </label>
                                             <div class="form-control-plaintext col-9">
                                                 <div>
-                                                    <?php foreach($UserPreferanceTaskReminder as $rkey=>$rval){ ?>
+                                                    <?php foreach($UserPreferanceReminder as $rkey=>$rval){ 
+                                                        if($rval['type'] != 'task'){?>
                                                     <div class="row form-group fieldGroup-2">
                                                         <div class="">
                                                             <div class="d-flex col-10 pl-0 align-items-center">
@@ -263,22 +274,14 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="reminder_time_unit"
                                                                                 name="task_reminder_time_unit[]"
                                                                                 class="form-control custom-select  ">
-                                                                                <option
-                                                                                                <?php if($rval->reminder_frequncy=="minute"){ echo "selected=selected"; } ?>
-                                                                                                value="minute">minutes
-                                                                                            </option>
-                                                                                            <option
-                                                                                                <?php if($rval->reminder_frequncy=="hour"){ echo "selected=selected"; } ?>
-                                                                                                value="hour">hours
-                                                                                            </option>
-                                                                                            <option
-                                                                                                <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?>
-                                                                                                value="day">days
-                                                                                            </option>
-                                                                                            <option
-                                                                                                <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?>
-                                                                                                value="week">weeks
-                                                                                            </option>
+                                                                                    <option
+                                                                                        <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?>
+                                                                                        value="day">days
+                                                                                    </option>
+                                                                                    <option
+                                                                                        <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?>
+                                                                                        value="week">weeks
+                                                                                    </option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -292,7 +295,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <?php } ?>
+                                                    <?php } }?>
                                                     <div class="fieldGroup-2"></div>
                                                     <div>
                                                         <img src="{{ asset('svg/add-sign.svg') }}">
@@ -329,8 +332,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                                             <select id="reminder_time_unit"
                                                                                 name="task_reminder_time_unit[]"
                                                                                 class="form-control custom-select  ">
-                                                                                <option value="minute">minutes</option>
-                                                                                <option value="hour">hours</option>
                                                                                 <option value="day">days</option>
                                                                                 <option value="week">weeks</option>
                                                                             </select>

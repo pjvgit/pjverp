@@ -1118,7 +1118,10 @@ class TaskController extends BaseController
     }else{
         
         foreach($request->case_or_lead as $i=>$v){
+            \Log::info('index >'.$i);
+            \Log::info('1121 >'.$request->case_or_lead[$i]);
             if($request->case_or_lead[$i]!='' && $request->activity[$i]!='' && $request->duration[$i]!=''){
+                \Log::info('1123 >'.$request->case_or_lead[$i]);
                 $TaskTimeEntry = new TaskTimeEntry; 
                 $TaskTimeEntry->task_id=$request->task_id;
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
@@ -1132,40 +1135,42 @@ class TaskController extends BaseController
                 $TaskTimeEntry->description=$request->description[$i];
                 $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
                 
-                $rateUsers = CaseStaff::select("*")->where("case_id",$request->case_or_lead[$i])->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
+                $rateUsers = CaseStaff::select("*")->where("case_id",$request->case_or_lead[$i])->first();
                 if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
                     $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
                     $default_rate=($defaultRate['default_rate'])??0.00;
                 }else{
                     $default_rate=($rateUsers['rate_amount'])??0.00;
                 }
+                \Log::info('TaskTimeEntry >'.default_rate);
                 if($default_rate > 0.00){
-                $TaskTimeEntry->entry_rate=$default_rate;
-                $TaskTimeEntry->rate_type='hr';
-                $TaskTimeEntry->duration =$request->duration[$i];
-                $TaskTimeEntry->created_by=Auth::User()->id; 
-                $TaskTimeEntry->save();
-                    
-                //Add time entory history
-                $data=[];
-                $data['case_id']=$TaskTimeEntry->case_id;
-                $data['user_id']=$TaskTimeEntry->user_id;
-                $data['activity']='added an time entry';
-                $data['activity_for']=$TaskTimeEntry->activity_id;
-                $data['time_entry_id']=$TaskTimeEntry->id;
+                    $TaskTimeEntry->entry_rate=$default_rate;
+                    $TaskTimeEntry->rate_type='hr';
+                    $TaskTimeEntry->duration =$request->duration[$i];
+                    $TaskTimeEntry->created_by=Auth::User()->id; 
+                    $TaskTimeEntry->save();
+                    \Log::info('TaskTimeEntry >'.$TaskTimeEntry->id);
+                        
+                    //Add time entory history
+                    $data=[];
+                    $data['case_id']=$TaskTimeEntry->case_id;
+                    $data['user_id']=$TaskTimeEntry->user_id;
+                    $data['activity']='added an time entry';
+                    $data['activity_for']=$TaskTimeEntry->activity_id;
+                    $data['time_entry_id']=$TaskTimeEntry->id;
 
-                $data['type']='time_entry';
-                $data['action']='add';
-                $CommonController= new CommonController();
-                $CommonController->addMultipleHistory($data);
+                    $data['type']='time_entry';
+                    $data['action']='add';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
 
-                //Case Activity
-                $data=[];
-                $data['activity_title']='added an time entry';
-                $data['case_id']=$TaskTimeEntry->case_id;
-                $data['activity_type']='';
-                $data['extra_notes']=$TaskTimeEntry->activity_id;
-                $this->caseActivity($data);
+                    //Case Activity
+                    $data=[];
+                    $data['activity_title']='added an time entry';
+                    $data['case_id']=$TaskTimeEntry->case_id;
+                    $data['activity_type']='';
+                    $data['extra_notes']=$TaskTimeEntry->activity_id;
+                    $this->caseActivity($data);
 
                 }
             }

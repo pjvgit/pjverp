@@ -43,7 +43,7 @@ class FullBackUpOfApplication implements ShouldQueue
         Log::info("Full Back Up Job started :". date('Y-m-d H:i:s'));
         try {
         $authUser = $this->authUser;
-
+        Log::info("authUser :". $this->authUser);
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
         $clientFullBackup->status = 2;
         $clientFullBackup->save();
@@ -284,6 +284,7 @@ class FullBackUpOfApplication implements ShouldQueue
         ->leftJoin("case_master","case_master.id","=","invoices.case_id");    
         $FetchQuery = $FetchQuery->select('invoice_payment.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as entered_by'),DB::raw('CONCAT_WS(" ",invoiceUser.first_name,invoiceUser.last_name) as contact_by'),'case_master.case_title');
         if($request['export_cases'] == 1){
+            Log::info("generateAccountActivitiesCSV :". $authUser);
             $FetchQuery = $FetchQuery->where("invoice_payment.firm_id",$authUser->firm_name);
         }else{
             $FetchQuery = $FetchQuery->where("invoice_payment.created_by",$authUser->id);
@@ -566,7 +567,7 @@ class FullBackUpOfApplication implements ShouldQueue
     
     public function generateLawyersCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
-
+        Log::info("generateLawyersCSV :". $authUser);
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select('users.*','users_additional_info.*',"users.id as id");
         $user = $user->where("firm_name",$authUser->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
@@ -698,6 +699,7 @@ class FullBackUpOfApplication implements ShouldQueue
     
     public function generateTrustActivitiesCSV($request, $folderPath, $authUser){
         $casesCsvData=[];
+        Log::info("generateTrustActivitiesCSV :". $authUser);
 
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
         ->leftJoin("users as invoiceUser","invoiceUser.id","=","account_activity.user_id")

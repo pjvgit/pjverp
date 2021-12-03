@@ -1680,7 +1680,7 @@ class ClientdashboardController extends BaseController
 
     public function saveRequestFundPopup(Request $request)
     {
-        // return $request->all();
+        return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
 
         $validator = \Validator::make($request->all(), [

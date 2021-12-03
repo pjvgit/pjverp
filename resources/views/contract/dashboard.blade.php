@@ -23,7 +23,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 <div class="row">
                     @can('add_firm_user')
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a id="add-new-user-link" href="#add-new-user">
+                        <a id="add-new-user-link" href="{{route('contacts/attorneys')}}">
                             <i class="i-Administrator text-32 mr-3" height="40"></i>
                             <div class="mt-1">Add a New User</div>
                         </a>
@@ -38,7 +38,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                     @endcan
                     @can('edit_firm_user_permission')
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a href="#">
+                        <a href="{{route('contacts/attorneys')}}">
                             <i class="i-Lock-2 text-32 mr-3" height="40"></i>
 
                             <div class="mt-1">Edit User Permissions</div>
@@ -58,12 +58,12 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                     @endcan
                     @can('manage_firm_and_billing_settings')
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a href="#">
+                        <a href="{{route('billing/settings')}}">
                             <i class="i-Money-2 text-32 mr-3" height="40"></i>
                             <div class="mt-1">Accept Client Payments Online</div>
                         </a> </div>
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a href="#">
+                        <a href="{{route('firms/setting')}}">
                             <i class="i-Settings-Window text-32 mr-3" height="40"></i>
                             <div class="mt-1">Edit Firm Info &amp; Settings</div>
                         </a> </div>

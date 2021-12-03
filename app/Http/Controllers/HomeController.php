@@ -867,9 +867,14 @@ class HomeController extends BaseController
     }
 
     public function deleteTimer(Request $request){
-        $SmartTimer = SmartTimer::find($request->smart_timer_id)->forceDelete();
-        \Session::forget('smart_timer_id');
-        return response()->json(["status" => "success"]);
+        if($request->smart_timer_id){
+            $SmartTimer = SmartTimer::find($request->smart_timer_id)->forceDelete();
+            \Session::forget('smart_timer_id');
+            return response()->json(["status" => "success"]);
+        }else{
+            return response()->json(["status" => "error"]);
+        }
+        
     }
 
     public function saveTimer(Request $request){
@@ -913,12 +918,16 @@ class HomeController extends BaseController
         // $PauseTimerEntrie->save();
         // return response()->json(["status" => "success", "pause_smart_timer_id" => $PauseTimerEntrie->id]);
         
-        $SmartTimer = SmartTimer::find($request->smart_timer_id);
-        session(["paused_time" => date("Y-m-d H:i:s")]);                
-        $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
-        $SmartTimer->is_pause = 1;
-        $SmartTimer->save();
-        return response()->json(["status" => "success"]);
+        if(isset($request->smart_timer_id)){
+            $SmartTimer = SmartTimer::find($request->smart_timer_id);
+            session(["paused_time" => date("Y-m-d H:i:s")]);                
+            $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+            $SmartTimer->is_pause = 1;
+            $SmartTimer->save();
+            return response()->json(["status" => "success"]);
+        }else{
+            return response()->json(["status" => "error"]);
+        }
     }
 
     public function resumeTimer(Request $request){
@@ -927,17 +936,20 @@ class HomeController extends BaseController
         // $PauseTimerEntrie->save();
         // return response()->json(["status" => "success"]);
 
-        
-        $startTime1 = Carbon::parse(session("paused_time"));
-        $finishTime1 = Carbon::now();
-        $pausedSeconds = $finishTime1->diffInSeconds($startTime1);
+        if(isset($request->smart_timer_id)){
+            $startTime1 = Carbon::parse(session("paused_time"));
+            $finishTime1 = Carbon::now();
+            $pausedSeconds = $finishTime1->diffInSeconds($startTime1);
 
-        $SmartTimer = SmartTimer::find($request->smart_timer_id);
-        $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
-        $SmartTimer->is_pause = 0;        
-        $SmartTimer->paused_seconds = $SmartTimer->paused_seconds + $pausedSeconds;
-        $SmartTimer->save();
-        return response()->json(["status" => "success"]);
+            $SmartTimer = SmartTimer::find($request->smart_timer_id);
+            $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+            $SmartTimer->is_pause = 0;        
+            $SmartTimer->paused_seconds = $SmartTimer->paused_seconds + $pausedSeconds;
+            $SmartTimer->save();
+            return response()->json(["status" => "success"]);
+        }else{
+            return response()->json(["status" => "error"]);
+        }
     }
 
     public function checkTimerExits(Request $request){
@@ -949,5 +961,17 @@ class HomeController extends BaseController
             return response()->json(["status" => "error","smart_timer_id" => "", "counter" => 0]);
         }
         
+    }
+    //when user close the browser or tab, user logout from the server
+    public function browserClose(Request $request){
+        
+        if(isset($request->smart_timer_id)){
+            $SmartTimer = SmartTimer::find($request->smart_timer_id);    
+            $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);
+            $SmartTimer->is_pause = 1;
+            $SmartTimer->save();
+        }
+        // Auth::logout();
+        // Session::flush();
     }
 }

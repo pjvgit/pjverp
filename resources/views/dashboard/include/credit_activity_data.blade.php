@@ -18,6 +18,9 @@
                 <a class="name" href="{{ route('contacts/companies/view', $v->deposit_for) }}">{{$v->depositForUser->full_name}} (Company)</a>
             @endif
             about <abbr class="timeago" title="{{$v->all_history_created_at}}">{{ $v->time_ago }}</abbr> via web
+            <?php  if($v->case_unique_number!=NULL){  ?>
+                | <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+            <?php }  ?>
         </div>
     </td>
 </tr>

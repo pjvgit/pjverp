@@ -163,9 +163,10 @@ console.log("localStorage > smart_timer_id : " + localStorage.getItem("smart_tim
 console.log("localStorage > counter : " + localStorage.getItem("counter"));
 console.log("localStorage > pauseCounter : " + localStorage.getItem("pauseCounter"));
 
-if (localStorage.getItem("counter") > 0 && smart_timer_id != '') {
+if (localStorage.getItem("counter") > 0 && smart_timer_id != null) {
     totalSeconds = localStorage.getItem("counter");
     totalSeconds = totalSeconds - 1;
+    $("#smart_timer_id").val(smart_timer_id);
     if (localStorage.getItem("pauseCounter") != 'yes') {
         $(".logoutTimerAlert").show();
         intervalId = setInterval(timerstart, 1000);
@@ -305,21 +306,21 @@ function deleteTimer() {
                 type: 'POST',
                 data: { "smart_timer_id": smart_timer_id },
                 success: function(data) {
-                    if (data.status == "success") {
-                        $("#preloader").show();
-                        localStorage.setItem("counter", "0");
-                        localStorage.removeItem("pauseCounter");
-                        localStorage.removeItem("smart_timer_id");
-
-                        $("#smart_timer_id").val("");
-                        window.location.reload();
-                    }
+                    $("#preloader").show();
+                    localStorage.setItem("counter", "0");
+                    localStorage.removeItem("pauseCounter");
+                    localStorage.removeItem("smart_timer_id");
+                    localStorage.removeItem("timer_case_id");
+                    $("#smart_timer_id").val("");
+                    window.location.reload();
                 },
                 error: function(xhr, status, error) {
                     $("#preloader").show();
                     localStorage.setItem("counter", "0");
                     localStorage.removeItem("pauseCounter");
                     localStorage.removeItem("smart_timer_id");
+                    localStorage.removeItem("timer_case_id");
+                    $("#smart_timer_id").val("");
                     window.location.reload();
                 }
             });
@@ -332,7 +333,6 @@ function deleteTimer() {
 function saveTimer() {
     $("#pauseCounter").trigger('click');
     var total_time = $(".time-status").html();
-    alert(total_time);
     var smart_timer_id = $("#smart_timer_id").val();
     var timer_text_field = $("#timer_text_field").val();
     var case_id = $("#timer_case_id").val();
@@ -364,8 +364,10 @@ function pauseTimer() {
         type: 'POST',
         data: { "smart_timer_id": smart_timer_id, "total_time": total_time },
         success: function(data) {
-            if (data.status == "success") {
-                // $("#pause_smart_timer_id").val(data.pause_smart_timer_id);
+            if (data.status == "error") {
+                localStorage.setItem("counter", "0");
+                localStorage.removeItem("pauseCounter");
+                localStorage.removeItem("smart_timer_id");
             }
         },
     });
@@ -379,8 +381,10 @@ function resumeTimer() {
         type: 'POST',
         data: { "smart_timer_id": smart_timer_id, "total_time": total_time },
         success: function(data) {
-            if (data.status == "success") {
-                // $("#pause_smart_timer_id").val("");
+            if (data.status == "error") {
+                localStorage.setItem("counter", "0");
+                localStorage.removeItem("pauseCounter");
+                localStorage.removeItem("smart_timer_id");
             }
         },
     });
@@ -404,5 +408,30 @@ $('#logout-form').submit(function(e) {
     } else {
         return true;
     }
+});
+
+function browserClose() {
+    var smart_timer_id = $("#smart_timer_id").val();
+    var total_time = $(".time-status").html();
+    $.ajax({
+        url: baseUrl + "/browserClose",
+        type: 'POST',
+        data: { "smart_timer_id": smart_timer_id, "total_time": total_time },
+        success: function(data) {
+
+        }
+    });
+}
+
+//https://www.cluemediator.com/detect-browser-or-tab-close-event-using-javascript
+window.addEventListener("beforeunload", function(e) {
+    // $("#preloader").show();
+    // *********** perform database operation here
+    browserClose();
+    // before closing the browser ************** //
+
+    // added the delay otherwise database operation will not work
+    for (var i = 0; i < 500000000; i++) {}
+    return undefined;
 });
 // End
