@@ -243,11 +243,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     @endcan
                 },
             drawCallback: function (settings) {
+                /* if(ClientListGrid.row().data()===undefined){
+                    ClientListGrid.state.clear();
+                    location.href=url
+                } */
                 let api = this.api();
 
                 // fix pagination if saved page is empty
                 if (api.page() > 0 && api.rows({page: 'current'}).count() === 0) {
-                    api.page('previous').state.save();
+                    // api.page('previous').state.save();
+                    ClientListGrid.state.clear();
                     location.reload();
                 }
             }
