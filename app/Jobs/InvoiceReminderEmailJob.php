@@ -38,7 +38,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("invoice job handle");
+        Log::info("invoice job handle & dispatched at: ". Carbon::now());
         Mail::to($this->user->email)->send((new InvoiceReminderMail($this->invoice, @$this->invoice->firmDetail, $this->user, $this->emailTemplate)));
         // Sent/shared invoice count
         $sharedInv = SharedInvoice::where("user_id", $this->user->id)->where("invoice_id", $this->invoice->id)->first();
@@ -48,7 +48,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
         ])->save();
 
         // Update invoice settings
-        if($this->invoice->invoice_setting && $this->remindType && $this->days) {
+        /* if($this->invoice->invoice_setting && $this->remindType && $this->days) {
             $invoiceSetting = $this->invoice->invoice_setting;
             foreach($invoiceSetting['reminder'] as $key => $item) {
                 $is_reminded = $item['is_reminded'] ?? "no";
@@ -63,6 +63,6 @@ class InvoiceReminderEmailJob implements ShouldQueue
             }
             $invoiceSetting['reminder'] = $jsonData['reminder'];
             $this->invoice->fill(['invoice_setting' => $invoiceSetting])->save();
-        }
+        } */
     }
 }

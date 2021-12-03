@@ -242,7 +242,16 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(7)', nRow).html('');
                     @endcan
                 },
-            });
+            drawCallback: function (settings) {
+                let api = this.api();
+
+                // fix pagination if saved page is empty
+                if (api.page() > 0 && api.rows({page: 'current'}).count() === 0) {
+                    api.page('previous').state.save();
+                    location.reload();
+                }
+            }
+        });
 
             $('#AddContactModal,#EditContactModal').on('hidden.bs.modal', function () {
                 //dataTable.ajax.reload();

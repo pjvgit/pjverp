@@ -36,7 +36,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id','created_date_new','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'contactlist','active_case_counter', 'full_name', 'full_address', 'user_type_text'];
+    protected $appends  = ['decode_id','created_date_new','additioninfo','createdby','lastloginnewformate','caselist',/* 'clientwise_caselist', */'active_case_counter', 'full_name', 'full_address', 'user_type_text'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -145,6 +145,9 @@ class User extends Authenticatable
         return json_encode($case); 
         
     }
+    /**
+     * Do not add this attribute to append array, if you need to use then append it dynamically
+     */
     public function getContactlistAttribute(){
         $companyID = $this->id;
         if($companyID != null){

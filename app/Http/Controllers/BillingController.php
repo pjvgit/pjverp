@@ -1347,8 +1347,13 @@ class BillingController extends BaseController
          $requestData= $_REQUEST;
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
-         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
-         ->where("invoices.created_by",Auth::user()->id);
+         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid");
+        //  ->where("invoices.created_by",Auth::user()->id);
+        if(auth()->user()->parent_user != 0) {
+            $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) {
+                $query->where('user_id', auth()->id());
+            });
+        }
       
          if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
             $Invoices = $Invoices->where("invoices.status",ucfirst($requestData['type']));
@@ -2263,7 +2268,10 @@ class BillingController extends BaseController
             });
 
         }else{
-            $Invoices = $Invoices->where("case_master.created_by",Auth::User);
+            // $Invoices = $Invoices->where("case_master.created_by",Auth::User);
+            $Invoices = $Invoices->whereHas('caseStaffAll', function($query) {
+                $query->where('user_id', auth()->id());
+            });
 
         }
         //Filters
@@ -2333,7 +2341,10 @@ class BillingController extends BaseController
                 $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
             });
         }else{
-            $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
+            // $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
+            $Invoices = $Invoices->whereHas('caseStaffAll', function($query) {
+                $query->where('user_id', auth()->id());
+            });
         }
         //Filters
         if($request->practice_area_id != 'all') {
@@ -2549,7 +2560,13 @@ class BillingController extends BaseController
             $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.selected_user",$client_id)->get()->pluck("case_id");
 
             //List all case by client 
-            $caseListByClient = CaseMaster::select("*")->whereIn('case_master.id',$caseCllientSelection)->select("*")->get();
+            $caseListByClient = CaseMaster::select("id", "case_title")->whereIn('case_master.id',$caseCllientSelection);
+            if(auth()->user()->parent_user != 0) {
+                $caseListByClient = $caseListByClient->whereHas('caseStaffAll', function($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            }
+            $caseListByClient = $caseListByClient->get();
             
             //Get the case data
             $caseMaster = CaseMaster::whereId($case_id)->with('caseBillingClient', 'caseAllClient')->first();
@@ -4358,9 +4375,17 @@ class BillingController extends BaseController
     //View Invoice 
     public function viewInvoice(Request $request)
     {
+        $authUser = auth()->user();
         $invoiceID=base64_decode($request->id);
-        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->first();
-        if(empty($findInvoice))
+        $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->where('firm_id', $authUser->firm_name)->first();
+        $case = CaseMaster::whereId($findInvoice->case_id);
+        if($authUser->parent_user != 0) {
+            $case = $case->whereHas('caseStaffAll', function($query) use($authUser){
+                $query->where('user_id', $authUser->id);
+            });
+        }
+        $case = $case->first();
+        if(empty($findInvoice) || ($findInvoice->case_id != 0 && empty($case)))
         {
             return view('errors.invoice_403');
         }elseif(empty($findInvoice) || $findInvoice->is_lead_invoice == 'yes')
