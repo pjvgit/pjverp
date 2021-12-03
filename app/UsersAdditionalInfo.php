@@ -21,7 +21,7 @@ class UsersAdditionalInfo extends Authenticatable
         'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 
         'credit_account_balance', 'minimum_trust_balance'
     ];
-    protected $appends  = ['lastloginnewformate','caselist', 'unallocate_trust_balance'];
+    protected $appends  = ['lastloginnewformate',/* 'caselist', */ 'unallocate_trust_balance'];
 
     public function getLastloginnewformateAttribute(){
         $CommonController= new CommonController();
@@ -40,7 +40,9 @@ class UsersAdditionalInfo extends Authenticatable
             
         }
     }
-     
+    /**
+     * Do not add this attribute to append array, If you need to use then set it dynamically
+     */
     public function getCaselistAttribute(){
         $ContractUserCase =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
         ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")

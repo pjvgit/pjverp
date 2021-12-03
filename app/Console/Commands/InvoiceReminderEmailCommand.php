@@ -129,6 +129,7 @@ class InvoiceReminderEmailCommand extends Command
                             }
 
                             // Update invoice settings
+                            Log::info("invoice setting before: ".$item->id.' = '.$item->invoice_setting);
                             if($item->invoice_setting && $remindType && $days) {
                                 $invoiceSetting = $item->invoice_setting;
                                 foreach($invoiceSetting['reminder'] as $key1 => $item1) {
@@ -144,6 +145,7 @@ class InvoiceReminderEmailCommand extends Command
                                 }
                                 $invoiceSetting['reminder'] = $jsonData['reminder'];
                                 $item->fill(['invoice_setting' => $invoiceSetting])->save();
+                                Log::info("invoice setting after: ".$item->id.' = '.$item->invoice_setting);
                             }
                         } else {
                             Log::info("no billing client:". $item->id);

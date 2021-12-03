@@ -158,7 +158,7 @@ class AuthController extends Controller
                 }
             } else {
                 session()->flash('password_error', "Password doesn't match.");
-                return Redirect::back();
+                return redirect()->back();
             }
         }else{
             Auth::logout();
