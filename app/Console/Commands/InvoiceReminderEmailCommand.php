@@ -80,7 +80,9 @@ class InvoiceReminderEmailCommand extends Command
                             $remindType = "on the due date";
                         }
                     } else if($dueDate->gt($currentDate)) { // For future due date
-                        $dueIn = $remindSetting->where("remind_type", 'due in')->where('is_reminded', 'no');
+                        $diffDays = $dueDate->diffInDays($currentDate);
+                        Log::info("diff due in days:". $diffDays);
+                        $dueIn = $remindSetting->where("remind_type", 'due in')->where('is_reminded', 'no')->where('days', $diffDays);
                         Log::info("Due ins:". $dueIn);
                         if($dueIn->count()) {
                             $dueIn = $dueIn->sortByDesc('days')->first();
@@ -92,7 +94,9 @@ class InvoiceReminderEmailCommand extends Command
                             $remindType = "due in";
                         }
                     } else if($dueDate->lt($currentDate)) { // For past due date
-                        $overDue = $remindSetting->where("remind_type", 'overdue by')->where('is_reminded', 'no');
+                        $diffDays = $dueDate->diffInDays($currentDate);
+                        Log::info("diff overdue in days:". $diffDays);
+                        $overDue = $remindSetting->where("remind_type", 'overdue by')->where('is_reminded', 'no')->where('days', $diffDays);
                         if($overDue->count()) {
                             $overDue = $overDue->sortBy('days')->first();
                             $days = $overDue['days'];

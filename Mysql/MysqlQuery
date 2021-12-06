@@ -1,3 +1,17 @@
+------------------------------------ 06-DEC-2021 ------------------------------
+CREATE TABLE `invoice_online_payment_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `firm_id` int(11) NOT NULL,
+  `is_accept_online_payment` enum('no','yes') NOT NULL DEFAULT 'no',
+  `public_key` varchar(255) NULL COMMENT 'conekta public key',
+  `private_key` varchar(255) NULL COMMENT 'conekta private key',
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_by` int(11) NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
 ------------------------------------ 02-DEC-2021 ------------------------------
 ALTER TABLE `notification_settings`
 CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import','pay') COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `topic`;
