@@ -17,6 +17,9 @@
 						{{-- <i class="fa fa-download" aria-hidden="true"></i> --}}
 						<span class="payable-detail__export-button">View Full Invoice (PDF)</span>
 					</a>
+					<a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', encodeDecodeId($invoice->id, 'encode')) }}" target="_blank">
+						<span class="payable-detail__export-button">Pay Now</span>
+					</a>
 				</div>
 			</div>
 			<div class="mb-3 mb-md-0">

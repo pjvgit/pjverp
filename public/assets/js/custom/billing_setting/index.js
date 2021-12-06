@@ -22,6 +22,10 @@ $(document).on("click", "#save_billing_settings", function() {
         data: $("#billing_defaults_form").serialize(),
         success: function(data) {
             $("#firm-billing-defaults").html(data);
+            toastr.success('Preferences saved', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            });
         }
     })
 });
@@ -81,6 +85,10 @@ $(document).on("click", "#save_customiz_settings", function() {
         data: $("#customization_form").serialize(),
         success: function(data) {
             $("#invoice-customization-defaults").html(data);
+            toastr.success('Preferences saved', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            });
         }
     })
 });
@@ -95,6 +103,37 @@ $(document).on("click", "#cancel_customiz_btn", function() {
         data: {customize_id: customizeId},
         success: function(data) {
             $("#invoice-customization-defaults").html(data);
+            toastr.success('Preferences saved', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            });
         }
     });
+});
+
+/**
+ * Online payment settings
+ */
+$(document).on("change", "#is_accept_online_payment", function() {
+    if($(this).is(":checked")) {
+        $("#key_div").show();
+    } else {
+        $("#key_div").hide();
+    }
+});
+
+// Save invoice payment preferences
+$(document).on("click", "#save_payment_settings", function() {
+    $.ajax({
+        url: $("#billing_payment_form").attr("action"),
+        type: 'POST',
+        data: $("#billing_payment_form").serialize(),
+        success: function(data) {
+            $("#firm-payment-defaults").html(data);
+            toastr.success('Preferences saved', "", {
+                positionClass: "toast-top-full-width",
+                containerId: "toast-top-full-width"
+            });
+        }
+    })
 });

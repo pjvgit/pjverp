@@ -131,4 +131,17 @@ class BillingController extends Controller
         }
         return view("client_portal.billing.fund_request_detail", compact("fundRequest"));
     }
+
+    /**
+     * Get invoice payment detail screen
+     */
+    public function paymentDetail($id)
+    {
+        $invoiceId = encodeDecodeId($id, 'decode');
+        $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) {
+                        $query->where("user_id", auth()->id())->where("is_shared", "yes");
+                    })->with('case', 'case.caseBillingClient')->first();
+
+        return view('client_portal.billing.invoice_payment', compact('invoice'));
+    }
 }

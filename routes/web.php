@@ -1162,6 +1162,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('billing/settings/edit/customization', 'BillingSettingController@editCustomization')->name('billing/settings/edit/customization');
     Route::post('billing/settings/update/customization', 'BillingSettingController@updateCustomization')->name('billing/settings/update/customization');
     Route::get('billing/settings/view/customization', 'BillingSettingController@viewCustomization')->name('billing/settings/view/customization');
+    Route::post('billing/settings/update/payment/preferences', 'BillingSettingController@updatePaymentPreferences')->name('billing/settings/update/payment/preferences');
+    Route::get('billing/settings/edit/payment/preferences', 'BillingSettingController@editPaymentPreferences')->name('billing/settings/edit/payment/preferences');
 
     //messages
     Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('messages/info');
@@ -1200,6 +1202,9 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills', 'BillingController@index')->name('client/bills');
     Route::get('bills/{id}', 'BillingController@show')->name('client/bills/detail');
     Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
+
+    // For billing > invoice > payment
+    Route::get('bills/payment/{id}', 'BillingController@paymentDetail')->name('client/bills/payment');
 
     // For billing > fund request
     Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\InvoiceCustomizationSetting;
 use App\InvoiceCustomizationSettingColumn;
+use App\InvoiceOnlinePaymentSetting;
 use App\InvoiceSetting;
 use App\InvoiceSettingReminderSchedule;
 
@@ -83,6 +84,12 @@ trait InvoiceSettingTrait {
                     'quantity' => 'yes',
                     'line_total' => 'yes',
                     'created_by' => $userId
+            ]);
+
+            // INvoice online payment setting 
+            InvoiceOnlinePaymentSetting::create([
+                'firm_id' => $firmId,
+                'created_by' => $userId,
             ]);
         }
     }

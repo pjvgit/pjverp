@@ -22,7 +22,7 @@ class CaseUpdate extends Model
     public function getCreatedNewDateAttribute(){
 
         $CommonController= new CommonController();
-        $timezone=Auth::User()->user_timezone;
+        $timezone=Auth::User()->user_timezone ?? 'UTC';
         $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
         return date('m-d-Y h:i A',strtotime($convertedDate));
     }   

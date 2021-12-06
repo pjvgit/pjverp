@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\InvoiceCustomizationSetting;
 use App\InvoiceCustomizationSettingColumn;
+use App\InvoiceOnlinePaymentSetting;
 use App\InvoiceSetting;
 use App\InvoiceSettingReminderSchedule;
 use Illuminate\Http\Request;
@@ -14,7 +15,8 @@ class BillingSettingController extends BaseController
     {
         $invSetting = InvoiceSetting::where('firm_id', auth()->user()->firm_name)->with('reminderSchedule')->first();
         $customize = InvoiceCustomizationSetting::where('firm_id', auth()->user()->firm_name)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();        
-        return view("billing_setting.index", compact('invSetting', 'customize'));
+        $paymentSetting = InvoiceOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
+        return view("billing_setting.index", compact('invSetting', 'customize', 'paymentSetting'));
     }
 
     /**
@@ -46,7 +48,7 @@ class BillingSettingController extends BaseController
                 'is_payment_history_on_bills' => $request->is_payment_history_on_bills,
                 // 'is_ledes_billing' => $request->is_ledes_billing,
                 'request_funds_preferences_default_msg' => $request->request_funds_preferences_default_msg,
-                'updated_by' => auth()->id(),
+                'updated_by' => $authUser->id,
             ]);
 
         if($request->reminder_type && $request->days) {
@@ -141,5 +143,36 @@ class BillingSettingController extends BaseController
     {
         $invSetting = InvoiceSetting::whereId($request->setting_id)->first();
         return view("billing_setting.partial.view_invoice_preferences", compact('invSetting'))->render();
+    }
+
+    /**
+     * Edit invoice default preferences
+     */
+    public function editPaymentPreferences(Request $request)
+    {
+        $paymentSetting = InvoiceOnlinePaymentSetting::whereId($request->setting_id)->first();
+        return view("billing_setting.partial.edit_payment_preferences", compact('paymentSetting'))->render();
+    }
+
+    /**
+     * Update invoice default preferences
+     */
+    public function updatePaymentPreferences(Request $request)
+    {
+        // return $request->all();
+        $authUser = auth()->user();
+        $data['firm_id'] = $authUser->firm_name;
+        $data['is_accept_online_payment'] = $request->is_accept_online_payment;
+        $data['updated_by'] = $authUser->id;
+        if($request->is_accept_online_payment == 'yes') {
+            $data['public_key'] = $request->public_key;
+            $data['private_key'] = $request->private_key;
+        }
+        $paymentSetting = InvoiceOnlinePaymentSetting::updateOrCreate(
+            [
+                'id' => $request->setting_id,
+            ], $data);
+
+        return view("billing_setting.partial.edit_payment_preferences", compact('paymentSetting'));
     }
 }

@@ -18,6 +18,14 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
+                        <div id="firm-payment-defaults">
+                            @include('billing_setting.partial.edit_payment_preferences')
+                        </div>
+                    </div>
+                </div>
+                <div class="my-4"></div>
+                <div class="card">
+                    <div class="card-body">
                         <div id="firm-billing-defaults">
                             @include('billing_setting.partial.view_invoice_preferences')
                         </div>
@@ -43,7 +51,7 @@
     </div>
 </div>
 
-@section('page-js-inner')
+@section('bottom-js')
 <script src="{{ asset('assets\js\custom\billing_setting\index.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 @stop
 @endsection
