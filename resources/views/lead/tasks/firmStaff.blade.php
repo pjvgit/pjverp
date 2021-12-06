@@ -44,7 +44,8 @@
                             <?php } else {  ?>
                             <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="linked_staff"
                                 id="linked_staff_checked_attend_{{$val->id}}" <?php if($val->id==Auth::User()->id){ ?>
-                                    checked="checked" <?php } ?> type="checkbox">
+                                    checked="checked" <?php } ?> type="checkbox"
+                                    <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?> >
                             <?php } ?>
 
                         </label>
@@ -57,6 +58,8 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
+        $(".task-fieldGroup").empty();
+
         $('#client_share_all').on('change', function () {
             $('.linked_staff').prop('checked', $(this).prop("checked"));
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
@@ -96,6 +99,17 @@
                 loadTimeEstimationUsersList(SU);
             }
         });
+        
+        // check if login user is checked or not for showing default reminder
+        <?php if(isset($from) && $from != "edit"){?>
+            $('input[name="linked_staff_checked_attend[]"]:checked').each(function (i) {           
+            console.log($(this).attr("defaultreminder"));
+            if($(this).attr("defaultreminder") == 'yes'){
+                loadDefaultTaskReminder();
+            }
+        });
+        <?php } ?>
+        
     });
 
     function getCheckedUser() {

@@ -45,7 +45,6 @@
         </table>
     </div>
 </div>
-48
 <button type="button" class="btn btn-link" bladeName="resources/views/lead/details/case_detail/loadCaseRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
 <div class="sharing-table staff-table-nonlinked" @if(count($nonLinkedSaved) == 0) style="display:none;" @endif>
     <div class="table-responsive">
@@ -126,6 +125,7 @@
                         <?php } else {  ?>
                         <input name="linked_staff_checked_share[]" id="linked_staff_checked_share_{{$val->id}}"
                             rowVal="{{$val->id}}" value="{{$val->id}}" checked="checked" type="checkbox"
+                            <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?>
                             class="client-login-not-enabled handler-attached client_share_all_users">
                         <?php } ?>
                     </label>

@@ -32,7 +32,7 @@
                         </optgroup>
                         <optgroup label="Leads">
                             <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
-                            <option uType="lead" <?php if($lead_id==$caseLeadListVal->id){ echo "selected=selected"; }?> value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                            <option uType="lead" <?php if($lead_id==$caseLeadListKey){ echo "selected=selected"; }?> value="{{$caseLeadListKey}}">{{ substr($caseLeadListVal,0,100)}}</option>
                             <?php } ?>
                         </optgroup>
                     </select>
@@ -446,7 +446,6 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function () {
-      
         // loadCaseClient({{$case_id}});
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
@@ -510,13 +509,13 @@
         $(".repeat_monthly").hide();
         $(".repeat_yearly").hide();
         // $(".hide").hide();
-        $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
-            $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
-            $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
-            $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
-        });
+        // $(".add-more").click(function () {
+        //     var fieldHTML = '<div class="form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
+        //     $('body').find('.fieldGroup:last').after(fieldHTML);
+        //     $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
+        //     $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);
+        //     $('body').find('#reminder_type:last').attr("id","reminder_type_"+$(".fieldGroup").length);
+        // });
         $('#createEvent').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });

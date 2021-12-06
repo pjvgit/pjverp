@@ -3,7 +3,7 @@
     <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
 
     @csrf
-    <div class="row">
+    <div class="row" bladefile="resources/views/task/loadReminderPopupIndex.blade.php">
     <div class="col-md-12">
 
         <div class="text-muted mb-3">You can only edit reminders that you created. Reminders assigned to you by another
@@ -20,37 +20,26 @@
                                 <div class="">
                                     <div class="d-flex col-12 pl-0 align-items-center">
                                         <div class="pl-0 col-2">
-                                            <div>
-                                                <div class="">
-                                                    <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
-                                                        @forelse (reminderUserType() as $key => $item)
-                                                        <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? 'selected' : '' }}>{{ $item }}</option>
-                                                        @empty
-                                                        @endforelse
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  ">
+                                                @forelse (reminderUserType() as $key => $item)
+                                                <option value="{{ $key }}" {{ ($rval->reminder_user_type == $key) ? 'selected' : '' }}>{{ $item }}</option>
+                                                @empty
+                                                @endforelse
+                                            </select>
                                         </div>
                                         <div class="pl-0 col-2">
-                                            <div>
-                                                <div class="">
-                                                    <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
-                                                    @foreach(getEventReminderTpe() as $k =>$v)
-                                                                            <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
-                                                                    @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                            <select id="reminder_type" name="reminder_type[]" class="form-control custom-select valid" aria-invalid="false">
+                                            @foreach(getEventReminderTpe() as $k =>$v)
+                                                                    <option value="{{$k}}" <?php if($rval->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
+                                                            @endforeach
+                                            </select>
+                                        </div>
+                                        <input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                         <div class="col-3">
-                                            <div>
-                                                <div class="">
-                                                    <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
-                                                    <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
-                                                        <option <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?> value="week">weeks</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
+                                            <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
+                                                <option <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?> value="week">weeks</option>
+                                            </select>
                                         </div> before task &nbsp;
                                         <button class="btn remove" type="button">
                                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -61,7 +50,7 @@
                             <?php } ?>
                         <div class="fieldGroup">
                         </div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
+                        <div><button type="button" class="row btn btn-link p-0 test-add-new-reminder">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
@@ -70,40 +59,29 @@
                 <div class="">
                     <div class="d-flex col-12 pl-0 align-items-center">
                         <div class="pl-0 col-2">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_user_type" name="reminder_user_type[]"
-                                        class="form-control custom-select  ">
-                                        <option value="me">Me</option>
-                                        <option value="attorney">Attorneys</option>
-                                        <option value="paralegal">Paralegals</option>
-                                        <option value="staff">Staff</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <select id="reminder_user_type" name="reminder_user_type[]"
+                                class="form-control custom-select  ">
+                                <option value="me">Me</option>
+                                <option value="attorney">Attorneys</option>
+                                <option value="paralegal">Paralegals</option>
+                                <option value="staff">Staff</option>
+                            </select>
                         </div>
                         <div class="pl-0 col-2">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type[]"
-                                        class="form-control custom-select  ">
-                                        @foreach(getEventReminderTpe() as $k =>$v)
-                                                <option value="{{$k}}">{{$v}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
+                            <select id="reminder_type" name="reminder_type[]"
+                                class="form-control custom-select  ">
+                                @foreach(getEventReminderTpe() as $k =>$v)
+                                        <option value="{{$k}}">{{$v}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
                         <div class="col-3">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_time_unit" name="reminder_time_unit[]"
-                                        class="form-control custom-select  ">
-                                        <option value="day">days</option>
-                                        <option value="week">weeks</option>
-                                    </select>
-                                </div>
-                            </div>
+                                <select id="reminder_time_unit" name="reminder_time_unit[]"
+                                    class="form-control custom-select  ">
+                                    <option value="day">days</option>
+                                    <option value="week">weeks</option>
+                                </select>
                         </div> before task &nbsp;
                         <button class="btn remove" type="button">
                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -122,12 +100,12 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $(".add-more").click(function () {
+        $(".test-add-new-reminder").click(function () {
           
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
                
-            $('body').find('#reminderDataIndex .fieldGroup:last').before(fieldHTML);
+            $('body').find('#reminderDataIndex .fieldGroup:last').after(fieldHTML);
         });
         $('#editReminderIndex').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

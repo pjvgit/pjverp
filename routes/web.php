@@ -412,6 +412,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('court_cases/loadEventRightSection', 'CaseController@loadEventRightSection')->name('court_cases/loadEventRightSection');
     Route::post('court_cases/loadLeadRightSection', 'CaseController@loadLeadRightSection')->name('court_cases/loadLeadRightSection');
     Route::post('court_cases/dismissCaseModal', 'CaseController@dismissCaseModal')->name('court_cases/dismissCaseModal');
+    Route::post('court_cases/loadDefaultEventReminder', 'CaseController@loadDefaultEventReminder')->name('court_cases/loadDefaultEventReminder');
 
     Route::post('court_cases/addCaseReminderPopup', 'CaseController@addCaseReminderPopup')->name('court_cases/addCaseReminderPopup');
     Route::post('court_cases/saveCaseReminderPopup', 'CaseController@saveCaseReminderPopup')->name('court_cases/saveCaseReminderPopup');
@@ -495,6 +496,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      Route::post('tasks/reloadCounter', 'TaskController@reloadTaskCounter')->name('tasks/reloadCounter');
      Route::post('tasks/singleTaskMarkAsComplete', 'TaskController@singleTaskMarkAsComplete')->name('tasks/singleTaskMarkAsComplete');
      Route::post('tasks/loadTaskRightSection', 'TaskController@loadTaskRightSection')->name('tasks/loadTaskRightSection');
+     Route::post('tasks/loadDefaultTaskReminder', 'TaskController@loadDefaultTaskReminder')->name('tasks/loadDefaultTaskReminder');
     
 
 

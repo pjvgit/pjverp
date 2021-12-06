@@ -4944,8 +4944,7 @@ class CaseController extends BaseController
             $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
 
             $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
-            $UserPreferanceReminder = UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","event")->get();
-        
+            
             return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','UserPreferanceReminder'));          
      }
 
@@ -6365,5 +6364,15 @@ class CaseController extends BaseController
         $defaultReminder = FirmEventReminder::where("firm_id", auth()->user()->firm_name)->get();
         return response()->json(['default_reminder' => $defaultReminder]);
     }
+
+    /**
+     * load default event reminders for login user
+     */
+    public function loadDefaultEventReminder(Request $request){
+        $UserPreferanceReminder = UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","event")->get();
+        return view('case.event.loadDefaultEventReminder',compact('UserPreferanceReminder'));
+        exit; 
+    }
+
 }
   

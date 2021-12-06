@@ -102,7 +102,7 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client_share_all" id="client_share_all"
-                        <?php if(count(collect($caseLinkeSaved)->where('is_linked', 'no'))==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkeSaved)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     <?php }else{ ?>
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
@@ -136,6 +136,7 @@
                         <?php } else {  ?>
                         <input name="linked_staff_checked_share[]" id="linked_staff_checked_share_{{$val->id}}"
                             rowVal="{{$val->id}}" value="{{$val->id}}" checked="checked" type="checkbox"
+                            <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?>
                             class="client-login-not-enabled handler-attached client_share_all_users">
                         <?php } ?>
                     </label>
@@ -167,6 +168,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $(".fieldGroup").empty();
         $("[data-toggle=popover]").popover({
             html: true
         });
@@ -317,7 +319,16 @@
                 $("#SelectAllLeadAttend").prop('checked', false)
             }
         });
-       
+
+        // check if login user is checked or not for showing default reminder
+        <?php if(isset($from) && $from != "edit"){?>
+        $('input[name="linked_staff_checked_share[]"]:checked').each(function (i) {
+            console.log($(this).attr("defaultreminder"));
+            if($(this).attr("defaultreminder") == 'yes'){
+                loadDefaultEventReminder();
+            }
+        });
+        <?php } ?>       
     });
 
     function loadTimeEstimationUsersList(SU) {

@@ -17,7 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\LeadAdditionalInfo;
-use App\FirmAddress,App\CaseEventLinkedContactLead,App\SmartTimer;
+use App\FirmAddress,App\CaseEventLinkedContactLead,App\SmartTimer,App\UserPreferanceReminder;
 use App\Jobs\TaskCommentEmailJob;
 
 class TaskController extends BaseController
@@ -1142,7 +1142,6 @@ class TaskController extends BaseController
                 }else{
                     $default_rate=($rateUsers['rate_amount'])??0.00;
                 }
-                \Log::info('TaskTimeEntry >'.default_rate);
                 if($default_rate > 0.00){
                     $TaskTimeEntry->entry_rate=$default_rate;
                     $TaskTimeEntry->rate_type='hr';
@@ -1525,7 +1524,15 @@ class TaskController extends BaseController
       return view('task.loadTaskRightSection',compact('caseCllientSelection','loadFirmUser','from','task_id','caseLinkedStaffList','caseNonLinkedAssigned','caseLinkedSavedAssigned','caseLinkeSaved','caseLinkeSavedAttendingContact'));     
       exit;    
  }
-   
+
+    /**
+     * load default task reminders for login user
+     */
+    public function loadDefaultTaskReminder(Request $request){
+        $UserPreferanceReminder = UserPreferanceReminder::where("user_id",Auth::User()->id)->where("type","task")->get();
+        return view('task.partial.loadDefaultTaskReminder',compact('UserPreferanceReminder'));
+        exit; 
+    }
 
 }
   

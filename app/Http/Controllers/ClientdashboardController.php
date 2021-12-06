@@ -3063,6 +3063,9 @@ class ClientdashboardController extends BaseController
                         unset($csv_data[0]);
                         if(trim($csv_data[1][0]) == ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data added into import.</li></ui>';
+                            $ClientCompanyImport->error_code=$errorString;
+                            $ClientCompanyImport->status=2;
+                            $ClientCompanyImport->save();
                             return response()->json(['errors'=>$errorString,'contact_id'=>'']);
                             exit;
                         }
@@ -3217,8 +3220,11 @@ class ClientdashboardController extends BaseController
                         if($csv_data[0][0]=="Company" || $csv_data[0][0]=="company" || $csv_data[0][0]=="Legalcase ID" ){
                         $user_level="4";
                         unset($csv_data[0]);
-                        if(trim($csv_data[1][0]) != ""){
+                        if(trim($csv_data[1][0]) == ""){
                             $errorString='<ul><li>please fill the correct data into file. No blank data passed into import.</li></ui>';
+                            $ClientCompanyImport->error_code=$errorString;
+                            $ClientCompanyImport->status=2;
+                            $ClientCompanyImport->save();
                             return response()->json(['errors'=>$errorString,'contact_id'=>'']);
                             exit;
                         }

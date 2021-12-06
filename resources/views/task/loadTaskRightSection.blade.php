@@ -161,7 +161,9 @@
 
                         <?php } else {  ?>
                         <input name="linked_staff_checked_attend[]" value="{{$val->id}}" class="client_attend_all_users"
-                            id="linked_staff_checked_attend_{{$val->id}}" checked="checked" type="checkbox">
+                            id="linked_staff_checked_attend_{{$val->id}}" checked="checked" type="checkbox"
+                            <?php if($val->id == Auth::User()->id){ ?> defaultreminder="yes" <?php } ?>
+                            >
                         <?php } ?>
 
                     </label>
@@ -176,6 +178,8 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $(".task-fieldGroup").empty();
+        
         $("[data-toggle=popover]").popover({
             html: true
         });
@@ -284,6 +288,15 @@
             $(".staff-table-nonlinked").toggle();
         });
         
+        // check if login user is checked or not for showing default reminder
+        <?php if(!isset($from)){?>
+            $('input[name="linked_staff_checked_attend[]"]:checked').each(function (i) {           
+            console.log($(this).attr("defaultreminder"));
+            if($(this).attr("defaultreminder") == 'yes'){
+                loadDefaultTaskReminder();
+            }
+        });
+        <?php } ?>  
 
     });
 

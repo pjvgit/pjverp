@@ -139,7 +139,7 @@
                 <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                 <div class="col">
                     <div>
-                        <div class="fieldGroup">
+                        <div class="task-fieldGroup">
                         </div>
                         <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
                     </div>
@@ -235,6 +235,7 @@
         </div>
     </div>
 </form>
+<script src="{{ asset('assets\js\custom\task\addtask.js') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
           
@@ -282,9 +283,9 @@
         });
         // $(".hide").hide();
         $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
+            var fieldHTML = '<div class="form-group task-fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            $('body').find('.task-fieldGroup:last').after(fieldHTML);
         });
         $('#CreateTask').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
@@ -658,10 +659,7 @@
     $(".onlyNumber").keypress(function (e) {
         if (String.fromCharCode(e.keyCode).match(/[^0-9]/g)) return false;
     });
-    <?php if(isset($lead_id)){?>
-    setTimeout(function(){  changeCaseUser111() }, 500);
-    <?php } ?>
-    <?php if(isset($case_id)){?>
+    <?php if(isset($lead_id) || isset($case_id)){?>
     setTimeout(function(){  changeCaseUser111() }, 500);
     <?php } ?>
 </script>
