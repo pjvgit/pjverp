@@ -547,7 +547,7 @@ function getDueText($dueDate)
             $dueText = "DUE TODAY";
         } else if($dueDate->isTomorrow()) {
             $dueText = "DUE TOMORROW";
-        } else if($difference > 1) {
+        } else if(/* $difference > 1 */$dueDate->gt($currentDate)) {
             $dueText = "DUE IN ".$difference." DAYS";
         } else if($dueDate->lt($currentDate)) {
             $dueText = "OVERDUE";
@@ -567,4 +567,12 @@ function encodeDecodeId($id, $type)
         return Crypt::encrypt($id);
     else
         return Crypt::decrypt($id);
+}
+
+/**
+ * Calculate monthly payable amount
+ */
+function invoiceMonthlyPaymentAmount($amount, $month)
+{
+    return ceil($amount / $month);
 }

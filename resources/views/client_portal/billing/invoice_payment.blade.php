@@ -41,10 +41,108 @@
                                 <li><a href="#step-2">@lang('billing.step_2')<br /><small>@lang('billing.step_2_text')</small></a></li>
                             </ul>
                             <div>
-                                <div id="step-1">
-                                    <h3 class="border-bottom border-gray pb-2">Total: One payment of {{ $invoice->due_amount }}</h3>
-									<p>Or if you chose interest free monthly payments you will pay as follows:</p>
-									Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                <div id="step-1" class="p-3">
+                                    @if(isset($month) && $month != '')
+                                        @include('client_portal.billing.partial.load_credit_card_form')
+                                    @else
+                                        <h3 class="border-bottom border-gray pb-2">Total: One payment of {{ $invoice->due_amount }}</h3>
+                                        <p>Or if you chose interest free monthly payments you will pay as follows:</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>3 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 3) }}</p>
+                                                <p>6 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 6) }}</p>
+                                                <p>9 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 9) }}</p>
+                                                <p>12 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 12) }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row pt-3">
+                                            <div class="col-md-8">
+                                                <div class="card text-left">
+                                                    <div class="card-body">
+                                                        <h4 class="card-title mb-3">Please choose a payment method</h4>
+                                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" id="credit-card-tab" data-toggle="tab" href="#credit_card_tab" role="tab" aria-controls="credit_card_tab" aria-selected="true">Credit Card
+                                                                </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" id="case-tab" data-toggle="tab" href="#cash_tab" role="tab" aria-controls="cash_tab" aria-selected="false"> Cash
+                                                                </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" id="bank-transfer-tab" data-toggle="tab" href="#bank_transfer_tab" role="tab" aria-controls="bank_transfer_tab" aria-selected="false"> Bank Transfer
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                        <div class="tab-content" id="myTabContent">
+                                                            <div class="tab-pane fade show active" id="credit_card_tab" role="tabpanel" aria-labelledby="credit-card-tab">
+                                                                <img src="{{ asset('images/payment/pago1.png') }}" />
+                                                                <form id="card_pay_option_form" method="GET" action="{{ route('client/bills/payment/card/detail', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                    @csrf
+                                                                    <input type="text" name="invoice_id" value="{{ encodeDecodeId($invoice->id, 'encode') }}" >
+                                                                    <ul class="list-group">
+                                                                        <li class="list-group-item border-0">
+                                                                            <label class="radio radio-primary">
+                                                                                <input type="radio" class="payment-option" name="payment_option" value="0" checked>
+                                                                                <span>Pay with Visa, MasterCard or American Express Credit or Debit Card</span><span class="checkmark"></span>
+                                                                            </label>
+                                                                        </li>
+                                                                        <li class="list-group-item border-0">
+                                                                            <label class="radio radio-primary">
+                                                                                <input type="radio" class="payment-option" name="payment_option" value="3">
+                                                                                <span>3 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
+                                                                            </label>
+                                                                        </li>
+                                                                        <li class="list-group-item border-0">
+                                                                            <label class="radio radio-primary">
+                                                                                <input type="radio" class="payment-option" name="payment_option" value="6">
+                                                                                <span>6 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
+                                                                            </label>
+                                                                        </li>
+                                                                        <li class="list-group-item border-0">
+                                                                            <label class="radio radio-primary">
+                                                                                <input type="radio" class="payment-option" name="payment_option" value="9">
+                                                                                <span>9 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
+                                                                            </label>
+                                                                        </li>
+                                                                        <li class="list-group-item border-0">
+                                                                            <label class="radio radio-primary">
+                                                                                <input type="radio" class="payment-option" name="payment_option" value="12">
+                                                                                <span>12 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
+                                                                            </label>
+                                                                        </li>
+                                                                    </ul>
+                                                                    <button type="submit" class="btn btn-primary mt-2" id="credit_card_continue_btn">Continue</button>
+                                                                </form>
+                                                            </div>
+                                                            <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
+                                                                <img src="{{ asset('images/payment/pago2.png') }}" />
+                                                                <form method="POST" action="{{ route('client/bills/payment/cash', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                    @csrf
+                                                                    <label class="radio radio-primary">
+                                                                        <input type="radio" name="radio" value="0" checked>
+                                                                        <span>Case in Oxxo</span><span class="checkmark"></span>
+                                                                    </label>
+                                                                    <button type="submit" class="btn btn-primary mt-2">Continue</button>
+                                                                </form>
+                                                            </div>
+                                                            <div class="tab-pane fade" id="bank_transfer_tab" role="tabpanel" aria-labelledby="bank-transfer-tab">
+                                                                <img src="{{ asset('images/payment/pago3.png') }}" />
+                                                                <form method="POST" action="{{ route('client/bills/payment/bank', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                    @csrf
+                                                                    <label class="radio radio-primary">
+                                                                        <input type="radio" name="radio" value="0" checked>
+                                                                        <span>Case in Oxxo</span><span class="checkmark"></span>
+                                                                    </label>
+                                                                    <button type="submit" class="btn btn-primary mt-2">Continue</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div id="step-2">
                                     <h3 class="border-bottom border-gray pb-2">Step 4 Content</h3>
@@ -88,19 +186,18 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/js/plugins/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
-    <script src="{{ asset('assets/js/scripts/tooltip.script.min.js') }}"></script>
-    {{-- <script src="{{ asset('assets/js/scripts/script.min.js') }}"></script> --}}
-    {{-- <script src="{{ asset('assets/js/scripts/script_2.min.js') }}"></script> --}}
-    {{-- <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script> --}}
-    <script src="{{ asset('assets/js/plugins/jquery.smartWizard.min.js') }}"></script>
-    {{-- <script src="{{ asset('assets/js/scripts/smart.wizard.script.min.js') }}"></script> --}}
+<script src="{{ asset('assets/js/plugins/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+<script src="{{ asset('assets/js/scripts/tooltip.script.min.js') }}"></script>
+{{-- <script src="{{ asset('assets/js/scripts/script.min.js') }}"></script> --}}
+{{-- <script src="{{ asset('assets/js/scripts/script_2.min.js') }}"></script> --}}
+{{-- <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script> --}}
+<script src="{{ asset('assets/js/plugins/jquery.smartWizard.min.js') }}"></script>
+{{-- <script src="{{ asset('assets/js/scripts/smart.wizard.script.min.js') }}"></script> --}}
 
 <script>
 $(document).ready(function () {
-
 	// Step show event
 	$("#smartwizard").on("showStep", function (e, anchorObject, stepNumber, stepDirection, stepPosition) {
 		//alert("You are on step "+stepNumber+" now");
@@ -135,6 +232,19 @@ $(document).ready(function () {
 			toolbarExtraButtons: [btnFinish, btnCancel]
 		}
 	});
+});
+
+$("#credit_card_continue_btn").on("click", function() {
+    $.ajax({
+        url: "",
+        type: 'GET',
+        data: $("#card_pay_option_form").serialize(),
+        success: function(response) {
+            if(response.status) {
+                $("#step-1").html(response.view);
+            }
+        }
+    })
 });
 </script>
 </body>

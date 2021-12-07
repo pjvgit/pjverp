@@ -383,7 +383,7 @@
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
                         $('.submit').removeAttr("disabled");
-                        $('#editTask').animate({ scrollTop: 0 }, 'slow');
+                        // $('#editTask').animate({ scrollTop: 0 }, 'slow'); 
 
                         return false;
                     } else {

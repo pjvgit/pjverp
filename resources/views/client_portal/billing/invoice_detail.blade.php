@@ -59,7 +59,7 @@
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Due Date</div>
-								<div>{{ ($invoice->invoice_date) ? convertUTCToUserDate($invoice->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') : '' }}</div>
+								<div>{{ ($invoice->due_date) ? convertUTCToUserDate($invoice->due_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') : '' }}</div>
 							</div>
 							<div class="payable-detail__datapair">
 								<div class="detail-view__label">Payment Terms</div>
