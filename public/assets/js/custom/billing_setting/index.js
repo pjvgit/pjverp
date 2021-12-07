@@ -122,18 +122,34 @@ $(document).on("change", "#is_accept_online_payment", function() {
     }
 });
 
+// $("#billing_payment_form").validate({
+var paymentValidateOptions = {
+    ignore: [],
+    rules: {
+        'public_key': {
+            required: "#is_accept_online_payment:checked"
+        },
+        'private_key': {
+            required: "#is_accept_online_payment:checked"
+        }
+    },
+}
+
 // Save invoice payment preferences
 $(document).on("click", "#save_payment_settings", function() {
-    $.ajax({
-        url: $("#billing_payment_form").attr("action"),
-        type: 'POST',
-        data: $("#billing_payment_form").serialize(),
-        success: function(data) {
-            $("#firm-payment-defaults").html(data);
-            toastr.success('Preferences saved', "", {
-                positionClass: "toast-top-full-width",
-                containerId: "toast-top-full-width"
-            });
-        }
-    })
+    $("#billing_payment_form").validate(paymentValidateOptions)
+    if($("#billing_payment_form").valid()) {
+        $.ajax({
+            url: $("#billing_payment_form").attr("action"),
+            type: 'POST',
+            data: $("#billing_payment_form").serialize(),
+            success: function(data) {
+                $("#firm-payment-defaults").html(data);
+                toastr.success('Preferences saved', "", {
+                    positionClass: "toast-top-full-width",
+                    containerId: "toast-top-full-width"
+                });
+            }
+        });
+    }
 });

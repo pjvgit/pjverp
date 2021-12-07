@@ -45,6 +45,11 @@ class BillingController extends Controller
                     })->with('case', 'case.caseBillingClient', 'invoiceTimeEntry', 'invoiceFlatFeeEntry', 
                     'invoiceExpenseEntry', 'invoiceTimeEntry.taskActivity', 'invoiceExpenseEntry.expenseActivity', 'invoiceAdjustmentEntry', 
                     'forwardedInvoices', 'invoicePaymentHistory', 'invoiceInstallment', 'invoiceForwardedToInvoice', 'invoiceFirstInstallment')->first();
+        // $currentDate = \Carbon\Carbon::now()->format('Y-m-d');
+        // $dueDate = $invoice->due_date;
+        // $currentDate = \Carbon\Carbon::createFromFormat('Y-m-d', $currentDate);
+        // $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dueDate);
+        // return $diffDays = $dueDate->diffInDays($currentDate);
         if($invoice) {
             $sharedInv = SharedInvoice::where("user_id", auth()->id())->where("invoice_id", $invoiceId)->first();
             if($sharedInv && !$sharedInv->last_viewed_at) {
@@ -135,13 +140,30 @@ class BillingController extends Controller
     /**
      * Get invoice payment detail screen
      */
-    public function paymentDetail($id)
+    public function paymentDetail($id, Request $request)
     {
         $invoiceId = encodeDecodeId($id, 'decode');
         $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) {
                         $query->where("user_id", auth()->id())->where("is_shared", "yes");
-                    })->with('case', 'case.caseBillingClient')->first();
+                    })->first();
+        $month = '';
+        if(\Route::current()->getName() == "client/bills/payment/card/detail") {
+            $month = $request->payment_option;
+        }
 
-        return view('client_portal.billing.invoice_payment', compact('invoice'));
+        return view('client_portal.billing.invoice_payment', compact('invoice', 'month'));
+    }
+
+    /**
+     * Load form to get credit/debit card detail
+     */
+    public function cardDetail($id, Request $request)
+    {   
+        // return $request->all();
+        $invoiceId = encodeDecodeId($id, 'decode');
+        $invoice = Invoices::whereId($invoiceId)->first();
+        $month = $request->payment_option;
+        return redirect()->route('client/bills/payment', $id)->with('month', $month);
+        // return view('client_portal.billing.invoice_payment', compact('invoice', 'month'));
     }
 }

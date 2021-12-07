@@ -49,7 +49,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
         ])->save();
 
         // Update invoice settings
-        /* if($this->invoice->invoice_setting && $this->remindType && $this->days) {
+        if($this->invoice->invoice_setting && $this->remindType && $this->days) {
             $invoiceSetting = $this->invoice->invoice_setting;
             foreach($invoiceSetting['reminder'] as $key => $item) {
                 $is_reminded = $item['is_reminded'] ?? "no";
@@ -62,8 +62,9 @@ class InvoiceReminderEmailJob implements ShouldQueue
                     'is_reminded' => $is_reminded,
                 ];
             }
+            Log::info("invoice setting updated");
             $invoiceSetting['reminder'] = $jsonData['reminder'];
             $this->invoice->fill(['invoice_setting' => $invoiceSetting])->save();
-        } */
+        }
     }
 }
