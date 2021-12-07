@@ -39,6 +39,7 @@ class InvoiceReminderEmailJob implements ShouldQueue
     public function handle()
     {
         Log::info("invoice job handle & dispatched at: ". Carbon::now());
+        Log::info("invoice detail: ". $this->invoice);
         Mail::to($this->user->email)->send((new InvoiceReminderMail($this->invoice, @$this->invoice->firmDetail, $this->user, $this->emailTemplate)));
         // Sent/shared invoice count
         $sharedInv = SharedInvoice::where("user_id", $this->user->id)->where("invoice_id", $this->invoice->id)->first();

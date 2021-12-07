@@ -1347,8 +1347,9 @@ class BillingController extends BaseController
          $requestData= $_REQUEST;
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
-         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid");
+         ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
         //  ->where("invoices.created_by",Auth::user()->id);
+         ->where("invoices.firm_id",Auth::user()->firm_name);
         if(auth()->user()->parent_user != 0) {
             $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) {
                 $query->where('user_id', auth()->id());

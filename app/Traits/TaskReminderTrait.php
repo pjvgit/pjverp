@@ -16,7 +16,7 @@ trait TaskReminderTrait {
         if(!empty($item->task->taskLinkedContact)) {
             $taskLinkContact = $item->task->taskLinkedContact->pluck('id')->toArray();
         }
-        if($item->task->case_id && $item->task->case) {
+        if(!empty($item->task->case_id) && !empty($item->task->case)) {
             if(!empty($item->task->case->caseStaffAll)) {
                 $caseLinkedUser = $item->task->case->caseStaffAll->pluck('user_id')->toArray();
             }
