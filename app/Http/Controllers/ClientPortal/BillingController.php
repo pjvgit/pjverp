@@ -166,4 +166,14 @@ class BillingController extends Controller
         return redirect()->route('client/bills/payment', $id)->with('month', $month);
         // return view('client_portal.billing.invoice_payment', compact('invoice', 'month'));
     }
+
+    public function casePayment()
+    {
+        # code...
+    }
+
+    public function bankPayment()
+    {
+        # code...
+    }
 }
