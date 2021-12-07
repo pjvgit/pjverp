@@ -319,11 +319,28 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                             </div>
                         </div>
 
-                        <div class="d-flex">
+                        <div class="d-flex m2">
                             <button class="btn btn-outline-secondary m-1" type="button" onclick="toggle_discounts(); return false;"> <i class="fas fa-lg fa-caret-left pr-2"></i>Adjustments</button>
                             <div class="ml-auto btn-info  p-2 rounded">
                                 <span id="batch_num_discounts">0</span>
                                 applied
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center pt-2">
+                            <div class="form-check">
+                                <input type="checkbox" name="batch[draft]" id="batch_draft" value="1"
+                                    class="batch-draft-checkbox form-check-input">
+                                <label class="form-check-label" for="batch_draft">Save as Draft?
+                                    <span id="save-as-draft-help">
+                                        <span class="tooltip-wrapper" style="position: relative;">
+                                            <span> <i class="question-mark-icon" data-toggle="tooltip"
+                                                    data-placement="top" title="" data-original-title="This will create a batch of invoices with a Draft status.
+                                          Drafts cannot be shared during batch billing as they are
+                                          intended to be reviewed before sharing."></i></span>
+                                        </span>
+                                    </span>
+                                </label>
                             </div>
                         </div>
 
@@ -345,25 +362,10 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center pt-2">
-                            <div class="form-check">
-                                <input type="checkbox" name="batch[draft]" id="batch_draft" value="1"
-                                    class="batch-draft-checkbox form-check-input">
-                                <label class="form-check-label" for="batch_draft">Save as Draft?
-                                    <span id="save-as-draft-help">
-                                        <span class="tooltip-wrapper" style="position: relative;">
-                                            <span> <i class="question-mark-icon" data-toggle="tooltip"
-                                                    data-placement="top" title="" data-original-title="This will create a batch of invoices with a Draft status.
-                                          Drafts cannot be shared during batch billing as they are
-                                          intended to be reviewed before sharing."></i></span>
-                                        </span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
+                        
 
 
-                        <div class="d-flex align-items-center pt-2">
+                        <div class="d-flex align-items-center pt-2  m2">
                             <div class="form-check">
                                 <input type="checkbox" name="batch[trust]" id="batch_trust" value="1"
                                     class="apply-trust-checkbox form-check-input">
@@ -389,7 +391,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 
 
 
-                        <div class="d-flex align-items-center pt-2 batch-forward-invoice">
+                        <div class="d-flex align-items-center pt-2 batch-forward-invoice m2">
                             <div class="form-check">
                                 <input type="checkbox" name="batch[forward]" id="batch_forward" value="1"
                                     class="batch-forward-invoice-checkbox form-check-input">
@@ -987,7 +989,11 @@ var start = 0;
             data: dataString+'&case_id='+JSON.stringify(array),
             success: function (res) {
                 beforeLoader();
+                setTimeout(() => {
+                    $("#progress").modal("hide");    
+                }, 100);
                 if (res.errors != '') {
+                    $("#progress").modal("hide");
                     $('.showError').html('');
                     var errotHtml ='<ul>';
                     $.each(res.errors, function (key, value) {
@@ -999,10 +1005,8 @@ var start = 0;
                     $('#batch_billing').animate({
                         scrollTop: 0
                     }, 'slow');
-                    $("#grantAccessModalArea").html(errotHtml);
-                    $("#progress").modal("hide");
-                    $( "#dialog" ).modal("show");
-                  
+                    $("#grantAccessModalArea").html(errotHtml);                    
+                    $( "#dialog" ).modal("show");                  
                     afterLoader();
                     return false;
                 } else {
@@ -1120,14 +1124,23 @@ var start = 0;
 
     }
    
+    $('#batch_draft').on('change', function () {
+        if ($(this).prop("checked") == true) {
+            $('#batch-share-checkbox').attr("disabled","disabled"); 
+            $('#batch_sharing_user').attr("disabled","disabled");
+        } else {
+            $('#batch-share-checkbox').removeAttr("disabled"); 
+        }
+    });
+   
     $('#batch-share-checkbox').on('change', function () {
         if ($(this).prop("checked") == true) {
-            $('#batch_sharing_user').removeAttr('disabled');
-
+            $('#batch_sharing_user').removeAttr('disabled');            
+            $('#batch_draft').attr("disabled","disabled"); 
         } else {
             $('#batch_sharing_user').attr("disabled","disabled");    
+            $('#batch_draft').removeAttr("disabled"); 
         }
-
     });
 
     var lazyLoadingActive = 1;
@@ -1168,6 +1181,7 @@ var start = 0;
             var res = JSON.parse(result);
             var resultHtml = '';
             var last = null;
+            var unInvoiceAmount = 0;
             if(!$.trim(res.data)){
                 lazyLoadingActive = 999;
             }
@@ -1185,7 +1199,8 @@ var start = 0;
                     // ' mainBox_' + aData.id + ' "> <a class="name" href="' + baseUrl +
                     // '/contacts/clients/'+aData.selected_user+'">'+aData.contact_name+'</a></td></tr>';
                                    
-                    
+                    if(aData.uninvoiced_balance > 0){
+                    unInvoiceAmount += aData.uninvoice_amount;
                     resultHtml +='<tr><td><div class="text-left pl-3">';
                     if(aData.setup_billing == 'yes') {
                     resultHtml +='<input id="select-row-74" client_id=' + aData
@@ -1229,12 +1244,18 @@ var start = 0;
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
                     resultHtml +='</tr>';
+                    }
                 });
                
             });
             // afterLoader();
             $("#preloader").hide();
-            $(".lazy-load-data").append(resultHtml);
+            if(unInvoiceAmount > 0){
+                $(".lazy-load-data").append(resultHtml);    
+            }else{
+                $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    
+            }
+            
             // $(".lazy-load-data").html('');
             // $(".lazy-load-data").html(resultHtml);
             // $("#preloader").hide();

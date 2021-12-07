@@ -3663,7 +3663,7 @@ if(!isset($addition)){ $addition=0;}
                 showCancelButton: true,
                 confirmButtonColor: '#0CC27E',
                 cancelButtonColor: '#FF586B',
-                cancelButtonText: 'Close',
+                cancelButtonText: 'Cancel',
                 confirmButtonText: 'Proceed',
                 confirmButtonClass: 'btn btn-success',
                 cancelButtonClass: 'btn btn-danger  mr-2',

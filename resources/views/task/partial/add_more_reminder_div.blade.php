@@ -4,7 +4,7 @@
             <div class="pl-0 col-2">
                 <div>
                     <div class="">
-                        <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select valid" aria-invalid="false">
+                        <select id="reminder_user_type" name="reminder_user_type[]" class="reminder_user_type form-control custom-select valid" aria-invalid="false">
                             <option value="me">Me</option>
                             <option value="attorney">Attorneys</option>
                             <option value="paralegal">Paralegals</option>
@@ -22,7 +22,8 @@
                                                                 </select>
                     </div>
                 </div>
-            </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="1">
+            </div>
+            <input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="1">
             <div class="col-3">
                 <div>
                     <div class="">

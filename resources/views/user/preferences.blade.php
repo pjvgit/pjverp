@@ -38,15 +38,18 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <span style="font-style: italic;"> 
                                 <?php
                                 if(count($UserPreferanceReminder) > 0){ 
+                                $eventCount = 0;
                                 foreach($UserPreferanceReminder as $k =>$v){
                                     if($v['type'] != 'task'){
+                                        $eventCount++;
                                         echo ucwords($v['reminder_type']).' '.
                                         $v['reminer_number'].' '.
                                         $v['reminder_frequncy'].' before '.
                                         $v['type'].'</br>';
                                     }
                                 }
-                                }else{
+                                }
+                                if($eventCount == 0){
                                     echo "None";
                                 }?>
                             </span>
@@ -60,15 +63,18 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 <span style="font-style: italic;"> 
                                 <?php
                                 if(count($UserPreferanceReminder) > 0){ 
+                                    $taskCount = 0;
                                     foreach($UserPreferanceReminder as $k =>$v){
                                         if($v['type'] == 'task'){
+                                            $taskCount++;
                                             echo ucwords($v['reminder_type']).' '.
                                             $v['reminer_number'].' '.
                                             $v['reminder_frequncy'].' before '.
                                             $v['type'].' due date '.'</br>';
                                         }
                                     }
-                                    }else{
+                                    }
+                                    if($taskCount == 0) {
                                         echo "None";
                                     }?>
                                 </span>
@@ -109,7 +115,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 Do not automatically log me out. 
                                 <br>
                             <?php } ?>
-                                <span class="font-italic text-muted">Note: You will always be logged out when you close your web browser.</span>
+                                <!-- <span class="font-italic text-muted">Note: You will always be logged out when you close your web browser.</span> -->
                             </div>
                         </div>
                             <div class="text-right">
@@ -190,8 +196,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     </div>
                                                     <?php } }?>
                                                     <div class="fieldGroup"></div>
-                                                    <div>                                                        <img src="{{ asset('svg/add-sign.svg') }}">
-
+                                                    <div>                                                        
+                                                        <img src="{{ asset('svg/add-sign.svg') }}">
                                                         <button type="button"
                                                             class="btn btn-link p-0 test-add-new-reminder add-more">Add
                                                             a reminder
@@ -248,7 +254,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <div class="form-control-plaintext col-9">
                                                 <div>
                                                     <?php foreach($UserPreferanceReminder as $rkey=>$rval){ 
-                                                        if($rval['type'] != 'task'){?>
+                                                        if($rval['type'] == 'task'){?>
                                                     <div class="row form-group fieldGroup-2">
                                                         <div class="">
                                                             <div class="d-flex col-10 pl-0 align-items-center">

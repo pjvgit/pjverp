@@ -21,12 +21,12 @@
                         <select id="reminder_type" name="reminder_type[]"
                             class="reminder_type form-control custom-select  ">
                             @foreach(getEventReminderTpe() as $k =>$v)
-                                <option value="{{$k}}" {{ ($rv->reminder_type == strtolower($key)) ? 'selected' : '' }}>{{$v}}</option>
+                                <option value="{{$k}}" {{ ($rv->reminder_type == strtolower($k)) ? 'selected' : '' }}>{{$v}}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-            </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rv->reminer_number}}" id="reminder_number">
+            </div><input name="reminder_number[]" class="form-control col-2 reminder-number" type="number" value="{{$rv->reminer_number}}" id="reminder_number">
             <div class="col-4">
                 <div>
                     <div class="">

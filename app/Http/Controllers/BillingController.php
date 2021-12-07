@@ -2329,7 +2329,7 @@ class BillingController extends BaseController
                 DB::raw('CONCAT_WS(" ",lau.first_name,lau.last_name) as lead_attorney_name'));
       
         $Invoices = $Invoices->whereIn("case_master.id",$this->getInvoicePendingCase());
-        // $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
+        $Invoices = $Invoices->where("case_client_selection.is_billing_contact","yes");
         // $Invoices = $Invoices->where("task_time_entry.status","unpaid");
         // $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
         if(Auth::user()->parent_user==0)
@@ -2482,6 +2482,11 @@ class BillingController extends BaseController
             }
             $ExpenseEntry=$ExpenseEntry->get();
 
+            if($caseMaster->uninvoiced_balance == '$0.00'){
+                FlatFeeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
+                ExpenseEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
+                TaskTimeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
+            }
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
             ->where("invoice_adjustment.case_id",$case_id)
@@ -2607,8 +2612,7 @@ class BillingController extends BaseController
             }
             $ExpenseEntry=$ExpenseEntry->get();
 
-
-            // //Get Flat fees entry
+            //Get Flat fees entry
             if($caseMaster) {
                 $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
                 // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
@@ -8608,7 +8612,6 @@ class BillingController extends BaseController
 
     public function createInvoiceBatch(Request $request)
     {
-        
         $request->merge([
             'case_id' => ($request->case_id!="[]") ? $request->case_id : NULL
         ]);
@@ -8625,6 +8628,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            
             if(isset($request->discounts['amount']) && count($request->discounts['amount'])<0){
                 $customeError=[];
                 for($i=0;$i<count($request->discounts['amount']);$i++){
@@ -8639,9 +8643,12 @@ class BillingController extends BaseController
                     return response()->json(['errors'=>$customeError]);
                 }
             }
+            dbStart();        
+            try {
             $totalInvoice=[];
             $totalSent=$totalUnsent=$totalDraft=0;
             $allCases=json_decode($request->case_id);
+            
             // print_r($allCases);exit;
             foreach($allCases as $caseVal){
                 $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$caseVal)->where('case_client_selection.is_billing_contact','yes')->select("*")->first();
@@ -8843,77 +8850,150 @@ class BillingController extends BaseController
                     }
                 }
                 
-                $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$caseVal)->first();
+                // $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$caseVal)->first();
 
-                $flatFees=($CaseClientSelection['billing_amount'])??0;
-                $subTotal=$flatFees+$timeEntryTotal+$expenseEntryTotal;
-                if(isset($request->discounts['discount_type'])){
-                    for($k=0;$k<count($request->discounts['discount_type']);$k++){
-                        $finalAmount=0;
-                        $InvoiceAdjustment = new InvoiceAdjustment;
-                        $InvoiceAdjustment->case_id =$caseVal;
-                        $InvoiceAdjustment->token =NULL;
-                        $InvoiceAdjustment->invoice_id =$InvoiceSave->id;
-                        $InvoiceAdjustment->item=$request->discounts['discount_type'][$k];
-                        $InvoiceAdjustment->applied_to=$request->discounts['discount_applied_to'][$k];
-                        $InvoiceAdjustment->ad_type=$request->discounts['discount_amount_type'][$k];
-                        $InvoiceAdjustment->percentages =(float)$request->discounts['amount'][$k];
-
-                        if($request->discounts['discount_applied_to'][$k]=="flat_fees"){
-                            $InvoiceAdjustment->basis =str_replace(",","",$flatFees);
-                            if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                                $finalAmount=($request->discounts['amount'][$k]/100)*$flatFees;
-                            }else{
-                                $finalAmount=$request->discounts['amount'][$k];
-                            }
-
-                        }
-                        if($request->discounts['discount_applied_to'][$k]=="time_entries"){
-                        $InvoiceAdjustment->basis =str_replace(",","",$timeEntryTotal);
-                            if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                                
-                                $finalAmount=($request->discounts['amount'][$k]/100)*$timeEntryTotal;
-                            }else{
-                                $finalAmount=$request->discounts['amount'][$k];
-                            }
-                        }
-                        if($request->discounts['discount_applied_to'][$k]=="expenses"){
-                        $InvoiceAdjustment->basis =str_replace(",","",$expenseEntryTotal);
-                            if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                                $finalAmount=($request->discounts['amount'][$k]/100)*$expenseEntryTotal;
-                            }else{
-                                $finalAmount=$request->discounts['amount'][$k];
-                            }
-                        }
-                        if($request->discounts['discount_applied_to'][$k]=="sub_total"){
-                            $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
-                            if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                                $finalAmount=($request->discounts['amount'][$k]/100)*$subTotal;
-                            }else{
-                                $finalAmount=$request->discounts['amount'][$k];
-                            }
-                        }
-                        
-                        if($request->discounts['discount_applied_to'][$k]=="balance_forward_total"){
-                            $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                        }
-                    
-                        $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
-                        $InvoiceAdjustment->notes =$request->discounts['notes'][$k];
-                        $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
-                        $InvoiceAdjustment->created_by=Auth::User()->id; 
-                        $InvoiceAdjustment->save();
-                        
-                        if($request->discounts['discount_type'][$k]=="discount"){
-                            $subTotal=$subTotal-$finalAmount;
-                        }else{
-                            $subTotal=$subTotal+$finalAmount;
-                        }
-                    
+                // $flatFees=($CaseClientSelection['billing_amount'])??0;
+                
+                $flatTotalBillable=0;
+                $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
+                foreach($flatFeeData as $TK=>$TE){
+                    if($TE->status == 'paid'){
+                        $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
                     }
+                }     
+                $flatFeeTotal = 0;
+                if(in_array($caseClient->billing_method,["flat","mixed"])){
+                    $flatFeeTotal = ($caseClient->billing_amount - $flatTotalBillable);
+                    $flatFeeTotal = ($flatFeeTotal > 0 ) ?  $flatFeeTotal : 0;
                 }
+                if($flatFeeTotal > 0){
+                    $flatFeeEntry = FlatFeeEntry::create([
+                        'case_id' => $caseVal,
+                        'user_id' => auth()->id(),
+                        'entry_date' => Carbon::now(),
+                        'cost' =>  $flatFeeTotal,
+                        'time_entry_billable' => 'yes',
+                        'created_by' => auth()->id(), 
+                    ]);
+                    $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                    $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                    $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
+                    $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                    $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                    $FlatFeeEntryForInvoice->save();                    
+                }
+                $subTotal=$flatFeeTotal+$timeEntryTotal+$expenseEntryTotal;
+
+                
+                
+                // dd($subTotal);
+                // if(isset($request->discounts['discount_type'])){
+                //     for($k=0;$k<count($request->discounts['discount_type']);$k++){
+                //         $finalAmount=0;
+                //         $InvoiceAdjustment = new InvoiceAdjustment;
+                //         $InvoiceAdjustment->case_id =$caseVal;
+                //         $InvoiceAdjustment->token =NULL;
+                //         $InvoiceAdjustment->invoice_id =$InvoiceSave->id;
+                //         $InvoiceAdjustment->item=$request->discounts['discount_type'][$k];
+                //         $InvoiceAdjustment->applied_to=$request->discounts['discount_applied_to'][$k];
+                //         $InvoiceAdjustment->ad_type=$request->discounts['discount_amount_type'][$k];
+                //         $InvoiceAdjustment->percentages =(float)$request->discounts['amount'][$k];
+
+                //         if($request->discounts['discount_applied_to'][$k]=="flat_fees"){
+                //             $InvoiceAdjustment->basis =str_replace(",","",$flatFees);
+                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
+                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$flatFees;
+                //             }else{
+                //                 $finalAmount=$request->discounts['amount'][$k];
+                //             }
+
+                //         }
+                //         if($request->discounts['discount_applied_to'][$k]=="time_entries"){
+                //         $InvoiceAdjustment->basis =str_replace(",","",$timeEntryTotal);
+                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
+                                
+                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$timeEntryTotal;
+                //             }else{
+                //                 $finalAmount=$request->discounts['amount'][$k];
+                //             }
+                //         }
+                //         if($request->discounts['discount_applied_to'][$k]=="expenses"){
+                //         $InvoiceAdjustment->basis =str_replace(",","",$expenseEntryTotal);
+                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
+                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$expenseEntryTotal;
+                //             }else{
+                //                 $finalAmount=$request->discounts['amount'][$k];
+                //             }
+                //         }
+                //         if($request->discounts['discount_applied_to'][$k]=="sub_total"){
+                //             $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
+                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
+                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$subTotal;
+                //             }else{
+                //                 $finalAmount=$request->discounts['amount'][$k];
+                //             }
+                //         }
+                        
+                //         if($request->discounts['discount_applied_to'][$k]=="balance_forward_total"){
+                //             $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
+                //         }
+                    
+                //         $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
+                //         $InvoiceAdjustment->notes =$request->discounts['notes'][$k];
+                //         $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
+                //         $InvoiceAdjustment->created_by=Auth::User()->id; 
+                //         $InvoiceAdjustment->save();
+                        
+                //         if($request->discounts['discount_type'][$k]=="discount"){
+                //             $subTotal=$subTotal-$finalAmount;
+                //         }else{
+                //             $subTotal=$subTotal+$finalAmount;
+                //         }
+                    
+                //     }
+                // }
                 $InvoiceSave->total_amount=$subTotal;
                 $InvoiceSave->due_amount=$subTotal;
+                
+                // Store invoice view settings
+                $jsonData = [];
+                $preferenceSetting = InvoiceSetting::where("firm_id", auth()->user()->firm_name)->with("reminderSchedule")->first();
+                $customizationSetting = InvoiceCustomizationSetting::where("firm_id", auth()->user()->firm_name)->with("flatFeeColumn", "timeEntryColumn", "expenseColumn")->first();
+                if($preferenceSetting) {
+                    $jsonData = [
+                        'hours_decimal_point' => $preferenceSetting->time_entry_hours_decimal_point,
+                        'payment_terms' => $preferenceSetting->time_entry_default_invoice_payment_terms,
+                        'trust_credit_activity_on_invoice' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
+                        'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
+                        'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
+                        // 'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
+                        'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
+                    ];
+                    if($preferenceSetting->reminderSchedule) {
+                        foreach($preferenceSetting->reminderSchedule as $key => $item) {
+                            $jsonData['reminder'][] = [
+                                'remind_type' => $item->remind_type,
+                                'days' => $item->days,
+                                'is_reminded' => "no",
+                            ];
+                        }
+                    }
+                }
+                if($customizationSetting) {
+                    $jsonData['invoice_theme'] = $customizationSetting->invoice_theme;
+                    $jsonData['show_case_no_after_case_name'] = $customizationSetting->show_case_no_after_case_name;
+                    $jsonData['non_billable_time_entries_and_expenses'] = $customizationSetting->non_billable_time_entries_and_expenses;
+                    if($customizationSetting->flatFeeColumn) {
+                        $jsonData['flat_fee'] = getColumnsIfYes($customizationSetting->flatFeeColumn->toArray());
+                    }
+                    if($customizationSetting->timeEntryColumn) {
+                        $jsonData['time_entry'] = getColumnsIfYes($customizationSetting->timeEntryColumn->toArray());
+                    }
+                    if($customizationSetting->expenseColumn) {
+                        $jsonData['expense'] = getColumnsIfYes($customizationSetting->expenseColumn->toArray());
+                    }
+                }
+                $InvoiceSave->invoice_setting = $jsonData;
                 $InvoiceSave->save();
                 $totalInvoice[]=$InvoiceSave->id;
                 }
@@ -8931,9 +9011,13 @@ class BillingController extends BaseController
             $InvoiceBatch->firm_id=Auth::User()->firm_name; 
             $InvoiceBatch->created_by=Auth::User()->id; 
             $InvoiceBatch->save();
-
+            dbCommit();
             return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice)]);
-            exit;  
+            exit; 
+            } catch (Exception $e) {
+                dbEnd();
+                return response()->json(['errors' => $e->getMessage()]);
+            } 
 
         }
     }

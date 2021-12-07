@@ -141,61 +141,14 @@
                     <div>
                         <div class="task-fieldGroup">
                         </div>
+                        <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
                         <div><button type="button" class="btn btn-link p-0 add-more-task-reminder">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
         
             @include('task.partial.add_more_reminder_div')
-            {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
-                <div class="">
-                    <div class="d-flex col-12 pl-0 align-items-center">
-                        <div class="pl-0 col-2">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_user_type" name="reminder_user_type[]"
-                                        class="form-control custom-select  ">
-                                        <option value="me">Me</option>
-                                        <option value="attorney">Attorneys</option>
-                                        <option value="paralegal">Paralegals</option>
-                                        <option value="staff">Staff</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pl-0 col-2">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_type" name="reminder_type[]"
-                                        class="form-control custom-select  ">
-                                        @foreach(getEventReminderTpe() as $k =>$v)
-                                            <option value="{{$k}}">{{$v}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="1">
-                        <div class="col-3">
-                            <div>
-                                <div class="">
-                                    <select id="reminder_time_unit" name="reminder_time_unit[]"
-                                        class="form-control custom-select  ">
-                                        {{-- <option value="minute">minutes</option>
-                                        <option value="hour">hours</option>
-                                        <option value="day">days</option>
-                                        <option value="week">weeks</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        before task &nbsp;
-                        <button class="btn remove" type="button">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div> --}}
-
+            
             <div id="loadUserAjax"></div>
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-1 col-form-label"></label>
@@ -235,7 +188,7 @@
         </div>
     </div>
 </form>
-<script src="{{ asset('assets\js\custom\task\addtask.js') }}" ></script>
+<script src="{{ asset('assets\js\custom\task\addtask.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $( "#sortable" ).sortable();

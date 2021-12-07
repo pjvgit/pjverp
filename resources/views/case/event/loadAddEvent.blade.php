@@ -345,6 +345,7 @@
                     <div>
                         <div class="fieldGroup">
                         </div>
+                        <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
                         <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-new-reminder add-more">Add a reminder</button></div>
                     </div>
                 </div>

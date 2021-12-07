@@ -211,12 +211,24 @@
                 $(".client_attend_all_users").prop("disabled", true)
             } else {
                 $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
-                $(".client_share_all_users").prop('checked', $(this).prop('checked'));
             }
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+
+            $(".client_share_all_users").each(function (i) {
+                if($(this).val() == '{{auth::user()->id}}'){
+                    $('.reminder_user_type').each(function (j) {
+                        if($(this).val() == 'me'){
+                            $(this).parents('.fieldGroup').remove();
+                        }
+                    });
+                    if ($(this).prop('checked') == true) {
+                        loadDefaultEventReminder();
+                    }
+                }
+            });
 
         });
         $("#client_attend_all").click(function () {
@@ -230,6 +242,18 @@
         });
         $(".client_share_all_users").click(function () {
             var id = $(this).attr('rowVal');
+            
+            if(id == '{{auth::user()->id}}'){
+                $('.reminder_user_type').each(function (j) {
+                    if($(this).val() == 'me'){
+                        $(this).parents('.fieldGroup').remove();
+                    }
+                });
+                if ($(this).prop('checked') == true) {
+                    loadDefaultEventReminder();
+                }
+            }
+            
             $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
@@ -238,9 +262,9 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
-        });
+        // });
 
-        $(".client_share_all_users ").click(function () {
+        // $(".client_share_all_users").click(function () {
             if ($('.client_share_all_users:checked').length == $('.client_share_all_users').length) {
                 $("#client_share_all").prop('checked', "checked")
             } else {

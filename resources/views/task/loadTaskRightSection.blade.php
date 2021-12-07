@@ -231,12 +231,24 @@
                 $("#SelectAllLeadShare").prop('checked', false);
             }
         });
-        $("#client_attend_all").click(function () {
+        $("#client_attend_all").click(function () {          
             $(".client_attend_all_users").prop('checked', $(this).prop('checked'));
             if ($("input:checkbox#time_tracking_enabled").is(":checked")) {
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+            $(".client_attend_all_users").each(function (i) {
+                if($(this).val() == '{{auth::user()->id}}'){
+                    $('.reminder_user_type').each(function (j) {
+                        if($(this).val() == 'me'){
+                            $(this).parents('.task-fieldGroup').remove();
+                        }
+                    });
+                    if ($(this).prop('checked') == true) {
+                        loadDefaultTaskReminder();
+                    }
+                }
+            });
         });
 
         $(".share_checkbox_nonlinked").click(function () {
@@ -269,8 +281,17 @@
             }
         });
         $(".client_attend_all_users").click(function () {
-            var id = $(this).attr('rowVal');
-          
+            var id = $(this).val();
+            if(id == '{{auth::user()->id}}'){
+                $('.reminder_user_type').each(function (j) {
+                    if($(this).val() == 'me'){
+                        $(this).parents('.task-fieldGroup').remove();
+                    }
+                });
+                if ($(this).prop('checked') == true) {
+                    loadDefaultTaskReminder();
+                }
+            }
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }

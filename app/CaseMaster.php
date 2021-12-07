@@ -185,9 +185,9 @@ class CaseMaster extends Authenticatable
         }
      }
      public function getUninvoicedBalanceAttribute(){
-        if(isset($this->case_id)){
+        if(isset($this->case_id) || isset($this->id)){
             $flatTotalBillable=$flatTotalNonBillable=0;
-            $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $this->case_id)->where("time_entry_billable","yes")->get();
+            $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $this->case_id ?? $this->id)->where("time_entry_billable","yes")->get();
             foreach($flatFeeData as $TK=>$TE){
                 if($TE->status == 'paid'){
                     $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
@@ -199,7 +199,7 @@ class CaseMaster extends Authenticatable
                 $flatFeeTotal = ($flatFeeTotal > 0 ) ?  $flatFeeTotal : 0;
             }
             $timeTotalBillable=$timeTotalNonBillable=0;
-            $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$this->case_id)->where('status','unpaid')->get();
+            $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$this->case_id ?? $this->id)->where('status','unpaid')->get();
             foreach($TimeEntry as $TK=>$TE){
                 if($TE['rate_type']=="flat"){
                     if($TE['time_entry_billable']=="yes"){
@@ -216,7 +216,7 @@ class CaseMaster extends Authenticatable
                 }
             }
             $expenseTotalBillable=$expenseTotalNonBillable=0;
-            $ExpenseEntry=ExpenseEntry::select("*")->where("case_id",$this->case_id)->where('status','unpaid')->get();
+            $ExpenseEntry=ExpenseEntry::select("*")->where("case_id",$this->case_id ?? $this->id)->where('status','unpaid')->get();
             foreach($ExpenseEntry as $kE=>$vE){
                 if($vE['time_entry_billable']=="yes"){
                     $expenseTotalBillable+=(str_replace(",","",number_format($vE->cost, 2)) * str_replace(",","",number_format($vE->duration, 2)));

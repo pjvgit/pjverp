@@ -235,7 +235,7 @@
         </div>
     </div>
 </form>
-<script src="{{ asset('assets\js\custom\task\addtask.js') }}" ></script>
+<script src="{{ asset('assets\js\custom\task\addtask.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
           

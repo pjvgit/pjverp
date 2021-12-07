@@ -10,7 +10,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
             aria-hidden="true">×</span></button>
 </div>
 <div class="modal-body">
-    <div class="row">
+    <div class="row" bladefilename="resources/views/calendar/event/loadSingleEditEvent.blade.php">
         <div class="col-md-12" >
         <form class="SingleEditEventForm" id="SingleEditEventForm" name="SingleEditEventForm" method="POST">
             <input class="form-control" id="event_id" value="{{ $evetData->id}}" name="event_id" type="hidden">
@@ -439,59 +439,13 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
                                         <?php } ?>
                                     <div class="fieldGroup">
                                     </div>
+                                    <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
                                     <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
                                 </div>
                             </div>
                         </div>  
                     
                         @include('case.event.add_more_reminder_div')
-                        {{-- <div class="fieldGroupCopy copy hide" style="display: none;">
-                            <div class="">
-                                <div class="d-flex col-10 pl-0 align-items-center">
-                                    <div class="pl-0 col-3">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_user_type" name="reminder_user_type[]"
-                                                    class="form-control custom-select  ">
-                                                    <option value="me">Me</option>
-                                                    <option value="attorney">Attorneys</option>
-                                                    <option value="paralegal">Paralegals</option>
-                                                    <option value="staff">Staff</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pl-0 col-3">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_type" name="reminder_type[]"
-                                                    class="form-control custom-select  ">
-                                                    @foreach(getEventReminderTpe() as $k =>$v)
-                                                        <option value="{{$k}}">{{$v}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
-                                    <div class="col-4">
-                                        <div>
-                                            <div class="">
-                                                <select id="reminder_time_unit" name="reminder_time_unit[]"
-                                                    class="form-control custom-select  ">
-                                                    <option value="minute">minutes</option>
-                                                    <option value="hour">hours</option>
-                                                    <option value="day">days</option>
-                                                    <option value="week">weeks</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn remove" type="button">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div> --}}
 
                         <div class="form-group row pt-">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>

@@ -43,7 +43,7 @@ class FullBackUpOfApplication implements ShouldQueue
         Log::info("Full Back Up Job started :". date('Y-m-d H:i:s'));
         try {
         $authUser = $this->authUser;
-        Log::info("authUser :". $this->authUser);
+        Log::info("Full BackUp > authUser :". $this->authUser);
         $clientFullBackup = ClientFullBackup::find($this->ClientFullBackup['id']);
         $clientFullBackup->status = 2;
         $clientFullBackup->save();
@@ -118,12 +118,13 @@ class FullBackUpOfApplication implements ShouldQueue
         } catch (\Throwable $e) {
             $clientFullBackup->status = 4;
             $clientFullBackup->save();
-            Log::info("FullBackUp job handle error :".$e->getMessage()." on line number ".$e->getLine());
+            Log::info("Full Back Up Job handle error :".$e->getMessage()." on line number ".$e->getLine());
         }
         Log::info("Full Back Up Job ended :". date('Y-m-d H:i:s'));
     }
 
-    public function generateBackupCasesCSV($request, $folderPath, $authUser){    
+    public function generateBackupCasesCSV($request, $folderPath, $authUser){  
+        Log::info("generateBackupCasesCSV > 131 > authUser : ". $authUser);  
         $casesCsvData = $caseNotesCsvData = $casesExpensesCsvData = $casesTimeEntriesCsvData=[];
         $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
         $casesCsvData[]=$casesHeader;
@@ -569,8 +570,8 @@ class FullBackUpOfApplication implements ShouldQueue
         $casesCsvData=[];
         Log::info("generateLawyersCSV :". $authUser);
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')->select('users.*','users_additional_info.*',"users.id as id");
-        $user = $user->where("firm_name",$authUser->firm_name); //Logged in user not visible in grid
-        $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
+        $user = $user->where("users.firm_name",$authUser->firm_name); //Logged in user not visible in grid
+        $user = $user->whereIn("users.user_level",['1','3']); //Show firm staff only
         $user = $user->doesntHave("deactivateUserDetail"); // Check user is deactivated or not
         $user = $user->get();
 

@@ -1,4 +1,4 @@
-<div class="sharing-table clients-table">
+<div class="sharing-table clients-table"  bladename="resources/views/lead/details/case_detail/firmStaff.blade.php">
     <div class="table-responsive">
         <table class="table table-lg" id="CaseClientSection">
             <thead>
@@ -66,13 +66,26 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {        
+    $(document).ready(function () {   
         $(".fieldGroup").empty();
         $(".client_share_all").click(function () {
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
             $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             $(".client_attend_all_users").prop('checked', false);
             $('.client_attend_all').prop('checked', false);
+
+            $(".client_share_all_users").each(function (i) {
+                if($(this).val() == '{{auth::user()->id}}'){
+                    $('.reminder_user_type').each(function (j) {
+                        if($(this).val() == 'me'){
+                            $(this).parents('.fieldGroup').remove();
+                        }
+                    });
+                    if ($(this).prop('checked') == true) {
+                        loadDefaultEventReminder();
+                    }
+                }
+            });
         });
         $(".client_attend_all").click(function () {
             if ($("#client_share_all").prop('checked')) {
@@ -81,6 +94,16 @@
         });
         $(".client_share_all_users").click(function () {
             var id = $(this).attr('rowVal');
+            if(id == '{{auth::user()->id}}'){
+                $('.reminder_user_type').each(function (j) {
+                    if($(this).val() == 'me'){
+                        $(this).parents('.fieldGroup').remove();
+                    }
+                });
+                if ($(this).prop('checked') == true) {
+                    loadDefaultEventReminder();
+                }
+            }
             $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));

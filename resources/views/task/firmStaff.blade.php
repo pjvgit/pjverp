@@ -1,4 +1,4 @@
-<div class="sharing-table clients-table">
+<div class="sharing-table clients-table" bladeFile="resources/views/task/firmStaff.blade.php">
     <div class="table-responsive">
         <table class="table table-lg" id="CaseClientSection">
             <thead>
@@ -64,6 +64,18 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+            $(".linked_staff").each(function (i) {
+                if($(this).val() == '{{auth::user()->id}}'){
+                    $('.reminder_user_type').each(function (j) {
+                        if($(this).val() == 'me'){
+                            $(this).parents('.task-fieldGroup').remove();
+                        }
+                    });
+                    if ($(this).prop('checked') == true) {
+                        loadDefaultTaskReminder();
+                    }
+                }
+            });
 
         });
         //deselect "checked all", if one of the listed checkbox product is unchecked amd select "checked all" if all of the listed checkbox product is checked
@@ -72,6 +84,16 @@
                 $('#client_share_all').prop('checked', true);
             } else {
                 $('#client_share_all').prop('checked', false);
+            }
+            if($(this).val() == '{{auth::user()->id}}'){
+                $('.reminder_user_type').each(function (j) {
+                    if($(this).val() == 'me'){
+                        $(this).parents('.task-fieldGroup').remove();
+                    }
+                });
+                if ($(this).prop('checked') == true) {
+                    loadDefaultTaskReminder();
+                }
             }
         });
 

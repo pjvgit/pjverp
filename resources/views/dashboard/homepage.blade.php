@@ -1309,6 +1309,8 @@
 
 @endsection
 @section('page-js')
+<script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script src="{{ asset('assets\js\custom\task\addtask.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
