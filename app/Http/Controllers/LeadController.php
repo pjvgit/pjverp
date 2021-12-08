@@ -6650,7 +6650,7 @@ class LeadController extends BaseController
                     $TaskAvtivityId = $TaskActivity->id;
                 }
                 $TaskTimeEntry = new TaskTimeEntry;
-                $TaskTimeEntry->user_id = $request->lead_id;                
+                $TaskTimeEntry->user_id=$InvoiceSave->user_id;                
                 $TaskTimeEntry->activity_id=$TaskAvtivityId;
                 $TaskTimeEntry->time_entry_billable="yes";
                 $TaskTimeEntry->description="Consultation Fee";

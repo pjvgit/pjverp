@@ -55,16 +55,16 @@ class UserController extends BaseController
             if (Auth::attempt(['email' => $email, 'password' => $password])) {
                 // Auth::logoutOtherDevices($password);
                 // checkSmartTimer on or off
-                $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
-                if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){
-                    $startTime1 = Carbon::parse($SmartTimer->started_at);
-                    $finishTime1 = Carbon::now();
-                    $duration = $finishTime1->diffInSeconds($startTime1);
-                    $duration = $duration - $SmartTimer->paused_seconds - 10;
-                    $SmartTimer->paused_at = $duration;
-                    $SmartTimer->is_pause = 1;
-                    $SmartTimer->save();
-                }
+                // $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
+                // if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){
+                //     $startTime1 = Carbon::parse($SmartTimer->started_at);
+                //     $finishTime1 = Carbon::now();
+                //     $duration = $finishTime1->diffInSeconds($startTime1);
+                //     $duration = $duration - $SmartTimer->paused_seconds - 10;
+                //     $SmartTimer->paused_at = $duration;
+                //     $SmartTimer->is_pause = 1;
+                //     $SmartTimer->save();
+                // }
                 $user = User::find(Auth::User()->id);
                 if($user->getUserFirms() > 1) {
                     return redirect()->intended(route('login/sessions/launchpad', encodeDecodeId($user->id, 'encode')));

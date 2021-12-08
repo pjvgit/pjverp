@@ -44,7 +44,6 @@ class ExpenseEntry extends Authenticatable
 
     public function getDurationAttribute()
     {
-        Log::info("app/ExpenseEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
@@ -55,7 +54,6 @@ class ExpenseEntry extends Authenticatable
 
     public function getCostAttribute()
     {
-        Log::info("app/ExpenseEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {

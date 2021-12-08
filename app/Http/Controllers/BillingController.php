@@ -2571,8 +2571,8 @@ class BillingController extends BaseController
             
             //Get the case data
             $caseMaster = CaseMaster::whereId($case_id)->with('caseBillingClient', 'caseAllClient')->first();
-
-            // if($caseClient->uninvoiced_balance == '$0.00'){
+            
+            // if(!empty($caseClient) && $caseClient->case_id > 0 && $caseClient->uninvoiced_balance == '$0.00'){
             //     FlatFeeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
             //     ExpenseEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
             //     TaskTimeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
@@ -2971,7 +2971,7 @@ class BillingController extends BaseController
         }else{
 
             $FlatFeeEntry = new FlatFeeEntry;
-            $FlatFeeEntry->case_id =($request->case_id)??'none';
+            $FlatFeeEntry->case_id =($request->case_id)??0;
             $FlatFeeEntry->user_id =$request->staff_user;
             if(isset($request->invoice_id)){
                 $FlatFeeEntry->invoice_link =$request->invoice_id;
@@ -3138,7 +3138,7 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $TaskTimeEntry = new TaskTimeEntry;
-            $TaskTimeEntry->case_id =($request->case_id)??'none';
+            $TaskTimeEntry->case_id =($request->case_id)??0;
             $TaskTimeEntry->user_id =$request->staff_user;
             if(isset($request->activity_text)){
                 $TaskAvtivity = new TaskActivity;
@@ -3446,7 +3446,7 @@ class BillingController extends BaseController
           return response()->json(['errors'=>$validator->errors()->all()]);
       }else{
         $ExpenseEntry = new ExpenseEntry;
-        $ExpenseEntry->case_id =($request->case_id)??'none';
+        $ExpenseEntry->case_id =($request->case_id)??0;
         $ExpenseEntry->user_id =$request->staff_user;
         if(isset($request->activity_text)){
             $TaskAvtivity = new TaskActivity;
@@ -3671,7 +3671,7 @@ class BillingController extends BaseController
       }else{
         //   print_r($request->all());exit;
         $InvoiceAdjustment = new InvoiceAdjustment;
-        $InvoiceAdjustment->case_id =($request->case_id)??'none';
+        $InvoiceAdjustment->case_id =($request->case_id)??0;
         $InvoiceAdjustment->token =$request->adjustment_token;
         $InvoiceAdjustment->item=$request->item;
         $InvoiceAdjustment->applied_to=$request->applied_to;

@@ -351,7 +351,6 @@ function expenseColumnOrder()
  */
 function getInvoiceSetting($firmId = null)
 {
-    Log::info("app/Helpers/Helper.php > getInvoiceSetting > firmId > ".$firmId);
     return InvoiceSetting::where("firm_id", auth()->user()->firm_name ?? $firmId)->first();
 }
 

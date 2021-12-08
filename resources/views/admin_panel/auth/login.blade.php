@@ -20,7 +20,7 @@
                                 <div class="auth-logo text-center mb-4">
                                     <img src="{{asset('assets/images/logo.png')}}" alt="">
                                 </div>
-                                <h1 class="mb-3 text-18">Sign In</h1>
+                                <h1 class="mb-3 text-18">Sign In As Administrator</h1>
                                 <form method="POST" action="{{ route('admin/login/post') }}">
                                     @csrf
                                     <div class="form-group">
@@ -45,6 +45,9 @@
                                 </form>
                                 <div class="mt-3 text-center">
                                     <a href="{{ route('password.request') }}" class="text-muted"><u>Forgot Password?</u></a>
+                                </div>
+                                <div class="mt-3 text-center">
+                                    <a href="{{ route('login') }}" class="text-muted"><u>Login As Normal User</u></a>
                                 </div>
                             </div>
                         </div>

@@ -52,7 +52,6 @@ class TaskTimeEntry extends Authenticatable
      */
     public function getDurationAttribute()
     {
-        Log::info("app/TaskTimeEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
@@ -63,7 +62,6 @@ class TaskTimeEntry extends Authenticatable
 
     public function getEntryRateAttribute()
     {
-        Log::info("app/TaskTimeEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {

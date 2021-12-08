@@ -1680,7 +1680,7 @@ class ClientdashboardController extends BaseController
 
     public function saveRequestFundPopup(Request $request)
     {
-        return $request->all();
+        // return $request->all();
         $request['amount']=str_replace(",","",$request->amount);
 
         $validator = \Validator::make($request->all(), [
@@ -3071,7 +3071,8 @@ class ClientdashboardController extends BaseController
                         }
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();                        
-                        try {                        
+                        try {    
+                        $csv_data = array_map('array_values', $csv_data);                    
                         foreach($csv_data as $key=>$val){
                             if($val[0] != ''){
                             $UserArray[$key]['first_name']=$val[0];
@@ -3231,6 +3232,7 @@ class ClientdashboardController extends BaseController
                         $ClientCompanyImport->total_record=count($csv_data);
                         $ClientCompanyImport->save();
                         try {
+                        $csv_data = array_map('array_values', $csv_data);
                         foreach($csv_data as $key=>$val){
                             if($val[0] != ''){
                             $UserArray[$key]['first_name']=$val[0];

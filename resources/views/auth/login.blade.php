@@ -2,9 +2,9 @@
 @section('title', config('app.name').' :: Login')
 @section('content')
 
-@if($errors->any())
+<!-- @if($errors->any())
     {{ implode('', $errors->all('<div>:message</div>')) }}
-@endif
+@endif -->
 <div class="row">
     <div class="col-md-6">
         <div class="p-4">
@@ -58,7 +58,13 @@
                 <i class="i-Mail-with-At-Sign"></i> Start Your Free Trial
             </a>
             @endif
-          
+            
+            <br>
+
+            If you are administrator then please login via here.
+            <a href="{{ route('admin/login') }}" class="btn btn-rounded btn-outline-primary  btn-block btn-icon-text ">
+                <i class="i-Mail-with-At-Sign"></i> Administrator Login
+            </a>
         </div>
     </div>
 </div>
