@@ -1206,11 +1206,11 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
 
     // For billing > invoice > payment
-    Route::get('bills/payment/{id}', 'BillingController@paymentDetail')->name('client/bills/payment');
-    // Route::post('bills/payment/{id}/card/detail', 'BillingController@cardDetail')->name('client/bills/payment/card/detail');
-    Route::get('bills/payment/{id}/card/detail', 'BillingController@paymentDetail')->name('client/bills/payment/card/detail');
-    Route::post('bills/payment/{id}/cash', 'BillingController@casePayment')->name('client/bills/payment/cash');
-    Route::post('bills/payment/{id}/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
+    Route::get('bills/payment/{invoice_id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
+    Route::post('bills/payment/{invoice_id}/{client_id}/card/option', 'BillingController@getCardPaymentOption')->name('client/bills/payment/card/option');
+    Route::post('bills/payment/card', 'BillingController@cardPayment')->name('client/bills/payment/card');
+    Route::post('bills/payment/{invoice_id}/{client_id}/cash', 'BillingController@casePayment')->name('client/bills/payment/cash');
+    Route::post('bills/payment/{invoice_id}/{client_id}/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
 
     // For billing > fund request
     Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');

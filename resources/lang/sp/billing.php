@@ -12,4 +12,10 @@ return [
     'step_1_text' => 'Resumen y Pago',
     'step_2' => 'Paso 2',
     'step_2_text' => 'Confirmación',
+
+    // For cash transfer
+    'c_radio_text' => 'Pago en Oxxo',
+
+    // For bank transfer
+    'bt_radio_text' => 'Transferencia electrónica (SPEI o TEF)',
 ];
