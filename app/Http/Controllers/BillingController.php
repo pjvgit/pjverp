@@ -2572,7 +2572,7 @@ class BillingController extends BaseController
             //Get the case data
             $caseMaster = CaseMaster::whereId($case_id)->with('caseBillingClient', 'caseAllClient')->first();
 
-            if($caseMaster->uninvoiced_balance == '$0.00'){
+            if($caseClient->uninvoiced_balance == '$0.00'){
                 FlatFeeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
                 ExpenseEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
                 TaskTimeEntry::where('case_id', $case_id)->where("status","unpaid")->delete();
