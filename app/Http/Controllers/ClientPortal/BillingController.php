@@ -140,31 +140,70 @@ class BillingController extends Controller
     /**
      * Get invoice payment detail screen
      */
-    public function paymentDetail($id, Request $request)
+    public function paymentDetail($invoiceId, $clientId, Request $request)
     {
-        $invoiceId = encodeDecodeId($id, 'decode');
-        $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) {
-                        $query->where("user_id", auth()->id())->where("is_shared", "yes");
-                    })->first();
-        $month = '';
-        if(\Route::current()->getName() == "client/bills/payment/card/detail") {
-            $month = $request->payment_option;
-        }
+        $invoiceId = encodeDecodeId($invoiceId, 'decode');
+        $clientId = encodeDecodeId($clientId, 'decode');
+        $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) use($clientId) {
+                        $query->where("user_id", $clientId)->where("is_shared", "yes");
+                    })->whereNotIn('status', ['Paid','Forwarded'])->first();
+        if(!empty($invoice)) {
+            // if(\Route::current()->getName() == "client/bills/payment/card/detail") {
+                $month = $request->month;
+            // }
 
-        return view('client_portal.billing.invoice_payment', compact('invoice', 'month'));
+            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month'));
+        } else {
+            return abort(403);
+        }
+    }
+
+    /**
+     * Get card payment options and redirect to card detail screen
+     */
+    public function getCardPaymentOption(Request $request)
+    {
+        return redirect()->route('client/bills/payment', ['invoice_id'=>$request->invoice_id, 'client_id'=>$request->client_id, 'month'=>$request->payment_option]);
     }
 
     /**
      * Load form to get credit/debit card detail
      */
-    public function cardDetail($id, Request $request)
+    public function cardPayment(Request $request)
     {   
-        // return $request->all();
-        $invoiceId = encodeDecodeId($id, 'decode');
-        $invoice = Invoices::whereId($invoiceId)->first();
-        $month = $request->payment_option;
-        return redirect()->route('client/bills/payment', $id)->with('month', $month);
-        // return view('client_portal.billing.invoice_payment', compact('invoice', 'month'));
+        return $request->all();
+        $invoice = Invoices::whereId($request->invoice_id)->first();
+        $month = $request->month;
+        $ch = curl_init();
+
+        $headers = array(
+            'Content-Type:application/json',
+            'Accept: application/vnd.conekta-v2.0.0+json',
+            // 'Authorization: Basic key_pRsoTgnsyUULMb76SDXA6w' // <---
+            // 'Authorization: Basic '. base64_encode("trupti.bhuva@plutustec.com:Trupt!@123") // <---
+        );
+
+        curl_setopt($ch, CURLOPT_URL,"https://api.conekta.io/tokens");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_USERPWD, "trupti.bhuva@plutustec.com:Trupt!@123");
+        // curl_setopt($ch, CURLOPT_POSTFIELDS,
+                    // "postvar1=value1&postvar2=value2&postvar3=value3");
+
+        // In real life you should use something like:
+        curl_setopt($ch, CURLOPT_POSTFIELDS, 
+                 http_build_query($request->all()));
+
+        // Receive server response ...
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        return $server_output = curl_exec($ch);
+
+        curl_close ($ch);
+
+        // Further processing ...
+        if ($server_output == "OK") {  } else {  }
     }
 
     public function casePayment()

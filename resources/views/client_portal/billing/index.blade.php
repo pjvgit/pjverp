@@ -18,7 +18,9 @@
                         </a>
                         <div class="col-4 col-md-2 text-right">
                             <span class="list-row__alert-text">{{ getDueText($item->due_date) }}</span>
-                            <br>
+                            <a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['invoice_id'=>encodeDecodeId($item->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}" target="_blank">
+                                <span class="payable-detail__export-button">Pay Now</span>
+                            </a>
                         </div>
                     </li>
                 @empty
