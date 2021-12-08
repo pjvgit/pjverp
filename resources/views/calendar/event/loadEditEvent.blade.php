@@ -487,10 +487,10 @@
                         <?php } ?>
                         <div class="empty-sharing-list text-muted text-left" id="noSelectionDisplay"><p>Select a case or lead to share this event with clients and firm members. Check "This event is not linked to a case or lead" to share only with firm members.</p></div> 
 
-                        <section class="sharing-list" id="loadTaskSection">
+                        <section class="sharing-list" id="loadEditEventSection">
                             <div class="loader-bubble loader-bubble-primary" id=""></div>
                         </section>
-                        <section id="loadTaskSection1"></section>
+                        <section id="loadEditEventSection1"></section>
                     </div>
                 </div>
                 <div class="justify-content-between modal-footer">
@@ -1074,8 +1074,8 @@
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: {"case_id": case_id, "event_id": "{{ $evetData->id }}" },
             success: function (res) {
-                console.log($("#loadTaskSection").length);
-                $("#loadTaskSection").html(res);
+                console.log($("#loadEditEventSection").length);
+                $("#loadEditEventSection").html(res);
             }
         })
     }
@@ -1089,7 +1089,7 @@
             },
             success: function (res) {
                 $(".sharing-list").remove();
-                $("#loadTaskSection1").html(res);
+                $("#loadEditEventSection1").html(res);
               
             }
         })
@@ -1101,7 +1101,7 @@
             data: "",
             success: function (res) {
                 $(".sharing-list").remove();
-                $("#loadTaskSection1").html(res);
+                $("#loadEditEventSection1").html(res);
               
             }
         })
@@ -1128,7 +1128,7 @@
             }
            
         }else{
-            $("#loadTaskSection").html('');
+            $("#loadEditEventSection").html('');
             $("#HideShowNonlink").hide();
             // loadDefaultContent();
         }
@@ -1139,7 +1139,7 @@
             url: baseUrl + "/court_cases/loadLeadRightSection",
             data: {"lead_id": lead_id,"from":"edit"},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#loadEditEventSection").html(res);
               
             }
         })
@@ -1154,11 +1154,11 @@
             if($("input:checkbox#time_tracking_enabled").is(":checked")){
                 loadTimeEstimationUsersList();
             }
-            $("#loadTaskSection").html('');
+            $("#loadEditEventSection").html('');
             $("#hideUser").hide();
         } else {
             
-            $("#loadTaskSection").html('');
+            $("#loadEditEventSection").html('');
             $("#hideUser").show();
          
         }

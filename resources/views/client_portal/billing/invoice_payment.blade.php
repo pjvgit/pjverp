@@ -49,10 +49,18 @@
                                         <p>Or if you chose interest free monthly payments you will pay as follows:</p>
                                         <div class="row">
                                             <div class="col-md-6">
+                                                @if($invoice->due_amount >= 300)
                                                 <p>3 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 3) }}</p>
+                                                @endif
+                                                @if($invoice->due_amount >= 600)
                                                 <p>6 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 6) }}</p>
+                                                @endif
+                                                @if($invoice->due_amount >= 800)
                                                 <p>9 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 9) }}</p>
+                                                @endif
+                                                @if($invoice->due_amount >= 1200)
                                                 <p>12 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 12) }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="row pt-3">
@@ -77,7 +85,7 @@
                                                         <div class="tab-content" id="myTabContent">
                                                             <div class="tab-pane fade show active" id="credit_card_tab" role="tabpanel" aria-labelledby="credit-card-tab">
                                                                 <img src="{{ asset('images/payment/pago1.png') }}" />
-                                                                <form id="card_pay_option_form" method="GET" action="{{ route('client/bills/payment/card/detail', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                <form id="card_pay_option_form" method="POST" action="{{ route('client/bills/payment/card/option', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
                                                                     @csrf
                                                                     <input type="text" name="invoice_id" value="{{ encodeDecodeId($invoice->id, 'encode') }}" >
                                                                     <ul class="list-group">
@@ -87,52 +95,60 @@
                                                                                 <span>Pay with Visa, MasterCard or American Express Credit or Debit Card</span><span class="checkmark"></span>
                                                                             </label>
                                                                         </li>
+                                                                        @if($invoice->due_amount >= 300)
                                                                         <li class="list-group-item border-0">
                                                                             <label class="radio radio-primary">
                                                                                 <input type="radio" class="payment-option" name="payment_option" value="3">
                                                                                 <span>3 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                                                             </label>
                                                                         </li>
+                                                                        @endif
+                                                                        @if($invoice->due_amount >= 600)
                                                                         <li class="list-group-item border-0">
                                                                             <label class="radio radio-primary">
                                                                                 <input type="radio" class="payment-option" name="payment_option" value="6">
                                                                                 <span>6 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                                                             </label>
                                                                         </li>
+                                                                        @endif
+                                                                        @if($invoice->due_amount >= 800)
                                                                         <li class="list-group-item border-0">
                                                                             <label class="radio radio-primary">
                                                                                 <input type="radio" class="payment-option" name="payment_option" value="9">
                                                                                 <span>9 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                                                             </label>
                                                                         </li>
+                                                                        @endif
+                                                                        @if($invoice->due_amount >= 1200)
                                                                         <li class="list-group-item border-0">
                                                                             <label class="radio radio-primary">
                                                                                 <input type="radio" class="payment-option" name="payment_option" value="12">
                                                                                 <span>12 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                                                             </label>
                                                                         </li>
+                                                                        @endif
                                                                     </ul>
                                                                     <button type="submit" class="btn btn-primary mt-2" id="credit_card_continue_btn">Continue</button>
                                                                 </form>
                                                             </div>
                                                             <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
                                                                 <img src="{{ asset('images/payment/pago2.png') }}" />
-                                                                <form method="POST" action="{{ route('client/bills/payment/cash', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                <form method="POST" action="{{ route('client/bills/payment/cash', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
                                                                     @csrf
                                                                     <label class="radio radio-primary">
                                                                         <input type="radio" name="radio" value="0" checked>
-                                                                        <span>Case in Oxxo</span><span class="checkmark"></span>
+                                                                        <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
                                                                     </label>
                                                                     <button type="submit" class="btn btn-primary mt-2">Continue</button>
                                                                 </form>
                                                             </div>
                                                             <div class="tab-pane fade" id="bank_transfer_tab" role="tabpanel" aria-labelledby="bank-transfer-tab">
                                                                 <img src="{{ asset('images/payment/pago3.png') }}" />
-                                                                <form method="POST" action="{{ route('client/bills/payment/bank', ['id' => encodeDecodeId($invoice->id, 'encode')]) }}">
+                                                                <form method="POST" action="{{ route('client/bills/payment/bank', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
                                                                     @csrf
                                                                     <label class="radio radio-primary">
                                                                         <input type="radio" name="radio" value="0" checked>
-                                                                        <span>Case in Oxxo</span><span class="checkmark"></span>
+                                                                        <span> @lang('billing.bt_radio_text') </span><span class="checkmark"></span>
                                                                     </label>
                                                                     <button type="submit" class="btn btn-primary mt-2">Continue</button>
                                                                 </form>
@@ -190,12 +206,20 @@
 <script src="{{ asset('assets/js/plugins/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
 <script src="{{ asset('assets/js/scripts/tooltip.script.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.mask.min.js') }}"></script>
+<script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
 {{-- <script src="{{ asset('assets/js/scripts/script.min.js') }}"></script> --}}
 {{-- <script src="{{ asset('assets/js/scripts/script_2.min.js') }}"></script> --}}
 {{-- <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script> --}}
 <script src="{{ asset('assets/js/plugins/jquery.smartWizard.min.js') }}"></script>
 {{-- <script src="{{ asset('assets/js/scripts/smart.wizard.script.min.js') }}"></script> --}}
-
+<script src="{{ asset('assets\plugins\creditcardvalidator\jquery.creditCardValidator.js') }}"></script>
+<script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script type="text/javascript">
+    // Conekta Public Key
+    Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
+</script>
 <script>
 $(document).ready(function () {
 	// Step show event
@@ -233,19 +257,62 @@ $(document).ready(function () {
 		}
 	});
 });
+jQuery(function ($) {
+    $("#card_form").submit(function (event) {
+        event.preventDefault();
+        $("#error-alert").hide();
 
-$("#credit_card_continue_btn").on("click", function() {
-    $.ajax({
-        url: "",
-        type: 'GET',
-        data: $("#card_pay_option_form").serialize(),
-        success: function(response) {
-            if(response.status) {
-                $("#step-1").html(response.view);
-            }
+        if ($("#card_form").valid()) {
+            var $form;
+            $form = $(this);
+            /* Previene hacer submit más de una vez */
+            // $form.find("button").prop("disabled", true);
+            // $form.find("button").addClass("gris").removeClass("rojo");
+            // $("#loaderM").css("display", "inline-block");
+            $(".card-errors").text("");
+            Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
+            /* Previene que la información de la forma sea enviada al servidor */
         }
-    })
+        return false;
+    });
 });
+var conektaSuccessResponseHandler;
+conektaSuccessResponseHandler = function (token) {
+    var $form;
+    $form = $("#card_form");
+    /* Inserta el token_id en la forma para que se envíe al servidor */
+    $form.append($("<input type=\"text\" name=\"conektaTokenId\" />").val(token.id));
+    /* and submit */
+    // $form.get(0).submit();
+};
+var conektaErrorResponseHandler;
+conektaErrorResponseHandler = function (response) {
+    var $form;
+    $form = $("#card_form");
+    /* Conekta card erros */
+    if (response.message === "The cardholder name is invalid.") {
+        response.message = "Ingrese su nombre (utilice únicamente letras, guiones, espacios y comas)";
+    } else if (response.message === "The card number is invalid.") {
+        response.message = "Ingrese un número de tarjeta válido ";
+    } else if (response.message === "The CVC (security code) of the card is invalid.") {
+        response.message = "Introduzca un Código de seguridad de la tarjeta válido";
+    } else if (response.message === "The card has expired.") {
+        response.message = "Ingrese un fecha de vencimiento válida";
+    } else if (response.message === "The expiration month is invalid.") {
+        response.message = "Ingrese un fecha de vencimiento válida";
+    } else if (response.message === "A plan cannot contain spaces or special characters, only dashes, underscores and alphanumeric characters are allowed.") {
+        response.message = "Se les permite un plan no puede contener espacios o caracteres especiales, únicos guiones, guiones y caracteres alfanuméricos.";
+    } else if (response.message === "The token has already been used.") {
+        response.message = "El token ya se ha utilizado.";
+    } else if (response.message === "A plan cannot contain spaces or special characters, only dashes, underscores and alphanumeric characters are allowed.") {
+        response.message = "Un plan no puede contener espacios o caracteres especiales, solamente guiones, guiones y caracteres alfanuméricos son permitidos.";
+    } else {
+        //response.message = "";
+    }
+    $("#error-alert span").text(response.message);
+    $("#error-alert").show();
+    $("#loaderM").css("display", "none");
+};
 </script>
 </body>
 

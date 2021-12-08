@@ -52,6 +52,7 @@ class InvoiceReminderEmailCommand extends Command
                         });
                     }) */
                     // ->whereId(177)
+                    ->whereNotNull('invoice_setting')
                     ->with("case", "invoiceSharedUser", "invoiceFirstInstallment", "firmDetail")
                     ->get();
         if($result) {
