@@ -348,9 +348,9 @@ function expenseColumnOrder()
 /**
  * get invoice setting
  */
-function getInvoiceSetting()
+function getInvoiceSetting($firmId = null)
 {
-    return InvoiceSetting::where("firm_id", auth()->user()->firm_name)->first();
+    return InvoiceSetting::where("firm_id", auth()->user()->firm_name ?? $firmId)->first();
 }
 
 /**

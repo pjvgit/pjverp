@@ -124,7 +124,6 @@ class FullBackUpOfApplication implements ShouldQueue
     }
 
     public function generateBackupCasesCSV($request, $folderPath, $authUser){  
-        Log::info("generateBackupCasesCSV > 131 > authUser : ". $authUser);  
         $casesCsvData = $caseNotesCsvData = $casesExpensesCsvData = $casesTimeEntriesCsvData=[];
         $casesHeader="Case/Matter Name|Number|Open Date|Practice Area|Case Description|Case Closed|Closed Date|Lead Attorney|Originating Attorney|SOL Date|Outstanding Balance|LegalCase ID|Contacts|Billing Type|Billing Contact|Flat fee|Case Stage|Case Balance|Conflict Check?|Conflict Check Notes";
         $casesCsvData[]=$casesHeader;

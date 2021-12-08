@@ -51,7 +51,7 @@ class TaskTimeEntry extends Authenticatable
      */
     public function getDurationAttribute()
     {
-        $setting = getInvoiceSetting();
+        $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;
@@ -61,7 +61,7 @@ class TaskTimeEntry extends Authenticatable
 
     public function getEntryRateAttribute()
     {
-        $setting = getInvoiceSetting();
+        $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;
