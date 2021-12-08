@@ -23,7 +23,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 <div class="row">
                     @can('add_firm_user')
                     <div class="col-3 text-center common-shortcut p-2">
-                        <a id="add-new-user-link" href="{{route('contacts/attorneys')}}">
+                        <a data-toggle="modal"  data-target="#DeleteModal" data-placement="bottom" href="javascript:;"  onclick="loadStep1();">
                             <i class="i-Administrator text-32 mr-3" height="40"></i>
                             <div class="mt-1">Add a New User</div>
                         </a>
@@ -163,12 +163,92 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
         </div>
     </div>
 </div>
+<div id="DeleteModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Firm User</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!--  SmartWizard html -->
+                        <div id="smartwizard">
+                            <ul>
+                                <li class="text-center"><a href="#step-1">1<br /><small>Add New User</small></a></li>
+                                <li class="text-center"><a href="#step-2">2<br /><small>Link to Cases </small></a></li>
+                                <li class="text-center"><a href="#step-3">3<br /><small>Firm Level
+                                            Permissions</small></a></li>
+                                <li class="text-center"><a href="#step-4">4<br /><small>Access Permissions</small></a>
+                                </li>
+                            </ul>
+                            <div>
+                                <div id="step-1">
+                                    
+                                </div>
+                                <div id="step-2">
+                                
+                                </div>
+                                <div id="step-3">
+                                
+
+                                </div>
+                                <div id="step-4">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end of main-content -->
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @endsection
 @section('page-js')
 <script type="text/javascript">
     $(document).ready(function () {
         $('.country').select2();
+
+        // Toolbar extra buttons
+        var btnFinish = $('<button></button>').text('Finish')
+            .addClass('btn btn-info')
+            .on('click', function () { alert('Finish Clicked'); });
+        var btnCancel = $('<button></button>').text('Cancel')
+            .addClass('btn btn-danger')
+            .on('click', function () { $('#smartwizard').smartWizard("reset"); });
+            
+
+        // Smart Wizard
+        $('#smartwizard').smartWizard({
+            selected: 0,
+            theme: 'default',
+            transitionEffect: 'fade',
+            showStepURLhash: false,
+            enableURLhash: false,
+            backButtonSupport: false, // Enable the back button support
+            keyNavigation: false,
+            toolbarSettings: {
+                toolbarPosition: 'none',
+                toolbarButtonPosition: 'end',
+                toolbarExtraButtons: [btnFinish, btnCancel]
+            },
+            anchorSettings: {
+                anchorClickable: false, // Enable/Disable anchor navigation
+                enableAllAnchors: false, // Activates all anchors clickable all times
+                markDoneStep: true, // Add done state on navigation
+                markAllPreviousStepsAsDone: true, // When a step selected by url hash, all previous steps are marked done
+                removeDoneStepOnNavigateBack: false, // While navigate back done step after active step will be cleared
+                enableAnchorOnDoneStep: false // Enable/Disable the done steps navigation
+            },
+            
+        });
+        
     });
     function AddBulkUserModal() {
         $("#AddBulkUserModalArea").html('<img src="{{LOADER}}""> Loading...');
@@ -182,6 +262,25 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
             }
         })
     }
+
+    function loadStep1() {
+        $("#preloader").show();
+        $("#step-1").html('');
+        $("#step-1").html('<img src="{{LOADER}}""> Loading...');
+
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url:  baseUrl +"/contacts/loadStep1", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                    $("#step-1").html(res);
+                    $("#preloader").hide();
+                }
+            })
+        })
+    }
+
 </script>
 
 @endsection

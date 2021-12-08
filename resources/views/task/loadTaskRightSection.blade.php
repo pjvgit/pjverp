@@ -178,7 +178,10 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        // check if login user is checked or not for showing default reminder
+        <?php if(!isset($from)){?>
         $(".task-fieldGroup").empty();
+        <?php } ?>
         
         $("[data-toggle=popover]").popover({
             html: true
@@ -237,6 +240,8 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+            // check if login user is checked or not for showing default reminder
+            <?php if(!isset($from)){?>
             $(".client_attend_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
                     $('.reminder_user_type').each(function (j) {
@@ -249,6 +254,7 @@
                     }
                 }
             });
+            <?php } ?>
         });
 
         $(".share_checkbox_nonlinked").click(function () {
@@ -282,6 +288,8 @@
         });
         $(".client_attend_all_users").click(function () {
             var id = $(this).val();
+            // check if login user is checked or not for showing default reminder
+            <?php if(!isset($from)){?>
             if(id == '{{auth::user()->id}}'){
                 $('.reminder_user_type').each(function (j) {
                     if($(this).val() == 'me'){
@@ -292,6 +300,7 @@
                     loadDefaultTaskReminder();
                 }
             }
+            <?php } ?>
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
             }

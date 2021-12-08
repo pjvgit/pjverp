@@ -1188,7 +1188,7 @@ var start = 0;
             $.each(res.data, function(i, v){
                 var contactGroup = i.split('_');
 
-                resultHtml +='<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
+                resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
                 contactGroup[1] + ')" id="checkAllClientCase"class="allSelect  mainBox_' + contactGroup[1] + ' "> <a class="name" href="' + baseUrl +
                 '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
 
@@ -1199,8 +1199,8 @@ var start = 0;
                     // ' mainBox_' + aData.id + ' "> <a class="name" href="' + baseUrl +
                     // '/contacts/clients/'+aData.selected_user+'">'+aData.contact_name+'</a></td></tr>';
                                    
-                    if(aData.uninvoiced_balance > 0){
-                    unInvoiceAmount += aData.uninvoice_amount;
+                    // if(parseFloat(aData.uninvoiced_balance.replace("$", "")) > 0){
+                    // unInvoiceAmount += parseFloat(aData.uninvoiced_balance.replace("$", ""));
                     resultHtml +='<tr><td><div class="text-left pl-3">';
                     if(aData.setup_billing == 'yes') {
                     resultHtml +='<input id="select-row-74" client_id=' + aData
@@ -1244,13 +1244,13 @@ var start = 0;
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
                     resultHtml +='</tr>';
-                    }
+                    // }
                 });
                
             });
             // afterLoader();
             $("#preloader").hide();
-            if(unInvoiceAmount > 0){
+            if(unInvoiceAmount == 0){
                 $(".lazy-load-data").append(resultHtml);    
             }else{
                 $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    

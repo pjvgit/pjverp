@@ -58,7 +58,10 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
+        // check if login user is checked or not for showing default reminder
+        <?php if(isset($from) && $from != "edit"){?>
         $(".task-fieldGroup").empty();
+        <?php } ?>
 
         $('#client_share_all').on('change', function () {
             $('.linked_staff').prop('checked', $(this).prop("checked"));
@@ -66,6 +69,8 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             $(".linked_staff").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
                     $('.reminder_user_type').each(function (j) {
@@ -78,6 +83,7 @@
                     }
                 }
             });
+            <?php } ?>
 
         });
         //deselect "checked all", if one of the listed checkbox product is unchecked amd select "checked all" if all of the listed checkbox product is checked
@@ -87,6 +93,8 @@
             } else {
                 $('#client_share_all').prop('checked', false);
             }
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             if($(this).val() == '{{auth::user()->id}}'){
                 $('.reminder_user_type').each(function (j) {
                     if($(this).val() == 'me'){
@@ -97,6 +105,7 @@
                     loadDefaultTaskReminder();
                 }
             }
+            <?php } ?>
         });
 
 

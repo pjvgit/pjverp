@@ -1,3 +1,6 @@
+------------------------------------ 08-DEC-2021 ------------------------------
+ALTER TABLE `notification_settings`
+CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import','pay','change') COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `topic`;
 ------------------------------------ 06-DEC-2021 ------------------------------
 CREATE TABLE `invoice_online_payment_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -13,9 +16,6 @@ CREATE TABLE `invoice_online_payment_settings` (
 ) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 
 ------------------------------------ 02-DEC-2021 ------------------------------
-ALTER TABLE `notification_settings`
-CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import','pay') COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `topic`;
-
 UPDATE `notification_settings` SET `action` = 'pay' WHERE `id` = '32';
 
 ALTER TABLE `all_history`
@@ -50,9 +50,6 @@ ADD `paused_seconds` int(11) NOT NULL DEFAULT '0' AFTER `is_pause`;
 ------------------------------------ 25-NOV-2021 ------------------------------
 ALTER TABLE `notification_settings`
 CHANGE `sub_type` `sub_type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','lead_invoice','user','case','staff') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `type`;
-
-ALTER TABLE `notification_settings`
-CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import') COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `topic`;
 
 ALTER TABLE `all_history`
 CHANGE `type` `type` enum('time_entry','expenses','invoices','other','notes','contact','event','task','deposit','document','credit','fundrequest','user','lead_invoice','case','staff') COLLATE 'utf8mb4_unicode_ci' NULL AFTER `document_id`;

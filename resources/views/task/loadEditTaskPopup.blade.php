@@ -160,9 +160,9 @@
                         <?php
                             foreach($taskReminderData as $rkey=>$rval){
                             ?>
-                            <div class="row form-group task-fieldGroup">
+                            <div class="form-group task-fieldGroup">
                                 <div class="">
-                                    <div class="d-flex col-10 pl-0 align-items-center">
+                                    <div class="d-flex col-12 pl-0 align-items-center">
                                         <div class="pl-0 col-2">
                                             <div>
                                                 <div class="">
@@ -185,12 +185,12 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                        </div><input name="reminder_number[]" type="number" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                         <div class="col-3">
                                             <div>
                                                 <div class="">
                                                     <select id="reminder_time_unit" name="reminder_time_unit[]" class="form-control custom-select  ">
-                                                         <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
+                                                        <option <?php if($rval->reminder_frequncy=="day"){ echo "selected=selected"; } ?> value="day">days</option>
                                                         <option <?php if($rval->reminder_frequncy=="week"){ echo "selected=selected"; } ?> value="week">weeks</option>
                                                     </select>
                                                 </div>
