@@ -3,6 +3,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 class FlatFeeEntry extends Authenticatable
@@ -36,6 +37,7 @@ class FlatFeeEntry extends Authenticatable
 
     public function getDurationAttribute($value)
     {
+        Log::info("app/FlatFeeEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
@@ -46,6 +48,7 @@ class FlatFeeEntry extends Authenticatable
 
     public function getEntryRateAttribute($value)
     {
+        Log::info("app/FlatFeeEntry.php > getEntryRateAttribute > user > ".$this->user);
         $setting = getInvoiceSetting($this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {

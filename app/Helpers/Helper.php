@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Get lead list for add task
@@ -350,6 +351,7 @@ function expenseColumnOrder()
  */
 function getInvoiceSetting($firmId = null)
 {
+    Log::info("app/Helpers/Helper.php > getInvoiceSetting > firmId > ".$firmId);
     return InvoiceSetting::where("firm_id", auth()->user()->firm_name ?? $firmId)->first();
 }
 
