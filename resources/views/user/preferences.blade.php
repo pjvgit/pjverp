@@ -48,9 +48,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         $v['type'].'</br>';
                                     }
                                 }
-                                }
                                 if($eventCount == 0){
                                     echo "None";
+                                }
                                 }?>
                             </span>
                             </div>
@@ -73,9 +73,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             $v['type'].' due date '.'</br>';
                                         }
                                     }
-                                    }
                                     if($taskCount == 0) {
                                         echo "None";
+                                    }
                                     }?>
                                 </span>
                             </div>
