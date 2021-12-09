@@ -17,6 +17,12 @@
 </head>
 
 <body class="text-left">
+    <div class="loadscreen preloader"  style="display: none;">
+        <div class="loader"><img class="logo mb-3" src="{{asset('images/logo.png')}}" style="display: none"
+                alt="">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+    </div>
     <div class="app-admin-wrap">
         <div class="switch-overlay"></div>
         <div class="main-content-wrap mobile-menu-content bg-off-white m-0">
@@ -87,7 +93,7 @@
                                                                 <img src="{{ asset('images/payment/pago1.png') }}" />
                                                                 <form id="card_pay_option_form" method="POST" action="{{ route('client/bills/payment/card/option', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
                                                                     @csrf
-                                                                    <input type="text" name="invoice_id" value="{{ encodeDecodeId($invoice->id, 'encode') }}" >
+                                                                    <input type="hidden" name="invoice_id" value="{{ encodeDecodeId($invoice->id, 'encode') }}" >
                                                                     <ul class="list-group">
                                                                         <li class="list-group-item border-0">
                                                                             <label class="radio radio-primary">
@@ -257,38 +263,13 @@ $(document).ready(function () {
 		}
 	});
 });
-jQuery(function ($) {
-    $("#card_form").submit(function (event) {
-        event.preventDefault();
-        $("#error-alert").hide();
-
-        if ($("#card_form").valid()) {
-            var $form;
-            $form = $(this);
-            /* Previene hacer submit más de una vez */
-            // $form.find("button").prop("disabled", true);
-            // $form.find("button").addClass("gris").removeClass("rojo");
-            // $("#loaderM").css("display", "inline-block");
-            $(".card-errors").text("");
-            Conekta.token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-            /* Previene que la información de la forma sea enviada al servidor */
-        }
-        return false;
-    });
-});
-var conektaSuccessResponseHandler;
-conektaSuccessResponseHandler = function (token) {
-    var $form;
-    $form = $("#card_form");
+var conektaSuccessResponseHandler = function (token) {
     /* Inserta el token_id en la forma para que se envíe al servidor */
-    $form.append($("<input type=\"text\" name=\"conektaTokenId\" />").val(token.id));
+    $("#conekta_token_id").val(token.id);
     /* and submit */
-    // $form.get(0).submit();
+    $("#card_form").get(0).submit();
 };
-var conektaErrorResponseHandler;
-conektaErrorResponseHandler = function (response) {
-    var $form;
-    $form = $("#card_form");
+var conektaErrorResponseHandler = function (response) {
     /* Conekta card erros */
     if (response.message === "The cardholder name is invalid.") {
         response.message = "Ingrese su nombre (utilice únicamente letras, guiones, espacios y comas)";
@@ -309,10 +290,31 @@ conektaErrorResponseHandler = function (response) {
     } else {
         //response.message = "";
     }
-    $("#error-alert span").text(response.message);
+    $("#error-alert .error-text").text(response.message);
     $("#error-alert").show();
-    $("#loaderM").css("display", "none");
+    $(".preloader").css("display", "none");
 };
+
+$("#card_form").submit(function (event) {
+    event.preventDefault();
+    $("#error-alert").hide();
+
+    if ($(this).valid()) {
+        $(".preloader").css("display", "inline-block");
+        var data = {
+        "card": {
+            "number": "4545454545454545",
+            "name": "Javier Pedreiro",
+            "exp_year": "2018",
+            "exp_month": "12",
+            "cvc": "13"
+        }
+        };
+        Conekta.token.create($(this)[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
+        // Conekta.token.create(data, conektaSuccessResponseHandler, conektaErrorResponseHandler);
+    }
+    return false;
+});
 </script>
 </body>
 

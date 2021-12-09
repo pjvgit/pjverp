@@ -142,8 +142,8 @@
                         }
                         $userListHtml .= "</tbody></table>";
                         @endphp
-                        <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                        href="javascript:;" data-toggle="popover" data-trigger="focus" title=""
+                        <a class="mt-3 event-name d-flex align-items-center pop" tabindex="0" role="button"
+                        href="javascript:;" data-toggle="popover" title=""
                         data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
                         style="float:left;">{{ $totalUser ?? 0 }} People</a>
                     @else

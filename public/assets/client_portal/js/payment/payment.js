@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $('#card_number').mask('0000 0000 0000 0000');
+    // $('#card_number').mask('0000 0000 0000 0000');
     
     //card validation on input fields
     /* $('#card_form input[type=text]').on('keyup',function(){
@@ -15,7 +15,8 @@ $("#card_form").validate({
             validName: true
         },
         'phone_number': {
-            required: true
+            required: true,
+            number: true,
         },
         'card_number': {
             required: true
@@ -31,6 +32,27 @@ $("#card_form").validate({
         'cvv': {
             required: true,
             validCvv: true
+        },
+    },
+    messages: {
+        name_on_card: {
+            required: "Favor de ingresar esta información.",
+        },
+        phone_number: {
+            required: "Favor de ingresar esta información.",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+        },
+        card_number: {
+            required: "Favor de ingresar esta información.",
+        },
+        expiry_month: {
+            required: "Favor de ingresar esta información.",
+        },
+        expiry_year: {
+            required: "Favor de ingresar esta información.",
+        },
+        cvv: {
+            required: "Favor de ingresar esta información.",
         },
     },
     errorPlacement: function (error, element) {
@@ -51,12 +73,12 @@ $.validator.addMethod("validMonth", function(value, element) {
 }, "Please enter valid month.");
 
 $.validator.addMethod("validCvv", function(value, element) {
-    return /^[0-9]{3,3}$/i.test(value);
-}, "Please enter valid number.");
+    return /^[0-9]{4,4}$/i.test(value);
+}, "Introduzca un Código de seguridad de la tarjeta válido.");
 
 $.validator.addMethod("validName", function(value, element) {
     return /^[a-z ,.'-]+$/i.test(value);
-}, "Please enter valid name.");
+}, "Ingrese su nombre (utilice únicamente letras, guiones, espacios y comas)");
 
 $.validator.addMethod("validYear", function(value, element) {
     return /^2022|2023|2024|2025|2026|2027|2028|2029|2030|2031|2032|2033|2034|2035|2036|2037|2038|2039|2040$/i.test(value);
