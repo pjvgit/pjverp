@@ -6,15 +6,18 @@ use App\Firm;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\InvoiceHistory;
+use App\InvoiceOnlinePayment;
 use App\Invoices;
 use App\RequestedFund;
 use App\SharedInvoice;
+use App\Traits\CreditAccountTrait;
 use App\User;
 use Illuminate\Http\Request;
 use mikehaertl\wkhtmlto\Pdf;
 
 class BillingController extends Controller 
 {
+    use CreditAccountTrait;
     /**
      * Get client portal billing
      */
@@ -171,39 +174,82 @@ class BillingController extends Controller
      */
     public function cardPayment(Request $request)
     {   
-        return $request->all();
-        $invoice = Invoices::whereId($request->invoice_id)->first();
-        $month = $request->month;
-        $ch = curl_init();
+        // return $request->all();
+        try {
+            \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");
+            $invoice = Invoices::whereId($request->invoice_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
+            $client = User::whereId($request->client_id)->first();
+            if($invoice && $client) {
+                if(empty($client->conekta_customer_id)) {
+                    $customer = \Conekta\Customer::create([
+                                    "name"=> $client->full_name,
+                                    "email"=> $client->email,
+                                    "phone"=> $client->mobile_number ?? $request->phone_number,
+                                ]);
+                    $client->fill(['conekta_customer_id' => $customer->id])->save();
+                    $client->refresh();
+                }
+                $customerId = $client->conekta_customer_id;
+                $invoice->refresh();
+                // return (int)$invoice->due_amount;
+                if(!in_array($invoice->status, ['Paid','Forwarded'])) {
+                    $validOrderWithCheckout = [
+                        /* 'checkout' => array(
+                            'type' => 'Integration',
+                            'allowed_payment_methods' => ["card"],
+                            'monthly_installments_enabled' => true,
+                            'monthly_installments_options' => [$request->emi_month],
+                        ), */
+                        'line_items' => [
+                            [
+                                'name' => 'Invoice number '.$invoice->id,
+                                'unit_price' => (int)$invoice->due_amount,
+                                'quantity' => 1,
+                            ]
+                        ],
+                        'customer_info' => array(
+                            'customer_id' => $customerId
+                        ),
+                        'currency'    => 'MXN',
+                        'charges'  => [
+                            [
+                                'payment_method' => [
+                                    'type'       => 'card',
+                                    'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000",
+                                    'token_id' => $request->conekta_token_id,
+                                ],
+                                'amount' => (int)$invoice->due_amount,
+                            ]
+                        ],
+                        'metadata'    => array('test' => 'extra info')
+                    ];
+                    $order = \Conekta\Order::create($validOrderWithCheckout);
+                    if($order->payment_status == 'paid') {
+                        $invoice->fill(['status' => 'Paid', 'paid_amount' => ($invoice->due_amount + $invoice->paid_amount), 'due_amount' => 0])->save();
 
-        $headers = array(
-            'Content-Type:application/json',
-            'Accept: application/vnd.conekta-v2.0.0+json',
-            // 'Authorization: Basic key_pRsoTgnsyUULMb76SDXA6w' // <---
-            // 'Authorization: Basic '. base64_encode("trupti.bhuva@plutustec.com:Trupt!@123") // <---
-        );
-
-        curl_setopt($ch, CURLOPT_URL,"https://api.conekta.io/tokens");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($ch, CURLOPT_USERPWD, "trupti.bhuva@plutustec.com:Trupt!@123");
-        // curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    // "postvar1=value1&postvar2=value2&postvar3=value3");
-
-        // In real life you should use something like:
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 
-                 http_build_query($request->all()));
-
-        // Receive server response ...
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        return $server_output = curl_exec($ch);
-
-        curl_close ($ch);
-
-        // Further processing ...
-        if ($server_output == "OK") {  } else {  }
+                        InvoiceOnlinePayment::create([
+                            'invoice_id' => $invoice->id,
+                            'user_id' => $client->id,
+                            'payment_method' => 'card',
+                            'card_emi_month' => 0,
+                            'conekta_order_id' => $order->id,
+                            // 'conekta_charge_id' => $order->charges->data[0]->id,
+                            'conekta_customer_id' => $customerId,
+                            'conekta_payment_status' => $order->payment_status,
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+                }
+            }
+            return redirect()->route('client/bills')->with('success', 'Invoice payment successfull');
+        } catch (\Conekta\ProcessingError $e){
+            echo $e->getMessage();
+        } catch (\Conekta\ParameterValidationError $e){
+            echo $e->getMessage();
+        } catch (\Conekta\Handler $e){
+            echo $e->getMessage();
+        }
+        
     }
 
     public function casePayment()

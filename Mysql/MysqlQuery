@@ -1,3 +1,23 @@
+------------------------------------ 09-DEC-2021 ------------------------------
+ALTER TABLE `users`
+ADD `conekta_customer_id` varchar(255) COLLATE 'latin1_swedish_ci' NULL AFTER `is_primary_account`;
+
+CREATE TABLE `invoice_online_payments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `invoice_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `payment_method` enum('card','cash','bank transfer') NULL,
+  `card_emi_month` int(5) NULL,
+  `conekta_order_id` varchar(255) NULL,
+  `conekta_charge_id` varchar(255) NULL,
+  `conekta_customer_id` varchar(255) NULL,
+  `conekta_payment_status` varchar(255) NULL,
+  `conekta_payment_reference_id` varchar(255) NULL,
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 ------------------------------------ 08-DEC-2021 ------------------------------
 ALTER TABLE `notification_settings`
 CHANGE `action` `action` enum('add','update','delete','complete','incomplete','share','comment','archive','unarchive','link','unlink','view','refund','unshare','email','close','reopened','notes','staff','comments','payment','reminder','login','inactive','active','firm','contacts','import','pay','change') COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `topic`;

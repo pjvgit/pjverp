@@ -18,7 +18,7 @@
             <tr class="sharing-user">
                 <td class="d-flex no-border">
                     <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    <a class="event-name d-flex align-items-center" tabindex="0" role="button" href="#" data-toggle="popover" title="" data-trigger="hover"
+                    <a class="event-name d-flex align-items-center pop" tabindex="0" role="button" href="javascript:;" data-toggle="popover" title=""
                         data-content="<?php if($val->mobile_number==''){?> <span> No cell phone number. </span><br><?php } ?> <?php if($val->email==''){?> No Email.</span> <br> <?php } ?> <a href='{{ route('contacts/clients/view', $val->user_id) }}'>Edit Info</a>" data-html="true">
                         <?php if($val->mobile_number==''){?> <i class="texting-off-icon"></i> <?php } ?>
                         <?php if($val->email==''){?> <i class="no-email-icon"></i> <?php } ?>
@@ -169,9 +169,25 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $(".fieldGroup").empty();
-        $("[data-toggle=popover]").popover({
+        /* $("[data-toggle=popover]").popover({
             html: true
-        });
+        }); */
+        // For popover
+        $(".pop, [data-toggle=popover]").popover({ trigger: "manual", html: true, animation: false })
+            .on("mouseenter", function() {
+                var _this = this;
+                $(this).popover("show");
+                $(".popover").on("mouseleave", function() {
+                    $(_this).popover('hide');
+                });
+            }).on("mouseleave", function() {
+                var _this = this;
+                setTimeout(function() {
+                    if (!$(".popover:hover").length) {
+                        $(_this).popover("hide");
+                    }
+                }, 300);
+            });
 
         $(".share_checkbox_nonlinked").click(function () {
             var id = $(this).attr('rowVal');
