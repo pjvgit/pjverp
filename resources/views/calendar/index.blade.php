@@ -113,8 +113,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <a data-toggle="collapse" class="text-default" href="#accordion-item-icon-right-coll-2"
                             aria-expanded="true">Event Type</a>
                             <span class="ml-1 calendar-help-bubble" style="cursor: pointer;">
-                                <i id="help-bubble-1" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"  tabindex="0" role="button" href="javascript:;" data-toggle="popover" data-trigger="hover"  title="Event Types" data-content='<div><p><b>No Event Types Checked:</b>&nbsp;All events will show whether they have an Event Type or not.</p><p><b>Select All Checked:</b> Only events that have an Event Type will show.</p><p><b>Specific Event Type Checked:</b>&nbsp;Only events that have the selected Event Types will show. Events with no event types will not show.</p></div>' data-html="true" data-original-title="" style="float:revert;"></i>
-                    </h6>
+                                <a class="mt-3 event-name align-items-center" style="float: none;" tabindex="0" role="button" href="javascript:;" data-toggle="popover" data-trigger="focus" title="Event Types" 
+                                    data-content="<div><p><b>No Event Types Checked:</b>&nbsp;All events will show whether they have an Event Type or not.</p><p><b>Select All Checked:</b> Only events that have an Event Type will show.</p><p><b>Specific Event Type Checked:</b>&nbsp;Only events that have the selected Event Types will show. Events with no event types will not show.</p></div>" 
+                                    data-html="true" style="float:left;" data-original-title="">
+                                    <i aria-hidden="true" class="fa fa-question-circle icon-question-circle icon text-primary"></i>
+                                </a>
+                            </span>
+                        </h6>
                    
                 </div>
                 <div id="accordion-item-icon-right-coll-2" class="collapse show">
