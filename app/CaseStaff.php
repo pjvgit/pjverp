@@ -12,7 +12,7 @@ class CaseStaff extends Model
     protected $table = "case_staff";
     public $primaryKey = 'id';
     protected $fillable = [
-        'case_id', 'user_id', 'lead_attorney', 'originating_attorney', 'rate_type', 'rate_amount'
+        'case_id', 'user_id', 'lead_attorney', 'originating_attorney', 'rate_type', 'rate_amount', 'created_by'
     ];
     protected $appends  = ['decode_id'];
     public function getDecodeIdAttribute(){

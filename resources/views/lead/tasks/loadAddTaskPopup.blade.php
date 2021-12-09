@@ -612,7 +612,7 @@
         }
     });
     function loadTimeEstimationUsersListMain() {
-        
+        console.log("resources/views/lead/tasks/loadAddTaskPopup.blade.php > loadTimeEstimationUsersListMain > 615");
         var array = [];
         $('input[name="linked_staff_checked_attend[]"]:checked').each(function (i) {
             array.push($(this).val());

@@ -863,7 +863,7 @@ class HomeController extends BaseController
         $SmartTimer->user_id = Auth::User()->id;
         $SmartTimer->save();
         session(["smart_timer_id" => $SmartTimer->id]);
-        return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id]);
+        return response()->json(["status" => "success", "smart_timer_id" => $SmartTimer->id, 'smart_timer_created_by' => Auth::user()->id]);
     }
 
     public function deleteTimer(Request $request){

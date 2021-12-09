@@ -10,7 +10,7 @@
             </tr>
             <tr>
                 <td><b>Select All</b></td>
-                <td><input name="client-share-all" id="SelectAllLeadShare" class="load-client-reminder"
+                <td sr-count="{{count($caseCllientSelection) .'-'.count($caseLinkeSavedAttendingContact)}}" ><input name="client-share-all" id="SelectAllLeadShare" class="load-client-reminder"
                 <?php if(count($caseCllientSelection)==count($caseLinkeSavedAttendingContact)){?> checked="checked" <?php } ?>
                 type="checkbox"></td>
             </tr>
@@ -103,14 +103,9 @@
                 <th class="sharing-list-header no-border w-75">Staff</th>
                 <th class="no-border">Assign</th>
             </tr>
-            <div style="display: none;">
-            {{count($caseLinkedStaffList)}} -- {{count($caseLinkedSavedAssigned)}}
-            {{ print_r($caseLinkedStaffList)}}
-            {{ print_r($caseLinkedSavedAssigned)}}
-            </div>
             <tr>
                 <td><b>Select All</b></td>
-                <td>
+                <td sr-count="{{count($caseLinkedStaffList) .' == '. count($caseLinkedSavedAssigned)}}">
                     <?php 
                     if(isset($from) && $from=="edit"){?>
                     <input name="client_attend_all" id="client_attend_all"
@@ -331,6 +326,7 @@
     });
 
     function loadTimeEstimationUsersListbkp(SU) {
+        console.log("resources/views/task/loadTaskRightSection.blade.php > loadTimeEstimationUsersListbkp > 334");
         var arrayList = [];
 
         $(".userwiseHours").each(function(){

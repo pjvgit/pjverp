@@ -437,7 +437,7 @@ class TaskController extends BaseController
   }
    public function saveLinkedStaffToTask($request,$task_id)
    {
-        CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+        CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->forceDelete();
         if(isset($request['linked_staff_checked_attend'])){
             for($i=0;$i<count($request['linked_staff_checked_attend']);$i++){
                 $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
@@ -450,7 +450,7 @@ class TaskController extends BaseController
                     $CaseTaskLinkedStaff->time_estimate_total="0";
                 }
                 $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
-            
+                $CaseTaskLinkedStaff->is_assign = "yes";
                 $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                 $CaseTaskLinkedStaff->save();
             }
@@ -737,7 +737,7 @@ class TaskController extends BaseController
         }else{
 
             $TaskMaster =Task::whereId($request->task_id)->with('taskLinkedContact')->first();
-           
+            
             // if(!isset($request->no_case_link)){
             //     if(isset($request->case_or_lead)) { $TaskMaster->case_id=$request->case_or_lead; } 
             //     $TaskMaster->no_case_link="yes";
@@ -887,6 +887,7 @@ class TaskController extends BaseController
                         $CaseTaskLinkedStaff->time_estimate_total="0";
                     }
                     $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                    $CaseTaskLinkedStaff->is_assign="yes";
                     $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                     $CaseTaskLinkedStaff->save();
                     $finalDataList[]=$CaseTaskLinkedStaff->id;
@@ -902,6 +903,7 @@ class TaskController extends BaseController
                             $CaseTaskLinkedStaff->time_estimate_total="0";
                         }
                         $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                        $CaseTaskLinkedStaff->is_assign="yes";
                         $CaseTaskLinkedStaff->updated_by=Auth::user()->id; 
                         $CaseTaskLinkedStaff->save();
                         $finalDataList[]=$CaseTaskLinkedStaffCheck->id;
@@ -909,7 +911,9 @@ class TaskController extends BaseController
                   
                 }
             }
-        }if(isset($request['linked_contact_checked_attend'])){
+        }
+        
+        if(isset($request['linked_contact_checked_attend'])){
             foreach($request['linked_contact_checked_attend'] as $k=>$v){
                 $CaseTaskLinkedStaff = CaseTaskLinkedStaff::where("user_id",$v)->where("task_id", $task_id)->count();
                 if($CaseTaskLinkedStaff=="0"){
@@ -941,7 +945,7 @@ class TaskController extends BaseController
             }
         }
         $pluckIds =CaseTaskLinkedStaff::select("*")->where("task_id", $task_id)->whereIn("id",$finalDataList)->get()->pluck("id");
-        CaseTaskLinkedStaff::where("task_id", $task_id)->whereNotIn("id",$pluckIds)->delete();
+        CaseTaskLinkedStaff::where("task_id", $task_id)->whereNotIn("id",$pluckIds)->forceDelete();
    }
 
 
@@ -1508,7 +1512,7 @@ class TaskController extends BaseController
   
       if(isset($task_id) && $task_id!=''){
      
-        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","no")->get()->pluck('user_id');
+        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->get()->pluck('user_id');
         $caseLinkedSavedAssigned= $caseLinkedSavedAssigned->toArray();
   
         $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","no")->where("task_linked_staff.is_assign","no")->where("task_linked_staff.task_id",$task_id)->get()->pluck('user_id');
@@ -1516,7 +1520,7 @@ class TaskController extends BaseController
         $from="edit";
 
 
-        $caseLinkeSavedAttendingContact = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->get()->pluck('user_id');
+        $caseLinkeSavedAttendingContact= CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","yes")->get()->pluck('user_id');
         $caseLinkeSavedAttendingContact= $caseLinkeSavedAttendingContact->toArray();
         
       }

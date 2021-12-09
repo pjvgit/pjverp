@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Sharing with a client</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <button class="close dismissLoadGrantAccessModal" type="button" aria-label="Close">
                     <span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -15,3 +15,11 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.dismissLoadGrantAccessModal').on('click', function() {
+            $('#loadGrantAccessModal').modal('hide');
+        });
+    });
+</script>

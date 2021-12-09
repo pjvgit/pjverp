@@ -13,6 +13,8 @@
                     $imageLink["email"]="activity_bill_email_shared.png";
                     $imageLink["view"]="activity_bill_viewed.png";
                     $imageLink["pay_delete"]="activity_ledger_deleted.png";
+                    $imageLink["link"]="activity_bill_updated.png";
+                    $imageLink["change"]="activity_bill_updated.png";
                     $image=$imageLink[$v->action];
                     ?>
                     @if(in_array($v->action,["add","update","delete","pay","refund","pay_delete"]))

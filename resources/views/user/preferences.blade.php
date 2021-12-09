@@ -51,7 +51,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                 if($eventCount == 0){
                                     echo "None";
                                 }
-                                }?>
+                                }else{echo "None";}?>
                             </span>
                             </div>
                         </div>
@@ -76,7 +76,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     if($taskCount == 0) {
                                         echo "None";
                                     }
-                                    }?>
+                                    }else{echo "None";}?>
                                 </span>
                             </div>
                         </div>

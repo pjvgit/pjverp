@@ -245,6 +245,7 @@
     });
 
     function loadTimeEstimationUsersList(SU) {
+        console.log("resources/views/lead/tasks/loadTaskRightSection.blade.php > loadTimeEstimationUsersList > 248");
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTimeEstimationUsersList",

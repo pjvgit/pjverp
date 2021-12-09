@@ -2187,7 +2187,7 @@ class LeadController extends BaseController
         }
         public function saveLinkedStaffToTask($request,$task_id)
         {
-            CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->delete();
+            CaseTaskLinkedStaff::where("task_id", $task_id)->where("created_by", Auth::user()->id)->forceDelete();
             if(isset($request['linked_staff_checked_attend'])){
                 for($i=0;$i<count($request['linked_staff_checked_attend']);$i++){
                         $CaseTaskLinkedStaff = new CaseTaskLinkedStaff;
@@ -2200,6 +2200,7 @@ class LeadController extends BaseController
                             $CaseTaskLinkedStaff->time_estimate_total="0";
                         }
                         $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                        $CaseTaskLinkedStaff->is_assign = "yes";
                     
                         $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                         $CaseTaskLinkedStaff->save();
@@ -2429,6 +2430,7 @@ class LeadController extends BaseController
                         $CaseTaskLinkedStaff->time_estimate_total="0";
                     }
                     $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                    $CaseTaskLinkedStaff->is_assign = "yes";
                     $CaseTaskLinkedStaff->created_by=Auth::user()->id; 
                     $CaseTaskLinkedStaff->save();
                     $finalDataList[]=$CaseTaskLinkedStaff->id;
@@ -2444,6 +2446,7 @@ class LeadController extends BaseController
                             $CaseTaskLinkedStaff->time_estimate_total="0";
                         }
                         $CaseTaskLinkedStaff->linked_or_not_with_case="yes";
+                        $CaseTaskLinkedStaff->is_assign = "yes";
                         $CaseTaskLinkedStaff->updated_by=Auth::user()->id; 
                         $CaseTaskLinkedStaff->save();
                         $finalDataList[]=$CaseTaskLinkedStaffCheck->id;
@@ -2453,7 +2456,7 @@ class LeadController extends BaseController
             }
         }
         $pluckIds =CaseTaskLinkedStaff::select("*")->where("task_id", $task_id)->whereIn("id",$finalDataList)->get()->pluck("id");
-        CaseTaskLinkedStaff::where("task_id", $task_id)->whereNotIn("id",$pluckIds)->delete();
+        CaseTaskLinkedStaff::where("task_id", $task_id)->whereNotIn("id",$pluckIds)->forceDelete();
    }
    public function loadTaskDetailPage(Request $request)
    {    

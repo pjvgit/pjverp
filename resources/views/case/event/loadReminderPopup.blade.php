@@ -14,7 +14,7 @@
                         <?php
                             foreach($eventReminderData as $rkey=>$rval){
                             ?>
-                            <div class="row form-group fieldGroup">
+                            <div class="form-group fieldGroup">
                                 <div class="">
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
@@ -39,7 +39,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                        </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                         <div class="col-4">
                                             <div>
                                                 <div class="">

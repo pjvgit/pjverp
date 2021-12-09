@@ -368,8 +368,7 @@
             </div>
         </div>
         <div class="col-4">
-            <?php 
-            if(Auth::User()->add_event_guide2=="0"){?>
+            <?php if(Auth::User()->add_event_guide2=="0"){ ?>
                 <div class="client-task-tip" id="add_event_guide2">
                     <div class="alert alert-info">
                         <a class="close closeGuider add_event_guide2">×</a>

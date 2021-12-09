@@ -66,14 +66,19 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {   
+    $(document).ready(function () {
+        // check if login user is checked or not for showing default reminder
+        <?php if(isset($from) && $from != "edit"){?>   
         $(".fieldGroup").empty();
+        <?php } ?>   
         $(".client_share_all").click(function () {
             $(".client_share_all_users").prop('checked', $(this).prop('checked'));
             $(".client_attend_all_users").prop('disabled', !$(this).prop('checked'));
             $(".client_attend_all_users").prop('checked', false);
             $('.client_attend_all').prop('checked', false);
 
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             $(".client_share_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
                     $('.reminder_user_type').each(function (j) {
@@ -86,6 +91,7 @@
                     }
                 }
             });
+            <?php } ?>   
         });
         $(".client_attend_all").click(function () {
             if ($("#client_share_all").prop('checked')) {
@@ -94,6 +100,8 @@
         });
         $(".client_share_all_users").click(function () {
             var id = $(this).attr('rowVal');
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             if(id == '{{auth::user()->id}}'){
                 $('.reminder_user_type').each(function (j) {
                     if($(this).val() == 'me'){
@@ -104,6 +112,7 @@
                     loadDefaultEventReminder();
                 }
             }
+            <?php } ?>   
             $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));

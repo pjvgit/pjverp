@@ -324,6 +324,8 @@
                                 $imageLink["unshare"]="activity_bill_unshared.png";
                                 $imageLink["email"]="activity_bill_email_shared.png";
                                 $imageLink["pay_delete"]="activity_ledger_deleted.png";
+                                $imageLink["link"]="activity_bill_updated.png";
+                                $imageLink["change"]="activity_bill_updated.png";
                                 $image=$imageLink[$v->action];
                             ?>
                             
@@ -862,6 +864,8 @@
                                     $imageLink["unshare"]="activity_bill_unshared.png";
                                     $imageLink["email"]="activity_bill_email_shared.png";
                                     $imageLink["pay_delete"]="activity_ledger_deleted.png";
+                                    $imageLink["link"]="activity_bill_updated.png";
+                                    $imageLink["change"]="activity_bill_updated.png";
                                     $image=$imageLink[$v->action];
                                 ?>
                                 

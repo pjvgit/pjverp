@@ -98,8 +98,9 @@
                 <th class="no-border">Attend</th>
             </tr>
             <tr>
+                
                 <td><b>Select All</b></td>
-                <td>
+                <td sr-count="{{ count(collect($caseLinkeSaved)->where('is_linked', 'yes')) .' = '. count($caseLinkedStaffList) }}">
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client_share_all" id="client_share_all"
                         <?php if(count($caseLinkeSaved)==count($caseLinkedStaffList)){?> checked="checked" <?php } ?>
@@ -111,7 +112,7 @@
                 <td>
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client-attend-all" id="client_attend_all"
-                        <?php if(count($caseLinkeSavedAttending) > 0 && count($caseLinkeSavedAttending)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkeSavedAttending) > 0 && count(collect($caseLinkeSavedAttending)->where('attending', 'yes'))==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>
@@ -168,7 +169,10 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        // check if login user is checked or not for showing default reminder
+        <?php if(isset($from) && $from != "edit"){?>
         $(".fieldGroup").empty();
+        <?php } ?>   
         $("[data-toggle=popover]").popover({
             html: true
         });
@@ -216,7 +220,8 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
-
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             $(".client_share_all_users").each(function (i) {
                 if($(this).val() == '{{auth::user()->id}}'){
                     $('.reminder_user_type').each(function (j) {
@@ -229,6 +234,7 @@
                     }
                 }
             });
+            <?php } ?>   
 
         });
         $("#client_attend_all").click(function () {
@@ -242,7 +248,8 @@
         });
         $(".client_share_all_users").click(function () {
             var id = $(this).attr('rowVal');
-            
+            // check if login user is checked or not for showing default reminder
+            <?php if(isset($from) && $from != "edit"){?>
             if(id == '{{auth::user()->id}}'){
                 $('.reminder_user_type').each(function (j) {
                     if($(this).val() == 'me'){
@@ -253,7 +260,7 @@
                     loadDefaultEventReminder();
                 }
             }
-            
+            <?php } ?>   
             $("#linked_staff_checked_attend_" + id).prop('disabled', !$(this).prop('checked'));
             if ($(this).prop('checked') == false) {
                 $("#linked_staff_checked_attend_" + id).prop('checked', $(this).prop('checked'));
@@ -356,6 +363,7 @@
     });
 
     function loadTimeEstimationUsersList(SU) {
+        console.log("resources/views/case/event/loadEventRightSection.blade.php > loadTimeEstimationUsersList > 359");
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTimeEstimationUsersList",

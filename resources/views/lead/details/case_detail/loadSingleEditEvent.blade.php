@@ -21,8 +21,12 @@
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8"><div id="showError" style="display:none"></div>
-                        <div class="alert alert-info alert-dismissible fade show" role="alert"><button type="button" class="close close-add-event-tip" aria-label="Close"><span aria-hidden="true">×</span></button><p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="https://help.mycase.com/s/article/Creating-a-New-Calendar-Event" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a></p></div>
-                        <div class="add-event-helper-tip px-2"></div>
+                    <?php if(Auth::User()->add_event_guide=="0"){?>   
+                        <div class="add-event-helper-tip px-2" id="add_event_guide">
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <a class="close add_event_guide">×</a>
+                        <p class="mb-0"><b>Get Started with Events:</b> Most events are linked to cases. To create events for your firm just check "This event is not linked to a case". After that you can choose whom to share it with and whether their attendance is required. You can also add a location, save your regularly used locations, or add an address to make getting directions easy.<br><a href="#" rel="noopener noreferrer" target="_blank"><u>Learn more about adding events.</u></a></p></div></div>
+                    <?php } ?>
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-3 col-form-label"></label>
                             <label for="inputEmail3" class="col-sm-8 col-form-label"></label>
@@ -383,7 +387,7 @@
                                     <?php
                                         foreach($eventReminderData as $rkey=>$rval){
                                         ?>
-                                        <div class="row form-group fieldGroup">
+                                        <div class="form-group fieldGroup">
                                             <div class="">
                                                 <div class="d-flex col-10 pl-0 align-items-center">
                                                     <div class="pl-0 col-3">
@@ -413,7 +417,7 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                    </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
+                                                    </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="{{$rval->reminer_number}}">
                                                     <div class="col-4">
                                                         <div>
                                                             <div class="">
@@ -472,7 +476,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div><input name="reminder_number[]" class="form-control col-2 reminder-number" value="1">
+                                    </div><input name="reminder_number[]" type="number" min="0" class="form-control col-2 reminder-number" value="1">
                                     <div class="col-4">
                                         <div>
                                             <div class="">

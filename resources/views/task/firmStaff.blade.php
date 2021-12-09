@@ -150,6 +150,7 @@
     }
 
     function loadTimeEstimationUsersList(SU) {
+        console.log("resources/views/task/firmStaff.blade.php > loadTimeEstimationUsersList > 153");
         var arrayList = [];
 
         $(".userwiseHours").each(function(){

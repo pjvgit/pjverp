@@ -218,6 +218,7 @@
         });
     });
     function loadTimeEstimationUsersList(SU) {
+        console.log("resources/views/lead/details/case_detail/loadCaseRightSection.blade.php > loadTimeEstimationUsersList > 221");
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadTimeEstimationUsersList",

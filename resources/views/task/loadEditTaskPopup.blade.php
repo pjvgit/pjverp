@@ -657,6 +657,7 @@
         }
     });
     function loadTimeEstimationUsersList(SU) {
+        console.log("resources/views/task/loadEditTaskPopup.blade.php > loadTimeEstimationUsersList > 660");
         var arrayList = [];
 
         $(".userwiseHours").each(function(){

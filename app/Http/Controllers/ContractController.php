@@ -787,13 +787,13 @@ class ContractController extends BaseController
                 $caseStaffData =  CaseStaff::where('user_id',$request->user_id)->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
-                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->assign_to], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$request->user_id)->get();
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
-                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->assign_to], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                     
@@ -863,13 +863,14 @@ class ContractController extends BaseController
                 $caseStaffData =  CaseStaff::where('user_id',$user_id)->withTrashed()->get();
                 if(count($caseStaffData) > 0){
                     foreach($caseStaffData as $k =>$v){
-                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $request->assign_to], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseStaff::updateOrCreate(['case_id' => $v->case_id, 'user_id' => $user_id], ['case_id' => $v->case_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                 $CaseTaskLinkedStaffData =  CaseTaskLinkedStaff::where('user_id',$user_id)->get();
+                
                 if(count($CaseTaskLinkedStaffData) > 0){
                     foreach($CaseTaskLinkedStaffData as $k =>$v){
-                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $request->assign_to], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
+                        CaseTaskLinkedStaff::updateOrCreate(['task_id' => $v->task_id, 'user_id' => $user_id], ['task_id' => $v->task_id, 'user_id' => $request->assign_to, 'created_by' => Auth::User()->id]);
                     }
                 }
                 // CaseStaff::where('user_id',$user_id)->update(['user_id'=>$request->assign_to]);
