@@ -1335,7 +1335,7 @@ if(!isset($addition)){ $addition=0;}
                     </div>
 
                     {{-- For Trust and Credit FUnds --}}
-                    @if(/* isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting->default_trust_and_credit_display_on_new_invoices != "dont show" && */ $case_id != "none")
+                    @if($case_id != "none")
                     <div class="apply-funds-container" id="apply-trust-and-credit-funds">
                         <div class="invoice_option_header clearfix">
                             <h3 class="invoice_header">
@@ -1367,6 +1367,9 @@ if(!isset($addition)){ $addition=0;}
                                                 <tbody>
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                         @if($citem->userAdditionalInfo->unallocate_trust_balance > 0)
+                                                            @php
+                                                                $tempinfo = $invoiceTempInfo->where('client_id', $citem->id)->where('account_type', 'trust')->where('trust_account_type', 'unallocate')->first();
+                                                            @endphp
                                                             <tr class="apply-funds-row">
                                                                 <td class="apply-funds-client">
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
@@ -1382,18 +1385,18 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.applied_amount') ?? '' }}" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->unallocate_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ ($tempinfo) ? $tempinfo->applied_amount : '' }}" name="trust[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->unallocate_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}" data-trust-type="unallocate" data-token-id="{{$adjustment_token}}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
-                                                                    <div>$<span class="remain-trust-balance">{{ number_format($citem->userAdditionalInfo->unallocate_trust_balance ?? 0.00, 2) }}</span></div>
+                                                                    <div>$<span class="remain-trust-balance">{{ ($tempinfo) ? number_format(($citem->userAdditionalInfo->unallocate_trust_balance - $tempinfo->applied_amount) ?? 0.00, 2) : '0.00' }}</span></div>
                                                                 </td>
                                                                 <td class="apply-funds-deposit-into">
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
-                                                                            <select class="form-control deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]">
+                                                                            <select class="form-control trust-deposit-into deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]" data-client-id="{{ $citem->id }}" data-trust-type="unallocate" data-token-id="{{$adjustment_token}}">
                                                                                 <option value="">Select the deposit into account</option>
-                                                                                <option value="operating account" {{ (old('trust.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
+                                                                                <option value="operating account" {{ ($tempinfo && $tempinfo->deposit_into) ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -1401,6 +1404,9 @@ if(!isset($addition)){ $addition=0;}
                                                             </tr>
                                                         @endif
                                                         @if($citem->pivot->allocated_trust_balance > 0)
+                                                            @php
+                                                                $tempinfo = $invoiceTempInfo->where('client_id', $citem->id)->where('account_type', 'trust')->where('trust_account_type', 'allocate')->first();
+                                                            @endphp
                                                             <tr class="apply-funds-row">
                                                                 <td class="apply-funds-client">
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
@@ -1420,19 +1426,19 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-trust-amt" value="{{ old('trust.'.$citem->id.'.allocate_applied_amount') ?? '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}">
+                                                                        <input class="form-control apply-trust-amt" value="{{ ($tempinfo) ? $tempinfo->applied_amount : '' }}" name="trust[{{$citem->id}}][allocate_applied_amount]" maxlength="17" data-max-amt="{{ $citem->pivot->allocated_trust_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}" data-trust-type="allocate" data-token-id="{{$adjustment_token}}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
-                                                                    <div>$<span class="remain-trust-balance">{{ number_format($citem->pivot->allocated_trust_balance ?? 0.00, 2) }}</span></div>
+                                                                    <div>$<span class="remain-trust-balance">{{ ($tempinfo) ? number_format(($citem->pivot->allocated_trust_balance - $tempinfo->applied_amount) ?? 0.00, 2) : '0.00' }}</span></div>
                                                                 </td>
                                                                 <td class="apply-funds-deposit-into">
                                                                     @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0)
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
-                                                                            <select class="form-control deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]">
+                                                                            <select class="form-control trust-deposit-into deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]" data-client-id="{{ $citem->id }}" data-trust-type="allocate" data-token-id="{{$adjustment_token}}">
                                                                                 <option value="">Select the deposit into account</option>
-                                                                                <option value="operating account" {{ (old('trust.deposite_into') == 'operating account') ? 'selected' :'' }}>Operating Account</option>
+                                                                                <option value="operating account" {{ ($tempinfo && $tempinfo->deposit_into) ? 'selected' :'' }}>Operating Account</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -1504,6 +1510,9 @@ if(!isset($addition)){ $addition=0;}
                                                 <tbody>
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
                                                         @if($citem->userAdditionalInfo->credit_account_balance > 0)
+                                                            @php
+                                                                $tempinfo = $invoiceTempInfo->where('client_id', $citem->id)->where('account_type', 'credit')->first();
+                                                            @endphp
                                                             <tr class="apply-funds-row">
                                                                 <td class="apply-funds-client">
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
@@ -1513,16 +1522,16 @@ if(!isset($addition)){ $addition=0;}
                                                                     <div>Credit (Operating Account)</div>
                                                                 </td>
                                                                 <td class="apply-funds-available-amount">
-                                                                    <div>$<span class="credit-balance">{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}</span> <span class="allocation-status"></span></div>
+                                                                    <div>$<span class="credit-balance">{{ number_format($citem->userAdditionalInfo->credit_account_balance ?? 0.00, 2) }}</span> <span class="allocation-status"></span></div>
                                                                 </td>
                                                                 <td class="apply-funds-amount-to-apply">
                                                                     <div class="amount-to-apply-field input-group-sm input-group">
                                                                         <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                        <input class="form-control apply-credit-amt" value="{{ old('credit.'.$citem->id.'.applied_amount') ?? '' }}" name="credit[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}">
+                                                                        <input class="form-control apply-credit-amt" value="{{ ($tempinfo) ? $tempinfo->applied_amount : ''}}" name="credit[{{$citem->id}}][applied_amount]" maxlength="17" data-max-amt="{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}" data-client-id="{{ $citem->id }}" data-token-id="{{$adjustment_token}}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="apply-funds-balance-after-application">
-                                                                    <div>$<span class="remain-credit-balance">{{ $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}</span></div>
+                                                                    <div>$<span class="remain-credit-balance">{{ ($tempinfo) ? number_format($citem->userAdditionalInfo->credit_account_balance - $tempinfo->applied_amount, 2) : $citem->userAdditionalInfo->credit_account_balance ?? 0.00 }}</span></div>
                                                                 </td>
                                                             </tr>
                                                         @endif
@@ -2078,6 +2087,7 @@ if(!isset($addition)){ $addition=0;}
                             <div id="showError2" style="display:none"></div>
                             @csrf
                             <input class="form-control" id="task_id" value="" name="task_id" type="hidden">
+                            <input class="form-control" value="{{ $adjustment_token }}" name="invoice_token" type="hidden">
                             <div class=" col-md-12">
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-12 col-form-label">

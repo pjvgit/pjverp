@@ -18,8 +18,7 @@
 
 <body class="text-left">
     <div class="loadscreen preloader"  style="display: none;">
-        <div class="loader"><img class="logo mb-3" src="{{asset('images/logo.png')}}" style="display: none"
-                alt="">
+        <div class="loader"><img class="logo mb-3" src="{{asset('images/logo.png')}}" style="display: none" alt="">
             <div class="loader-bubble loader-bubble-primary d-block"></div>
         </div>
     </div>
@@ -219,7 +218,7 @@
 {{-- <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script> --}}
 <script src="{{ asset('assets/js/plugins/jquery.smartWizard.min.js') }}"></script>
 {{-- <script src="{{ asset('assets/js/scripts/smart.wizard.script.min.js') }}"></script> --}}
-<script src="{{ asset('assets\plugins\creditcardvalidator\jquery.creditCardValidator.js') }}"></script>
+{{-- <script src="{{ asset('assets\plugins\creditcardvalidator\jquery.creditCardValidator.js') }}"></script> --}}
 <script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
 <script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
@@ -263,58 +262,7 @@ $(document).ready(function () {
 		}
 	});
 });
-var conektaSuccessResponseHandler = function (token) {
-    /* Inserta el token_id en la forma para que se envíe al servidor */
-    $("#conekta_token_id").val(token.id);
-    /* and submit */
-    $("#card_form").get(0).submit();
-};
-var conektaErrorResponseHandler = function (response) {
-    /* Conekta card erros */
-    if (response.message === "The cardholder name is invalid.") {
-        response.message = "Ingrese su nombre (utilice únicamente letras, guiones, espacios y comas)";
-    } else if (response.message === "The card number is invalid.") {
-        response.message = "Ingrese un número de tarjeta válido ";
-    } else if (response.message === "The CVC (security code) of the card is invalid.") {
-        response.message = "Introduzca un Código de seguridad de la tarjeta válido";
-    } else if (response.message === "The card has expired.") {
-        response.message = "Ingrese un fecha de vencimiento válida";
-    } else if (response.message === "The expiration month is invalid.") {
-        response.message = "Ingrese un fecha de vencimiento válida";
-    } else if (response.message === "A plan cannot contain spaces or special characters, only dashes, underscores and alphanumeric characters are allowed.") {
-        response.message = "Se les permite un plan no puede contener espacios o caracteres especiales, únicos guiones, guiones y caracteres alfanuméricos.";
-    } else if (response.message === "The token has already been used.") {
-        response.message = "El token ya se ha utilizado.";
-    } else if (response.message === "A plan cannot contain spaces or special characters, only dashes, underscores and alphanumeric characters are allowed.") {
-        response.message = "Un plan no puede contener espacios o caracteres especiales, solamente guiones, guiones y caracteres alfanuméricos son permitidos.";
-    } else {
-        //response.message = "";
-    }
-    $("#error-alert .error-text").text(response.message);
-    $("#error-alert").show();
-    $(".preloader").css("display", "none");
-};
 
-$("#card_form").submit(function (event) {
-    event.preventDefault();
-    $("#error-alert").hide();
-
-    if ($(this).valid()) {
-        $(".preloader").css("display", "inline-block");
-        var data = {
-        "card": {
-            "number": "4545454545454545",
-            "name": "Javier Pedreiro",
-            "exp_year": "2018",
-            "exp_month": "12",
-            "cvc": "13"
-        }
-        };
-        Conekta.token.create($(this)[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
-        // Conekta.token.create(data, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-    }
-    return false;
-});
 </script>
 </body>
 

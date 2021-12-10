@@ -239,7 +239,7 @@ $(document).on("change", ".nonbillable-check", function() {
     var id = $(this).val();
     var checkType = $(this).attr("data-check-type");
     var isCheck = "yes";
-    var token_id = $(this).attr("data-token_id");
+    var token_id = $(this).attr("data-token-id");
     if($(this).is(":checked")) {
         isCheck = "no";
     }
@@ -403,14 +403,25 @@ $(".apply-trust-amt").on("focusout", function() {
             $(this).val(totalAmt.toFixed(2));
             $(this).parents('tr').find(".remain-trust-balance").text("0.00");
         }
-        // $(this).parents('tr').find(".deposit-into-account").addClass("required");
         $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).addClass("required");
     } else {
         $(this).parents('tr').find(".remain-trust-balance").text(totalAmt.toFixed(2));
-        // $(this).parents('tr').find(".deposit-into-account").removeClass("required");
         $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).removeClass("required");
     }
     calculateAppliedTotalAmount();
+    var clientId = $(this).attr('data-client-id');
+    var caseId = $("#court_case_id").val();
+    var trustType = $(this).attr('data-trust-type');
+    var tokenId = $(this).attr("data-token-id");
+    var depositInto = $("[name='trust["+clientId+"][deposite_into]']").val();
+    $.ajax({
+        url: baseUrl+'/bills/invoices/save/temp/info',
+        type: 'GET',
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto},
+        success: function(data) {
+            console.log(data);
+        }
+    });
 });
 
 // Apply credit balance
@@ -430,6 +441,18 @@ $(".apply-credit-amt").on("focusout", function() {
         $(this).parents('tr').find(".remain-credit-balance").text(totalAmt.toFixed(2));
     }
     calculateAppliedTotalAmount();
+    var clientId = $(this).attr('data-client-id');
+    var caseId = $("#court_case_id").val();
+    var trustType = $(this).attr('data-trust-type');
+    var tokenId = $(this).attr("data-token-id");
+    $.ajax({
+        url: baseUrl+'/bills/invoices/save/temp/info',
+        type: 'GET',
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'credit', invoice_unique_id:tokenId},
+        success: function(data) {
+            console.log(data);
+        }
+    });
 });
 
 // Calculate trust/credit applied total amount
@@ -453,3 +476,21 @@ function calculateAppliedTotalAmount() {
     $(".total-to-apply-text").val(applied.toFixed(2));
     $(".invoice-total-amount").text('$'+$(".final_total").text());
 }
+
+// Change trust deposit into dropdown
+$(".trust-deposit-into").on("change", function() {
+    var clientId = $(this).attr('data-client-id');
+    var caseId = $("#court_case_id").val();
+    var trustType = $(this).attr('data-trust-type');
+    var tokenId = $(this).attr("data-token-id");
+    var depositInto = $(this).val();
+    var amt = $("[name='trust["+clientId+"][applied_amount]']").val();
+    $.ajax({
+        url: baseUrl+'/bills/invoices/save/temp/info',
+        type: 'GET',
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto},
+        success: function(data) {
+            console.log(data);
+        }
+    });
+})

@@ -17,6 +17,7 @@ use App\CaseStage,App\TempUserSelection;
 use App\InvoiceApplyTrustCreditFund;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceSetting;
+use App\InvoiceTempInfo;
 use App\Jobs\InvoiceReminderEmailJob;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
@@ -2702,11 +2703,26 @@ class BillingController extends BaseController
                 'bill_invoice_date' => $request->bill_invoice_date
             ];
             $customizSetting = getCustomizeSetting();
-            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting', 'arrSetting', 'customizSetting'));
+            $invoiceTempInfo = InvoiceTempInfo::where('invoice_unique_id', $request->token)->where('case_id', $request->court_case_id)->get();
+            return view('billing.invoices.new_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','maxInvoiceNumber','adjustment_token','from_date','bill_to_date','filterByDate','FlatFeeEntry', 'tempInvoiceToken', 'unpaidInvoices', 'invoiceSetting', 'arrSetting', 'customizSetting', 'invoiceTempInfo'));
         }else{
             return view('pages.404');
         }
     }
+
+    public function saveInvoiceTempInfo(Request $request)
+    {
+        // return $request->all();
+        InvoiceTempInfo::updateOrCreate([
+            'invoice_unique_id' => $request->invoice_unique_id,
+            'client_id' => $request->client_id,
+            'case_id' => $request->case_id,
+            'account_type' => $request->account_type,
+            'trust_account_type' => $request->trust_account_type,
+        ], $request->all());
+        return 'success';
+    }
+
     public function getCaseList(Request $request)
     {
             $client_id=$request->id;
@@ -4366,6 +4382,8 @@ class BillingController extends BaseController
                     }
                 }
             }
+
+            InvoiceTempInfo::where('invoice_unique_id', $request->adjustment_token)->where("case_id", $request->court_case_id)->delete();
 
             dbCommit();
             $decodedId=base64_encode($InvoiceSave->id);
@@ -10245,7 +10263,8 @@ class BillingController extends BaseController
     }
 
     //Installment managment (Maintain paid and unpaid status base on pay amount)
-    public function installmentManagement($paidAmt,$invoice_id){
+    // MOved this function to CreditAccountTrait
+    /* public function installmentManagement($paidAmt,$invoice_id){
         $invoice_installment=InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
         $arrayGrid=array();
         foreach($invoice_installment as $k=>$v){
@@ -10274,7 +10293,7 @@ class BillingController extends BaseController
                 $invoice_installment->save();
             }
         }
-    }
+    } */
     
      /********************** Payment Plans ******************/
 

@@ -3,6 +3,7 @@
 @section('main-content')
 <div class="app-container__content">
 	<section id="payables_view">
+        @component('client_portal.component.alert')@endcomponent
 		<h1 class="primary-heading">Unpaid Invoices &amp; Funds Requests</h1>
         <ul class="list-group">
             @if(count($invoices) || count($requestFunds))
@@ -68,13 +69,14 @@
 		</ul>
         
 		<h1 class="primary-heading">Billing History</h1>
-        @if(count($invoices) || count($requestFunds))
+        @if(count($forwardedInvoices) || count($requestFundsHistory))
             @forelse ($forwardedInvoices as $key => $item)
                 <ul class="list" id="paid_payables">
                     @if($item->status == "Paid")
                         <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
                             <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-8 col-md-10">
-                                <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span>
+                                {{-- <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span> --}}
+                                <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                                 <div class="list-row__body">
                                     <span class="list-row__header mt-0">${{ $item->total_amount_new }}</span><br>
                                     <span class="list-row__header-detail">{{ convertUTCToUserDate($item->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }} - Inv. #{{ $item->invoice_id }}</span>
@@ -89,7 +91,8 @@
                     @else
                         <li class="payable list-row no-gutters ">
                             <a href="{{ route('client/bills/detail', $item->decode_id) }}" class="col-8 col-md-10">
-                                <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span>
+                                {{-- <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span> --}}
+                                <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                                 <div class="list-row__body"><span class="list-row__header mt-0">${{ $item->due_amount_new }}</span><br>
                                     <span class="list-row__header-detail">{{ convertUTCToUserDate($item->invoice_date, auth()->user()->user_timezone ?? 'UTC')->format('M d, Y') }} - Inv. #{{ $item->invoice_id }}</span>
                                 </div>
@@ -108,7 +111,8 @@
                 <ul class="list" id="paid_payables">
                     <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
                         <a href="{{ route('client/bills/request/detail', base64_encode($item->id)) }}" class="col-8 col-md-10">
-                            <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span>
+                            {{-- <span class="payable-row__icon payable-row__icon-paid"><i class="fas fa-dollar-sign"></i></span> --}}
+                            <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                             <div class="list-row__body">
                                 <span class="list-row__header mt-0">${{ $item->amt_requested }}</span><br>
                                 <span class="list-row__header-detail">{{ $item->send_date_format }} - {{ $item->padding_id }}</span>

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\DepositIntoCreditHistory;
 use App\InvoiceHistory;
+use App\InvoiceInstallment;
 use App\InvoicePayment;
 use App\Invoices;
 use App\User;
@@ -170,6 +171,40 @@ trait CreditAccountTrait {
             'due_amount'=> ($invoice->total_amount - $remainPaidAmt),
             'status'=>$status,
         ])->save();
+    }
+
+    /**
+     * Update invoice installment status and paid amount
+     */
+    public function installmentManagement($paidAmt, $invoice_id) {
+        $invoice_installment=InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
+        $arrayGrid=array();
+        foreach($invoice_installment as $k=>$v){
+            $arrayGrid[$k]['id']=$v->id;
+            $arrayGrid[$k]['installment_amt']=$v->installment_amount;
+            $arrayGrid[$k]['total_paid_amt']=$v->adjustment;
+            $arrayGrid[$k]['now_pay']=$arrayGrid[$k]['installment_amt']-$arrayGrid[$k]['total_paid_amt'];
+            if($arrayGrid[$k]['now_pay']>=$paidAmt){
+                $arrayGrid[$k]['actual_pay_amt']=$paidAmt;
+            }else{
+                $arrayGrid[$k]['actual_pay_amt']=$arrayGrid[$k]['now_pay'];
+            }
+            $arrayGrid[$k]['available_bal']=$paidAmt-$arrayGrid[$k]['now_pay'];
+            $paidAmt-=$arrayGrid[$k]['now_pay'];
+        }
+        foreach($arrayGrid as $G=>$H){
+            if($H['actual_pay_amt']>=0){
+                DB::table('invoice_installment')->where("id",$H['id'])->update([
+                    'paid_date'=>date('Y-m-d h:i:s'),
+                    'adjustment'=>DB::raw('adjustment + ' . $H['actual_pay_amt'])
+                ]);  
+                $invoice_installment=InvoiceInstallment::find($H['id']);
+                if($invoice_installment['installment_amount']==$invoice_installment['adjustment']){
+                    $invoice_installment->status="paid";   
+                }
+                $invoice_installment->save();
+            }
+        }
     }
 }
  

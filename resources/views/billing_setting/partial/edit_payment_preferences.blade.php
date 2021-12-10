@@ -3,7 +3,7 @@
     <input type="hidden" name="setting_id" value="{{ @$paymentSetting->id }}">
     <div class="preference-section-title">Invoice Preferences</div>
     <div class="form-group row">
-        <div class="col-3 col-form-label"> Accept interest free Monthly Payments </div>
+        <div class="col-3 col-form-label">Accept Online Payments</div>
         <div class="col-9">
             <input name="is_accept_online_payment" type="hidden" value="no">
             <input type="checkbox" value="yes" name="is_accept_online_payment" id="is_accept_online_payment" @if(isset($paymentSetting) && $paymentSetting->is_accept_online_payment == 'yes') checked @endif>

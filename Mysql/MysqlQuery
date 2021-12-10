@@ -1,3 +1,25 @@
+------------------------------------ 10-DEC-2021 ------------------------------
+ALTER TABLE `invoice_online_payments`
+ADD `invoice_history_id` int(11) NULL COMMENT 'invoice_history > id' AFTER `conekta_payment_reference_id`;
+
+CREATE TABLE `invoice_temp_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `invoice_unique_id` varchar(255) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  `case_id` int(11) NOT NULL,
+  `account_type` varchar(255) NULL,
+  `trust_account_type` varchar(255) NULL,
+  `applied_amount` float(8,2) NULL DEFAULT '0',
+  `show_trust_account_history` varchar(255) NULL,
+  `show_credit_account_history` varchar(255) NULL,
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
+ALTER TABLE `invoice_temp_infos`
+ADD `deposit_into` varchar(255) NULL AFTER `applied_amount`;
 ------------------------------------ 09-DEC-2021 ------------------------------
 ALTER TABLE `users`
 ADD `conekta_customer_id` varchar(255) COLLATE 'latin1_swedish_ci' NULL AFTER `is_primary_account`;
