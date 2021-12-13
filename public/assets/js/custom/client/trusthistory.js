@@ -255,8 +255,17 @@ function RefundPopup(id) {
             url: baseUrl + "/contacts/clients/refundPopup", 
             data: {"user_id": $("#user_id").val(),'transaction_id':id},
             success: function (res) {
-                $("#RefundPopupArea").html(res);
-                $("#preloader").hide();
+                if(res.error && res.msg != '') {
+                    var errotHtml =
+                        '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><ul>';
+                    errotHtml += '<li>' + res.msg + '</li></ul></div>';
+                    $('#RefundPopupArea').html(errotHtml);
+                    $("#preloader").hide();
+                    return false;
+                } else {
+                    $("#RefundPopupArea").html(res);
+                    $("#preloader").hide();
+                }
             }
         })
     })

@@ -116,7 +116,7 @@ trait TrustAccountTrait {
         $invoiceHistory = InvoiceHistory::where("invoice_payment_id", $trustHistory->related_to_invoice_payment_id)->first();
         if($invoiceHistory) {
             $invoiceHistory->fill([
-                "status" => ($request->amount == $invoiceHistory->amount) ? 2 : 3,
+                "status" => ($request->amount == $invoiceHistory->amount) ? '2' : '3',
             ])->save();
         }
 
@@ -129,7 +129,7 @@ trait TrustAccountTrait {
             'deposit_into' => "Trust Account",
             'notes' => $request->notes,
             'status' => "4",
-            'refund_ref_id' => $invoiceHistory->id,
+            'refund_ref_id' => @$invoiceHistory->id,
             'invoice_payment_id' => $newInvPayment->id,
             'created_by' => $authUser->id,
         ]);        

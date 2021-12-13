@@ -1533,7 +1533,7 @@ class BillingController extends BaseController
         $invoice=$InvoiceData['total_amount'];
         $finalAmt=$invoice-$paid;
 
-        $userDataForDeposit=UsersAdditionalInfo::where("user_id",$request->contact_id)->first();
+        $userAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->contact_id)->first();
         if($request->is_case == "yes") {
             if($InvoiceData->is_lead_invoice == 'yes') {
                 $leadAdditionalInfo = LeadAdditionalInfo::where('user_id', $request->contact_id)->select("allocated_trust_balance")->first();
@@ -1543,7 +1543,7 @@ class BillingController extends BaseController
                 $account_balance = $CaseClientSelection['allocated_trust_balance'];
             }
         }else{
-            $account_balance = $userDataForDeposit['unallocate_trust_balance'];
+            $account_balance = $userAdditionalInfo['unallocate_trust_balance'];
         }
         // return $account_balance;
         $validator = \Validator::make($request->all(), [
@@ -1595,20 +1595,14 @@ class BillingController extends BaseController
                 // ->update(['trust_account_balance'=>$trustAccountAmount]);
                 if(isset($request->trust_account)){
                     UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
-                    $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+                    // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
                     // unallocate to selected user
-                    if($request->is_case == "") {
-                        // DB::table('users_additional_info')->where("user_id",$request->trust_account)->update([
-                        //     'trust_account_balance'=>($userDataForDeposit['trust_account_balance'] - $request->amount),
-                        // ]);
-                        
-                        // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
-                        
+                    if($request->is_case == "") {                        
                         $TrustInvoice=new TrustHistory;
                         $TrustInvoice->client_id=$request->trust_account;
                         $TrustInvoice->payment_method='Trust';
                         $TrustInvoice->amount_paid=$request->amount;
-                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->current_trust_balance=$userAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
                         $TrustInvoice->notes=$request->notes;
                         $TrustInvoice->fund_type='payment';
@@ -1635,7 +1629,7 @@ class BillingController extends BaseController
                         $TrustInvoice->client_id=$request->contact_id;
                         $TrustInvoice->payment_method='Trust';
                         $TrustInvoice->amount_paid=$request->amount;
-                        $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
+                        $TrustInvoice->current_trust_balance=$userAdditionalInfo->trust_account_balance;
                         $TrustInvoice->payment_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone);
                         $TrustInvoice->notes=$request->notes;
                         $TrustInvoice->fund_type='payment';
@@ -2718,7 +2712,7 @@ class BillingController extends BaseController
             'client_id' => $request->client_id,
             'case_id' => $request->case_id,
             'account_type' => $request->account_type,
-            'trust_account_type' => $request->trust_account_type,
+            'trust_account_type' => $request->trust_account_type ?? 'unallocate',
         ], $request->all());
         return 'success';
     }
@@ -5496,7 +5490,8 @@ class BillingController extends BaseController
             }
             $invoiceSetting = $findInvoice->invoice_setting;
             $invoiceDefaultSetting = getInvoiceSetting();
-            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting','bill_from_date','bill_to_date','filterByDate'));
+            $invoiceTempInfo = InvoiceTempInfo::where('invoice_unique_id', $request->token)->where('case_id', $case_id)->get();
+            return view('billing.invoices.edit_invoices',compact('ClientList','CompanyList','client_id','case_id','caseListByClient','caseMaster','TimeEntry','ExpenseEntry','InvoiceAdjustment','userData','UsersAdditionalInfo','getAllClientForSharing','adjustment_token','findInvoice','InvoiceInstallment','SharedInvoice','FlatFeeEntryForInvoice', 'unpaidInvoices', 'invoiceSetting', 'invoiceDefaultSetting','bill_from_date','bill_to_date','filterByDate', 'invoiceTempInfo'));
         }
     }
 
@@ -5940,6 +5935,9 @@ class BillingController extends BaseController
                     }
                 }
             }
+
+            // Delete invoice temp info table detail
+            InvoiceTempInfo::where('invoice_unique_id', $request->adjustment_token)->where("case_id", $InvoiceSave->case_id)->delete();
 
             $decodedId=base64_encode($InvoiceSave->id);
             return redirect('bills/invoices/view/'.$decodedId);
@@ -6614,6 +6612,11 @@ class BillingController extends BaseController
         $mt=$invoiceHistory->amount; 
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt,
+            'transaction_id' => [function ($attribute, $value, $fail) use($invoiceHistory) {
+                if (empty($invoiceHistory) || in_array($invoiceHistory->status, ['2','3'])) {
+                    $fail('This transaction cannot be refunded');
+                }
+            }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
         ]);
@@ -6841,7 +6844,7 @@ class BillingController extends BaseController
                         $this->updateNextPreviousCreditBalance($creditHistory->user_id);
                     }
                 }
-                $invoiceHistory->status = ($mt==$request['amount']) ? 2 : 3;
+                $invoiceHistory->status = ($mt==$request['amount']) ? '2' : '3';
                 $invoiceHistory->save();
 
                 $invoiceHistoryNew['invoice_id']=$findInvoice['id'];
@@ -6941,17 +6944,23 @@ class BillingController extends BaseController
     public function deletePaymentEntry(Request $request)
     {
         // return $request->all();
+        $PaymentMaster = InvoiceHistory::find($request->payment_id);
         $validator = \Validator::make($request->all(), [
-            'payment_id' => 'required|numeric'
+            'payment_id' => 'required|numeric',
+            'payment_id' => [function ($attribute, $value, $fail) use($PaymentMaster) {
+                if (empty($PaymentMaster) || in_array($PaymentMaster->status, ['2','3'])) {
+                    $fail('This transaction cannot be deleted');
+                }
+            }]
             
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
+            return 'else';
             try {
                 dbStart();
-                $PaymentMaster = InvoiceHistory::find($request->payment_id);
                 $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
                 if($PaymentMaster->payment_from == "trust" && in_array($PaymentMaster->pay_method, ["Trust", "Trust Refund"])){
                     // Update trust history
