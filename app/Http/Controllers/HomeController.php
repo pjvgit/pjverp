@@ -399,7 +399,7 @@ class HomeController extends BaseController
         ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
-        // ->whereIn("all_history.type", ["invoices", "lead_invoice"])
+        ->whereIn("all_history.type", ["invoices", "lead_invoice"])
         // ->whereIn("all_history.action", $authUserNotifyAction)
         ->orderBy('all_history.id','DESC');
         if($request->ajax() && $request->per_page != '')

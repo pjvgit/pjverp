@@ -1,8 +1,8 @@
 'use strict';
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends = Object.assign || function(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     $('#user_table').DataTable();
     $('#sales_table').DataTable();
@@ -32,8 +32,8 @@ $(document).ready(function () {
         }, {
             xAxis: { data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] }
         }));
-        $(window).on('resize', function () {
-            setTimeout(function () {
+        $(window).on('resize', function() {
+            setTimeout(function() {
                 echart4.resize();
             }, 500);
         });
@@ -67,8 +67,8 @@ $(document).ready(function () {
                 }]
             })]
         }));
-        $(window).on('resize', function () {
-            setTimeout(function () {
+        $(window).on('resize', function() {
+            setTimeout(function() {
                 echart5.resize();
             }, 500);
         });

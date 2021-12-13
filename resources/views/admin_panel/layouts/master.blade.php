@@ -13,18 +13,22 @@
         {{-- theme css --}}
         <link id="gull-theme" rel="stylesheet" href="{{  asset('assets/styles/css/themes/lite-purple.min.css')}}">
         <link rel="stylesheet" href="{{asset('assets/styles/vendor/perfect-scrollbar.css')}}">
+        <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
+        <link rel="stylesheet" href="{{asset('assets/styles/css/admin_custome.css')}}" />
         {{-- page specific css --}}
         @yield('page-css')
+        <script>
+            var baseUrl = '<?php echo URL('/');?>';
+            var loaderImage = "<img src='{{ asset('images/ajax_arrows.gif') }}'/>";
+            var imgBaseUrl = "{{ asset('') }}";
+        </script>
     </head>
 
 
     <body class="text-left">
         <!-- Pre Loader Strat  -->
         <div class='loadscreen' id="preloader">
-
             <div class="loader spinner-bubble spinner-bubble-primary">
-
-
             </div>
         </div>
         <!-- Pre Loader end  -->
@@ -35,8 +39,6 @@
         <div class="app-admin-wrap layout-sidebar-large clearfix">
             @include('admin_panel.layouts.header-menu')
             {{-- end of header menu --}}
-
-
 
             @include('admin_panel.layouts.sidebar')
             {{-- end of left sidebar --}}
@@ -51,12 +53,12 @@
             </div>
             <!-- ============ Body content End ============= -->
         </div>
+        <!-- ============ Search UI Start ============= -->
+        @include('admin_panel.layouts.search')
+        <!-- ============ Search UI End ============= -->
         <!--=============== End app-admin-wrap ================-->
 
         <!-- ============ Large Sidebar Layout End ============= -->
-
-
-
         {{-- common js --}}
         <script src="{{  asset('assets/js/common-bundle-script.js')}}"></script>
         {{-- page specific javascript --}}
@@ -64,21 +66,17 @@
 
         {{-- theme javascript --}}
         {{-- <script src="{{mix('assets/js/es5/script.js')}}"></script> --}}
-        <script src="{{asset('assets/js/script.js')}}"></script>
-
-
-        
+        <script src="{{asset('assets/js/script.js')}}"></script>        
         <script src="{{asset('assets/js/sidebar.large.script.js')}}"></script>
-
-
-
-
         <script src="{{asset('assets/js/customizer.script.js')}}"></script>
-
         {{-- laravel js --}}
         {{-- <script src="{{mix('assets/js/laravel/app.js')}}"></script> --}}
-
         @yield('bottom-js')
+        <script>
+            $(".search-bar input").on("click", function(){
+                $('body').css('overflow', 'hidden');
+                $('.search-ui').css('overflow', 'auto');
+            });
+        </script>
     </body>
-
 </html>

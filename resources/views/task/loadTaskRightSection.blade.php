@@ -51,7 +51,7 @@
     <?php } ?>
     </div>
 </div>
-<button type="button" class="btn btn-link" bladeName="resources/views/task/loadTaskRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
+<button type="button" class="btn btn-link" id="HideShowNonlink">Include staff member not linked to this case</button>
 <div class="sharing-table staff-table-nonlinked" @if(count($caseNonLinkedAssigned) == 0) style="display:none;" @endif>
     <div class="table-responsive">
         <table class="table table-lg" id="CaseNoneLinkedStaffSection">
@@ -103,6 +103,7 @@
                 <th class="sharing-list-header no-border w-75">Staff</th>
                 <th class="no-border">Assign</th>
             </tr>
+            
             <tr>
                 <td><b>Select All</b></td>
                 <td sr-count="{{count($caseLinkedStaffList) .' == '. count($caseLinkedSavedAssigned)}}">

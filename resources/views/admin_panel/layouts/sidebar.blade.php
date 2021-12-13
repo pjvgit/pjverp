@@ -2,7 +2,7 @@
     <div class="sidebar-left open rtl-ps-none" data-perfect-scrollbar data-suppress-scroll-x="true">
         <ul class="navigation-left">
             <li class="nav-item {{ (Route::currentRouteName() == 'admin/dashboard') ? 'active' : '' }}">
-                <a class="nav-item-hold" href="{{ route('dashboard') }}">
+                <a class="nav-item-hold" href="{{ route('admin/dashboard') }}">
                     <i class="nav-icon i-Bar-Chart"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
@@ -10,26 +10,26 @@
             </li>
             <li class="nav-item {{ request()->is('uikits/*') ? 'active' : '' }}" data-item="uikits">
                 <a class="nav-item-hold" href="#">
-                    <i class="nav-icon i-Library"></i>
+                    <i class="nav-icon i-Find-User"></i>
                     <span class="nav-text">UI kits</span>
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('extrakits/*') ? 'active' : '' }}" data-item="extrakits">
+            <li class="nav-item {{ request()->is('extrakits/*') ? 'active' : '' }} m2" data-item="extrakits">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-Suitcase"></i>
                     <span class="nav-text">Extra kits</span>
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('apps/*') ? 'active' : '' }}" data-item="apps">
+            <li class="nav-item {{ request()->is('apps/*') ? 'active' : '' }} m2" data-item="apps">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-Computer-Secure"></i>
                     <span class="nav-text">Apps</span>
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('forms/*') ? 'active' : '' }}" data-item="forms">
+            <li class="nav-item {{ request()->is('forms/*') ? 'active' : '' }} m2" data-item="forms">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-File-Clipboard-File--Text"></i>
                     <span class="nav-text">Forms</span>
@@ -37,7 +37,7 @@
                 <div class="triangle"></div>
             </li>
 
-            <li class="nav-item {{ request()->is('widgets/*') ? 'active' : '' }}" data-item="widgets">
+            <li class="nav-item {{ request()->is('widgets/*') ? 'active' : '' }} m2" data-item="widgets">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-Windows-2"></i>
                     <span class="nav-text">widgets</span>
@@ -45,7 +45,7 @@
                 <div class="triangle"></div>
             </li>
 
-            <li class="nav-item {{ request()->is('charts/*') ? 'active' : '' }}" data-item="charts">
+            <li class="nav-item {{ request()->is('charts/*') ? 'active' : '' }} m2" data-item="charts">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-File-Clipboard-File--Text"></i>
                     <span class="nav-text">Charts</span>
@@ -60,21 +60,21 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('sessions/*') ? 'active' : '' }}" data-item="sessions">
+            <li class="nav-item {{ request()->is('sessions/*') ? 'active' : '' }} m2" data-item="sessions">
                 <a class="nav-item-hold" href="/test.html">
                     <i class="nav-icon i-Administrator"></i>
                     <span class="nav-text">Sessions</span>
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('others/*') ? 'active' : '' }}" data-item="others">
+            <li class="nav-item {{ request()->is('others/*') ? 'active' : '' }} m2" data-item="others">
                 <a class="nav-item-hold" href="">
                     <i class="nav-icon i-Double-Tap"></i>
                     <span class="nav-text">Pages</span>
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item">
+            <li class="nav-item m2">
                 <a class="nav-item-hold" href="http://demos.ui-lib.com/gull-html-doc/" target="_blank">
                     <i class="nav-icon i-Safe-Box1"></i>
                     <span class="nav-text">Doc</span>
