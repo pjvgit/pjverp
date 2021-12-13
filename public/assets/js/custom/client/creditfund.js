@@ -75,8 +75,17 @@ function RefundCreditPopup(id) {
             url: baseUrl + "/contacts/clients/credit/refundPopup", 
             data: {"user_id": clientId,'transaction_id':id},
             success: function (res) {
+                if(res.error && res.msg != '') {
+                    var errotHtml =
+                        '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><ul>';
+                    errotHtml += '<li>' + res.msg + '</li></ul></div>';
+                    $('#RefundPopupArea').html(errotHtml);
+                    $("#preloader").hide();
+                    return false;
+                } else {
                 $("#RefundPopupArea").html(res);
                 $("#preloader").hide();
+                }
             }
         })
     })
@@ -84,6 +93,7 @@ function RefundCreditPopup(id) {
 
 // For delete credit fund
 function deleteCreditEntry(id) {
+    $("#deleteCreditHistoryEntry .showError").html('');
     $("#deleteCreditHistoryEntry").modal("show");
     $("#delete_credit_id").val(id);
 }
@@ -117,15 +127,15 @@ $('#deleteCreditHistoryEntryForm').submit(function (e) {
         success: function (res) {
                 beforeLoader();
             if (res.errors != '') {
-                $('.showError').html('');
                 var errotHtml =
                     '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
                 $.each(res.errors, function (key, value) {
                     errotHtml += '<li>' + value + '</li>';
                 });
                 errotHtml += '</ul></div>';
-                $('.showError').append(errotHtml);
+                $('.showError').html(errotHtml);
                 $('.showError').show();
+                $('.showError').delay(5000).fadeOut('slow');
                 afterLoader();
                 return false;
             } else {

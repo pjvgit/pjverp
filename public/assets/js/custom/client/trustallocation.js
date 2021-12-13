@@ -98,6 +98,7 @@ $(document).on("click", ".confirm-btn", function() {
                             containerId: "toast-top-full-width"
                         });
                         trustAllocationList();
+                        // window.location.reload();
                     }
                 }
             }

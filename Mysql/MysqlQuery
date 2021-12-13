@@ -1,3 +1,8 @@
+------------------------------------ 13-DEC-2021 ------------------------------
+ALTER TABLE `invoice_temp_infos`
+CHANGE `show_trust_account_history` `show_account_history` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `deposit_into`,
+DROP `show_credit_account_history`;
+
 ------------------------------------ 10-DEC-2021 ------------------------------
 ALTER TABLE `invoice_online_payments`
 ADD `invoice_history_id` int(11) NULL COMMENT 'invoice_history > id' AFTER `conekta_payment_reference_id`;

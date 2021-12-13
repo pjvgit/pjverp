@@ -141,10 +141,8 @@ class CaseController extends BaseController
         ///Load case base on user type
         // If user type is parent then load all child and own case
         // If user type is staff then load onw case only. 
-        if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $case = $case->whereIn("case_master.created_by",$getChildUsers);
+        if(auth()->user()->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $case = $case->where('firm_id', auth()->user()->firm_name);
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$childUSersCase);

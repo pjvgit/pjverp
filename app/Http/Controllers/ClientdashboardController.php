@@ -1270,7 +1270,11 @@ class ClientdashboardController extends BaseController
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
         $TrustHistory=TrustHistory::find($request->transaction_id);
-        return view('client_dashboard.billing.refundEntry',compact('userData','UsersAdditionalInfo','TrustHistory'));     
+        if($TrustHistory) {
+            return view('client_dashboard.billing.refundEntry',compact('userData','UsersAdditionalInfo','TrustHistory'));   
+        } else {
+            return response()->json(['error' => true, 'msg' => 'An error occurred. Please try later.']);
+        }  
         exit;    
     } 
     public function saveRefundPopup(Request $request)
@@ -1295,6 +1299,11 @@ class ClientdashboardController extends BaseController
         // return $lessAmount;
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt.'|lte:'.$lessAmount,
+            'transaction_id' => [function ($attribute, $value, $fail) use($GetAmount) {
+                if (empty($GetAmount) || $GetAmount->is_refunded == 'yes') {
+                    $fail('This transaction cannot be refunded');
+                }
+            }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
             'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
@@ -1394,16 +1403,20 @@ class ClientdashboardController extends BaseController
 
     public function deletePaymentEntry(Request $request)
     {
-        
+        $TrustInvoice=TrustHistory::find($request->payment_id);
         $validator = \Validator::make($request->all(), [
             'payment_id' => 'required|numeric',
+            'payment_id' => [function ($attribute, $value, $fail) use($TrustInvoice) {
+                if (empty($TrustInvoice) || $TrustInvoice->is_refunded == 'yes') {
+                    $fail('This transaction cannot be deleted');
+                }
+            }]
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             dbStart();
-            $TrustInvoice=TrustHistory::find($request->payment_id);
             if($TrustInvoice->fund_type=="refund_deposit"){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->increment('trust_account_balance', $TrustInvoice->refund_amount);
 
@@ -1502,7 +1515,7 @@ class ClientdashboardController extends BaseController
             if($updateBalaance['trust_account_balance']<=0){
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
-
+            // Delete invoice history/invoice payment records, update invoice amount nd status
             if($TrustInvoice->fund_type == "payment" || $TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit" || $TrustInvoice->fund_type == "payment deposit") {
                 $this->deleteInvoicePaymentHistoryTrust($TrustInvoice->id);
             }
@@ -3749,9 +3762,13 @@ class ClientdashboardController extends BaseController
     public function refundCreditPopup(Request $request)
     {
         $creditHistory = DepositIntoCreditHistory::find($request->transaction_id);
-        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id ?? $creditHistory->user_id);
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id ?? $creditHistory->user_id)->first();
-        return view('client_dashboard.billing.refund_credit_fund',compact('userData','UsersAdditionalInfo','creditHistory'));   
+        if($creditHistory) {
+            $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id ?? $creditHistory->user_id);
+            $UsersAdditionalInfo=UsersAdditionalInfo::select("credit_account_balance")->where("user_id",$request->user_id ?? $creditHistory->user_id)->first();
+            return view('client_dashboard.billing.refund_credit_fund',compact('userData','UsersAdditionalInfo','creditHistory'));  
+        } else {
+            return response()->json(['error' => true, 'msg' => 'An error occurred. Please try later.']);
+        } 
     } 
     /**
      * Save refunded amount of credit fund
@@ -3765,6 +3782,11 @@ class ClientdashboardController extends BaseController
         
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$creditHistory->deposit_amount.'|lte:'.$UsersAdditionalInfo->credit_account_balance,
+            'transaction_id' => [function ($attribute, $value, $fail) use($creditHistory) {
+                if (empty($creditHistory) || $creditHistory->is_refunded == 'yes') {
+                    $fail('This transaction cannot be refunded');
+                }
+            }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
             'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
@@ -3847,8 +3869,14 @@ class ClientdashboardController extends BaseController
     public function deleteCreditHistoryEntry(Request $request)
     {
         // return $request->all();
+        $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
         $validator = \Validator::make($request->all(), [
             'delete_credit_id' => 'required|numeric',
+            'delete_credit_id' => [function ($attribute, $value, $fail) use($creditHistory) {
+                if (empty($creditHistory) || $creditHistory->is_refunded == 'yes') {
+                    $fail('This transaction cannot be deleted');
+                }
+            }]
         ]);
         if ($validator->fails())
         {
@@ -3856,7 +3884,6 @@ class ClientdashboardController extends BaseController
         }else{
             try {
                 dbStart();
-                $creditHistory = DepositIntoCreditHistory::find($request->delete_credit_id);
                 if($creditHistory->payment_type == "refund deposit") {
                     DB::table('users_additional_info')->where('user_id',$creditHistory->user_id)->increment('credit_account_balance', $creditHistory->deposit_amount);
 

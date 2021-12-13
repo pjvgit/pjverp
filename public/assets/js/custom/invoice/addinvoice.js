@@ -414,10 +414,11 @@ $(".apply-trust-amt").on("focusout", function() {
     var trustType = $(this).attr('data-trust-type');
     var tokenId = $(this).attr("data-token-id");
     var depositInto = $("[name='trust["+clientId+"][deposite_into]']").val();
+    var showHistory = $("[name='trust["+clientId+"][show_trust_account_history]']").val();
     $.ajax({
         url: baseUrl+'/bills/invoices/save/temp/info',
         type: 'GET',
-        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto},
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto, show_account_history:showHistory},
         success: function(data) {
             console.log(data);
         }
@@ -445,10 +446,11 @@ $(".apply-credit-amt").on("focusout", function() {
     var caseId = $("#court_case_id").val();
     var trustType = $(this).attr('data-trust-type');
     var tokenId = $(this).attr("data-token-id");
+    var showHistory = $("[name='credit["+clientId+"][show_trust_account_history]']").val();
     $.ajax({
         url: baseUrl+'/bills/invoices/save/temp/info',
         type: 'GET',
-        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'credit', invoice_unique_id:tokenId},
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'credit', invoice_unique_id:tokenId, show_account_history:showHistory},
         success: function(data) {
             console.log(data);
         }
@@ -485,10 +487,27 @@ $(".trust-deposit-into").on("change", function() {
     var tokenId = $(this).attr("data-token-id");
     var depositInto = $(this).val();
     var amt = $("[name='trust["+clientId+"][applied_amount]']").val();
+    var showHistory = $("[name='trust["+clientId+"][show_trust_account_history]']").val();
     $.ajax({
         url: baseUrl+'/bills/invoices/save/temp/info',
         type: 'GET',
-        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto},
+        data: {client_id:clientId, case_id:caseId, applied_amount:amt, account_type:'trust', trust_account_type:trustType, invoice_unique_id:tokenId, deposit_into:depositInto, show_account_history:showHistory},
+        success: function(data) {
+            console.log(data);
+        }
+    });
+});
+// Trust/Credit account history dropdown changes
+$(".trust-history-dd, .credit-history-dd").on("change", function() {
+    var clientId = $(this).attr('data-client-id');
+    var caseId = $("#court_case_id").val();
+    var tokenId = $(this).attr("data-token-id");
+    var showHistory = $(this).val();
+    var accountType = $(this).attr('data-account-type');
+    $.ajax({
+        url: baseUrl+'/bills/invoices/save/temp/info',
+        type: 'GET',
+        data: {client_id:clientId, case_id:caseId, account_type:accountType, invoice_unique_id:tokenId, show_account_history:showHistory},
         success: function(data) {
             console.log(data);
         }

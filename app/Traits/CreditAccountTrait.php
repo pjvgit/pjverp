@@ -90,7 +90,7 @@ trait CreditAccountTrait {
         $invoiceHistory = InvoiceHistory::where("invoice_payment_id", $creditHistory->related_to_invoice_payment_id)->first();
         if($invoiceHistory) {
             $invoiceHistory->fill([
-                "status" => ($request->amount == $invoiceHistory->amount) ? 2 : 3,
+                "status" => ($request->amount == $invoiceHistory->amount) ? '2' : '3',
             ])->save();
         }
 

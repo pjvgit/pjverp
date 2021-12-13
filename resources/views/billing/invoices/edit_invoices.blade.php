@@ -1392,15 +1392,18 @@ $expenseTime=0;$expenseAmount=0;
                                                         $appliedTrustClient = $appliedTrustFund->pluck("show_trust_account_history", "client_id")->toArray();
                                                     @endphp
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    @php
+                                                        $tempinfo = $invoiceTempInfo->where('client_id', $citem->id)->where('account_type', 'trust')->where('trust_account_type', 'unallocate')->first();
+                                                    @endphp
                                                     <tr class="account-history-config-row">
                                                         <td class="account-history-display-setting">
                                                             <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
                                                             <div>{{ $citem->full_name }}</div>
                                                             <div class="row form-group">
                                                                 <div class="col-12 col-sm-12">
-                                                                    <select class="custom-select select2Dropdown" name="trust[{{ $citem->id }}][show_trust_account_history]">
+                                                                    <select class="custom-select select2Dropdown trust-history-dd" name="trust[{{ $citem->id }}][show_trust_account_history]" data-client-id="{{ $citem->id }}" data-account-type="trust" data-token-id="{{$adjustment_token}}">
                                                                         @forelse (trustAccountHistoryList() as $skey => $sitem)    
-                                                                        <option value="{{ $skey }}" {{ (isset($appliedTrustClient) && array_key_exists($citem->id, $appliedTrustClient) && $skey == $appliedTrustClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
+                                                                        <option value="{{ $skey }}" {{ ((isset($appliedTrustClient) && array_key_exists($citem->id, $appliedTrustClient) && $skey == $appliedTrustClient[$citem->id])  || ($tempinfo && $tempinfo->show_account_history == $skey)) ? "selected" : "" }}>{{ $sitem }}</option>
                                                                         @empty
                                                                         @endforelse
                                                                     </select>
@@ -1465,15 +1468,18 @@ $expenseTime=0;$expenseAmount=0;
                                                         $appliedCreditClient = $appliedCreditFund->pluck("show_credit_account_history", "client_id")->toArray();
                                                     @endphp
                                                     @forelse ($caseMaster->caseAllClient as $ckey => $citem)
+                                                    @php
+                                                        $tempinfo = $invoiceTempInfo->where('client_id', $citem->id)->where('account_type', 'credit')->first();
+                                                    @endphp
                                                     <tr class="account-history-config-row">
                                                         <td class="account-history-display-setting">
                                                             <input type="hidden" name="credit[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
                                                             <div>{{ $citem->full_name }}</div>
                                                             <div class="row form-group">
                                                                 <div class="col-12 col-sm-12">
-                                                                    <select class="custom-select select2Dropdown" name="credit[{{ $citem->id }}][show_credit_account_history]">
+                                                                    <select class="custom-select select2Dropdown trust-history-dd" name="credit[{{ $citem->id }}][show_credit_account_history]" data-client-id="{{ $citem->id }}" data-account-type="credit" data-token-id="{{$adjustment_token}}">
                                                                         @forelse (creditAccountHistoryList() as $skey => $sitem)    
-                                                                        <option value="{{ $skey }}" {{ (isset($appliedCreditClient) && array_key_exists($citem->id, $appliedCreditClient) && $skey == $appliedCreditClient[$citem->id]) ? "selected" : "" }}>{{ $sitem }}</option>
+                                                                        <option value="{{ $skey }}" {{ ((isset($appliedCreditClient) && array_key_exists($citem->id, $appliedCreditClient) && $skey == $appliedCreditClient[$citem->id]) || ($tempinfo && $tempinfo->show_account_history == $skey)) ? "selected" : "" }}>{{ $sitem }}</option>
                                                                         @empty
                                                                         @endforelse
                                                                     </select>
