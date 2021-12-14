@@ -30,6 +30,7 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::get("/", "DashboardController@index")->name('admin/dashboard');
     Route::get("/dashboard", "DashboardController@index")->name('admin/dashboard');
     Route::post("/searchUsers", "DashboardController@searchUsers")->name('admin/searchUsers');
-    Route::get("/userlist", "UsersController@index")->name('admin/userlist');
-    Route::get("/userinfo/{?id}", "UsersController@userInfo")->name('admin/userInfo');
+    Route::get("/userlist", "UserController@index")->name('admin/userlist');
+    Route::get("/userinfo/{id}", "UserController@userInfo")->name('admin/userinfo');
+    Route::get("/loadusers", "UserController@loadUsers")->name('admin/loadusers');
 });

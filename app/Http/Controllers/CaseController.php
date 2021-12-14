@@ -5133,6 +5133,7 @@ class CaseController extends BaseController
                     $attend = "yes";
                 }
                 $CaseEventLinkedStaff->is_linked='yes';
+                $CaseEventLinkedStaff->is_staff='yes';
                 $CaseEventLinkedStaff->attending=$attend;
                 $CaseEventLinkedStaff->comment_read_at = $lastCommentReadAt;
                 $CaseEventLinkedStaff->created_by=Auth::user()->id; 
@@ -5157,8 +5158,7 @@ class CaseController extends BaseController
                     $attend="yes";
                 }else{
                     $attend="no";
-                }
-                
+                }                
                 $CaseEventLinkedStaff->is_linked='no';
                 $CaseEventLinkedStaff->attending=$attend;
                 $CaseEventLinkedStaff->created_by=Auth::user()->id; 
@@ -5472,8 +5472,8 @@ class CaseController extends BaseController
 
     public function loadEventRightSection(Request $request)
     {       
-        $caseLinkeSaved=array();
-        $caseLinkeSavedAttending=array();
+        $caseLinkeSaved=$caseNonLinkeSaved=array();
+        $caseLinkeSavedAttending=$caseNonLinkeSavedAttending=array();
         $case_id=$request->case_id;
         $event_id=$request->event_id;
         $nonLinkedSaved=[];
@@ -5491,26 +5491,27 @@ class CaseController extends BaseController
         $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get();
       
         if(isset($request->event_id) && $request->event_id!=''){
-            $caseLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","yes")->get()->pluck('user_id');
+            $caseLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","yes")->where("is_staff","yes")->get()->pluck('user_id');
             $caseLinkeSaved= $caseLinkeSaved->toArray();
-
-            $caseLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where('attending','yes')->get()->pluck('user_id');
+            
+            $caseLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where('attending','yes')->where("is_staff","yes")->get()->pluck('user_id');
             $caseLinkeSavedAttending= $caseLinkeSavedAttending->toArray();
+
+            $caseNonLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","no")->where("is_staff","no")->get()->pluck('user_id');
+            $caseNonLinkeSaved= $caseNonLinkeSaved->toArray();
+
+            $caseNonLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where('attending','no')->where("is_staff","no")->get()->pluck('user_id');
+            $caseNonLinkeSavedAttending= $caseNonLinkeSavedAttending->toArray();
 
             $caseLinkeSavedAttendingContact = CaseEventLinkedContactLead::select("case_event_linked_contact_lead.contact_id")->where("case_event_linked_contact_lead.event_id",$request->event_id)->where('attending','yes')->get()->pluck('contact_id');
             $caseLinkeSavedAttendingContact= $caseLinkeSavedAttendingContact->toArray();
 
             $caseLinkeSavedInviteContact = CaseEventLinkedContactLead::select("case_event_linked_contact_lead.contact_id")->where("case_event_linked_contact_lead.event_id",$request->event_id)->where('invite','yes')->get()->pluck('contact_id');
-            $caseLinkeSavedInviteContact= $caseLinkeSavedInviteContact->toArray();
-
-
-           
+            $caseLinkeSavedInviteContact= $caseLinkeSavedInviteContact->toArray();           
             $from="edit";
         }
-          
-        
        
-        return view('case.event.loadEventRightSection',compact('caseCllientSelection','loadFirmUser','case_id','caseLinkedStaffList','caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingContact','caseLinkeSavedInviteContact'));     
+        return view('case.event.loadEventRightSection',compact('caseCllientSelection','loadFirmUser','case_id','caseLinkedStaffList','caseLinkeSaved','caseLinkeSavedAttending','from','caseLinkeSavedAttendingContact','caseLinkeSavedInviteContact','caseNonLinkeSavedAttending','caseNonLinkeSaved'));     
         exit;    
    }
    public function loadLeadRightSection(Request $request)

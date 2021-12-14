@@ -1,3 +1,7 @@
+------------------------------------ 14-DEC-2021 ------------------------------
+ALTER TABLE `case_event_linked_staff`
+ADD `is_staff` enum('yes','no') NULL DEFAULT 'no' AFTER `user_id`;
+
 ------------------------------------ 13-DEC-2021 ------------------------------
 ALTER TABLE `invoice_temp_infos`
 CHANGE `show_trust_account_history` `show_account_history` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `deposit_into`,

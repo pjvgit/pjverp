@@ -51,7 +51,7 @@
 </div>
 
 <button type="button" class="btn btn-link" bladeName="resources/views/case/event/loadEventRightSection.blade.php" id="HideShowNonlink">Include staff member not linked to this case</button>
-<div class="sharing-table staff-table-nonlinked" @if(count($caseLinkeSaved) == 0) style="display:none;" @endif>
+<div class="sharing-table staff-table-nonlinked" @if(count($caseNonLinkeSaved) == 0) style="display:none;" @endif>
     <div class="table-responsive">
         <table class="table table-lg" id="CaseNoneLinkedStaffSection">
             <tr class="no-border" style="background-color:#FBFBFC;">
@@ -68,13 +68,13 @@
                     <td>
                         <label class="mb-0">
                             <input data-email-present="false" rowVal="{{$val->id}}" value="{{$val->id}}"
-                            <?php if(in_array($val->id,$caseLinkeSaved)){ ?> checked="checked" <?php } ?>
+                            <?php if(in_array($val->id,$caseNonLinkeSaved)){ ?> checked="checked" <?php } ?>
                                 name="share_checkbox_nonlinked[]" id="share_checkbox_nonlinked_{{$val->id}}" type="checkbox"
                                 class="client-login-not-enabled handler-attached share_checkbox_nonlinked"></label>
                     </td>
                     <td>
                         <label class="mb-0"><input name="attend_checkbox_nonlinked[]"  value="{{$val->id}}"
-                            <?php if(in_array($val->id,$caseLinkeSavedAttending)){ ?> checked="checked" <?php } else { ?> disabled="disabled" <?php } ?>
+                            <?php if(in_array($val->id,$caseNonLinkeSavedAttending)){ ?> checked="checked" <?php } else { ?> disabled="disabled" <?php } ?>
                                 id="attend_checkbox_nonlinked_{{$val->id}}" type="checkbox"></label>
                     </td>
                 </tr>
@@ -109,10 +109,10 @@
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
                     <?php } ?>
                 </td>
-                <td>
+                <td sr-count="{{ count($caseLinkeSavedAttending) .' = '. count($caseLinkeSavedAttending) }}">
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client-attend-all" id="client_attend_all"
-                        <?php if(count($caseLinkeSavedAttending) > 0 && count(collect($caseLinkeSavedAttending)->where('attending', 'yes'))==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkeSavedAttending) > 0 && count($caseLinkeSavedAttending)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>

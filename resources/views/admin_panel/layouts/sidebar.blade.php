@@ -8,10 +8,10 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('uikits/*') ? 'active' : '' }}" data-item="uikits">
-                <a class="nav-item-hold" href="#">
+            <li class="nav-item  {{ (Route::currentRouteName() == 'admin/userlist') ? 'active' : '' }}" >
+                <a class="nav-item-hold" href="{{ route('admin/userlist') }}">
                     <i class="nav-icon i-Find-User"></i>
-                    <span class="nav-text">UI kits</span>
+                    <span class="nav-text">User Management</span>
                 </a>
                 <div class="triangle"></div>
             </li>
@@ -53,7 +53,7 @@
                 <div class="triangle"></div>
             </li>
 
-            <li class="nav-item {{ request()->is('datatables/*') ? 'active' : '' }}">
+            <li class="nav-item m2">
                 <a class="nav-item-hold" href="{{route('basic-tables')}}">
                     <i class="nav-icon i-File-Horizontal-Text"></i>
                     <span class="nav-text">Datatables</span>
