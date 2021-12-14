@@ -966,7 +966,7 @@ class CaseController extends BaseController
 
         $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("case_master.*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")
                         ->where("case_unique_number",$request->id);
-        if(auth()->user()->parent_user != 0) {
+        if(auth()->user()->hasPermissionTo('access_only_linked_cases')) {
             $CaseMaster = $CaseMaster->whereHas('caseStaffAll', function($query) {
                             $query->where('user_id', auth()->id());
                         });

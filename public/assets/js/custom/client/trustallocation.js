@@ -97,8 +97,8 @@ $(document).on("click", ".confirm-btn", function() {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });
-                        trustAllocationList();
-                        // window.location.reload();
+                        // trustAllocationList();
+                        window.location.reload();
                     }
                 }
             }

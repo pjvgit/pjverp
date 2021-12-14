@@ -148,13 +148,14 @@ class BillingController extends Controller
         $clientId = encodeDecodeId($clientId, 'decode');
         $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) use($clientId) {
                         $query->where("user_id", $clientId)->where("is_shared", "yes");
-                    })->whereNotIn('status', ['Paid','Forwarded'])->first();
+                    })->whereNotIn('status', ['Paid','Forwarded'])->with('invoiceFirstInstallment')->first();
         if(!empty($invoice)) {
-            // if(\Route::current()->getName() == "client/bills/payment/card/detail") {
-                $month = $request->month;
-            // }
-
-            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month'));
+            $month = $request->month;
+            $payableAmount = $invoice->due_amount;
+            if($invoice->invoiceFirstInstallment) {
+                $payableAmount = ($invoice->invoiceFirstInstallment->adjustment > 0) ? $invoice->invoiceFirstInstallment->adjustment : $invoice->invoiceFirstInstallment->installment_amount;
+            }
+            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount'));
         } else {
             return abort(403);
         }
@@ -192,43 +193,13 @@ class BillingController extends Controller
                 $customerId = $client->conekta_customer_id;
                 $invoice->refresh();
 
-                $validOrderWithCheckout =
-                array(
-                'line_items'=> array(
-                    array(
-                    'name'=> 'Box of Cohiba S1s',
-                    'description'=> 'Imported From Mex.',
-                    'unit_price'=> 120000,
-                    'quantity'=> 1,
-                    'sku'=> 'cohbs1',
-                    'category'=> 'food',
-                    'tags' => array('food', 'mexican food')
-                    )
-                ),
-                'checkout'    => array(
-                    'type' => 'Integration',
-                    'allowed_payment_methods' => array("cash", "card", "bank_transfer"),
-                    'monthly_installments_enabled' => true,
-                    'monthly_installments_options' => array(3, 6, 9, 12),
-                    'planId' => 'gold-plan'
-                ),
-                'customer_info' => array(
-                    'customer_id' =>  $customerId
-                ),
-                'currency'    => 'mxn',
-                'metadata'    => array('test' => 'extra info')
-                );
-                return $order = \Conekta\Order::create($validOrderWithCheckout);
-                print_r($order->checkout);
-
-                // return (int)$invoice->due_amount;
                 if(!in_array($invoice->status, ['Paid','Forwarded'])) {
-                    $amount = $invoice->due_amount;
-                    $validOrderWithCheckout = [
+                    $amount = $request->payable_amount;
+                    $validOrderWithCharge = [
                         'line_items' => [
                             [
                                 'name' => 'Invoice number '.$invoice->id,
-                                'unit_price' => (int)$amount,
+                                'unit_price' => (int)$amount * 100,
                                 'quantity' => 1,
                             ]
                         ],
@@ -239,30 +210,36 @@ class BillingController extends Controller
                         'metadata'    => array('test' => 'extra info')
                     ];
                     if($request->emi_month == 0) {
-                        $validOrderWithCheckout['charges'] = [
+                        $validOrderWithCharge['charges'] = [
                             [
                                 'payment_method' => [
                                     'type'       => 'card',
                                     'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000",
                                     'token_id' => $request->conekta_token_id,
                                 ],
-                                'amount' => (int)$amount,
+                                'amount' => (int)$amount * 100,
                             ]
                         ];
                     } else {
-                        $validOrderWithCheckout['checkout'] = array(
-                            'type' => 'Integration',
-                            'allowed_payment_methods' => ["card"],
-                            'monthly_installments_enabled' => true,
-                            'monthly_installments_options' => array(3, 6, 9, 12),
-                        );
+                        $validOrderWithCharge['charges'] = [
+                            [
+                                'payment_method' => [
+                                    'type'       => 'card',
+                                    'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000",
+                                    'token_id' => $request->conekta_token_id,
+                                    'monthly_installments' => (int)$request->emi_month
+                                ],
+                                'amount' => (int)$amount * 100,
+                            ]
+                        ];
                     }
-                    return $order = \Conekta\Order::create($validOrderWithCheckout);
+                    $order = \Conekta\Order::create($validOrderWithCharge);
                     if($order->payment_status == 'paid') {
                         $invoiceOnlinePayment = InvoiceOnlinePayment::create([
                             'invoice_id' => $invoice->id,
                             'user_id' => $client->id,
                             'payment_method' => 'card',
+                            'amount' => $amount,
                             'card_emi_month' => 0,
                             'conekta_order_id' => $order->id,
                             // 'conekta_charge_id' => $order->charges->data[0]->id,
@@ -318,7 +295,7 @@ class BillingController extends Controller
                         $data=[];
                         $data['case_id'] = $invoice->case_id;
                         $data['user_id'] = $invoice->user_id;
-                        $data['activity']='accepted a payment of $'.number_format($request->amount,2).' (Card)';
+                        $data['activity']='accepted a payment of $'.number_format($amount,2).' (Card)';
                         $data['activity_for']=$invoice->id;
                         $data['type']='invoices';
                         $data['action']='pay';
@@ -327,27 +304,24 @@ class BillingController extends Controller
 
                         // For client activity
                         $data['client_id'] = $client->id;
-                        $data['activity'] = 'pay a payment of $'.number_format($request->amount,2).' (Card)';
+                        $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (Card)';
                         $data['is_for_client'] = 'yes';
                         $CommonController->addMultipleHistory($data);
 
                         DB::commit();
-                        //Response message
-                        $firmData=Firm::find($client->firm_name);
-                        $msg="Thank you. Your payment of $".number_format($amount,2)." has been sent to ".$firmData['firm_name']." ";
-                        return redirect()->route('client/bills')->with('success', $msg);
+                        return redirect()->route('client/bills/payment/card/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
                     }
                 }
             }
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            echo $e->getMessage();
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            echo $e->getMessage().'=='. $e->getLine();
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            echo $e->getMessage();
+            return redirect()->back()->with('error', $e->getMessage());
         }
         
     }
@@ -360,5 +334,20 @@ class BillingController extends Controller
     public function bankPayment()
     {
         # code...
+    }
+
+    /**
+     * Get invoice payment confirmation page
+     */
+    public function paymentConfirmation($onlinePaymentId)
+    {
+        $onlinePaymentId = encodeDecodeId($onlinePaymentId, 'decode');
+        $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
+        $invoice = Invoices::where("id", $paymentDetail->invoice_id)
+                    /* ->whereHas('invoiceShared', function($query) use($clientId) {
+                        $query->where("user_id", $clientId)->where("is_shared", "yes");
+                    }) */
+                    ->first();
+        return view('client_portal.billing.invoice_payment_confirmstion', compact('invoice', 'paymentDetail'));
     }
 }

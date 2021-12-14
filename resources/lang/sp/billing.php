@@ -12,6 +12,11 @@ return [
     'step_1_text' => 'Resumen y Pago',
     'step_2' => 'Paso 2',
     'step_2_text' => 'Confirmación',
+    'confirm_title' => 'Confirmación de pago',
+    'confirm_note_1' => 'Muchas gracias, hemos recibido correctamente su pago de :amount pesos con Tarjeta de débito o crédito',
+    'confirm_note_2' => 'Concepto:',
+    'confirm_note_3' => 'Recuerde que en su Estado de Cuenta aparecerá el cargo como: CONEKTA o PAGOCONEKTA',
+    'confirm_note_4' => 'Saludos Cordiales,',
 
     // For cash transfer
     'c_radio_text' => 'Pago en Oxxo',

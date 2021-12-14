@@ -1,3 +1,6 @@
+------------------------------------ 14-DEC-2021 ------------------------------
+ALTER TABLE `invoice_online_payments`
+ADD `amount` float(8,2) NULL AFTER `payment_method`;
 ------------------------------------ 13-DEC-2021 ------------------------------
 ALTER TABLE `invoice_temp_infos`
 CHANGE `show_trust_account_history` `show_account_history` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `deposit_into`,

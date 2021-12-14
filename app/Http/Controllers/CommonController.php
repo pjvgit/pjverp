@@ -115,6 +115,9 @@ class CommonController extends BaseController {
         Log::info("History Type > ". $data['type'] ." and action > ".$data['action']);
         $viewInMail = 0;
         // echo $data['type'] ."-->". $data['action']; echo PHP_EOL;
+        if(isset($data['is_for_client']) && $data['is_for_client'] == 'yes') {
+            $AllHistory->save();
+        } else {
         foreach($authUserNotificationSetting as $n => $setting){
             if($setting->sub_type == $data['type'] && $setting->action == $data['action']){
                 // echo $data['type'] ."-->". $data['action']."--> 121 -->".$setting->sub_type.'--->'.$setting->action; echo PHP_EOL;
@@ -139,6 +142,7 @@ class CommonController extends BaseController {
                 $AllHistory->save();
             }
         }        
+        }
         // $AllHistory->save();
         return true;
     }
