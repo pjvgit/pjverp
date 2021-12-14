@@ -10,6 +10,7 @@ use App\Invoices;
 use App\User;
 use App\UsersAdditionalInfo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 

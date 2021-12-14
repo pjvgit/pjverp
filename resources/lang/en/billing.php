@@ -12,6 +12,11 @@ return [
     'step_1_text' => 'Summary and Payment',
     'step_2' => 'Step 2',
     'step_2_text' => 'Confirmation',
+    'confirm_title' => 'Payment confirmation',
+    'confirm_note_1' => 'Thank you very much, we have correctly received your payment of :amount pesos with debit or credit card',
+    'confirm_note_2' => 'Concept:',
+    'confirm_note_3' => 'Remember that the charge will appear on your Statement of Account as: CONEKTA or PAGOCONEKTA',
+    'confirm_note_4' => 'Best regards,',
 
     // For cash transfer
     'c_radio_text' => 'Cash in Oxxo',

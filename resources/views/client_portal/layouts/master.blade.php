@@ -46,7 +46,7 @@
     @endphp
   
 <!-- Pre Loader Strat  -->
-<div class="loadscreen pre-loader" id="preloader" style="display: block;">
+<div class="loadscreen preloader" id="preloader" style="display: block;">
     <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
         <div class="loader-bubble loader-bubble-primary d-block"></div>
     </div>
@@ -113,10 +113,10 @@ $.ajaxSetup({
         
 $(document)
 .ajaxStart(function () {
-    $('.pre-loader').show();   //ajax request went so show the loading image
+    $('.preloader').show();   //ajax request went so show the loading image
 })
 .ajaxStop(function () {
-    $('.pre-loader').hide();   //got response so hide the loading image
+    $('.preloader').hide();   //got response so hide the loading image
 });
 </script>                                        
     

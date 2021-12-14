@@ -1210,6 +1210,7 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/payment/{invoice_id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
     Route::post('bills/payment/{invoice_id}/{client_id}/card/option', 'BillingController@getCardPaymentOption')->name('client/bills/payment/card/option');
     Route::post('bills/payment/card', 'BillingController@cardPayment')->name('client/bills/payment/card');
+    Route::get('bills/payment/card/confirmation/{id}', 'BillingController@paymentConfirmation')->name('client/bills/payment/card/confirmation');
     Route::post('bills/payment/{invoice_id}/{client_id}/cash', 'BillingController@casePayment')->name('client/bills/payment/cash');
     Route::post('bills/payment/{invoice_id}/{client_id}/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
 
