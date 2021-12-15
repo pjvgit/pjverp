@@ -10,13 +10,17 @@ use App\InvoiceOnlinePayment;
 use App\InvoicePayment;
 use App\InvoicePaymentPlan;
 use App\Invoices;
+use App\Jobs\InvoicePaymentEmailJob;
 use App\RequestedFund;
 use App\SharedInvoice;
 use App\Traits\CreditAccountTrait;
 use App\User;
 use Carbon\Carbon;
+use Conekta\Conekta;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use mikehaertl\wkhtmlto\Pdf;
 
 class BillingController extends Controller 
@@ -285,6 +289,7 @@ class BillingController extends Controller
                             'payment_from' => 'online',
                             'invoice_payment_id' => $InvoicePayment->id,
                             'status' => "1",
+                            'online_payment_status' => $order->payment_status,
                             'created_by' => $client->id,
                             'created_at' => Carbon::now(),
                         ]);
@@ -304,31 +309,198 @@ class BillingController extends Controller
 
                         // For client activity
                         $data['client_id'] = $client->id;
-                        $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (Card)';
+                        $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (Card) for invoice';
                         $data['is_for_client'] = 'yes';
                         $CommonController->addMultipleHistory($data);
+
+                        // Send confirm email to client
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
+
+                        // Send confirm email to lawyer
+                        $user = User::whereId($invoice->created_by)->first();
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payment/card/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
                     }
                 }
             }
+        } catch (\Conekta\AuthenticationError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (\Conekta\ApiError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ProcessingError $e){
             DB::rollback();
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\ParameterValidationError $e){
             DB::rollback();
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage());
         } catch (\Conekta\Handler $e){
             DB::rollback();
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (Exception $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage ());
         }
-        
     }
 
-    public function casePayment()
+    public function casePayment(Request $request)
     {
-        # code...
+        // return $request->all();
+        DB::beginTransaction();
+        \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");
+        // $order = \Conekta\Order::find("ord_2qxo9CTTZcDcQVyPQ");
+        // return $order->charges[0]->payment_method->reference;
+        try {
+            $invoice = Invoices::whereId($request->invoice_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
+            $client = User::whereId(auth()->id())->first();
+            if($invoice && $client) {
+                if(empty($client->conekta_customer_id)) {
+                    $customer = \Conekta\Customer::create([
+                                    "name"=> $client->full_name,
+                                    "email"=> $client->email,
+                                    "phone"=> $client->mobile_number,
+                                ]);
+                    $client->fill(['conekta_customer_id' => $customer->id])->save();
+                    $client->refresh();
+                }
+                $customerId = $client->conekta_customer_id;
+                $invoice->refresh();
+                
+                if(!in_array($invoice->status, ['Paid','Forwarded'])) {
+                    $amount = $request->payable_amount;
+                    $validOrderWithCharge = [
+                        'line_items' => [
+                            [
+                                'name' => 'Invoice number '.$invoice->id,
+                                'unit_price' => (int)$amount * 100,
+                                'quantity' => 1,
+                            ]
+                        ],
+                        'customer_info' => array(
+                            'customer_id' => $customerId
+                        ),
+                        'charges' => [
+                            [
+                                'payment_method' => [
+                                    'type'       => 'oxxo_cash',
+                                    'expires_at' => strtotime(Carbon::now()->addDays(7)),
+                                ],
+                                'amount' => (int)$amount * 100,
+                            ]
+                        ],
+                        'currency'    => 'MXN',
+                        'metadata'    => array('test' => 'extra info')
+                    ];
+                    $order = \Conekta\Order::create($validOrderWithCharge);
+                    if($order->payment_status == 'pending_payment') {
+                        $invoiceOnlinePayment = InvoiceOnlinePayment::create([
+                            'invoice_id' => $invoice->id,
+                            'user_id' => $client->id,
+                            'payment_method' => 'cash',
+                            'amount' => $amount,
+                            'conekta_order_id' => $order->id,
+                            'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                            'conekta_payment_reference_id' => $order->charges[0]->payment_method->reference ?? Null,
+                            'conekta_customer_id' => $customerId,
+                            'conekta_payment_status' => $order->payment_status,
+                            'created_by' => auth()->id(),
+                        ]);
+
+                        $invoiceHistory=[];
+                        $invoiceHistory['deposit_into'] = $request->deposit_into;
+                        $request->request->add(['payment_type' => 'payment']);
+
+                        //Insert invoice payment record.
+                        $InvoicePayment=InvoicePayment::create([
+                            'invoice_id' => $request->invoice_id,
+                            'payment_from' => 'client',
+                            'amount_paid' => $amount,
+                            'payment_method' => 'Oxxo Cash',
+                            'payment_date'=>convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
+                            'status'=>"2",
+                            'entry_type'=>"2",
+                            'payment_from_id' => $client->id,
+                            'firm_id' => $client->firm_name,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'created_by' => $client->id 
+                        ]);
+
+                        //Code For installment amount
+                        $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$request->invoice_id)->first();
+                        if(!empty($getInstallMentIfOn)){
+                            $this->installmentManagement($amount,$request->invoice_id);
+                        }
+
+                        // Update invoice paid/due amount and status
+                        // $this->updateInvoiceAmount($request->invoice_id);
+
+                        $invoiceHistory = InvoiceHistory::create([
+                            'invoice_id' => $request->invoice_id,
+                            'acrtivity_title' => 'Payment Received',
+                            'pay_method' => 'Oxxo Cash',
+                            'amount' => $amount,
+                            'responsible_user' => $client->id,
+                            'payment_from' => 'online',
+                            'invoice_payment_id' => $InvoicePayment->id,
+                            'status' => "0",
+                            'online_payment_status' => $order->payment_status,
+                            'created_by' => $client->id,
+                            'created_at' => Carbon::now(),
+                        ]);
+
+                        $invoiceOnlinePayment->fill(['invoice_history_id' => $invoiceHistory->id])->save();
+                            
+                        //Add Invoice activity
+                        $data=[];
+                        $data['case_id'] = $invoice->case_id;
+                        $data['user_id'] = $invoice->user_id;
+                        $data['activity']='accepted a payment of $'.number_format($amount,2).' (Card)';
+                        $data['activity_for']=$invoice->id;
+                        $data['type']='invoices';
+                        $data['action']='pay';
+                        $CommonController= new CommonController();
+                        $CommonController->addMultipleHistory($data);
+
+                        // For client activity
+                        $data['client_id'] = $client->id;
+                        $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (Card) for invoice';
+                        $data['is_for_client'] = 'yes';
+                        $CommonController->addMultipleHistory($data);
+
+                        // Send confirm email to client
+                        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
+
+                        // Send confirm email to lawyer
+                        // $user = User::whereId($invoice->created_by)->first();
+                        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+
+                        DB::commit();
+                        return redirect()->route('client/bills/payment/card/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
+                    }
+                }
+            }
+        } catch (\Conekta\AuthenticationError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (\Conekta\ApiError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (\Conekta\ProcessingError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (\Conekta\ParameterValidationError $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (\Conekta\Handler $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage());
+        } catch (Exception $e){
+            DB::rollback();
+            return redirect()->back()->with('error_alert', $e->getMessage ());
+        }
     }
 
     public function bankPayment()
@@ -348,6 +520,7 @@ class BillingController extends Controller
                         $query->where("user_id", $clientId)->where("is_shared", "yes");
                     }) */
                     ->first();
+
         return view('client_portal.billing.invoice_payment_confirmstion', compact('invoice', 'paymentDetail'));
     }
 }

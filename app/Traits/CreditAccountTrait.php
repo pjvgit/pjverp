@@ -140,7 +140,7 @@ trait CreditAccountTrait {
     public function updateInvoiceAmount($invoiceId)
     {
         $invoice = Invoices::whereId($invoiceId)->with('invoiceFirstInstallment')->first();
-        $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->get();
+        $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->where('status', '!=', '2')->get();
         $totalPaid = $allPayment->sum("amount_paid");
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);

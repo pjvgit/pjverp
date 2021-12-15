@@ -1,3 +1,7 @@
+------------------------------------ 15-DEC-2021 ------------------------------
+ALTER TABLE `invoice_history`
+ADD `online_payment_status` varchar(100) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `status`;
+
 ------------------------------------ 14-DEC-2021 ------------------------------
 ALTER TABLE `invoice_online_payments`
 ADD `amount` float(8,2) NULL AFTER `payment_method`;

@@ -10,13 +10,13 @@
         <div class="row">
             <div class="col-md-12">
                 <!--  SmartWizard html -->
+                @component('client_portal.component.alert')@endcomponent
                 <div id="smartwizard">
                     <ul>
                         <li><a href="#step-1">@lang('billing.step_1')<br /><small>@lang('billing.step_1_text')</small></a></li>
                         <li><a href="#step-2">@lang('billing.step_2')<br /><small>@lang('billing.step_2_text')</small></a></li>
                     </ul>
                     <div>
-                        @component('client_portal.component.alert')@endcomponent
                         <div id="step-1" class="p-3">
                             <h1>Invoice #{{ $invoice->id }}</h1>
                             @if(isset($month) && $month != '')
@@ -109,10 +109,12 @@
                                                 </div>
                                                 <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
                                                     <img src="{{ asset('images/payment/pago2.png') }}" />
-                                                    <form method="POST" action="{{ route('client/bills/payment/cash', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
+                                                    <form method="POST" action="{{ route('client/bills/payment/cash') }}">
                                                         @csrf
+                                                        <input type="text" name="invoice_id" value="{{ $invoice->id }}" >
+                                                        <input type="text" name="payable_amount" value="{{ $payableAmount }}" >
                                                         <label class="radio radio-primary">
-                                                            <input type="radio" name="radio" value="0" checked>
+                                                            <input type="radio" name="radio" value="1" checked>
                                                             <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
                                                         </label>
                                                         <button type="submit" class="btn btn-primary mt-2">Continue</button>
