@@ -52,8 +52,8 @@ class UserController extends BaseController
         }else{
             $email=$request->email;
             $password=$request->password;
-            if (Auth::attempt(['email' => $email, 'password' => $password])) {
-                // Auth::logoutOtherDevices($password);
+            if (Auth::guard('web')->attempt(['email' => $email, 'password' => $password])) {
+                Auth::logoutOtherDevices($password);
                 // checkSmartTimer on or off
                 // $SmartTimer = SmartTimer::where("user_id", auth::user()->id)->latest('id')->first();
                 // if(!empty($SmartTimer) && $SmartTimer->is_pause == 0){

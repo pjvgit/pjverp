@@ -338,4 +338,14 @@ class Invoices extends Model
     {
         return $this->belongsToMany(User::class, 'shared_invoice', 'invoice_id', 'user_id');
     }
+
+    /**
+     * Get the client that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

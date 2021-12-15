@@ -85,6 +85,7 @@
                                 echo " (Refunded)";
                             }
                             ?>
+                            {{ ($value->status == '0' && $value->online_payment_status == "pending_payment") ? " (Payment Pending)" : '' }}
                         </td>
                         <td class="invoice-history-row-amount">
                             @if($value->acrtivity_title=="Payment Refund")
@@ -217,6 +218,9 @@
                             
                             if($value->pay_method!=''){
                                     $Displayval=$value->pay_method;
+                            }
+                            if($value->status == 0 && $value->online_payment_status == "pending_payment") {
+                                $Displayval .= " (Payment Pending)";
                             }
                             echo $Displayval;
                             if($value->refund_amount!=NULL){

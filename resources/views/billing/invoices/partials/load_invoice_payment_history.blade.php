@@ -31,7 +31,7 @@
                 {{$hVal->added_date}}
             </td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
-                {{ $hVal->pay_method }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
+                {{ $hVal->pay_method }} {{ ($hVal->status == '0') ? '(Payment Pending)' : '' }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
                 <?php if($hVal->acrtivity_title=="Payment Received"){?>
