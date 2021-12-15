@@ -22,19 +22,20 @@ class DashboardController extends Controller {
             $start_date = date('Y-m-1');
             $end_date = date('Y-m-t');
             $date_range = date('m/1/Y').' - '.date('m/t/Y');
-        }
-        
+        }       
         
         $signupChartUsers = [];
         $signupUsers = 0;
         
-        $signupUsersData = User::whereBetween('created_at',[$start_date, $end_date])->select(
+        $signupUsersData = User::where('user_level', '3')
+            ->whereBetween('created_at',[$start_date, $end_date])->select(
             DB::raw("count(*) as total_users"),
             DB::raw("(DATE_FORMAT(created_at, '%d/%m/%Y')) as created_date")
             )
             ->orderBy('created_at')
             ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
             ->get();
+        //SELECT * FROM `users` WHERE `user_level` = '3' AND `created_at` >= '2021-12-01' AND `created_at` <= '2021-12-15' LIMIT 50
         foreach ($signupUsersData as $k => $v) {
             $signupUsers = $signupUsers + $v->total_users;
             $signupChartUsers[(string) $v->created_date] = $v->total_users;  
@@ -43,7 +44,7 @@ class DashboardController extends Controller {
     }
 
     function searchUsers(Request $request){
-        $arrData = User::where('email','LIKE', "%".$request->st."%")->get();
+        $arrData = User::where('email','LIKE', "%".$request->st."%")->where('user_level', '3')->get();
         return json_encode($arrData);
     }
 }

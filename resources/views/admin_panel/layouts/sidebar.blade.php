@@ -15,6 +15,13 @@
                 </a>
                 <div class="triangle"></div>
             </li>
+            <li class="nav-item  {{ request()->is('admin/stafflist*') ? 'active' : '' }}" >
+                <a class="nav-item-hold" href="{{ route('admin/stafflist') }}">
+                    <i class="nav-icon i-Business-Man"></i>
+                    <span class="nav-text">Staff Management</span>
+                </a>
+                <div class="triangle"></div>
+            </li>
             <li class="nav-item {{ request()->is('extrakits/*') ? 'active' : '' }} m2" data-item="extrakits">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-Suitcase"></i>

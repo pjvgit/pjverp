@@ -1080,15 +1080,15 @@ class CalendarController extends BaseController
     exit;   
   }
   
-  public function getAndCheckDefaultCaseRate(Request $request)
-  {
-      $case_id=$request->case_id;
-    //   $checkDefaultCaseRate = U::leftJoin('users','users.id','=','case_staff.user_id')->select("*")->where("case_id",$case_id)->where("parent_user","0")->first();
-    //   print_r($checkDefaultCaseRate);
+//   public function getAndCheckDefaultCaseRate(Request $request)
+//   {
+//       $case_id=$request->case_id;
+//     //   $checkDefaultCaseRate = U::leftJoin('users','users.id','=','case_staff.user_id')->select("*")->where("case_id",$case_id)->where("parent_user","0")->first();
+//     //   print_r($checkDefaultCaseRate);
 
-    return response()->json(['errors'=>'','msg'=>'Records successfully found','data'=>Auth::User()->default_rate]);
-    exit;    
-  }
+//     return response()->json(['errors'=>'','msg'=>'Records successfully found','data'=>Auth::User()->default_rate]);
+//     exit;    
+//   }
 
   public function loadTaskDetailPage(Request $request)
   {        

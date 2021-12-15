@@ -321,7 +321,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 <div class="col">
                                                     @forelse (firmSolReminders() as $key => $item)
                                                         <div class="row form-group fieldGroup">
-                                                            <div class="col-md-2 form-group mb-3">
+                                                            <div class="col-md-3 form-group mb-3">
                                                                 <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                                         <option value="{{$k}}" <?php if(@$item->reminder_type == $k){ echo "selected=selected"; } ?>>{{$v}}</option>
@@ -345,7 +345,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </div>
                                             </div>
                                         <div class="fieldGroupCopy copy hide" style="display: none;">
-                                                <div class="col-md-2 form-group mb-3">
+                                                <div class="col-md-3 form-group mb-3">
                                                     <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">
                                                     @foreach(getEventReminderTpe() as $k =>$v)
                                                         <option value="{{$k}}">{{$v}}</option>

@@ -897,7 +897,9 @@
                 success: function (res) {
                     console.log(f);
                     $("#hideoptioninput2defaultrate"+f).val("");
-                    if(res.data > 0){
+                    $(".staff_user").val(res.staff_id).trigger('change');
+                    $("#rate-field-id").val(res.data);   
+                    if(res.data > 0){                    
                         $("#replaceAmt" + f).text("Billable - "+ res.data);
                         $("#hideoptioninput2defaultrate"+f).val(res.data);
                     }else{

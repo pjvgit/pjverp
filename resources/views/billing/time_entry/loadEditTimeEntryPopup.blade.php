@@ -365,9 +365,9 @@
                     'case_id': $(this).attr('value')
                 },
                 success: function (res) {
-                    console.log(f);
-                    $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
-                    console.log("#replaceAmt" + f);
+                    console.log(res);
+                    $(".Edit_staff_user").val(res.staff_id).trigger('change');
+                    $("#rate-field-id").val(res.data);                        
                 }
             })
         });

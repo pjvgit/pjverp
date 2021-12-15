@@ -625,17 +625,19 @@ p {
     position: relative;
 }
 
-.design-permission .radio .checkmark{
+.design-permission .radio .checkmark {
     height: 12px !important;
     width: 12px !important;
     padding: 0px;
 }
-.design-permission .radio{
+
+.design-permission .radio {
     display: inline-block !important;
     height: 15px !important;
     width: 15px !important;
     margin: 0 !important;
 }
+
 .design-permission .radio .checkmark:after {
     height: 7px !important;
     width: 7px !important;
@@ -644,6 +646,7 @@ p {
 .table-set td {
     vertical-align: middle !important;
 }
+
 .design-permission .radio-outline-success {
     padding: 0 !important;
 }
@@ -667,19 +670,43 @@ p {
     padding: 0px 18px 0px 18px !important;
     height: 40px !important;
 }
+
 .permission-radio .radio {
     display: inline-flex
 }
-.permission-div hr, .design-permission hr {
+
+.permission-div hr,
+.design-permission hr {
     margin: 10px !important;
 }
+
 .permission-div label.col-form-label {
     margin-bottom: 4px !important;
 }
-.client-portal-access-div{
+
+.client-portal-access-div {
     display: flex;
     align-items: center;
 }
-.m2{
+
+.m2 {
     display: none !important;
+}
+
+.event-type-header {
+    position: relative;
+}
+
+.event-type-header .question-mark-icon {
+    position: absolute;
+    right: 35px;
+    z-index: 9;
+}
+
+.event-type-header .question-mark-icon i {
+    font-size: 16px;
+}
+
+#calendar_view_div .accordion .ul-collapse__right-icon a::before {
+    right: 0;
 }

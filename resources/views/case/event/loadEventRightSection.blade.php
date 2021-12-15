@@ -74,7 +74,7 @@
                     </td>
                     <td>
                         <label class="mb-0"><input name="attend_checkbox_nonlinked[]"  value="{{$val->id}}"
-                            <?php if(in_array($val->id,$caseNonLinkeSavedAttending)){ ?> checked="checked" <?php } else { ?> disabled="disabled" <?php } ?>
+                            <?php if(in_array($val->id,$caseNonLinkeSavedAttending)){ ?> checked="checked" <?php } else {  if(!in_array($val->id,$caseNonLinkeSaved)) { ?> disabled="disabled" <?php } } ?>
                                 id="attend_checkbox_nonlinked_{{$val->id}}" type="checkbox"></label>
                     </td>
                 </tr>

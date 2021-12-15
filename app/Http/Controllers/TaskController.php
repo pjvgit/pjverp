@@ -1252,13 +1252,15 @@ class TaskController extends BaseController
           $default_rate=($defaultRate['default_rate'])??0.00;
           $rate_type=0;
           $drate="user_default";
+          $staff_id = $rateUsers['user_id'];
       }else{
           $default_rate=($rateUsers['rate_amount'])??0.00;
           $rate_type=($rateUsers['rate_type'])??0;
           $drate="case_default";
+          $staff_id = Auth::user()->id;
       }
 
-    return response()->json(['errors'=>'','msg'=>'Records successfully found','data'=>$default_rate]);
+    return response()->json(['errors'=>'','msg'=>'Records successfully found','data'=>$default_rate, 'staff_id' => $staff_id]);
     exit;    
   }
 

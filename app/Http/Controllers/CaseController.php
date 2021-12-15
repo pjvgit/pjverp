@@ -5125,6 +5125,7 @@ class CaseController extends BaseController
         if(isset($request['linked_staff_checked_share'])){
             $alreadyAdded=[];
             for($i=0;$i<count($request['linked_staff_checked_share']);$i++){
+                Log::info("saveLinkedStaffToEvent > user_id = ".$request['linked_staff_checked_share'][$i]);
                 $CaseEventLinkedStaff = new CaseEventLinkedStaff;
                 $CaseEventLinkedStaff->event_id=$event_id; 
                 $CaseEventLinkedStaff->user_id=$request['linked_staff_checked_share'][$i];
@@ -5133,7 +5134,6 @@ class CaseController extends BaseController
                     $attend = "yes";
                 }
                 $CaseEventLinkedStaff->is_linked='yes';
-                $CaseEventLinkedStaff->is_staff='yes';
                 $CaseEventLinkedStaff->attending=$attend;
                 $CaseEventLinkedStaff->comment_read_at = $lastCommentReadAt;
                 $CaseEventLinkedStaff->created_by=Auth::user()->id; 
@@ -5149,15 +5149,19 @@ class CaseController extends BaseController
     //    print_r($request);
         CaseEventLinkedStaff::where("event_id", $event_id)->where("created_by", Auth::user()->id)->where("is_linked","no")->forceDelete();
         if(isset($request['share_checkbox_nonlinked'])){
-            $alreadyAdded=[];
-            for($i=0;$i<count(array_unique($request['share_checkbox_nonlinked']));$i++){
+            $alreadyAdded = $attend_checkbox_nonlinked = [];
+            for($i=0;$i<count(array_unique($request['attend_checkbox_nonlinked']));$i++){                
+                array_push($attend_checkbox_nonlinked, $request['attend_checkbox_nonlinked'][$i]);
+            }            
+            for($i=0;$i<count(array_unique($request['share_checkbox_nonlinked']));$i++){                
                 $CaseEventLinkedStaff = new CaseEventLinkedStaff;
                 $CaseEventLinkedStaff->event_id=$event_id; 
                 $CaseEventLinkedStaff->user_id=$request['share_checkbox_nonlinked'][$i];
-                if(isset($request['attend_checkbox_nonlinked'][$i])){
-                    $attend="yes";
-                }else{
-                    $attend="no";
+                $attend="no";
+                 if(isset($request['share_checkbox_nonlinked'][$i])){
+                    if(in_array($request['share_checkbox_nonlinked'][$i], $attend_checkbox_nonlinked)){
+                        $attend="yes";
+                    }
                 }                
                 $CaseEventLinkedStaff->is_linked='no';
                 $CaseEventLinkedStaff->attending=$attend;
@@ -5491,16 +5495,16 @@ class CaseController extends BaseController
         $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->get();
       
         if(isset($request->event_id) && $request->event_id!=''){
-            $caseLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","yes")->where("is_staff","yes")->get()->pluck('user_id');
+            $caseLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","yes")->get()->pluck('user_id');
             $caseLinkeSaved= $caseLinkeSaved->toArray();
             
-            $caseLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where('attending','yes')->where("is_staff","yes")->get()->pluck('user_id');
+            $caseLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","yes")->where('attending','yes')->get()->pluck('user_id');
             $caseLinkeSavedAttending= $caseLinkeSavedAttending->toArray();
 
-            $caseNonLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","no")->where("is_staff","no")->get()->pluck('user_id');
+            $caseNonLinkeSaved = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","no")->get()->pluck('user_id');
             $caseNonLinkeSaved= $caseNonLinkeSaved->toArray();
 
-            $caseNonLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where('attending','no')->where("is_staff","no")->get()->pluck('user_id');
+            $caseNonLinkeSavedAttending = CaseEventLinkedStaff::select("user_id")->where("event_id",$request->event_id)->where("is_linked","no")->where('attending','yes')->get()->pluck('user_id');
             $caseNonLinkeSavedAttending= $caseNonLinkeSavedAttending->toArray();
 
             $caseLinkeSavedAttendingContact = CaseEventLinkedContactLead::select("case_event_linked_contact_lead.contact_id")->where("case_event_linked_contact_lead.event_id",$request->event_id)->where('attending','yes')->get()->pluck('contact_id');
