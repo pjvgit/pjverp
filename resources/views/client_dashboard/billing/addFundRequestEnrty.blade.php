@@ -64,7 +64,7 @@
                             <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;" placeholder="Select user's account...">
                                 <option></option>
                                 <option value="trust">Trust Account</option>
-                                @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes")
+                                @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes" && $isFromTrustAllocation == 'no')
                                 <option value="credit">Operating Account</option>
                                 @endif
                             </select>
@@ -457,7 +457,7 @@
                 $("#current-balance-list-down").text(res.minimum_trust_balance);
                 // $('#deposit_into').html('<option value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
                 if(res.is_non_trust_retainer == "yes" && $("#deposit_into option[value='credit']").length < 0) {
-                    $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>'); 
+                    $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>');
                 }
             }
         })

@@ -173,7 +173,7 @@ $(document).ready(function() {
 });
 
 // For add fund request
-function addRequestFundPopup(caseId = null) {
+function addRequestFundPopup(caseId = null, isFromTrustAllocation = 'no') {
     $("#preloader").show();
     $("#addRequestFundArea").html('<img src="'+loaderImage+'"> Loading...');
     $(function () {
@@ -181,7 +181,7 @@ function addRequestFundPopup(caseId = null) {
             type: "POST",
             url: baseUrl + "/contacts/clients/addRequestFundPopup",
             data: {
-                "user_id": $("#user_id").val(), case_id: caseId
+                "user_id": $("#user_id").val(), case_id: caseId, is_from_trust_allocation: isFromTrustAllocation
             },
             success: function (res) {
                 $("#addRequestFundArea").html(res);

@@ -108,17 +108,40 @@
                                                     </form>
                                                 </div>
                                                 <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
-                                                    <img src="{{ asset('images/payment/pago2.png') }}" />
-                                                    <form method="POST" action="{{ route('client/bills/payment/cash') }}">
-                                                        @csrf
-                                                        <input type="text" name="invoice_id" value="{{ $invoice->id }}" >
-                                                        <input type="text" name="payable_amount" value="{{ $payableAmount }}" >
-                                                        <label class="radio radio-primary">
-                                                            <input type="radio" name="radio" value="1" checked>
-                                                            <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
-                                                        </label>
-                                                        <button type="submit" class="btn btn-primary mt-2">Continue</button>
-                                                    </form>
+                                                    <div class="col-md-6 mt-5">
+                                                        <form id="cash_pay_form" method="POST" action="{{ route('client/bills/payment/cash') }}">
+                                                            @csrf
+                                                            <input type="hidden" name="invoice_id" value="{{ $invoice->id }}" >
+                                                            <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >
+                                                            <div class="form-group row">
+                                                                <label class="col-md-3">Name</label>
+                                                                <div class="col-md-9">
+                                                                    <input type="text" class="form-control" name="name" value="Trupti" placeholder="Nombre" maxlength="50">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row">
+                                                                <label class="col-md-3">Phone number</label>
+                                                                <div class="col-md-9">
+                                                                    <input type="text" class="form-control phone-number" name="phone_number" value="8756457889" placeholder="Teléfono" maxlength="13" minlength="10">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row">
+                                                                <img class="col-md-3" src="{{ asset('images/payment/pago2.png') }}" />
+                                                                <div class="col-md-9">
+                                                                    <label class="radio radio-primary">
+                                                                        <input type="radio" name="radio" value="1" checked>
+                                                                        <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row">
+                                                                <label class="col-md-3"></label>
+                                                                <div class="col-md-9">
+                                                                    <button type="submit" class="btn btn-primary mt-2">Continue</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                                 <div class="tab-pane fade" id="bank_transfer_tab" role="tabpanel" aria-labelledby="bank-transfer-tab">
                                                     <img src="{{ asset('images/payment/pago3.png') }}" />

@@ -17,6 +17,7 @@ use App\Traits\CreditAccountTrait;
 use App\User;
 use Carbon\Carbon;
 use Conekta\Conekta;
+use Conekta\Order;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,12 @@ use mikehaertl\wkhtmlto\Pdf;
 class BillingController extends Controller 
 {
     use CreditAccountTrait;
+
+    public function __construct()
+    {
+        \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");   
+    }
+
     /**
      * Get client portal billing
      */
@@ -346,13 +353,10 @@ class BillingController extends Controller
         }
     }
 
-    public function casePayment(Request $request)
+    public function cashPayment(Request $request)
     {
         // return $request->all();
         DB::beginTransaction();
-        \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");
-        // $order = \Conekta\Order::find("ord_2qxo9CTTZcDcQVyPQ");
-        // return $order->charges[0]->payment_method->reference;
         try {
             $invoice = Invoices::whereId($request->invoice_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
             $client = User::whereId(auth()->id())->first();
@@ -361,7 +365,7 @@ class BillingController extends Controller
                     $customer = \Conekta\Customer::create([
                                     "name"=> $client->full_name,
                                     "email"=> $client->email,
-                                    "phone"=> $client->mobile_number,
+                                    "phone"=> $client->mobile_number ?? $request->phone_number,
                                 ]);
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
@@ -404,6 +408,7 @@ class BillingController extends Controller
                             'conekta_order_id' => $order->id,
                             'conekta_charge_id' => $order->charges[0]->id ?? Null,
                             'conekta_payment_reference_id' => $order->charges[0]->payment_method->reference ?? Null,
+                            'conekta_reference_expires_at' => Carbon::createFromTimestamp($order->charges[0]->payment_method->expires_at)->toDateTimeString() ?? Null,
                             'conekta_customer_id' => $customerId,
                             'conekta_payment_status' => $order->payment_status,
                             'created_by' => auth()->id(),
@@ -520,7 +525,10 @@ class BillingController extends Controller
                         $query->where("user_id", $clientId)->where("is_shared", "yes");
                     }) */
                     ->first();
-
-        return view('client_portal.billing.invoice_payment_confirmstion', compact('invoice', 'paymentDetail'));
+        $order = '';
+        if($paymentDetail->payment_method == 'cash') {
+            $order = \Conekta\Order::find($paymentDetail->conekta_order_id);
+        }
+        return view('client_portal.billing.invoice_payment_confirmation', compact('invoice', 'paymentDetail', 'order'));
     }
 }
