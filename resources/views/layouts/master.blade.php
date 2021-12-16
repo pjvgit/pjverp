@@ -299,8 +299,9 @@
         }
        
         <?php if(Auth::User()->auto_logout=="on"){?>
-        if (localStorage.getItem("pauseCounter") != 'yes') {
-        <?php if(Auth::User()->dont_logout_while_timer_runnig == "off"){?>
+        if (localStorage.getItem("pauseCounter") != 'no' || localStorage.getItem("pauseCounter") == null){
+            console.log("auto_logout > on ");
+        <?php //if(Auth::User()->dont_logout_while_timer_runnig == "off"){?>
         $(document).ready(function () {
             setTimeout(function(){
                 IdleWarning();
@@ -326,7 +327,6 @@
                 ResetTimers()
             });
         });
-        <?php } ?>
         }
         <?php } ?>
         

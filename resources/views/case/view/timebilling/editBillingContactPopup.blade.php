@@ -20,7 +20,7 @@
         </div>
         <div class="alert alert-info my-2 pb-0">
             @if(!$caseMasterDefaultBiller)
-            <p class="court-case-wizard-billing-user-help">This case must have one linked contact to create invoices. Link a contact from the <a href="{{ route("info", $caseDefaultBiller->case_unique_number) }}" >case details page.</a></p>
+            <p class="court-case-wizard-billing-user-help">This case must have one linked contact to create invoices. Link a contact from the <a href="{{ route('case_link', $caseDefaultBiller->case_unique_number) }}" >case details page.</a></p>
             @else
             <p class="court-case-wizard-billing-user-help">Tip: To include this case when batch creating invoices, you must select a billing contact. You can change this selection later.</p>
             @endif

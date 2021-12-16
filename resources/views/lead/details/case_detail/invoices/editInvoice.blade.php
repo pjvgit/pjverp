@@ -30,7 +30,7 @@
                 <div class="px-0 ">
                     <div class="input-group">
                         <div class="input-group-prepend"><span class="input-group-text">$</span></div><input
-                            id="total_amount" name="total_amount" class="form-control number" value="{{$FindInvoice->total_amount}}">
+                            id="total_amount" name="total_amount" class="form-control " value="{{$FindInvoice->total_amount}}">
                     </div>
                 </div>
                 <span id="afterShowError"></span>

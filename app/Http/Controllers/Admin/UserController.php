@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\User,App\CaseStaff;
+use App\User,App\CaseStaff,App\UsersAdditionalInfo;
 use DB;
 use Yajra\Datatables\Datatables;
 
@@ -29,7 +29,9 @@ class UserController extends Controller {
         }else{
             $userProfile = User::find(base64_decode($request->id));
             if(!empty($userProfile) || $userProfile != null){
-                return view('admin_panel.users.view', compact('userProfile'));
+                $UsersAdditionalInfo =  UsersAdditionalInfo::where('user_id', $userProfile->id)->first();
+                $userProfileCreatedBy = User::where("users.id",$userProfile->parent_user)->get();             
+                return view('admin_panel.users.view', compact('userProfile','UsersAdditionalInfo','userProfileCreatedBy'));
             }else{
                 redirect('/userlist');
             }
@@ -38,13 +40,61 @@ class UserController extends Controller {
 
     public function loadUsers(Request $request)
     {           
-        $data = User::whereIn('user_level',['2','4'])->orderBy("created_at", "desc")->with('firmDetail');
+        if(isset($request->type) && $request->type != ''){
+            $data = User::where('user_level',$request->type)->orderBy("created_at", "desc")->with('firmDetail');
+        }else{
+            $data = User::whereIn('user_level',['2','4'])->orderBy("created_at", "desc")->with('firmDetail');
+        }
+        
         return Datatables::of($data)
             ->addColumn('action', function ($data){
-                $action = '<a class="name" href="'.route("admin/userinfo", $data->decode_id).'">View</a>';
+                $action = '<a class="name" href="'.route("admin/userlist/info", $data->decode_id).'">View</a> | <a class="name" href="#">Login</a>';
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
-            ->rawColumns(['action'])
+            ->addColumn('status', function ($data){
+                switch ($data->user_status) {
+                    case '1':
+                        return 'Active';
+                        break;
+                    case '2':
+                        return 'Inactive';
+                        break;
+                    case '3':
+                        return 'Suspended';
+                        break;
+                    case '4':
+                        return 'Archive';
+                        break;
+                    default:
+                        # code... 1 : Active 2: Inactive 3:Suspended, 4:Archive
+                        break;
+                }
+                return $data->user_status;
+            })
+            ->addColumn('type', function ($data){
+                switch ($data->user_level) {
+                    case '2':
+                        return 'Contact';
+                        break;
+                    case '4':
+                        return 'Company';
+                        break;
+                    case '5':
+                        return 'Lead';
+                        break;
+                    default:
+                        # code... 1 : Active 2: Inactive 3:Suspended, 4:Archive
+                        break;
+                }
+                return $data->user_status;
+            })
+            ->addColumn('firmName', function ($data){
+                return $data->firmDetail->firm_name;
+            })            
+            ->addColumn('created_at', function ($data){
+                return date("Y-m-d H:i:s", strtotime($data->created_at));
+            })            
+            ->rawColumns(['action','status','type','firmName'])
             ->make(true);
     }
 
@@ -58,7 +108,11 @@ class UserController extends Controller {
                 {
                     return view('admin_panel.staff.cases', compact('userProfile'));    
                 }
-                return view('admin_panel.staff.view', compact('userProfile'));
+                $userProfileCreatedBy = '';
+                if($userProfile->parent_user > 0){
+                    $userProfileCreatedBy = User::where("users.id",$userProfile->parent_user)->first();             
+                }
+                return view('admin_panel.staff.view', compact('userProfile','userProfileCreatedBy'));
             }else{
                 redirect('/stafflist');
             }
@@ -66,14 +120,38 @@ class UserController extends Controller {
     }
 
     public function loadStaff(Request $request)
-    {           
-        $data = User::whereIn('user_level',['3'])->orderBy("created_at", "desc")->with('firmDetail');
+    {   
+        if(isset($request->type) && $request->type != ''){
+            $data = User::whereIn('user_level',['3'])->where('user_type',$request->type)->orderBy("created_at", "desc")->with('firmDetail');
+        }else{
+            $data = User::whereIn('user_level',['3'])->orderBy("created_at", "desc")->with('firmDetail');
+        }
         return Datatables::of($data)
             ->addColumn('action', function ($data){
                 $action = '<a class="name" href="'.route("admin/stafflist/info", $data->decode_id).'">View</a>';
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
+            })    
+            ->addColumn('firmName', function ($data){
+                return $data->firmDetail->firm_name;
+            }) 
+            ->addColumn('type', function ($data){
+                switch ($data->user_type) {
+                    case '1':
+                        return 'Attorney';
+                        break;
+                    case '2':
+                        return 'Paralegal';
+                        break;
+                    case '3':
+                        return 'Staff';
+                        break;
+                    default:
+                        # code... 1:Attorney 2: Paralegal 3:Staff 4: None 5:Lead
+                        break;
+                }
+                return $data->user_status;
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action','firmName','type'])
             ->make(true);
     }
 
@@ -110,7 +188,7 @@ class UserController extends Controller {
             }else{
                 return '<div class="text-left">Not Specified</div>';
             }  
-        })             
+        })          
         ->rawColumns(['action','case_name','user_title','status','hourly_rate'])
         ->make(true);
     }

@@ -61,6 +61,7 @@
                                                 '<div class="item-title">'+result[index].full_name+'</div>'+
                                             '</a>'+
                                             '<p class="m-0 text-muted text-small w-15 w-sm-100">'+result[index].email+'</p>'+
+                                            '<p class="m-0 text-muted text-small w-15 w-sm-100">'+result[index].user_title+'</p>'+
                                             '<p class="m-0 text-muted text-small w-15 w-sm-100 d-lg-block item-badges">'+
                                                 '<a href="'+baseUrl+'/admin/stafflist/info/'+result[index].decode_id+'"><span class="badge badge-primary">View</span> </a>'+
                                             '</p>'+

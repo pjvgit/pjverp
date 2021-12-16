@@ -31,7 +31,8 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::get("/dashboard", "DashboardController@index")->name('admin/dashboard');
     Route::post("/searchUsers", "DashboardController@searchUsers")->name('admin/searchUsers');
     Route::get("/userlist", "UserController@index")->name('admin/userlist');
-    Route::get("/userinfo/{id}", "UserController@userInfo")->name('admin/userinfo');
+    Route::get("/userlist/info/{id}", "UserController@userInfo")->name('admin/userlist/info');
+    Route::get("/userlist/info/{id}/cases", "UserController@userInfo")->name('admin/userlist/cases');
     Route::get("/loadusers", "UserController@loadUsers")->name('admin/loadusers');
     Route::get("/stafflist", "UserController@staffList")->name('admin/stafflist');
     Route::get("/stafflist/info/{id}", "UserController@staffInfo")->name('admin/stafflist/info');

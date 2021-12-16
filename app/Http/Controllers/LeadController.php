@@ -25,7 +25,7 @@ use App\CaseIntakeFormFieldsData,App\PotentialCaseInvoice,App\CaseEventLinkedCon
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
-use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit;
+use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment,App\OnlineLeadSubmit,App\InvoicePayment;
 use Exception;
 
 use App\Invoices,App\TimeEntryForInvoice,App\RequestedFund,App\InvoiceHistory,App\InvoiceAdjustment,App\FlatFeeEntry,App\ClientNotes,App\AllHistory;
@@ -6721,14 +6721,10 @@ class LeadController extends BaseController
             $InvoiceSave->updated_by=Auth::User()->id; 
             $InvoiceSave->updated_at=date('Y-m-d h:i:s'); 
             $InvoiceSave->firm_id = auth()->user()->firm_name;
-            if(strtotime(date('Y-m-d')) <= strtotime($request->due_date)){
-                if($InvoiceSave->paid_amount > 0 && $InvoiceSave->due_amount > 0){
-                    $InvoiceSave->status = "Partial";
-                }
-            }else{
-                $InvoiceSave->status='Overdue';
-            }
             $InvoiceSave->save();
+            
+            // update status
+            $this->updateInvoiceAmount($request->invoice_id);
 
             $invoiceHistory=[];
             $invoiceHistory['invoice_id']=$request->invoice_id;
@@ -6798,6 +6794,41 @@ class LeadController extends BaseController
             exit;   
         }
     }   
+
+    public function updateInvoiceAmount($invoiceId)
+    {
+        $invoice = Invoices::whereId($invoiceId)->with('invoiceFirstInstallment')->first();
+        $allPayment = InvoicePayment::where("invoice_id", $invoiceId)->where('status', '!=', '2')->get();
+        $totalPaid = $allPayment->sum("amount_paid");
+        $totalRefund = $allPayment->sum("amount_refund");
+        $remainPaidAmt = ($totalPaid - $totalRefund);
+        $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
+        if($remainPaidAmt == 0) {
+            $status="Unsent";
+            if($invoice->is_sent  == "yes") {
+                $status = "Sent";    
+            }else{
+                if($invoice->status == "forwarded"){
+                    if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                        $status="Overdue";
+                    }
+                }
+            }
+        } elseif($invoice->total_amount == $remainPaidAmt) {
+            $status = "Paid";
+        } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
+            $status="Partial";
+        } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+            $status="Overdue";
+        } else if($invoice->is_sent  == "yes") {
+            $status = "Sent";
+        } else {
+            $status = 'Unsent';
+        }
+        $invoice->fill([
+            'status'=>$status,
+        ])->save();
+    }
     public function deleteInvoice(Request $request)
     {
         $validator = \Validator::make($request->all(), [

@@ -8,7 +8,7 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item  {{ (Route::currentRouteName() == 'admin/userlist') ? 'active' : '' }}" >
+            <li class="nav-item  {{ request()->is('admin/userlist*') ? 'active' : '' }}" >
                 <a class="nav-item-hold" href="{{ route('admin/userlist') }}">
                     <i class="nav-icon i-Find-User"></i>
                     <span class="nav-text">User Management</span>

@@ -3,9 +3,9 @@
 @section('page-css')
 @endsection
 @section('main-content')
-<div class="breadcrumb">
-    <i class="fas fa-user-circle fa-2x"></i>
+<div class="breadcrumb justify-content-between align-items-center">
     <h2 class="mx-2 mb-0 text-nowrap">
+        <i class="fas fa-user-circle"></i>
         <?php echo ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name);?> {{ "(".$userProfile->user_title.")"}}
         <?php if($userProfile->user_status=="3"){?>
         <span class="text-danger">[ Inactive ]</span>
@@ -14,6 +14,7 @@
         <span class="text-danger">[ Archived ]</span>
         <?php } ?>
     </h2> 
+    <a href="{{ route('admin/stafflist') }}"><span class="text-info">Back</span></a>
     <ul class="m2">
         <li><a href="">Dashboard</a></li>
         <li>Version 2</li>
@@ -61,39 +62,17 @@
                                                 href="mailto:<?php echo $userProfile->email;?>"><?php echo $userProfile->email;?></a>
                                         </td>
                                     </tr>
-
                                     <tr>
-                                        <th>Address</th>
-                                        <td>
-                                            <?php echo $userProfile->street;?>
-                                            <?php echo $userProfile->apt_unit;?>
-                                            <?php echo $userProfile->city ;?>
-                                            <?php echo $userProfile->state;?>
-
-                                            <?php echo $userProfile->postal_code;?>
-                                            <?php echo $userProfile->countryname;?>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Work Phone</th>
+                                        <th>Created</th>
                                         <td id="phone">
-                                            <?php echo $userProfile->work_phone;?>
+                                        Created {{$userProfile->created_date_new}} 
+                                        @if($userProfileCreatedBy != '')
+                                            by <a href="{{ route('admin/stafflist/info', $userProfileCreatedBy->decode_id) }}">{{ $userProfileCreatedBy->full_name }}</a>
+                                        @else
+                                            by <a href="{{ route('admin/stafflist/info', $userProfile->decode_id) }}">{{ $userProfile->full_name }}</a>
+                                        @endif
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <th>Home Phone</th>
-                                        <td id="phone">
-                                            <?php echo $userProfile->home_phone;?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Cell Phone</th>
-                                        <td id="phone">
-                                            <?php echo $userProfile->mobile_number;?>
-                                        </td>
-                                    </tr>
-
                                 </tbody>
                             </table>
                         </div>

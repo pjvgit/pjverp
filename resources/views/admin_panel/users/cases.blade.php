@@ -1,5 +1,5 @@
 @extends('admin_panel.layouts.master')
-@section('page-title', 'Staff Cases')
+@section('page-title', 'User Cases')
 @section('page-css')
 <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/datatables.min.css')}}" />
 @endsection
@@ -15,7 +15,7 @@
         <span class="text-danger">[ Archived ]</span>
         <?php } ?>
     </h2> 
-    <a href="{{ route('admin/stafflist') }}" class=""><span class="text-info">Back</span></a>
+    <a href="{{ route('admin/userlist') }} " class=""><span class="badge badge-info">Back</span></a>
     <ul class="m2">
         <li><a href="">Dashboard</a></li>
         <li>Version 2</li>
