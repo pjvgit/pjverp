@@ -61,7 +61,7 @@
         <td class="request-funds">
             @if($minTrustBalance > $allocateTrustBalance)
             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;"
-                onclick="addRequestFundPopup();">
+                onclick="addRequestFundPopup(null, 'yes');">
                 <button type="button" class="mx-1 btn btn-link">Request Fund</button>
             </a>
             @endif
@@ -112,7 +112,7 @@
         <td class="request-funds">
             @if(@$UsersAdditionalInfo->minimum_trust_balance > @$UsersAdditionalInfo->unallocate_trust_balance)
             <a data-toggle="modal" data-target="#addRequestFund" data-placement="bottom" href="javascript:;"
-                onclick="addRequestFundPopup();">
+                onclick="addRequestFundPopup(null, 'yes');">
                 <button type="button" class="mx-1 btn btn-link">Request Fund</button>
             </a>
             @endif

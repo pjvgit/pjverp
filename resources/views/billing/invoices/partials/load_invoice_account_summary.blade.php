@@ -29,6 +29,10 @@
 						<h4>{{ $item->full_name }}'s Trust Balance</h4>
 						<div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ number_format($user->total_balance ?? 0, 2) }} </div>
 					@elseif($user && $user->show_trust_account_history == "trust account history")
+						@php
+							$trustList = $item->userCreditAccountHistory->where('id', '<=', $user->history_last_id);
+						@endphp
+						@if(count($trustList))
                     	<h4>{{ $item->full_name }}'s Trust History</h4>
 						<div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ number_format($user->total_balance ?? 0, 2) }} </div>
 						<table class="ledger-history-table">
@@ -60,6 +64,7 @@
 								@endforelse
 							</tbody>
 						</table>
+						@endif
 					@else
 					@endif
                 </div>
@@ -77,6 +82,10 @@
 						<h4>{{ $item->full_name }}'s Credit Balance</h4>
 						<div class="balance_data invoice-table-row"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ number_format($user->total_balance ?? 0, 2) }} </div>
 					@elseif ($user && $user->show_credit_account_history == "credit account history")
+						@php
+							$creditList = $item->userCreditAccountHistory->where('id', '<=', $user->history_last_id);
+						@endphp
+						@if(count($creditList))
                     	<h4>{{ $item->full_name }}'s Credit History</h4>
 						<div class="balance_data"> Balance As Of {{ convertUTCToUserTimeZone('dateOnly') }}: ${{ number_format($user->total_balance ?? 0, 2) }} </div>
 						<table class="ledger-history-table">
@@ -88,7 +97,7 @@
 									<td class="invoice_info_bg" style="width: 15%;"> Amount </td>
 									<td class="invoice_info_bg" style="width: 15%;"> Balance </td>
 								</tr>
-								@forelse ($item->userCreditAccountHistory->where('id', '<=', $user->history_last_id) as $thkey => $thitem)
+								@forelse ($creditList as $thkey => $thitem)
 									<tr class="invoice_info_row invoice-table-row">
 										<td style="vertical-align: top;"> {{ \Carbon\Carbon::parse(convertUTCToUserDate($thitem->payment_date, auth()->user()->user_timezone))->format("m/d/Y") }} </td>
 										<td style="vertical-align: top;"> {{ ($thitem->related_to_invoice_id) ? '#'.sprintf("%06d", $thitem->related_to_invoice_id) : "--" }} </td>
@@ -100,6 +109,7 @@
 								@endforelse
 							</tbody>
 						</table>
+						@endif
 					@else
 					@endif
                 </div>

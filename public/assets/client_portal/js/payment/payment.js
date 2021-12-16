@@ -120,3 +120,46 @@ $("#card_form").submit(function (event) {
     }
     return false;
 });
+
+$("#cash_pay_form").validate({
+    ignore: [],
+    rules: {
+        'name': {
+            required: true,
+        },
+        'phone_number': {
+            required: true,
+            number: true,
+            minlength: 10,
+            maxlength: 13
+        },
+    },
+    messages: {
+        name: {
+            required: "Por favor ingresa tu nombre",
+        },
+        phone_number: {
+            required: "Por favor ingresa tu número telefónico",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+            minlength: "El número telefónico debe tener al menos 10 números",
+            maxlength: "El número telefónico no puede tener más de 13 números"
+        },
+    },
+    errorPlacement: function (error, element) {
+        error.insertAfter(element);
+    },
+    submitHandler: function(form) {
+        form.submit();
+    }
+});
+
+$(document).on('keypress , paste', '.phone-number', function (e) {
+    if (/^[0-9]+$/.test(e.key)) {
+        $('.number').on('input', function () {
+            e.target.value = numberSeparator(e.target.value);
+        });
+    } else {
+        e.preventDefault();
+        return false;
+    }
+});

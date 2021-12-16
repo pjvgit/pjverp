@@ -1,7 +1,7 @@
 <?php $CommonController= new App\Http\Controllers\CommonController();
 $paymentMethod = unserialize(PAYMENT_METHOD);
 ?>
-<div class="row">
+<div class="row" data-pop="resources\views\billing\dashboard\depositTrustFundPopup.blade.php">
     <div class="col-md-12 selenium-invoice-number">Contact: {{$userData['user_name']}}  (<?php echo $CommonController->getUserTypeText($userData['user_level']); ?>)</div>
     <div class="col-md-12 selenium-invoice-number">
         @if($case)
@@ -68,7 +68,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input class="form-control amountFirst" style="width:50%; " maxlength="20" name="amount"
+                        <input class="form-control amountFirst number" style="width:50%; " maxlength="20" name="amount"
                             id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)">
 
                         <small>&nbsp;</small>
@@ -128,7 +128,8 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                     required: true,
                 },
                 amount: {
-                    required: true
+                    required: true,
+                    minStrict: true
                 }
             },
             messages: {

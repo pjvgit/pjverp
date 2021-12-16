@@ -83,7 +83,7 @@ class AccountActivity extends Authenticatable
      public function getEnterByAttribute(){
         if(isset($this->user_id)){
             $caseCllientSelection = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name)  as name'),"users.id")->where("id",$this->user_id)->first();
-            return $caseCllientSelection['name'];
+            return $caseCllientSelection['name'] ?? '';
         }else{
             return NULL;
         }
@@ -91,7 +91,7 @@ class AccountActivity extends Authenticatable
      public function getEnterByUserLevelAttribute(){
         if(isset($this->user_id)){
             $caseCllientSelection = User::select("users.user_level")->where("id",$this->user_id)->first();
-            return $caseCllientSelection['user_level'];
+            return $caseCllientSelection['user_level'] ?? '';
         }else{
             return NULL;
         }

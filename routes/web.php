@@ -769,9 +769,6 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('contacts/clients/saveTimeEntryPopup', 'ClientdashboardController@saveTimeEntryPopup')->name('contacts/clients/saveTimeEntryPopup');
     
     Route::post('contacts/clients/loadTrustHistory', 'ClientdashboardController@loadTrustHistory')->name('contacts/clients/loadTrustHistory');
-    // Made common code for client, comapny and billing in billing controller
-    // Route::post('contacts/clients/addTrustEntry', 'ClientdashboardController@addTrustEntry')->name('contacts/clients/addTrustEntry');
-    // Route::post('contacts/clients/saveTrustEntry', 'ClientdashboardController@saveTrustEntry')->name('contacts/clients/saveTrustEntry');
     Route::post('contacts/clients/withdrawFromTrust', 'ClientdashboardController@withdrawFromTrust')->name('contacts/clients/withdrawFromTrust');
     Route::post('contacts/clients/saveWithdrawFromTrust', 'ClientdashboardController@saveWithdrawFromTrust')->name('contacts/clients/saveWithdrawFromTrust');
     Route::post('contacts/clients/refundPopup', 'ClientdashboardController@refundPopup')->name('contacts/clients/refundPopup');
@@ -872,14 +869,6 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     
     
     Route::post('contacts/companies/loadTrustHistory', 'CompanydashboardController@loadTrustHistory')->name('contacts/companies/loadTrustHistory');
-    // Made common code for client and company in client dashboard controller and billing controller
-    // Route::post('contacts/companies/addTrustEntry', 'CompanydashboardController@addTrustEntry')->name('contacts/companies/addTrustEntry');
-    // Route::post('contacts/companies/saveTrustEntry', 'CompanydashboardController@saveTrustEntry')->name('contacts/companies/saveTrustEntry');
-    // Route::post('contacts/companies/withdrawFromTrust', 'CompanydashboardController@withdrawFromTrust')->name('contacts/companies/withdrawFromTrust');
-    // Route::post('contacts/companies/saveWithdrawFromTrust', 'CompanydashboardController@saveWithdrawFromTrust')->name('contacts/companies/saveWithdrawFromTrust');
-    // Route::post('contacts/companies/refundPopup', 'CompanydashboardController@refundPopup')->name('contacts/companies/refundPopup');
-    // Route::post('contacts/companies/saveRefundPopup', 'CompanydashboardController@saveRefundPopup')->name('contacts/companies/saveRefundPopup');
-    // Route::post('contacts/companies/deletePaymentEntry', 'CompanydashboardController@deletePaymentEntry')->name('contacts/companies/deletePaymentEntry');
     Route::post('contacts/companies/exportPDFpopupForm', 'CompanydashboardController@exportPDFpopupForm')->name('contacts/companies/exportPDFpopupForm');
     Route::post('contacts/companies/downloadTrustHistory', 'CompanydashboardController@downloadTrustActivity')->name('contacts/companies/downloadTrustHistory');
     
@@ -1211,7 +1200,7 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::post('bills/payment/{invoice_id}/{client_id}/card/option', 'BillingController@getCardPaymentOption')->name('client/bills/payment/card/option');
     Route::post('bills/payment/card', 'BillingController@cardPayment')->name('client/bills/payment/card');
     Route::get('bills/payment/card/confirmation/{id}', 'BillingController@paymentConfirmation')->name('client/bills/payment/card/confirmation');
-    Route::post('bills/payment/cash', 'BillingController@casePayment')->name('client/bills/payment/cash');
+    Route::post('bills/payment/cash', 'BillingController@cashPayment')->name('client/bills/payment/cash');
     Route::post('bills/payment/{invoice_id}/{client_id}/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
 
     // For billing > fund request

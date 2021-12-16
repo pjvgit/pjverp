@@ -1111,89 +1111,6 @@ class ClientdashboardController extends BaseController
             ->with("trust_total", number_format($userAddInfo->trust_account_balance ?? 0.00, 2))
             ->make(true);
     }
-
-    /* public function addTrustEntry(Request $request)
-    {
-        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->user_id)->first();
-        $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$request->user_id)->where("amount_due",">",0)->get();
-        return view('client_dashboard.billing.depositTrustEntry',compact('userData','UsersAdditionalInfo','clientList'));     
-        exit;    
-    } 
-
-    public function saveTrustEntry(Request $request)
-    {
-        $request['amount']=str_replace(",","",$request->amount);
-        if(isset($request->applied_to) && $request->applied_to!=0){
-            $requestData=RequestedFund::find($request->applied_to);
-            $amount_requested=$requestData['amount_requested'];
-            $amount_due=$requestData['amount_due'];
-            $amount_paid=$requestData['amount_paid'];
-            $finalAmt=$amount_requested-$amount_paid;
-    
-            $validator = \Validator::make($request->all(), [
-                'payment_method' => 'required',
-               'amount' => 'required|numeric|min:1|max:'.$finalAmt,
-            ],[
-                'amount.min'=>"Amount must be greater than $0.00",
-                'amount.max' => 'Amount exceeds requested balance of $'.number_format($finalAmt,2),
-            ]);
-        }else{
-            $validator = \Validator::make($request->all(), [
-                'payment_method' => 'required',
-                'amount' => 'required|numeric'
-            ]);
-        }
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            if(isset($request->applied_to) && $request->applied_to!=0){
-                $refundRequest=RequestedFund::find($request->applied_to);
-                $refundRequest->amount_due=($refundRequest->amount_due-$request->amount);                
-                $refundRequest->amount_paid=($refundRequest->amount_paid+$request->amount);
-                $refundRequest->payment_date=date('Y-m-d');
-                $refundRequest->status='partial';
-                $refundRequest->save();
-            }
-                
-            DB::table('users_additional_info')->where('user_id',$request->client_id)->increment('trust_account_balance', $request['amount']);
-
-            $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->client_id)->first();
-       
-            $TrustInvoice=new TrustHistory;
-            $TrustInvoice->client_id=$request->client_id;
-            $TrustInvoice->payment_method=$request->payment_method;
-            $TrustInvoice->amount_paid=$request->amount;
-            $TrustInvoice->current_trust_balance=$UsersAdditionalInfo->trust_account_balance;
-            $TrustInvoice->payment_date=date('Y-m-d',strtotime($request->payment_date));
-            $TrustInvoice->notes=$request->notes;
-            $TrustInvoice->fund_type='diposit';
-            $TrustInvoice->related_to_fund_request_id = @$refundRequest->id;
-            $TrustInvoice->created_by=Auth::user()->id; 
-            $TrustInvoice->save();
-
-            $firmData=Firm::find(Auth::User()->firm_name);
-            $msg="Thank you. Your deposit of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
-            
-            
-            $data=[];
-            $data['user_id']=$request->client_id;
-            $data['client_id']=$request->client_id;
-            $data['activity']="accepted a deposit into trust of $".number_format($request->amount,2)." (".$request->payment_method.") for";
-            if(isset($request->applied_to) && $request->applied_to != 0) {
-                $data['activity']="accepted a payment of $".number_format($request->amount,2)." (".$request->payment_method.") for deposit request ".@$refundRequest->padding_id;
-            }
-            $data['type']='deposit';
-            $data['action']='add';
-            $CommonController= new CommonController();
-            $CommonController->addMultipleHistory($data);
-            
-            return response()->json(['errors'=>'','msg'=>$msg]);
-            exit;   
-        }
-    } */
-
     
     public function withdrawFromTrust(Request $request)
     {
@@ -1658,15 +1575,15 @@ class ClientdashboardController extends BaseController
             $ClientList = User::whereHas("clientCases", function($query) use($request) {
                 $query->where("case_master.id", $request->case_id);
             })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
-            ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
+            ->where('user_level', 2)->whereIn("user_status", ['1','2'])->get();
 
             $CompanyList = User::whereHas("clientCases", function($query) use($request) {
                 $query->where("case_master.id", $request->case_id);
             })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')
-            ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
+            ->where("firm_name", $authUser->firm_name)->whereIn("user_status", ['1','2'])->where('user_level', '4')->get();
         }
-        
-        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','LeadList','client_id','userData','UsersAdditionalInfo'));     
+        $isFromTrustAllocation = $request->is_from_trust_allocation ?? 'no';
+        return view('client_dashboard.billing.addFundRequestEnrty',compact('ClientList','CompanyList','LeadList','client_id','userData','UsersAdditionalInfo', 'isFromTrustAllocation'));     
         exit;    
     } 
 
