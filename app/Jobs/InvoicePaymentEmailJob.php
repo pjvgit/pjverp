@@ -28,7 +28,7 @@ class InvoicePaymentEmailJob implements ShouldQueue
      * @param  Podcast  $podcast
      * @return void
      */
-    public function __construct($invoice,$user,$emailTemplateId,$online_payment_id,$userType)
+    public function __construct($invoice = null,$user,$emailTemplateId,$online_payment_id,$userType)
     {
         $this->invoice = $invoice;
         $this->user = $user;
@@ -49,17 +49,6 @@ class InvoicePaymentEmailJob implements ShouldQueue
         $onlinePayment = InvoiceOnlinePayment::whereId($this->online_payment_id)->first();
         $firmData = Firm::find($this->invoice->firm_id); 
         $getTemplateData = EmailTemplate::find($this->emailTemplateId);
-        switch ($this->userType) {
-            case 'client':
-                Mail::to($this->user->email)->send((new InvoicePaymentMail($this->invoice, $firmData, $this->user, $getTemplateData, 'client', $onlinePayment)));  
-                break;
-            case 'user': // Firm user/staff
-                Mail::to($this->user->email)->send((new InvoicePaymentMail($this->invoice, $firmData, $this->user, $getTemplateData, 'user', $onlinePayment)));  
-                break;
-            
-            default:
-                # code...
-                break;
-        }
+        Mail::to($this->user->email)->send((new InvoicePaymentMail($this->invoice, $firmData, $this->user, $getTemplateData, $this->userType, $onlinePayment)));
     }
 }

@@ -1,3 +1,9 @@
+------------------------------------ 17-DEC-2021 ------------------------------
+ALTER TABLE `invoices`
+ADD `online_payment_status` varchar(100) COLLATE 'utf8mb4_bin' NULL AFTER `bill_address_text`;
+
+ALTER TABLE `invoice_installment`
+ADD `online_payment_status` varchar(100) NULL AFTER `adjustment`;
 ------------------------------------ 16-DEC-2021 ------------------------------
 ALTER TABLE `invoice_online_payments`
 ADD `conekta_reference_expires_at` timestamp NULL AFTER `conekta_payment_reference_id`;

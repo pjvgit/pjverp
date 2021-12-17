@@ -4451,7 +4451,7 @@ class BillingController extends BaseController
             
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
 
-            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
 
 
             $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
@@ -4950,7 +4950,7 @@ class BillingController extends BaseController
         //Get the Adjustment list
         $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
         $firmData=Firm::find($userData['firm_name']);
 
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
@@ -4997,7 +4997,7 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
 
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
         $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -5089,7 +5089,7 @@ class BillingController extends BaseController
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
 
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
         $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -5153,7 +5153,7 @@ class BillingController extends BaseController
 
         //Get the Adjustment list
         $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
 
         $InvoiceInstallment=InvoiceInstallment::select("*")
         ->where("invoice_installment.invoice_id",$invoice_id)
@@ -5274,7 +5274,7 @@ class BillingController extends BaseController
             $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
     
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
     
             //Get the flat fee Entry list
             $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -5528,6 +5528,7 @@ class BillingController extends BaseController
 
     public function updateInvoiceEntry(Request $request)
     {
+        // return $request->all();
         $InvoiceSave=Invoices::find($request->invoice_id);
         $rules = [
             'invoice_number_padded' => 'required|numeric',
@@ -5869,70 +5870,93 @@ class BillingController extends BaseController
             // Apply trust and credit funds
             if(!empty($request->trust)) {
                 foreach($request->trust as $key => $item) {
-                    $appliedTrust = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
+                    // $appliedTrust = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
-                    if($appliedTrust) {
-                        $data = [
+                    /* $trustData = [
+                        'invoice_id' => $InvoiceSave->id,
+                        'client_id' => @$item['client_id'] ?? NUll,
+                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
+                        'account_type' => 'trust',
+                        'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
+                    ]; */
+                    /* if($appliedTrust) {
+                        if(@$appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
+                            $trustData['history_last_id'] = @$trustHistoryLast->id;
+                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        } else if(@$appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
+                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        }
+                        $appliedTrust->fill($trustData + [
+                            'updated_by' => auth()->id(),
+                        ])->save();
+                    } else { */
+                        /* if($item['show_trust_account_history'] == 'trust account history') {
+                            $trustData['history_last_id'] = @$trustHistoryLast->id;
+                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        } else if($item['show_trust_account_history'] == 'trust account summary') {
+                            $trustData['total_balance'] = @$trustHistoryLast->current_trust_balance;
+                        } else {
+                            $trustData['show_trust_account_history'] = @$item['show_trust_account_history'] ?? "dont show";
+                        } */
+                        InvoiceApplyTrustCreditFund::updateOrCreate([
                             'invoice_id' => $InvoiceSave->id,
                             'client_id' => @$item['client_id'] ?? NUll,
                             'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
                             'account_type' => 'trust',
-                            'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
-                        ];
-                        if(@$appliedTrust->show_trust_account_history != 'trust account history' && @$item['show_trust_account_history'] == 'trust account history') {
-                            $data['history_last_id'] = @$trustHistoryLast->id;
-                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if(@$appliedTrust->show_trust_account_history != 'trust account summary' && @$item['show_trust_account_history'] == 'trust account summary') {
-                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        }
-                        $appliedTrust->fill($data + [
-                            'updated_by' => auth()->id(),
-                        ])->save();
-                    } else {
-                        if($item['show_trust_account_history'] == 'trust account history') {
-                            $data['history_last_id'] = @$trustHistoryLast->id;
-                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        } else if($item['show_trust_account_history'] == 'trust account summary') {
-                            $data['total_balance'] = @$trustHistoryLast->current_trust_balance;
-                        }
-                        InvoiceApplyTrustCreditFund::create($data + [
-                            'created_by' => auth()->id(),
+                            ], [
+                                'show_trust_account_history' => @$item['show_trust_account_history'] ?? "dont show",
+                                'history_last_id' => @$trustHistoryLast->id,
+                                'total_balance' => @$trustHistoryLast->current_trust_balance,
+                                'created_by' => auth()->id(),
+                                'updated_by' => auth()->id(),
                         ]);
-                    }
+                    // }
                 }
             }
             if(!empty($request->credit)) {
                 foreach($request->credit as $key => $item) {
-                    $appliedCredit = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
+                    // $appliedCredit = InvoiceApplyTrustCreditFund::whereId(@$item['id'])->first();
                     $creditHistoryLast = DepositIntoCreditHistory::where("user_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
-                    if($appliedCredit) {
-                        $data = [
+                    /* $creditData = [
+                        'invoice_id' => $InvoiceSave->id,
+                        'client_id' => @$item['client_id'] ?? NUll,
+                        'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
+                        'account_type' => 'credit',
+                        'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
+                    ]; */
+                    /* if($appliedCredit) {
+                        if(@$appliedCredit->show_credit_account_history != 'credit account history' && @$item['show_credit_account_history'] == 'credit account history') {
+                            $creditData['history_last_id'] = @$creditHistoryLast->id;
+                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
+                        } else if(@$appliedCredit->show_credit_account_history != 'credit account summary' && @$item['show_credit_account_history'] == 'credit account summary') {
+                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
+                        }
+                        $appliedCredit->fill($creditData + [
+                            'updated_by' => auth()->id(),
+                        ])->save();
+                    } else { */
+                        /* if($item['show_credit_account_history'] == 'credit account history') {
+                            $creditData['history_last_id'] = @$creditHistoryLast->id;
+                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
+                        } else if($item['show_credit_account_history'] == 'credit account summary') {
+                            $creditData['total_balance'] = @$creditHistoryLast->total_balance;
+                        } else {
+                            $creditData['show_credit_account_history'] = @$item['show_credit_account_history'] ?? "dont show";
+                        } */
+                        // return $creditData;
+                        InvoiceApplyTrustCreditFund::updateOrCreate([
                             'invoice_id' => $InvoiceSave->id,
                             'client_id' => @$item['client_id'] ?? NUll,
                             'case_id' => ($request->court_case_id == "none") ? 0 : $request->court_case_id,
                             'account_type' => 'credit',
-                            'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
-                        ];
-                        if(@$appliedCredit->show_credit_account_history != 'credit account history' && @$item['show_credit_account_history'] == 'credit account history') {
-                            $data['history_last_id'] = @$creditHistoryLast->id;
-                            $data['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else if(@$appliedCredit->show_credit_account_history != 'credit account summary' && @$item['show_credit_account_history'] == 'credit account summary') {
-                            $data['total_balance'] = @$creditHistoryLast->total_balance;
-                        }
-                        $appliedCredit->fill($data + [
-                            'updated_by' => auth()->id(),
-                        ])->save();
-                    } else {
-                        if($item['show_credit_account_history'] == 'credit account history') {
-                            $data['history_last_id'] = @$creditHistoryLast->id;
-                            $data['total_balance'] = @$creditHistoryLast->total_balance;
-                        } else if($item['show_credit_account_history'] == 'credit account summary') {
-                            $data['total_balance'] = @$creditHistoryLast->total_balance;
-                        }
-                        InvoiceApplyTrustCreditFund::create($data + [
-                            'updated_by' => auth()->id(),
+                            ], [
+                                'show_credit_account_history' => @$item['show_credit_account_history'] ?? "dont show",
+                                'history_last_id' => @$creditHistoryLast->id,
+                                'total_balance' => @$creditHistoryLast->total_balance,
+                                'created_by' => auth()->id(),
+                                'updated_by' => auth()->id(),
                         ]);
-                    }
+                    // }
                 }
             }
 
@@ -8161,7 +8185,7 @@ class BillingController extends BaseController
               
               $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
   
-              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
   
   
               $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
@@ -10364,7 +10388,7 @@ class BillingController extends BaseController
                     $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
                     $pdfData[$invoice_id]['InvoiceInstallment']=$InvoiceInstallment;
 
-                    $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+                    $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
                     $pdfData[$invoice_id]['InvoiceHistoryTransaction']=$InvoiceHistoryTransaction;
 
             
@@ -10409,7 +10433,7 @@ class BillingController extends BaseController
          $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
  
          $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
  
          $filename="Invoice_".$invoice_id.'.pdf';
          $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction'));
@@ -10448,7 +10472,7 @@ class BillingController extends BaseController
      */
     public function invoicePaymentHistory(Request $request)
     {
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
         return view("billing.invoices.partials.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
     }
 

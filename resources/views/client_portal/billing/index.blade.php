@@ -19,9 +19,11 @@
                         </a>
                         <div class="col-4 col-md-2 text-right">
                             <span class="list-row__alert-text">{{ getDueText($item->due_date) }}</span>
+                            @if($onlinePaymentSetting && $onlinePaymentSetting->is_accept_online_payment == 'yes')
                             <a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['invoice_id'=>encodeDecodeId($item->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}" target="_blank">
                                 <span class="payable-detail__export-button">Pay Now</span>
                             </a>
+                            @endif
                         </div>
                     </li>
                 @empty

@@ -7,6 +7,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
 use App\InvoiceHistory;
 use App\InvoiceOnlinePayment;
+use App\InvoiceOnlinePaymentSetting;
 use App\InvoicePayment;
 use App\InvoicePaymentPlan;
 use App\Invoices;
@@ -46,10 +47,10 @@ class BillingController extends Controller
                                 $query->where("user_id", auth()->id());
                             })->whereIn('status', ['Forwarded', 'Paid'])->orderBy('created_at', 'desc')
                             ->with("invoiceForwardedToInvoice", "invoiceLastPayment")->get();
-        
+        $onlinePaymentSetting = InvoiceOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
         $requestFunds = RequestedFund::where('client_id', auth()->id())->where('amount_due', '>', '0.00')->orderBy('created_at', 'desc')->get();
         $requestFundsHistory = RequestedFund::where('client_id', auth()->id())->where('amount_due', '0.00')->orderBy('created_at', 'desc')->get();
-        return view("client_portal.billing.index", compact('invoices', 'forwardedInvoices', 'requestFunds', 'requestFundsHistory'));
+        return view("client_portal.billing.index", compact('invoices', 'forwardedInvoices', 'requestFunds', 'requestFundsHistory', 'onlinePaymentSetting'));
     }
 
     /**
@@ -88,7 +89,8 @@ class BillingController extends Controller
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
             }
-            return view("client_portal.billing.invoice_detail", ["invoice" => $invoice]);
+            $onlinePaymentSetting = InvoiceOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
+            return view("client_portal.billing.invoice_detail", compact("invoice", "onlinePaymentSetting"));
         } else {
             return redirect()->route("client/bills");
         }
@@ -160,13 +162,14 @@ class BillingController extends Controller
         $invoice = Invoices::where("id",$invoiceId)->whereHas('invoiceShared', function($query) use($clientId) {
                         $query->where("user_id", $clientId)->where("is_shared", "yes");
                     })->whereNotIn('status', ['Paid','Forwarded'])->with('invoiceFirstInstallment')->first();
-        if(!empty($invoice)) {
+        $client = User::whereId($clientId)->whereId(auth()->id())->first();
+        if(!empty($invoice) && !empty($client)) {
             $month = $request->month;
             $payableAmount = $invoice->due_amount;
             if($invoice->invoiceFirstInstallment) {
                 $payableAmount = ($invoice->invoiceFirstInstallment->adjustment > 0) ? $invoice->invoiceFirstInstallment->adjustment : $invoice->invoiceFirstInstallment->installment_amount;
             }
-            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount'));
+            return view('client_portal.billing.invoice_payment', compact('invoice', 'clientId', 'month', 'payableAmount', 'client'));
         } else {
             return abort(403);
         }
@@ -281,7 +284,7 @@ class BillingController extends Controller
                         //Code For installment amount
                         $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$request->invoice_id)->first();
                         if(!empty($getInstallMentIfOn)){
-                            $this->installmentManagement($amount,$request->invoice_id);
+                            $this->installmentManagement($amount,$request->invoice_id, $onlinePaymentStatus = 'paid');
                         }
 
                         // Update invoice paid/due amount and status
@@ -323,9 +326,13 @@ class BillingController extends Controller
                         // Send confirm email to client
                         $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
 
-                        // Send confirm email to lawyer
+                        // Send confirm email to lawyer/invoice created user
                         $user = User::whereId($invoice->created_by)->first();
                         $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        
+                        // Send confirm email to firm owner/lead attorney
+                        $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payment/card/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -414,6 +421,8 @@ class BillingController extends Controller
                             'created_by' => auth()->id(),
                         ]);
 
+                        $invoice->fill(['online_payment_status' => 'pending'])->save();
+
                         $invoiceHistory=[];
                         $invoiceHistory['deposit_into'] = $request->deposit_into;
                         $request->request->add(['payment_type' => 'payment']);
@@ -436,7 +445,7 @@ class BillingController extends Controller
                         //Code For installment amount
                         $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$request->invoice_id)->first();
                         if(!empty($getInstallMentIfOn)){
-                            $this->installmentManagement($amount,$request->invoice_id);
+                            $this->installmentManagement($amount,$request->invoice_id, $onlinePaymentStatus = 'pending');
                         }
 
                         // Update invoice paid/due amount and status
@@ -444,14 +453,14 @@ class BillingController extends Controller
 
                         $invoiceHistory = InvoiceHistory::create([
                             'invoice_id' => $request->invoice_id,
-                            'acrtivity_title' => 'Payment Received',
+                            'acrtivity_title' => 'Payment Pending',
                             'pay_method' => 'Oxxo Cash',
                             'amount' => $amount,
                             'responsible_user' => $client->id,
                             'payment_from' => 'online',
                             'invoice_payment_id' => $InvoicePayment->id,
                             'status' => "0",
-                            'online_payment_status' => $order->payment_status,
+                            'online_payment_status' => 'pending',
                             'created_by' => $client->id,
                             'created_at' => Carbon::now(),
                         ]);
@@ -475,12 +484,8 @@ class BillingController extends Controller
                         $data['is_for_client'] = 'yes';
                         $CommonController->addMultipleHistory($data);
 
-                        // Send confirm email to client
-                        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
-
-                        // Send confirm email to lawyer
-                        // $user = User::whereId($invoice->created_by)->first();
-                        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        // Cash payment reference email to client
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'cash_reference_client'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payment/card/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -525,10 +530,10 @@ class BillingController extends Controller
                         $query->where("user_id", $clientId)->where("is_shared", "yes");
                     }) */
                     ->first();
-        $order = '';
-        if($paymentDetail->payment_method == 'cash') {
-            $order = \Conekta\Order::find($paymentDetail->conekta_order_id);
-        }
-        return view('client_portal.billing.invoice_payment_confirmation', compact('invoice', 'paymentDetail', 'order'));
+        $client = User::whereId(auth()->id())->first();
+        // Cash payment reference email to client
+        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 31, 17, 'cash_reference_client'));
+
+        return view('client_portal.billing.invoice_payment_confirmation', compact('invoice', 'paymentDetail'));
     }
 }

@@ -13,7 +13,7 @@ class InvoiceInstallment extends Authenticatable
     protected $table = "invoice_installment";
     public $primaryKey = 'id';
 
-    protected $fillable = ['invoice_id', 'installment_amount', 'due_date', 'firm_id', 'status', 'paid_date', 'pay_type', 'adjustment', 'created_by', 'updated_by'];
+    protected $fillable = ['invoice_id', 'installment_amount', 'due_date', 'firm_id', 'status', 'paid_date', 'pay_type', 'adjustment', 'created_by', 'updated_by', 'online_payment_status'];
 
     protected $appends  = ['decode_id','invoice_decode_id',"invoice_number",'total_paid','total_paid_display','total_amt','total_amt_display','total_due','total_due_display','completed','completed_display','next_payment_on','next_payment_on_display','next_payment_amount','next_payment_amount_display',"final_date",'final_date_display'];
     public function getDecodeIdAttribute(){

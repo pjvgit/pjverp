@@ -22,7 +22,7 @@
             </td>
         </tr>
         <?php  foreach($InvoiceHistoryTransaction as $hKey=>$hVal){
-            if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund"])){ ?>
+            if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund","Payment Pending"])){ ?>
             <tr class="invoice_info_row invoice-table-row">
             <td class="payment-history-column-activity " style="vertical-align: top;">
                 {{$hVal->acrtivity_title}}
@@ -31,14 +31,14 @@
                 {{$hVal->added_date}}
             </td>
             <td class="payment-history-column-pay-method" style="vertical-align: top;">
-                {{ $hVal->pay_method }} {{ ($hVal->status == '0') ? '(Payment Pending)' : '' }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
+                {{ $hVal->pay_method }} {{ (in_array($hVal->status, [2, 3])) ? '(Refunded)' : '' }}
             </td>
             <td class="payment-history-column-amount" style="vertical-align: top;">
-                <?php if($hVal->acrtivity_title=="Payment Received"){?>
+                @if(in_array($hVal->acrtivity_title, ["Payment Received","Payment Pending"]))
                     ${{number_format($hVal->amount,2)}}
-                    <?php }else if($hVal->acrtivity_title=="Payment Refund"){?>
-                        (${{number_format($hVal->amount,2)}})
-                    <?php } ?>
+                @elseif($hVal->acrtivity_title=="Payment Refund")
+                    (${{number_format($hVal->amount,2)}})
+                @endif
             </td>
             <td class="payment-history-column-user" style="vertical-align: top;">
                 {{substr($hVal->responsible['cname'],0,100)}}

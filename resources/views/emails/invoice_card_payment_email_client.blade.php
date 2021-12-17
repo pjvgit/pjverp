@@ -9,7 +9,7 @@
 
 @php
     $content = str_replace('[PAID_AMOUNT]', number_format($onlinePayment->amount ?? 0, 2), $template->content);
-    $content = str_replace('[INVOICE_ID]', $invoice->id, $content);
+    $content = str_replace('[INVOICE_ID]', $onlinePayment->invoice_id, $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
 @endphp
 {!! $content !!}

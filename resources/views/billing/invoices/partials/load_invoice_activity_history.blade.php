@@ -67,6 +67,8 @@
                                 <span class="bill-history-indicator status_indicator_yellow"></span>
                             @elseif($value->acrtivity_title == "Sent Reminder")
                                 <span class="bill-history-indicator status_indicator_light_blue"></span>
+                            @elseif($value->acrtivity_title=="Payment Pending")
+                                <span class="bill-history-indicator status_indicator_orange"></span>
                             @else
                                 <span class="bill-history-indicator"></span>
                             @endif
@@ -85,7 +87,7 @@
                                 echo " (Refunded)";
                             }
                             ?>
-                            {{ ($value->status == '0' && $value->online_payment_status == "pending_payment") ? " (Payment Pending)" : '' }}
+                            {{ ($value->status == '0' && $value->online_payment_status == "pending") ? " (Payment Pending)" : '' }}
                         </td>
                         <td class="invoice-history-row-amount">
                             @if($value->acrtivity_title=="Payment Refund")
@@ -204,6 +206,8 @@
                                 <span class="bill-history-indicator status_indicator_yellow"></span>
                             @elseif($value->acrtivity_title == "Sent Reminder")
                                 <span class="bill-history-indicator status_indicator_light_blue"></span>
+                            @elseif($value->acrtivity_title=="Payment Pending")
+                                <span class="bill-history-indicator status_indicator_orange"></span>
                             @else
                                 <span class="bill-history-indicator"></span>
                             @endif

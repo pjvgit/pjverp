@@ -660,7 +660,7 @@ $finalAmt=$invoice-$paid;
                 </td>
             </tr>
             <?php  foreach($valueData['InvoiceHistoryTransaction'] as $hKey=>$hVal){
-                    if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund"])){ ?>
+                    if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund","Payment Pending"])){ ?>
             <tr class="invoice_info_row invoice-table-row">
                 <td class="payment-history-column-activity " style="vertical-align: top;">
                     {{$hVal->acrtivity_title}}
@@ -672,7 +672,7 @@ $finalAmt=$invoice-$paid;
                     {{$hVal->pay_method}}
                 </td>
                 <td class="payment-history-column-amount" style="vertical-align: top;">
-                    <?php if($hVal->acrtivity_title=="Payment Received"){?>
+                    <?php if(in_array($hVal->acrtivity_title,["Payment Received","Payment Pending"])){?>
                     ${{number_format($hVal->amount,2)}}
                     <?php }else if($hVal->acrtivity_title=="Payment Refund"){?>
                     (${{number_format($hVal->amount,2)}})
@@ -683,7 +683,7 @@ $finalAmt=$invoice-$paid;
                     ({{$hVal->responsible['user_title']}})
                 </td>
                 <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                    <?php if($hVal->acrtivity_title=="Payment Received"){
+                    <?php if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account'){
                         echo $hVal->deposit_into;
                     } ?>
                 </td>
