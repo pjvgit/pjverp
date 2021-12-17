@@ -636,7 +636,7 @@
 
                         return false;
                     } else {
-                    //    window.location.reload();
+                        window.location.reload();
                         $('#loadAddEventPopup').modal("hide");
                         $(".innerLoader").css('display', 'none');
 

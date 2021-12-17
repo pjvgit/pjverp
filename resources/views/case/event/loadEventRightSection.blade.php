@@ -109,10 +109,10 @@
                     <input name="client_share_all" id="client_share_all" checked="checked" type="checkbox">
                     <?php } ?>
                 </td>
-                <td sr-count="{{ count($caseLinkeSavedAttending) .' = '. count($caseLinkeSavedAttending) }}">
+                <td sr-count="{{ count($caseLinkedStaffList) .' = '. count($caseLinkeSavedAttending) }}">
                     <?php if(isset($from) && $from=="edit"){?>
                         <input name="client-attend-all" id="client_attend_all"
-                        <?php if(count($caseLinkeSavedAttending) > 0 && count($caseLinkeSavedAttending)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
+                        <?php if(count($caseLinkedStaffList)==count($caseLinkeSavedAttending)){?> checked="checked" <?php } ?>
                         type="checkbox">
                     
                     <?php }else{ ?>

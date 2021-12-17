@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\User,App\CaseStaff,App\UsersAdditionalInfo;
+use App\User,App\CaseStaff,App\UsersAdditionalInfo,App\CaseMaster;
 use DB;
 use Yajra\Datatables\Datatables;
 
@@ -14,6 +14,27 @@ class UserController extends Controller {
      * Get admin dashboard
      */
     public function index(Request $request)
+    {
+        return view('admin_panel.users.index');
+    }
+
+    public function loadallstaffdata(Request $request)
+    {
+        $email = $request->email;
+        $userData = $case = [];
+        $userProfile = User::where('user_level','3')->where('email', $email)->with('firmDetail')->first();
+        // select * from users where firm_name = 10 and user_level in ('3')
+        // select * from case_master where created_by = 31
+        // select * from case_master where created_by = 31
+        if(!empty($userProfile)){
+            $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfile->parent_user.") as firmCaseCount from users where firm_name = 10 and user_level in ('3')");
+            $case = CaseMaster::join("users","case_master.created_by","=","users.id")->where('firm_id',$userProfile->firm_name)->where("case_master.is_entry_done","1")->count();
+        }
+        // dd($userData);
+        return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','case'));        
+    }
+
+    public function userList(Request $request)
     {
         return view('admin_panel.users.list');
     }

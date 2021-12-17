@@ -8,10 +8,10 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item  {{ request()->is('admin/userlist*') ? 'active' : '' }}" >
-                <a class="nav-item-hold" href="{{ route('admin/userlist') }}">
+            <li class="nav-item  {{ request()->is('admin/users*') ? 'active' : '' }}" >
+                <a class="nav-item-hold" href="{{ route('admin/users') }}">
                     <i class="nav-icon i-Find-User"></i>
-                    <span class="nav-text">User Management</span>
+                    <span class="nav-text" title="user management">Usuarios</span>
                 </a>
                 <div class="triangle"></div>
             </li>

@@ -115,7 +115,8 @@ if(!isset($addition)){ $addition=0;}
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
-                                                    <select onchange="changeCases()"   name="court_case_id" id="court_case_id"
+                                                    <!-- <select onchange="changeCases()"   name="court_case_id" id="court_case_id" -->
+                                                    <select name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
                                                         <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
@@ -3697,7 +3698,7 @@ if(!isset($addition)){ $addition=0;}
         }    
     });
 
-    $("#court_case_id").on("change", function() {
+    $("#court_case_id").on("click", function() {
         if($("#final_total_text").val() > 0){
             swal({
                 title: 'warning',
