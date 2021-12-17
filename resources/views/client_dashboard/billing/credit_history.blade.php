@@ -3,9 +3,11 @@
     <div class="justify-content-end pt-2 d-print-none row ">
         <input type="hidden" id="client_id" value="{{ $client_id }}">
         <div class="align-self-end text-right col-6">
+            @if(!empty($userProfile->userCreditAccountHistory) && count($userProfile->userCreditAccountHistory))
             <a data-toggle="modal" data-target="#export_credit_popup" data-placement="bottom" href="javascript:;" onclick="exportCreditPDFpopup();"> 
                 <button type="button" class="credit-history-export-pdf mx-1 btn  btn-outline-dark">Export PDF</button>
             </a>
+            @endif
             @can(['billing_add_edit','client_add_edit'])
             @if(!empty($userProfile->userCreditAccountHistory) && count($userProfile->userCreditAccountHistory))
             <a data-toggle="modal" data-target="#withdrawFromCredit" data-placement="bottom" href="javascript:;" onclick="withdrawFromCredit();">

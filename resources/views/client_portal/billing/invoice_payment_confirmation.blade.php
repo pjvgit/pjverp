@@ -38,7 +38,7 @@
                                         <h4 class="card-title mb-3">FICHA DIGITAL. NO ES NECESARIO IMPRIMIR.</h4>
                                     </div>
                                     <div class="col-md-6 text-right">
-                                        <img src="{{ $order->charges[0]->payment_method->barcode_url }}" />
+                                        <img src="{{ asset('images/payment/oxxopay_brand.png') }}" />
                                     </div>
                                     <div class="col-md-6">
                                         <h4>MONTO A PAGAR</h4>
@@ -103,20 +103,10 @@ $(document).ready(function () {
 });
 
 function printDiv() {
-     var printContents = $(".cash-pay").html();
-    //  var originalContents = document.body.innerHTML;
-
-    //  document.body.innerHTML = printContents;
-
-    //  window.print();
-
-    //  document.body.innerHTML = originalContents;
-
-    var mywindow = window.open('', 'my div', 'height=400,width=600');
-
+    var printContents = $(".cash-pay").html();
+    var mywindow = window.open();
     mywindow.document.head.innerHTML = '<title></title>'; 
     mywindow.document.body.innerHTML = '<body>' + printContents + '</body>'; 
-
     mywindow.document.close();
     mywindow.focus(); // necessary for IE >= 10
     mywindow.print();

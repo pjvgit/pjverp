@@ -177,7 +177,7 @@ trait CreditAccountTrait {
     /**
      * Update invoice installment status and paid amount
      */
-    public function installmentManagement($paidAmt, $invoice_id) {
+    public function installmentManagement($paidAmt, $invoice_id, $onlinePaymentStatus = null) {
         $invoice_installment=InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
         $arrayGrid=array();
         foreach($invoice_installment as $k=>$v){
@@ -197,13 +197,16 @@ trait CreditAccountTrait {
             if($H['actual_pay_amt']>=0){
                 DB::table('invoice_installment')->where("id",$H['id'])->update([
                     'paid_date'=>date('Y-m-d h:i:s'),
-                    'adjustment'=>DB::raw('adjustment + ' . $H['actual_pay_amt'])
+                    'adjustment'=>DB::raw('adjustment + ' . $H['actual_pay_amt']),
+                    'online_payment_status' => $onlinePaymentStatus ?? 'paid',
                 ]);  
-                $invoice_installment=InvoiceInstallment::find($H['id']);
-                if($invoice_installment['installment_amount']==$invoice_installment['adjustment']){
-                    $invoice_installment->status="paid";   
+                if($onlinePaymentStatus == null || $onlinePaymentStatus == 'paid') {
+                    $invoice_installment=InvoiceInstallment::find($H['id']);
+                    if($invoice_installment['installment_amount']==$invoice_installment['adjustment']){
+                        $invoice_installment->status="paid";   
+                    }
+                    $invoice_installment->save();
                 }
-                $invoice_installment->save();
             }
         }
     }

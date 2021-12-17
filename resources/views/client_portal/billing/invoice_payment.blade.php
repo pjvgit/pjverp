@@ -114,24 +114,24 @@
                                                             <input type="hidden" name="invoice_id" value="{{ $invoice->id }}" >
                                                             <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >
                                                             <div class="form-group row">
-                                                                <label class="col-md-3">Name</label>
-                                                                <div class="col-md-9">
-                                                                    <input type="text" class="form-control" name="name" value="Trupti" placeholder="Nombre" maxlength="50">
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group row">
-                                                                <label class="col-md-3">Phone number</label>
-                                                                <div class="col-md-9">
-                                                                    <input type="text" class="form-control phone-number" name="phone_number" value="8756457889" placeholder="Teléfono" maxlength="13" minlength="10">
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group row">
                                                                 <img class="col-md-3" src="{{ asset('images/payment/pago2.png') }}" />
                                                                 <div class="col-md-9">
                                                                     <label class="radio radio-primary">
                                                                         <input type="radio" name="radio" value="1" checked>
                                                                         <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
                                                                     </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row">
+                                                                <label class="col-md-3">Name</label>
+                                                                <div class="col-md-9">
+                                                                    <input type="text" class="form-control" name="name" value="{{ $client->full_name ?? '' }}" placeholder="Nombre" maxlength="50">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row">
+                                                                <label class="col-md-3">Phone number</label>
+                                                                <div class="col-md-9">
+                                                                    <input type="text" class="form-control phone-number" name="phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
                                                                 </div>
                                                             </div>
                                                             <div class="form-group row">

@@ -440,9 +440,9 @@
                                                 <td class="overdue-invoice">
                                                     <small> 
                                                     <?php  if($v->user_level=="2"){?>
-                                                    <a class="pendo-low-trust-user" href="{{BASE_URL}}contacts/clients/{{$v->id}}">{{ $v->full_name }}</a>
+                                                    <a class="pendo-low-trust-user" href="{{ route('contacts/clients/billing/trust/allocation', $v->id) }}">{{ $v->full_name }}</a>
                                                     <?php }else{ ?>
-                                                        <a class="pendo-low-trust-user" href="{{BASE_URL}}contacts/companies/{{$v->id}}">{{ $v->full_name }}   
+                                                        <a class="pendo-low-trust-user" href="{{ route('contacts/companies/billing/trust/allocation', $v->id) }}">{{ $v->full_name }}   
                                                         </a>
                                                     <?php } ?>
                                                     
@@ -454,9 +454,9 @@
                                                 <td>
                                                     <div class="d-flex flex-row-reverse flex-nowrap">
                                                     <?php  if($v->user_level=="2"){?>
-                                                    <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{BASE_URL}}contacts/clients/{{$v->id}}">
+                                                    <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ route('contacts/clients/billing/trust/allocation', $v->id) }}">
                                                     <?php }else{ ?>
-                                                        <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{BASE_URL}}contacts/companies/{{$v->id}}">
+                                                        <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ route('contacts/companies/billing/trust/allocation', $v->id) }}">
                                                     
                                                     <?php } ?>
                                                             <i class="fas fa-eye" title="" data-toggle="tooltip" data-placement="top" data-original-title="View Client"></i>

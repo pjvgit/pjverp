@@ -15,7 +15,7 @@ class Invoices extends Model
     protected $fillable = ['id', 'user_id', 'case_id', 'invoice_date', 'total_amount', 'paid_amount', 'due_amount', 'due_date', 'is_viewed', 'is_sent', 
             'reminder_sent_counter', 'reminder_viewed_on', 'last_reminder_sent_on', 'status', 'payment_term', 'automated_reminder', 'terms_condition', 
             'notes', 'payment_plan_enabled', 'created_by', 'updated_by', 'invoice_unique_token', 'invoice_token', 'firm_id', 'invoice_setting',
-            'bill_sent_status','is_lead_invoice'];
+            'bill_sent_status','is_lead_invoice', 'online_payment_status'];
 
     protected $casts = [
         'invoice_setting' => 'array',
@@ -306,7 +306,7 @@ class Invoices extends Model
      */
     public function invoicePaymentHistory()
     {
-        return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund"])->orderBy("id","DESC");
+        return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC");
     }
 
     /**

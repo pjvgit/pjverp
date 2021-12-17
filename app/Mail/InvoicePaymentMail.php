@@ -38,12 +38,17 @@ class InvoicePaymentMail extends Mailable
             case 'client':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.invoice_payment_email_client', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                ->markdown('emails.invoice_card_payment_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
                 break;
             case 'user':
                 return $this
                 ->subject($this->template->subject)
-                ->markdown('emails.invoice_payment_email_user', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                ->markdown('emails.invoice_card_payment_email_user', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
+            case 'cash_reference_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_cash_payment_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
                 break;
             
             default:
