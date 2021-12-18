@@ -39,6 +39,12 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::get("/stafflist", "UserController@staffList")->name('admin/stafflist');
     Route::get("/stafflist/info/{id}", "UserController@staffInfo")->name('admin/stafflist/info');
     Route::get("/stafflist/info/{id}/cases", "UserController@staffInfo")->name('admin/stafflist/cases');
+    Route::get("/stafflist/info/{id}/staff", "UserController@firmStaffList")->name('admin/stafflist/staff');
     Route::get("/loadstaff", "UserController@loadStaff")->name('admin/loadstaff');
+    Route::get("/loadFirmStaffList", "UserController@loadFirmStaffList")->name('admin/loadFirmStaffList');
     Route::get('/stafflist/loadStaffCase', 'UserController@staffCaseList')->name('admin/stafflist/loadStaffCase');
+    Route::post("/reactivateStaff", "UserController@reactivateStaff")->name('admin/reactivateStaff');
+    Route::post("/deactivateStaff", "UserController@deactivateStaff")->name('admin/deactivateStaff');
+    Route::post("/loadDeactivateUser", "UserController@loadDeactivateUser")->name('admin/loadDeactivateUser');
+    
 });

@@ -25,10 +25,12 @@
     </head>
 
 
-    <body class="text-left">
+    <body class="text-left">        
         <!-- Pre Loader Strat  -->
-        <div class='loadscreen' id="preloader">
-            <div class="loader spinner-bubble spinner-bubble-primary">
+        <div class="loadscreen" id="preloader" style="display: block;">
+            <div class="loader"><img class="logo mb-3" src="{{asset('images/logo.png')}}" style="display: none"
+                    alt="">
+                <div class="loader-bubble loader-bubble-primary d-block"></div>
             </div>
         </div>
         <!-- Pre Loader end  -->

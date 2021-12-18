@@ -202,7 +202,7 @@ $userTitle = unserialize(USER_TITLE);
                                                 $type=$userProfile->user_title;
                                                 ?>
                                                 <a data-toggle="modal" data-target="#deactivateUser" data-placement="bottom" href="javascript:;"> 
-                                                    <button class="btn btn-outline-danger text-nowrap deactivate-user" type="button" ">Deactivate {{ $type}}</button>
+                                                    <button class="btn btn-outline-danger text-nowrap deactivate-user" type="button">Deactivate {{ $type}}</button>
                                                 </a>
                                                     
                                             </div>
@@ -229,7 +229,7 @@ $userTitle = unserialize(USER_TITLE);
                                         @else
                                         <div class="text-center">
                                         <a data-toggle="modal" data-target="#reactivateUser" data-placement="bottom" href="javascript:;"> 
-                                                <button class="btn  btn-outline-danger  btn-rounded text-nowrap reactivate-user" type="button" ">Reactivate {{ $userProfile->user_title}}</button>
+                                                <button class="btn  btn-outline-danger  btn-rounded text-nowrap reactivate-user" type="button">Reactivate {{ $userProfile->user_title}}</button>
                                             </a>
                                         </div>
                                         @endif 

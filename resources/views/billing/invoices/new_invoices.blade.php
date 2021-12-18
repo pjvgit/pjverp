@@ -70,8 +70,8 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="width: 400px; white-space: nowrap; vertical-align: bottom;">
                                         <div>
                                             <div class="clearfix">
-                                                <select class="form-control" id="contact"
-                                                    onchange="fetchClientAddresss()" name="contact" style="width: 70%;"
+                                                <!-- <select class="form-control" id="contact" onchange="fetchClientAddresss()" name="contact" style="width: 70%;" -->
+                                                <select class="form-control" id="contact" name="contact" style="width: 70%;"
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
@@ -3671,7 +3671,8 @@ if(!isset($addition)){ $addition=0;}
        
     }
 
-    $("#contact").on("change", function() {
+    var contact =  $("#contact").val()
+    $("#contact").on("click", function() {
         if($("#final_total_text").val() > 0){
             swal({
                 title: 'warning',
@@ -3694,10 +3695,13 @@ if(!isset($addition)){ $addition=0;}
                 $("#court_case_id").val('{{$case_id}}');
             });
         }else{
+            if(court_case_id != $(this).val()){
             fetchClientAddress();
+            }
         }    
     });
 
+    var court_case_id =  $("#court_case_id").val()
     $("#court_case_id").on("click", function() {
         if($("#final_total_text").val() > 0){
             swal({
@@ -3721,11 +3725,14 @@ if(!isset($addition)){ $addition=0;}
                 $("#court_case_id").val('{{$case_id}}');
             });
         }else{
-            changeCase();
+            if(court_case_id != $(this).val()){
+                changeCase();
+            }
         }    
     });
 
     function changeCase(){
+        $("#preloader").show();
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var bill_payment_terms = $("#bill_payment_terms").val();
@@ -4321,10 +4328,12 @@ if(!isset($addition)){ $addition=0;}
             $("#bill_to_date").attr("disabled", true);
             $('#bill_from_date').val('');
             $('#bill_to_date').val('');
+            if($('#bill_from_date').val('') != ''){
             var case_id=$("#court_case_id").val();
             var contact=$("#contact").val();
             var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
             window.location.href=URLS;
+            }
         }
     });
 

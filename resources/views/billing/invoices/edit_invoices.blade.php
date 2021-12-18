@@ -4476,10 +4476,12 @@ $("input:checkbox#range_check_box").click(function () {
         $("#bill_to_date").attr("disabled", true);
         $('#bill_from_date').val('');
         $('#bill_to_date').val('');
+        if($('#bill_from_date').val('') != ''){
         var case_id=$("#court_case_id").val();
         var contact=$("#contact").val();
         var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
         window.location.href=URLS;
+        }
     }
 });
 </script>
