@@ -710,3 +710,8 @@ p {
 #calendar_view_div .accordion .ul-collapse__right-icon a::before {
     right: 0;
 }
+
+
+/* .flex-nowrap {
+    flex-wrap: nowrap !important;
+} */

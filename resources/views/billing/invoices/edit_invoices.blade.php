@@ -231,7 +231,7 @@ $expenseTime=0;$expenseAmount=0;
                                     <td style="color: black; vertical-align: middle;" class="range_select disabled">From:
                                     </td>
                                     <td style="width: 100%;">
-                                        <div class="input-daterange input-group" id="datepicker" style="display:ruby;">
+                                        <div class="input-daterange input-group flex-nowrap align-items-center" id="datepicker" style="align-items: center;">
                                         <input style="width: 115px;" type="text" class="form-control" name="bill_from_date" value="{{$bill_from_date}}"
                                         id="bill_from_date" disabled="disabled" />
                                         <span class="input-group-addon">&nbsp;To&nbsp;</span>
@@ -1114,7 +1114,7 @@ $expenseTime=0;$expenseAmount=0;
                                     <?php } ?>
                                     <?php if($addition!="0"){?>
                                     <div style="border: none; padding-top: 7px;" class="billing-additions-area ">
-                                        $<span id="additions_section_total" class="table_total amount">{{$addition}}</span>
+                                        $<span id="additions_section_total" class="table_total amount additions_section_total">{{$addition}}</span>
                                     </div>
                                     <?php } ?>
                                     <div style="border: none; padding-top: 7px; display: none;"
@@ -1228,7 +1228,7 @@ $expenseTime=0;$expenseAmount=0;
                                             <?php if($addition!="0"){?>
                                             <div style="border: none; padding-top: 7px;" class="billing-additions-area ">
                                                 $<span id="additions_section_total"
-                                                    class="table_total amount">{{$addition}}</span>
+                                                    class="table_total amount additions_section_total">{{$addition}}</span>
                                             </div>
                                             <?php } ?>
 
@@ -2697,7 +2697,9 @@ $expenseTime=0;$expenseAmount=0;
         padding:3px;
     }
     .get-paid-now-text{border-bottom:1px solid var(--gray);border-left:1px solid var(--gray);border-right:1px solid var(--gray)}.get-paid-now-ads li{list-style:none}.get-paid-now-ads li:before{bottom:26px;color:var(--success);content:"\2022";display:block;font-size:53px;max-height:0;max-width:0;position:relative;right:24px}.show-me-how-btn{min-width:250px}.green_box{height:100%;min-height:270px;width:100%}
-
+    #addNewAdjustmentEntryArea .saveAdjustmentForm .select2-container{
+        width: 100% !important;
+    }
 </style>
 
 @section('page-js-inner')
@@ -2705,6 +2707,15 @@ $expenseTime=0;$expenseAmount=0;
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger : 'hover'
+        });
+        
+        $('[data-toggle="tooltip"]').on('click', function () {
+            $(this).tooltip('hide')
+        }); 
+
         <?php if($findInvoice->payment_plan_enabled=="yes"){?>
             $("#payment_plan_details").slideToggle();
         <?php } ?>
@@ -3242,7 +3253,15 @@ $expenseTime=0;$expenseAmount=0;
                         return false;
                     }
                 }else{
-                    $("#saveInvoiceForm").submit();
+                    var payment_plan_balance = $("#payment_plan_balance").text();
+                    if(payment_plan_balance == 0 || $("#payment_plan").is(":checked") === false){
+                        $("#invoice_payment_plan_error").hide();
+                        $("#saveInvoiceForm").submit();
+                    }else{
+                        $("#invoice_payment_plan_error").show();
+                        afterLoader();
+                        return false;
+                    }
                 }
             }else{
                 var PaymentPlanExits = "{{ count($InvoiceInstallment) }}";
@@ -3628,7 +3647,7 @@ $expenseTime=0;$expenseAmount=0;
         subtotal = parseFloat(expense_total_amount) + parseFloat(time_entry_total_amount) + parseFloat(flat_fee_sub_total_text);
         
         var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
-        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;      
+        var addition_amount = ($(".additions_section_total").html() != undefined) ? $(".additions_section_total").html().replace(/,/g, '') : 0.00;      
         var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0.00;
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
@@ -3660,7 +3679,23 @@ $expenseTime=0;$expenseAmount=0;
             $("#payment_plan_balance").html(final_total);
             $('#payment_plan_balance').number(true, 2);
         }
-        
+
+        if($("#payment_plan").is(":checked") === true){
+            var sumR=0;
+            $('.edit_payment_plan_amount').each(function (i) {
+                var gg =$(this).val();
+                sumR +=parseFloat(gg);
+            });
+            console.log("3678 >"+ sumR.toFixed(2) +" == "+ final_total.toFixed(2));
+            if(sumR.toFixed(2) == final_total.toFixed(2)){
+                $("#payment_plan_balance").html('0.00');
+                $('#payment_plan_balance').number(true, 2); 
+            }else{
+                $("#payment_plan_balance").html(final_total);
+                $('#payment_plan_balance').number(true, 2); 
+            }
+            
+        }        
     }
 
     function addSingleTimeEntry() {
@@ -4092,7 +4127,12 @@ $expenseTime=0;$expenseAmount=0;
         if(PaymentPlanExits == 0){
             $("#payment_plan_balance").html($(".final_total").html());
             $('#payment_plan_balance').number(true, 2); 
-        }        
+        }  
+        
+        if($("#payment_plan").is(":checked") === false){
+            $("#payment_plan_balance").html($(".final_total").html());
+            $('#payment_plan_balance').number(true, 2); 
+        }
     }, 1000);
 
     function editSingleFlatFeeEntry(id) {
@@ -4328,6 +4368,7 @@ $expenseTime=0;$expenseAmount=0;
                 url: baseUrl + "/bills/invoices/removeAdjustmentEntry", // json datasource
                 data: {id : id},
                 success: function (res) {
+                    afterLoader();
                     if (res.errors != '') {
                         $('.showError').html('');
                         var errotHtml =
@@ -4338,16 +4379,23 @@ $expenseTime=0;$expenseAmount=0;
                         errotHtml += '</ul></div>';
                         $('.showError').append(errotHtml);
                         $('.showError').show();
-                        $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
-                        afterLoader();
+                        $('#payInvoice').animate({ scrollTop: 0 }, 'slow');                        
                         return false;
                     } else {
+                        if(res.item != 'discount'){
+                            var discount = $("#addition_total_text").val();
+                            discount = discount - amount;
+                            discount = (discount<=0) ? 0 : discount;                        
+                            $("#addition_total_text").val(discount.toFixed(2));
+                            $(".additions_section_total").text(discount.toFixed(2));
+                        }else{
+                            var discount = $("#discount_total_text").val();
+                            discount = discount - amount;
+                            discount = (discount<=0) ? 0 : discount;                        
+                            $("#discount_total_text").val(discount.toFixed(2));
+                            $(".discounts_section_total").text(discount.toFixed(2));
+                        }
                         $("#entry_"+id).remove(); 
-                        var discount = $("#discount_total_text").val();
-                        discount = discount - amount;
-                        discount = (discount<=0) ? 0 : discount;                        
-                        $("#discount_total_text").val(discount.toFixed(2));
-                        $(".discounts_section_total").text(discount.toFixed(2));
                         recalculate();
                         return false;
                     }

@@ -547,7 +547,7 @@ td,th{
                                                         <div class=""><select id="discount_type" name="discount_type"
                                                                 class="form-control custom-select  ">
                                                                 <option value="discount">Discount</option>
-                                                                <option value="interest">Interest</option>
+                                                                <option value="intrest">Interest</option>
                                                                 <option value="tax">Tax</option>
                                                                 <option value="addition">Addition</option>
                                                             </select></div>

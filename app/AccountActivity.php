@@ -30,8 +30,9 @@ class AccountActivity extends Authenticatable
 
     }
     public function getAddedDateAttribute(){
-        $userTime = convertUTCToUserTime($this->created_at, auth()->user()->user_timezone ?? 'UTC');
-        return date('M j, Y',strtotime($userTime));
+        return date('M j, Y',strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($this->entry_date)), auth()->user()->user_timezone ?? 'UTC')));
+        // $userTime = convertUTCToUserTime($this->entry_date, auth()->user()->user_timezone ?? 'UTC');
+        // return date('M j, Y',strtotime($userTime));
     }
 
     public function getCaseAttribute(){

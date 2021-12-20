@@ -3754,7 +3754,7 @@ class BillingController extends BaseController
             $InvoiceAdjustment=InvoiceAdjustment::find($request->id);
             if(!empty($InvoiceAdjustment)){
                 $InvoiceAdjustment->delete();
-                return response()->json(['errors'=>'']);
+                return response()->json(['errors'=>'','item'=>$InvoiceAdjustment->item]);
                 exit;
             }else{
                 return response()->json(['errors'=>'1','msg'=>"No record found"]);
@@ -6982,7 +6982,7 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            return 'else';
+            // return 'else';
             try {
                 dbStart();
                 $invoicePayment = InvoicePayment::where("id", $PaymentMaster->invoice_payment_id)->first();
@@ -7924,7 +7924,10 @@ class BillingController extends BaseController
        
         if(isset($requestData['range']) && $requestData['range']!=''){
             $cutDate=explode("-",$requestData['range']);
-            $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
+            $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]);
+            // $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
         }
         
        
@@ -7994,7 +7997,10 @@ class BillingController extends BaseController
        
         if(isset($requestData['range']) && $requestData['range']!=''){
             $cutDate=explode("-",$requestData['range']);
-            $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
+            $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]);            
+            // $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
         }
         $totalData=$FetchQuery->count();
         $totalFiltered = $totalData; 
@@ -8023,7 +8029,9 @@ class BillingController extends BaseController
        
         if(isset($requestData['range']) && $requestData['range']!=''){
             $cutDate=explode("-",$requestData['range']);
-            $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
+            $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]); 
         }
         $FetchQuery = $FetchQuery->orderBy("id","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
@@ -8100,7 +8108,9 @@ class BillingController extends BaseController
         }
         if(isset($requestData['range']) && $requestData['range']!=''){
             $cutDate=explode("-",$requestData['range']);
-            $FetchQuery = $FetchQuery->whereBetween('entry_date', [date('Y-m-d',strtotime($cutDate[0])),date('Y-m-d',strtotime($cutDate[1]))]);
+            $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($cutDate[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            $FetchQuery = $FetchQuery->whereBetween('entry_date', [$startDt,$endDt]);
         }
         $FetchQuery = $FetchQuery->orderBy("id","DESC");
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();

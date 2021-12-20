@@ -1,7 +1,7 @@
 <?php
  $CommonController= new App\Http\Controllers\CommonController();
 ?> 
-<div class="tab-content" id="myTabContent">
+<div class="tab-content" id="myTabContent" bladefile="resources/views/billing/time_entry/loadEditTimeEntryPopup.blade.php">
     <span id="showError" class="showError" style="display: none;"></span>
     <div class="tab-pane fade show active" id="homeBasic" role="tabpanel" aria-labelledby="home-basic-tab">
         

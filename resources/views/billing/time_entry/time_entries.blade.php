@@ -283,14 +283,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             ],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                     if(aData.duration > 0.01){
-                        $('td:eq(2)', nRow).html('<div class="text-left">$'+aData.duration+'</div>');
+                        $('td:eq(2)', nRow).html('<div class="text-left">'+aData.duration+'</div>');
                     }else{
                         $('td:eq(2)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                     }
                     if(aData.rate_type=="flat"){
                         $('td:eq(4)', nRow).html('<div class="text-left">Flat</div>');
                     }else{
-                        $('td:eq(4)', nRow).html('<div class="text-left">'+aData.entry_rate+'/'+aData.rate_type+'</div>');
+                        $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.entry_rate+'/'+aData.rate_type+'</div>');
                     }
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.calculated_amt+'</div>');
                     if(aData.invoice_link != null){

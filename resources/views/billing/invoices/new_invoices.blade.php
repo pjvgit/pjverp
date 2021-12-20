@@ -257,7 +257,7 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="color: black; vertical-align: middle;" class="range_select disabled">From:
                                     </td>  
                                     <td style="width: 100%;">
-                                        <div class="input-daterange input-group" id="datepicker" style="display:ruby;">
+                                        <div class="input-daterange input-group flex-nowrap align-items-center" id="datepicker">
                                         <input style="width: 115px;" type="text" class="form-control" name="bill_from_date" value="{{$from_date}}"
                                         id="bill_from_date" disabled="disabled" />
                                         <span class="input-group-addon">&nbsp;To&nbsp;</span>
@@ -1100,10 +1100,8 @@ if(!isset($addition)){ $addition=0;}
                                                 }
                                                 ?>
                         </td>
-                        <td> 
-                            <span data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry">
-                            <a onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
-                            </span>
+                        <td style="position: relative"> 
+                            <a data-toggle="tooltip" data-placement="left" title="Remove Adjustment Entry" onclick="removeAdjustmentEntry({{$v->id}},{{$v->amount}})" href="javascript:;"> &nbsp; <i class="fas fa-trash align-middle pr-2"></i></a>
                         </td>
                         </tr>
                         <?php } }?>
@@ -1149,7 +1147,7 @@ if(!isset($addition)){ $addition=0;}
                                     <?php } ?>
                                     <?php if($addition!="0"){?>
                                     <div style="border: none; padding-top: 7px;" class="billing-additions-area ">
-                                        $<span id="additions_section_total" class="table_total amount">{{$addition}}</span>
+                                        $<span id="additions_section_total" class="table_total amount additions_section_total">{{$addition}}</span>
                                     </div>
                                     <?php } ?>
                                     <div style="border: none; padding-top: 7px; display: none;"
@@ -1269,7 +1267,7 @@ if(!isset($addition)){ $addition=0;}
                                             <?php if($addition!="0"){?>
                                             <div style="border: none; padding-top: 7px;" class="billing-additions-area ">
                                                 $<span id="additions_section_total"
-                                                    class="table_total amount">{{$addition}}</span>
+                                                    class="table_total amount additions_section_total">{{$addition}}</span>
                                             </div>
                                             <?php } ?>
 
@@ -2622,14 +2620,24 @@ if(!isset($addition)){ $addition=0;}
         padding:3px;
     }
     .get-paid-now-text{border-bottom:1px solid var(--gray);border-left:1px solid var(--gray);border-right:1px solid var(--gray)}.get-paid-now-ads li{list-style:none}.get-paid-now-ads li:before{bottom:26px;color:var(--success);content:"\2022";display:block;font-size:53px;max-height:0;max-width:0;position:relative;right:24px}.show-me-how-btn{min-width:250px}.green_box{height:100%;min-height:270px;width:100%}
-
+    #addNewAdjustmentEntryArea .saveAdjustmentForm .select2-container{
+        width: 100% !important;
+    }
 </style>
 
 @section('page-js-inner')
 <script src="{{ asset('assets\js\custom\invoice\addinvoice.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(document).ready(function () { 
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger : 'hover'
+        });
+        
+        $('[data-toggle="tooltip"]').on('click', function () {
+            $(this).tooltip('hide')
+        }); 
+
         $("#payment_plan").prop('checked',false);
         $("#first_payment_amount").attr("disabled",true);
         $("#with_first_payment").attr("checked",false);
@@ -2995,7 +3003,7 @@ if(!isset($addition)){ $addition=0;}
                 <?php if($case_id == "none"){ ?>
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
-                    var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
+                    var addition_amount = ($(".additions_section_total").html() != undefined) ? $(".additions_section_total").html().replace(/,/g, '') : 0.00;        
                     if(flat_fee_sub_total_text > 0) {
                         alert++;
                     }
@@ -3818,7 +3826,7 @@ if(!isset($addition)){ $addition=0;}
         subtotal = parseFloat(expense_total_amount) + parseFloat(time_entry_total_amount) + parseFloat(flat_fee_sub_total_text);
         
         var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
-        var addition_amount = ($("#additions_section_total").html() != undefined) ? $("#additions_section_total").html().replace(/,/g, '') : 0.00;        
+        var addition_amount = ($(".additions_section_total").html() != undefined) ? $(".additions_section_total").html().replace(/,/g, '') : 0.00;        
         var forwarded_amount = ($("#forwarded_total_amount").html() != undefined) ? $("#forwarded_total_amount").html().replace(/,/g, '') : 0.00;
         console.log("forwarded_amount = " + forwarded_amount);
         console.log("discount_amount = " + discount_amount);
@@ -4379,6 +4387,7 @@ if(!isset($addition)){ $addition=0;}
                 url: baseUrl + "/bills/invoices/removeAdjustmentEntry", // json datasource
                 data: {id : id},
                 success: function (res) {
+                    afterLoader();
                     if (res.errors != '') {
                         $('.showError').html('');
                         var errotHtml =
@@ -4390,15 +4399,22 @@ if(!isset($addition)){ $addition=0;}
                         $('.showError').append(errotHtml);
                         $('.showError').show();
                         $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
-                        afterLoader();
                         return false;
                     } else {
+                        if(res.item != 'discount'){
+                            var discount = $("#addition_total_text").val();
+                            discount = discount - amount;
+                            discount = (discount<=0) ? 0 : discount;                        
+                            $("#addition_total_text").val(discount.toFixed(2));
+                            $(".additions_section_total").text(discount.toFixed(2));
+                        }else{
+                            var discount = $("#discount_total_text").val();
+                            discount = discount - amount;
+                            discount = (discount<=0) ? 0 : discount;                        
+                            $("#discount_total_text").val(discount.toFixed(2));
+                            $(".discounts_section_total").text(discount.toFixed(2));
+                        }
                         $("#entry_"+id).remove(); 
-                        var discount = $("#discount_total_text").val();
-                        discount = discount - amount;
-                        discount = (discount<=0) ? 0 : discount;                        
-                        $("#discount_total_text").val(discount.toFixed(2));
-                        $(".discounts_section_total").text(discount.toFixed(2));
                         recalculate();
                         return false;
                     }

@@ -33,6 +33,10 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $('.dismissLoadGrantAccessModal').on('click', function() {
+            $('#loadGrantAccessModal').modal('hide');
+        });
+    
         $("#grantAccessPage").validate({
             rules: {
                 email: {
