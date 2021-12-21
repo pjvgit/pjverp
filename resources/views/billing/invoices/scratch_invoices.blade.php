@@ -1078,11 +1078,11 @@ if(!isset($adjustment_token)){
         });
 
         $("#amount_per_installment_field").blur(function(){
-            var currentAmount=$(this).val().replace(',', '');
+            var currentAmount=$(this).val().replace(/,/g, '');
             var totalAmount= parseFloat($("#final_total_text").val());
             // var totalInstalment=totalAmount/currentAmount;
             // $("#number_installment_field").val(Math.round(totalInstalment));
-            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(/,/g, ''));
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalAmount = totalAmount - firstInstallment;
             }
@@ -1101,9 +1101,9 @@ if(!isset($adjustment_token)){
         }); 
 
         $("#first_payment_amount").blur(function(){
-            var totalAmount= parseFloat($("#final_total_text").val().replace(',', ''));
-            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
-            var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
+            var totalAmount= parseFloat($("#final_total_text").val().replace(/,/g, ''));
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(/,/g, ''));
+            var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(/,/g, ''));
             var debitedAmount=totalAmount-firstInstallment;
              var totalInstalment=debitedAmount/amount_per_installment_field;
             $("#number_installment_field").val(Math.ceil(totalInstalment) + 1);
@@ -1222,12 +1222,12 @@ if(!isset($adjustment_token)){
                 }
 
                 if ($("#with_first_payment").is(":checked") && loopVar==1) {
-                    firstInstallment=$("#first_payment_amount").val().replace(',', '');
+                    firstInstallment=$("#first_payment_amount").val().replace(/,/g, '');
                     countSum+=parseFloat(firstInstallment);
                 }else{
                     firstInstallment=amount_per_installment_field;
                     if(loopVar==number_installment_field){
-                        totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
+                        totalAMT=parseFloat($("#final_total_text").val().replace(/,/g, ''));
                         firstInstallment=totalAMT-countSum;
                     }else{
                         countSum+=parseFloat(firstInstallment);
@@ -1323,12 +1323,12 @@ if(!isset($adjustment_token)){
                     }
 
                     if ($("#with_first_payment").is(":checked") && loopVar==1) {
-                        firstInstallment=$("#first_payment_amount").val().replace(',', '');
+                        firstInstallment=$("#first_payment_amount").val().replace(/,/g, '');
                         countSum+=parseFloat(firstInstallment);
                     }else{
                         firstInstallment=amount_per_installment_field;
                         if(loopVar==number_installment_field){
-                            totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
+                            totalAMT=parseFloat($("#final_total_text").val().replace(/,/g, ''));
                             firstInstallment=totalAMT-countSum;
                         }else{
                             countSum+=parseFloat(firstInstallment);

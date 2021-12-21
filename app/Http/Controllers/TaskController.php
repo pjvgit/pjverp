@@ -1146,7 +1146,7 @@ class TaskController extends BaseController
                 }else{
                     $default_rate=($rateUsers['rate_amount'])??0.00;
                 }
-                if($default_rate > 0.00){
+                // if($default_rate > 0.00){
                     $TaskTimeEntry->entry_rate=$default_rate;
                     $TaskTimeEntry->rate_type='hr';
                     $TaskTimeEntry->duration =$request->duration[$i];
@@ -1175,7 +1175,7 @@ class TaskController extends BaseController
                     $data['extra_notes']=$TaskTimeEntry->activity_id;
                     $this->caseActivity($data);
 
-                }
+                // }
             }
                 
         }

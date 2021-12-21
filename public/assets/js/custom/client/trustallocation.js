@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function() {
     $(document).on("click", ".edit-minimum-trust", function() {
         $(this).parents('td').find(".setup-input-div").show();
         $(this).parents('td').find(".setup-btn-div").hide();
@@ -7,12 +7,12 @@ $(document).ready(function () {
 
 $(document).on("click", ".save-minimum-trust-balance", function() {
     var minBalance = $(this).parents("form.setup-min-trust-balance-form").find("input[name=min_balance]").val();
-    minBalance = minBalance.replace(',', '');
-    if(minBalance > 0) {
+    minBalance = minBalance.replace(/,/g, '');
+    if (minBalance > 0) {
         $(this).parents("form.setup-min-trust-balance-form").find("input[name=min_balance]").val(minBalance);
         var formData = $(this).parents("form.setup-min-trust-balance-form").serialize();
         $.ajax({
-            url: baseUrl+"/contacts/clients/save/min/trust/balance",
+            url: baseUrl + "/contacts/clients/save/min/trust/balance",
             type: 'POST',
             data: formData,
             success: function(res) {
@@ -35,13 +35,13 @@ $(document).on("click", ".save-minimum-trust-balance", function() {
 function trustAllocationList() {
     var clientId = $("#user_id").val();
     $.ajax({
-        url: baseUrl+"/contacts/clients/trust/allocation/list",
+        url: baseUrl + "/contacts/clients/trust/allocation/list",
         type: 'GET',
-        data: { client_id: clientId},
+        data: { client_id: clientId },
         success: function(res) {
             if (res != '') {
                 $(".trust-allocations-table tbody").html(res);
-            } 
+            }
         }
     });
 }
@@ -52,13 +52,13 @@ $(document).on("click", ".balance-allocation-link", function() {
     var page = $(this).attr("data-page");
     console.log(page);
     $.ajax({
-        url: baseUrl+"/contacts/clients/trust/allocation/detail",
+        url: baseUrl + "/contacts/clients/trust/allocation/detail",
         type: 'GET',
-        data: { client_id: clientId, case_id: caseId, page : page},
+        data: { client_id: clientId, case_id: caseId, page: page },
         success: function(res) {
             if (res != '') {
                 $("#trust_allocation_modal_body").html(res);
-            } 
+            }
         }
     });
 });
@@ -68,7 +68,7 @@ $(document).on("input", ".allocate-fund", function() {
     var amt = $(this).val();
     amt = (!amt.trim()) ? 0 : amt.replace(",", "");
     console.log(amt);
-    if(parseFloat(amt) > parseFloat(totalAmt)) {
+    if (parseFloat(amt) > parseFloat(totalAmt)) {
         $(this).val((parseFloat(totalAmt) > 0) ? parseFloat(totalAmt).toFixed(2) : "0.00");
         $(".unallocate-fund").val("0.00");
     } else {
@@ -81,18 +81,18 @@ $(document).on("click", ".confirm-btn", function() {
     var formData = $(this).parents("form.trust-allocate-form").serialize();
     var page = $("#page").val();
     $.ajax({
-        url: baseUrl+"/contacts/clients/save/trust/allocation",
+        url: baseUrl + "/contacts/clients/save/trust/allocation",
         type: 'POST',
         data: formData,
         success: function(res) {
             if (res.errors != '') {
                 return false;
-            } else {               
+            } else {
                 $("#trust_allocation_modal").modal("hide");
-                if(page == "invoice_payment"){
+                if (page == "invoice_payment") {
                     reallocateContact();
-                }else{ 
-                    if(res.msg != '') {
+                } else {
+                    if (res.msg != '') {
                         toastr.success(res.msg, "", {
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
@@ -106,6 +106,6 @@ $(document).on("click", ".confirm-btn", function() {
     });
 });
 
-$('#trust_allocation_modal').on('hidden.bs.modal', function () {
+$('#trust_allocation_modal').on('hidden.bs.modal', function() {
     $('body').toggleClass("modal-open");
 });

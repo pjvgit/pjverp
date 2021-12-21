@@ -10,7 +10,7 @@
                     <div class="card-body">
                         <div class="pl-2 row ">
                             <div class="col-4">
-                                <p class="">Un-Invoiced</p>
+                                <p class="" data="{{$CaseMaster->uninvoiced_balance}}">Un-Invoiced</p>                                
                                 <h4 class="font-weight-bold">
                                     <?php 
                                     $flatFeeTotal = 0;

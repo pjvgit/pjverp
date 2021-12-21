@@ -176,7 +176,6 @@ if(isset($_GET['task_read'])){
                         </div>
                         <div class="col-md-2 form-group mb-3">
                             <label for="picker1">Due Date</label>
-
                             <input type="text" class="form-control" id="daterange" name="daterange"
                                 value="{{$daterange}}" />
                         </div>
@@ -1086,9 +1085,9 @@ if(isset($_GET['task_read'])){
             "autoUpdateInput": true,
             "opens": "center",
         }, function (start, end, label) {
-            $("#filter_type").val(label);
+            $("#daterange").val(label);
         });
-        <?php if (isset($_GET['filter_type']) && $_GET['filter_type'] == '' || !isset($_GET['filter_type'])) { ?>
+        <?php if (isset($_GET['daterange']) && $_GET['daterange'] == '' || !isset($_GET['daterange'])) { ?>
             $('input[name="daterange"]').val(''); 
         <?php } ?>
         $('#checkall').on('change', function () {

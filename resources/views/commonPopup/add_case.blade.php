@@ -1,6 +1,6 @@
 <div id="AddCaseModelUpdate" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
 aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" bladefile="resources/views/commonPopup/add_case.blade.php">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Add Case</h5>
@@ -455,9 +455,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script type="text/javascript">
     $(document).ready(function() {
         $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
-                '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
+            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
+            $('body').find('.fieldGroup:last').after(fieldHTML);
         });
         $('#smartwizard,#smartwizard1').smartWizard({
             selected: 0,

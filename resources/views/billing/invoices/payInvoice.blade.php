@@ -612,7 +612,8 @@ $finalAmt=$invoice-$paid;
 
     function didPayment() {
         console.log("Payinvoice > didPayment > submit form");
-        var amtVal= $('#amountFirst').val();
+        var amtVal= $('#amountFirst').val().replace(/,/g, '');
+        console.log("Payinvoice > didPayment > submit form > " + amtVal);
         var currentAmt = $.number(amtVal,2);
         swal({
             title: 'Confirm the payment amount of $' + currentAmt + '?',
@@ -692,7 +693,7 @@ $finalAmt=$invoice-$paid;
     }
 
     function didTrustPayment() {
-        var currentAmt = $.number($('.amountTrust').val(),2);
+        var currentAmt = $.number($('.amountTrust').val().replace(/,/g, ''),2);
         swal({
             title: 'Confirm the payment amount of $' + currentAmt + '?',
             text: "",
@@ -820,7 +821,7 @@ function creditPaymentConfirmation() {
 
 // Credit payment
 function didCreditPayment() {
-    var f= $.number($('.amountCredit ').val(),2);
+    var f= $.number($('.amountCredit ').val().replace(/,/g, ''),2);
     var currentAmt = f;
     // var currentAmt = $.number($('#amountTrust').val(),2);
     swal({

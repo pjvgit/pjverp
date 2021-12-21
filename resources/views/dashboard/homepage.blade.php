@@ -720,7 +720,7 @@
 </div>
 <div id="AddCaseModelUpdate" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" bladefile="resources/views/dashboard/homepage.blade.php">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Add Case</h5>
@@ -735,13 +735,10 @@
                             @csrf
                             <div id="smartwizard">
                                 <ul>
-                                    <li class="text-center"><a href="#step-1">1<br /><small>Clients &
-                                                Contacts</small></a></li>
-                                    <li class="text-center"><a href="#step-2">2<br /><small>Case Details</small></a>
-                                    </li>
+                                    <li class="text-center"><a href="#step-1">1<br /><small>Clients & Contacts</small></a></li>
+                                    <li class="text-center"><a href="#step-2">2<br /><small>Case Details</small></a></li>
                                     <li class="text-center"><a href="#step-3">3<br /><small>Billing</small></a></li>
-                                    <li class="text-center"><a href="#step-4">4<br /><small>Staff</small></a>
-                                    </li>
+                                    <li class="text-center"><a href="#step-4">4<br /><small>Staff</small></a></li>
                                 </ul>
                                 <div id="NewCaseDetail">
                                     <div id="step-1">
@@ -926,6 +923,7 @@
                                                         rows="5"></textarea>
                                                 </div>
                                             </div>
+                                            @if(IsCaseSolEnabled() == 'yes')
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of
                                                     Limitations</label>
@@ -958,16 +956,15 @@
                                                     @empty
                                                     @endforelse
                                                     <div class="test-sol-reminders fieldGroup">
-
                                                         <div>
-                                                            <button type="button" class="btn btn-link pl-0 add-more">Add
+                                                            <button type="button" class="btn btn-link pl-0 add_more_reminder">Add
                                                                 a reminder</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="fieldGroupCopy copy hide" style="display: none;">
-                                                <div class="col-md-2 form-group mb-3">
+                                                <div class="col-md-3 form-group mb-3">
                                                     <select id="reminder_type" name="reminder_type[]"
                                                         class="form-control custom-select  ">
                                                         @foreach(getEventReminderTpe() as $k =>$v)
@@ -978,7 +975,7 @@
                                                 </div>
                                                 <div class="col-md-2 form-group mb-3">
                                                     <input class="form-control" id="reminder_days" value="1"
-                                                        name="reminder_days[]" type="number">
+                                                        name="reminder_days[]" type="number" type="number" min="0">
                                                 </div> <span class="pt-2">Days</span>
                                                 <div class="col-md-2 form-group mb-3">
                                                     <button class="btn remove" type="button"><i class="fa fa-trash"
@@ -986,7 +983,7 @@
                                                     </button>
                                                 </div>
                                             </div>
-
+                                            @endif
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Conflict
                                                     Check</label>
@@ -1389,10 +1386,14 @@
 
         });
 
-        $(".add-more").click(function () {
+        $(".add_more_reminder").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
+        });
+        $("#addMoreReminder").hide();   
+        $("#case_statute").on('change.dp', function (e) {
+            $("#addMoreReminder").show();
         });
         $('#createCase').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();

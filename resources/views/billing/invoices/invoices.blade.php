@@ -223,16 +223,15 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                                     <button type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="applyCreditBalance();">Apply Credit Funds
                                                     </button>
-                                                    <div tabindex="-1" class="dropdown-divider"></div><button
-                                                        type="button" tabindex="0" role="menuitem"
-                                                        class="dropdown-item" onclick="downloadBulkInvoice();">Export as PDF</button><button
-                                                        type="button" tabindex="0" role="menuitem"
-                                                        class="dropdown-item" onclick="setBulkEnableOnlinePaymentPopup();">Enable Online Payments</button>
+                                                    <div tabindex="-1" class="dropdown-divider"></div>
+                                                        <button type="button" tabindex="0" role="menuitem"
+                                                        class="dropdown-item" onclick="downloadBulkInvoice();">Export as PDF</button>
+                                                        <button type="button" tabindex="0" role="menuitem"
+                                                        class="dropdown-item m2" onclick="setBulkEnableOnlinePaymentPopup();">Enable Online Payments</button>
                                                         @can('delete_items')
                                                         <button type="button" tabindex="0" role="menuitem" class="dropdown-item" onclick="deleteBulkInvoice();" >Delete Invoices</button>
                                                         @endcan
-                                                        <button
-                                                        type="button" tabindex="0" role="menuitem"
+                                                        <button type="button" tabindex="0" role="menuitem"
                                                         class="dropdown-item" onclick="adjustmentBulkInvoice();">Adjustments</button>
                                                 </div>
                                             </div>

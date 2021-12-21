@@ -112,7 +112,7 @@ $(document).on("click", "#popup_close_btn", function() {
 $(document).ready(function() {
     // Max amount validation rule
     jQuery.validator.addMethod("maxamount", function(value, element, params) {
-        value = value.replace(',', '');
+        value = value.replace(/,/g, '');
         params = $(element).attr("data-max-amount");
         if (parseFloat(value) > parseFloat(params)) {
             return false; // FAIL validation when matches
@@ -124,7 +124,7 @@ $(document).ready(function() {
     });
 
     $.validator.addMethod('minStrict', function(value, el, param) {
-        value = value.replace(',', '');
+        value = value.replace(/,/g, '');
         return value > 0;
     }, 'Should be greater than 0');
 

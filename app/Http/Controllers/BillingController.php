@@ -2140,6 +2140,15 @@ class BillingController extends BaseController
 
                 // Invoices::where("id", $id)->delete();
 
+                //Remove flat fee entry for the invoice and reactivated time entry
+                $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$id)->get();
+                foreach($FlatFeeEntryForInvoice as $k=>$v){
+                    DB::table('flat_fee_entry')->where("id",$v->flat_fee_entry_id)->update([
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
+                    ]);
+                    FlatFeeEntryForInvoice::where("id", $v->id)->delete();
+                }
                  //Removed time entry id
                  $TimeEntryForInvoice=TimeEntryForInvoice::where("invoice_id",$id)->get();
                  foreach($TimeEntryForInvoice as $k=>$v){
@@ -4396,6 +4405,7 @@ class BillingController extends BaseController
         $authUser = auth()->user();
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->where('firm_id', $authUser->firm_name)->first();
+        \Log::info("viewInvoice > ".$invoiceID." > InvoiceData >". json_encode($findInvoice));
         $case = CaseMaster::whereId($findInvoice->case_id);
         if($authUser->parent_user != 0) {
             $case = $case->whereHas('caseStaffAll', function($query) use($authUser){
@@ -4518,21 +4528,22 @@ class BillingController extends BaseController
         }else{
             $id=$request->invoiceId;
 
-             //Remove flat fee entry for the invoice and reactivated time entry
-             $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$id)->get();
-             foreach($FlatFeeEntryForInvoice as $k=>$v){
-                 DB::table('flat_fee_entry')->where("id",$v->flat_fee_entry_id)->update([
-                     'status'=>'unpaid'
-                 ]);
-                 FlatFeeEntryForInvoice::where("id", $v->id)->delete();
-             }
-
+            //Remove flat fee entry for the invoice and reactivated time entry
+            $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$id)->get();
+            foreach($FlatFeeEntryForInvoice as $k=>$v){
+                DB::table('flat_fee_entry')->where("id",$v->flat_fee_entry_id)->update([
+                'status'=>'unpaid',
+                'invoice_link' => null,
+                ]);
+                FlatFeeEntryForInvoice::where("id", $v->id)->delete();
+            }
              
             //Remove time entry for the invoice and reactivated time entry
             $timeEntryData=TimeEntryForInvoice::where("invoice_id",$id)->get();
             foreach($timeEntryData as $k=>$v){
                 DB::table('task_time_entry')->where("id",$v->time_entry_id)->update([
-                    'status'=>'unpaid'
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
                 ]);
                 TimeEntryForInvoice::where("id", $v->id)->delete();
             }
@@ -4541,7 +4552,8 @@ class BillingController extends BaseController
             $expenseEntryData=ExpenseForInvoice::where("invoice_id",$id)->get();
             foreach($expenseEntryData as $k=>$v){
                 DB::table('expense_entry')->where("id",$v->expense_entry_id)->update([
-                    'status'=>'unpaid'
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
                 ]);
                 ExpenseForInvoice::where("id", $v->id)->delete();
             }
@@ -7198,8 +7210,11 @@ class BillingController extends BaseController
         }else{
             $data = json_decode(stripslashes($request->invoice_id));
             foreach($data as $k=>$v){
-
-                $Invoice=Invoices::find($v);
+                $invoice = Invoices::whereId($v)->with('invoiceFirstInstallment')->first();
+                $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
+                if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                    $Invoice->status="Overdue";
+                }    
                 if(!in_array($Invoice->status,["Paid","Partial","Forwarded"])){
                     $Invoice->status=$request->status;
                     $Invoice->save();    

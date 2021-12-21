@@ -3020,9 +3020,9 @@ $expenseTime=0;$expenseAmount=0;
         });
 
         $("#amount_per_installment_field").blur(function(){
-            var currentAmount=$(this).val().replace(',', '');
+            var currentAmount=$(this).val().replace(/,/g, '');
             var totalAmount= parseFloat($("#final_total_text").val());
-            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(/,/g, ''));
             if(firstInstallment != '' && firstInstallment > 0) {
                 totalAmount = totalAmount - firstInstallment;
             }
@@ -3042,9 +3042,9 @@ $expenseTime=0;$expenseAmount=0;
         }); 
 
         $("#first_payment_amount").blur(function(){
-            var totalAmount= parseFloat($("#final_total_text").val().replace(',', ''));
-            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(',', ''));
-            var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(',', ''));
+            var totalAmount= parseFloat($("#final_total_text").val().replace(/,/g, ''));
+            var firstInstallment= parseFloat($("#first_payment_amount").val().replace(/,/g, ''));
+            var amount_per_installment_field= parseFloat($("#amount_per_installment_field").val().replace(/,/g, ''));
             var debitedAmount=totalAmount-firstInstallment;
             var totalInstalment=debitedAmount/amount_per_installment_field;
             if(totalInstalment < 0) {
@@ -3177,12 +3177,12 @@ $expenseTime=0;$expenseAmount=0;
                 }
 
                 if ($("#with_first_payment").is(":checked") && loopVar==1) {
-                    firstInstallment=$("#first_payment_amount").val().replace(',', '');
+                    firstInstallment=$("#first_payment_amount").val().replace(/,/g, '');
                     countSum+=parseFloat(firstInstallment);
                 }else{
                     firstInstallment=amount_per_installment_field;
                     if(loopVar==Math.ceil(number_installment_field)){
-                        totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
+                        totalAMT=parseFloat($("#final_total_text").val().replace(/,/g, ''));
                         firstInstallment=totalAMT-countSum;
                     }else{
                         countSum+=parseFloat(firstInstallment);
@@ -4234,7 +4234,7 @@ $expenseTime=0;$expenseAmount=0;
                 $(".first_payment_amount_error").html("Amount is required");
                 error = 1;
             }else{
-                if($("#first_payment_amount").val() != '' && $("#first_payment_amount").val().replace(',', '') >= $("#final_total").html()){
+                if($("#first_payment_amount").val() != '' && $("#first_payment_amount").val().replace(/,/g, '') >= $("#final_total").html()){
                     $(".first_payment_amount_error").html("Amount exceeds max payment amount (max: $"+$("#final_total").html()+")");
                     if($("#number_installment_field").val() <= '2'){
                         $(".number_installment_field_error").html("Number must be at least 2");
@@ -4285,12 +4285,12 @@ $expenseTime=0;$expenseAmount=0;
             }
 
             if ($("#with_first_payment").is(":checked") && loopVar==1) {
-                firstInstallment=$("#first_payment_amount").val().replace(',', '');
+                firstInstallment=$("#first_payment_amount").val().replace(/,/g, '');
                 countSum+=parseFloat(firstInstallment);
             }else{
                 firstInstallment=amount_per_installment_field;
                 if(loopVar==Math.ceil(number_installment_field)){
-                    totalAMT=parseFloat($("#final_total_text").val().replace(',', ''));
+                    totalAMT=parseFloat($("#final_total_text").val().replace(/,/g, ''));
                     firstInstallment=totalAMT-countSum;
                 }else{
                     countSum+=parseFloat(firstInstallment);
