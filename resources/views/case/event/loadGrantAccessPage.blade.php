@@ -30,7 +30,7 @@
         </div>
     </div>
 </form>
-
+@section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
         $('.dismissLoadGrantAccessModal').on('click', function() {
@@ -106,3 +106,4 @@
     });
 
 </script>
+@endsection

@@ -145,28 +145,33 @@ trait CreditAccountTrait {
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-        if($remainPaidAmt == 0) {
-            $status="Unsent";
-            if($invoice->is_sent  == "yes") {
-                $status = "Sent";    
-            }else{
-                if($invoice->status == "forwarded"){
-                    if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-                        $status="Overdue";
+        if($invoice->is_force_status == 0){
+            if($remainPaidAmt == 0) {
+                $status="Unsent";
+                if($invoice->is_sent  == "yes") {
+                    $status = "Sent";    
+                }else{
+                    if($invoice->status == "forwarded"){
+                        if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                            $status="Overdue";
+                        }
                     }
                 }
+            } elseif($invoice->total_amount == $remainPaidAmt) {
+                $status = "Paid";
+            } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
+                $status="Partial";
+            } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                $status="Overdue";
+            } else if($invoice->is_sent  == "yes") {
+                $status = "Sent";
+            } else {
+                $status = 'Unsent';
             }
-        } elseif($invoice->total_amount == $remainPaidAmt) {
-            $status = "Paid";
-        } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
-            $status="Partial";
-        } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-            $status="Overdue";
-        } else if($invoice->is_sent  == "yes") {
-            $status = "Sent";
-        } else {
-            $status = 'Unsent';
+        }else{
+            $status = "Draft";
         }
+
         $invoice->fill([
             'paid_amount'=> $remainPaidAmt,
             'due_amount'=> ($invoice->total_amount - $remainPaidAmt),

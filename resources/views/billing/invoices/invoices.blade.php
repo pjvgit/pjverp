@@ -239,15 +239,10 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{ route('bills/invoices/open') }}">
-                                <button class="btn btn-primary btn-rounded m-1" type="button" id="button">Add
-                                    Invoice</button>
-                            </a>
+                            <a href="{{ route('bills/invoices/open') }}" class="btn btn-primary btn-rounded m-1">Add Invoice</a>
                         </div>
                         @endcan
                     </div>
-              
-
                 <div id="invoices_list" class="invoices-list-container">
                     <div class="row pl-4 pb-4">
                         <div class="col-md-3 form-group mb-3">
@@ -1338,7 +1333,7 @@ td,th{
         dataString = $("#setBulkSharesActionForm").serialize();
         $.ajax({
             type: "POST",
-            url: baseUrl + "/bills/invoices/deleteBulkInvoice", // json datasource
+            url: baseUrl + "/bills/invoices/setBulkSharesActionForm", // json datasource
             data: dataString + '&invoice_id=' + JSON.stringify(array),
             beforeSend: function (xhr, settings) {
                 settings.data += '&bulk_action=yes';

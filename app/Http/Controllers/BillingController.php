@@ -1262,7 +1262,7 @@ class BillingController extends BaseController
                 foreach($Invoices->get() as $k=>$v){
                     if($v->due_date!=NULL && $v->due_date < date('Y-m-d') && $v->status != "Forwarded"){
                         $updateInvoice= Invoices::find($v->id);
-                        if($v->status != "Paid"){
+                        if($v->status != "Paid" && $v->is_force_status == 0){
                             $updateInvoice->status="Overdue";
                             $updateInvoice->save();
                         }
@@ -7210,14 +7210,16 @@ class BillingController extends BaseController
         }else{
             $data = json_decode(stripslashes($request->invoice_id));
             foreach($data as $k=>$v){
-                $invoice = Invoices::whereId($v)->with('invoiceFirstInstallment')->first();
-                $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-                if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-                    $Invoice->status="Overdue";
-                }    
-                if(!in_array($Invoice->status,["Paid","Partial","Forwarded"])){
+                $Invoice = Invoices::whereId($v)->with('invoiceFirstInstallment')->first();
+                if($request->status == 'Draft'){
+                    $Invoice->is_force_status=1;
                     $Invoice->status=$request->status;
                     $Invoice->save();    
+                }else{
+                    if(!in_array($Invoice->status,["Paid","Partial","Forwarded"])){
+                        $Invoice->status=$request->status;
+                        $Invoice->save();    
+                    }
                 }
             }
             session(['popup_success' => 'Selected invoices status has been updated.']);
@@ -7245,7 +7247,7 @@ class BillingController extends BaseController
                     if($request->current_action=="BC"){  //BC=Billing Contact only
                         $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }else{
-                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","no")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }
                     if(!$CaseClientSelection->isEmpty()){
                         foreach($CaseClientSelection as $k=>$v){

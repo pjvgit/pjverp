@@ -1,3 +1,6 @@
+------------------------------------ 18-DEC-2021 ------------------------------
+ALTER TABLE `invoices`
+ADD `is_force_status` tinyint(2) NULL DEFAULT '0' AFTER `online_payment_status`;
 ------------------------------------ 17-DEC-2021 ------------------------------
 ALTER TABLE `invoices`
 ADD `online_payment_status` varchar(100) COLLATE 'utf8mb4_bin' NULL AFTER `bill_address_text`;

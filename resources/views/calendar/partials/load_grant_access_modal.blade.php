@@ -2,7 +2,7 @@
     <div class="modal-dialog ">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Sharing with a client</h5>
+                <h5 class="modal-title" id="exampleModalCenterTitle">Sharing with a client asdasd</h5>
                 <button class="close dismissLoadGrantAccessModal" type="button" aria-label="Close">
                     <span aria-hidden="true">×</span></button>
             </div>
@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-
+@section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
         $('.dismissLoadGrantAccessModal').on('click', function() {
@@ -23,3 +23,4 @@
         });
     });
 </script>
+@endsection

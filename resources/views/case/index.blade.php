@@ -836,16 +836,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        var isAdded=localStorage.getItem("addedClient");
-        if(isAdded!=null){
-            $("#AddCaseModelUpdate").modal("show");
-            selectUserAutoLoad(isAdded);
-            localStorage.removeItem("addedClient");
-        }
-        
-        if(localStorage.getItem("caseList")==""){
-            localStorage.setItem("caseList","13");
-        }                  
+                        
         $('button').attr('disabled',false);
         $(".select2").select2({
             placeholder: "Select...",
@@ -1027,7 +1018,17 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             var btnCancel = $('<button></button>').text('Cancel')
                 .addClass('btn btn-danger')
                 .on('click', function () { $('#smartwizard').smartWizard("reset"); });
-                
+            
+            var isAdded=localStorage.getItem("addedClient");
+            if(isAdded!=null){
+                $("#AddCaseModelUpdate").modal("show");
+                selectUserAutoLoad(isAdded);
+                localStorage.removeItem("addedClient");
+            }
+            
+            if(localStorage.getItem("caseList")==""){
+                localStorage.setItem("caseList","13");
+            } 
     
             // Smart Wizard
             $('#smartwizard,#smartwizard1').smartWizard({

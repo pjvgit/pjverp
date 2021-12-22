@@ -244,6 +244,7 @@
                             positionClass: "toast-top-full-width",
                             containerId: "toast-top-full-width"
                         });
+                        localStorage.setItem("showWarning",localStorage.getItem("showWarning") + 1);
                         window.location.reload();
                         afterLoader();
                     }

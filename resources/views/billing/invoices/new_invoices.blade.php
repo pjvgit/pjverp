@@ -70,7 +70,8 @@ if(!isset($addition)){ $addition=0;}
                                     <td style="width: 400px; white-space: nowrap; vertical-align: bottom;">
                                         <div>
                                             <div class="clearfix">
-                                                <select class="form-control" id="contact" onchange="fetchClientAddresss()" name="contact" style="width: 70%;"
+                                            <!-- onchange="fetchClientAddress()" -->
+                                                <select class="form-control" id="contact"  name="contact" style="width: 70%;"
                                                     placeholder="Search for an existing contact or company">
                                                     <option></option>
                                                     <optgroup label="Client">
@@ -114,7 +115,8 @@ if(!isset($addition)){ $addition=0;}
                                         <div style="position: relative;">
                                             <div id="matter_dropdown" class="">
                                                 <div>
-                                                    <select onchange="changeCase()"   name="court_case_id" id="court_case_id"
+                                                    <!-- onchange="changeCase()"  -->
+                                                    <select name="court_case_id" id="court_case_id"
                                                         class="custom-select select2Dropdown" style="width: 70%;">
                                                         <option value=""></option>
                                                         <option value="none" <?php if($case_id=="none"){ echo "selected=selected";} ?>>None</option>
@@ -2628,6 +2630,11 @@ if(!isset($addition)){ $addition=0;}
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () { 
+        if(localStorage.getItem("case_id") !== "{{$case_id}}" || localStorage.getItem("client_id") !== "{{$client_id}}"){
+            localStorage.setItem("case_id", "{{$case_id}}");
+            localStorage.setItem("client_id", "{{$client_id}}");
+            localStorage.setItem("showWarning", 0);
+        }
         $('[data-toggle="tooltip"]').tooltip({
             trigger : 'hover'
         });
@@ -3678,8 +3685,8 @@ if(!isset($addition)){ $addition=0;}
     }
 
     var contact =  $("#contact").val()
-    $("#contact_old").on("click", function() {
-        if($("#final_total_text").val() > 0){
+    $("#contact").on("click", function() {
+        if(localStorage.getItem("showWarning") > 0){
             swal({
                 title: 'warning',
                 text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -3698,18 +3705,18 @@ if(!isset($addition)){ $addition=0;}
                     fetchClientAddress();
                 }
             }, function (dismiss) {
-                $("#court_case_id").val('{{$case_id}}');
+                $("#contact").val(contact);
             });
         }else{
-            if(court_case_id != $(this).val()){
+            if(contact != $(this).val()){
             fetchClientAddress();
             }
         }    
     });
 
     var court_case_id =  $("#court_case_id").val()
-    $("#court_case_id_old").on("click", function() {
-        if($("#final_total_text").val() > 0){
+    $("#court_case_id").on("click", function() {
+        if(localStorage.getItem("showWarning") > 0){
             swal({
                 title: 'warning',
                 text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -3728,7 +3735,7 @@ if(!isset($addition)){ $addition=0;}
                     changeCase();
                 }
             }, function (dismiss) {
-                $("#court_case_id").val('{{$case_id}}');
+                $("#court_case_id").val(court_case_id);
             });
         }else{
             if(court_case_id != $(this).val()){
@@ -4449,9 +4456,11 @@ if(!isset($addition)){ $addition=0;}
             finaltotal = parseFloat(finaltotal) + parseFloat(due);
             isCheck = "yes";
             arr[$(this).val()] = 'checked';
+            localStorage.setItem("showWarning",localStorage.getItem("showWarning") + 1);
         } else {
             delete arr[$(this).val()];
             finaltotal = parseFloat(finaltotal) - parseFloat(due);
+            localStorage.setItem("showWarning",localStorage.getItem("showWarning") - 1);
         }
         $("#final_total").text(finaltotal.toFixed(2));
         $("#final_total_text").val(finaltotal.toFixed(2));
