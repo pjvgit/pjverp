@@ -14,6 +14,11 @@
     $content = str_replace('[EXPIRES_DATE]', @$onlinePayment->expires_date, $content);
     $content = str_replace('[EXPIRES_TIME]', @$onlinePayment->expires_time, $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
+
+    $content = str_replace('[BANK_NAME]', @$onlinePayment->conekta_order_object['charges']['data'][0]['payment_method']['bank'], $content);
+    $content = str_replace('[BENEFICIARY_FIRM_NAME]', @$firm->firm_name, $content);
+    $content = str_replace('[CLABE_NUMBER]', @$onlinePayment->conekta_payment_reference_id, $content);
+    $content = str_replace('[LAWYER_EMAIL]', @$invoice->createdByUser->email, $content);
 @endphp
 {!! $content !!}
 
