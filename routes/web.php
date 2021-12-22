@@ -1183,6 +1183,9 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::get("login/sessions/launchpad/{id}", "AuthController@getSwitchAccount")->name("login/sessions/launchpad");
     Route::post("login/sessions/selectuser", "AuthController@loginUserAccount")->name("login/sessions/selectuser");
     Route::post("selectuser/primary/account", "AuthController@setPrimaryAccount")->name("selectuser/primary/account");
+    
+    // For online payment webhook
+    Route::any('client/bills/payment/webhook/{event_type}', 'BillingController@paymentWebhook')->name('client/bills/payment/webhook');
 });
 
 // AUth routes of client portal
@@ -1199,9 +1202,9 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/payment/{invoice_id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
     Route::post('bills/payment/{invoice_id}/{client_id}/card/option', 'BillingController@getCardPaymentOption')->name('client/bills/payment/card/option');
     Route::post('bills/payment/card', 'BillingController@cardPayment')->name('client/bills/payment/card');
-    Route::get('bills/payment/card/confirmation/{id}', 'BillingController@paymentConfirmation')->name('client/bills/payment/card/confirmation');
     Route::post('bills/payment/cash', 'BillingController@cashPayment')->name('client/bills/payment/cash');
-    Route::post('bills/payment/{invoice_id}/{client_id}/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
+    Route::post('bills/payment/bank', 'BillingController@bankPayment')->name('client/bills/payment/bank');
+    Route::get('bills/payments/confirmation/{id}', 'BillingController@paymentConfirmation')->name('client/bills/payments/confirmation');
 
     // For billing > fund request
     Route::get('bills/request/{id}', 'BillingController@showFundRequest')->name('client/bills/request/detail');

@@ -163,3 +163,35 @@ $(document).on('keypress , paste', '.phone-number', function (e) {
         return false;
     }
 });
+
+$("#bank_pay_form").validate({
+    ignore: [],
+    rules: {
+        'bt_name': {
+            required: true,
+        },
+        'bt_phone_number': {
+            required: true,
+            number: true,
+            minlength: 10,
+            maxlength: 13
+        },
+    },
+    messages: {
+        bt_name: {
+            required: "Por favor ingresa tu nombre",
+        },
+        bt_phone_number: {
+            required: "Por favor ingresa tu número telefónico",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+            minlength: "El número telefónico debe tener al menos 10 números",
+            maxlength: "El número telefónico no puede tener más de 13 números"
+        },
+    },
+    errorPlacement: function (error, element) {
+        error.insertAfter(element);
+    },
+    submitHandler: function(form) {
+        form.submit();
+    }
+});
