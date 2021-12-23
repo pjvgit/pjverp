@@ -712,10 +712,9 @@ class BillingController extends Controller
                 case 'charge.paid':
                     $this->chargePaidConfirm($data);
                     break;
-                case 'charge.paid':
+                /* case 'charge.paid':
                     $this->chargePaidConfirm($data);
-                    break;
-                
+                    break; */
                 default:
                     # code...
                     break;
@@ -733,8 +732,10 @@ class BillingController extends Controller
      */
     public function chargePaidConfirm($data)
     {
+        Log::info("charge paid function enter");
         try {
             dbStart();
+            Log::info("order id: ". $data->id);
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
                 $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
