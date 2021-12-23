@@ -37,7 +37,7 @@ class FlatFeeEntry extends Authenticatable
 
     public function getDurationAttribute($value)
     {
-        $setting = getInvoiceSetting($this->user->firm_name);
+        $setting = getInvoiceSetting(@$this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;
@@ -47,7 +47,7 @@ class FlatFeeEntry extends Authenticatable
 
     public function getEntryRateAttribute($value)
     {
-        $setting = getInvoiceSetting($this->user->firm_name);
+        $setting = getInvoiceSetting(@$this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;

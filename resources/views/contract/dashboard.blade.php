@@ -114,9 +114,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                 <a href="{{ route('contacts/attorneys') }}">View all</a>
             </div>
         </div>
-
     </div>
-
     <div class="col">
         <div class="card mb-4">
             <h4 class="card-header">Profile Summary</h4>
@@ -132,14 +130,11 @@ $timezoneData = unserialize(TIME_ZONE_DATA); //
                             {{Auth::user()->first_name}} {{Auth::user()->last_name}}
                             <?php } ?></span>
                         <br>
-                        <a href="{{ route('profile') }}">Edit Profile</a>
+                        <a href="{{ route('load_profile') }}">Edit Profile</a>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
     </div>
 </div>
 

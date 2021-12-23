@@ -7241,10 +7241,75 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $data = json_decode(stripslashes($request->invoice_id));
-        
+            $errors = '';
+            $notSharedlist = '';
             foreach($data as $k1=>$v1){
-                    $Invoice=Invoices::find($v1);
-                    if($request->current_action=="BC"){  //BC=Billing Contact only
+                $Invoice=Invoices::find($v1);
+                \Log::info("setBulkSharesActionForm > Invoice > case id > " . $Invoice->case_id);
+                if($Invoice->case_id == NULL){
+                    \Log::info("setBulkSharesActionForm > status > " . $request->status);
+                    if($request->status == "AC"){  //BC=Billing Contact only
+                        $firmData=Firm::find(Auth::User()->firm_name);
+                        $getTemplateData = EmailTemplate::find(8);
+                        $token=route("bills/invoice/{id}", $Invoice->decode_id);
+                        $leadData=User::find($Invoice->user_id);
+                        \Log::info("setBulkSharesActionForm > leadData > " . $leadData->email);
+                                
+                        $mail_body = $getTemplateData->content;
+                        $mail_body = str_replace('{message}', $leadData->email_message, $mail_body);
+                        $mail_body = str_replace('{token}', $token,$mail_body);
+                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+                        $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
+                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                        $user = [
+                            "from" => FROM_EMAIL,
+                            "from_title" => FROM_EMAIL_TITLE,
+                            "subject" => $firmData->firm_name." has sent you an invoice",
+                            "to" => $leadData->email,
+                            "full_name" => "",
+                            "mail_body" => $mail_body
+                        ];
+                        $sendEmail = $this->sendMail($user);
+                        $errors = '';
+                    }else{
+                        $leadData=User::find($Invoice->user_id);
+                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$leadData['full_name'].')</li>';
+                        $errors = '';
+                    }
+                }else if($Invoice->case_id == 0){
+                    \Log::info("setBulkSharesActionForm > status > " . $request->status);
+                    if($request->status == "BC"){  //BC=Billing Contact only
+                        $firmData=Firm::find(Auth::User()->firm_name);
+                        $getTemplateData = EmailTemplate::find(12);
+                        // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
+                        $token = route("client/bills/detail", $Invoice->decode_id);
+                        $mail_body = $getTemplateData->content;
+                        $mail_body = str_replace('{message}', $request->message, $mail_body);
+                        $mail_body = str_replace('{token}', $token, $mail_body);
+                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+                        $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
+                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                        $clientData=User::find($v);
+                        \Log::info("setBulkSharesActionForm > clientData > " . $clientData->email);
+                        $user = [
+                            "from" => FROM_EMAIL,
+                            "from_title" => FROM_EMAIL_TITLE,
+                            "subject" => $firmData->firm_name." has sent you an invoice",
+                            "to" => $clientData->email,
+                            "full_name" => "",
+                            "mail_body" => $mail_body
+                        ];
+                        $sendEmail = $this->sendMail($user);
+                        $errors = '';
+                    }else{
+                        $leadData=User::find($Invoice->user_id);
+                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$leadData['full_name'].')</li>';
+                        $errors = '';
+                    }
+                }else{
+                    if($request->status=="BC"){  //BC=Billing Contact only
                         $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }else{
                         $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","no")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
@@ -7264,6 +7329,7 @@ class BillingController extends BaseController
                             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
                             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
                             $clientData=User::find($v);
+                            \Log::info("setBulkSharesActionForm > clientData > " . $clientData->email);
                             $user = [
                                 "from" => FROM_EMAIL,
                                 "from_title" => FROM_EMAIL_TITLE,
@@ -7275,9 +7341,10 @@ class BillingController extends BaseController
                             $sendEmail = $this->sendMail($user);
                         }
                     }
+                    $errors = '';
                 }
-            // session(['popup_success' => 'Selected invoices status has been updated.']);
-            return response()->json(['errors'=>'']);
+            }
+            return response()->json(['errors'=>$errors, 'list'=> $notSharedlist]);
             exit;  
         } 
     }

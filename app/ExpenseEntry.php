@@ -44,7 +44,7 @@ class ExpenseEntry extends Authenticatable
 
     public function getDurationAttribute()
     {
-        $setting = getInvoiceSetting($this->user->firm_name);
+        $setting = getInvoiceSetting(@$this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;
@@ -54,7 +54,7 @@ class ExpenseEntry extends Authenticatable
 
     public function getCostAttribute()
     {
-        $setting = getInvoiceSetting($this->user->firm_name);
+        $setting = getInvoiceSetting(@$this->user->firm_name);
         $decimalPoint = 1;
         if($setting) {
             $decimalPoint = $setting->time_entry_hours_decimal_point;

@@ -723,7 +723,39 @@ td,th{
         </form>
     </div>
 </div>
-
+<div id="sharedNotApplied" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Some Invoices Could Not Be Applied</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="adjustments-info-modal">
+                        <div>Invoices could not be shared to the following contacts:</div>
+                        <ul class="my-3">
+                            <li id="contactID"></li>
+                        </ul>
+                        <div>
+                        Invoices can not be shared with companies or contacts who do not have client portal access. Invoices can not be shared if they are not associated with a case. 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12  text-center">
+                    <div class="form-group row float-right">
+                        <button class="btn btn-secondary m-1" type="button" data-dismiss="modal">Ok</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="setBulkEnableOnlinePaymentPopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
@@ -1339,8 +1371,9 @@ td,th{
                 settings.data += '&bulk_action=yes';
             },
             success: function (res) {
-                beforeLoader();
+                afterLoader();
                 if (res.errors != '') {
+
                     $('.showError').html('');
                     var errotHtml =
                         '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
@@ -1353,7 +1386,13 @@ td,th{
                     afterLoader();
                     return false;
                 } else {
-                    window.location.reload();
+                    $("#setBulkSharesActionPopup").modal("hide");
+                    if(res.list != ''){                        
+                        $("#contactID").html('').html(res.list);
+                        $("#sharedNotApplied").modal("show");
+                    }else{
+                        // window.location.reload();
+                    }
                 }
             },
             error: function (xhr, status, error) {
@@ -1628,7 +1667,7 @@ td,th{
         $(".filterBy").submit();
     });
 
-    $('#adjustmentNotApplied,#trustFundNotApplied,#invoiceNotDeleted,#creditFundNotApplied').on('hidden.bs.modal', function () {
+    $('#adjustmentNotApplied,#trustFundNotApplied,#invoiceNotDeleted,#creditFundNotApplied,#sharedNotApplied').on('hidden.bs.modal', function () {
         window.location.reload();
     });
 
