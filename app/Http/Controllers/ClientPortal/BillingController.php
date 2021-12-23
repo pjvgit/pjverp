@@ -328,15 +328,15 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Send confirm email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'client'));
 
                         // Send confirm email to lawyer/invoice created user
                         $user = User::whereId($invoice->created_by)->first();
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'user'));
                         
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'user'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -491,7 +491,7 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Cash payment reference email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'cash_reference_client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 32, $invoiceOnlinePayment->id, 'cash_reference_client'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -646,7 +646,7 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Bank payment reference email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 34, $invoiceOnlinePayment->id, 'bank_reference_client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 35, $invoiceOnlinePayment->id, 'bank_reference_client'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
