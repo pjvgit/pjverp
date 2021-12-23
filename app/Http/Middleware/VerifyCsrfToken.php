@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        "client/bills/conekta/payment"
+        "client/bills/conekta/webhook"
     ];
 }
