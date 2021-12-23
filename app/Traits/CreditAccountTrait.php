@@ -146,7 +146,7 @@ trait CreditAccountTrait {
         $remainPaidAmt = ($totalPaid - $totalRefund);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
         if($invoice->is_force_status == 0){
-            if($remainPaidAmt == 0) {
+            if($remainPaidAmt == 0 && !isset($dueDate)) {
                 $status="Unsent";
                 if($invoice->is_sent  == "yes") {
                     $status = "Sent";    

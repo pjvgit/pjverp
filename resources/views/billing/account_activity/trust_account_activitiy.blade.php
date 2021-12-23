@@ -189,7 +189,7 @@ if(isset($_GET['bank_account'])){
             responsive: false,
             processing: true,
             searching: false,
-            stateSave: true,
+            // stateSave: true,
             "order": [
                 [0, "desc"]
             ],

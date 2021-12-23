@@ -15,7 +15,8 @@
         </div>
     </div>
 </div>
-@section('page-js-inner')
+{{-- If open section, event list not working --}}
+{{-- @section('page-js-inner') --}} 
 <script type="text/javascript">
     $(document).ready(function () {
         $('.dismissLoadGrantAccessModal').on('click', function() {
@@ -23,4 +24,4 @@
         });
     });
 </script>
-@endsection
+{{-- @endsection --}}

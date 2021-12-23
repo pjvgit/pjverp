@@ -65,6 +65,16 @@ class InvoicePaymentMail extends Mailable
                 ->subject($this->template->subject)
                 ->markdown('emails.invoice_online_payment_reference_email_client', ['invoice' => $this->invoice, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
                 break;
+            case 'bank_confirm_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
+            case 'bank_confirm_user':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_user', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
             default:
                 # code...
                 break;

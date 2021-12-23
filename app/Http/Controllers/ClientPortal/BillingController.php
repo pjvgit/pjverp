@@ -328,15 +328,15 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Send confirm email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 29, $invoiceOnlinePayment->id, 'client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'client'));
 
                         // Send confirm email to lawyer/invoice created user
                         $user = User::whereId($invoice->created_by)->first();
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'user'));
                         
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 30, $invoiceOnlinePayment->id, 'user'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'user'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -374,9 +374,9 @@ class BillingController extends Controller
             if($invoice && $client) {
                 if(empty($client->conekta_customer_id)) {
                     $customer = \Conekta\Customer::create([
-                                    "name"=> $client->full_name,
+                                    "name"=> $request->name ?? $client->full_name,
                                     "email"=> $client->email,
-                                    "phone"=> $client->mobile_number ?? $request->phone_number,
+                                    "phone"=> $request->phone_number ?? $client->mobile_number,
                                 ]);
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
@@ -491,7 +491,7 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Cash payment reference email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 31, $invoiceOnlinePayment->id, 'cash_reference_client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 32, $invoiceOnlinePayment->id, 'cash_reference_client'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -646,7 +646,7 @@ class BillingController extends Controller
                         $CommonController->addMultipleHistory($data);
 
                         // Bank payment reference email to client
-                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 34, $invoiceOnlinePayment->id, 'bank_reference_client'));
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 35, $invoiceOnlinePayment->id, 'bank_reference_client'));
 
                         DB::commit();
                         return redirect()->route('client/bills/payments/confirmation', encodeDecodeId($invoiceOnlinePayment->id, 'encode'));
@@ -680,7 +680,7 @@ class BillingController extends Controller
     public function paymentConfirmation($online_payment_id)
     {
         $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
-        // return $onlinePaymentId = $online_payment_id;
+        // $onlinePaymentId = $online_payment_id;
         $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)
                     /* ->whereHas('invoiceShared', function($query) use($clientId) {
@@ -699,21 +699,25 @@ class BillingController extends Controller
     /**
      * To check cash/bank payment confirmation and expires
      */
-    public function paymentWebhook($eventType)
+    public function paymentWebhook()
     {
+        Log::info("webhook function enter");
         try {
             dbStart();
             $body = @file_get_contents('php://input');
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
-
+            Log::info("webhook called type: ". $data->type);
             switch ($data->type) {
                 case 'charge.paid':
-                    $this->cashChargePaidConfirm($data);
+                    Log::info("conekta event matched. charge paid called");
+                    $this->chargePaidConfirm($data);
                     break;
-                
+                /* case 'charge.paid':
+                    $this->chargePaidConfirm($data);
+                    break; */
                 default:
-                    # code...
+                    Log::info("conekta event not matched. default called");
                     break;
             }
             dbCommit();
@@ -727,12 +731,15 @@ class BillingController extends Controller
     /**
      * Cash payment webhook confirmation
      */
-    public function cashChargePaidConfirm($data)
+    public function chargePaidConfirm($data)
     {
+        Log::info("charge paid function enter");
         try {
             dbStart();
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)->where('payment_method', 'cash')->where('conekta_payment_status', 'pending')->first();
-            if($paymentDetail) {
+            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
+            Log::info("conekta order charge id: ". $data->charges->data[0]->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            if($paymentDetail && $paymentDetail->payment_method == 'cash') {
                 $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
@@ -750,18 +757,49 @@ class BillingController extends Controller
 
                     // Send confirmation email to client
                     $client = User::whereId($paymentDetail->user_id)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 32, $paymentDetail->id, 'cash_confirm_client'));
+                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_client'));
 
                     // Send confirmation email to invoice created user
                     $user = User::whereId($invoice->created_by)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_user'));
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user'));
 
                     // Send confirm email to firm owner/lead attorney
-                    $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_user'));
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user'));
+                    Log::info('cash payment webhook successfull');
+                }
+            } 
+            else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') {
+                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
+
+                $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
+                $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
+                if($invoice && $invoiceHistory) {
+                    // Update invoice payment status
+                    InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+
+                    // Update invoice history status
+                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->payment_status])->save();
+
+                    // Update invoice status and amount
+                    $invoice->fill(['online_payment_status' => $data->payment_status])->save();
+                    $this->updateInvoiceAmount($invoice->id);
+
+                    // Send confirmation email to client
+                    $client = User::whereId($paymentDetail->user_id)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail->id, 'bank_confirm_client'));
+
+                    // Send confirmation email to invoice created user
+                    $user = User::whereId($invoice->created_by)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user'));
+
+                    // Send confirm email to firm owner/lead attorney
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user'));
+                    Log::info('bank transfer payment webhook successfull');
                 }
             }
-            Log::info('cash payment webhook successfull');
+            Log::info('payment webhook successfull');
         } catch (Exception $e) {
             dbEnd();
             Log::info('Cash Payment webhook failed: '. $e->getMessage());
