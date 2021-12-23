@@ -51,11 +51,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof \Illuminate\Session\TokenMismatchException) {
-            return redirect()->route('autologout');
-        }else{
+        // if ($exception instanceof \Illuminate\Session\TokenMismatchException) {
+        //     return redirect()->route('autologout');
+        // }else{
             return parent::render($request, $exception);
-        }
+        // }
     }
 
     protected function unauthenticated($request, AuthenticationException $exception)

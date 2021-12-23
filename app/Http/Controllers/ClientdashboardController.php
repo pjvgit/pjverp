@@ -919,7 +919,7 @@ class ClientdashboardController extends BaseController
             $data = $data->where('allocated_to_case_id', $request->case_id);
         }
         $data = $data->orderBy("payment_date", "desc")->orderBy("created_at", "desc")
-                ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo')->get();
+                ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo');
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo) {
@@ -1223,7 +1223,7 @@ class ClientdashboardController extends BaseController
             }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
-            'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
+            'amount.lte' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {
@@ -3706,7 +3706,7 @@ class ClientdashboardController extends BaseController
             }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
-            'amount.lt' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
+            'amount.lte' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {

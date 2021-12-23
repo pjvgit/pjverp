@@ -374,9 +374,9 @@ class BillingController extends Controller
             if($invoice && $client) {
                 if(empty($client->conekta_customer_id)) {
                     $customer = \Conekta\Customer::create([
-                                    "name"=> $client->full_name,
+                                    "name"=> $request->name ?? $client->full_name,
                                     "email"=> $client->email,
-                                    "phone"=> $client->mobile_number ?? $request->phone_number,
+                                    "phone"=> $request->phone_number ?? $client->mobile_number,
                                 ]);
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
@@ -679,8 +679,8 @@ class BillingController extends Controller
      */
     public function paymentConfirmation($online_payment_id)
     {
-        $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
-        // return $onlinePaymentId = $online_payment_id;
+        // $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
+        $onlinePaymentId = $online_payment_id;
         $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)
                     /* ->whereHas('invoiceShared', function($query) use($clientId) {
@@ -731,7 +731,7 @@ class BillingController extends Controller
     {
         try {
             dbStart();
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)->where('payment_method', 'cash')->where('conekta_payment_status', 'pending')->first();
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash')->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail) {
                 $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
 
