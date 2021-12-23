@@ -710,13 +710,14 @@ class BillingController extends Controller
             Log::info("webhook called type: ". $data->type);
             switch ($data->type) {
                 case 'charge.paid':
+                    Log::info("conekta event matched. charge paid called");
                     $this->chargePaidConfirm($data);
                     break;
                 /* case 'charge.paid':
                     $this->chargePaidConfirm($data);
                     break; */
                 default:
-                    # code...
+                    Log::info("conekta event not matched. default called");
                     break;
             }
             dbCommit();
@@ -735,8 +736,9 @@ class BillingController extends Controller
         Log::info("charge paid function enter");
         try {
             dbStart();
-            Log::info("order id: ". $data->id);
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            Log::info("order id: ". $data->charges[0]->order_id);
+            Log::info("order charge id: ". $data->charges[0]->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
                 $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
 
