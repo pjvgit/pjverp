@@ -710,7 +710,10 @@ class BillingController extends Controller
             Log::info("webhook called type: ". $data->type);
             switch ($data->type) {
                 case 'charge.paid':
-                    $this->cashChargePaidConfirm($data);
+                    $this->chargePaidConfirm($data);
+                    break;
+                case 'charge.paid':
+                    $this->chargePaidConfirm($data);
                     break;
                 
                 default:
@@ -728,12 +731,12 @@ class BillingController extends Controller
     /**
      * Cash payment webhook confirmation
      */
-    public function cashChargePaidConfirm($data)
+    public function chargePaidConfirm($data)
     {
         try {
             dbStart();
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash')->where('conekta_payment_status', 'pending') */->first();
-            if($paymentDetail) {
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            if($paymentDetail && $paymentDetail->payment_method == 'cash') {
                 $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
@@ -751,18 +754,49 @@ class BillingController extends Controller
 
                     // Send confirmation email to client
                     $client = User::whereId($paymentDetail->user_id)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 32, $paymentDetail->id, 'cash_confirm_client'));
+                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_client'));
 
                     // Send confirmation email to invoice created user
                     $user = User::whereId($invoice->created_by)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_user'));
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user'));
 
                     // Send confirm email to firm owner/lead attorney
-                    $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
-                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_user'));
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user'));
+                    Log::info('cash payment webhook successfull');
+                }
+            } 
+            else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') {
+                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
+
+                $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
+                $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
+                if($invoice && $invoiceHistory) {
+                    // Update invoice payment status
+                    InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+
+                    // Update invoice history status
+                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->payment_status])->save();
+
+                    // Update invoice status and amount
+                    $invoice->fill(['online_payment_status' => $data->payment_status])->save();
+                    $this->updateInvoiceAmount($invoice->id);
+
+                    // Send confirmation email to client
+                    $client = User::whereId($paymentDetail->user_id)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail->id, 'bank_confirm_client'));
+
+                    // Send confirmation email to invoice created user
+                    $user = User::whereId($invoice->created_by)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user'));
+
+                    // Send confirm email to firm owner/lead attorney
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new InvoicePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user'));
+                    Log::info('bank transfer payment webhook successfull');
                 }
             }
-            Log::info('cash payment webhook successfull');
+            Log::info('payment webhook successfull');
         } catch (Exception $e) {
             dbEnd();
             Log::info('Cash Payment webhook failed: '. $e->getMessage());
