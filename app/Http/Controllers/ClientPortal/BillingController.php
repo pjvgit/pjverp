@@ -679,8 +679,8 @@ class BillingController extends Controller
      */
     public function paymentConfirmation($online_payment_id)
     {
-        // $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
-        $onlinePaymentId = $online_payment_id;
+        $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
+        // $onlinePaymentId = $online_payment_id;
         $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)
                     /* ->whereHas('invoiceShared', function($query) use($clientId) {
@@ -699,14 +699,15 @@ class BillingController extends Controller
     /**
      * To check cash/bank payment confirmation and expires
      */
-    public function paymentWebhook($eventType)
+    public function paymentWebhook()
     {
+        Log::info("webhook function enter");
         try {
             dbStart();
             $body = @file_get_contents('php://input');
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
-
+            Log::info("webhook called type: ". $data->type);
             switch ($data->type) {
                 case 'charge.paid':
                     $this->cashChargePaidConfirm($data);

@@ -1185,7 +1185,7 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::post("selectuser/primary/account", "AuthController@setPrimaryAccount")->name("selectuser/primary/account");
     
     // For online payment webhook
-    Route::any('client/bills/payment/webhook/{event_type}', 'BillingController@paymentWebhook')->name('client/bills/payment/webhook');
+    Route::any('client/bills/conekta/webhook', 'BillingController@paymentWebhook')->name('client/bills/conekta/webhook');
 });
 
 // AUth routes of client portal
