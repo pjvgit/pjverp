@@ -734,7 +734,6 @@ class BillingController extends Controller
     public function chargePaidConfirm($data)
     {
         Log::info("charge paid function enter");
-        Log::info("charge paid data: ". $data);
         try {
             dbStart();
             Log::info("conekta order id: ". $data['charges']['data'][0]['order_id']);
