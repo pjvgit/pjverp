@@ -139,6 +139,7 @@ $(document).ready(function() {
             type: "post", // method  , by default get
             data: function ( d ) {
                 d.client_id = $('#'+tableName2).attr('data-client-id');
+                d.filter_type = $(".select2-case").find(':selected').data('trust-type');
                 d.case_id = ($(".select2-case").find(':selected').data('trust-type') == 'case') ? $(".select2-case").val() : '';
                 d.bank_account = $(".select2-bank-account").val();
             },

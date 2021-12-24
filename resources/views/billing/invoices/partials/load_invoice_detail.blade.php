@@ -25,8 +25,11 @@
 
                 {{@$firmData->main_phone}}
             </td>
-            <td rowspan="4">
+            <td rowspan="2">
                 &nbsp;
+                @if($findInvoice->online_payment_status == "pending")
+                <span class="badge badge-dark r-badge" style="font-size: 16px;">Online Payment Pending</span>
+                @endif
             </td>
             <td class="pt-4"
                 style="vertical-align: top; white-space: normal; width: 320px; padding-right: 20px; text-align: right;"

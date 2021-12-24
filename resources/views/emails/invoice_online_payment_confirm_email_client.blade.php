@@ -11,6 +11,9 @@
     $content = str_replace('[PAID_AMOUNT]', number_format($onlinePayment->amount ?? 0, 2), $template->content);
     $content = str_replace('[INVOICE_ID]', $onlinePayment->invoice_id, $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
+    if(isset($invoice)) {
+        $content = str_replace('[INVOICE_LINK]', route('client/bills/detail', $invoice->decode_id), $content);
+    }
 @endphp
 {!! $content !!}
 

@@ -679,8 +679,8 @@ class BillingController extends Controller
      */
     public function paymentConfirmation($online_payment_id)
     {
-        $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
-        // $onlinePaymentId = $online_payment_id;
+        // $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
+        $onlinePaymentId = $online_payment_id;
         $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)
                     /* ->whereHas('invoiceShared', function($query) use($clientId) {
@@ -691,7 +691,7 @@ class BillingController extends Controller
 
         // $client = User::whereId(auth()->id())->first();
         // Cash payment reference email to client
-        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 34, $paymentDetail->id, 'bank_reference_client'));
+        // $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 42, $paymentDetail->id, 'bank_reference_expired_client'));
 
         return view('client_portal.billing.invoice_payment_confirmation', compact('invoice', 'paymentDetail'));
     }
@@ -708,20 +708,21 @@ class BillingController extends Controller
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
             Log::info("webhook called type: ". $data->type);
+            Log::info("webhook called order id: ". @$data->order_id ?? "order id not found");
             switch ($data->type) {
                 case 'charge.paid':
-                    Log::info("conekta event matched. charge paid called");
+                    Log::info("conekta charge paid called");
                     $this->chargePaidConfirm($data);
                     break;
-                /* case 'charge.paid':
-                    $this->chargePaidConfirm($data);
-                    break; */
+                case 'Order expired':
+                    Log::info("conekta order expired called");
+                    $this->conektaReferenceExpired($data);
+                    break;
                 default:
-                    Log::info("conekta event not matched. default called");
+                    Log::info("conekta default called");
                     break;
             }
             dbCommit();
-            Log::info('payment webhook successfull');
         } catch (Exception $e) {
             dbEnd();
             Log::info('Payment webhook failed: '. $e->getMessage());
@@ -729,14 +730,14 @@ class BillingController extends Controller
     }
 
     /**
-     * Cash payment webhook confirmation
+     * Cash/bank payment webhook confirmation
      */
     public function chargePaidConfirm($data)
     {
         Log::info("charge paid function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data['charges']['data'][0]['order_id']);
+            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
             Log::info("conekta order charge id: ". $data->charges->data[0]->id);
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
@@ -803,6 +804,55 @@ class BillingController extends Controller
         } catch (Exception $e) {
             dbEnd();
             Log::info('Cash Payment webhook failed: '. $e->getMessage());
+        }
+    }
+    /**
+     * Cash/bank order expired webhook
+     */
+    public function conektaReferenceExpired($data)
+    {
+        Log::info("reference expired function enter");
+        try {
+            dbStart();
+            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
+            Log::info("conekta order charge id: ". $data->charges->data[0]->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            if($paymentDetail) {
+                $paymentDetail->fill(['conekta_payment_status' => 'expired'])->save();
+
+                $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
+                $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
+                if($invoice && $invoiceHistory) {
+                    // Update invoice payment status
+                    InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+
+                    // Update invoice history status
+                    $invoiceHistory->fill(['online_payment_status' => 'expired'])->save();
+
+                    // Update invoice status and amount
+                    $invoice->fill(['online_payment_status' => 'expired'])->save();
+                    
+                    // Send reference expired email to client
+                    $client = User::whereId($paymentDetail->user_id)->first();
+                    if($paymentDetail->payment_method == 'cash') {
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 40, $paymentDetail->id, 'cash_reference_expired_client'));
+                        Log::info('cash reference expired webhook successfull');
+                    } 
+                    else if($paymentDetail->payment_method == 'bank transfer') {
+                        $this->dispatch(new InvoicePaymentEmailJob($invoice, $client, $emailTemplateId = 42, $paymentDetail->id, 'bank_reference_expired_client'));
+                        Log::info('bank reference expired webhook successfull');
+                    } else {
+
+                    }
+                }
+            } 
+            else {
+                Log::info("Payment detail not found");
+            }
+            Log::info('reference expired webhook end');
+        } catch (Exception $e) {
+            dbEnd();
+            Log::info('Reference expired webhook failed: '. $e->getMessage());
         }
     }
 }

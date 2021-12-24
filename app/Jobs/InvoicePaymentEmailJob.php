@@ -47,7 +47,7 @@ class InvoicePaymentEmailJob implements ShouldQueue
     {
         Log::info("invoice payment email job handle");
         $onlinePayment = InvoiceOnlinePayment::whereId($this->online_payment_id)->first();
-        $firmData = Firm::find($this->invoice->firm_id); 
+        $firmData = Firm::find($onlinePayment->firm_id); 
         $getTemplateData = EmailTemplate::find($this->emailTemplateId);
         Mail::to($this->user->email)->send((new InvoicePaymentMail($this->invoice, $firmData, $this->user, $getTemplateData, $this->userType, $onlinePayment)));
     }
