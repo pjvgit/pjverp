@@ -708,6 +708,7 @@ class BillingController extends Controller
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
             Log::info("webhook called type: ". $data->type);
+            Log::info("webhook called order id: ". $data->order_id ?? "order id not found");
             switch ($data->type) {
                 case 'charge.paid':
                     Log::info("conekta event matched. charge paid called");
@@ -736,7 +737,7 @@ class BillingController extends Controller
         Log::info("charge paid function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data['charges']['data'][0]['order_id']);
+            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
             Log::info("conekta order charge id: ". $data->charges->data[0]->id);
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
