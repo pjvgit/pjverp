@@ -32,4 +32,24 @@ class InvoiceOnlinePayment extends Model
     {
         return Carbon::parse($this->conekta_reference_expires_at)->format('H:i');
     }
+
+    /**
+     * Get the invoice that owns the InvoiceOnlinePayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_id');
+    }
+
+    /**
+     * Get the client that owns the InvoiceOnlinePayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

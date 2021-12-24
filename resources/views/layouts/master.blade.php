@@ -162,7 +162,6 @@
 
     </script>                                        
     
-    @yield('page-js')
     @yield('page-js-inner')
     @yield('page-js-common')
 
@@ -212,6 +211,9 @@
     <script src="{{asset('assets/js/rcrop.min.js')}}"></script>
     <script src="{{asset('assets/js/tooltip.script.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
+
+    @yield('page-js')
+
     <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
     {{-- <script src="{{asset('assets/js/scripts/apexPieDonutChart.script.min.js')}}"></script> --}}
     @if ($message = session('popup_success'))

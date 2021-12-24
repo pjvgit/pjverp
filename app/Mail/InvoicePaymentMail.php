@@ -60,6 +60,16 @@ class InvoicePaymentMail extends Mailable
                 ->subject($this->template->subject)
                 ->markdown('emails.invoice_online_payment_confirm_email_user', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
                 break;
+            case 'cash_payment_reminder_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
+            case 'cash_reference_expired_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_client', ['invoice' => $this->invoice, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
             case 'bank_reference_client':
                 return $this
                 ->subject($this->template->subject)
@@ -74,6 +84,16 @@ class InvoicePaymentMail extends Mailable
                 return $this
                 ->subject($this->template->subject)
                 ->markdown('emails.invoice_online_payment_confirm_email_user', ['invoice' => $this->invoice, 'user' => $this->user, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
+            case 'bank_reference_expired_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_client', ['invoice' => $this->invoice, 'firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
+                break;
+            case 'bank_payment_reminder_client':
+                return $this
+                ->subject($this->template->subject)
+                ->markdown('emails.invoice_online_payment_confirm_email_client', ['firm' => $this->firm, 'template' => $this->template, 'onlinePayment' => $this->onlinePayment]);
                 break;
             default:
                 # code...

@@ -879,42 +879,12 @@ class ClientdashboardController extends BaseController
         }
     } 
 
-    /* public function loadTrustHistory()
-    {   
-        $requestData= $_REQUEST;
-
-        
-       
-        $allLeads = TrustHistory::leftJoin('users','trust_history.client_id','=','users.id');
-        $allLeads = $allLeads->leftJoin('users as u1','trust_history.client_id','=','u1.id');
-        $allLeads = $allLeads->leftJoin('users_additional_info as u2','trust_history.client_id','=','u2.id');
-        $allLeads = $allLeads->select("users.user_title",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as client_name'),DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as note_created_by'),"u1.user_title as created_by_user_title","trust_history.*","trust_history.client_id as client_id","u2.minimum_trust_balance","u2.trust_account_balance");        
-        $allLeads = $allLeads->where("trust_history.client_id",$requestData['user_id']);   
-        if($requestData['case_id'] != '') {
-            $allLeads = $allLeads->where("trust_history.allocated_to_case_id",$requestData['case_id']);
-        }
-        $allLeads = $allLeads->with('invoice', 'fundRequest', 'allocateToCase');   
-        $totalData=$allLeads->count();
-        $totalFiltered = $totalData; 
-     
-        $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
-        $allLeads = $allLeads->orderBy('trust_history.id','DESC');
-        $allLeads = $allLeads->get();
-
-        $userAddInfo = UsersAdditionalInfo::where('user_id', $requestData['user_id'])->first();
-
-        $json_data = array(
-            "draw"            => intval( $requestData['draw'] ),   
-            "recordsTotal"    => intval( $totalData ),  
-            "recordsFiltered" => intval( $totalFiltered ), 
-            "data"            => $allLeads,
-            "trust_total"     => $userAddInfo->trust_account_balance ?? 0.00
-        );
-        echo json_encode($json_data);  
-    } */
     public function loadTrustHistory(Request $request)
     {   
         $data = TrustHistory::where("client_id", $request->client_id);
+        if($request->filter_type == 'user') {
+            $data = $data->whereNull('allocated_to_case_id')->whereNull('allocated_to_lead_case_id');
+        }
         if($request->case_id) {
             $data = $data->where('allocated_to_case_id', $request->case_id);
         }
@@ -1213,9 +1183,13 @@ class ClientdashboardController extends BaseController
             $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
             $lessAmount = $allocateAmount->allocated_trust_balance;
         }
-        // return $lessAmount;
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt.'|lte:'.$lessAmount,
+            /* 'amount' => [function ($attribute, $value, $fail) use($lessAmount, $mt) {
+                if ($value > $lessAmount &&  $lessAmount <= $mt) {
+                    $fail("Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.");
+                }
+            }], */
             'transaction_id' => [function ($attribute, $value, $fail) use($GetAmount) {
                 if (empty($GetAmount) || $GetAmount->is_refunded == 'yes') {
                     $fail('This transaction cannot be refunded');
@@ -1223,7 +1197,7 @@ class ClientdashboardController extends BaseController
             }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
-            'amount.lte' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
+            'amount.lte' => "Cannot refund. Refunding this transaction maybe would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {
@@ -3534,7 +3508,7 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice", "user")->get();
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice", "user");
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo){
@@ -3706,7 +3680,7 @@ class ClientdashboardController extends BaseController
             }]
         ],[
             'amount.max' => 'Refund cannot be more than $'.number_format($creditHistory->deposit_amount,2),
-            'amount.lte' => "Cannot refund. Refunding this transaction would cause the contact's balance to go below zero.",
+            'amount.lte' => "Cannot refund. Refunding this transaction maybe would cause the contact's balance to go below zero.",
         ]);
         if ($validator->fails())
         {

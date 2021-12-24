@@ -64,12 +64,6 @@ class TaskReminderEmailCommand extends Command
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? "UTC"); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);
-                        /* if ($date->hour === 05) { 
-                            Log::info("task user email: ".$useritem->email.", task day time true");
-                            dispatch(new TaskReminderEmailJob($item, $useritem, $emailTemplate));
-                        } else {
-                            Log::info("task user email: ".$useritem->email.", time not match");
-                        } */
                         // Set task job dispatch time
                         $timestamp = Carbon::parse($item->remind_at)->format('Y-m-d').' 05:00:00';
                         $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? "UTC");

@@ -12,7 +12,7 @@
                                 <option value="{{ $item->id }}" data-trust-type="case">{{ $item->case_title }}</option>
                             @empty
                             @endforelse
-                            <option value="{{ $userProfile->id }}" data-trust-type="user">{{ $userProfile->first_name.' '.$userProfile->last_name}}</option>
+                            <option value="{{ $userProfile->id }}" data-trust-type="user">Unallocated</option>
                         </select>
                     </div>
                     <div class="col-4">
