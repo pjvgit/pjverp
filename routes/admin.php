@@ -31,11 +31,13 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::get("/dashboard", "DashboardController@index")->name('admin/dashboard');
     Route::post("/searchUsers", "DashboardController@searchUsers")->name('admin/searchUsers');
     Route::post("/loadallstaffdata", "UserController@loadAllStaffData")->name('admin/loadallstaffdata');
+    Route::post("/checkStaffDetails", "UserController@checkStaffDetails")->name('admin/checkStaffDetails');
+    
     Route::get("/users", "UserController@index")->name('admin/users');
     Route::get("/userlist", "UserController@userList")->name('admin/userlist');
     Route::get("/userlist/info/{id}", "UserController@userInfo")->name('admin/userlist/info');
     Route::get("/userlist/info/{id}/cases", "UserController@userInfo")->name('admin/userlist/cases');
-    Route::get("/loadusers", "UserController@loadUsers")->name('admin/loadusers');
+    Route::get("/loadusers", "UserController@loadUsers")->name('admin/loadusers');    
     Route::get("/stafflist", "UserController@staffList")->name('admin/stafflist');
     Route::get("/stafflist/info/{id}", "UserController@staffInfo")->name('admin/stafflist/info');
     Route::get("/stafflist/info/{id}/cases", "UserController@staffInfo")->name('admin/stafflist/cases');
@@ -46,5 +48,9 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::post("/reactivateStaff", "UserController@reactivateStaff")->name('admin/reactivateStaff');
     Route::post("/deactivateStaff", "UserController@deactivateStaff")->name('admin/deactivateStaff');
     Route::post("/loadDeactivateUser", "UserController@loadDeactivateUser")->name('admin/loadDeactivateUser');
+    
+    Route::get("/loadProfile", "UserController@loadProfile")->name('admin/loadProfile');
+    Route::post("/saveProfile", "UserController@saveProfile")->name('admin/saveProfile');
+    Route::post("/savePassword", "UserController@savePassword")->name('admin/savePassword');
     
 });

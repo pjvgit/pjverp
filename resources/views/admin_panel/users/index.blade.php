@@ -12,7 +12,7 @@
     </ul>
 </div>
 <div class="separator-breadcrumb border-top"></div>
-<div class="row">    
+<div class="row" bladefile="resources/views/admin_panel/users/index.blade.php">    
     <div class="col-lg-12 col-md-12">
         <div class="card mb-4">
             <div class="card-body p-2">                
@@ -37,16 +37,32 @@
                 $("#search_staff").focus();
                 $(".loadStaffData").html('');
             }else {
+                $("#preloader").show();
                 $.ajax({
                     url : '{{ route("admin/loadallstaffdata") }}',
                     headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data : {'email' : $("#search_staff").val()},
                     type : "POST",
                     success: function (res) {
-                        $(".loadStaffData").html(res);
+                        $(".loadStaffData").html('').html(res);
+                        $("#preloader").hide();
                     }
                 });
             }
+        });
+
+        $(document).on('click', '.searchStaff', function() { 
+            $("#preloader").show();
+            $.ajax({
+                url : '{{ route("admin/checkStaffDetails") }}',
+                headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data : {'staff_id' : $(this).attr('staff_id')},
+                type : "POST",
+                success: function (res) {
+                    $(".loadStaffData").html('').html(res);
+                    $("#preloader").hide();
+                }
+            });            
         });
     });
 </script>

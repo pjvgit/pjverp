@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\User,App\CaseStaff,App\CaseTaskLinkedStaff,App\UsersAdditionalInfo,App\CaseMaster,App\DeactivatedUser;
-use DB;
+use App\User,App\CaseStaff,App\CaseTaskLinkedStaff,App\UsersAdditionalInfo,App\CaseMaster,App\DeactivatedUser,App\Admin;
+use DB, Validator;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Yajra\Datatables\Datatables;
 
 class UserController extends Controller {
@@ -21,17 +24,37 @@ class UserController extends Controller {
     public function loadallstaffdata(Request $request)
     {
         $email = $request->email;
-        $userData = $case = [];
-        $userProfile = User::where('user_level','3')->where('email', $email)->with('firmDetail')->first();
+        $userData = $case = $userPermissions = $userProfile = [];
+        $userProfiles = User::where('user_level','3')->where('email', $email)->with('firmDetail')->get();
+        if(count($userProfiles) > 1){
+            return view('admin_panel.staff.checkstaffList',compact('userProfiles'));        
+        }else{            
+            if(count($userProfiles) == 1){
+                $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfiles[0]->parent_user.") as firmCaseCount from users where firm_name = ".$userProfiles[0]->firm_name." and user_level in ('3','1')");
+                $case = CaseMaster::join("users","case_master.created_by","=","users.id")->where('firm_id',$userProfiles[0]->firm_name)->where("case_master.is_entry_done","1")->count();
+                $userPermissions = $userProfiles[0]->getPermissionNames()->toArray();
+                $userProfile = $userProfiles[0];
+            }
+            // dd($userData);
+            return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','case','userPermissions'));            
+        }
+    }
+
+    public function checkStaffDetails(Request $request)
+    {
+        $staff_id = $request->staff_id;
+        $userData = $case = $userPermissions = [];
+        $userProfile = User::where('user_level','3')->where('id', $staff_id)->with('firmDetail')->first();
         // select * from users where firm_name = 10 and user_level in ('3')
         // select * from case_master where created_by = 31
         // select * from case_master where created_by = 31
         if(!empty($userProfile)){
             $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfile->parent_user.") as firmCaseCount from users where firm_name = ".$userProfile->firm_name." and user_level in ('3','1')");
             $case = CaseMaster::join("users","case_master.created_by","=","users.id")->where('firm_id',$userProfile->firm_name)->where("case_master.is_entry_done","1")->count();
+            $userPermissions = $userProfile->getPermissionNames()->toArray();                
         }
         // dd($userData);
-        return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','case'));        
+        return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','case','userPermissions'));        
     }
 
     public function userList(Request $request)
@@ -303,6 +326,7 @@ class UserController extends Controller {
         if(isset($request->reason)) { $userDeactivate->reason=$request->reason; }
         if(isset($request->other_reason)) { $userDeactivate->other_reason=$request->other_reason; }
         if(isset($request->assign_to)) { $userDeactivate->assigned_to=$request->assign_to; }
+        $userDeactivate->created_by = $user->firm_name;
         $userDeactivate->save();
 
         // assing all case to new staff
@@ -328,7 +352,59 @@ class UserController extends Controller {
         exit;        
     } 
 
+    public function loadProfile(){
+        $userProfile = Admin::find(Auth::User()->id);
+        return view('admin_panel.profile.view', compact('userProfile'));
+    }    
+
+    public function saveProfile(Request $request){
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|min:1|max:255',
+            'last_name' => 'required|min:1|max:255',
+        ]);
+        if ($validator->fails()) {
+        	$errors = $validator->errors();
+        	$code = 404;
+            $isSuccess = false;
+            return redirect()->back()->withErrors($validator)->withInput();
+        }else{
+            $user = Admin::find(Auth::User()->id);
+            $user->first_name = $request->first_name;
+            $user->last_name = $request->last_name;
+            $user->timezone = $request->timezone;
+            $user->save();
+            return redirect()->route('admin/loadProfile')->with('success','Profile has been updated successfully.');
+        }
+    }
 
 
-    
+    public function savePassword(Request $request)
+    {
+        $id=Auth::user()->id;
+        $input = $request->all();
+        $user = Admin::find($id);
+        $validator = Validator::make($input, [
+            'current_password' => 'required|min:6',
+            'new_password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
+            'confirm_password' => 'required|min:6',
+        ]);
+
+        if ($validator->fails()) {
+        	$errors = $validator->errors();
+        	$code = 404;
+            $isSuccess = false;
+            $request->session()->flash('page', 'password');
+             return redirect()->back()->withErrors($validator)->withInput();
+        }else{
+            if (Auth::attempt(array('email' => $user->email, 'password' => $input['current_password']))){
+                if(isset($request->current_password)){ $user->password=\Hash::make($input['confirm_password']); }
+                $user->save();
+                return redirect()->route('admin/loadProfile')->with('success',SUCCESS_SAVE_PROFILE);
+            }else{
+                $request->session()->flash('page', 'password');
+                return redirect()->back()->withErrors(ERROR_INCORRECT_PASSWORD)->withInput();
+            }
+        
+        }
+    }
 }

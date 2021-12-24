@@ -10,7 +10,7 @@
     
     <div class="d-flex align-items-center">
            
-           <div class="search-bar">
+           <div class="search-bar m2">
                <input type="text" placeholder="Search" /><i class="search-icon text-muted i-Magnifi-Glass1"></i>
            </div>
        </div>
@@ -95,7 +95,7 @@
                     <div class="dropdown-header">
                         <i class="i-Lock-User mr-1"></i> {{ auth()->user()->full_name}}
                     </div>
-                    <a class="dropdown-item m2">Profile</a>
+                    <a class="dropdown-item" href="{{ route('admin/loadProfile') }}">Profile</a>
                     <a class="dropdown-item" href="{{ route('autologout') }}">Sign out</a>
                 </div>
             </div>

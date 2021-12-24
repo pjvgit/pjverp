@@ -74,6 +74,18 @@
         {{-- laravel js --}}
         {{-- <script src="{{mix('assets/js/laravel/app.js')}}"></script> --}}
         @yield('bottom-js')
+        @if ($message = session('success'))
+        <script>
+            $(window).on('load', function () {
+                toastr.success('{{ $message }}', "", {
+                    progressBar: !0,
+                    positionClass: "toast-top-full-width",
+                    containerId: "toast-top-full-width"
+                });
+            });
+        </script>
+        {{session(['success' => ''])}}
+        @endif
         <script>
             $(".search-bar input").on("click", function(){
                 $('body').css('overflow', 'hidden');
