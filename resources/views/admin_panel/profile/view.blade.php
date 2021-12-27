@@ -33,9 +33,7 @@
             <div class="col-md-3">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h3>
-                            My Profile
-                        </h3>
+                        <div class="card-title mb-3">My Profile</div>
                     </div>
                 </div>
             </div>
@@ -76,6 +74,8 @@
                                     <option <?php echo ($v==Auth::User()->timezone) ? "selected" : ""; ?> value="{{$v}}">{{$k}}</option>
                                     <?php } ?>
                                 </select>
+                                </br>
+                                <label for="inputEmail3" class="col-form-label d-flex justify-content-between align-items-center">Current time&nbsp;&nbsp;&nbsp; : &nbsp;&nbsp;&nbsp;   {{\Carbon\Carbon::now((!(empty(Auth::User()->timezone))) ? Auth::User()->timezone : 'UTC')->format('Y-m-d H:i:s')}}</label>
                                 </div>
                             </div>
                             <div class="form-group row float-right">

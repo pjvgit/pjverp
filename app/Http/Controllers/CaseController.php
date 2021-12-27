@@ -240,6 +240,7 @@ class CaseController extends BaseController
             }
              if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
+                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');
                 if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
             }
             $CaseMaster->case_unique_number=strtoupper(uniqid()); 
@@ -546,7 +547,8 @@ class CaseController extends BaseController
                 $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
             }
              if(isset($request->conflict_check)) { 
-                $CaseMaster->conflict_check="1"; 
+                $CaseMaster->conflict_check="1";                
+                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s'); 
                 if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
             }
             $CaseMaster->case_unique_number=strtoupper(uniqid()); 

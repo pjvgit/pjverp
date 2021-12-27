@@ -1182,16 +1182,23 @@ var start = 0;
             var resultHtml = '';
             var last = null;
             var unInvoiceAmount = 0;
+            var removedRecord = [];
             if(!$.trim(res.data)){
                 lazyLoadingActive = 999;
             }
             $.each(res.data, function(i, v){
                 var contactGroup = i.split('_');
 
-                resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
-                contactGroup[1] + ')" id="checkAllClientCase"class="allSelect  mainBox_' + contactGroup[1] + ' "> <a class="name" href="' + baseUrl +
-                '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
-
+                if(contactGroup[0] == 'No Billing Contact'){
+                    resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><a class="name" href="' + baseUrl +
+                    '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
+                }else{
+                    resultHtml +='<tr class="group" id="sr_'+contactGroup[1]+'"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
+                    contactGroup[1] + ')" id="checkAllClientCase"class="allSelect  mainBox_' + contactGroup[1] + ' "> <a class="name" href="' + baseUrl +
+                    '/contacts/clients/'+contactGroup[1]+'">'+contactGroup[0]+'</a></td></tr>';
+                }
+                console.log("----------------------------------------------->");
+                console.log(v);
                 $.each(v, function(j, aData){
                     start = start + 1;
                     // resultHtml +='<tr class="group"><td colspan="15"><input type="checkbox" onclick="selectClient(' +
@@ -1244,6 +1251,10 @@ var start = 0;
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
                     resultHtml +='</tr>';
+                    }else{
+                        console.log("1255 > client: "+aData.selected_user);
+                        removedRecord.push(aData.selected_user);
+                        
                     }
                 });
                
@@ -1251,7 +1262,10 @@ var start = 0;
             // afterLoader();
             $("#preloader").hide();
             if(unInvoiceAmount == 0){
-                $(".lazy-load-data").append(resultHtml);    
+                $(".lazy-load-data").append(resultHtml);  
+                $.each(removedRecord, function(index, item){
+                    $("#sr_"+item).remove();
+                });
             }else{
                 $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    
             }

@@ -38,7 +38,7 @@
                  <div class="col-9">
                      <?php
                      if($LeadData['conflict_check']=='yes' && $LeadData['conflict_check_at']!=NULL){
-                     $currentConvertedDate= $CommonController->convertUTCToUserTime($LeadData['conflict_check_at'],Auth::User()->user_timezone);
+                     $currentConvertedDate= $CommonController->convertUTCToUserTime($LeadData['conflict_check_at'],Auth::User()->user_timezone ?? 'UTC');
                      ?>
                      <span class="field-value">Marked complete {{date('m/d/Y h:i a',strtotime($currentConvertedDate))}}</span>
                      <?php } ?> 

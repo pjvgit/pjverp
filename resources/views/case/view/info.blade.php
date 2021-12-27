@@ -1,4 +1,6 @@
-
+<?php
+ $CommonController= new App\Http\Controllers\CommonController();
+?>
 <?php if($InvoicesOverdueCase>0){?>
     <div class="w-100 ml-n2 mr-3 alert alert-danger fade show" role="alert">
         <div class="d-flex align-items-start">
@@ -336,15 +338,18 @@
                             </div>
                         </div>
                         <div class="case-info-row mt-2 row ">
-                            <div class="font-weight-bold col-3 col-md-3 col-lg-5">Conflict
-                                Check</div>
+                            <div class="font-weight-bold col-3 col-md-3 col-lg-5">Conflict Check</div>
                             <div class="pl-0 pr-1 col-9 col-md-9 col-lg-7">
-                                {{($CaseMaster->conflict_check)?'Yes':'No'}}<span></span>
+                                <?php
+                                if($CaseMaster->conflict_check=='1' && $CaseMaster->conflict_check_at !=NULL){
+                                $currentConvertedDate= $CommonController->convertUTCToUserTime($CaseMaster->conflict_check_at,Auth::User()->user_timezone??'UTC');
+                                ?>
+                                <span class="field-value">Marked complete {{date('m/d/Y h:i a',strtotime($currentConvertedDate))}}</span>
+                                <?php } ?> 
                             </div>
                         </div>
                         <div class="case-info-row mt-2 row ">
-                            <div class="font-weight-bold col-3 col-md-3 col-lg-5">Conflict
-                                Check Notes</div>
+                            <div class="font-weight-bold col-3 col-md-3 col-lg-5">Conflict Check Notes</div>
                             <div class="pl-0 pr-1 col-9 col-md-9 col-lg-7">
                                 <span>{{($CaseMaster->conflict_check_description)??''}}</span>
                             </div>

@@ -19,7 +19,7 @@
                 <h5 class="d-flex justify-content-start align-items-center">Email
                 </h5>
                 <div class="d-flex justify-content-start align-items-center">
-                    <input type="text" placeholder="Escriba aquí la dirección de correo electrónico" class="col-md-4 form-control" id="search_staff" value="faercus@hotmail.com" required>
+                    <input type="text" placeholder="Escriba aquí la dirección de correo electrónico" class="col-md-4 form-control" id="search_staff" value="" required>
                     <button class="btn btn-primary search_staff">Ver perfil</button>
                 </div>                
             </div>

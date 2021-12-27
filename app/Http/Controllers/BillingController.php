@@ -2367,7 +2367,8 @@ class BillingController extends BaseController
         if($request->balance_filter != 'all') {
             if($request->balance_filter == "uninvoiced") {
                 // $Invoices = $Invoices->whereDoesntHave("invoices");
-                $Invoices = $Invoices->where("task_time_entry.status","unpaid")->orWhere("expense_entry.status","unpaid");
+                $Invoices = $Invoices->where("task_time_entry.status","unpaid")
+                ->orWhere("expense_entry.status","unpaid");
             } else {
                 $Invoices = $Invoices->whereHas("invoices", function($query) {
                     $query->havingRaw('SUM(due_amount) > ?', array(0));
@@ -2380,15 +2381,25 @@ class BillingController extends BaseController
         $Invoices = $Invoices->orderBy("case_master.id", 'desc');
         $Invoices = $Invoices->groupBy("case_master.id");
         $Invoices = $Invoices->get();
-
+        // dd($Invoices); 
         $arrData = [];
         $contactGroup = [];
         foreach ($Invoices as $k=>$v){
-            array_push($contactGroup,$v->contact_name);
-            if(in_array($v->contact_name,$contactGroup))
-            {
-                $arrData[$v->contact_name.'_'.$v->selected_user][$k] = $v;            
-            }            
+            \Log::info("contact_id > ". $v->setup_billing . " > contact_name > ". $v->contact_name);
+            if($v->setup_billing =="yes"){
+                array_push($contactGroup,$v->contact_name);
+                if(in_array($v->contact_name,$contactGroup))
+                {
+                    $arrData[$v->contact_name.'_'.$v->selected_user][$k] = $v;            
+                }
+            }else{
+                array_push($contactGroup,"");            
+                if(in_array("",$contactGroup))
+                {
+                    $arrData["No Billing Contact"][$k] = $v;            
+                }
+            }
+                        
         }
         $arrData = array_map('array_values', $arrData);
 
@@ -2592,7 +2603,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $TimeEntry=$TimeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $TimeEntry=$TimeEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2611,7 +2624,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2678,7 +2693,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [date('Y-m-d',strtotime($request->from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
             }
             $FlatFeeEntry=$FlatFeeEntry->get();
             
@@ -5450,7 +5467,9 @@ class BillingController extends BaseController
             $TimeEntry=$TimeEntry->where("time_entry_for_invoice.invoice_id",$invoiceID);
             // ->where("task_time_entry.remove_from_current_invoice","no")
             if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-                $TimeEntry=$TimeEntry->whereBetween('time_entry_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $TimeEntry=$TimeEntry->whereBetween('task_time_entry.entry_date', [$startDt,$endDt]);
             }
             $TimeEntry=$TimeEntry->get();
         
@@ -5460,10 +5479,12 @@ class BillingController extends BaseController
             // ->where("expense_entry.remove_from_current_invoice","no")
             $ExpenseEntry=$ExpenseEntry->where("expense_for_invoice.invoice_id",$invoiceID);
             if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-                $ExpenseEntry=$ExpenseEntry->whereBetween('expense_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $ExpenseEntry=$ExpenseEntry->whereBetween('expense_entry.entry_date', [$startDt,$endDt]);
             }
             $ExpenseEntry=$ExpenseEntry->get();
-
+            
             //Get the Adjustment list
             $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
             if($Adjustment_token->count() > 0 )
@@ -5483,7 +5504,9 @@ class BillingController extends BaseController
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd");
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->where("flat_fee_entry_for_invoice.invoice_id",$invoiceID);
             if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-                $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereBetween('flat_fee_entry_for_invoice.created_at', [date('Y-m-d',strtotime($request->bill_from_date)),date('Y-m-d',strtotime($request->bill_to_date))]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->whereBetween('flat_fee_entry_for_invoice.created_at', [$startDt,$endDt]);
             }
             $FlatFeeEntryForInvoice=$FlatFeeEntryForInvoice->get();
 

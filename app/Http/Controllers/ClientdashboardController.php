@@ -814,7 +814,7 @@ class ClientdashboardController extends BaseController
     public function loadTimeEntryPopup(Request $request)
     {
         $defaultRate=$company_id=$case_id=$client_id='';
-        $dataNotes=ClientNotes::find($request->note_id);
+        $dataNotes=ClientNotes::find(@$request->note_id);
         if($dataNotes['client_id']!=NULL){
             $client_id=$dataNotes['client_id'];
         }else if($dataNotes['case_id']!=NULL){

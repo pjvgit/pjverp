@@ -188,7 +188,7 @@
                                 @endif
                                 @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("employee", $invoiceSetting['flat_fee']))
                                 <td class="time-entry-ee" style="vertical-align: top;">
-                                    {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                    {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                                 </td>
                                 @endif
                                 @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("item", $invoiceSetting['flat_fee']))
@@ -232,7 +232,7 @@
                                         {{date('m/d/Y',strtotime($v->entry_date))}}
                                     </td>
                                     <td class="time-entry-ee" style="vertical-align: top;">
-                                        {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                        {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                                     </td>
                                     <td class="time-entry-activity" style="vertical-align: top;">
                                         Flat Fee
@@ -318,7 +318,7 @@
                             @endif
                             @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("employee", $invoiceSetting['time_entry']))
                             <td class="time-entry-ee" style="vertical-align: top;">
-                                {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                             </td>
                             @endif
                             @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("activity", $invoiceSetting['time_entry']))
@@ -387,7 +387,7 @@
                                     {{date('m/d/Y',strtotime($v->entry_date))}}
                                 </td>
                                 <td class="time-entry-ee" style="vertical-align: top;">
-                                    {{$v->first_name[0]}}{{$v->last_name[0]}}
+                                    {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                                 </td>
                                 <td class="time-entry-activity" style="vertical-align: top;">
                                     {{$v->activity_title}}
@@ -501,7 +501,7 @@
                     @endif
                     @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("employee", $invoiceSetting['expense']))
                     <td class="time-entry-ee" style="vertical-align: top;">
-                        {{$v->first_name[0]}}{{$v->last_name[0]}}
+                        {{@$v->first_name[0]}}{{@$v->last_name[0]}}
                     </td>
                     @endif
                     @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("expense", $invoiceSetting['expense']))
@@ -557,7 +557,7 @@
                                 {{date('m/d/Y',strtotime($v->entry_date))}}
                             </td>
                             <td class="time-entry-ee" style="vertical-align: top;">
-                                {{($v->first_name[0])??''}}{{($v->last_name[0])??''}}
+                                {{(@$v->first_name[0])??''}}{{(@$v->last_name[0])??''}}
                             </td>
                             <td class="time-entry-activity" style="vertical-align: top;">
                                 {{$v->activity_title}}

@@ -1,3 +1,6 @@
+------------------------------------ 27-DEC-2021 ------------------------------
+ALTER TABLE `case_master`
+ADD `conflict_check_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `conflict_check`;
 ------------------------------------ 24-DEC-2021 ------------------------------
 ALTER TABLE `admins`
 ADD `timezone` varchar(110) COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'UTC' AFTER `phone_no`;

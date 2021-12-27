@@ -1881,7 +1881,7 @@ if(!isset($addition)){ $addition=0;}
                             <table class="sharing-table">
                                 <tbody>
                                     <tr>
-                                        <td id="sharing_left_side" class="sharing-left-side" style="vertical-align: top;padding-top: 13px;">
+                                        <td id="sharing_left_side" class="sharing-left-side" style="width: 75%; vertical-align: top;padding-top: 13px;">
                                             <div class="bootstrap">
                                                 <div class="alert alert-info alert-dismissible "
                                                     data-tip-name="client_portal_invoice_sharing">
@@ -2027,7 +2027,7 @@ if(!isset($addition)){ $addition=0;}
                                             </table>
                                             <div class="reminder-tip text-right">*Once shared, you will have the option of sending reminders to clients.</div>
                                         </td>
-                                        <td id="sharing_right_side" style="width: 300px; padding-left: 10px; height: 100%;padding-top:10px;">
+                                        <td id="sharing_right_side" style="width: 25%; padding-left: 10px; height: 100%;padding-top:10px;">
                     
                                             <div class="get-paid-now-ads bootstrap">
                                                 <img src="{{ asset("images/get_paid_now_ads.png") }}">
