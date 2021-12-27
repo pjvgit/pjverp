@@ -20,7 +20,7 @@
                         <div class="col-4 col-md-2 text-right">
                             <span class="list-row__alert-text">{{ getDueText($item->due_date) }}</span>
                             @if($onlinePaymentSetting && $onlinePaymentSetting->is_accept_online_payment == 'yes')
-                            <a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['invoice_id'=>encodeDecodeId($item->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}" target="_blank">
+                            <a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['type'=>'invoice', 'id'=>encodeDecodeId($item->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}" target="_blank">
                                 <span class="payable-detail__export-button">Pay Now</span>
                             </a>
                             @endif
@@ -31,7 +31,6 @@
                 @forelse ($requestFunds as $key => $item)
                     <li class="payable list-row no-gutters @if($item->is_viewed == 'no') is-unread @endif">
                         <a href="{{ route('client/bills/request/detail', base64_encode($item->id)) }}" class="col-8 col-md-10 billing-list">
-                            {{-- <span class="payable-row__icon payable-row__icon-unpaid"><i class="fas fa-dollar-sign"></i></span> --}}
                             <img src="{{ asset('icon/dollar-green.png') }}" class="green-dollar"/>
                             <div class="list-row__body">
                                 <span class="list-row__header mt-0">${{ $item->amt_due }}</span><br>
@@ -60,7 +59,11 @@
                             }
                             @endphp
                             <span class="list-row__alert-text">{{ $dueText }}</span>
-                            <br>
+                            @if($onlinePaymentSetting && $onlinePaymentSetting->is_accept_online_payment == 'yes')
+                            <a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['type'=>'fundrequest', 'id'=>encodeDecodeId($item->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}" target="_blank">
+                                <span class="payable-detail__export-button">Pay Now</span>
+                            </a>
+                            @endif
                         </div>
                     </li>
                 @empty

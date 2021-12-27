@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\InvoiceCustomizationSetting;
 use App\InvoiceCustomizationSettingColumn;
-use App\InvoiceOnlinePaymentSetting;
+use App\FirmOnlinePaymentSetting;
 use App\InvoiceSetting;
 use App\InvoiceSettingReminderSchedule;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class BillingSettingController extends BaseController
     {
         $invSetting = InvoiceSetting::where('firm_id', auth()->user()->firm_name)->with('reminderSchedule')->first();
         $customize = InvoiceCustomizationSetting::where('firm_id', auth()->user()->firm_name)->with('flatFeeColumn', 'timeEntryColumn', 'expenseColumn')->first();        
-        $paymentSetting = InvoiceOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
+        $paymentSetting = FirmOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
         return view("billing_setting.index", compact('invSetting', 'customize', 'paymentSetting'));
     }
 
@@ -150,7 +150,7 @@ class BillingSettingController extends BaseController
      */
     public function editPaymentPreferences(Request $request)
     {
-        $paymentSetting = InvoiceOnlinePaymentSetting::whereId($request->setting_id)->first();
+        $paymentSetting = FirmOnlinePaymentSetting::whereId($request->setting_id)->first();
         return view("billing_setting.partial.edit_payment_preferences", compact('paymentSetting'))->render();
     }
 
@@ -168,7 +168,7 @@ class BillingSettingController extends BaseController
             $data['public_key'] = $request->public_key;
             $data['private_key'] = $request->private_key;
         }
-        $paymentSetting = InvoiceOnlinePaymentSetting::updateOrCreate(
+        $paymentSetting = FirmOnlinePaymentSetting::updateOrCreate(
             [
                 'id' => $request->setting_id,
             ], $data);

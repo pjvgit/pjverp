@@ -329,8 +329,8 @@ if(isset($_GET['bank_account'])){
 
 
     });
-
-    function addRequestFundPopup() {
+    // Made common code in funrequest.js file
+    /* function addRequestFundPopup() {
         $("#preloader").show();
         $("#addRequestFundArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
@@ -344,7 +344,7 @@ if(isset($_GET['bank_account'])){
                 }
             })
         })
-    }
+    } */
     function printEntry()
     {
         var info = $('#trustAccountActivityTab').DataTable().page.info();

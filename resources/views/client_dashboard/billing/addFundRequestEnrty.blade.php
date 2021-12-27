@@ -96,35 +96,13 @@
                         </div>
                     </div>
                     <div class="row form-group"><span class="col-4 pt-2">Online Payments</span>
-                        <div data-testid="online-payments-text"
-                            class="col-8 form-control-plaintext text-danger selenium-online-payments-text">Disabled
-                        </div>
+                        @if(getFirmOnlinePaymentSetting() && getFirmOnlinePaymentSetting()->is_accept_online_payment == 'yes')
+                            <span class="col-8 text-success">Enabled</span>
+                        @else
+                            <span class="col-8 text-danger">Disabled</span>
+                        @endif
                     </div>
-                    <div class="">
-                        <div data-testid="payment-section">
-                            <div class="row form-group">
-                                <div class="col-12 pt-2">
-                                    <div class="payment-ads-borders">
-                                        <div data-testid="retainer-request-get-paid-now-ad"
-                                            class="row retainer-request-get-paid-now-ad pt-3 pb-3">
-                                            <div class="col-6 text-center payment-ads-border-right">
-                                                <div>
-                                                    <h6 class="pt-1 pb-2 font-weight-bold text-muted">Get Paid Faster
-                                                        with {{config('app.name')}} Payments</h6>
-                                                </div><a class="btn btn-outline-secondary m-1 btn-rounded " href=""
-                                                    target="_blank" rel="noopener noreferrer">Learn More</a>
-                                            </div>
-                                            <div class="col-6 text-center text-muted">
-                                                <div class="pb-3">Provide your clients with the simplest way to pay
-                                                    online — no login required.</div>
-                                                <div>No monthly fee or setup fee.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="border-top"></div>
                 </div>
             </span>
                 <div class="col-5">

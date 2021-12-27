@@ -1,5 +1,5 @@
 
-<h3 class="border-bottom border-gray pb-2">Total: {{ ($month == 0) ? 'One payment of '.$invoice->due_amount : $month.' payments of '. invoiceMonthlyPaymentAmount($invoice->due_amount, $month) }}</h3>
+<h3 class="border-bottom border-gray pb-2">Total: {{ ($month == 0) ? 'One payment of '.$payableAmount : $month.' payments of '. invoiceMonthlyPaymentAmount($payableAmount, $month) }}</h3>
 <div class="row pt-3">
     <div class="col-md-8">
         <div class="text-left">
@@ -11,7 +11,8 @@
                 <h4 class="card-title mb-3">{{ ($month == 0) ? 'Pay with Visa, MasterCard or American Express Credit or Debit Card' : $month.' interest free Monthly Payments with credit card' }}</h4>
                 <form id="card_form" method="POST" action="{{ route('client/bills/payment/card') }}">
                     @csrf
-                    <input type="hidden" name="invoice_id" value="{{ $invoice->id }}" >
+                    <input type="hidden" name="type" value="{{ $type }}" >
+                    <input type="hidden" name="payable_record_id" value="{{ $payableRecordId }}" >
                     <input type="hidden" name="client_id" value="{{ $clientId }}" >
                     <input type="hidden" name="emi_month" value="{{ $month }}" >
                     <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >

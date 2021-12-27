@@ -1,6 +1,38 @@
 ------------------------------------ 27-DEC-2021 ------------------------------
 ALTER TABLE `case_master`
 ADD `conflict_check_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `conflict_check`;
+
+ALTER TABLE `invoice_online_payments`
+ADD `paid_at` timestamp NULL AFTER `conekta_reference_expires_at`;
+
+ALTER TABLE `invoice_online_payment_settings`
+RENAME TO `firm_online_payment_settings`;
+
+ALTER TABLE `requested_fund`
+ADD `online_payment_status` varchar(100) NULL AFTER `allocated_to_lead_case_id`;
+
+CREATE TABLE `requested_fund_online_payments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `fund_request_id` int(11) NOT NULL,
+  `user_id` int NOT NULL,
+  `payment_method` enum('card','cash','bank transfer') NULL,
+  `amount` float(8,2) NULL,
+  `card_emi_month` int(5) NULL,
+  `conekta_order_id` varchar(255) NULL,
+  `conekta_charge_id` varchar(255) NULL,
+  `conekta_customer_id` varchar(255) NULL,
+  `conekta_payment_status` varchar(255) NULL,
+  `conekta_payment_reference_id` varchar(255) NULL,
+  `conekta_reference_expires_at` timestamp NULL,
+  `paid_at` timestamp NULL,
+  `firm_id` int(11) NULL,
+  `conekta_order_object` json NULL,
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
 ------------------------------------ 24-DEC-2021 ------------------------------
 ALTER TABLE `admins`
 ADD `timezone` varchar(110) COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'UTC' AFTER `phone_no`;
