@@ -707,6 +707,7 @@ class BillingController extends Controller
             $body = @file_get_contents('php://input');
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
+            Log::info("webhook response: ". json_encode($data));
             Log::info("webhook called type: ". $data->type);
             Log::info("webhook called order id: ". @$data->order_id ?? "order id not found");
             switch ($data->type) {
