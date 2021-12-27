@@ -7,6 +7,7 @@ use App\FirmAddress;
 use App\FirmSolReminder;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceCustomizationSettingColumn;
+use App\FirmOnlinePaymentSetting;
 use App\InvoiceSetting;
 use App\LeadAdditionalInfo;
 use App\User;
@@ -576,4 +577,12 @@ function encodeDecodeId($id, $type)
 function invoiceMonthlyPaymentAmount($amount, $month)
 {
     return ceil($amount / $month);
+}
+
+/**
+ * Get invoice/request online payment settings
+ */
+function getFirmOnlinePaymentSetting()
+{
+    return FirmOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
 }

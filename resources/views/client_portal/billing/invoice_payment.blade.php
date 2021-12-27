@@ -18,7 +18,7 @@
                     </ul>
                     <div>
                         <div id="step-1" class="p-3">
-                            <h1>Invoice #{{ $invoice->id }}</h1>
+                            <h1>{{ ($type == 'fundrequest') ? "Payment Request" : "Invoice" }} #{{ $payableRecordId }}</h1>
                             @if(isset($month) && $month != '')
                                 @include('client_portal.billing.partial.load_credit_card_form')
                             @else
@@ -26,17 +26,17 @@
                                 <p>Or if you chose interest free monthly payments you will pay as follows:</p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        @if($invoice->due_amount >= 300)
-                                        <p>3 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 3) }}</p>
+                                        @if($payableAmount >= 300)
+                                        <p>3 payments of {{ invoiceMonthlyPaymentAmount($payableAmount, 3) }}</p>
                                         @endif
-                                        @if($invoice->due_amount >= 600)
-                                        <p>6 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 6) }}</p>
+                                        @if($payableAmount >= 600)
+                                        <p>6 payments of {{ invoiceMonthlyPaymentAmount($payableAmount, 6) }}</p>
                                         @endif
-                                        @if($invoice->due_amount >= 800)
-                                        <p>9 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 9) }}</p>
+                                        @if($payableAmount >= 800)
+                                        <p>9 payments of {{ invoiceMonthlyPaymentAmount($payableAmount, 9) }}</p>
                                         @endif
-                                        @if($invoice->due_amount >= 1200)
-                                        <p>12 payments of {{ invoiceMonthlyPaymentAmount($invoice->due_amount, 12) }}</p>
+                                        @if($payableAmount >= 1200)
+                                        <p>12 payments of {{ invoiceMonthlyPaymentAmount($payableAmount, 12) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -61,9 +61,10 @@
                                             <div class="tab-content" id="myTabContent">
                                                 <div class="tab-pane fade show active" id="credit_card_tab" role="tabpanel" aria-labelledby="credit-card-tab">
                                                     <img src="{{ asset('images/payment/pago1.png') }}" />
-                                                    <form id="card_pay_option_form" method="POST" action="{{ route('client/bills/payment/card/option', ['invoice_id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
+                                                    <form id="card_pay_option_form" method="POST" action="{{ route('client/bills/payment/card/option', ['type'=>$type, 'id'=>encodeDecodeId($payableRecordId, 'encode'), 'client_id'=>encodeDecodeId($clientId, 'encode')]) }}">
                                                         @csrf
-                                                        <input type="hidden" name="invoice_id" value="{{ encodeDecodeId($invoice->id, 'encode') }}" >
+                                                        <input type="hidden" name="type" value="{{ $type }}" >
+                                                        <input type="hidden" name="payable_record_id" value="{{ encodeDecodeId($payableRecordId, 'encode') }}" >
                                                         <ul class="list-group">
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
@@ -71,7 +72,7 @@
                                                                     <span>Pay with Visa, MasterCard or American Express Credit or Debit Card</span><span class="checkmark"></span>
                                                                 </label>
                                                             </li>
-                                                            @if($invoice->due_amount >= 300)
+                                                            @if($payableAmount >= 300)
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
                                                                     <input type="radio" class="payment-option" name="payment_option" value="3">
@@ -79,7 +80,7 @@
                                                                 </label>
                                                             </li>
                                                             @endif
-                                                            @if($invoice->due_amount >= 600)
+                                                            @if($payableAmount >= 600)
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
                                                                     <input type="radio" class="payment-option" name="payment_option" value="6">
@@ -87,7 +88,7 @@
                                                                 </label>
                                                             </li>
                                                             @endif
-                                                            @if($invoice->due_amount >= 800)
+                                                            @if($payableAmount >= 800)
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
                                                                     <input type="radio" class="payment-option" name="payment_option" value="9">
@@ -95,7 +96,7 @@
                                                                 </label>
                                                             </li>
                                                             @endif
-                                                            @if($invoice->due_amount >= 1200)
+                                                            @if($payableAmount >= 1200)
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
                                                                     <input type="radio" class="payment-option" name="payment_option" value="12">
@@ -111,7 +112,7 @@
                                                     <div class="col-md-6 mt-5">
                                                         <form id="cash_pay_form" method="POST" action="{{ route('client/bills/payment/cash') }}">
                                                             @csrf
-                                                            <input type="hidden" name="invoice_id" value="{{ $invoice->id }}" >
+                                                            <input type="hidden" name="invoice_id" value="{{ $payableRecordId }}" >
                                                             <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >
                                                             <div class="form-group row">
                                                                 <img class="col-md-3" src="{{ asset('images/payment/pago2.png') }}" />
@@ -147,7 +148,7 @@
                                                     <div class="col-md-6 mt-5">
                                                         <form id="bank_pay_form" method="POST" action="{{ route('client/bills/payment/bank') }}">
                                                             @csrf
-                                                            <input type="hidden" name="invoice_id" value="{{ $invoice->id }}" >
+                                                            <input type="hidden" name="invoice_id" value="{{ $payableRecordId }}" >
                                                             <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >
                                                             <div class="form-group row">
                                                                 <img class="col-md-3" src="{{ asset('images/payment/pago3.png') }}" />

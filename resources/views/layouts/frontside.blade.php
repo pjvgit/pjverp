@@ -238,11 +238,11 @@
                                 <div>
                                     <div>
                                         <label class="toggle" for="drop-2"></label>
-                                        <?php  if(isset(Auth::User()->id)){ ?>
-                                            <a href="{{ route('dashboard') }}"><i class="nav-icon mr-2 i-Safe-Box1"></i>Dashboard </a>
-                                        <?php }else{ ?>
+                                        @if(auth()->check())
+                                            <a href="{{ (auth()->user()->user_level == '2') ? route('client/home') : route('dashboard') }}"><i class="nav-icon mr-2 i-Safe-Box1"></i>Dashboard </a>
+                                        @else
                                             <a href="{{ route('login') }}"><i class="nav-icon mr-2 i-Safe-Box1"></i>Login </a>
-                                        <?php } ?>
+                                        @endif
                                     </div>
                                 </div>
                             </li>

@@ -2112,64 +2112,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $('.showError').html('');
         $("#exportPDFpopup").modal("show");
     }
-    // Made common code for fund request from client/company/case and billing dashboard
-    /* function addRequestFundPopup() {
-        $("#preloader").show();
-        $("#addRequestFundArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/companies/addRequestFundPopup", 
-                data: {"user_id": "{{$company_id}}"},
-                success: function (res) {
-                    $("#addRequestFundArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    function editFundRequest(id) {
-        $("#preloader").show();
-        $("#editFundRequestArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/companies/editFundRequest", 
-                data: {"id": id},
-                success: function (res) {
-                    $("#editFundRequestArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
-    function deleteRequestFund(id, ele) {
-        var paymentCount = $(ele).attr("data-payment-count");
-        if(paymentCount > 0) {
-            swal({
-                title: 'Cannot Delete',
-                text: 'This request cannot be deleted because there are payments associated with it.'
-            });
-        } else {
-            $("#deleteRequestFund").modal("show");
-            $("#delete_fund_id").val(id);
-        }
-    }
-    function sendFundReminder(id) {
-        $("#preloader").show();
-        $("#sendFundReminderArea").html('<img src="{{LOADER}}""> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/contacts/companies/sendFundReminder", 
-                data: {"id": id},
-                success: function (res) {
-                    $("#sendFundReminderArea").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    } */
+    
     //Billing Tab @END
 
     function archiveCompany() {

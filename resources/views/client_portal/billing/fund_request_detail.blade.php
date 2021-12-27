@@ -13,6 +13,13 @@
             <div class="detail-view__header">
                 <div>Funds Request: {{ @$fundRequest->padding_id }}</div>
                 <div class="ml-auto d-flex"></div>
+                <div class="payable-detail__actions">
+					@if(getFirmOnlinePaymentSetting() && getFirmOnlinePaymentSetting()->is_accept_online_payment == 'yes')
+					<a class="btn btn-primary payable-detail__export-link ml-5" href="{{ route('client/bills/payment', ['type'=>'fundrequest', 'id'=>encodeDecodeId($fundRequest->id, 'encode'), 'client_id'=>encodeDecodeId(auth()->id(), 'encode')]) }}">
+						<span class="payable-detail__export-button">Pay Now</span>
+					</a>
+					@endif
+				</div>
             </div>
             <div class="mb-3 mb-md-0">
                 <div class="p-3">
