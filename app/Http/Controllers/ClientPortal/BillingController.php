@@ -709,9 +709,8 @@ class BillingController extends Controller
             http_response_code(200); // Return 200 OK 
             Log::info("webhook response: ". json_encode($data));
             Log::info("webhook called type: ". $data->type);
-            Log::info("webhook called order id: ". @$data->order_id ?? "order id not found");
             switch ($data->type) {
-                case 'charge.paid':
+                case 'order.paid':
                     Log::info("conekta charge paid called");
                     $this->chargePaidConfirm($data);
                     break;
@@ -738,11 +737,10 @@ class BillingController extends Controller
         Log::info("charge paid function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
-            Log::info("conekta order charge id: ". $data->charges->data[0]->id);
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            Log::info("conekta order id: ". $data->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
-                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
+                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                 $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -772,7 +770,7 @@ class BillingController extends Controller
                 }
             } 
             else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') {
-                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status])->save();
+                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                 $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -815,11 +813,10 @@ class BillingController extends Controller
         Log::info("reference expired function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data->charges->data[0]->order_id);
-            Log::info("conekta order charge id: ". $data->charges->data[0]->id);
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->charges->data[0]->order_id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            Log::info("conekta order id: ". $data->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail) {
-                $paymentDetail->fill(['conekta_payment_status' => 'expired'])->save();
+                $paymentDetail->fill(['conekta_payment_status' => 'expired', 'conekta_order_object' => $data])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                 $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();

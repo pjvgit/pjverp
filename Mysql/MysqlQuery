@@ -1,3 +1,7 @@
+------------------------------------ 27-DEC-2021 ------------------------------
+ALTER TABLE `invoice_online_payments`
+ADD `paid_at` timestamp NULL AFTER `conekta_reference_expires_at`;
+
 ------------------------------------ 24-DEC-2021 ------------------------------
 ALTER TABLE `admins`
 ADD `timezone` varchar(110) COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'UTC' AFTER `phone_no`;

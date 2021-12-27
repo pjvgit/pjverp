@@ -10,7 +10,7 @@ class InvoiceOnlinePayment extends Model
     use SoftDeletes;
     protected $fillable = [
         'invoice_id', 'user_id', 'payment_method', 'card_emi_month', 'conekta_order_id', 'conekta_charge_id', 'conekta_customer_id', 'conekta_payment_status', 
-        'conekta_payment_reference_id', 'created_by', 'invoice_history_id', 'amount', 'conekta_reference_expires_at', 'firm_id', 'conekta_order_object'
+        'conekta_payment_reference_id', 'created_by', 'invoice_history_id', 'amount', 'conekta_reference_expires_at', 'firm_id', 'conekta_order_object', 'paid_at'
     ];
 
     protected $casts = ['conekta_order_object' => 'array'];
