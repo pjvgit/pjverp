@@ -679,8 +679,8 @@ class BillingController extends Controller
      */
     public function paymentConfirmation($online_payment_id)
     {
-        // $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
-        $onlinePaymentId = $online_payment_id;
+        $onlinePaymentId = encodeDecodeId($online_payment_id, 'decode');
+        // $onlinePaymentId = $online_payment_id;
         $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->first();
         $invoice = Invoices::where("id", $paymentDetail->invoice_id)
                     /* ->whereHas('invoiceShared', function($query) use($clientId) {
