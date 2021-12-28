@@ -60,7 +60,7 @@ class EventDayReminderEmailCommand extends Command
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
                 if(count($users)) {
-                    Log::info("user found:".$users);
+                    // Log::info("user found:".$users);
                     foreach($users as $userkey => $useritem) {
                         $date = Carbon::now($useritem->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
                         Log::info($useritem->user_timezone."=".$date);

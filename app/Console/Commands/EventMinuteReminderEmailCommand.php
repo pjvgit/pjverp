@@ -55,20 +55,20 @@ class EventMinuteReminderEmailCommand extends Command
                     ->with('event', 'event.eventLinkedStaff', 'event.case', 'event.eventLocation', 'event.case.caseStaffAll', 'event.eventLinkedContact', 'event.eventLinkedLead')
                     ->get();
         if($result) {
-            Log::info("Minute Event Reminder Email Command Started :". date('Y-m-d H:i:s'));
-            Log::info("Minute Event Reminder total records :". count($result));
+            // Log::info("Minute Event Reminder Email Command Started :". date('Y-m-d H:i:s'));
+            // Log::info("Minute Event Reminder total records :". count($result));
             foreach($result as $key => $item) {
                 Log::info("Event id :". $item->id);
                 $response = $this->getEventLinkedUser($item, "email");
                 $users = $response["users"] ?? [];
                 $attendEvent = $response["attendEvent"] ?? [];
                 if(count($users)) {
-                    Log::info("user found:".$users);
+                    // Log::info("user found:".$users);
                     $currentTime = Carbon::now()->format('Y-m-d H:i');
                     $date1 = Carbon::createFromFormat('Y-m-d H:i', $currentTime);
-                    Log::info("carbon now:". $date1);
+                    // Log::info("carbon now:". $date1);
                     $date2 = Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($item->remind_at)->format('Y-m-d H:i'));
-                    Log::info("remind at:". $date2);
+                    // Log::info("remind at:". $date2);
                     if($date1->eq($date2)) {
                         Log::info("EventMinuteReminderEmailCommand : minute time true");
                         dispatch(new EventReminderEmailJob($item, $users, $attendEvent));
