@@ -1086,9 +1086,11 @@ class ClientdashboardController extends BaseController
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->user_id)->first();
-        $userCases = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
-                        $query->where('users.id', $request->user_id);
-                    })->select("id", "case_title", "total_allocated_trust_balance")->get();
+        $userCases = CaseMaster::
+                    join('case_client_selection', function($join)  use($request) {
+                        $join->on('case_client_selection.case_id', '=', 'case_master.id')->where('case_client_selection.selected_user', $request->user_id);
+                    })
+                    ->select("case_master.id", "case_master.case_title", "case_client_selection.allocated_trust_balance")->get();
 
         return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases'));     
         exit;    

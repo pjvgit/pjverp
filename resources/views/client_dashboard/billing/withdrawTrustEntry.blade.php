@@ -16,7 +16,7 @@
                                     @if(isset($userCases) && count($userCases))
                                     <optgroup label="Withdraw from a case">
                                         @forelse ($userCases as $item)
-                                            <option value="{{ $item->id }}" data-amount={{ $item->total_allocated_trust_balance }}>{{ ucfirst($item->case_title) }} (Balance ${{ number_format($item->total_allocated_trust_balance, 2) }})
+                                            <option value="{{ $item->id }}" data-amount={{ $item->allocated_trust_balance }}>{{ ucfirst($item->case_title) }} (Balance ${{ number_format($item->allocated_trust_balance, 2) }})
                                         @empty
                                         @endforelse
                                     </optgroup>
