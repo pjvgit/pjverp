@@ -894,6 +894,7 @@ class ClientdashboardController extends BaseController
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo) {
                 $action = '';
+                if($data->online_payment_status == 'paid') {
                 if($data->is_refunded == "yes") {
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
@@ -919,6 +920,7 @@ class ClientdashboardController extends BaseController
                             $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
                         }
                     }
+                }
                 }
                 return '<div class="text-center">'.$action.'<div role="group" class="btn-group-sm btn-group-vertical"></div></div>';
             })
@@ -1072,7 +1074,8 @@ class ClientdashboardController extends BaseController
                     }else if($data->fund_type=="refund_deposit"){
                         $ftype="Refund Deposit into Trust (Trust Account)";
                     }else{
-                        $ftype="Deposit into Trust (Trust Account)".$isRefund;
+                        $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
+                        $ftype="Deposit into Trust (Trust Account)".$isRefund.$onlinePaymentStatus;
                     }
                 }
                 return $ftype;
@@ -1086,9 +1089,11 @@ class ClientdashboardController extends BaseController
     {
         $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($request->user_id);
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->user_id)->first();
-        $userCases = CaseMaster::whereHas('caseAllClient', function($query) use($request) {
-                        $query->where('users.id', $request->user_id);
-                    })->select("id", "case_title", "total_allocated_trust_balance")->get();
+        $userCases = CaseMaster::
+                    join('case_client_selection', function($join)  use($request) {
+                        $join->on('case_client_selection.case_id', '=', 'case_master.id')->where('case_client_selection.selected_user', $request->user_id);
+                    })
+                    ->select("case_master.id", "case_master.case_title", "case_client_selection.allocated_trust_balance")->get();
 
         return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases'));     
         exit;    
