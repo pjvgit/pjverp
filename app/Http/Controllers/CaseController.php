@@ -1275,8 +1275,13 @@ class CaseController extends BaseController
         $from=$timeSlot[0];
         $to=$timeSlot[1];
         $timeTotalBillable=$timeTotalNonBillable=$timeTotalNonBillableHours=$timeTotalBillableHours=$invoiceEntry=$invoiceEntryHours=0;
+        $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[0]))))), auth()->user()->user_timezone ?? 'UTC')));
+        $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+            
         $TimeEntryLog=[];
-        $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$case_id)->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($timeSlot[0])),date('Y-m-d',strtotime($timeSlot[1]))])->get();
+        $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$case_id)
+        ->whereBetween("task_time_entry.entry_date",[$startDt,$endDt])
+        ->get();
         foreach($TimeEntry as $TK=>$TE){
             if($TE['rate_type']=="flat"){
                 if($TE['time_entry_billable']=="yes"){
@@ -5152,9 +5157,11 @@ class CaseController extends BaseController
         CaseEventLinkedStaff::where("event_id", $event_id)->where("created_by", Auth::user()->id)->where("is_linked","no")->forceDelete();
         if(isset($request['share_checkbox_nonlinked'])){
             $alreadyAdded = $attend_checkbox_nonlinked = [];
-            for($i=0;$i<count(array_unique($request['attend_checkbox_nonlinked']));$i++){                
-                array_push($attend_checkbox_nonlinked, $request['attend_checkbox_nonlinked'][$i]);
-            }            
+            if(isset($request['attend_checkbox_nonlinked'])){
+                for($i=0;$i<count(array_unique($request['attend_checkbox_nonlinked']));$i++){                
+                    array_push($attend_checkbox_nonlinked, $request['attend_checkbox_nonlinked'][$i]);
+                }            
+            }
             for($i=0;$i<count(array_unique($request['share_checkbox_nonlinked']));$i++){                
                 $CaseEventLinkedStaff = new CaseEventLinkedStaff;
                 $CaseEventLinkedStaff->event_id=$event_id; 
@@ -5180,11 +5187,13 @@ class CaseController extends BaseController
     //   print_r($reques[t);exit;
        CaseEventLinkedContactLead::where("event_id", $event_id)->where("created_by", Auth::user()->id)->forceDelete();
        if(isset($request['LeadInviteClientCheckbox'])){
-           $alreadyAdded=$attend_checkbox_nonlinked = [];
-           for($i=0;$i<count(array_unique($request['LeadAttendClientCheckbox']));$i++){                
-               array_push($attend_checkbox_nonlinked, $request['LeadAttendClientCheckbox'][$i]);
-           } 
-           for($i=0;$i<count(array_unique($request['LeadInviteClientCheckbox']));$i++){
+            $alreadyAdded=$attend_checkbox_nonlinked = [];
+            if(isset($request['LeadAttendClientCheckbox'])){
+                for($i=0;$i<count(array_unique($request['LeadAttendClientCheckbox']));$i++){                
+                    array_push($attend_checkbox_nonlinked, $request['LeadAttendClientCheckbox'][$i]);
+                } 
+            }
+            for($i=0;$i<count(array_unique($request['LeadInviteClientCheckbox']));$i++){
                 $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
                 $CaseEventLinkedContactLead->event_id=$event_id; 
                 $CaseEventLinkedContactLead->user_type='lead'; 
@@ -5203,12 +5212,14 @@ class CaseController extends BaseController
                 }
             //    print_r(CaseEventLinkedContactLead);
                $alreadyAdded[]=$request['LeadInviteClientCheckbox'][$i];
-           }
+            }
        }else if(isset($request['ContactInviteClientCheckbox'])){
         $alreadyAdded=$attend_checkbox_nonlinked = [];
-        for($i=0;$i<count(array_unique($request['ContactAttendClientCheckbox']));$i++){                
-            array_push($attend_checkbox_nonlinked, $request['ContactAttendClientCheckbox'][$i]);
-        } 
+        if(isset($request['ContactAttendClientCheckbox'])){
+            for($i=0;$i<count(array_unique($request['ContactAttendClientCheckbox']));$i++){                
+                array_push($attend_checkbox_nonlinked, $request['ContactAttendClientCheckbox'][$i]);
+            } 
+        }
         for($i=0;$i<count(array_unique($request['ContactInviteClientCheckbox']));$i++){
             $CaseEventLinkedContactLead = new CaseEventLinkedContactLead;
             $CaseEventLinkedContactLead->event_id=$event_id; 

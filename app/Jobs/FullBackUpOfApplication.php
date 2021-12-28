@@ -247,7 +247,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/cases.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
 
@@ -304,7 +304,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/account_activities.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -376,7 +376,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/clients.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
 
@@ -398,7 +398,7 @@ class FullBackUpOfApplication implements ShouldQueue
         // $file_path =  $folderPath.'/documents.csv';  
         // $file = fopen($file_path,"w+");
         // foreach ($casesCsvData as $exp_data){
-        //   fputcsv($file,explode('|',$exp_data));
+        //   fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         // }   
         // fclose($file); 
         return true; 
@@ -412,7 +412,7 @@ class FullBackUpOfApplication implements ShouldQueue
         // $file_path =  $folderPath.'/emails.csv';  
         // $file = fopen($file_path,"w+");
         // foreach ($casesCsvData as $exp_data){
-        //   fputcsv($file,explode('|',$exp_data));
+        //   fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         // }   
         // fclose($file); 
         return true; 
@@ -466,7 +466,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/events.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -504,7 +504,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/flat_fees.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -543,7 +543,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/invoice_discounts.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -558,7 +558,7 @@ class FullBackUpOfApplication implements ShouldQueue
         // $file_path =  $folderPath.'/invoices.csv';  
         // $file = fopen($file_path,"w+");
         // foreach ($casesCsvData as $exp_data){
-        //   fputcsv($file,explode('|',$exp_data));
+        //   fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         // }   
         // fclose($file); 
         return true; 
@@ -597,7 +597,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/lawyers.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -632,7 +632,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/locations.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -647,7 +647,7 @@ class FullBackUpOfApplication implements ShouldQueue
         // $file_path =  $folderPath.'/messages.csv';  
         // $file = fopen($file_path,"w+");
         // foreach ($casesCsvData as $exp_data){
-        //   fputcsv($file,explode('|',$exp_data));
+        //   fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         // }   
         // fclose($file); 
         return true; 
@@ -688,7 +688,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/tasks.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }
@@ -720,7 +720,7 @@ class FullBackUpOfApplication implements ShouldQueue
             $file_path =  $folderPath.'/trust_activities.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
-            fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
         }

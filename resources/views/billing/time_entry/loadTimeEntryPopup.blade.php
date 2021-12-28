@@ -769,6 +769,7 @@
                             return status;
                         }
                     },
+                    min : 0.1,
                     number: true,
                    
                 }
@@ -788,6 +789,7 @@
                 },
                 duration_field: {
                     required: "Duration can't be blank",
+                    min:"Duration must be greater than 0",
                     number: "Allows number only."
                 }
             },

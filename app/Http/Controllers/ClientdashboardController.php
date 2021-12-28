@@ -2771,7 +2771,7 @@ class ClientdashboardController extends BaseController
         $file_path =  $folderPath.'/contact.csv';  
         $file = fopen($file_path,"w+");
         foreach ($clientCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         }   
         fclose($file); 
         return true; 
@@ -2843,7 +2843,7 @@ class ClientdashboardController extends BaseController
         $file_path =  $folderPath.'/companies.csv'; 
         $file = fopen($file_path,"w+");
         foreach ($CompanyCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         }   
         fclose($file);  
     }
@@ -4124,7 +4124,7 @@ class ClientdashboardController extends BaseController
         $file_path =  $folderPath.'/cases.csv';  
         $file = fopen($file_path,"w+");
         foreach ($casesCsvData as $exp_data){
-          fputcsv($file,explode('|',$exp_data));
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
         }   
         fclose($file); 
 

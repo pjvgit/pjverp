@@ -355,7 +355,12 @@ if(isset($_GET['bank_account'])){
                     setTimeout(function () {
                         window.location.reload();
                     }, 2000);
-                }
+                },
+                error: function (jqXHR, exception) {
+                    $("#preloader").hide();
+                    var errotHtml ='<strong>Whoops!</strong> Sorry, something went wrong. Please try again later';
+                    swal('', errotHtml, 'error');
+                },
             })
         });
     }

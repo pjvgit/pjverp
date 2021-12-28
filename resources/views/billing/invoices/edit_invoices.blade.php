@@ -1751,7 +1751,7 @@ $expenseTime=0;$expenseAmount=0;
                             <table class="sharing-table">
                                 <tbody>
                                     <tr>
-                                        <td id="sharing_left_side" class="sharing-left-side" style="width: 25%; vertical-align: top;padding-top: 13px;">
+                                        <td id="sharing_left_side" class="sharing-left-side" style="width: 75%; vertical-align: top;padding-top: 13px;">
                                             <div class="bootstrap">
                                                 <div class="alert alert-info alert-dismissible "
                                                     data-tip-name="client_portal_invoice_sharing">

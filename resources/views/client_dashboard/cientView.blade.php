@@ -2373,7 +2373,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         afterLoader();
                         return false;
                     } else {
-                        window.location.href=baseUrl+"/contacts/client";
+                        window.location.href="{{route('contacts/client')}}?target=active";
                     }
                 },
                 error: function (xhr, status, error) {

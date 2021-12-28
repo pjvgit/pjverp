@@ -1356,7 +1356,7 @@ class LeadController extends BaseController
             $file_path_download=url('/public').'/download/'.$filename;   
             $file = fopen($file_path,"w+");
             foreach ($CsvData as $exp_data){
-              fputcsv($file,explode(',',$exp_data));
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file);          
             $headers = ['Content-Type' => 'application/csv'];
@@ -1561,7 +1561,7 @@ class LeadController extends BaseController
             $file_path_download=url('/public').'/download/'.$filename;   
             $file = fopen($file_path,"w+");
             foreach ($CsvData as $exp_data){
-              fputcsv($file,explode(',',$exp_data));
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file);          
             $headers = ['Content-Type' => 'application/csv'];
@@ -1689,7 +1689,7 @@ class LeadController extends BaseController
             $file_path_download=url('/public').'/download/'.$filename;   
             $file = fopen($file_path,"w+");
             foreach ($CsvData as $exp_data){
-              fputcsv($file,explode(',',$exp_data));
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file);          
             $headers = ['Content-Type' => 'application/csv'];

@@ -2385,7 +2385,7 @@ class BillingController extends BaseController
         $arrData = [];
         $contactGroup = [];
         foreach ($Invoices as $k=>$v){
-            \Log::info("contact_id > ". $v->setup_billing . " > contact_name > ". $v->contact_name);
+            \Log::info("case_id > ". $v->case_id ." contact_id > ". $v->setup_billing . " > contact_name > ". $v->contact_name);
             if($v->setup_billing =="yes"){
                 array_push($contactGroup,$v->contact_name);
                 if(in_array($v->contact_name,$contactGroup))
@@ -2414,9 +2414,11 @@ class BillingController extends BaseController
     {
         $getChildUsers=$this->getParentAndChildUserIds();
 
+        $FlatFeeEntryIds = CaseMaster::join("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
+        ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+
         $TaskTimeEntryIds = CaseMaster::join("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
-
 
         $ExpenseEntryIds = CaseMaster::join("expense_entry","expense_entry.case_id","=","case_master.id")
         ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
@@ -7268,15 +7270,12 @@ class BillingController extends BaseController
             $notSharedlist = '';
             foreach($data as $k1=>$v1){
                 $Invoice=Invoices::find($v1);
-                \Log::info("setBulkSharesActionForm > Invoice > case id > " . $Invoice->case_id);
                 if($Invoice->case_id == NULL){
-                    \Log::info("setBulkSharesActionForm > status > " . $request->status);
+                    $leadData=User::find($Invoice->user_id);
                     if($request->status == "AC"){  //BC=Billing Contact only
                         $firmData=Firm::find(Auth::User()->firm_name);
                         $getTemplateData = EmailTemplate::find(8);
-                        $token=route("bills/invoice/{id}", $Invoice->decode_id);
-                        $leadData=User::find($Invoice->user_id);
-                        \Log::info("setBulkSharesActionForm > leadData > " . $leadData->email);
+                        $token=route("bills/invoice/{id}", $Invoice->decode_id);                        
                                 
                         $mail_body = $getTemplateData->content;
                         $mail_body = str_replace('{message}', $leadData->email_message, $mail_body);
@@ -7294,52 +7293,15 @@ class BillingController extends BaseController
                             "mail_body" => $mail_body
                         ];
                         $sendEmail = $this->sendMail($user);
-                        $errors = '';
                     }else{
-                        $leadData=User::find($Invoice->user_id);
-                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$leadData['full_name'].')</li>';
-                        $errors = '';
+                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$leadData['full_name'].')</li>';
                     }
                 }else if($Invoice->case_id == 0){
-                    \Log::info("setBulkSharesActionForm > status > " . $request->status);
                     if($request->status == "BC"){  //BC=Billing Contact only
-                        $firmData=Firm::find(Auth::User()->firm_name);
-                        $getTemplateData = EmailTemplate::find(12);
-                        // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
-                        $token = route("client/bills/detail", $Invoice->decode_id);
-                        $mail_body = $getTemplateData->content;
-                        $mail_body = str_replace('{message}', $request->message, $mail_body);
-                        $mail_body = str_replace('{token}', $token, $mail_body);
-                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-                        $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
-                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                        $clientData=User::find($v);
-                        \Log::info("setBulkSharesActionForm > clientData > " . $clientData->email);
-                        $user = [
-                            "from" => FROM_EMAIL,
-                            "from_title" => FROM_EMAIL_TITLE,
-                            "subject" => $firmData->firm_name." has sent you an invoice",
-                            "to" => $clientData->email,
-                            "full_name" => "",
-                            "mail_body" => $mail_body
-                        ];
-                        $sendEmail = $this->sendMail($user);
-                        $errors = '';
-                    }else{
-                        $leadData=User::find($Invoice->user_id);
-                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoices['id']).' ('.@$leadData['full_name'].')</li>';
-                        $errors = '';
-                    }
-                }else{
-                    if($request->status=="BC"){  //BC=Billing Contact only
-                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
-                    }else{
-                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","no")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
-                    }
-                    if(!$CaseClientSelection->isEmpty()){
-                        foreach($CaseClientSelection as $k=>$v){
-
+                        $clientData = User::whereId($v)->with(["userAdditionalInfo" => function($query) {
+                            $query->select("user_id", "client_portal_enable");
+                        }])->first();
+                        if(!empty($clientData)){
                             $firmData=Firm::find(Auth::User()->firm_name);
                             $getTemplateData = EmailTemplate::find(12);
                             // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
@@ -7351,8 +7313,6 @@ class BillingController extends BaseController
                             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
                             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
                             $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                            $clientData=User::find($v);
-                            \Log::info("setBulkSharesActionForm > clientData > " . $clientData->email);
                             $user = [
                                 "from" => FROM_EMAIL,
                                 "from_title" => FROM_EMAIL_TITLE,
@@ -7362,9 +7322,54 @@ class BillingController extends BaseController
                                 "mail_body" => $mail_body
                             ];
                             $sendEmail = $this->sendMail($user);
+                        }else{
+                            $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$leadData['full_name'].')</li>';
+                        }
+                    }else{
+                        $leadData=User::find($Invoice->user_id);
+                        $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$leadData['full_name'].')</li>';
+                    }
+                }else{
+                    if($request->status=="BC"){  //BC=Billing Contact only
+                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                    }else{
+                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","no")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                    }
+                    if(!$CaseClientSelection->isEmpty()){
+                        foreach($CaseClientSelection as $k=>$v){
+                            $clientData = User::whereId($v)->with(["userAdditionalInfo" => function($query) {
+                                $query->select("user_id", "client_portal_enable");
+                            }])->first();
+                            if(!empty($clientData)){
+                                if($clientData->user_level == 2 && $clientData->userAdditionalInfo->client_portal_enable == 1){
+                                    $firmData=Firm::find(Auth::User()->firm_name);
+                                    $getTemplateData = EmailTemplate::find(12);
+                                    // $token=url('activate_account/bills=&web_token='.$Invoice['invoice_unique_token']);
+                                    $token = route("client/bills/detail", $Invoice->decode_id);
+                                    $mail_body = $getTemplateData->content;
+                                    $mail_body = str_replace('{message}', $request->message, $mail_body);
+                                    $mail_body = str_replace('{token}', $token, $mail_body);
+                                    $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                                    $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+                                    $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
+                                    $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                                    $user = [
+                                        "from" => FROM_EMAIL,
+                                        "from_title" => FROM_EMAIL_TITLE,
+                                        "subject" => $firmData->firm_name." has sent you an invoice",
+                                        "to" => $clientData->email,
+                                        "full_name" => "",
+                                        "mail_body" => $mail_body
+                                    ];
+                                    $sendEmail = $this->sendMail($user);
+                                }else{
+                                    $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$clientData['full_name'].')</li>';   
+                                }
+                            }else{
+                                $notSharedlist .='<li>'. sprintf('%06d', @$Invoice['id']).' ('.@$clientData['full_name'].')</li>';
+                            }
                         }
                     }
-                    $errors = '';
                 }
             }
             return response()->json(['errors'=>$errors, 'list'=> $notSharedlist]);
@@ -8166,13 +8171,13 @@ class BillingController extends BaseController
                     }else{
                         $case_title = $Case->case_title ?? '';
                     }
-                    $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".(($v->section=="request") ? "#R-".$v->related : $v->related)."|".@$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                    $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : $v->related)."|".@$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
                 }
 
                 $file_path =  $folderPath.'/account_activities.csv';  
                 $file = fopen($file_path,"w+");
                 foreach ($casesCsvData as $exp_data){
-                fputcsv($file,explode('|',$exp_data));
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
                 }   
                 fclose($file); 
                 $Path= asset($fileDestination.'/account_activities.csv');
@@ -8247,13 +8252,15 @@ class BillingController extends BaseController
                     }else{
                         $case_title = $Case->case_title ?? 'none';
                     }
-                    $casesCsvData[] = date('m/d/Y', strtotime($v->entry_date))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                    $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
                 }
 
                 $file_path =  $folderPath.'/account_activities.csv';  
                 $file = fopen($file_path,"w+");
                 foreach ($casesCsvData as $exp_data){
-                fputcsv($file,explode('|',$exp_data));
+                //fputs($exp_data, chr(0xEF) . chr(0xBB) . chr(0xBF) );
+                // $exp_data =  mb_convert_encoding($exp_data, "ISO-8859-1", "UFT-8");
+                fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
                 }   
                 fclose($file); 
                 $Path.= asset($fileDestination.'/account_activities.csv');
