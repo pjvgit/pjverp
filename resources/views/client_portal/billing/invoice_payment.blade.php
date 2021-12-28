@@ -112,7 +112,8 @@
                                                     <div class="col-md-6 mt-5">
                                                         <form id="cash_pay_form" method="POST" action="{{ route('client/bills/payment/cash') }}">
                                                             @csrf
-                                                            <input type="hidden" name="invoice_id" value="{{ $payableRecordId }}" >
+                                                            <input type="hidden" name="type" value="{{ $type }}" >
+                                                            <input type="hidden" name="payable_record_id" value="{{ $payableRecordId }}" >
                                                             <input type="hidden" name="payable_amount" value="{{ $payableAmount }}" >
                                                             <div class="form-group row">
                                                                 <img class="col-md-3" src="{{ asset('images/payment/pago2.png') }}" />

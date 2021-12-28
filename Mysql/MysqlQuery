@@ -1,3 +1,11 @@
+------------------------------------ 28-DEC-2021 ------------------------------
+ALTER TABLE `requested_fund_online_payments`
+ADD `trust_history_id` int(11) NULL AFTER `paid_at`,
+ADD `credit_history_id` int(11) NULL AFTER `trust_history_id`;
+
+ALTER TABLE `trust_history`
+ADD `online_payment_status` varchar(100) NULL AFTER `allocated_to_lead_case_id`;
+
 ------------------------------------ 27-DEC-2021 ------------------------------
 ALTER TABLE `case_master`
 ADD `conflict_check_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `conflict_check`;

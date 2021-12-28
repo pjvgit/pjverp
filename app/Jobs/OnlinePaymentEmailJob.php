@@ -8,19 +8,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Firm,App\EmailTemplate;
-use App\InvoiceOnlinePayment;
-use App\Mail\InvoicePaymentMail;
-use App\Mail\TaskCommentMail;
-use App\Task;
-use App\TaskComment;
+use App\Mail\OnlinePaymentMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class InvoicePaymentEmailJob implements ShouldQueue
+class OnlinePaymentEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $invoice,$user,$online_payment_id,$emailTemplateId,$userType;
+    protected $payableRecord,$user,$onlinePayment,$emailTemplateId,$userType, $payableType;
 
     /**
      * Create a new job instance.
@@ -28,13 +24,14 @@ class InvoicePaymentEmailJob implements ShouldQueue
      * @param  Podcast  $podcast
      * @return void
      */
-    public function __construct($invoice = null,$user,$emailTemplateId,$online_payment_id,$userType)
+    public function __construct($payableRecord = null,$user,$emailTemplateId,$onlinePayment,$userType, $payableType)
     {
-        $this->invoice = $invoice;
+        $this->payableRecord = $payableRecord;
         $this->user = $user;
-        $this->online_payment_id = $online_payment_id;   
+        $this->onlinePayment = $onlinePayment;   
         $this->emailTemplateId = $emailTemplateId;   
         $this->userType = $userType;   
+        $this->payableType = $payableType;   
     }
 
     /**
@@ -45,10 +42,8 @@ class InvoicePaymentEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("invoice payment email job handle");
-        $onlinePayment = InvoiceOnlinePayment::whereId($this->online_payment_id)->first();
-        $firmData = Firm::find($onlinePayment->firm_id); 
+        $firmData = Firm::find($this->onlinePayment->firm_id); 
         $getTemplateData = EmailTemplate::find($this->emailTemplateId);
-        Mail::to($this->user->email)->send((new InvoicePaymentMail($this->invoice, $firmData, $this->user, $getTemplateData, $this->userType, $onlinePayment)));
+        Mail::to($this->user->email)->send((new OnlinePaymentMail($this->payableRecord, $firmData, $this->user, $getTemplateData, $this->userType, $this->onlinePayment, $this->payableType)));
     }
 }
