@@ -78,18 +78,18 @@
                                     <div class="col-md-8 offset-2" style="font-size: 14px !important;">
                                         <p>Para finalizar la compra haga el pago SPEI o TEF utilizando los siguientes datos:</p>
                                         <p>Banco: <strong>{{ $paymentDetail->conekta_order_object['charges']['data'][0]['payment_method']['bank'] }}</strong></p>
-                                        <p>Beneficiario: <strong>{{ $invoice->firmDetail->firm_name }}</strong></p>
+                                        <p>Beneficiario: <strong>{{ @$paymentDetail->firmDetail->firm_name }}</strong></p>
                                         <p>CLABE Interbancaria: <strong>{{ $paymentDetail->conekta_payment_reference_id }}</strong></p>
                                         <p>Monto: <strong>{{ $paymentDetail->amount }} MXN</strong></p>
                                         <h3>¡TEN EN CUENTA!</h3>
                                         <ol>
                                             <li>El presente comprobante solo es válido para el pago que estás efectuando. Si mandas un SPEI el pago se verá reflejado inmediatamente y si mandas un TEF el pago se verá reflejado el día programado a las 10 a.m.</li>
-                                            <li>Si tienes dudas sobre tu compra escríbenos a <a href="mailto:{{ @$invoice->createdByUser->email }}" >{{ @$invoice->createdByUser->email }}</a></li>
+                                            <li>Si tienes dudas sobre tu compra escríbenos a <a href="mailto:{{ ($payableType == 'fundrequest') ? @$fundRequest->createdByUser->email : @$invoice->createdByUser->email }}" >{{ ($payableType == 'fundrequest') ? @$fundRequest->createdByUser->email : @$invoice->createdByUser->email }}</a></li>
                                             <li>Pague antes de <strong>{{ $paymentDetail->expires_date }}</strong>, de lo contrario el comprobante ya no será válido y tendrá que generar uno nuevo.</li>
                                             <li>La CLABE que le hemos proporcionado es dinámica y de un solo uso. Si en el futuro quiere hacer otro SPEI o TEF, deberá generar otro comprobante igual a este para que reciba otra CLABE nueva.</li>
                                         </ol>                                                                
                                         <div class="text-center">
-                                            <h2>Concepto de su Pago</h2>Invoice #{{ $invoice->id }}<br>
+                                            <h2>Concepto de su Pago</h2>{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$paymentDetail->invoice_id}}<br>
                                             <br>
                                             <img src="{{ asset('images/payment/SPEI.jpg') }}" alt="SPEI">
                                             <br><br> 

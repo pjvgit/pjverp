@@ -52,4 +52,14 @@ class InvoiceOnlinePayment extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    /**
+     * Get the firmDetail that owns the InvoiceOnlinePayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function firmDetail()
+    {
+        return $this->belongsTo(Firm::class, 'firm_id');
+    }
 }
