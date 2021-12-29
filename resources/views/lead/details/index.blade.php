@@ -141,7 +141,7 @@ if(isset($_GET['type'])){
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('leads/'.$user_id.'/case_details/info')}}" >Potential Case Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/text_messages')}}">Communications</a>
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">Communications</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["case_details/invoices","case_details/trust_history","case_details/credit_history"])){ echo "active show"; } ?>" id="billing-basic-tab" href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}">Billing</a>
@@ -297,12 +297,12 @@ if(isset($_GET['type'])){
                     </div>
                     <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
-                            <div class="nav-item">
+                            <!-- <div class="nav-item">
                                 <a class="nav-link pendo-case-recent-activity <?php if(Route::currentRouteName() =="communications/text_messages"){ echo "active"; } ?>" data-page="recent_activity"
                                     href="{{URL::to('leads/'.$user_id.'/communications/text_messages')}}">
                                     <span class="d-flex"> <i class="i-Newspaper-2 text-16 mr-1"></i>&nbsp; Text Messages  </span>
                                 </a>
-                            </div>
+                            </div> -->
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/calls"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">
                                     <span> <i class="i-Old-Telephone text-16 mr-1"></i>Call Log</span>
@@ -316,11 +316,11 @@ if(isset($_GET['type'])){
                         </div>
                         <hr class="mt-2">
                         <?php
-                        if(Route::currentRouteName()=="communications/text_messages"){
+                        // if(Route::currentRouteName()=="communications/text_messages"){
                         ?>
-                                @include('lead.details.communication.text_messages')
+                                <!-- @include('lead.details.communication.text_messages') -->
                         <?php
-                        }
+                        // }
                         ?>  
 
                         <?php

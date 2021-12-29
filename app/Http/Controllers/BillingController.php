@@ -4425,6 +4425,7 @@ class BillingController extends BaseController
         $invoiceID=base64_decode($request->id);
         $findInvoice=Invoices::whereId($invoiceID)->with("forwardedInvoices", "applyTrustFund", "applyCreditFund")->where('firm_id', $authUser->firm_name)->first();
         \Log::info("viewInvoice > ".$invoiceID." > InvoiceData >". json_encode($findInvoice));
+        if(!empty($findInvoice)){
         $case = CaseMaster::whereId($findInvoice->case_id);
         if($authUser->parent_user != 0) {
             $case = $case->whereHas('caseStaffAll', function($query) use($authUser){
@@ -4510,6 +4511,9 @@ class BillingController extends BaseController
             // return $findInvoice->invoice_setting['flat_fee'];
             return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting','case_client_company'));     
             exit; 
+        }
+        }else{
+            return view('errors.invoice_403');
         }
     }
 
@@ -5268,8 +5272,13 @@ class BillingController extends BaseController
             }
             if(!empty($error)){
                 return response()->json(['errors'=>$error]);
-            }
-            $Invoice=Invoices::find($request->invoice_id);
+            }            
+            // re-generate pdf file with updated info
+            $invoice_id= $request->invoice_id;
+            
+            $Invoice=Invoices::find($invoice_id);
+
+            $this->updateInvoiceDraftStatus($invoice_id);
             if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
                 $Invoice->status="Sent";
                 $Invoice->bill_sent_status="Sent";
@@ -5278,8 +5287,6 @@ class BillingController extends BaseController
             if($Invoice) {
                 $Invoice->fill(['is_sent' => 'yes'])->save();
             }
-            // re-generate pdf file with updated info
-            $invoice_id= $request->invoice_id;
             
             $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
             
@@ -8248,11 +8255,11 @@ class BillingController extends BaseController
                     $Contact = json_decode($v->contact);
                     $Case = json_decode($v->case);
                     if($v->case_id==null && $v->leadAdditionalInfo != null) {
-                        $case_title = $v->leadAdditionalInfo->potential_case_title ?? $Contact->name;
+                        $case_title = $v->leadAdditionalInfo->potential_case_title ?? ($Contact->name ?? "");
                     }else{
                         $case_title = $Case->case_title ?? 'none';
                     }
-                    $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".$Contact->name."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
+                    $casesCsvData[] = date('m/d/Y', strtotime(convertUTCToUserDate(date("Y-m-d", strtotime($v->entry_date)), auth()->user()->user_timezone ?? 'UTC')))."|".(($v->section=="request") ? "#R-".$v->related : "#".$v->related)."|".($Contact->name ?? '')."|".$case_title."|".$v->entered_by."|".$v->payment_note."|".$v->notes."|".$v->payment_method."|".(($v->payment_method == 'Refund') ? 'true' : 'false')."|".(($v->payment_method == 'Refunded') ? 'true' : 'false')."|".(($v->payment_method == 'Rejection') ? 'true' : 'false')."|".(($v->payment_method == 'Rejected') ? 'true' : 'false')."|".(($v->d_amt > 0) ? "-".$v->d_amt : $v->c_amt)."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".(($v->payment_method == 'Trust') ? 'true' : 'false')."|".$v->t_amt."|".$v->id;
                 }
 
                 $file_path =  $folderPath.'/account_activities.csv';  

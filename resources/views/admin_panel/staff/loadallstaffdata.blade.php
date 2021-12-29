@@ -47,14 +47,14 @@
                     <a data-toggle="modal" href="javascript:;">
                         <i class="i-Files text-32 mr-3" height="40"></i>
                         <div class="mt-1">Casos del usuario:</div>
-                        <div class="mt-1">{{ $userProfile->active_case_counter }}</div>
+                        <div class="mt-1">{{ count($userProfile->caseStaff) }}</div>
                     </a>
                 </div>
                 <div class="col-3 text-center common-shortcut p-2">
                     <a data-toggle="modal" href="javascript:;">
                         <i class="i-Files text-32 mr-3" height="40"></i>
                         <div class="mt-1">Casos de la firma:</div>
-                        <div class="mt-1">{{ $case }}</div>
+                        <div class="mt-1">{{ $userData[0]->firmCaseCount }}</div>
                     </a>
                 </div>
             </div>

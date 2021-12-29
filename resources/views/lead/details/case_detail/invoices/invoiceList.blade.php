@@ -65,7 +65,7 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
                 <td width="5%"><div class="text-left"><a href="{{ url('bills/invoices/potentialview',$aData->decode_id)}}">{{$aData->invoice_id}}</a></div></td>
                 <td width="10%"><div class="text-left">${{$aData->total_amount}}</div></td>
                 <td width="13%"><div class="text-left">{{$aData->created_date_new}}</div></td>
-                <td width="13%"><div class="text-left">{{$aData->due_date_new}}</div></td>
+                <td width="13%"><div class="text-left">{{date('M j, Y',strtotime(convertUTCToUserTime($aData->due_date.' 00:00:00', auth()->user()->user_timezone ?? 'UTC')))}}</div></td>
                 <td width="10%"><div class="text-left"><i class="table-cell-placeholder"></i></div></td>
                 <td width="15%"><div class="text-left"><i class="table-cell-placeholder"></i></div></td>
                 <?php

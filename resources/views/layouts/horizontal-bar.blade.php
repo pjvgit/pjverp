@@ -221,7 +221,7 @@
                                             <span class="item-name">Invoices</span>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item m2">
                                         <a class="{{ Route::currentRouteName()=='payment_plans' ? 'open' : '' }}"
                                             href="{{route('payment_plans')}}">
                                             <span class="item-name">Payment Plans</span>

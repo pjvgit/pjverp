@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User,App\CaseStaff,App\CaseTaskLinkedStaff,App\UsersAdditionalInfo,App\CaseMaster,App\DeactivatedUser,App\Admin;
-use DB, Validator;
+use DB, Validator, File;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,13 +25,12 @@ class UserController extends Controller {
     {
         $email = $request->email;
         $userData = $case = $userPermissions = $userProfile = [];
-        $userProfiles = User::where('user_level','3')->where('email', $email)->with('firmDetail')->get();
+        $userProfiles = User::where('user_level','3')->where('email', $email)->with('firmDetail','caseStaff')->get();
         if(count($userProfiles) > 1){
             return view('admin_panel.staff.checkstaffList',compact('userProfiles'));        
         }else{            
             if(count($userProfiles) == 1){
                 $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfiles[0]->parent_user.") as firmCaseCount from users where firm_name = ".$userProfiles[0]->firm_name." and user_level in ('3','1')");
-                $case = CaseMaster::join("users","case_master.created_by","=","users.id")->where('firm_id',$userProfiles[0]->firm_name)->where("case_master.is_entry_done","1")->count();
                 $userPermissions = $userProfiles[0]->getPermissionNames()->toArray();
                 $userProfile = $userProfiles[0];
             }
@@ -44,17 +43,16 @@ class UserController extends Controller {
     {
         $staff_id = $request->staff_id;
         $userData = $case = $userPermissions = [];
-        $userProfile = User::where('user_level','3')->where('id', $staff_id)->with('firmDetail')->first();
+        $userProfile = User::where('user_level','3')->where('id', $staff_id)->with('firmDetail','caseStaff')->first();
         // select * from users where firm_name = 10 and user_level in ('3')
         // select * from case_master where created_by = 31
         // select * from case_master where created_by = 31
         if(!empty($userProfile)){
-            $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfile->parent_user.") as firmCaseCount from users where firm_name = ".$userProfile->firm_name." and user_level in ('3','1')");
-            $case = CaseMaster::join("users","case_master.created_by","=","users.id")->where('firm_id',$userProfile->firm_name)->where("case_master.is_entry_done","1")->count();
+            $userData = DB::select("select count(*) as staffCount,(select count(*) from case_master where firm_id = ".$userProfile->firm_name.") as firmCaseCount from users where firm_name = ".$userProfile->firm_name." and user_level in ('3','1')");
             $userPermissions = $userProfile->getPermissionNames()->toArray();                
         }
         // dd($userData);
-        return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','case','userPermissions'));        
+        return view('admin_panel.staff.loadallstaffdata',compact('userProfile','userData','userPermissions'));        
     }
 
     public function userList(Request $request)
@@ -255,6 +253,7 @@ class UserController extends Controller {
         $user = User::select('*',DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as name'));
         $user = $user->where("firm_name",$request->firm_name); //Logged in user not visible in grid
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
+        $user = $user->with('caseStaff');
         
         // dd($case);
         return Datatables::of($user)
@@ -273,6 +272,9 @@ class UserController extends Controller {
         ->addColumn('default_rate', function ($user){
             return $user->default_rate === null ? '$0.00' : '$'.$user->default_rate;
         })
+        ->addColumn('active_cases', function ($user){
+            return count($user->caseStaff);
+        })
         ->addColumn('user_status', function ($user){
             if($user->user_status==1){
                 return 'Active';
@@ -280,7 +282,7 @@ class UserController extends Controller {
                 return 'In-active';
             }
         })      
-        ->rawColumns(['action','fullname','default_rate','status'])
+        ->rawColumns(['action','fullname','default_rate','status','active_cases'])
         ->make(true);
     }
     
@@ -406,5 +408,45 @@ class UserController extends Controller {
             }
         
         }
+    }
+
+    public function exportAllStaff(){
+        $fileDestination = 'export/'.date('Y-m-d');
+        $folderPath = public_path($fileDestination);
+
+        File::deleteDirectory($folderPath);
+        if(!is_dir($folderPath)) {
+            File::makeDirectory($folderPath, $mode = 0777, true, true);
+        }    
+        
+        if(!File::isDirectory($folderPath)){
+            File::makeDirectory($folderPath, 0777, true, true);    
+        }
+        
+        $user = User::select("users.id","users.email","users.firm_name","users.created_at",DB::raw('(select count(*) from case_master where firm_id = users.firm_name) as firmCaseCount'));
+        $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
+        $user = $user->groupBy('users.id','users.firm_name');
+        $user = $user->with('firmDetail','caseStaff');
+        $user = $user->get();
+        
+        // dd($user);
+
+        $casesCsvData[]="Email|Sign up|Staff Cases|Firm Name|Firm's cases";
+                
+        foreach($user as $k =>$v){
+            $casesCsvData[]=$v->email."|".$v->created_date_new."|".count($v->caseStaff)."|".$v->firmDetail->firm_name."|".$v->firmCaseCount;
+        }
+
+        $file_path =  $folderPath.'/admin_allstaff_reports.csv';  
+        $file = fopen($file_path,"w+");
+        foreach ($casesCsvData as $exp_data){
+            fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
+        }   
+        fclose($file); 
+
+        $Path= asset($fileDestination.'/admin_allstaff_reports.csv');
+
+        return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+        exit;
     }
 }

@@ -133,6 +133,15 @@ trait CreditAccountTrait {
             $this->updateInvoiceAmount($creditHistory->related_to_invoice_id);
         }
     }
+    /**
+     * Update invoice draft status to other status if it invoices in forced set
+     */
+    public function updateInvoiceDraftStatus($invoiceId){
+        $invoice = Invoices::whereId($invoiceId)->first();
+        $invoice->fill([
+            'is_force_status'=>0
+        ])->save();
+    }
 
     /**
      * Update invoice paid/due amount and status

@@ -33,6 +33,7 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::post("/loadallstaffdata", "UserController@loadAllStaffData")->name('admin/loadallstaffdata');
     Route::post("/checkStaffDetails", "UserController@checkStaffDetails")->name('admin/checkStaffDetails');
     
+    // user management
     Route::get("/users", "UserController@index")->name('admin/users');
     Route::get("/userlist", "UserController@userList")->name('admin/userlist');
     Route::get("/userlist/info/{id}", "UserController@userInfo")->name('admin/userlist/info');
@@ -48,7 +49,9 @@ Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Adm
     Route::post("/reactivateStaff", "UserController@reactivateStaff")->name('admin/reactivateStaff');
     Route::post("/deactivateStaff", "UserController@deactivateStaff")->name('admin/deactivateStaff');
     Route::post("/loadDeactivateUser", "UserController@loadDeactivateUser")->name('admin/loadDeactivateUser');
+    Route::get("/exportAllStaff", "UserController@exportAllStaff")->name('admin/exportAllStaff');
     
+    // admin profile
     Route::get("/loadProfile", "UserController@loadProfile")->name('admin/loadProfile');
     Route::post("/saveProfile", "UserController@saveProfile")->name('admin/saveProfile');
     Route::post("/savePassword", "UserController@savePassword")->name('admin/savePassword');

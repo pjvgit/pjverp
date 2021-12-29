@@ -1,7 +1,7 @@
 <form class="ConfirmAccessFormPopup" id="ConfirmAccessFormPopup" name="ConfirmAccessFormPopup" method="POST">
     @csrf
     <input type="hidden" value="{{$Invoices->id}}" name="invoice_id">
-    <div class="row">
+    <div class="row" bladefile="resources/views/billing/invoices/emailInvoicePopup.blade.php">
         <div class="col-md-12" id="confirmAccess" bladefile="resources/views/billing/invoices/emailInvoicePopup.blade.php">
             {{-- <div>
                 <div class="alert alert-info fade show" role="alert">

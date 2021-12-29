@@ -317,7 +317,7 @@
         @if(!empty($nonBillableExpense) && count($nonBillableExpense))
             <tr class="invoice_info_row nonbillable-title">
                 <td class="invoice_info_bg" colspan="7">
-                    Non-billable Time Expenses:
+                    Non-billable Expenses:
                 </td>
                 </tr>
             @forelse($nonBillableExpense as $k=>$v)

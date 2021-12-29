@@ -46,7 +46,7 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <strong>Due</strong>
-                        <span>{{($findInvoice->due_date) ? date('M d, Y',strtotime($findInvoice->due_date)) : NULL}}</span>
+                        <span>{{($findInvoice->due_date) ? date('M j, Y',strtotime(convertUTCToUserTime($findInvoice->due_date.' 00:00:00', auth()->user()->user_timezone ?? 'UTC'))) : NULL}}</span>
                     </div>
                 </div>
             </div>

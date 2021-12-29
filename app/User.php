@@ -200,6 +200,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get active case count for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function caseStaff()
+    {
+        return $this->hasMany(CaseStaff::class, 'user_id');
+    }
+
+    /**
      * Get the userDeactivated associated with the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

@@ -2512,6 +2512,9 @@ class LeadController extends BaseController
         $LeadData = $LeadData->select('countries.name as country_name','lead_additional_info.id as lead_additional_info_id','users.created_by as user_created_by','lead_status.title as lead_status_title','referal_resource.title as referal_resource_title','lead_additional_info.lead_detail',"users.*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as leadname'),"lead_additional_info.*")
         ->where("users.id",$user_id)
         ->first();
+        if(empty($LeadData) || $LeadData->user_level != 5){
+            abort(404);
+        }
 
         $createdByAndDate = User::find($LeadData['user_created_by']);
        
@@ -2638,7 +2641,7 @@ class LeadController extends BaseController
         //Communication tab [LEADS]
         $totalCalls=$getAllFirmUser='';
         if(\Route::current()->getName()=="communications/text_messages"){
-
+            abort(404);
         }
         if(\Route::current()->getName()=="communications/calls"){
 
@@ -6803,27 +6806,31 @@ class LeadController extends BaseController
         $totalRefund = $allPayment->sum("amount_refund");
         $remainPaidAmt = ($totalPaid - $totalRefund);
         $dueDate = ($invoice->invoiceFirstInstallment) ? $invoice->invoiceFirstInstallment->due_date : $invoice->due_date;
-        if($remainPaidAmt == 0) {
-            $status="Unsent";
-            if($invoice->is_sent  == "yes") {
-                $status = "Sent";    
-            }else{
-                if($invoice->status == "forwarded"){
-                    if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-                        $status="Overdue";
+        if($invoice->is_force_status == 0){
+            if($remainPaidAmt == 0 && !isset($dueDate)) {
+                $status="Unsent";
+                if($invoice->is_sent  == "yes") {
+                    $status = "Sent";    
+                }else{
+                    if($invoice->status == "forwarded"){
+                        if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                            $status="Overdue";
+                        }
                     }
                 }
+            } elseif($invoice->total_amount == $remainPaidAmt) {
+                $status = "Paid";
+            } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
+                $status="Partial";
+            } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
+                $status="Overdue";
+            } else if($invoice->is_sent  == "yes") {
+                $status = "Sent";
+            } else {
+                $status = 'Unsent';
             }
-        } elseif($invoice->total_amount == $remainPaidAmt) {
-            $status = "Paid";
-        } else if($remainPaidAmt > 0 && $remainPaidAmt < $invoice->total_amount && (!isset($dueDate) || strtotime($dueDate) >= strtotime(date('Y-m-d')))) {
-            $status="Partial";
-        } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
-            $status="Overdue";
-        } else if($invoice->is_sent  == "yes") {
-            $status = "Sent";
-        } else {
-            $status = 'Unsent';
+        }else{
+            $status = "Draft";
         }
         $invoice->fill([
             'status'=>$status,

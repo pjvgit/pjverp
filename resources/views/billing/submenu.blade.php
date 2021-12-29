@@ -22,7 +22,7 @@
         <li>
             <a href="{{route('bills/invoices')}}?type=all" class="{{ request()->is('bills/invoices*') ? 'myactive' : '' }} ">Invoices</a>
         </li>
-        <li>
+        <li class="m2">
             <a href="{{route('payment_plans')}}" class="{{ request()->is('payment_plans*') ? 'myactive' : '' }} ">Payment Plans</a>
         </li>
         @endcannot

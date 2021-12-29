@@ -126,7 +126,7 @@
             "columns": [
                 { "data": "fullname"},
                 { "data": "user_title" },
-                { "data": "active_case_counter", orderable: false, searchable: false },
+                { "data": "active_cases", orderable: false, searchable: false },
                 { "data": "default_rate" },
                 { "data": "user_status" },
                 { "data": "action", orderable: false, searchable: false },

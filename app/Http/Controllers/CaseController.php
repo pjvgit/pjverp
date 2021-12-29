@@ -1884,41 +1884,47 @@ class CaseController extends BaseController
     {
         $id=$request->id;
         $CaseStaffSelection = CaseStaff::where("id", $id)->first();
-        $data=[];
-        $data['user_id']=$CaseStaffSelection->user_id;
-        $data['client_id']=$CaseStaffSelection->user_id;
-        $data['case_id']=$CaseStaffSelection->case_id;
-        $data['activity']='unlinked Staff';
-        $data['type']='staff';
-        $data['action']='unlink';
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
+        if(!empty($CaseStaffSelection)){
+            $data=[];
+            $data['user_id']=$CaseStaffSelection->user_id;
+            $data['client_id']=$CaseStaffSelection->user_id;
+            $data['case_id']=$CaseStaffSelection->case_id;
+            $data['activity']='unlinked Staff';
+            $data['type']='staff';
+            $data['action']='unlink';
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
 
-        $data1=[];
-        $data1['activity_title']='unlinked staff';
-        $data1['case_id']=$CaseStaffSelection->case_id;
-        $data1['activity_type']='';
-        $data1['staff_id']=$CaseStaffSelection->user_id;
-        $this->caseActivity($data1);
-        // remove from task_linked_staff and case_allocation staff
-        $CaseEventData = CaseEvent::where('case_id',$CaseStaffSelection->case_id)->get();
+            $data1=[];
+            $data1['activity_title']='unlinked staff';
+            $data1['case_id']=$CaseStaffSelection->case_id;
+            $data1['activity_type']='';
+            $data1['staff_id']=$CaseStaffSelection->user_id;
+            $this->caseActivity($data1);
+            // remove from task_linked_staff and case_allocation staff
+            $CaseEventData = CaseEvent::where('case_id',$CaseStaffSelection->case_id)->get();
+            
+            if(count($CaseEventData) > 0) {
+                foreach ($CaseEventData as $k=>$v){
+                    CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                    CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
+                }
+            }
+            $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
+            if(count($TaskData) > 0) {
+                foreach ($TaskData as $k=>$v){
+                    CaseTaskLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('task_id',$v->id)->delete();
+                }
+            }
+            CaseStaff::where("id", $id)->delete();
+            session(['popup_success' => 'Unlink '.$request->username.' from case']);
+            return response()->json(['errors'=>'','id'=>$id]);
+            exit;
+        }else{
+            return response()->json(['errors'=>'Not Found','id'=>$id]);
+            exit;                    
+        }
         
-        if(count($CaseEventData) > 0) {
-            foreach ($CaseEventData as $k=>$v){
-                CaseEventLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
-                CaseEventLinkedContactLead::where('contact_id',$CaseStaffSelection->user_id)->where('event_id',$v->id)->delete();
-            }
-        }
-        $TaskData = Task::where('case_id',$CaseStaffSelection->case_id)->get();
-        if(count($TaskData) > 0) {
-            foreach ($TaskData as $k=>$v){
-                CaseTaskLinkedStaff::where('user_id',$CaseStaffSelection->user_id)->where('task_id',$v->id)->delete();
-            }
-        }
-        CaseStaff::where("id", $id)->delete();
-        session(['popup_success' => 'Unlink '.$request->username.' from case']);
-        return response()->json(['errors'=>'','id'=>$id]);
-        exit;
     }
    
     public function loadExistingStaff(Request $request)
