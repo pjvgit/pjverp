@@ -99,7 +99,8 @@
                                             <p class="mb-1 allocated" data-testid="allocate-funds-tooltip">Case Trust Balance (Allocated)
                                                 <span id="allocated-trust" data-toggle="tooltip" data-html="true" title="<b>Case Trust Balance</b><br>Allocated Trust Fund Amount that is exclusively for this case"><i class="fas fa-info-circle ml-1"></i></span>
                                             </p>
-                                            <h4 class="font-weight-bold" id="available-total-allocatedTrust-balance">${{ number_format($CaseMaster->total_allocated_trust_balance, 2) }}</h4></div>
+                                            {{-- <h4 class="font-weight-bold" id="available-total-allocatedTrust-balance">${{ number_format($CaseMaster->total_allocated_trust_balance, 2) }}</h4></div> --}}
+                                            <h4 class="font-weight-bold" id="available-total-allocatedTrust-balance">${{ number_format($caseClients->sum('allocated_trust_balance'), 2) }}</h4></div>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover">
@@ -356,7 +357,7 @@
                                 <tbody>
                                     <tr>
                                         <td class="border-top-0">Available Credit Balance</td>
-                                        <td id="available-running-total-credit-balance" class="border-top-0 text-right">${{ $totalCreditBalance }}</td>
+                                        <td id="available-running-total-credit-balance" class="border-top-0 text-right">${{ number_format($totalCreditBalance, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="border-top-0">Un-Invoiced Balance</td>
@@ -372,13 +373,11 @@
                                             @php
                                                 $currentBalance = $totalCreditBalance - $totalBills;
                                             @endphp
-                                            <span class="font-weight-bold h5 ">
-                                                @if($currentBalance > 0)
-                                                ${{ number_format($currentBalance, 2) }}
-                                                @else 
-                                                ${{ number_format(abs($currentBalance), 2) }}
-                                                @endif
-                                            </span>
+                                            @if($currentBalance > 0)
+                                                <span class="font-weight-bold h5 text-success">${{number_format($currentBalance,2)}}</span>
+                                            @else
+                                                <span class="font-weight-bold h5 text-danger">-${{number_format(abs($currentBalance), 2)}}</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 </tbody>

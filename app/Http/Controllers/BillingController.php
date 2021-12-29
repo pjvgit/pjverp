@@ -16,9 +16,11 @@ use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App
 use App\CaseStage,App\TempUserSelection;
 use App\InvoiceApplyTrustCreditFund;
 use App\InvoiceCustomizationSetting;
+use App\InvoiceOnlinePayment;
 use App\InvoiceSetting;
 use App\InvoiceTempInfo;
 use App\Jobs\InvoiceReminderEmailJob;
+use App\RequestedFundOnlinePayment;
 use App\Traits\CreditAccountTrait;
 use App\Traits\InvoiceTrait;
 use App\Traits\TrustAccountActivityTrait;
@@ -4532,6 +4534,7 @@ class BillingController extends BaseController
             $InvoiceHistory->invoice_payment_id= ($historyData['invoice_payment_id'])??NULL;
             $InvoiceHistory->notes= $historyData['notes'];
             $InvoiceHistory->status= ($historyData['status'])??0;
+            $InvoiceHistory->online_payment_status = ($historyData['online_payment_status']) ?? Null;
             $InvoiceHistory->refund_ref_id= ($historyData['refund_ref_id'])??NULL;
             $InvoiceHistory->created_by=$historyData['created_by'];
             $InvoiceHistory->created_at=$historyData['created_at'];
@@ -6434,241 +6437,22 @@ class BillingController extends BaseController
         
     }
 
+    /**
+     * Get invoice payment refund popup
+     */
     public function refundPopup(Request $request)
     {
-      
         $findEntry=InvoiceHistory::find($request->transaction_id);
-        $findInvoice=Invoices::find($findEntry['invoice_id']);
-        $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($findInvoice['user_id']);
-        $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$findInvoice['user_id'])->first();
-        return view('billing.invoices.refundEntry',compact('userData','UsersAdditionalInfo','findEntry','findInvoice'));     
-        exit;    
-    } 
-    /* public function saveRefundPopupOld(Request $request)
-    {
-        // return $request->all();
-        $request['amount']=str_replace(",","",$request->amount);
-        $GetAmount=InvoiceHistory::find($request->transaction_id);
-        $findInvoice=Invoices::find($GetAmount['invoice_id']);
-
-        $mt=$GetAmount->amount; 
-        $validator = \Validator::make($request->all(), [
-            'amount' => 'required|numeric|max:'.$mt,
-        ],[
-            'amount.max' => 'Refund cannot be more than $'.number_format($mt,2),
-        ]);
-        if ($validator->fails())
-        {
-            return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            DB::table('invoices')->where('id',$findInvoice['id'])->update(['status'=> 'Partial']);
-
-
-            if($GetAmount['deposit_into']=="Trust Account"){
-                DB::table('users_additional_info')->where('user_id',$GetAmount['deposit_into_id'])->decrement('trust_account_balance', $request['amount']);
-
-                if($mt==$request['amount']){
-                    $status="2";
-                }else{
-                    $status="3";
-                }
-                DB::table('invoice_history')->where('id',$request->transaction_id)->update(['status'=> $status]);
-
-                $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$GetAmount['deposit_into_id'])->first();
-            }else{
-                if($mt==$request['amount']){
-                    $status="2";
-                }else{
-                    $status="3";
-                }
-                DB::table('invoice_history')->where('id',$request->transaction_id)->update(['status'=> $status]);
-
-            }
-
-            $invoiceHistory=[];
-            $invoiceHistory['invoice_id']=$findInvoice['id'];
-            $invoiceHistory['acrtivity_title']='Payment Refund';
-            if($GetAmount->deposit_into=="Operating Account"){
-                $invoiceHistory['pay_method']="Refund";
-            }else{
-                $invoiceHistory['pay_method']="Trust Refund";
-            }
-            $invoiceHistory['amount']=$request['amount'];
-            $invoiceHistory['responsible_user']=Auth::User()->id;
-            $invoiceHistory['deposit_into'] = (in_array($GetAmount->pay_method, ["Trust", "Refund for Trust"])) ? "Trust" : "Operating";
-            $invoiceHistory['deposit_into_id']=$GetAmount['deposit_into_id'];
-            $invoiceHistory['notes']=$request->notes;
-            $invoiceHistory['status']="4";
-            $invoiceHistory['refund_ref_id']=$request->transaction_id;
-            $invoiceHistory['created_by']=Auth::User()->id;
-            $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-            // $this->invoiceHistory($invoiceHistory);
-           
-            if($GetAmount->deposit_into=="Operating Account" && $GetAmount->pay_method != "Trust"){
-                //Insert invoice payment record.
-                $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Operating Account")->orderBy("created_at","DESC")->first();
-                if($currentBalance['total']-$request->amount<=0){
-                    $finalAmt=0;
-                }else{
-                    $finalAmt=$currentBalance['total']-$request->amount;
-                }
-                // $entryDone= DB::table('invoice_payment')->insert([
-                $entryDone=  InvoicePayment::create([
-                    'invoice_id'=>$findInvoice['id'],
-                    'payment_from'=>'client',
-                    'amount_refund'=>$request->amount,
-                    'amount_paid'=>0.00,
-                    'payment_method'=>"Refund",
-                    'deposit_into'=>NULL,
-                    'notes'=>$request->notes,
-                    // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
-                    'refund_ref_id'=>$GetAmount->invoice_payment_id,'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
-                    'notes'=>$request->notes,
-                    'status'=>"1",
-                    'entry_type'=>"1",
-                    'total'=>$finalAmt,
-                    'firm_id'=>Auth::User()->firm_name,
-                    'ip_unique_id'=>Hash::make(time().rand(1,20000)),
-                    'created_at'=>date('Y-m-d H:i:s'),
-                    'created_by'=>Auth::user()->id 
-                ]);
-                $invoiceHistory['invoice_payment_id']=$entryDone->id;
-                $creditHistory = DepositIntoCreditHistory::where("related_to_invoice_payment_id", $GetAmount->invoice_payment_id)->first();
-                if($creditHistory) {
-                    $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id",$creditHistory->user_id)->first();
-                    if($creditHistory->payment_type == "payment") {
-                        $fund_type='refund payment';
-                        $UsersAdditionalInfo->fill(['credit_account_balance' => ($UsersAdditionalInfo->credit_account_balance + $request->amount)])->save();
-                    }
-                    $UsersAdditionalInfo->refresh();
-                    $creditHistory->is_refunded="yes";
-                    $creditHistory->save();
-
-                    $invoiceHistory1 = InvoiceHistory::where("invoice_payment_id", $creditHistory->related_to_invoice_payment_id)->first();
-                    if($invoiceHistory1) {
-                        $invoiceHistory1->fill([
-                            "status" => ($request->amount == $invoiceHistory1->amount) ? 2 : 3,
-                        ])->save();
-                    }
-        
-                    $depCredHis = DepositIntoCreditHistory::create([
-                        "user_id" => $creditHistory->user_id,
-                        "deposit_amount" => $request->amount,
-                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
-                        "payment_method" => "refund",
-                        "payment_type" => $fund_type,
-                        "total_balance" => $UsersAdditionalInfo->credit_account_balance,
-                        "notes" => $request->notes,
-                        "refund_ref_id" => $creditHistory->id,
-                        "created_by" => auth()->id(),
-                        "firm_id" => auth()->user()->firm_name,
-                        "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
-                        "related_to_invoice_payment_id" => $entryDone->id,
-                    ]);
-
-                    $this->updateNextPreviousCreditBalance($creditHistory->user_id);
-                }
-            }else{
-                //Insert invoice payment record.
-                $currentBalance=InvoicePayment::where("firm_id",Auth::User()->firm_name)->where("deposit_into","Trust Account")->orderBy("created_at","DESC")->first();
-                if($currentBalance['total']-$request->amount<=0){
-                    $finalAmt=0;
-                }else{
-                    $finalAmt=$currentBalance['total']-$request->amount;
-                }
-                // $entryDone= DB::table('invoice_payment')->insert([
-                $entryDone=  InvoicePayment::create([
-                    'invoice_id'=>$findInvoice['id'],
-                    'payment_from'=>'trust',
-                    'amount_refund'=>$request->amount,
-                    'amount_paid'=>0.00,
-                    'payment_method'=>"Trust Refund",
-                    'deposit_into'=>"Trust",
-                    'deposit_into_id' => $GetAmount['deposit_into_id'],
-                    'notes'=>$request->notes,
-                    // 'refund_ref_id'=>$request->transaction_id, // payment history table reference id
-                    'refund_ref_id'=>$GetAmount->invoice_payment_id,'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
-                    'notes'=>$request->notes,
-                    'status'=>"1",
-                    'entry_type'=>"0",
-                    'total'=>$finalAmt,
-                    'ip_unique_id'=>Hash::make(time().rand(1,20000)),
-                    'firm_id'=>Auth::User()->firm_name,
-                    'created_at'=>date('Y-m-d H:i:s'),
-                    'created_by'=>Auth::user()->id 
-                ]);
-                $invoiceHistory['invoice_payment_id']=$entryDone->id;
-
-                $UsersAdditionalInfo = UsersAdditionalInfo::where("user_id", $GetAmount['deposit_into_id'])->first();
-                if($UsersAdditionalInfo) {
-                    $UsersAdditionalInfo->fill(['trust_account_balance' => ($UsersAdditionalInfo->trust_account_balance + $request->amount)])->save();
-                    $UsersAdditionalInfo->refresh();
-                }
-
-                $trustHistory = TrustHistory::where("related_to_invoice_payment_id", $GetAmount->invoice_payment_id)->first();
-                if($trustHistory) {
-                    $trustHistory->is_refunded="yes";
-                    $trustHistory->save();
-
-                    $invoiceHistory1 = InvoiceHistory::where("invoice_payment_id", $trustHistory->related_to_invoice_payment_id)->first();
-                    if($invoiceHistory1) {
-                        $invoiceHistory1->fill([
-                            "status" => ($request->amount == $invoiceHistory1->amount) ? 2 : 3,
-                        ])->save();
-                    }
-        
-                    TrustHistory::create([
-                        "user_id" => $trustHistory->user_id,
-                        "refund_amount" => $request->amount,
-                        "payment_date" => date('Y-m-d',strtotime($request->payment_date)),
-                        "payment_method" => "Trust Refund",
-                        "fund_type" => 'refund payment',
-                        "total_balance" => @$UsersAdditionalInfo->trust_account_balance,
-                        "notes" => $request->notes,
-                        "refund_ref_id" => $trustHistory->id,
-                        "created_by" => auth()->id(),
-                        "firm_id" => auth()->user()->firm_name,
-                        "related_to_invoice_id" => $trustHistory->related_to_invoice_id,
-                        "related_to_invoice_payment_id" => $entryDone->id,
-                    ]);
-                }
-            }
-            
-            $this->invoiceHistory($invoiceHistory);
-
-            //Add Invoice history for activity
-            $data=[];
-            $data['case_id']=$findInvoice['case_id'];
-            $data['user_id']=$findInvoice['user_id'];
-            $data['activity']='refunded a payment of $'.number_format($request['amount'],2);
-            $data['activity_for']=$findInvoice['id'];
-            $data['type']='invoices';
-            $data['action']='refund';
-            $CommonController= new CommonController();
-            $CommonController->addMultipleHistory($data);
-            
-            //Case Activity
-            if($findInvoice['case_id'] > 0){
-                $caseActivityData=[];
-                $caseActivityData['activity_title']='refunded a payment of $'.number_format($request['amount'],2).' for invoice';
-                $caseActivityData['case_id']=$findInvoice['case_id'];
-                $caseActivityData['activity_type']='refund_payment';
-                $caseActivityData['extra_notes']=$findInvoice['id'];
-                $caseActivityData['staff_id']=$findInvoice['user_id'];
-                $this->caseActivity($caseActivityData);
-            }
-
-            // Update invoice status and paid/due amount
-            $this->updateInvoiceAmount($findInvoice['id']);
-
-            // Update installment payment status and amount
-            $this->updateInvoiceInstallment($request->amount, $findInvoice['id']);
-
-            session(['popup_success' => 'Withdraw fund successful']);
-            return response()->json(['errors'=>'']);
-            exit;   
+        if($findEntry) {
+            $findInvoice=Invoices::find($findEntry['invoice_id']);
+            $userData=User::select(DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as cname'),"id")->find($findInvoice['user_id']);
+            $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$findInvoice['user_id'])->first();
+            return view('billing.invoices.refundEntry',compact('userData','UsersAdditionalInfo','findEntry','findInvoice'));     
+            exit;    
+        } else {
+            return "Record not found";
         }
-    } */
+    }
 
     public function saveRefundPopup(Request $request)
     {
@@ -6911,7 +6695,66 @@ class BillingController extends BaseController
 
                         $this->updateNextPreviousCreditBalance($creditHistory->user_id);
                     }
+                } else if($invoiceHistory->payment_from == "online" && $invoiceHistory->online_payment_status == "paid") {
+                    $onlinePaymentDetail = InvoiceOnlinePayment::where("invoice_history_id", $request->transaction_id)->first();
+                    $authUser = auth()->user();
+                    if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        $order->refund([
+                            'reason' => 'requested_by_client',
+                            'amount' => (int) $request->amount,
+                        ]);
+                        
+                        if($order->payment_status == "partially_refunded") {
+
+                            $invoiceOnlinePayment = InvoiceOnlinePayment::create([
+                                'invoice_id' => $onlinePaymentDetail->invoice_id,
+                                'user_id' => $onlinePaymentDetail->user_id,
+                                'payment_method' => 'card',
+                                'amount' => $request->amount,
+                                'conekta_order_id' => $order->id,
+                                'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                'conekta_payment_status' => $order->payment_status,
+                                'status' => 'refund entry',
+                                'refund_reference_id' => $onlinePaymentDetail->id,
+                                'created_by' => $authUser->id,
+                                'firm_id' => $authUser->firm_name,
+                                'conekta_order_object' => $order,
+                            ]);
+                            
+                            // Update payment detail status
+                            $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                            //Insert invoice payment record.
+                            $entryDone = InvoicePayment::create([
+                                'invoice_id' => $findInvoice->id,
+                                'payment_from'=>'online',
+                                'amount_refund'=>$request->amount,
+                                'amount_paid'=>0.00,
+                                'payment_method'=>"Refund",
+                                'notes'=>$request->notes,
+                                'refund_ref_id'=>$invoiceHistory->invoice_payment_id,
+                                'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), $authUser->user_timezone),
+                                'status'=>"1",
+                                'entry_type'=>"0",
+                                'ip_unique_id'=>Hash::make(time().rand(1,20000)),
+                                'firm_id' => $authUser->firm_name,
+                                'created_at'=>date('Y-m-d H:i:s'),
+                                'created_by'=>$authUser->id 
+                            ]);
+
+                            $invoiceHistoryNew['invoice_payment_id'] = $entryDone->id;
+                            $invoiceHistoryNew['pay_method'] = "Refund";
+                            $invoiceHistoryNew['payment_from'] = "online";
+                            $invoiceHistoryNew['online_payment_status'] = $order->payment_status;
+                        }
+                    }
+                } else {
+
                 }
+
                 $invoiceHistory->status = ($mt==$request['amount']) ? '2' : '3';
                 $invoiceHistory->save();
 
@@ -6925,6 +6768,11 @@ class BillingController extends BaseController
                 $invoiceHistoryNew['created_by']=Auth::User()->id;
                 $invoiceHistoryNew['created_at']=date('Y-m-d H:i:s');
                 $newHistoryId = $this->invoiceHistory($invoiceHistoryNew);
+
+                // Update online conekta payment record
+                if($invoiceHistory->payment_from == "online" && $invoiceHistory->online_payment_status == "paid") {
+                    $invoiceOnlinePayment->fill(['invoice_history_id' => $newHistoryId])->save();
+                }
 
                 $request->request->add(['invoice_history_id' => $newHistoryId]);
                 $request->request->add(['trust_history_id' => $newTrustHistory->id ?? NULL]);
@@ -6978,7 +6826,7 @@ class BillingController extends BaseController
                 // Update installment payment status and amount
                 $this->updateInvoiceInstallment($request->amount, $findInvoice['id']);
                 dbCommit();
-                session(['popup_success' => 'Withdraw fund successful']);
+                session(['popup_success' => 'Refund successful']);
                 return response()->json(['errors'=>'']);
             } catch(Exception $e) {
                 dbEnd();

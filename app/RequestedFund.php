@@ -165,4 +165,14 @@ class RequestedFund extends Authenticatable
     {
         return $this->belongsTo(LeadAdditionalInfo::class, 'allocated_to_lead_case_id', 'user_id');
     }
+
+    /**
+     * Get the createdByUser that owns the RequestedFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
