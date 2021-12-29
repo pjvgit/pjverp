@@ -1105,9 +1105,9 @@ class CaseController extends BaseController
                 $expenseEntryData=$this->getExpenseEntryTotalByCase($case_id);    
                 // $trustUSers=$this->getTrustBalance($case_id); 
                 $caseClients = CaseClientSelection::where("case_id", $case_id)->with("user", "user.userAdditionalInfo")->get();
-                $InvoicesTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("total_amount");
+                $InvoicesTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->where("status", "!=", "Forwarded")->sum("total_amount");
                 $InvoicesCollectedTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("paid_amount");
-                $InvoicesPendingTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->sum("due_amount");
+                $InvoicesPendingTotal= Invoices::where("invoices.created_by",Auth::User()->id)->where("case_id",$case_id)->where("status", "!=", "Forwarded")->sum("due_amount");
             }
             if(\Route::current()->getName()=="overview" || \Route::current()->getName()=="invoices"){
                 $caseBiller = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')

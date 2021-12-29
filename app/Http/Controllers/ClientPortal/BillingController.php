@@ -23,14 +23,11 @@ use App\TrustHistory;
 use App\User;
 use App\UsersAdditionalInfo;
 use Carbon\Carbon;
-use Conekta\Conekta;
-use Conekta\Order;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use mikehaertl\wkhtmlto\Pdf;
-use phpDocumentor\Reflection\Types\Null_;
 
 class BillingController extends Controller 
 {
@@ -808,7 +805,7 @@ class BillingController extends Controller
                             $CommonController->addMultipleHistory($data); */
 
                             // Cash payment reference email to client
-                            // $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $requestOnlinePayment, 'bank_reference_client', 'fundrequest'));
+                            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $requestOnlinePayment, 'bank_reference_client', 'fundrequest'));
 
                             DB::commit();
                             return redirect()->route('client/bills/payments/confirmation', ['fundrequest', encodeDecodeId($requestOnlinePayment->id, 'encode')]);
@@ -956,7 +953,7 @@ class BillingController extends Controller
             $body = @file_get_contents('php://input');
             $data = json_decode($body);
             http_response_code(200); // Return 200 OK 
-            Log::info("webhook response: ". json_encode($data->object));
+            Log::info("webhook response: ". json_encode(@$data->object));
             Log::info("webhook called type: ". $data->type);
             switch ($data->type) {
                 case 'order.paid':
@@ -986,10 +983,11 @@ class BillingController extends Controller
         Log::info("charge paid function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data->object->id);
+            Log::info("conekta object order id: ". @$data->object->id);
+            Log::info("conekta charge order id: ". @$data->object->charges->data[0]->order_id);
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->object->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail && $paymentDetail->payment_method == 'cash') {
-                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                $paymentDetail->fill(['conekta_payment_status' => $data->object->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                 $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -998,10 +996,10 @@ class BillingController extends Controller
                     InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
                     // Update invoice history status
-                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->payment_status])->save();
+                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->object->payment_status])->save();
 
                     // Update invoice status and amount
-                    $invoice->fill(['online_payment_status' => $data->payment_status])->save();
+                    $invoice->fill(['online_payment_status' => $data->object->payment_status])->save();
                     $this->updateInvoiceAmount($invoice->id);
 
                     // Send confirmation email to client
@@ -1019,7 +1017,7 @@ class BillingController extends Controller
                 }
             } 
             else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') {
-                $paymentDetail->fill(['conekta_payment_status' => $data->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                $paymentDetail->fill(['conekta_payment_status' => $data->object->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                 $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                 $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -1028,10 +1026,10 @@ class BillingController extends Controller
                     InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
                     // Update invoice history status
-                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->payment_status])->save();
+                    $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $data->object->payment_status])->save();
 
                     // Update invoice status and amount
-                    $invoice->fill(['online_payment_status' => $data->payment_status])->save();
+                    $invoice->fill(['online_payment_status' => $data->object->payment_status])->save();
                     $this->updateInvoiceAmount($invoice->id);
 
                     // Send confirmation email to client
@@ -1062,8 +1060,8 @@ class BillingController extends Controller
         Log::info("reference expired function enter");
         try {
             dbStart();
-            Log::info("conekta order id: ". $data->id);
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
+            Log::info("conekta order id: ". $data->object->id);
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $data->object->id)/* ->where('payment_method', 'cash') *//* ->where('conekta_payment_status', 'pending') */->first();
             if($paymentDetail) {
                 $paymentDetail->fill(['conekta_payment_status' => 'expired', 'conekta_order_object' => $data])->save();
 

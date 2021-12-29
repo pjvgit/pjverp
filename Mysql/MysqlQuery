@@ -1,3 +1,15 @@
+------------------------------------ 29-DEC-2021 ------------------------------
+ALTER TABLE `invoice_online_payments`
+ADD `status` enum('payment','full refund','partial refund','refund entry') NOT NULL DEFAULT 'payment' AFTER `paid_at`,
+ADD `refund_reference_id` int(11) NULL COMMENT 'this table primary id' AFTER `status`;
+
+ALTER TABLE `case_client_selection`
+CHANGE `allocated_trust_balance` `allocated_trust_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `billing_amount`,
+CHANGE `minimum_trust_balance` `minimum_trust_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `allocated_trust_balance`;
+
+ALTER TABLE `invoice_online_payments`
+CHANGE `amount` `amount` decimal(11,2) NULL AFTER `payment_method`;
+
 ------------------------------------ 28-DEC-2021 ------------------------------
 ALTER TABLE `requested_fund_online_payments`
 ADD `trust_history_id` int(11) NULL AFTER `paid_at`,
