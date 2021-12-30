@@ -27,14 +27,14 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <input type="hidden" id="trust_account_id" name="trust_account" value="{{$userData['uid']}}">
             <input type="hidden" id="case_id" name="case_id" value="{{ @$case->id }}">
             <?php
-            if(!$clientList->isEmpty()){?>
+            if(!$fundRequestList->isEmpty()){?>
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Apply to Request</label>
                     <select class="form-control caller_name select2" id="applied_to" name="applied_to"
                         style="width: 100%;" placeholder="Applied To">
                         <option value="0"> Do not apply to a retainer request</option>
-                        <?php foreach($clientList as $key=>$val){?>
+                        <?php foreach($fundRequestList as $key=>$val){?>
                             <option value="{{$val->id}}"  <?php echo ($val->id == $request->request_id) ? 'selected':''; ?> >R-{{ sprintf('%06d', $val->id)}} (${{number_format($val->amount_due,2)}})</option>
                         <?php } ?>
                     </select>

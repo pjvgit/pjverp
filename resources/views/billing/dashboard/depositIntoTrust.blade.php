@@ -29,6 +29,8 @@
             </div>
         </div>
     </div>
+    <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;">
+    </div>
     <div id="allocate-funds-container" style="display: none;">
         <div class="col-md-12">
             <div class="row form-group">
@@ -106,6 +108,7 @@
     });
 
 function getClientCases(clientId) {
+    beforeLoader();
     $.ajax({
         url: baseUrl+"/bills/dashboard/depositIntoTrust/clientCases",
         type: 'POST',
@@ -127,7 +130,8 @@ function getClientCases(clientId) {
             }
             optgroup += "</optgroup>"
             $('#allocate_fund').append(optgroup);
-            $(".select2-option").trigger('chosen:updated');;
+            $(".select2-option").trigger('chosen:updated');
+            afterLoader();
         }
     });
 }

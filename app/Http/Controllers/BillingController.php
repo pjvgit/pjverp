@@ -9246,14 +9246,14 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $activityData=[];
-            $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
+            /* $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
             ->leftJoin("case_master","invoices.case_id","=","case_master.id")
             ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","users.user_level","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
             ->where("invoices.created_by",Auth::user()->id)
             ->where("invoices.status","!=","Paid")
             ->groupBy("users.id");
         
-            $Invoices=$Invoices->get();
+            $Invoices=$Invoices->get(); */
             $ClientList = firmClientList();
             $CompanyList = firmCompanyList();
             if($request->case_id) {
@@ -9269,7 +9269,7 @@ class BillingController extends BaseController
                 ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
             }
 
-           return view('billing.dashboard.depositIntoTrust',compact('ClientList', 'CompanyList', 'activityData','Invoices'));     
+           return view('billing.dashboard.depositIntoTrust',compact('ClientList', 'CompanyList', 'activityData'/* ,'Invoices' */));     
            exit;    
        }
     }  
@@ -9281,7 +9281,7 @@ class BillingController extends BaseController
     {
         // return $request->all();
         $user = User::whereId($request->user_id)->first();
-        $userAddInfo = UsersAdditionalInfo::where('user_id', $request->user_id)->first();
+        $userAddInfo = UsersAdditionalInfo::where('user_id', $request->user_id)->select("trust_account_balance")->first();
         if($user->user_level == 5) {
             $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
             $is_lead_case = 'yes';
@@ -9291,7 +9291,8 @@ class BillingController extends BaseController
             if($request->case_id) {
                 $result = $result->where("case_client_selection.case_id", $request->case_id);
             }
-            $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")->get();
+            $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")
+                        ->get()->makeHidden(['caseuser', 'upcoming_event', 'upcoming_tasks']);
             $is_lead_case = 'no';
         }            
         return response()->json(['result' => $result, 'user' => $user, 'is_lead_case' => $is_lead_case, 'userAddInfo' => $userAddInfo]);
@@ -9331,13 +9332,13 @@ class BillingController extends BaseController
 
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
-                $clientList = RequestedFund::select('requested_fund.*')->where("requested_fund.client_id",$user_id);
+                $fundRequestList = RequestedFund::select('requested_fund.*')->where("client_id",$user_id)->where("deposit_into_type", "trust");
                 if($request->case_id != '' && $request->case_id != 0) {
-                    $clientList = $clientList->where("requested_fund.allocated_to_case_id",$request->case_id);
+                    $fundRequestList = $fundRequestList->where("allocated_to_case_id",$request->case_id);
                 }
-                $clientList = $clientList->where("amount_due",">",0)->get();
-                $case = CaseMaster::whereId($request->case_id)->first();
-                return view('billing.dashboard.depositTrustFundPopup',compact('userData','clientList', 'case','request'));
+                $fundRequestList = $fundRequestList->where("amount_due",">",0)->get();
+                $case = CaseMaster::whereId($request->case_id)->select('id', 'case_title', 'total_allocated_trust_balance')->first();
+                return view('billing.dashboard.depositTrustFundPopup',compact('userData','fundRequestList', 'case','request'));
                 exit;  
             }else{
                 checkLeadInfoExists($user_id);

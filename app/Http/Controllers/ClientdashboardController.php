@@ -889,7 +889,8 @@ class ClientdashboardController extends BaseController
             $data = $data->where('allocated_to_case_id', $request->case_id);
         }
         $data = $data->orderBy("payment_date", "desc")->orderBy("created_at", "desc")
-                ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo');
+                // ->with("invoice", 'fundRequest', 'allocateToCase', 'user', 'leadAdditionalInfo')
+                ;
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo) {
@@ -3511,7 +3512,9 @@ class ClientdashboardController extends BaseController
      */
     public function loadCreditHistory(Request $request)
     {
-        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")->orderBy("created_at", "desc")->with("invoice", "user");
+        $data = DepositIntoCreditHistory::where("user_id", $request->client_id)->orderBy("payment_date", "desc")
+                ->orderBy("created_at", "desc");
+                // ->with("invoice", "user");
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
         return Datatables::of($data)
             ->addColumn('action', function ($data) use($userAddInfo){
