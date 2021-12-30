@@ -4,7 +4,7 @@
     <input class="form-control" value="{{($LeadAdditionalInfo->id)??''}}" id="id" maxlength="250" name="user_id" type="hidden">
          <span id="response"></span>
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/lead/loadStep1.blade.php">
         <div>
             <h5 class="text-info"></h5>
         </div>

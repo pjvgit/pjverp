@@ -17,7 +17,7 @@
             <div class="col-10 form-group mb-3">
                 <select class="form-control staff_user select2" id="staff_user" name="staff_user">
                     <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
-                    <option value="{{$CasevloadFirmStaffvalal->id}}" <?php echo ($CasevloadFirmStaffvalal->id == Auth::user()->id) ? 'selected' : ''; ?>>{{$CasevloadFirmStaffvalal->first_name}}
+                    <option  data-flatfees="{{$caseStaffRates[$CasevloadFirmStaffvalal->id] ?? 0}}" value="{{$CasevloadFirmStaffvalal->id}}" <?php echo ($CasevloadFirmStaffvalal->id == Auth::user()->id) ? 'selected' : ''; ?>>{{$CasevloadFirmStaffvalal->first_name}}
                         {{$CasevloadFirmStaffvalal->last_name}}</option>
                     <?php } ?>
                 </select>
@@ -31,7 +31,7 @@
                 <select id="activity" name="activity" class="form-control custom-select col select2">
                     <option value="">Search activity</option>
                     <?php foreach($TaskActivity as $k=>$v){ ?>
-                    <option value="{{$v->id}}">{{$v->title}}</option>
+                    <option data-flatfees="{{$v->flat_fees}}" value="{{$v->id}}">{{$v->title}}</option>
                     <?php } ?>
                 </select>
                 <span id="acError"></span>
@@ -179,6 +179,7 @@
                 },
                 duration_field: {
                     required: true,
+                    min: 0.1,
                     number: true
                 }
             },
@@ -197,7 +198,8 @@
                 },
                 duration_field: {
                     required: "Duration can't be blank",
-                    number: "Allows number only."
+                    number: "Allows number only.",
+                    min: " Duration must be greater than 0"
                 }
             },errorPlacement: function (error, element) {
                 if (element.is('#staff_user')) {
@@ -275,5 +277,32 @@
         return false;
     }
     showDropdown();
+
+    $("#activity").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            $("#rate_type_field_id").val('flat');
+        }
+        $("#activity").select2({
+            placeholder: "Select activity",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#addNewTimeEntry"),
+        });
+    });
+
+    $("#staff_user").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            // $("#rate_type_field_id").val('hr');
+        }
+        
+        $("#staff_user").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#addNewTimeEntry"),
+        });
+    });
 
 </script>
