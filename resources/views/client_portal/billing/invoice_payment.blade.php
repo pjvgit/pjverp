@@ -106,6 +106,9 @@
                                                             @endif
                                                         </ul>
                                                         <button type="submit" class="btn btn-primary mt-2" id="credit_card_continue_btn">Continue</button>
+                                                        <div class="mt-3">
+                                                            Al hacer click en el botón Continuar usted acepta los <a href="javascript:;">Términos de Uso</a> y el <a href="javascript:;">Aviso de Privacidad</a>
+                                                        </div>
                                                     </form>
                                                 </div>
                                                 <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
@@ -180,6 +183,23 @@
                                                                 </div>
                                                             </div>
                                                         </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="accordion" id="accordionRightIcon">
+                                                <div class="card">
+                                                    <div class="card-header header-elements-inline">
+                                                        <h6 class="card-title ul-collapse__icon--size ul-collapse__right-icon mb-0">
+                                                            <a class="text-default collapsed" data-toggle="collapse" href="#accordion-item-icons-1" aria-expanded="false">
+                                                                ¿En cuánto tiempo se confirma el pago?
+                                                            </a>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="collapse" id="accordion-item-icons-1" data-parent="#accordionRightIcon" style="">
+                                                        <div class="card-body">
+                                                            Para pagos con Tarjeta y Oxxo se confirma inmediatamente. Para las demás formas de pago de uno a dos días hábiles. En cualquier caso, le mandaremos una confirmación a su correo. 
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\CaseClientSelection;
 use App\CaseMaster;
+use App\DepositIntoCreditHistory;
 use App\Firm;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Controller;
@@ -292,36 +293,50 @@ class BillingController extends Controller
                             ])->save();
 
                             //Deposit into trust account
-                            UsersAdditionalInfo::where("user_id", $client->id)->increment('trust_account_balance', $payableAmount);
-                            $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance")->where("user_id", $client->id)->first();
-                            $trustHistory = TrustHistory::create([
-                                'client_id' => $client->id,
-                                'payment_method' => 'card',
-                                'amount_paid' => $payableAmount,
-                                'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                                'payment_date' => date('Y-m-d'),
-                                'fund_type' => 'diposit',
-                                'related_to_fund_request_id' => $fundRequest->id,
-                                'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
-                                'created_by' => $client->id,
-                                'online_payment_status' => $order->payment_status,
-                            ]);
+                            $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $client->id)->first();
+                            if($fundRequest->deposit_into_type == "trust") {
+                                UsersAdditionalInfo::where("user_id", $client->id)->increment('trust_account_balance', $payableAmount);
+                                $trustHistory = TrustHistory::create([
+                                    'client_id' => $client->id,
+                                    'payment_method' => 'card',
+                                    'amount_paid' => $payableAmount,
+                                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                                    'payment_date' => date('Y-m-d'),
+                                    'fund_type' => 'diposit',
+                                    'related_to_fund_request_id' => $fundRequest->id,
+                                    'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
+                                    'created_by' => $client->id,
+                                    'online_payment_status' => $order->payment_status,
+                                ]);
+                                $requestOnlinePayment->fill(['trust_history_id' => $trustHistory->id])->save();
 
-                            $requestOnlinePayment->fill(['trust_history_id' => $trustHistory->id])->save();
+                                // For allocated case trust balance
+                                if($fundRequest->allocated_to_case_id != '') {
+                                    CaseMaster::where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $payableAmount);
+                                    CaseClientSelection::where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $client->id)->increment('allocated_trust_balance', $payableAmount);
+                                }
+                                // For update next/previous trust balance
+                                $this->updateNextPreviousTrustBalance($trustHistory->client_id);
 
-                            // For allocated case trust balance
-                            if($fundRequest->allocated_to_case_id != '') {
-                                CaseMaster::where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $payableAmount);
-                                CaseClientSelection::where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $client->id)->increment('allocated_trust_balance', $payableAmount);
+                            } else {
+                                // Deposit into credit account
+                                UsersAdditionalInfo::where("user_id", $client->id)->increment('credit_account_balance', $payableAmount);
+                                $creditHistory = DepositIntoCreditHistory::create([
+                                    'user_id' => $client->id,
+                                    'deposit_amount' => $payableAmount,
+                                    'payment_method' => "card",
+                                    'payment_date' => date("Y-m-d"),
+                                    'total_balance' => @$userAdditionalInfo->credit_account_balance,
+                                    'payment_type' => "deposit",
+                                    'firm_id' => $client->firm_name,
+                                    'related_to_fund_request_id' => $fundRequest->id,
+                                    'created_by' => $client->id,
+                                ]);
+
+                                // For update next/previous credit balance
+                                $this->updateNextPreviousCreditBalance($client->id);
                             }
-
-                            $this->updateNextPreviousTrustBalance($trustHistory->client_id);
-
-                            // Account activity
-                            $request->request->add(["payment_type" => 'deposit']);
-                            $request->request->add(["trust_history_id" => $trustHistory->id]);
-                            $this->updateTrustAccountActivity($request);
-
+                            
                             $data=[];
                             $data['user_id'] = $client->id;
                             $data['client_id'] = $client->id;
@@ -935,9 +950,9 @@ class BillingController extends Controller
             $paymentDetail = InvoiceOnlinePayment::whereId($onlinePaymentId)->with('firmDetail')->first();
             $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
         }
-        $client = User::whereId(auth()->id())->first();
+        // $client = User::whereId(auth()->id())->first();
         // $user = User::whereId(319)->first();
-        $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $paymentDetail, 'bank_reference_client', 'fundrequest'));
+        // $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $paymentDetail, 'bank_reference_client', 'fundrequest'));
 
         return view('client_portal.billing.invoice_payment_confirmation', compact('invoice', 'paymentDetail', 'fundRequest', 'payableType'));
     }

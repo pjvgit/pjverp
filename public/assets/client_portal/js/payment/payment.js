@@ -1,5 +1,6 @@
 $(document).ready(function() {
     // $('#card_number').mask('0000 0000 0000 0000');
+    jQuery('#preloader').fadeOut(1000);
 });
 
 $("#card_form").validate({

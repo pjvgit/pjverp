@@ -1,3 +1,7 @@
+------------------------------------ 30-DEC-2021 ------------------------------
+ALTER TABLE `deposit_into_credit_history`
+CHANGE `payment_method` `payment_method` enum('cash','check','credit card','paypal','other','refund','withdraw','payment','card') COLLATE 'latin1_swedish_ci' NULL DEFAULT 'cash' AFTER `user_id`;
+
 ------------------------------------ 29-DEC-2021 ------------------------------
 ALTER TABLE `invoice_online_payments`
 ADD `status` enum('payment','full refund','partial refund','refund entry') NOT NULL DEFAULT 'payment' AFTER `paid_at`,
