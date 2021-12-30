@@ -1062,7 +1062,7 @@
         $('#hideoptioninput2defaultrate1').rules("add", {
             required: true,
             number: true,
-            min: 1,
+            min: 0.1,
             messages: {
                 required: " This court case has no default rate",
                 number: " This court case has no default rate",

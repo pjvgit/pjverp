@@ -4,7 +4,7 @@
     <input type="hidden" name="case_id" value="{{$case_id}}"">
     <input class="form-control" value="{{($UserMaster->id)??''}}" id="id" maxlength="250" name="id" type="hidden">
     <input class="form-control" value="{{($LeadAdditionalInfo->id)??''}}" id="id" maxlength="250" name="user_id" type="hidden">
-    <div class=" col-md-12">
+    <div class=" col-md-12" bladeFile="resources/views/lead/loadStep3.blade.php">
         
     <div id="showError3" style="display:none;"></div>      
         <div class="form-group row">

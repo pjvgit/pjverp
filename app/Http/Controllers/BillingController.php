@@ -3152,9 +3152,17 @@ class BillingController extends BaseController
                 $case_id=base64_decode($request->id);
                 $adjustment_token = $request->adjustment_token;
 
-                $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
-
+                
+                $caseStaffRates = [];
+                $defaultRate='';
+                $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
+                if(count($caseStaffData) > 0){
+                    $defaultRate=$caseStaffData[0]->rate_amount;
+                    foreach($caseStaffData as $k => $v){
+                        $caseStaffRates[$v->user_id] = $v->rate_amount;
+                    }
+                }   
                 // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
@@ -3278,9 +3286,16 @@ class BillingController extends BaseController
                 $TaskTimeEntry=TaskTimeEntry::find($request->id);
                 $case_id=$TaskTimeEntry['case_id'];
 
-                $defaultRate='';
                 $CaseMasterData = CaseMaster::find($case_id);
-
+                $caseStaffRates = [];
+                $defaultRate='';
+                $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
+                if(count($caseStaffData) > 0){
+                    $defaultRate=$caseStaffData[0]->rate_amount;
+                    foreach($caseStaffData as $k => $v){
+                        $caseStaffRates[$v->user_id] = $v->rate_amount;
+                    }
+                }  
                 // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
@@ -4189,6 +4204,7 @@ class BillingController extends BaseController
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
                     foreach($forwardedInvoices as $key => $item) {
+                        $this->updateInvoiceDraftStatus($InvoiceSave->invoice_id);
                         $item->fill(["status" => "Forwarded"])->save();
                         InvoiceHistory::create([
                             "invoice_id" => $item->id,
@@ -4799,10 +4815,12 @@ class BillingController extends BaseController
                         $CommonController->addMultipleHistory($data);
                     }
                 }
-                $Invoices->fill([
-                    'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
-                    'bill_sent_status' => 'Sent',
-                ])->save();
+                // $Invoices->fill([
+                //     'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
+                //     'bill_sent_status' => 'Sent',
+                // ])->save();
+                $this->updateInvoiceDraftStatus($request->invoice_id);
+                $this->updateInvoiceAmount($request->invoice_id);
                 session(['popup_success' => 'Sharing updated']);
                 return response()->json(['errors'=>'']);
             }else{
@@ -5282,14 +5300,15 @@ class BillingController extends BaseController
             $Invoice=Invoices::find($invoice_id);
 
             $this->updateInvoiceDraftStatus($invoice_id);
-            if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
-                $Invoice->status="Sent";
-                $Invoice->bill_sent_status="Sent";
-                $Invoice->save();
-            }
-            if($Invoice) {
-                $Invoice->fill(['is_sent' => 'yes'])->save();
-            }
+            // if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
+            //     $Invoice->status="Sent";
+            //     $Invoice->is_sent="yes";
+            //     $Invoice->bill_sent_status="Sent";
+            //     $Invoice->save();
+            // }
+            // if($Invoice) {
+            //     $Invoice->fill(['is_sent' => 'yes', "bill_sent_status" => "Sent"])->save();
+            // }
             
             $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
             
@@ -5333,7 +5352,7 @@ class BillingController extends BaseController
                 }
             }
             //check case client company is list out on contacts
-            
+            $this->updateInvoiceAmount($invoice_id);
             $filename="Invoice_".$invoice_id.'.pdf';
             $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','UsersAdditionalInfo','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice','case_client_company'));
             $pdfUrl = $this->generateInvoicePdf($PDFData, $filename);
@@ -5371,7 +5390,7 @@ class BillingController extends BaseController
                 // $files=[BASE_URL."public/download/pdf/Invoice_".$invoice_id.".pdf"];
                 // $files = [asset(Storage::url("download/pdf/Invoice_".$invoice_id.".pdf"))];
                 $files = [Storage::path("download/pdf/Invoice_".$invoice_id.".pdf")];
-                $sendEmail = $this->sendMailWithAttachment($user,$files);
+                // $sendEmail = $this->sendMailWithAttachment($user,$files);
                 
                 $invoiceHistory=[];
                 $invoiceHistory['invoice_id']=$invoice_id;
@@ -5873,6 +5892,7 @@ class BillingController extends BaseController
                 $forwardedInvoices = Invoices::whereIn("id", $request->forwarded_invoices)->get();
                 if($forwardedInvoices) {
                     foreach($forwardedInvoices as $key => $item) {
+                        $this->updateInvoiceDraftStatus($InvoiceSave->invoice_id);
                         $item->fill(["status" => "Forwarded"])->save();
                         InvoiceHistory::create([
                             "invoice_id" => $item->id,
@@ -6029,14 +6049,16 @@ class BillingController extends BaseController
         }else{
             $SharedInvoice=SharedInvoice::where("invoice_id",$request->share_invoice_id)->get();
             $FindInvoice=Invoices::find($request->share_invoice_id);
-            if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
-                $FindInvoice->status="Sent";
-                $FindInvoice->bill_sent_status="Sent";
-                $FindInvoice->save();
-            }
-            if($FindInvoice) {
-                $FindInvoice->fill(['is_sent' => 'yes',"bill_sent_status"=>"Sent"])->save();
-            }
+            // if($FindInvoice->status=="Draft" || $FindInvoice->status=="Unsent"){
+            //     $FindInvoice->status="Sent";
+            //     $FindInvoice->is_sent="yes";
+            //     $FindInvoice->bill_sent_status="Sent";
+            //     $FindInvoice->save();
+            // }
+            // if($FindInvoice) {
+            //     $FindInvoice->fill(['is_sent' => 'yes',"bill_sent_status"=>"Sent"])->save();
+            // }
+            $this->updateInvoiceAmount($request->share_invoice_id);
             $invoice_id=$FindInvoice['id'];
             foreach($SharedInvoice as $k=>$v){
                 $findUSer=User::find($v->user_id);
@@ -7092,17 +7114,20 @@ class BillingController extends BaseController
             foreach($data as $k=>$v){
                 $Invoice = Invoices::whereId($v)->with('invoiceFirstInstallment')->first();
                 if($request->status == 'Draft'){
-                    $Invoice->is_force_status=1;
-                    $Invoice->status=$request->status;
-                    $Invoice->save();    
+                    if(!in_array($Invoice->status,["Forwarded"])){
+                        $Invoice->is_force_status=1;
+                        $Invoice->status=$request->status;
+                        $Invoice->save();    
+                        session(['popup_success' => 'Selected invoices status has been updated.']);
+                    }
                 }else{
                     if(!in_array($Invoice->status,["Paid","Partial","Forwarded"])){
                         $Invoice->status=$request->status;
                         $Invoice->save();    
+                        session(['popup_success' => 'Selected invoices status has been updated.']);
                     }
                 }
             }
-            session(['popup_success' => 'Selected invoices status has been updated.']);
             return response()->json(['errors'=>'']);
             exit;  
         }  

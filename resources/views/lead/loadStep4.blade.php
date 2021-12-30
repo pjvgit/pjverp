@@ -3,7 +3,7 @@
     <input type="hidden" name="case_id" value="{{$case_id}}"">
     @csrf
              
-    <div class=" col-md-12">
+    <div class=" col-md-12" bladeFile="resources/views/lead/loadStep4.blade.php">
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
     </div>

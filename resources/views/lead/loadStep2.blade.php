@@ -6,8 +6,8 @@
     <input class="form-control" value="{{($LeadAdditionalInfo->id)??''}}" id="id" maxlength="250" name="user_id" type="hidden">
     {{-- <input type="text" name="case_id"  id="case_id" value="{{@$case_id}}"> --}}
 
-    <div class=" col-md-12">
-        <div class="form-group row">
+    <div class=" col-md-12" bladeFile="resources/views/lead/loadStep2.blade.php">
+        <div class="form-group row" >
             <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
         </div>
         <div class="form-group row">
