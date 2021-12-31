@@ -1010,7 +1010,7 @@ class BillingController extends Controller
                 else if($paymentDetail->payment_method == 'bank transfer') {
                     Log::info("bank payment");
                     // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
-                    InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $response]);
+                    InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => json_encode($data)]);
 
                     $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
