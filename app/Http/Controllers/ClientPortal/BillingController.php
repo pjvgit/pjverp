@@ -1009,7 +1009,8 @@ class BillingController extends Controller
                 } 
                 else if($paymentDetail->payment_method == 'bank transfer') {
                     Log::info("bank payment");
-                    $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data]);
 
                     $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -1022,23 +1023,27 @@ class BillingController extends Controller
                         InvoicePayment::where("id", $invoiceHistory->invoice_payment_id)->update(['status' => 0]);
 
                         // Update invoice history status
-                        $invoiceHistory->fill(['status' => '1', 'online_payment_status' => 'paid'])->save();
+                        // $invoiceHistory->fill(['status' => '1', 'online_payment_status' => 'paid'])->save();
+                        InvoiceHistory::whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
 
                         // Update invoice status and amount
-                        $invoice->fill(['online_payment_status' => 'paid'])->save();
+                        // $invoice->fill(['online_payment_status' => 'paid'])->save();
+                        Invoices::where("id", $paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
                         $this->updateInvoiceAmount($invoice->id);
-
+                        Log::info("invoice payment and history, invoice amount and status updated");
                         // Send confirmation email to client
                         $client = User::whereId($paymentDetail->user_id)->first();
                         $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail->id, 'bank_confirm_client', 'invoice'));
-
+                        Log::info("bank confirm email to client");
                         // Send confirmation email to invoice created user
                         $user = User::whereId($invoice->created_by)->first();
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user', 'invoice'));
+                        Log::info("bank confirm email to created user");
 
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user', 'invoice'));
+                        Log::info("Bank confirm email to firm owner");
                         Log::info('invoice bank transfer payment webhook successfull');
                     }
                 } else {
