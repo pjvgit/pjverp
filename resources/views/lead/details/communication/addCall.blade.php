@@ -3,7 +3,7 @@ $CommonController= new App\Http\Controllers\CommonController();
 $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(date('Y-m-d H:i:s'),Auth::User()->user_timezone)));
 ?>
 
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="myTab" role="tablist" bladefile="resources/views/lead/details/communication/addCall.blade.php">
     <li class="nav-item">
         <a class="nav-link  active show" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
             aria-controls="homeBasic" aria-selected="false">Incoming</a>
@@ -12,7 +12,6 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
         <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
             aria-controls="profileBasic" aria-selected="true">Outgoing</a>
     </li>
-
 </ul>
 <div class="tab-content" id="myTabContent">
     <div class="showError" style="display:none"></div>
@@ -22,6 +21,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             @csrf
             <input type="hidden" name="timer_value" class="timer_count">
             <input type="hidden" name="st" class="st">
+            <input type="hidden" name="lead_id" id="lead_id" value="{{$lead_id ?? ''}}">
 
             <div class="col-md-12">
                 <div class="form-group row">
@@ -70,8 +70,9 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                                 <?php } ?>
                             </optgroup>
                             <optgroup label="Potential Cases">
-                                <?php foreach($potentialCase as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                <option uType="lead" value="{{$caseLeadListVal->id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                <?php foreach($potentialCase as $caseLeadListKey=>$caseLeadListVal){?>
+                                    <option uType="lead" <?php if($lead_id == $caseLeadListVal->user_id){ echo "selected=selected"; } ?>
+                                    value="{{$caseLeadListVal->id}}" data-lead_id="{{$caseLeadListVal->user_id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup>
                         </select>
@@ -84,7 +85,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                             style="width: 100%;" placeholder="Select a called name">
                             <option></option>
                              <?php foreach($getAllFirmUser as $key=>$val){?>
-                                <option value="{{$val->id}}"> {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
+                                <option value="{{$val->id}}" <?php if($val->id == Auth::User()->id){ echo "selected=selected"; } ?> > {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
                                </option>
                                 <?php } ?>
                         </select>
@@ -130,6 +131,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             <span id="response"></span>
             @csrf
             <input type="hidden" name="timer_value" class="timer_count">
+            <input type="hidden" name="lead_id" id="lead_id" value="{{$lead_id ?? ''}}">
 
             <div class="col-md-12">
                 <div class="form-group row">
@@ -179,7 +181,8 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                             </optgroup>
                             <optgroup label="Potential Cases">
                                 <?php foreach($potentialCase as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                <option uType="lead" value="{{$caseLeadListVal->id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                <option uType="lead" <?php if($lead_id == $caseLeadListVal->user_id){ echo "selected=selected"; } ?>
+                                value="{{$caseLeadListVal->id}}" data-lead_id="{{$caseLeadListVal->user_id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup>
                         </select>
@@ -192,7 +195,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                             style="width: 100%;" placeholder="Select a called name">
                             <option></option>
                              <?php foreach($getAllFirmUser as $key=>$val){?>
-                                <option value="{{$val->id}}"> {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
+                                <option value="{{$val->id}}" <?php if($val->id == Auth::User()->id){ echo "selected=selected"; } ?> > {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
                                </option>
                                 <?php } ?>
                         </select>
@@ -348,6 +351,9 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             theme: "classic",
             dropdownParent: $("#addCall"),
         }).on("change", function (e) {
+            if($(this).select2().find(":selected").data("lead_id") > 0) {
+                $("#lead_id").val($(this).select2().find(":selected").data("lead_id"));
+            }
             var uType=$("#case option:selected").attr('uType');
             if(uType=="case"){
                 $(".timewidget").show();
@@ -685,4 +691,18 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
     function getButton(type){
         $(".st").val(type);
     }
+
+    $("#case").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            // $("#rate_type_field_id").val('hr');
+        }
+        
+        $("#case").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#addNewTimeEntry"),
+        });
+    });
 </script>

@@ -1302,14 +1302,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
         })
     }
-    function loadAddTaskPopup(case_id=null) {
+    function loadAddTaskPopup(case_id=null, lead_id=null) {
         $("#addTaskArea").html('<img src="{{LOADER}}""> Loading...');
         $(function () {
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/loadAddTaskPopup", // json datasource
                 data: {
-                    "user_id": '',
+                    "user_id":lead_id,
                     "case_id":case_id
                 },
                 success: function (res) {

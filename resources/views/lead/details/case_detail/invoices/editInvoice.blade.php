@@ -5,7 +5,7 @@
     <input class="form-control" value="{{$userData->id}}"  id="dateadded" maxlength="250" name="lead_id" type="hidden">
 
     <input class="form-control" value="{{$invoice_id}}"  id="dateadded" maxlength="250" name="invoice_id" type="hidden">
-    <div class="row">
+    <div class="row" bladefile="resources/views/lead/details/case_detail/invoices/editInvoice.blade.php">
         <div class="col-md-6 form-group mb-3">
             <label for="firstName1">Lead</label>
             <input class="form-control" value="{{$userData->first_name}} {{$userData->last_name}}" disabled id="dateadded" maxlength="250" name="lead_name"

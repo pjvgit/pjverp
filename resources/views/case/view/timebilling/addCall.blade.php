@@ -3,7 +3,7 @@ $CommonController= new App\Http\Controllers\CommonController();
 $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(date('Y-m-d H:i:s'),Auth::User()->user_timezone)));
 ?>
 
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="myTab" role="tablist" bladefile="resources/views/case/view/timebilling/addCall.blade.php">
     <li class="nav-item">
         <a class="nav-link  active show" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
             aria-controls="homeBasic" aria-selected="false">Incoming</a>
@@ -84,7 +84,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                             style="width: 100%;" placeholder="Select a called name">
                             <option></option>
                              <?php foreach($getAllFirmUser as $key=>$val){?>
-                                <option value="{{$val->id}}"> {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
+                                <option value="{{$val->id}}" <?php if($val->id == Auth::User()->id){ echo "selected=selected"; } ?> > {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
                                </option>
                                 <?php } ?>
                         </select>
@@ -191,7 +191,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                             style="width: 100%;" placeholder="Select a called name">
                             <option></option>
                              <?php foreach($getAllFirmUser as $key=>$val){?>
-                                <option value="{{$val->id}}"> {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
+                                <option value="{{$val->id}}" <?php if($val->id == Auth::User()->id){ echo "selected=selected"; } ?> > {{substr($val->first_name,0,50)}} {{substr($val->last_name,0,50)}}
                                </option>
                                 <?php } ?>
                         </select>

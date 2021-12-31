@@ -6,7 +6,7 @@
 
     <span id="response"></span>
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/lead/details/editLead.blade.php">
        
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Name</label>

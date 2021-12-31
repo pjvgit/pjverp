@@ -14,12 +14,16 @@ if(isset($_GET['type'])){
 }
 
 ?>
-<div class="row ">
+<div  id="printHtml">
+<div class="row" bladefile="resources/views/lead/details/communication/calls.blade.php">
     <div class="col">
+    <h3 id="hiddenLable">{{substr($LeadData['leadname'],0,200)}}</h3>
         <div class="float-right">
-            <a data-toggle="modal" data-target="#addCaseNote" data-placement="bottom" href="javascript:;">
-                <button class="btn btn-outline-secondary  btn-rounded m-1 px-3" type="button">Tell us what you
-                    think</button>
+            <button onclick="printEntry();return false;" class="btn btn-link text-black-50 pendo-case-print d-print-none">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
+                <button onclick="setFeedBackForm('single','Call log cases');" type="button" class="feedback-button btn btn-outline-secondary  btn-rounded m-1 px-3" type="button">Tell us what you think</button>
             </a>
             <a data-toggle="modal" data-target="#addCall" data-placement="bottom" href="javascript:;">
                 <button class="btn btn-primary btn-rounded m-1 px-3" type="button" onclick="addCall();">Add
@@ -28,6 +32,23 @@ if(isset($_GET['type'])){
         </div>
     </div>
 </div>
+<?php
+if($totalCalls==""){
+?>
+<div class="call-log-content w-100 text-center p-5 h-100">
+    <i class="fas fa-phone-alt my-4 fa-5x"></i>
+    <h1 class="font-weight-bold">Never miss a phone message </h1>
+    <p>Say goodbye to message pads and spreadsheets. Increase efficiency and improve firm-wide communication by
+        recording the details of all phone communication right in {{config('app.name')}}.</p>
+    <a data-toggle="modal" data-target="#addCall" data-placement="bottom" href="javascript:;">
+        <button class="btn btn-primary btn-rounded m-1 px-3" type="button" onclick="addCall();">Add
+            Call</button>
+    </a>
+    <button type="button" class="btn btn-outline-secondary  btn-rounded m-1 px-3">Learn More</button>
+</div>
+
+<?php
+}else{?>
 <form class="filterBy" id="filterBy" name="filterBy" method="GET">
     <div class="row m-1">
 
@@ -76,21 +97,7 @@ if(isset($_GET['type'])){
     </div>
 
 </form>
-<?php
-if($totalCalls<=0){
-?>
-<div class="call-log-content w-100 text-center p-5 h-100">
-    <i class="fas fa-phone-alt my-4 fa-5x"></i>
-    <h1 class="font-weight-bold">Never miss a phone message </h1>
-    <p>Say goodbye to message pads and spreadsheets. Increase efficiency and improve firm-wide communication by
-        recording the details of all phone communication right in {{config('app.name')}}.</p>
-    <button type="button" data-testid="empty-state-add-call" class="btn btn-primary btn-rounded m-1 px-3">Add
-        Call</button>
-    <button type="button" class="btn btn-outline-secondary  btn-rounded m-1 px-3">Learn More</button>
-</div>
 
-<?php
-}else{?>
 <div class="table-responsive">
     <table class="display table table-striped table-bordered" id="callList" style="width:100%">
         <thead>
@@ -109,3 +116,22 @@ if($totalCalls<=0){
 </div>
 <?php }
 ?>
+</div>
+@section('page-js-inner')
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+<script>
+function printEntry()
+    {
+        $('#hiddenLable').show();        
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
+        window.print(canvas);
+        // w.close();
+        $(".printDiv").html('');
+        $('#hiddenLable').hide();
+        window.location.reload();
+        return false;  
+    }
+    $('#hiddenLable').hide();
+</script>
+@endsection

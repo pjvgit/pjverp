@@ -315,7 +315,7 @@ class LeadController extends BaseController
             $UserMaster->postal_code=$request->postal_code;
             $UserMaster->country=$request->country;
             $UserMaster->password='';
-            $UserMaster->firm_name=Auth::User()->firm_name;
+            $UserMaster->firm_id=Auth::User()->firm_name;
             $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
@@ -999,8 +999,9 @@ class LeadController extends BaseController
         $LeadAdditionalInfo=LeadAdditionalInfo::where("user_id",$id)->first();
         $getChildUsers=$this->getParentAndChildUserIds();
         $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
-        return view('lead.loadStep2',compact('practiceAreaList','caseStageList','UserMaster','id','LeadAdditionalInfo'));
+        $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();       
+        $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();   
+        return view('lead.loadStep2',compact('practiceAreaList','caseStageList','UserMaster','id','LeadAdditionalInfo','firmAddress'));
     }
     // Save step 2 data to database.
     public function saveStep2(Request $request)
@@ -2644,12 +2645,7 @@ class LeadController extends BaseController
             abort(404);
         }
         if(\Route::current()->getName()=="communications/calls"){
-
-            $Calls = Calls::select("calls.*",DB::raw('CONCAT(u1.first_name, " ",u1.last_name) as created_name'),DB::raw('CONCAT(u2.first_name, " ",u2.last_name) as caller_full_name'),DB::raw('CONCAT(u3.first_name, " ",u3.last_name) as call_for_name'));
-            $Calls = $Calls->leftJoin('users as u1','calls.created_by','=','u1.id');        
-            $Calls = $Calls->leftJoin('users as u2','calls.caller_name','=','u2.id');        
-            $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');        
-            $totalCalls=$Calls->count();
+            $totalCalls = Calls::where('lead_id', $user_id)->count();
             
             $getAllFirmUser=firmUserList();
             
@@ -6949,9 +6945,9 @@ class LeadController extends BaseController
         $invoice_id=base64_decode($request->id);
         $findInvoice=Invoices::find($invoice_id);
         if(empty($findInvoice)){
-            return view('pages.404');
+            abort(404);
         }else{
-            $LeadDetails=User::find($findInvoice['user_id']);
+            $LeadDetails=User::where("id",$findInvoice['user_id'])->withTrashed()->firstOrFail();
             $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$findInvoice['user_id'])->first();
             $firmData=Firm::find($userData['firm_name']);
             return view('lead.details.case_detail.invoices.viewInvoice',compact('userData','firmData','LeadDetails','invoice_id','findInvoice'));
@@ -7087,8 +7083,15 @@ class LeadController extends BaseController
         $ClientAndLead = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
         //Get potential case list
-        $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("users.*","lead_additional_info.*")->where("users.user_type","5")->where("users.user_level","5")->where("lead_additional_info.is_converted","no")->where("users.firm_name",Auth::User()->firm_name)->where("lead_additional_info.user_status","1")->get();
-
+        $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
+        ->select("users.first_name","users.last_name",'lead_additional_info.id','lead_additional_info.user_id')
+        ->where("users.user_type","5")
+        ->where("users.user_level","5")
+        ->where("lead_additional_info.is_converted","no")
+        ->where("users.firm_name",Auth::User()->firm_name)
+        ->where("lead_additional_info.user_status","1")
+        ->get();
+        
         //Get Actual case list
         $CaseMasterData = CaseMaster::select("*");
          //If Parent user logged in then show all child case to parent
@@ -7100,14 +7103,15 @@ class LeadController extends BaseController
         }
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
         
-         $getAllFirmUser=firmUserList();
-         $case_id='';
-         if(isset($request->case_id)){
+        $getAllFirmUser=firmUserList();
+        $case_id='';
+        if(isset($request->case_id) && $request->case_id != ''){
             $case_id=$request->case_id;
             return view('case.view.timebilling.addCall',compact('ClientAndLead','potentialCase','CaseMasterData','getAllFirmUser','case_id'));
-         }else{
-            return view('lead.details.communication.addCall',compact('ClientAndLead','potentialCase','CaseMasterData','getAllFirmUser'));
-         }
+        }else{
+            $lead_id=$request->id;
+            return view('lead.details.communication.addCall',compact('ClientAndLead','potentialCase','CaseMasterData','getAllFirmUser','lead_id'));
+        }
     }
     public function getMobileNumber(Request $request)
     {
@@ -7144,7 +7148,9 @@ class LeadController extends BaseController
                 $callSave->caller_name=$request->caller_name; 
             }
             $callSave->phone_number=$request->phone_number; 
-            $callSave->case_id=$request->case; 
+            $callSave->case_id=$request->case;
+            $callSave->lead_id=$request->lead_id;
+            $callSave->firm_id=Auth::User()->firm_name; 
             $callSave->call_for=$request->call_for; 
             $callSave->message=$request->message; 
             if($request->call_resolved=="on"){
@@ -7173,6 +7179,10 @@ class LeadController extends BaseController
         $Calls = $Calls->leftJoin('users as u2','calls.caller_name','=','u2.id');        
         $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');   
 
+        if(isset($requestData['user_id']) && $requestData['user_id']!=''){
+            $Calls = $Calls->where("calls.lead_id",$requestData['user_id']);
+        }
+        
         if(isset($requestData['callfor']) && $requestData['callfor']!=''){
             $Calls = $Calls->where("calls.call_for",$requestData['callfor']);
         }
@@ -7224,7 +7234,14 @@ class LeadController extends BaseController
         $ClientAndLead = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
         //Get potential case list
-        $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("users.*","lead_additional_info.*")->where("users.user_type","5")->where("users.user_level","5")->where("lead_additional_info.is_converted","no")->where("users.firm_name",Auth::User()->firm_name)->where("lead_additional_info.user_status","1")->get();
+        $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
+        ->select("users.first_name","users.last_name",'lead_additional_info.id','lead_additional_info.user_id')
+        ->where("users.user_type","5")
+        ->where("users.user_level","5")
+        ->where("lead_additional_info.is_converted","no")
+        ->where("users.firm_name",Auth::User()->firm_name)
+        ->where("lead_additional_info.user_status","1")
+        ->get();
 
         //Get Actual case list
         $CaseMasterData = CaseMaster::select("*");
@@ -7262,7 +7279,7 @@ class LeadController extends BaseController
 
             $callSave = Calls::find($request->call_id);
             $callSave->call_date=$callDate; 
-            $callSave->call_time=$startDateTim; 
+            $callSave->call_time=$startDateTime; 
             $ClientAndLeadExist = User::select("first_name","last_name","id","user_level","user_title")->where("id",$request->caller_name)->first();
             if(empty($ClientAndLeadExist)){
                 $callSave->caller_name=NULL;
@@ -7272,6 +7289,8 @@ class LeadController extends BaseController
             }
             $callSave->phone_number=$request->phone_number; 
             $callSave->case_id=$request->case; 
+            $callSave->lead_id=$request->lead_id;
+            $callSave->firm_id=Auth::User()->firm_name; 
             $callSave->call_for=$request->call_for; 
             $callSave->message=$request->message; 
             if($request->call_resolved=="on"){

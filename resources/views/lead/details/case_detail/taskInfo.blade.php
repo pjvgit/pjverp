@@ -13,9 +13,9 @@ $CommonController= new App\Http\Controllers\CommonController();
             <a  href="{{BASE_URL}}leads/{{$user_id}}/case_details/tasks?show=all">
                 <button class="btn btn-outline-secondary m-1 btn-rounded" id="btn_pause_resume" type="button" >Show All Task</button>
             </a>
-        <?php } ?>   
-            <a data-toggle="modal" data-target="#loadAddSingleTaskAddPopup" data-placement="bottom" href="javascript:;">
-               <button class="btn btn-outline-secondary m-1 btn-rounded" type="button" onclick="loadAddTaskPopup1({{$LeadData['user_id']}});">Add Task</button>
+        <?php } ?>
+            <a data-toggle="modal" data-target="#loadAddTaskPopup" data-placement="bottom" href="javascript:;">
+               <button class="btn btn-outline-secondary m-1 btn-rounded" type="button" onclick="loadAddTaskPopup('',{{$LeadData['user_id']}});">Add Task</button>
            </a>
         </div>
     </div>

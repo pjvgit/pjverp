@@ -20,11 +20,14 @@ use Illuminate\Support\Facades\Log;
 /**
  * Get lead list for add task
  */
-function userLeadList()
+function userLeadList($lead_id = null)
 {
     $authUser = auth()->user();
-    $leades = User::where("firm_name", $authUser->firm_name)->where("user_type", 5)->where("user_level","5")->whereHas("userLeadAdditionalInfo", function($query) {
+    $leades = User::where("firm_name", $authUser->firm_name)->where("user_type", 5)->where("user_level","5")->whereHas("userLeadAdditionalInfo", function($query) use ($lead_id){
         $query->where("is_converted", "no")->where("user_status", 1);
+        if($lead_id != null) {
+            $query->orWhere("user_id", $lead_id);
+        }
     });
     // As per user permission all user can access all lead
     /* if($authUser->parent_user != 0) {

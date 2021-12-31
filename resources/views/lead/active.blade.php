@@ -9,7 +9,7 @@ if(isset($_GET['ld'])){
 }
 
 ?>
-<div class="row">
+<div class="row" bladefile="resources/views/lead/active.blade.php">
     <div class="col-md-12">
         <div class="card text-left">
             <div class="card-body">
@@ -321,7 +321,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </div>
 @endsection
 @section('page-js')
-
+<script src="{{ asset('assets/js/custom/lead/converttocase.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     localStorage.setItem("currentRow","");
     if(localStorage.getItem("activeLead")==""){
@@ -665,21 +665,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         }
     }  
 
-    function loadStep1(id) {
-        $("#preloader").show();
-        $("#step-1").html('<img src="{{LOADER}}"> Loading...');
-        $(function () {
-            $.ajax({
-                type: "POST",
-                url:  baseUrl +"/leads/loadStep1", // json datasource
-                data: {"id":id},
-                success: function (res) {
-                    $("#step-1").html(res);
-                    $("#preloader").hide();
-                }
-            })
-        })
-    }
+    // function loadStep1(id) {
+    //     $("#preloader").show();
+    //     $("#step-1").html('<img src="{{LOADER}}"> Loading...');
+    //     $(function () {
+    //         $.ajax({
+    //             type: "POST",
+    //             url:  baseUrl +"/leads/loadStep1", // json datasource
+    //             data: {"id":id},
+    //             success: function (res) {
+    //                 $("#step-1").html(res);
+    //                 $("#preloader").hide();
+    //             }
+    //         })
+    //     })
+    // }
 
     // function showDropdown(id){
 

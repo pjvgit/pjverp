@@ -5,7 +5,7 @@
 
     <span id="response"></span>
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/lead/details/case_detail/editPotenatialCase.blade.php">
        
         <div class="form-group row addmore">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Case Name</label>

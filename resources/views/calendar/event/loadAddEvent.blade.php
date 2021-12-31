@@ -353,7 +353,7 @@
                         <div class="fieldGroup">
                         </div>
                         <div class="text-muted mb-2">You can only edit reminders that you created. Reminders assigned to you by another firm user will need to be edited by the creator.</div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
+                        <div><button type="button" class="btn btn-link p-0 add-loadAddEvent-more">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
@@ -492,8 +492,8 @@
         $(".repeat_monthly").hide();
         $(".repeat_yearly").hide();
         // $(".hide").hide();
-        $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() + '</div>';
+        $(".add-loadAddEvent-more").click(function () {
+            var fieldHTML = '<div class="form-group fieldGroup">' + $(".add_more_reminder_div").html() + '</div>';
             $('body').find('#loadAddEventPopup .fieldGroup:last').before(fieldHTML);
             // $('body').find('#reminder_user_type:last').attr("ownid",$(".fieldGroup").length);
             // $('body').find('#reminder_user_type:last').attr("id",$(".fieldGroup").length);

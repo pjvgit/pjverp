@@ -22,6 +22,7 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             @csrf
             <input class="" value="{{$Calls['id']}}" maxlength="250" name="call_id" type="hidden">
             <input class="" value="0" maxlength="250" name="call_type" type="hidden">
+            <input type="hidden" name="lead_id" id="lead_id" value="{{$Calls['lead_id'] ?? ''}}">
 
             <div class="col-md-12">
                 <div class="form-group row">
@@ -71,7 +72,8 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
                             </optgroup>
                             <optgroup label="Potential Cases">
                                 <?php foreach($potentialCase as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                <option  <?php if($caseLeadListVal->id==$Calls['case_id']){ echo "selected=selected"; } ?> uType="lead" value="{{$caseLeadListVal->id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                <option uType="lead" <?php if($caseLeadListVal->id==$Calls['case_id']){ echo "selected=selected"; } ?> 
+                                value="{{$caseLeadListVal->id}}" data-lead_id="{{$caseLeadListVal->user_id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup>
                         </select>
@@ -132,6 +134,7 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             @csrf
             <input class="" value="{{$Calls['id']}}" maxlength="250" name="call_id" type="hidden">
             <input class="" value="1" maxlength="250" name="call_type" type="hidden">
+            <input type="hidden" name="lead_id" id="lead_id" value="{{$Calls['lead_id'] ?? ''}}">
 
             <div class="col-md-12">
                 <div class="form-group row">
@@ -182,7 +185,8 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
                             </optgroup>
                             <optgroup label="Potential Cases">
                                 <?php foreach($potentialCase as $caseLeadListKey=>$caseLeadListVal){ ?>
-                                <option  <?php if($caseLeadListVal->id==$Calls['case_id']){ echo "selected=selected"; } ?> uType="lead" value="{{$caseLeadListVal->id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
+                                <option uType="lead" <?php if($caseLeadListVal->id==$Calls['case_id']){ echo "selected=selected"; } ?> 
+                                value="{{$caseLeadListVal->id}}" data-lead_id="{{$caseLeadListVal->user_id}}">Potential Case: {{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                                 <?php } ?>
                             </optgroup>
                         </select>
@@ -297,6 +301,30 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             placeholder: "Select a case to associate this call with...",
             theme: "classic",
             dropdownParent: $("#editCall"),
+        }).on("change", function (e) {
+            if($(this).select2().find(":selected").data("lead_id") > 0) {
+                $("#lead_id").val($(this).select2().find(":selected").data("lead_id"));
+            }
+            var uType=$("#case option:selected").attr('uType');
+            if(uType=="case"){
+                $(".timewidget").show();
+                $("#t").timer({
+                    action: 'start'
+                });
+                $("#it").timer({
+                    action: 'start'
+                });
+                $(".save_and_add_time_entry").show();
+            }else{
+                $("#t").timer({
+                    action: 'reset'
+                });
+                $("#it").timer({
+                    action: 'reset'
+                });
+                $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
+            }
         });
         $("#call_for").select2({
             allowClear: true,
@@ -316,7 +344,29 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             placeholder: "Select a case to associate this call with...",
             theme: "classic",
             dropdownParent: $("#editCall"),
+        }).on("change", function (e) {
+            var uType=$("#case_out option:selected").attr('uType');
+            if(uType=="case"){
+                $(".timewidget").show();
+                $("#t").timer({
+                    action: 'start'
+                });
+                $("#it").timer({
+                    action: 'start'
+                });
+                $(".save_and_add_time_entry").show();
+            }else{
+                $("#t").timer({
+                    action: 'reset'
+                });
+                $("#it").timer({
+                    action: 'reset'
+                });
+                $(".timewidget").hide();
+                $(".save_and_add_time_entry").hide();
+            }
         });
+        
         $("#call_for_out").select2({
             allowClear: true,
             placeholder: "Seach...",
@@ -592,4 +642,18 @@ $callDateTime = date("Y-m-d H:i:s", strtotime($CommonController->convertUTCToUse
             }
         })
     }
+
+    $("#staff_user").on("select2:select", function(e) {
+        if($(this).select2().find(":selected").data("flatfees") > 0) {
+            $("#rate-field-id").val($(this).select2().find(":selected").data("flatfees"));
+            // $("#rate_type_field_id").val('hr');
+        }
+        
+        $("#staff_user").select2({
+            placeholder: "Select...",
+            theme: "classic",
+            allowClear: true,
+            dropdownParent: $("#addNewTimeEntry"),
+        });
+    });
 </script>

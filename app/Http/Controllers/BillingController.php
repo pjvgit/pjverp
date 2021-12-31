@@ -8174,11 +8174,13 @@ class BillingController extends BaseController
           $invoiceID=base64_decode($request->id);
           // echo Hash::make($invoiceID);
           $findInvoice=Invoices::find($invoiceID);
+        //   dd($findInvoice);
           if(empty($findInvoice) || $findInvoice->created_by!=Auth::User()->id)
           {
               return view('pages.404');
           }else{
-              $LeadDetails=User::find($findInvoice['user_id']);
+              $LeadDetails=User::where("id",$findInvoice['user_id'])->withTrashed()->firstOrFail();
+              
               $firmData = Firm::select("firm.*","firm_address.*","countries.name as countryname")->leftJoin('firm_address','firm_address.firm_id',"=","firm.id")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->first();
   
               $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoiceID)->orderBy("id","DESC")->get();
