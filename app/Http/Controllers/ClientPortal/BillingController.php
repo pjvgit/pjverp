@@ -971,19 +971,21 @@ class BillingController extends Controller
             if($paymentDetail) {
                 Log::info("Invoice online payment detail: ". @$paymentDetail);
                 if($paymentDetail->payment_method == 'cash') {
-                    $paymentDetail->fill(['conekta_payment_status' => $response->object->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    Log::info("cash payment");
+                    $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                     $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
                     if($invoice && $invoiceHistory) {
+                        Log::info("cash invoice & invoice history found");
                         // Update invoice payment status
                         InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
                         // Update invoice history status
-                        $invoiceHistory->fill(['status' => '1', 'online_payment_status' => $response->object->payment_status])->save();
+                        $invoiceHistory->fill(['status' => '1', 'online_payment_status' => 'paid'])->save();
 
                         // Update invoice status and amount
-                        $invoice->fill(['online_payment_status' => $response->object->payment_status])->save();
+                        $invoice->fill(['online_payment_status' => 'paid'])->save();
                         $this->updateInvoiceAmount($invoice->id);
 
                         // Send confirmation email to client
@@ -1001,11 +1003,13 @@ class BillingController extends Controller
                     }
                 } 
                 else if($paymentDetail->payment_method == 'bank transfer') {
+                    Log::info("bank payment");
                     $paymentDetail->fill(['conekta_payment_status' => $response->object->payment_status, 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
 
                     $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
                     if($invoice && $invoiceHistory) {
+                        Log::info("bank invoice & invoice history found");
                         // Update invoice payment status
                         InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
@@ -1030,7 +1034,7 @@ class BillingController extends Controller
                         Log::info('invoice bank transfer payment webhook successfull');
                     }
                 } else {
-
+                    Log::info("Invoice order paid else");
                 }
             } else {
                 $paymentDetail = RequestedFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
