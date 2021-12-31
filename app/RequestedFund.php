@@ -4,9 +4,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Http\Controllers\CommonController;
 use Illuminate\Support\Facades\Log;
 
 class RequestedFund extends Authenticatable

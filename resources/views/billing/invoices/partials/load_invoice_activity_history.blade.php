@@ -188,7 +188,10 @@
                             $print="";
                         }  
                         if($value->acrtivity_title=="Payment Received" && $value->status==1){
-                            $refund='<a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$value->id.');"><button type="button"  class="btn btn-link ">Refund</button></a>|<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
+                            $refund='<a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$value->id.');"><button type="button"  class="btn btn-link ">Refund</button></a>';
+                            if($value->online_payment_status != "paid") {
+                                $refund .= '|<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
+                            }
                         }else if($value->acrtivity_title=="Payment Received" && $value->status=2){
                             $refund='';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
