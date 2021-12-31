@@ -1,6 +1,6 @@
 @if($item->type == "invoices")
 <li class="list-row">
-    <a href="{{ route('bills/invoices/view',base64_encode($item->activity_for)) }}"><i class="fas fa-dollar-sign list-row__icon"></i>
+    <a href="{{ route('client/bills/detail',base64_encode($item->activity_for)) }}"><i class="fas fa-dollar-sign list-row__icon"></i>
         <div class="list-row__body">
             <span class="list-row__wrappable-content">{{ @$item->createdByUser->full_name}} {{ $item->activity }} 
                 <span class="u-color-primary">#{{sprintf('%06d', $item->activity_for)}}</span>

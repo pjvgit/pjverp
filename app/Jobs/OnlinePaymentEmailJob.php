@@ -42,6 +42,7 @@ class OnlinePaymentEmailJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("online payment job enter: ". $this->userType);
         $firmData = Firm::find($this->onlinePayment->firm_id); 
         $getTemplateData = EmailTemplate::find($this->emailTemplateId);
         Mail::to($this->user->email)->send((new OnlinePaymentMail($this->payableRecord, $firmData, $this->user, $getTemplateData, $this->userType, $this->onlinePayment, $this->payableType)));
