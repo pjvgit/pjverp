@@ -28,7 +28,8 @@
                             <option uType="lead" value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,100)}} {{substr($caseLeadListVal->last_name,0,100)}}</option>
                             <?php } ?> --}}
                             @forelse ($caseLeadList as $key => $item)
-                                <option uType="lead" value="{{ $key }}">{{ $item }}</option>
+                                <option uType="lead" <?php if(isset($lead_id) && $lead_id!="" && $key==$lead_id){ echo "selected=selected"; } ?>
+                                 value="{{ $key }}">{{ $item }}</option>
                             @empty
                             @endforelse
                         </optgroup>
@@ -191,6 +192,9 @@
 <script src="{{ asset('assets\js\custom\task\addtask.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        <?php if($lead_id != ''){?>
+        changeCaseUser111();
+        <?php } ?>
         $( "#sortable" ).sortable();
         $("#HideShowNonlink").hide();
         loadDefaultContent();
@@ -483,7 +487,7 @@
         })
     }
     function changeCaseUser111() {
-        //beforeLoader();
+        beforeLoader();
         $("#text_lead_id").val('');
         $("#text_case_id").val('');
         var uType=$("#case_or_lead option:selected").attr('uType');

@@ -123,7 +123,8 @@ td,th{
 }
 </style>
 
-@include('case.view.timebilling.CommunicationCommonPopup')
+<!-- @include('case.view.timebilling.CommunicationCommonPopup') -->
+@include('lead.details.communication.CommunicationCommonPopup')
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {

@@ -1271,7 +1271,7 @@ class CaseController extends BaseController
         $case_id=$request->case_id;
         $CaseMaster = CaseMaster::where("id",$case_id)->first();
         $requestData= $_REQUEST;
-        $timeSlot=explode("-",$requestData['time_slot']);
+        $timeSlot=explode(" - ",$requestData['time_slot']);
         $from=$timeSlot[0];
         $to=$timeSlot[1];
         $timeTotalBillable=$timeTotalNonBillable=$timeTotalNonBillableHours=$timeTotalBillableHours=$invoiceEntry=$invoiceEntryHours=0;

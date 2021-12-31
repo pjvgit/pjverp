@@ -21,7 +21,7 @@
 <div id="deleteCallLog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
-        <form class="deleteCallLogForm" id="deleteCallLogForm" name="deleteCallLogForm" method="POST">
+        <form class="deleteCallLogFormCommon" id="deleteCallLogFormCommon" name="deleteCallLogFormCommon" method="POST">
             @csrf
            
 
@@ -112,7 +112,8 @@
                 type: "POST",
                 url: baseUrl + "/leads/addCall", // json datasource
                 data: {
-                    'id': ''
+                    'case_id': "{{$CaseMaster['case_id'] ?? ''}}",
+                    'id': "{{$user_id}}",
                 },
                 success: function (res) {
                     $("#addCallArea").html(res);
@@ -152,7 +153,7 @@
                 type: "POST",
                 url: baseUrl + "/leads/loadAddTaskPopup", // json datasource
                 data: {
-                    "user_id": "{{$user_id}}"
+                    'case_user_id': "{{$CaseMaster['case_id'] ?? $user_id}}"
                 },
                 success: function (res) {
                     $("#addTaskFromLogArea").html('');

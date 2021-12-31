@@ -224,6 +224,7 @@ class TaskController extends BaseController
     public function loadAddTaskPopup(Request $request)
     {
         $case_id=$request->case_id;
+        $lead_id=$request->user_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
@@ -245,7 +246,7 @@ class TaskController extends BaseController
         $currentDateTime=$this->getCurrentDateAndTime();
          //Get event type 
          $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
-         return view('task.loadAddTaskPopup',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList'));          
+         return view('task.loadAddTaskPopup',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id'));          
     }
     public function loadCaseLinkedStaffForTask(Request $request)
       {
@@ -711,7 +712,7 @@ class TaskController extends BaseController
             $from_view="yes";
         }
         // $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
-        $caseLeadList = userLeadList();
+        $caseLeadList = userLeadList($Task->lead_id);
 
          return view('task.loadEditTaskPopup',compact('caseLeadList','CaseMasterClient','CaseMasterData','task_id','Task','TaskChecklist','taskReminderData','from_view'));          
     }

@@ -76,8 +76,9 @@
             </label>
             <div class="col-md-10 form-group mb-3">
                 <select id="case_office" name="case_office" class="form-control custom-select col">
-                    <option value="1">Primary</option>
-                    
+                    <?php  foreach($firmAddress as $k=>$v){?>
+                    <option <?php if($v->id == $LeadAdditionalInfo->office ){ echo "selected=selected"; }?> value="{{$v->id}}">{{$v->office_name}}</option>
+                    <?php } ?>                    
                 </select>
             </div>
 
@@ -85,7 +86,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Description</label>
             <div class="col-md-10 form-group mb-3">
-                <textarea name="case_description" class="form-control" rows="5"></textarea>
+                <textarea name="case_description" class="form-control" rows="5">{{$LeadAdditionalInfo->potential_case_description}}</textarea>
             </div>
         </div>
         @if(IsCaseSolEnabled() == 'yes')
@@ -127,7 +128,7 @@
             </div>
         </div>
        <div class="fieldGroupCopy copy hide" style="display: none;">
-            <div class="col-md-2 form-group mb-3">
+            <div class="col-md-3 form-group mb-3">
                 <select id="reminder_type" name="reminder_type[]" class="form-control custom-select  ">                    
                 @foreach(getEventReminderTpe() as $k =>$v)
                         <option value="{{$k}}">{{$v}}</option>
@@ -149,7 +150,7 @@
             <label for="inputEmail3" class="col-sm-2 col-form-label">Conflict Check</label>
             <div class="col-md-10 form-group mb-3">
                 <label class="switch pr-5 switch-success mr-3"><span>Completed</span>
-                    <input type="checkbox" name="conflict_check" id="conflict_check"><span class="slider"></span>
+                    <input type="checkbox" <?php if($LeadAdditionalInfo->conflict_check=="yes"){ echo "checked=checked"; }?>  name="conflict_check" id="conflict_check"><span class="slider"></span>
                 </label>
 
             </div>
@@ -158,7 +159,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-2 col-form-label">Conflict Check Notes</label>
             <div class="col-md-10 form-group mb-3">
-                <textarea name="conflict_check_description" class="form-control" rows="5"></textarea>
+                <textarea name="conflict_check_description" class="form-control" rows="5">{{$LeadAdditionalInfo->conflict_check_description}}</textarea>
             </div>
         </div>
         <a class="ml-2" href="javascript:void(0);"  onclick="goBack()" rel="noopener noreferrer">Go back</a>

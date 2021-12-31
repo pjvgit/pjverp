@@ -314,7 +314,7 @@ if(isset($_GET['type'])){
                                 </a>
                             </div>
                         </div>
-                        <hr class="mt-2">
+                        <hr class="mt-2 mb-2">
                         <?php
                         // if(Route::currentRouteName()=="communications/text_messages"){
                         ?>
@@ -875,7 +875,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
 @section('page-js')
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
-<script src="{{ asset('assets/js/custom/lead/converttocase.js') }}"></script>
+<script src="{{ asset('assets/js/custom/lead/converttocase.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
   function myFunction(id) {
     var links=$("#"+id).attr("link");
@@ -1376,7 +1376,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     $('td:eq(5)', nRow).html('<div class="d-flex align-items-center">'+downloadOption+'</div>');
 
-                    var addTaskOption='<a  data-toggle="modal"  data-target="#addTaskFromLog" onclick="addTaskFromLog('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
+                    var addTaskOption='<a  data-toggle="modal"  data-target="#loadAddTaskPopup" onclick="loadAddTaskPopup('+null+','+aData.lead_id+');" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
 
 
                     var editOption='<a  data-toggle="modal"  data-target="#editCall" onclick="editCall('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Edit Call Log"><i class="fas fa-pen align-middle" data="MyText"></i></span></a>';
@@ -1631,51 +1631,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             }
         });
     });
-    $('#deleteCallLogForm').submit(function (e) {
-            beforeLoader();
-            e.preventDefault();
-
-            if (!$('#deleteCallLogForm').valid()) {
-                afterLoader();
-                return false;
-            }
-            var dataString = '';
-            dataString = $("#deleteCallLogForm").serialize();
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/leads/deleteCallLog", // json datasource
-                data: dataString,
-                beforeSend: function (xhr, settings) {
-                    settings.data += '&delete=yes';
-                },
-                success: function (res) {
-                    if (res.errors != '') {
-                        $('.showError').html('');
-                        var errotHtml =
-                            '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                        $.each(res.errors, function (key, value) {
-                            errotHtml += '<li>' + value + '</li>';
-                        });
-                        errotHtml += '</ul></div>';
-                        $('.showError').append(errotHtml);
-                        $('.showError').show();
-
-                        afterLoader();
-                        return false;
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    afterLoader();
-                }
-            });
-        });
 
         $("#client_fileupload").on("change", function() {
             var fileName = $(this).val();
