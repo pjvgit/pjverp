@@ -1010,11 +1010,9 @@ class BillingController extends Controller
                 else if($paymentDetail->payment_method == 'bank transfer') {
                     Log::info("bank payment");
                     // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
-                    // InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
-                    // DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()])->toSql();
-                    Log::info("Payment detail query: ".DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->toSql());
+                    InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
 
-                    /* $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
+                    $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
                     if($invoice && $invoiceHistory) {
                         Log::info("bank invoice & invoice history found");
@@ -1047,7 +1045,7 @@ class BillingController extends Controller
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user', 'invoice'));
                         Log::info("Bank confirm email to firm owner");
                         Log::info('invoice bank transfer payment webhook successfull');
-                    } */
+                    }
                 } else {
                     Log::info("Invoice order paid else");
                 }

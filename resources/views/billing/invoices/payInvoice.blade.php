@@ -988,12 +988,12 @@ function getClientCases(clientId) {
                 optgroup += "<optgroup label='Allocate to case'>";
                 if(data.is_lead_case == 'yes') {
                     $.each(data.result, function(ind, item) {
-                        optgroup += "<option value='" + item.user_id + "'>" + item.potential_case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
+                        optgroup += "<option value='" + item.user_id + "'>" + item.potential_case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
                     });      
                 } else {
                     $.each(data.result, function(ind, item) {
                         // if(case_id == item.id || case_id == 0){
-                            optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance.toFixed(2)+")" + "</option>";
+                            optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
                         // }
                     });     
                 }           

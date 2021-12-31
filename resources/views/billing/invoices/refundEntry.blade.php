@@ -63,7 +63,7 @@
             <hr>
             @if(in_array($findEntry->pay_method, ["Oxxo Cash","SPEI"]))
             <div class="mt-3">
-                <strong>Note:</strong> Los reembolsos para pagos hechos en efectivo se consideran en el saldo en el sistema, sin embargo, el dinero debe reembolsarle de manera externa. Es decir, es necesario que haga el reembolso de los fondos directamente, ya sea en efectivo, transferencia o cualquier otro método que usted prefiera. En estos casos, la comisión original no se reembolsa.
+                <strong>Nota:</strong> Los reembolsos para pagos hechos en efectivo o transferencia se reflejan en el saldo en el sistema, sin embargo, el dinero debe reembolsarle al cliente de manera externa/manual. Es decir, es necesario que haga el reembolso de los fondos directamente, ya sea en efectivo, transferencia o cualquier otro método que usted prefiera. En estos casos, la comisión por el pago recibido no se le reembolsará a usted. 
             </div>
             @endif
             <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;">

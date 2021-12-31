@@ -1,3 +1,8 @@
+------------------------------------ 31-DEC-2021 ------------------------------
+ALTER TABLE `case_master`
+CHANGE `conflict_check_at` `conflict_check_at` timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `conflict_check`,
+CHANGE `total_allocated_trust_balance` `total_allocated_trust_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `firm_id`;
+
 ------------------------------------ 30-DEC-2021 ------------------------------
 ALTER TABLE `deposit_into_credit_history`
 CHANGE `payment_method` `payment_method` enum('cash','check','credit card','paypal','other','refund','withdraw','payment','card') COLLATE 'latin1_swedish_ci' NULL DEFAULT 'cash' AFTER `user_id`;

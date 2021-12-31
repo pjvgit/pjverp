@@ -166,7 +166,8 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = $.number($('#amountFirst').val(), 2);
+        var f = parseFloat($('#amountFirst').val().replace(/,/g, '')).toFixed(2);;
+        // var f = $.number($('#amountFirst').val(), 2);
         var currentAmt = f;
         swal({
             title: 'Confirm the deposit amount of $' + currentAmt + '?',
