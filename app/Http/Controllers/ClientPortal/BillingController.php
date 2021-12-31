@@ -1000,6 +1000,8 @@ class BillingController extends Controller
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user', 'invoice'));
                         Log::info('invoice cash payment webhook successfull');
+                    } else {
+                        Log::info("cash invoice & invoice history not found");
                     }
                 } 
                 else if($paymentDetail->payment_method == 'bank transfer') {
