@@ -101,11 +101,14 @@ class BillingController extends BaseController
         $columns = array('id','entry_date', 'entry_date', 'activity_title', 'duration', 'case_status','case_unique_number','user_name','user_name','user_name');
         $requestData= $_REQUEST;
         
-        $case = TaskTimeEntry::leftJoin("users","task_time_entry.created_by","=","users.id")
+        $case = TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
         ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
         ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
         ->leftJoin("invoices","invoices.id","=","task_time_entry.invoice_link")
-        ->select('task_time_entry.*',"task_activity.title as activity_title","case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,"case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users.id as uid","invoices.is_lead_invoice");
+        ->select('task_time_entry.*',"task_activity.title as activity_title",
+        "case_master.case_title as ctitle","case_master.case_unique_number as case_unique_number"  ,
+        "case_master.id as cid",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),
+        "users.id as uid","invoices.is_lead_invoice");
 
         if(isset($requestData['c']) && $requestData['c']!=''){
             $case = $case->where("case_master.id",$requestData['c']);
@@ -7150,7 +7153,7 @@ class BillingController extends BaseController
             $notSharedlist = '';
             foreach($data as $k1=>$v1){
                 $Invoice=Invoices::find($v1);
-                if($Invoice->case_id == NULL){
+                if($Invoice->case_id == null && $Invoice->is_lead_invoice == 'yes'){
                     $leadData=User::find($Invoice->user_id);
                     if($request->status == "AC"){  //BC=Billing Contact only
                         $firmData=Firm::find(Auth::User()->firm_name);
@@ -7213,7 +7216,7 @@ class BillingController extends BaseController
                     if($request->status=="BC"){  //BC=Billing Contact only
                         $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }else{
-                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","no")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
+                        $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$Invoice['case_id'])->get()->pluck("selected_user");
                     }
                     if(!$CaseClientSelection->isEmpty()){
                         foreach($CaseClientSelection as $k=>$v){

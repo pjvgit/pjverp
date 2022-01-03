@@ -325,8 +325,8 @@
                 <div class="row ">
                     <div class="mb-2 col-8 col-md-8">
                         <div class="mt-auto pt-1 d-flex flex-column">
-                            <span>{{$LeadDetails['first_name']}} {{$LeadDetails['middle_name']}} {{$LeadDetails['last_name']}}</span>
-                            <span>{{$LeadDetails['email']}}</span>
+                            <span>{{@$LeadDetails['first_name']}} {{@$LeadDetails['middle_name']}} {{@$LeadDetails['last_name']}}</span>
+                            <span>{{@$LeadDetails['email']}}</span>
                         </div>
                     </div>
                 <div class="mb-2 col-4 col-md-4">

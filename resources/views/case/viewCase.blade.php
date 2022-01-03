@@ -31,9 +31,9 @@ $adjustment_token=round(microtime(true) * 1000);
                     <?php if(isset($CaseMaster->case_statute_date)){?>
                         <label class="switch pr-0 switch-success mr-3">
                             
-                            <span class="text-success" id="IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Satisfied </span>
-                            <span class="error" id="InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Unsatisfied </span>
-                            <input type="checkbox" <?php if($CaseMaster->conflict_check=="1"){ echo "checked=checked"; }?> name="conflict_check" id="Icall_resolved"><span class="slider"></span>
+                            <span class="text-success" id="conflict_check_IresolveText"><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Satisfied </span>
+                            <span class="error" id="conflict_check_InonResolveText" ><i class="fas fa-circle pr-1"></i>{{date('m/d/Y',strtotime($CaseMaster->case_statute_date))}} Unsatisfied </span>
+                            <input type="checkbox" <?php if($CaseMaster->conflict_check=="1"){ echo "checked=checked"; }?> name="conflict_check" id="conflict_check_Icall_resolved"><span class="slider"></span>
                         </label>
                         <div><a  data-toggle="modal" data-target="#addCaseReminderPopup" data-placement="bottom" href="javascript:;" onclick="addCaseReminder({{$CaseMaster->case_id}});"> <span aria-hidden="true" class="fas fa-bell text-black-50 pb-2 mb-1 c-pointer pendo-sol-reminder-icon"  data-toggle="tooltip" data-placement="right" title="" data-original-title="<strong><span> Edit Statute of Limitations Reminders</span> </strong>" data-html="true" data-original-title="" id="editSolReminders" data-testid="sol-reminders" ></span></a></div>
                     <?php }else{ ?>
@@ -1504,10 +1504,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     // $("#firstCaseModal").modal("show")
 
-    $("input:checkbox#Icall_resolved").click(function () {
+    $("input:checkbox#conflict_check_Icall_resolved").click(function () {
         if ($(this).is(":checked")) {
-            $("#InonResolveText").hide();
-            $("#IresolveText").show();
+            $("#conflict_check_InonResolveText").hide();
+            $("#conflict_check_IresolveText").show();
 
             var case_id={{$CaseMaster->case_id}};
             var type="yes";
@@ -1520,8 +1520,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             })
 
         } else {
-            $("#InonResolveText").show();
-            $("#IresolveText").hide();
+            $("#conflict_check_InonResolveText").show();
+            $("#conflict_check_IresolveText").hide();
             var case_id={{$CaseMaster->case_id}};
             var type="no";
             $.ajax({
@@ -1535,12 +1535,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
     
     <?php if($CaseMaster->conflict_check=="0"){?>
-        $("#InonResolveText").show();
-        $("#IresolveText").hide();
+        $("#conflict_check_InonResolveText").show();
+        $("#conflict_check_IresolveText").hide();
       
     <?php }else{ ?>
-        $("#InonResolveText").hide();
-        $("#IresolveText").show();
+        $("#conflict_check_InonResolveText").hide();
+        $("#conflict_check_IresolveText").show();
     <?php }?>
    
     function addCaseReminder(case_id) {

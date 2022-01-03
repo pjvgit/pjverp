@@ -84,16 +84,19 @@ class LeadController extends BaseController
             $extraInfo[$v->id]['totalLeads']=$allLeads->count(); 
         }
         $allLeadsDropdown = LeadAdditionalInfo::leftJoin('users','lead_additional_info.user_id','=','users.id')
-            ->select("users.*")
+            ->select("users.id","users.first_name","users.last_name")
             ->where("users.user_type","5")
             ->where("users.user_level","5")
+            ->where("lead_additional_info.is_converted","no")
             ->where("users.firm_name",Auth::User()->firm_name)
+            ->where("lead_additional_info.user_status","1") //1 :Active
             ->groupBy("lead_additional_info.user_id")
             ->get();
 
           
         $allPracticeAreaDropdown = LeadAdditionalInfo::leftJoin('case_practice_area','lead_additional_info.practice_area','=','case_practice_area.id')
             ->select("case_practice_area.*","lead_additional_info.practice_area")
+            ->where("case_practice_area.firm_id",Auth::User()->firm_name)
             ->groupBy("lead_additional_info.practice_area")
             ->get();
 
@@ -271,12 +274,11 @@ class LeadController extends BaseController
      
         $getChildUsers=$this->getParentAndChildUserIds();
         $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->whereIn('user_level',['2','4'])->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
-        return view('lead.addLead',compact('country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
+        return view('lead.addLead',compact('country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','firmStaff','firmAddress'));
     }
     public function checkUserEmail(Request $request) {
         $contacts = User::where('email',$request->email)->count();
@@ -315,7 +317,7 @@ class LeadController extends BaseController
             $UserMaster->postal_code=$request->postal_code;
             $UserMaster->country=$request->country;
             $UserMaster->password='';
-            $UserMaster->firm_id=Auth::User()->firm_name;
+            $UserMaster->firm_name=Auth::User()->firm_name;
             $UserMaster->token  = Str::random(40);
             $UserMaster->user_type='5';  // 5  :Lead
             $UserMaster->user_level='5'; // 5  :Lead
@@ -344,6 +346,7 @@ class LeadController extends BaseController
             }else{
                 $LeadAdditionalInfoMaster->referal_source=$request->referal_source;
             }
+            $LeadAdditionalInfoMaster->firm_id=Auth::User()->firm_name;
             $LeadAdditionalInfoMaster->refered_by=$request->refered_by;
             $LeadAdditionalInfoMaster->lead_detail=$request->lead_detail;
             $LeadAdditionalInfoMaster->potential_case_title="Potential Case: ".$request->first_name. " ".$request->middle_name." ".$request->last_name;
@@ -354,6 +357,7 @@ class LeadController extends BaseController
             $LeadAdditionalInfoMaster->assigned_to=$request->assigned_to;
             $LeadAdditionalInfoMaster->office=$request->office;
             $LeadAdditionalInfoMaster->potential_case_description=$request->notes;
+            
             $LeadAdditionalInfoMaster->user_status='1';
             $LeadAdditionalInfoMaster->conflict_check=($request->conflict_check)?'yes':'no';
             if($LeadAdditionalInfoMaster->conflict_check=="yes"){
@@ -786,12 +790,12 @@ class LeadController extends BaseController
         
         $getChildUsers=$this->getParentAndChildUserIds();
         $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->whereIn('user_level',['2','4'])->where("parent_user",Auth::user()->id)->get();
+        
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
-        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
+        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterCompany','firmStaff','firmAddress'));
     }
     public function updateLead(Request $request)
     {
@@ -935,12 +939,10 @@ class LeadController extends BaseController
         
         $getChildUsers=$this->getParentAndChildUserIds();
         $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
        
-        return view('lead.loadStep1',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff'));
+        return view('lead.loadStep1',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','firmStaff'));
     }
 
     public function saveStep1(Request $request)
@@ -1286,17 +1288,17 @@ class LeadController extends BaseController
                 $CaseNotes = CaseNotes::where('notes_for',$CaseClientIs->selected_user)->get();
                 if(count($CaseNotes) > 0){
                     foreach ($CaseNotes as $k=>$v){
-                        $LeadNotes = new ClientNotes; 
-                        $LeadNotes->case_id=$request->case_id;
-                        $LeadNotes->note_date=$v->note_date;
-                        $LeadNotes->note_subject=$v->note_subject;
-                        $LeadNotes->notes=$v->notes;
-                        $LeadNotes->status="1";
-                        $LeadNotes->created_by=Auth::User()->id;
-                        $LeadNotes->created_at=date('Y-m-d H:i:s');            
-                        $LeadNotes->updated_by=Auth::User()->id;
-                        $LeadNotes->updated_at=date('Y-m-d H:i:s');
-                        $LeadNotes->save();        
+                        $ClientNotes = new ClientNotes; 
+                        $ClientNotes->case_id=$request->case_id;
+                        $ClientNotes->note_date=$v->note_date;
+                        $ClientNotes->note_subject=$v->note_subject;
+                        $ClientNotes->notes=$v->notes;
+                        $ClientNotes->status="1";
+                        $ClientNotes->created_by=Auth::User()->id;
+                        $ClientNotes->created_at=date('Y-m-d H:i:s');            
+                        $ClientNotes->updated_by=Auth::User()->id;
+                        $ClientNotes->updated_at=date('Y-m-d H:i:s');
+                        $ClientNotes->save();        
                     }
                 }
                 // delete all case notes from lead
@@ -1304,6 +1306,30 @@ class LeadController extends BaseController
 
                 // update all intake-form from lead_id to case_id
                 CaseIntakeForm::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "client_id" => $CaseClientIs->selected_user,"lead_id" => null]);
+
+                // update all call logs from lead_id to case_id
+                Calls::where("lead_id",$CaseClientIs->selected_user)->update(['case_id' => $request->case_id, "lead_id" => null]);
+
+                // update lead notes to clients notes
+                $LeadNotes =LeadNotes::where("notes_for",$CaseClientIs->selected_user)->get();
+                if(count($LeadNotes) > 0){
+                    foreach ($LeadNotes as $k=>$v){
+                        $ClientNotes = new ClientNotes; 
+                        $ClientNotes->client_id=$CaseClientIs->selected_user;
+                        $ClientNotes->note_date=$v->note_date;
+                        $ClientNotes->note_subject=$v->note_subject;
+                        $ClientNotes->notes=$v->notes;
+                        $ClientNotes->status="1";
+                        $ClientNotes->created_by=Auth::User()->id;
+                        $ClientNotes->created_at=date('Y-m-d H:i:s');            
+                        $ClientNotes->updated_by=Auth::User()->id;
+                        $ClientNotes->updated_at=date('Y-m-d H:i:s');
+                        $ClientNotes->save();        
+                    }
+                }
+                // delete all lead notes from lead
+                LeadNotes::where("notes_for",$CaseClientIs->selected_user)->delete();
+                
             }
             session(['popup_success' => 'Case has been created.']);
         }else{
@@ -1938,7 +1964,7 @@ class LeadController extends BaseController
         $case_id='';
         $lead_id=$request->user_id;
         // $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->where("lead_additional_info.user_status", 1)->get();
-        $caseLeadList = userLeadList();
+        $caseLeadList = [];
         if(Auth::user()->parent_user==0){
             $getChildUsers=$this->getParentAndChildUserIds();
             $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
@@ -1950,14 +1976,13 @@ class LeadController extends BaseController
         $country = Countries::get();
         $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
         $currentDateTime=$this->getCurrentDateAndTime();
-         //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
-         
-         if(isset($request->case_id)){
-             $case_id=$request->case_id;
-         }
-
-         return view('lead.tasks.loadAddTaskPopup',compact('lead_id','caseLeadList','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id'));          
+        //Get event type 
+        $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+        
+        if(isset($request->case_id)){
+            $case_id=$request->case_id;
+        }
+        return view('lead.tasks.loadAddTaskPopup',compact('lead_id','caseLeadList','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id'));          
     }
 
     public function loadRightSection(Request $request)
@@ -2649,8 +2674,8 @@ class LeadController extends BaseController
             
             $getAllFirmUser=firmUserList();
             
-            $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
-            $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->groupBy("call_for")->get();
+            // $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
+            // $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->groupBy("call_for")->get();
         }
         
         $CaseMaster = CaseMaster::join('users','users.id','=','case_master.created_by')->select("*","case_master.id as case_id","users.id","users.first_name","users.last_name","users.user_level","users.email","case_master.created_at as case_created_date","case_master.created_by as case_created_by")->where("users.id",$user_id)->first();
@@ -2700,12 +2725,11 @@ class LeadController extends BaseController
         
         $getChildUsers=$this->getParentAndChildUserIds();
         $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterClient = DB::table('users')->select("first_name","last_name","id","user_level","user_title")->whereIn('user_level',['2','4'])->where("parent_user",Auth::user()->id)->get();
         
-        $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
+        $firmStaff = DB::table('users')->select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
        
-        return view('lead.details.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff'));
+        return view('lead.details.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','firmStaff'));
     }
 
 
@@ -2713,7 +2737,7 @@ class LeadController extends BaseController
     {
         $id=$request->id;
         $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($id);
-        $LeadActivity=LeadNotesActivity::get();
+        $LeadActivity=LeadNotesActivity::where('status','1')->get();
         return view('lead.details.addNote',compact('userData','id','LeadActivity'));
     }
 
@@ -2759,7 +2783,7 @@ class LeadController extends BaseController
         $lead_id=$request->id;
         $LeadNotes=LeadNotes::find($lead_id);
         $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($LeadNotes['notes_for']);
-        $LeadActivity=LeadNotesActivity::get();
+        $LeadActivity=LeadNotesActivity::where('status','1')->get();
         return view('lead.details.editNote',compact('userData','lead_id','LeadActivity','LeadNotes'));
     }
 
@@ -2874,12 +2898,10 @@ class LeadController extends BaseController
         
         $getChildUsers=$this->getParentAndChildUserIds();
         $CasePracticeArea = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-        $CaseMasterCompany = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();        
-        return view('lead.details.case_detail.editPotenatialCase',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterClient','CaseMasterCompany','firmStaff','firmAddress'));
+        return view('lead.details.case_detail.editPotenatialCase',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','firmStaff','firmAddress'));
     }
 
     public function savePotentailCase(Request $request)
@@ -3018,7 +3040,7 @@ class LeadController extends BaseController
     {
         $id=$request->id;
         $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($id);
-        $LeadActivity=LeadNotesActivity::get();
+        $LeadActivity=LeadNotesActivity::where('status','1')->get();
         $LeadAdditionalInfo=LeadAdditionalInfo::select('potential_case_title')->where("user_id",$id)->first();
         $lead_id=$LeadAdditionalInfo->id;
         return view('lead.details.case_detail.addCaseNote',compact('userData','id','LeadActivity','LeadAdditionalInfo','lead_id'));
@@ -3058,7 +3080,7 @@ class LeadController extends BaseController
         $id=$request->id;
         $LeadNotes=CaseNotes::find($id);
         $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($LeadNotes['notes_for']);
-        $LeadActivity=LeadNotesActivity::get();
+        $LeadActivity=LeadNotesActivity::where('status','1')->get();
         $LeadAdditionalInfo=LeadAdditionalInfo::select('potential_case_title')->where("user_id",$LeadNotes['notes_for'])->first();
 
         return view('lead.details.case_detail.editCaseNote',compact('userData','id','LeadActivity','LeadNotes','LeadAdditionalInfo'));
@@ -6474,6 +6496,7 @@ class LeadController extends BaseController
             $allPracticeAreaDropdown = LeadAdditionalInfo::leftJoin('case_practice_area','lead_additional_info.practice_area','=','case_practice_area.id')
             ->select("case_practice_area.*","lead_additional_info.practice_area")
             ->groupBy("lead_additional_info.practice_area")
+            ->where("case_practice_area.firm_id",Auth::User()->firm_name)
             ->get();
 
             $filename="status_lead_".time().'.pdf';
@@ -7077,10 +7100,12 @@ class LeadController extends BaseController
     
     /*********************** COMMUNICATION TAB ***************************** */
     public function addCall(Request $request)
-    {
-        
+    {        
         //Get client and lead list
-        $ClientAndLead = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $ClientAndLead = DB::table('users')->select("first_name","last_name","id","user_level","user_title")
+        ->where('user_level',5)
+        ->orWhere('user_level',2)
+        ->where("parent_user",Auth::user()->id)->get();
 
         //Get potential case list
         $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
@@ -7091,18 +7116,18 @@ class LeadController extends BaseController
         ->where("users.firm_name",Auth::User()->firm_name)
         ->where("lead_additional_info.user_status","1")
         ->get();
-        
+
         //Get Actual case list
-        $CaseMasterData = CaseMaster::select("*");
-         //If Parent user logged in then show all child case to parent
-         if(Auth::user()->parent_user==0){
+        $CaseMasterData = DB::table('case_master')->select("id","case_title");
+        //If Parent user logged in then show all child case to parent
+        if(Auth::user()->parent_user==0){
             $getChildUsers =$this->getParentAndChildUserIds();
             $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
         }else{
             $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
         }
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
-        
+
         $getAllFirmUser=firmUserList();
         $case_id='';
         if(isset($request->case_id) && $request->case_id != ''){
@@ -7231,7 +7256,7 @@ class LeadController extends BaseController
     {
         $call_id=$request->id;
         //Get client and lead list
-        $ClientAndLead = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $ClientAndLead = DB::table('users')->select("first_name","last_name","id","user_level","user_title")->where('user_level',5)->orWhere('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
         //Get potential case list
         $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
@@ -7244,16 +7269,16 @@ class LeadController extends BaseController
         ->get();
 
         //Get Actual case list
-        $CaseMasterData = CaseMaster::select("*");
-         //If Parent user logged in then show all child case to parent
-         if(Auth::user()->parent_user==0){
+        $CaseMasterData = DB::table('case_master')->select("id","case_title");
+        //If Parent user logged in then show all child case to parent
+        if(Auth::user()->parent_user==0){
             $getChildUsers =$this->getParentAndChildUserIds();
             $CaseMasterData = $CaseMasterData->whereIn("case_master.created_by",$getChildUsers);
         }else{
             $CaseMasterData = $CaseMasterData->where("case_master.id",Auth::user()->id);
         }
         $CaseMasterData=$CaseMasterData->where('is_entry_done',"1")->get();
-        
+
         $getAllFirmUser=firmUserList();
         $Calls=Calls::find($call_id);
         return view('lead.details.communication.editCall',compact('ClientAndLead','potentialCase','CaseMasterData','getAllFirmUser','Calls'));

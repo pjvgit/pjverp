@@ -13,7 +13,7 @@
                 @can(['case_add_edit', 'billing_add_edit'])
                 <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                 href="javascript:;">
-                <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
+                <button disabled class="btn btn-primary btn-rounded m-1 leep" type="button" id="button"
                     onclick="loadExpenseEntryPopup({{$CaseMaster['case_id']}});">Add Expense</button></a>
                 @endcan
             </div>
@@ -46,6 +46,10 @@
 <script type="text/javascript">
     "use strict";
     $(document).ready(function () {
+        if(localStorage.getItem('saveNewExpenseEntryPopup') == 1){
+            localStorage.setItem('saveNewExpenseEntryPopup', 0);
+            $(".leep").trigger('click');
+        }
         $("#button").removeAttr('disabled');
         var timeEntryGrid =  $('#timeEntryGrid').DataTable( {
             serverSide: true,

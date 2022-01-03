@@ -136,19 +136,25 @@
                         $('td:eq(10)', nRow).html('<div class="text-left">Never</div>');
                     }
                     @can(['case_add_edit', 'billing_add_edit'])
-                    var reminder='';
-                    if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
-                        var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                    if(aData.status == "Forwarded") {
+                        $('td:eq(11)', nRow).html('');
+                    } else {
+                        var reminder='';
+                        if(aData.status=="Partial" || aData.status=="Draft" || aData.status=="Unsent"){
+                            if(aData.is_lead_invoice=="no"){
+                                var reminder='<span data-toggle="tooltip" data-placement="top" title="Send Reminder"><a data-toggle="modal"  data-target="#sendInvoiceReminder" data-placement="bottom" href="javascript:;"  onclick="sendInvoiceReminder('+aData.ccid+','+aData.id+');"><i class="fas fa-bell align-middle p-2"></i></a></span>';
+                            }
+                        }
+                        var dollor='&nbsp;';
+                        if(aData.status!="Paid"){
+                            var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
+                        }
+                        var deletes = '';
+                        @can('delete_items')
+                            deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                        @endcan
+                        $('td:eq(11)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     }
-                    var dollor='&nbsp;';
-                    if(aData.status!="Paid"){
-                        var dollor='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('+aData.id+');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
-                    }
-                    var deletes = '';
-                    @can('delete_items')
-                    deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoiceCommon" data-placement="bottom" href="javascript:;"  onclick="deleteInvoiceCommon('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
-                    @endcan
-                    $('td:eq(11)', nRow).html('<div class="text-center d-print-none" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     @else
                     $('td:eq(11)', nRow).html('');
                     @endcan

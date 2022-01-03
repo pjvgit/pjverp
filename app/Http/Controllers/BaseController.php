@@ -129,7 +129,7 @@ class BaseController extends Controller
 
     //return parent and its child user ids.
     public function getParentAndChildUserIds(){
-        $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+        $getChildUsers = DB::table('users')->select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
         $getChildUsers[]=Auth::user()->id;  
         return $getChildUsers;
     }

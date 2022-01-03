@@ -855,6 +855,8 @@
                             $('#savenewTimeEntry')[0].reset();
                             $('#loadExpenseEntryPopup').animate({ scrollTop: 0 }, 'slow');
                             showDropdown();
+                            localStorage.setItem('saveNewExpenseEntryPopup', 1);
+                            window.location.reload();
                         } else {
                             window.location.reload();
                         }

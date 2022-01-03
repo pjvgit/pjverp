@@ -238,6 +238,11 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
     $(document).ready(function () {
         $("#t").timer({action: 'start' });
         $("#it").timer({ action: 'start' });
+        $("#InonResolveText").hide();
+        $("#IresolveText").show();
+        $("#OnonResolveText").hide();
+        $("#OresolveText").show();
+        
         $("#case").on("select2-selecting", function(e) {
             $(".timewidget").hide();
             var uType=$("#case option:selected").attr('uType');
@@ -644,10 +649,6 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             $("#OresolveText").hide();
         }
     });
-    $("#InonResolveText").hide();
-    $("#IresolveText").show();
-    $("#OnonResolveText").hide();
-    $("#OresolveText").show();
     function getMobileNumber(){
         beforeLoader();
         var selectdValue = $("#caller_name option:selected").val() // or

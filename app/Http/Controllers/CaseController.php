@@ -1128,16 +1128,12 @@ class CaseController extends BaseController
             $totalCalls=$getAllFirmUser='';
             if(\Route::current()->getName()=="communications/calls"){
 
-                $Calls = Calls::select("calls.*",DB::raw('CONCAT(u1.first_name, " ",u1.last_name) as created_name'),DB::raw('CONCAT(u2.first_name, " ",u2.last_name) as caller_full_name'),DB::raw('CONCAT(u3.first_name, " ",u3.last_name) as call_for_name'));
-                $Calls = $Calls->leftJoin('users as u1','calls.created_by','=','u1.id');        
-                $Calls = $Calls->leftJoin('users as u2','calls.caller_name','=','u2.id');        
-                $Calls = $Calls->leftJoin('users as u3','calls.call_for','=','u3.id');        
-                $totalCalls=$Calls->count();
+                $totalCalls = Calls::where('case_id', $case_id)->count();
                 
                 $getAllFirmUser=firmUserList();
                 
-                $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
-                $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->where("case_id",$case_id)->groupBy("call_for")->get();
+                // $getAllFirmUser =  Calls::select("calls.id as cid","u1.id","u1.first_name","u1.last_name","calls.call_for");
+                // $getAllFirmUser = $getAllFirmUser->leftJoin('users as u1','calls.call_for','=','u1.id')->where("case_id",$case_id)->groupBy("call_for")->get();
             }
 
             $getChildUsers=$this->getParentAndChildUserIds();

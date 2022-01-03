@@ -113,7 +113,7 @@
                 url: baseUrl + "/leads/addCall", // json datasource
                 data: {
                     'case_id': "{{$CaseMaster['case_id'] ?? ''}}",
-                    'id': "{{$user_id}}",
+                    'id': "{{$user_id ?? ''}}",
                 },
                 success: function (res) {
                     $("#addCallArea").html(res);
@@ -153,7 +153,8 @@
                 type: "POST",
                 url: baseUrl + "/leads/loadAddTaskPopup", // json datasource
                 data: {
-                    'case_user_id': "{{$CaseMaster['case_id'] ?? $user_id}}"
+                    'case_id': "{{$CaseMaster['case_id'] ?? ''}}",
+                    'user_id': "{{$user_id ?? ''}}"
                 },
                 success: function (res) {
                     $("#addTaskFromLogArea").html('');

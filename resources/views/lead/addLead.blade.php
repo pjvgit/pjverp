@@ -158,15 +158,15 @@
                     <option value="">Search for an existing contact or company</option>
                     <optgroup label="Client">
                         <?php
-                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
+                        foreach($CaseMasterClient as $Clientkey=>$Clientval){ if($Clientval->user_level == '2'){
                         ?>
                         <option value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->last_name}} ({{$Clientval->user_title}})</option>
-                        <?php } ?>
+                        <?php } } ?>
                     </optgroup>
                     <optgroup label="Company">
-                        <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
+                        <?php foreach($CaseMasterClient as $Companykey=>$Companyval){ if($Companyval->user_level == '4'){?>
                         <option value="{{$Companyval->id}}">{{$Companyval->first_name}} (Company)</option>
-                        <?php } ?>
+                        <?php } }?>
                     </optgroup>
                 </select>
             </div>

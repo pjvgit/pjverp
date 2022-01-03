@@ -81,7 +81,7 @@ if(isset($_GET['type'])){
                         @can('billing_add_edit') 
                         <a data-toggle="modal" data-target="#loadExpenseEntryPopup" data-placement="bottom"
                             href="javascript:;">
-                            <button disabled class="btn btn-primary btn-rounded m-1" type="button" id="button"
+                            <button disabled class="btn btn-primary btn-rounded m-1 leep" type="button" id="button"
                                 onclick="loadExpenseEntryPopup();">Add Expense</button></a>
                         @endcan
                     </div>
@@ -300,7 +300,10 @@ if(isset($_GET['type'])){
 <script type="text/javascript">
     $(document).ready(function () {
         // Smart Wizard
-     
+        if(localStorage.getItem('saveNewExpenseEntryPopup') == 1){
+            localStorage.setItem('saveNewExpenseEntryPopup', 0);
+            $(".leep").trigger('click');
+        }
         $("#button").removeAttr('disabled');
         $('.formSubmit').change(function () {
             this.form.submit();

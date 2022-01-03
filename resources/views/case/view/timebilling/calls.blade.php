@@ -81,8 +81,10 @@ if($totalCalls<=0){
         <h1 class="font-weight-bold">Never miss a phone message </h1>
         <p>Say goodbye to message pads and spreadsheets. Increase efficiency and improve firm-wide communication by
             recording the details of all phone communication right in {{config('app.name')}}.</p>
-        <button type="button" data-testid="empty-state-add-call" class="btn btn-primary btn-rounded m-1 px-3">Add
-            Call</button>
+        <a data-toggle="modal" data-target="#addCall" data-placement="bottom" href="javascript:;">
+            <button class="btn btn-primary btn-rounded m-1 px-3" type="button" onclick="addCall();">Add
+                Call</button>
+        </a>
         <button type="button" class="btn btn-outline-secondary  btn-rounded m-1 px-3">Learn More</button>
     </div>
 <?php } else{ ?>
@@ -122,8 +124,6 @@ td,th{
     display: block;
 }
 </style>
-
-<!-- @include('case.view.timebilling.CommunicationCommonPopup') -->
 @include('lead.details.communication.CommunicationCommonPopup')
 @section('page-js-inner')
 <script type="text/javascript">
@@ -187,7 +187,7 @@ td,th{
                     }
                     $('td:eq(5)', nRow).html('<div class="d-flex align-items-center">'+downloadOption+'</div>');
 
-                    var addTaskOption='<a  data-toggle="modal"  data-target="#addTaskFromLog" onclick="addTaskFromLog('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
+                    var addTaskOption='<a  data-toggle="modal"  data-target="#addTaskFromLog" onclick="addTaskFromLog('+aData.case_id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
 
 
                     var editOption='<a  data-toggle="modal"  data-target="#editCall" onclick="editCall('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Edit Call Log"><i class="fas fa-pen align-middle" data="MyText"></i></span></a>';

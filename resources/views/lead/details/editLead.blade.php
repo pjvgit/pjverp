@@ -33,7 +33,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Cell phone</label>
             <div class="col-md-9 form-group mb-10">
-                <input class="form-control" id="home_phone" value="{{($UserMaster->mobile_number)??''}}" maxlength="255" name="home_phone"
+                <input class="form-control" id="home_phone" value="{{($UserMaster->mobile_number)??''}}" maxlength="255" name="cell_phone"
                     placeholder="(xxx)-xxx-xxxx">
             </div>
 
@@ -57,7 +57,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-3 col-form-label">Home Phone</label>
                     <div class="col-md-3 form-group mb-10">
-                        <input class="form-control" id="mobile_number" maxlength="255" value="{{($UserMaster->home_phone)??''}}" name="cell_phone"
+                        <input class="form-control" id="mobile_number" maxlength="255" value="{{($UserMaster->home_phone)??''}}" name="home_phone"
                             placeholder="(xxx)-xxx-xxxx">
                     </div>
                 </div>
@@ -159,15 +159,15 @@
                     <option value="{{($LeadAdditionalInfo->cell_phone)??''}}">Search for an existing contact or company</option>
                     <optgroup label="Client">
                         <?php
-                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
+                        foreach($CaseMasterClient as $Clientkey=>$Clientval){  if($Clientval->user_level == 2){
                         ?>
                         <option <?php if($Clientval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->last_name}} (Client)</option>
-                        <?php } ?>
+                        <?php } }?>
                     </optgroup>
                     <optgroup label="Company">
-                        <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
+                        <?php foreach($CaseMasterClient as $Companykey=>$Companyval){  if($Companyval->user_level == 2){?>
                         <option <?php if($Companyval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Companyval->id}}">{{$Companyval->first_name}} (Company)</option>
-                        <?php } ?>
+                        <?php } }?>
                     </optgroup>
                 </select>
             </div>
