@@ -795,7 +795,7 @@ class LeadController extends BaseController
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
-        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','CaseMasterCompany','firmStaff','firmAddress'));
+        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','firmStaff','firmAddress'));
     }
     public function updateLead(Request $request)
     {

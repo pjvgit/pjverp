@@ -27,8 +27,7 @@
                     </select>
                     <span id="cnl"></span>
                     @can('case_add_edit')
-                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
-                Add Case</a>
+                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();">Add Case</a>
                     @endcan
                     <!-- <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
                     Add Case</a> -->
@@ -197,7 +196,7 @@
                 </div>
                 <div class="col-md-3 form-group mb-3">
                     <label for="firstName1">User</label>
-                    <select class="form-control staff_user dropdownSelect2" id="staff_user" name="staff_user">
+                    <select class="form-control staff_user dropdownSelect2" id="bulk_staff_user" name="bulk_staff_user">
 
                         <?php foreach($loadFirmStaff as $loadFirmStaffkey=>$CasevloadFirmStaffvalal){ ?>
                         <option <?php if($CasevloadFirmStaffvalal->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$CasevloadFirmStaffvalal->id}}">{{$CasevloadFirmStaffvalal->first_name}}
@@ -364,7 +363,7 @@
             </div>
             <div class="after-add-more-new"></div>
             <div class="row ">
-                <button type="button" id="add-one-row-id" class="btn btn-link add-more">Add another</button>
+                <button type="button" id="add-one-row-id" class="btn btn-link add-one-more">Add another</button>
                 <button type="button" id="add-five-rows-id" class="btn btn-link add-more-five">Add 5 more rows</button>
             </div>
             <div class="modal-footer pb-0">
@@ -419,7 +418,7 @@
             'clearBtn': true,
             'todayHighlight': true
         });
-        $(".add-more").click(function () {
+        $(".add-one-more").click(function () {
             var hideinputcount2 = $('#hideinputcount2').val();
 
 
@@ -458,7 +457,7 @@
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             // Add new field
-            $('#savebulkTimeEntry').validate('add-more', $option);
+            $('#savebulkTimeEntry').validate('add-one-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -538,10 +537,9 @@
 
         $('#savebulkTimeEntry').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
-
-
         });
         $('#savebulkTimeEntry').submit(function (e) {
+            
             e.preventDefault();
             $("#innerLoader").css('display', 'block');
             if (!$('#savebulkTimeEntry').valid()) {
@@ -551,12 +549,13 @@
             }
             var dataString = '';
             dataString = $("#savebulkTimeEntry").serialize();
+            beforeLoader();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/savebulkTimeEntry", // json datasource
                 data: dataString,
                 success: function (res) {
-
+                    afterLoader();
                     $("#innerLoader").css('display', 'block');
                     if (res.errors != '') {
                         $('#showError').html('');
@@ -646,7 +645,7 @@
                     1)) + '');
 
                 // Add new field
-                $('#savebulkTimeEntry').validate('add-more', $option);
+                $('#savebulkTimeEntry').validate('add-one-more', $option);
                 $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                     'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -837,12 +836,15 @@
             }
             var dataString = '';
             dataString = $("#savenewTimeEntry").serialize();
+
+            beforeLoader();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/saveTimeEntryPopup", // json datasource
                 data: dataString,
                 success: function (res) {
 
+                    afterLoader();
                     $("#innerLoader").css('display', 'block');
                     if (res.errors != '') {
                         $('#showError').html('');
@@ -889,30 +891,43 @@
         });
 
         $(document).on('change', ".case_or_lead", function () {
+            beforeLoader();
             var f = $(this).attr("dvid");
-            $.ajax({
-                type: "POST",
-                url: baseUrl + "/tasks/getAndCheckDefaultCaseRate",
-                data: {
-                    'case_id': $(this).val()
-                },
-                success: function (res) {
-                    console.log(f);
-                    $("#hideoptioninput2defaultrate"+f).val("");
-                    $(".staff_user").val(res.staff_id).trigger('change');
-                    $("#rate-field-id").val(res.data);   
-                    if(res.data > 0){                    
-                        $("#replaceAmt" + f).text("Billable - "+ res.data);
-                        $("#hideoptioninput2defaultrate"+f).val(res.data);
-                    }else{
-                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
-                    }                    
-                    console.log("#replaceAmt" + f);
-                }
-            })
+            var case_id = $(this).val();
+            getAndCheckDefaultCaseRate(f, case_id)
+        });
+
+        $(document).on('change', "#bulk_staff_user", function () {
+            
         });
     });
     showDropdown();
+
+    function getAndCheckDefaultCaseRate(f, case_id = null){
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/tasks/getAndCheckDefaultCaseRate",
+            data: {
+                'case_id': case_id,
+                'staff_id' : $("#bulk_staff_user").val(),
+            },
+            success: function (res) {
+                afterLoader();
+                console.log(f);
+                $("#hideoptioninput2defaultrate"+f).val("");
+                // $(".staff_user").val(res.staff_id).trigger('change');
+                $("#rate-field-id").val(res.data);   
+                if(res.data > 0){                    
+                    $("#replaceAmt" + f).text("Billable - "+ res.data);
+                    $("#hideoptioninput2defaultrate"+f).val(res.data);
+                }else{
+                    $("#hideoptioninput2defaultrate"+f).val(0);
+                    $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                }                    
+                console.log("#replaceAmt" + f);
+            }
+        });
+    }
 
     function showText() {
         $(".area_text").show();
@@ -991,7 +1006,7 @@
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
             // Add new field
-            $('#savebulkTimeEntry').validate('add-more', $option);
+            $('#savebulkTimeEntry').validate('add-one-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 

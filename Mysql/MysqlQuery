@@ -1,3 +1,6 @@
+------------------------------------ 04-JAN-2022 ------------------------------
+ALTER TABLE `firm`
+ADD `call_log_status` enum('yes','no') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'yes' AFTER `firm_logo`;
 ------------------------------------ 03-JAN-2022 ------------------------------
 INSERT INTO `lead_notes_activity` (`id`, `acrtivity_title`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`) VALUES
 (1,	'Note',	'1',	'2022-01-03 05:34:01',	0,	NULL,	NULL,	NULL),

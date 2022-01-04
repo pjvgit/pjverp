@@ -14,7 +14,7 @@ class Firm extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'firm_name', 'firm_logo'
+        'firm_name', 'firm_logo', 'call_log_status'
     ];
 
     protected $appends = ['firm_logo_url'];

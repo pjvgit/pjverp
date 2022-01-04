@@ -597,3 +597,12 @@ function getFirmOnlinePaymentSetting()
 {
     return FirmOnlinePaymentSetting::where('firm_id', auth()->user()->firm_name)->first();
 }
+
+/**
+ * Get call log status for firm setting
+ */
+function callLogStatus()
+{
+    $firmData = \App\Firm::find(Auth::User()->firm_name);
+    return $firmData->call_log_status;
+}
