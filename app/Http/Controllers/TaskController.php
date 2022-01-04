@@ -225,7 +225,8 @@ class TaskController extends BaseController
     {
         $case_id=$request->case_id;
         $lead_id=$request->user_id;
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterClient = [];
+        // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
@@ -241,11 +242,11 @@ class TaskController extends BaseController
                             ->where("lead_additional_info.user_status", 1)->get(); */
         $caseLeadList = userLeadList();
 
-        $country = Countries::get();
-        $eventLocation = CaseEventLocation::get();
-        $currentDateTime=$this->getCurrentDateAndTime();
+        $country = []; //Countries::get();
+        $eventLocation =  []; //CaseEventLocation::get();
+        $currentDateTime= ''; //$this->getCurrentDateAndTime();
          //Get event type 
-         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+         $allEventType = []; //EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
          return view('task.loadAddTaskPopup',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id'));          
     }
     public function loadCaseLinkedStaffForTask(Request $request)
@@ -693,7 +694,8 @@ class TaskController extends BaseController
     public function loadEditTaskPopup(Request $request)
     {
         $task_id=$request->task_id;
-        $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        $CaseMasterClient = [];
+        // $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
         /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
@@ -1115,7 +1117,7 @@ class TaskController extends BaseController
     // return $request->all();
     $validator = \Validator::make($request->all(), [
         'case_or_lead' => 'required',
-        'staff_user' => 'required',
+        'bulk_staff_user' => 'required',
     ]);
     if ($validator->fails())
     {
@@ -1130,7 +1132,7 @@ class TaskController extends BaseController
                 $TaskTimeEntry = new TaskTimeEntry; 
                 $TaskTimeEntry->task_id=$request->task_id;
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
-                $TaskTimeEntry->user_id =$request->staff_user;
+                $TaskTimeEntry->user_id =$request->bulk_staff_user;
                 $TaskTimeEntry->activity_id=$request->activity[$i];
                 if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
                     $TaskTimeEntry->time_entry_billable="yes";
@@ -1139,44 +1141,36 @@ class TaskController extends BaseController
                 }
                 $TaskTimeEntry->description=$request->description[$i];
                 $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                                
+                $TaskTimeEntry->entry_rate=$request->defaultrate[$i] ?? 0.00;
+                $TaskTimeEntry->rate_type='hr';
+                $TaskTimeEntry->duration =$request->duration[$i];
+                $TaskTimeEntry->created_by=Auth::User()->id; 
+                $TaskTimeEntry->save();
+                \Log::info('TaskTimeEntry >'.$TaskTimeEntry->id);
+                    
+                //Add time entory history
+                $data=[];
+                $data['case_id']=$TaskTimeEntry->case_id;
+                $data['user_id']=$TaskTimeEntry->user_id;
+                $data['activity']='added an time entry';
+                $data['activity_for']=$TaskTimeEntry->activity_id;
+                $data['time_entry_id']=$TaskTimeEntry->id;
+
+                $data['type']='time_entry';
+                $data['action']='add';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+
+                //Case Activity
+                $data=[];
+                $data['activity_title']='added an time entry';
+                $data['case_id']=$TaskTimeEntry->case_id;
+                $data['activity_type']='';
+                $data['extra_notes']=$TaskTimeEntry->activity_id;
+                $this->caseActivity($data);
+
                 
-                $rateUsers = CaseStaff::select("*")->where("case_id",$request->case_or_lead[$i])->first();
-                if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
-                    $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
-                    $default_rate=($defaultRate['default_rate'])??0.00;
-                }else{
-                    $default_rate=($rateUsers['rate_amount'])??0.00;
-                }
-                // if($default_rate > 0.00){
-                    $TaskTimeEntry->entry_rate=$default_rate;
-                    $TaskTimeEntry->rate_type='hr';
-                    $TaskTimeEntry->duration =$request->duration[$i];
-                    $TaskTimeEntry->created_by=Auth::User()->id; 
-                    $TaskTimeEntry->save();
-                    \Log::info('TaskTimeEntry >'.$TaskTimeEntry->id);
-                        
-                    //Add time entory history
-                    $data=[];
-                    $data['case_id']=$TaskTimeEntry->case_id;
-                    $data['user_id']=$TaskTimeEntry->user_id;
-                    $data['activity']='added an time entry';
-                    $data['activity_for']=$TaskTimeEntry->activity_id;
-                    $data['time_entry_id']=$TaskTimeEntry->id;
-
-                    $data['type']='time_entry';
-                    $data['action']='add';
-                    $CommonController= new CommonController();
-                    $CommonController->addMultipleHistory($data);
-
-                    //Case Activity
-                    $data=[];
-                    $data['activity_title']='added an time entry';
-                    $data['case_id']=$TaskTimeEntry->case_id;
-                    $data['activity_type']='';
-                    $data['extra_notes']=$TaskTimeEntry->activity_id;
-                    $this->caseActivity($data);
-
-                // }
             }
                 
         }
@@ -1246,20 +1240,26 @@ class TaskController extends BaseController
   
   public function getAndCheckDefaultCaseRate(Request $request)
   {
-      $case_id=$request->case_id;
-      $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->first();
-      if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
-          $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
-          $default_rate=($defaultRate['default_rate'])??0.00;
-          $rate_type=0;
-          $drate="user_default";
-          $staff_id = $rateUsers['user_id'];
-      }else{
-          $default_rate=($rateUsers['rate_amount'])??0.00;
-          $rate_type=($rateUsers['rate_type'])??0;
-          $drate="case_default";
-          $staff_id = Auth::user()->id;
-      }
+        $case_id=$request->case_id;
+        $staff_id=$request->staff_id;
+        $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->where("user_id",$staff_id)->first();
+        if(empty($rateUsers)){
+            $defaultRate = DB::table('users')->select("default_rate")->where("id",$staff_id)->first();
+            $default_rate=number_format($defaultRate->default_rate??0 ,2);            
+            $rate_type=0;
+            $drate="user_default";
+        }else{
+            if($rateUsers['rate_type']=="0"){
+                $defaultRate = DB::table('users')->select("default_rate")->where("id",$staff_id)->first();
+                $default_rate=number_format($defaultRate->default_rate??0 ,2);            
+                $rate_type=0;
+                $drate="user_default";                
+            }else{
+                $default_rate=($rateUsers['rate_amount'])??0.00;
+                $rate_type=($rateUsers['rate_type'])??0;
+                $drate="case_default";                
+            }
+        }
 
     return response()->json(['errors'=>'','msg'=>'Records successfully found','data'=>$default_rate, 'staff_id' => $staff_id]);
     exit;    

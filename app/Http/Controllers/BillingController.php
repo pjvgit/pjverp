@@ -185,9 +185,16 @@ class BillingController extends BaseController
         $default_rate=0.00;
         $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
         if(count($caseStaffData) > 0){
-            $default_rate=$caseStaffData[0]->rate_amount;
             foreach($caseStaffData as $k => $v){
-                $caseStaffRates[$v->user_id] = $v->rate_amount;
+                if($v->rate_type == "0"){
+                    $defaultRate = DB::table('users')->select("default_rate")->where("id",$v->user_id)->first();
+                    $caseStaffRates[$v->user_id] = number_format($defaultRate->default_rate??0 ,2);            
+                }else{
+                    $caseStaffRates[$v->user_id] = $v->rate_amount;
+                }
+                if($v->user_id == Auth::User()->id){
+                    $default_rate = $v->rate_amount;            
+                }
             }
         }
         return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "caseStaffRates", "request"));     
@@ -3158,19 +3165,26 @@ class BillingController extends BaseController
                 $CaseMasterData = CaseMaster::find($case_id);
                 
                 $caseStaffRates = [];
-                $defaultRate='';
+                $defaultRate=0.00;
                 $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
                 if(count($caseStaffData) > 0){
-                    $defaultRate=$caseStaffData[0]->rate_amount;
                     foreach($caseStaffData as $k => $v){
-                        $caseStaffRates[$v->user_id] = $v->rate_amount;
+                        if($v->rate_type == "0"){
+                            $defaultRateUser = DB::table('users')->select("default_rate")->where("id",$v->user_id)->first();
+                            $caseStaffRates[$v->user_id] = number_format($defaultRateUser->default_rate??0 ,2);            
+                        }else{
+                            $caseStaffRates[$v->user_id] = number_format($v->rate_amount,2);
+                        }
+                        if($v->user_id == Auth::User()->id){
+                            $defaultRate = number_format($v->rate_amount,2);          
+                        }
                     }
-                }   
+                }  
                 // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
-                return view('billing.invoices.addSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token'));     
+                return view('billing.invoices.addSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','invoice_id','adjustment_token','caseStaffRates'));     
                 exit; 
             
             }else{
@@ -3289,21 +3303,28 @@ class BillingController extends BaseController
                 $TaskTimeEntry=TaskTimeEntry::find($request->id);
                 $case_id=$TaskTimeEntry['case_id'];
 
-                $CaseMasterData = CaseMaster::find($case_id);
+                $CaseMasterData = CaseMaster::find($case_id);                
                 $caseStaffRates = [];
-                $defaultRate='';
+                $defaultRate=0.00;
                 $caseStaffData = CaseStaff::select("*")->where("case_id",$case_id)->get();
                 if(count($caseStaffData) > 0){
-                    $defaultRate=$caseStaffData[0]->rate_amount;
                     foreach($caseStaffData as $k => $v){
-                        $caseStaffRates[$v->user_id] = $v->rate_amount;
+                        if($v->rate_type == "0"){
+                            $defaultRateUser = DB::table('users')->select("default_rate")->where("id",$v->user_id)->first();
+                            $caseStaffRates[$v->user_id] = number_format($defaultRateUser->default_rate??0 ,2);            
+                        }else{
+                            $caseStaffRates[$v->user_id] = number_format($v->rate_amount,2);
+                        }
+                        if($v->user_id == Auth::User()->id){
+                            $defaultRate = number_format($v->rate_amount,2);          
+                        }
                     }
-                }  
+                }   
                 // $loadFirmStaff = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
                 $loadFirmStaff = firmUserList();
                 $TaskActivity=TaskActivity::where('status','1')->where("firm_id",Auth::user()->firm_name)->get();
                 
-                return view('billing.invoices.editSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','TaskTimeEntry'));     
+                return view('billing.invoices.editSingleTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity','defaultRate','case_id','TaskTimeEntry','caseStaffRates'));     
                 exit; 
             
             }else{

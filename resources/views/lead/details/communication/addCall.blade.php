@@ -105,8 +105,9 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                         <label class="switch pr-5 switch-success mr-3">
                             <span id="IresolveText">This call is resolved</span>
                             <span id="InonResolveText" class="error">This call is unresolved</span>
-                            <input type="checkbox" id="Icall_resolved" name="call_resolved" checked="checked"><span class="slider"></span>
+                            <input type="checkbox" id="Icall_resolved" name="call_resolved"  <?php if(callLogStatus() == 'yes') { ?> checked="checked" <?php } ?>><span class="slider"></span>
                         </label>
+                        <p>Manage default call log status in&nbsp;<a href="{{route('firms/setting')}}" target="_blank" rel="noopener noreferrer">settings</a>.</p>
                     </div>
                 </div>
                 </span>
@@ -215,7 +216,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                         <label class="switch pr-5 switch-success mr-3">
                             <span id="OresolveText">This call is resolved</span>
                             <span id="OnonResolveText" class="error">This call is unresolved</span>
-                            <input type="checkbox" id="Ocall_resolved" name="call_resolved" checked="checked"><span class="slider"></span>
+                            <input type="checkbox" id="Ocall_resolved" name="call_resolved" <?php if(callLogStatus() == 'yes') { ?> checked="checked" <?php } ?>><span class="slider"></span>
                         </label>
                     </div>
                 </div>
@@ -242,6 +243,17 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
 <script type="text/javascript">
     $(document).ready(function () {
         $(".timewidget").hide();
+        <?php if(callLogStatus() == 'yes') { ?>
+            $("#InonResolveText").hide();
+            $("#IresolveText").show();
+            $("#OnonResolveText").hide();
+            $("#OresolveText").show();
+        <?php }else{ ?>
+            $("#InonResolveText").show();
+            $("#IresolveText").hide();
+            $("#OnonResolveText").show();
+            $("#OresolveText").hide();
+        <?php } ?>    
         
         $(".save_and_add_time_entry").hide();
         // $("#case").on("select2-selecting", function(e) {
@@ -668,10 +680,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             $("#OresolveText").hide();
         }
     });
-    $("#InonResolveText").hide();
-    $("#IresolveText").show();
-    $("#OnonResolveText").hide();
-    $("#OresolveText").show();
+
     function getMobileNumber(){
         beforeLoader();
         var selectdValue = $("#caller_name option:selected").val() // or

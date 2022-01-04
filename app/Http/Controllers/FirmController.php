@@ -180,6 +180,11 @@ class FirmController extends BaseController
                 $FirmAddress->save(); 
             }
 
+            if(isset($request->call_log_status)){
+                $FirmAddress->call_log_status = $request->call_log_status;
+                $FirmAddress->save(); 
+            }
+
             // if ($request->hasFile('firm_logo')) {
             //     $image = $request->file('firm_logo');
             //     $name = "firm_".$FirmAddress->id."_".time().'.'.$image->getClientOriginalExtension();

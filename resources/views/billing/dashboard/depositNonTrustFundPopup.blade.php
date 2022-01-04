@@ -1,7 +1,7 @@
 <?php $CommonController= new App\Http\Controllers\CommonController();
 $paymentMethod = unserialize(PAYMENT_METHOD);
 ?>
-<div class="row">
+<div class="row" bladefile="resources/views/billing/dashboard/depositNonTrustFundPopup.blade.php">
     <div class="col-md-12 selenium-invoice-number">Contact: {{$userData['user_name']}}  (<?php echo $CommonController->getUserTypeText($userData['user_level']); ?>)</div>
     <div class="col-md-12 selenium-invoice-number"><strong>Current Balance: ${{number_format($userData['credit_account_balance'],2)}}</strong></div>
 </div>
@@ -157,7 +157,8 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = $.number($('#amountFirst').val(), 2);
+        var f = parseFloat($('#DepositTrustFund #amountFirst').val().replace(/,/g, '')).toFixed(2);;
+        // var f = $.number($('#amountFirst').val(), 2);
         var currentAmt = f;
         swal({
             title: 'Confirm the deposit amount of $' + currentAmt + '?',

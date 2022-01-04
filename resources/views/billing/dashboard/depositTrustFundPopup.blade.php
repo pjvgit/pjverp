@@ -46,7 +46,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Payment Method</label>
-                    <select class="form-control caller_name select2" id="payment_method1" name="payment_method"
+                    <select class="form-control caller_name select2" id="payment_method" name="payment_method"
                         style="width: 100%;" placeholder="Select or enter a name...">
                         <option></option>
                         <?php foreach($paymentMethod as $key=>$val){?>
@@ -141,7 +141,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                 }
             },
             errorPlacement: function (error, element) {
-                if (element.is('#payment_method1')) {
+                if (element.is('#payment_method')) {
                     error.appendTo('#ptype');
                 } else if (element.is('#amountFirst')) {
                     error.appendTo('#amt');
@@ -166,7 +166,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = parseFloat($('#amountFirst').val().replace(/,/g, '')).toFixed(2);;
+        var f = parseFloat($('#DepositTrustFund #amountFirst').val().replace(/,/g, '')).toFixed(2);;
         // var f = $.number($('#amountFirst').val(), 2);
         var currentAmt = f;
         swal({

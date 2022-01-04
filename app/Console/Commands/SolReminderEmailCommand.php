@@ -62,7 +62,7 @@ class SolReminderEmailCommand extends Command
                 //  Reminders will be sent to all firm users linked to the case.
                 foreach($caseDetails->caseStaffDetails as $caseStaff => $staff) {
                     $date = Carbon::now($staff->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
-                    echo "SOL reminder email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date ;echo PHP_EOL;
+                    Log::info("Staff > ". $staff->user_id. ' > '. $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);echo PHP_EOL;
                     $utcDate = Carbon::now('UTC');
                     if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
                         if ($date->hour === 05) { 

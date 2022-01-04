@@ -469,6 +469,13 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="default-call-status-section row form-group">
+                                            <label for="default-call-status" class="col-3 col-form-label"><b>Default Call Log State</b></label>
+                                            <div class="form-control-plaintext col-9">
+                                                <input id="default-call-status-resolved" data-testid="default-call-status-resolved" name="call_log_status" value="yes" type="radio" class="form-check-input" <?php if($firmData->call_log_status=="yes"){ echo "checked=checked";} ?>><span for="default-call-status-resolved" style="padding-right: 2.5rem;" class="">Resolved</span>
+                                                <input id="default-call-status-unresolved" data-testid="default-call-status-unresolved" name="call_log_status" value="no"  type="radio" class="form-check-input" <?php if($firmData->call_log_status=="no"){ echo "checked=checked";} ?>><span for="default-call-status-unresolved" class="">Unresolved</span>
+                                            </div>
+                                        </div>
                                         <div class="firm-logo-section row form-group">
                                             <label for="firm-logo" class="col-3 col-form-label"><b>Firm Logo</b></label>
                                             <div class="form-control-plaintext col-9">
