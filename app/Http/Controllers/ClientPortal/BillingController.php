@@ -970,7 +970,6 @@ class BillingController extends Controller
             // $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
             $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
             if($paymentDetail) {
-                Log::info("Invoice online payment detail: ". @$paymentDetail);
                 if($paymentDetail->payment_method == 'cash') {
                     Log::info("invoice cash payment");
                     // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
@@ -980,10 +979,8 @@ class BillingController extends Controller
                     $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
                     if($invoice && $invoiceHistory) {
                         Log::info("cash invoice & invoice history found");
-                        Log::info("Cash invoice history: ". @$invoiceHistory);
                         // Update invoice payment status
                         $invoicePayment = InvoicePayment::where("id", $invoiceHistory->invoice_payment_id)->first();
-                        Log::info("Cash invoice payment: ". @$invoicePayment);
                         InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => 0]);
 
                         // Update invoice history status
