@@ -967,7 +967,8 @@ class BillingController extends Controller
         try {
             Log::info("conekta object order id: ". @$data->data->object->id);
             $response = $data->data;
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            // $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
             if($paymentDetail) {
                 Log::info("Invoice online payment detail: ". @$paymentDetail);
                 if($paymentDetail->payment_method == 'cash') {
@@ -975,8 +976,8 @@ class BillingController extends Controller
                     // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
                     DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
 
-                    $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
-                    $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
+                    $invoice = DB::table("invoices")->where("id", $paymentDetail->invoice_id)->first();
+                    $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
                     if($invoice && $invoiceHistory) {
                         Log::info("cash invoice & invoice history found");
                         Log::info("Cash invoice history: ". @$invoiceHistory);
@@ -986,7 +987,7 @@ class BillingController extends Controller
                         InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => 0]);
 
                         // Update invoice history status
-                        InvoiceHistory::whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
+                        DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
 
                         // Update invoice status and amount
                         Invoices::whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
