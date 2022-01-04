@@ -1102,7 +1102,7 @@ class ClientdashboardController extends BaseController
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$request->user_id)->first();
         $userCases = CaseMaster::
                     join('case_client_selection', function($join)  use($request) {
-                        $join->on('case_client_selection.case_id', '=', 'case_master.id')->where('case_client_selection.selected_user', $request->user_id);
+                        $join->on('case_client_selection.case_id', '=', 'case_master.id')->where('case_client_selection.selected_user', $request->user_id)->whereNull('case_client_selection.deleted_at');
                     })
                     ->select("case_master.id", "case_master.case_title", "case_client_selection.allocated_trust_balance")->get();
 

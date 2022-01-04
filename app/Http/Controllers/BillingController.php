@@ -9093,15 +9093,15 @@ class BillingController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $user_id=$request->logged_in_user;
-            $userData = User::find($user_id);
-            if(!empty($userData)){
+            // $user_id=$request->logged_in_user;
+            // $userData = User::find($user_id);
+            // if(!empty($userData)){
                 
                 // $CaseMasterClient = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
                 $CaseMasterClient = firmClientList();
                 // $CaseMasterCompany = User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as contact_name'),"id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
                 $CaseMasterCompany = firmCompanyList();
-                if($request->case_id) {
+                /* if($request->case_id) {
                     $authUser = auth()->user();
                     $CaseMasterClient = User::whereHas("clientCases", function($query) use($request) {
                         $query->where("case_master.id", $request->case_id);
@@ -9112,12 +9112,12 @@ class BillingController extends BaseController
                         $query->where("case_master.id", $request->case_id);
                     })->select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')
                     ->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
-                }
+                } */
                 return view('billing.dashboard.loadDepositIntoCredit',compact('CaseMasterClient','CaseMasterCompany'));
                 exit;  
-            }else{
-                return response()->json(['errors'=>'error']);
-            }
+            // }else{
+            //     return response()->json(['errors'=>'error']);
+            // }
         }
          
     } 

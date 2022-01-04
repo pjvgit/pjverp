@@ -460,7 +460,7 @@ function firmClientList()
 {
     $authUser = auth()->user();
     return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
-                ->where('user_level', 2)->whereIn("user_status", [1,2])->get();
+                ->where('user_level', 2)->whereIn("user_status", [1,2])->get()->makeHidden(['caselist']);
 }
 
 /**
@@ -469,7 +469,8 @@ function firmClientList()
 function firmCompanyList()
 {
     $authUser = auth()->user();
-    return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)->whereIn("user_status", [1,2])->where('user_level', 4)->get();
+    return User::select("id", DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'), 'user_level', 'email')->where("firm_name", $authUser->firm_name)
+            ->whereIn("user_status", [1,2])->where('user_level', 4)->get()->makeHidden(['caselist']);
 }
 
 /**
