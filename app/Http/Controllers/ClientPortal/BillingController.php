@@ -280,6 +280,7 @@ class BillingController extends Controller
                                 'created_by' => auth()->id(),
                                 'firm_id' => $client->firm_name,
                                 'conekta_order_object' => $order,
+                                'status' => 'deposit',
                             ]);
 
                             // Update fund request paid/due amount and status
@@ -331,7 +332,9 @@ class BillingController extends Controller
                                     'firm_id' => $client->firm_name,
                                     'related_to_fund_request_id' => $fundRequest->id,
                                     'created_by' => $client->id,
+                                    'online_payment_status' => $order->payment_status,
                                 ]);
+                                $requestOnlinePayment->fill(['credit_history_id' => $creditHistory->id])->save();
 
                                 // For update next/previous credit balance
                                 $this->updateNextPreviousCreditBalance($client->id);
@@ -548,6 +551,7 @@ class BillingController extends Controller
                                 'created_by' => auth()->id(),
                                 'firm_id' => $client->firm_name,
                                 'conekta_order_object' => $order,
+                                'status' => 'deposit',
                             ]);
 
                             // Update fund request paid/due amount and status
@@ -713,7 +717,7 @@ class BillingController extends Controller
                         ]
                     ],
                     'currency'    => 'MXN',
-                    'metadata'    => array('payment' => 'Invoice/FundRequest cash payment')
+                    'metadata'    => array('payment' => 'Invoice/FundRequest bank payment')
                 ];
                 if($request->type == 'fundrequest') {
                     $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
@@ -735,6 +739,7 @@ class BillingController extends Controller
                                 'created_by' => auth()->id(),
                                 'firm_id' => $client->firm_name,
                                 'conekta_order_object' => $order,
+                                'status' => 'deposit',
                             ]);
 
                             // Update fund request paid/due amount and status
@@ -782,7 +787,7 @@ class BillingController extends Controller
                             $data['is_for_client'] = 'yes';
                             $CommonController->addMultipleHistory($data); */
 
-                            // Cash payment reference email to client
+                            // Bank payment reference email to client
                             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $requestOnlinePayment, 'bank_reference_client', 'fundrequest'));
 
                             DB::commit();
@@ -936,7 +941,7 @@ class BillingController extends Controller
             switch ($data->type) {
                 case 'order.paid':
                     Log::info("conekta charge paid called");
-                    $this->chargePaidConfirm($data);
+                    $this->orderPaidConfirm($data);
                     break;
                 case 'Order expired':
                     Log::info("conekta order expired called");
@@ -957,6 +962,57 @@ class BillingController extends Controller
         }
     }
 
+    public function orderPaidConfirm($data)
+    {
+        try {
+            Log::info("conekta object order id: ". @$data->data->object->id);
+            $response = $data->data;
+            // $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            if($paymentDetail) {
+                if($paymentDetail->payment_method == 'cash') {
+                    Log::info("invoice cash payment");
+                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
+
+                    $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
+                    if($invoiceHistory) {
+                        Log::info("cash invoice & invoice history found");
+                        // Update invoice payment status
+                        DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+
+                        // Update invoice history status
+                        DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
+
+                        // Update invoice status and amount
+                        DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+                        $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
+                        $this->updateInvoiceAmount($invoice->id);
+
+                        // Send confirmation email to client
+                        $client = User::whereId($paymentDetail->user_id)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'invoice'));
+
+                        // Send confirmation email to invoice created user
+                        $user = User::whereId($invoice->created_by)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+
+                        // Send confirm email to firm owner/lead attorney
+                        $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+                        Log::info('invoice cash payment webhook successfull');
+                    } else {
+                        Log::info("cash invoice & invoice history not found");
+                    }
+                } else {
+                    Log::info("Invoice order paid else");
+                }
+            }
+        } catch (Exception $e) {
+            Log::info("Invoice cash exception: ". $e->getMessage().' = '. $e->getLine());
+        }
+    }
+
     /**
      * Cash/bank payment webhook confirmation
      */
@@ -971,8 +1027,10 @@ class BillingController extends Controller
             if($paymentDetail) {
                 Log::info("Invoice online payment detail: ". @$paymentDetail);
                 if($paymentDetail->payment_method == 'cash') {
-                    Log::info("cash payment");
-                    $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    try {
+                    Log::info("invoice cash payment");
+                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
 
                     $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
                     $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
@@ -985,11 +1043,11 @@ class BillingController extends Controller
                         InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => 0]);
 
                         // Update invoice history status
-                        $invoiceHistory->fill(['status' => '1', 'online_payment_status' => 'paid'])->save();
+                        InvoiceHistory::whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
 
                         // Update invoice status and amount
-                        $invoice->fill(['online_payment_status' => 'paid'])->save();
-                        $this->updateInvoiceAmount($invoice->id);
+                        Invoices::whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+                        // $this->updateInvoiceAmount($invoice->id);
 
                         // Send confirmation email to client
                         $client = User::whereId($paymentDetail->user_id)->first();
@@ -1005,6 +1063,9 @@ class BillingController extends Controller
                         Log::info('invoice cash payment webhook successfull');
                     } else {
                         Log::info("cash invoice & invoice history not found");
+                    }
+                    } catch (Exception $e) {
+                        Log::info("invoice cash exception: ". $e->getMessage().' = '.$e->getLine());
                     }
                 } 
                 else if($paymentDetail->payment_method == 'bank transfer') {
@@ -1105,6 +1166,7 @@ class BillingController extends Controller
                                 'firm_id' => $paymentDetail->firm_id,
                                 'related_to_fund_request_id' => $fundRequest->id,
                                 'created_by' => $paymentDetail->user_id,
+                                'online_payment_status' => 'paid',
                             ]);
                             $paymentDetail->fill(['credit_history_id' => $creditHistory->id])->save();
 
@@ -1194,6 +1256,7 @@ class BillingController extends Controller
                                 'firm_id' => $paymentDetail->firm_id,
                                 'related_to_fund_request_id' => $fundRequest->id,
                                 'created_by' => $paymentDetail->user_id,
+                                'online_payment_status' => 'paid',
                             ]);
                             $paymentDetail->fill(['credit_history_id' => $creditHistory->id])->save();
 
@@ -1292,6 +1355,6 @@ class BillingController extends Controller
      */
     public function conektaOrderRefund($data)
     {
-        Log::info("Conekta order refund response: ". $data);
+        Log::info("Conekta order refund response: ". json_encode($data));
     }
 }

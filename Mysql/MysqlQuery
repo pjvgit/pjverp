@@ -1,6 +1,12 @@
 ------------------------------------ 04-JAN-2022 ------------------------------
 ALTER TABLE `firm`
 ADD `call_log_status` enum('yes','no') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'yes' AFTER `firm_logo`;
+
+ALTER TABLE `deposit_into_credit_history`
+ADD `online_payment_status` varchar(100) NULL AFTER `allocated_to_lead_case_id`;
+
+ALTER TABLE `requested_fund_online_payments`
+ADD `status` enum('deposit','full refund','partial refund','refund entry') NOT NULL DEFAULT 'deposit' AFTER `paid_at`;
 ------------------------------------ 03-JAN-2022 ------------------------------
 INSERT INTO `lead_notes_activity` (`id`, `acrtivity_title`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`) VALUES
 (1,	'Note',	'1',	'2022-01-03 05:34:01',	0,	NULL,	NULL,	NULL),

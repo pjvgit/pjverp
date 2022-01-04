@@ -22,7 +22,7 @@
             $content = str_replace('[CASE_TITLE]', 'None', $content);
         }
         $content = str_replace('[PAYABLE_ID]', 'Invoice #'.$payableRecord->id, $content);
-        $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/invoices/view', $payableRecord->decode_id).'" >View</a>', $content);
+        $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/invoices/view', base64_encode($onlinePayment->invoice_id)).'" >View</a>', $content);
     }
     $content = str_replace('[SITE_URL]', '<a href="'.url('/').'" >'.config('app.name').'</a>', $content);
 @endphp
