@@ -252,7 +252,7 @@
 
                         }?>
                         <tr>
-                            <td colspan="4" class="total-summary-column" style="text-align: right;">
+                            <td colspan="3" class="total-summary-column" style="text-align: right;">
                                 Flat Fee Total:
                             </td>
 

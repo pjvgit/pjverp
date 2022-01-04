@@ -31,6 +31,7 @@ use App\Traits\FundRequestTrait;
 use App\Traits\TrustAccountTrait;
 use Exception;
 use App\Http\Controllers\CommonController;
+use App\RequestedFundOnlinePayment;
 
 class ClientdashboardController extends BaseController
 {
@@ -904,20 +905,31 @@ class ClientdashboardController extends BaseController
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                     } else {
                         if($data->fund_type=="refund_withdraw" || $data->fund_type=="refund_deposit" || $data->fund_type=="refund payment" || $data->fund_type=="refund payment deposit"){
-                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Refund" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                         }else{
-                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
+                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Refund" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$data->id.');"><button type="button"  class="py-0 btn btn-link ">Refund</button></a></span>';
                         }
                         if($userAddInfo->unallocate_trust_balance < $data->amount_paid && !$data->allocated_to_case_id && !$data->allocated_to_lead_case_id && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
                             $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                         } else if($userAddInfo->unallocate_trust_balance < $data->amount_paid && $data->allocated_to_case_id) {
                             $allocatedAmount = CaseClientSelection::where("case_id", $data->allocated_to_case_id)->where("selected_user", $userAddInfo->user_id)->select("allocated_trust_balance")->first();
-                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw" && $data->fund_type != "payment")
+                            if($allocatedAmount->allocated_trust_balance < $data->amount_paid && $data->fund_type != "withdraw" && $data->fund_type != "payment") {
                                 $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                            } else {
+                                if($data->online_payment_status == "paid") 
+                                    $action .= '';
+                                else if($data->online_payment_status == "partially_refunded") 
+                                    $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true"><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
+                                else
+                                    $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
+                            }
+                        } else {
+                            if($data->online_payment_status == "paid") 
+                                $action .= '';
+                            else if($data->online_payment_status == "partially_refunded") 
+                                $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true"><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
                             else
                                 $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
-                        } else {
-                            $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" class="py-0 btn btn-link">Delete</button></a></span>';
                         }
                     }
                 }
@@ -1253,6 +1265,44 @@ class ClientdashboardController extends BaseController
                 $TrustInvoice->created_by=Auth::user()->id; 
                 $TrustInvoice->save();
                 $request->request->add(['trust_history_id' => $TrustInvoice->id]);
+
+                if($GetAmount->online_payment_status == "paid") {
+                    $onlinePaymentDetail = RequestedFundOnlinePayment::where("trust_history_id", $request->transaction_id)->first();
+                    $authUser = auth()->user();
+                    if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        $order->refund([
+                            'reason' => 'requested_by_client',
+                            'amount' => (int) $request->amount,
+                        ]);
+                        
+                        if($order->payment_status == "partially_refunded") {
+
+                            $requestOnlinePayment = RequestedFundOnlinePayment::create([
+                                'fund_request_id' => $onlinePaymentDetail->fund_request_id,
+                                'user_id' => $onlinePaymentDetail->user_id,
+                                'payment_method' => 'card',
+                                'amount' => $request->amount,
+                                'conekta_order_id' => $order->id,
+                                'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                'conekta_payment_status' => $order->payment_status,
+                                'status' => 'refund entry',
+                                'refund_reference_id' => $onlinePaymentDetail->id,
+                                'created_by' => $authUser->id,
+                                'firm_id' => $authUser->firm_name,
+                                'conekta_order_object' => $order,
+                                'trust_history_id' => $TrustInvoice->id,
+                            ]);
+                            
+                            // Update payment detail status
+                            $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                            $TrustInvoice->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    }
+                }
 
                 if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
                     $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request, $TrustInvoice);
@@ -3522,13 +3572,20 @@ class ClientdashboardController extends BaseController
                 if($data->is_refunded == "yes") {
 
                 } else if($data->payment_method == "refund") {
-                    $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
-                } else {
-                    $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
-                    if($userAddInfo->credit_account_balance < $data->deposit_amount && $data->payment_type != "withdraw" && $data->payment_type != "payment")
-                        $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
+                    if($data->online_payment_status == "partially_refunded") 
+                        $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true"><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
                     else
                         $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                } else {
+                    $action .= '<a href="javascript:;" class="refund-payment-link" data-target="#RefundPopup" data-toggle="modal" onclick="RefundCreditPopup('.$data->id.')">Refund</a><br>';
+                    if($data->online_payment_status == "paid")  {
+                        $action .= '';
+                    } else {
+                        if($userAddInfo->credit_account_balance < $data->deposit_amount && $data->payment_type != "withdraw" && $data->payment_type != "payment")
+                            $action .= '<a href="javascript:;" onclick="deleteCreditWarningPopup(\''.@$data->user->full_name.'\')">Delete</a>';
+                        else
+                            $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
+                    }
                 }
                 return $action;
             })
@@ -3594,9 +3651,9 @@ class ClientdashboardController extends BaseController
                     $dText = "Deposit into Credit (Operating Account)";
 
                 $noteContent = '<div>'.$data->notes.'</div>';
-                return $dText.' '.$isRefund.'<br>
+                return $dText.' '.$isRefund. (($data->notes) ? '<br>
                         <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                        data-trigger="focus" title="Notes" data-content="'.$noteContent.'">View Notes</a>';
+                        data-trigger="focus" title="Notes" data-content="'.$noteContent.'">View Notes</a>' : '');
             })
             ->rawColumns(['action', 'detail', 'related_to_invoice_id'])
             ->with("credit_total", number_format($userAddInfo->credit_account_balance ?? 0.00, 2))
@@ -3727,6 +3784,43 @@ class ClientdashboardController extends BaseController
                     "related_to_invoice_id" => $creditHistory->related_to_invoice_id,
                     "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
                 ]);
+
+                if($creditHistory->online_payment_status == "paid") {
+                    $onlinePaymentDetail = RequestedFundOnlinePayment::where("credit_history_id", $request->transaction_id)->first();
+                    $authUser = auth()->user();
+                    if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                        $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                        \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                        $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                        $order->refund([
+                            'reason' => 'requested_by_client',
+                            'amount' => (int) $request->amount,
+                        ]);
+                        
+                        if($order->payment_status == "partially_refunded") {
+                            $requestOnlinePayment = RequestedFundOnlinePayment::create([
+                                'fund_request_id' => $onlinePaymentDetail->fund_request_id,
+                                'user_id' => $onlinePaymentDetail->user_id,
+                                'payment_method' => 'card',
+                                'amount' => $request->amount,
+                                'conekta_order_id' => $order->id,
+                                'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                'conekta_payment_status' => $order->payment_status,
+                                'status' => 'refund entry',
+                                'refund_reference_id' => $onlinePaymentDetail->id,
+                                'created_by' => $authUser->id,
+                                'firm_id' => $authUser->firm_name,
+                                'conekta_order_object' => $order,
+                                'credit_history_id' => $depCredHis->id,
+                            ]);
+                            
+                            // Update payment detail status
+                            $onlinePaymentDetail->fill(["status" => ($onlinePaymentDetail->amount == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                            $depCredHis->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    }
+                }
 
                 if($fund_type == "refund payment" || $fund_type == "refund payment deposit") {
                     $newInvPaymentId = $this->updateInvoicePaymentAfterRefund($creditHistory->id, $request);

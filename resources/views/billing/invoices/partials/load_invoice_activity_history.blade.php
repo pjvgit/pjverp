@@ -53,7 +53,15 @@
                         }else if($value->acrtivity_title=="Payment Received" && $value->status=2){
                             $refund='';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
-                            $refund='<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
+                            if($value->online_payment_status == "partially_refunded" && $value->payment_from == "online") {
+                                $refund = '<span class="tooltip-wrapper" style="position: relative;"><span>
+                                    <span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true">
+                                        <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
+                                    </span>
+                                </span>';
+                            } else {
+                                $refund='<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
+                            }
                         }else{
                             $refund='';
                         }
@@ -195,7 +203,15 @@
                         }else if($value->acrtivity_title=="Payment Received" && $value->status=2){
                             $refund='';
                         }else if($value->acrtivity_title=="Payment Refund" && $value->status==4 || $value->status==2){
+                            if($value->online_payment_status == "partially_refunded" && $value->payment_from == "online") {
+                                $refund = '<span class="tooltip-wrapper text-center" style="position: relative;"><span>
+                                    <span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true">
+                                        <i class="pl-1 fas fa-question-circle fa-lg"></i></span>
+                                    </span>
+                                </span>';
+                            } else {
                             $refund='<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
+                            }
                         }else{
                             $refund='';
                         }
