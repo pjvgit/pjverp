@@ -941,7 +941,7 @@ class BillingController extends Controller
             switch ($data->type) {
                 case 'order.paid':
                     Log::info("conekta charge paid called");
-                    $this->chargePaidConfirm($data);
+                    $this->orderPaidConfirm($data);
                     break;
                 case 'Order expired':
                     Log::info("conekta order expired called");
@@ -959,6 +959,60 @@ class BillingController extends Controller
         } catch (Exception $e) {
             dbEnd();
             Log::info('Payment webhook failed: '. $e->getMessage());
+        }
+    }
+
+    public function orderPaidConfirm($data)
+    {
+        try {
+            Log::info("conekta object order id: ". @$data->data->object->id);
+            $response = $data->data;
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            if($paymentDetail) {
+                Log::info("Invoice online payment detail: ". @$paymentDetail);
+                if($paymentDetail->payment_method == 'cash') {
+                    Log::info("invoice cash payment");
+                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
+                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
+
+                    $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
+                    $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
+                    if($invoice && $invoiceHistory) {
+                        Log::info("cash invoice & invoice history found");
+                        Log::info("Cash invoice history: ". @$invoiceHistory);
+                        // Update invoice payment status
+                        $invoicePayment = InvoicePayment::where("id", $invoiceHistory->invoice_payment_id)->first();
+                        Log::info("Cash invoice payment: ". @$invoicePayment);
+                        InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => 0]);
+
+                        // Update invoice history status
+                        InvoiceHistory::whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
+
+                        // Update invoice status and amount
+                        Invoices::whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+                        // $this->updateInvoiceAmount($invoice->id);
+
+                        // Send confirmation email to client
+                        $client = User::whereId($paymentDetail->user_id)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_client', 'invoice'));
+
+                        // Send confirmation email to invoice created user
+                        $user = User::whereId($invoice->created_by)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user', 'invoice'));
+
+                        // Send confirm email to firm owner/lead attorney
+                        $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user', 'invoice'));
+                        Log::info('invoice cash payment webhook successfull');
+                    } else {
+                        Log::info("cash invoice & invoice history not found");
+                    }
+                } else {
+                    Log::info("Invoice order paid else");
+                }
+            }
+        } catch (Exception $e) {
+            Log::info("Invoice cash exception: ". $e->getMessage().' = '. $e->getLine());
         }
     }
 
