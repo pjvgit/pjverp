@@ -91,7 +91,7 @@
                                         <div class="text-center">
                                             <h2>Concepto de su Pago</h2>{{ ($payableType == 'fundrequest') ? 'Request #'.$paymentDetail->fund_request_id : 'Invoice #'.$paymentDetail->invoice_id}}<br>
                                             <br>
-                                            <img src="{{ asset('images/payment/SPEI.jpg') }}" alt="SPEI">
+                                            <img src="{{ asset('images/payment/spei.jpg') }}" alt="SPEI">
                                             <br><br> 
                                         </div>
                                     </div>
