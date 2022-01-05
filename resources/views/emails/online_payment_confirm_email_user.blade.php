@@ -13,7 +13,7 @@
         $content = str_replace('[CLIENT_NAME]', @$payableRecord->user->full_name ?? '', $content);
         $content = str_replace('[CASE_TITLE]', '-', $content);
         $content = str_replace('[PAYABLE_ID]', 'Request #'.$payableRecord->id, $content);
-        $content = str_replace('[INVOICE_LINK]', '<a href="'.route('client/bills/request/detail', base64_encode($onlinePayment->fund_request_id)).'" >View</a>', $content);
+        $content = str_replace('[INVOICE_LINK]', '<a href="'.route('bills/retainer_requests').'" >View</a>', $content);
     } else {
         $content = str_replace('[CLIENT_NAME]', @$payableRecord->client->full_name ?? '', $content);
         if(!empty($payableRecord->case)) {

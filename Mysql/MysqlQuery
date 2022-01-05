@@ -1,3 +1,27 @@
+------------------------------------ 05-JAN-2022 ------------------------------
+ALTER TABLE `deposit_into_credit_history`
+CHANGE `total_balance` `total_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `related_to_invoice_id`;
+
+ALTER TABLE `invoice_apply_trust_credit_funds`
+CHANGE `applied_amount` `applied_amount` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `trust_account_type`,
+CHANGE `allocate_applied_amount` `allocate_applied_amount` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `applied_amount`,
+CHANGE `total_balance` `total_balance` decimal(11,2) NULL AFTER `history_last_id`;
+
+ALTER TABLE `invoice_temp_infos`
+CHANGE `applied_amount` `applied_amount` decimal(11,2) NULL DEFAULT '0.00' AFTER `trust_account_type`;
+
+ALTER TABLE `lead_additional_info`
+CHANGE `potential_case_value` `potential_case_value` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `practice_area`,
+CHANGE `allocated_trust_balance` `allocated_trust_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `converted_date`;
+
+ALTER TABLE `requested_fund_online_payments`
+CHANGE `amount` `amount` decimal(11,2) NULL AFTER `payment_method`;
+
+ALTER TABLE `users_additional_info`
+CHANGE `credit_account_balance` `credit_account_balance` decimal(11,2) NOT NULL DEFAULT '0.00' AFTER `trust_account_balance`;
+
+ALTER TABLE `deposit_into_credit_history`
+CHANGE `payment_method` `payment_method` enum('cash','check','credit card','paypal','other','refund','withdraw','payment','card','oxxo cash','spei') COLLATE 'latin1_swedish_ci' NULL DEFAULT 'cash' AFTER `user_id`;
 ------------------------------------ 04-JAN-2022 ------------------------------
 ALTER TABLE `firm`
 ADD `call_log_status` enum('yes','no') COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT 'yes' AFTER `firm_logo`;
@@ -576,6 +600,8 @@ ALTER TABLE `case_sol_reminder` ADD `remind_at` TIMESTAMP NULL AFTER `reminer_nu
 ALTER TABLE `case_sol_reminder` ADD `is_dismiss` ENUM('no','yes') NOT NULL DEFAULT 'no' AFTER `snooze_remind_at`;
 
 ------------------------------------ 09-SEP-2021 ------------------------------
+ALTER TABLE `invoice_apply_trust_credit_funds`
+ADD `trust_account_type` enum('unallocate','allocate') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'unallocate' AFTER `account_type`;
 ALTER TABLE `invoice_apply_trust_credit_funds` ADD `trust_history_last_id` INT(11) NULL AFTER `show_credit_account_history`, ADD `credit_history_last_id` INT(11) NULL AFTER `trust_history_last_id`;
 ALTER TABLE `invoice_apply_trust_credit_funds` ADD `total_balance` FLOAT(8,2) NOT NULL DEFAULT '0.00' AFTER `credit_history_last_id`;
 ALTER TABLE `invoice_apply_trust_credit_funds` CHANGE `total_balance` `total_balance` FLOAT(8,2) NULL;

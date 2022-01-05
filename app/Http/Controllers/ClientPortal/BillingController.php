@@ -36,7 +36,7 @@ class BillingController extends Controller
 
     public function __construct()
     {
-        \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");   
+        // \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w"); 
     }
 
     /**
@@ -210,7 +210,8 @@ class BillingController extends Controller
         // return $request->all();
         DB::beginTransaction();
         try {
-            \Conekta\Conekta::setApiKey("key_pRsoTgnsyUULMb76SDXA6w");
+            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
             $client = User::whereId($request->client_id)->first();
             if($client) {
                 if(empty($client->conekta_customer_id)) {
@@ -494,6 +495,8 @@ class BillingController extends Controller
         // return $request->all();
         DB::beginTransaction();
         try {
+            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
             $client = User::whereId(auth()->id())->first();
             if($client) {
                 if(empty($client->conekta_customer_id)) {
@@ -666,6 +669,8 @@ class BillingController extends Controller
         // return $request->all();
         DB::beginTransaction();
         try {
+            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
             $client = User::whereId(auth()->id())->first();
             if($client) {
                 if(empty($client->conekta_customer_id)) {
@@ -928,56 +933,6 @@ class BillingController extends Controller
         }
     }
 
-    public function chargePaidConfirm($data)
-    {
-        try {
-            Log::info("conekta object order id: ". @$data->data->object->id);
-            $response = $data->data;
-            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
-            // $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
-            if($paymentDetail) {
-                if($paymentDetail->payment_method == 'bank transfer') {
-                    Log::info("invoice bank payment");
-                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
-                            ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_id' => json_encode($data)]);
-
-                    $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
-                    if($invoiceHistory) {
-                        // Update invoice payment status
-                        DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
-
-                        // Update invoice history status
-                        DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
-
-                        // Update invoice status and amount
-                        DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
-                        $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
-                        $this->updateInvoiceAmount($invoice->id);
-
-                        // Send confirmation email to client
-                        $client = User::whereId($paymentDetail->user_id)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail, 'bank_confirm_client', 'invoice'));
-
-                        // Send confirmation email to invoice created user
-                        $user = User::whereId($invoice->created_by)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-
-                        // Send confirm email to firm owner/lead attorney
-                        $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-                        Log::info('invoice bank payment webhook successfull');
-                    } else {
-                        Log::info("cash invoice & invoice history not found");
-                    }
-                } else {
-                    Log::info("Invoice order paid else");
-                }
-            }
-        } catch (Exception $e) {
-            Log::info("Invoice cash exception: ". $e->getMessage().' = '. $e->getLine());
-        }
-    }
-
     /**
      * Cash/bank payment webhook confirmation
      */
@@ -1018,6 +973,8 @@ class BillingController extends Controller
                         'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
                         'type' => 'invoices',
                         'action' => 'pay',
+                        'created_by' => $paymentDetail->user_id,
+                        'created_at' => Carbon::now(),
                     ]);
 
                     // For client activity
@@ -1030,6 +987,8 @@ class BillingController extends Controller
                         'type' => 'invoices',
                         'action' => 'pay',
                         'is_for_client' => 'yes',
+                        'created_by' => $paymentDetail->user_id,
+                        'created_at' => Carbon::now(),
                     ]);
                     
                     if($paymentDetail->payment_method == 'cash') {
@@ -1085,6 +1044,7 @@ class BillingController extends Controller
                                 'payment_date' => date('Y-m-d'),
                                 'status' => ($remainAmt == 0) ? 'paid' : 'partial',
                                 'online_payment_status' => 'paid',
+                                'updated_at' => Carbon::now()
                             ]);
 
                         // Get user additional info
@@ -1104,6 +1064,8 @@ class BillingController extends Controller
                                 'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
                                 'created_by' => $paymentDetail->user_id,
                                 'online_payment_status' => 'paid',
+                                'created_by' => $paymentDetail->user_id,
+                                'created_at' => Carbon::now(),
                             ]);
                             $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
 
@@ -1120,7 +1082,7 @@ class BillingController extends Controller
                             $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
                                 'user_id' => $paymentDetail->user_id,
                                 'deposit_amount' => $paymentDetail->amount,
-                                'payment_method' => $paymentMethod,
+                                'payment_method' => strtolower($paymentMethod),
                                 'payment_date' => date("Y-m-d"),
                                 'total_balance' => @$userAdditionalInfo->credit_account_balance,
                                 'payment_type' => "deposit",
@@ -1128,6 +1090,8 @@ class BillingController extends Controller
                                 'related_to_fund_request_id' => $fundRequest->id,
                                 'created_by' => $paymentDetail->user_id,
                                 'online_payment_status' => 'paid',
+                                'created_by' => $paymentDetail->user_id,
+                                'created_at' => Carbon::now(),
                             ]);
                             $paymentDetail->fill(['credit_history_id' => $creditHistoryId])->save();
 
@@ -1144,6 +1108,8 @@ class BillingController extends Controller
                             'activity' => "pay a payment of $".number_format($paymentDetail->amount, 2)." (".$paymentMethod.") for deposit request",
                             'type' => 'fundrequest',
                             'action' => 'pay',
+                            'created_by' => $paymentDetail->user_id,
+                            'created_at' => Carbon::now(),
                         ]);
 
                         // For client activity
@@ -1156,6 +1122,8 @@ class BillingController extends Controller
                             'type' => 'fundrequest',
                             'action' => 'pay',
                             'is_for_client' => 'yes',
+                            'created_by' => $paymentDetail->user_id,
+                            'created_at' => Carbon::now(),
                         ]);
 
                         if($paymentDetail->payment_method == 'cash') {

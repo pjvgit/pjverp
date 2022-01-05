@@ -3785,7 +3785,7 @@ class ClientdashboardController extends BaseController
                     "related_to_fund_request_id" => $creditHistory->related_to_fund_request_id,
                 ]);
 
-                if($creditHistory->online_payment_status == "paid") {
+                if($creditHistory->online_payment_status == "paid" && $creditHistory->payment_method == "card") {
                     $onlinePaymentDetail = RequestedFundOnlinePayment::where("credit_history_id", $request->transaction_id)->first();
                     $authUser = auth()->user();
                     if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
