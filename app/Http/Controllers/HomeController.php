@@ -965,7 +965,7 @@ class HomeController extends BaseController
     //when user close the browser or tab, user logout from the server
     public function browserClose(Request $request){
         
-        if(isset($request->smart_timer_id)){
+        if(isset($request->smart_timer_id) && $request->smart_timer_id != '' && $request->smart_timer_id > 0){
             if(isset($request->total_time) && $request->total_time != null){
                 $SmartTimer = SmartTimer::find($request->smart_timer_id);    
                 $SmartTimer->paused_at = strtotime((string) $request->total_time, 0);

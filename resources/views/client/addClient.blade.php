@@ -258,10 +258,10 @@
                 <div class="loader-bubble loader-bubble-primary" id="innerLoader" style="display:none;"></div>
             </label>
             <label for="inputEmail3" class="col-sm-5 col-form-label">
-                <button class="btn btn-primary float-right example-button m-1" id="submit" name="save" value="saveonly"
+                <button class="btn btn-primary float-right example-button m-1 submitContact" id="submit" name="save" value="saveonly"
                     type="submit">Save Contact</button>
 
-                <button class="btn btn-outline-secondary m-1 float-right" id="submit" type="submit" name="savandaddcase"
+                <button class="btn btn-outline-secondary m-1 float-right submitContact" id="submit" type="submit" name="savandaddcase"
                     value="savandaddcase">Save & Add Case</button>
             </label>
         </div>
@@ -374,17 +374,18 @@
         // alert($(this).val());
         if ($(this).val() == 'savandaddcase') {
             $('#createNewUser').submit(function (e) {
-                $("#submit").attr("disabled", true);
+                $(".submitContact").attr("disabled", true);
                 $("#innerLoader").css('display', 'block');
                 e.preventDefault();
 
                 if (!$('#createNewUser').valid()) {
                     $("#innerLoader").css('display', 'none');
-                    $('#submit').removeAttr("disabled");
+                    $('.submitContact').removeAttr("disabled");
                     return false;
                 }
                 var dataString = '';
                 dataString = $("#createNewUser").serialize();
+                $("#preloader").show();
                 $.ajax({
                     type: "POST",
                     url: baseUrl + "/contacts/saveAddContact", // json datasource
@@ -393,6 +394,7 @@
                         settings.data += '&saveandaddcase=yes';
                     },
                     success: function (res) {
+                        $("#preloader").hide();
                         $("#innerLoader").css('display', 'block');
                         if (res.errors != '') {
                             $('#showError').html('');
@@ -405,14 +407,14 @@
                             $('#showError').append(errotHtml);
                             $('#showError').show();
                             $("#innerLoader").css('display', 'none');
-                            $('#submit').removeAttr("disabled");
+                            $('.submitContact').removeAttr("disabled");
                             $('#AddContactModal').animate({
                                 scrollTop: 0
                             }, 'slow');
 
                             return false;
                         } else {
-                            loadStep1(res.id);
+                            loadStep1(res.user_id);
                             $('#AddCaseModel').modal('show');
 
                         }
@@ -430,13 +432,13 @@
                 }
 
                 me.data('requestRunning', true);
-                 $("#submit").attr("disabled", true);
+                 $(".submitContact").attr("disabled", true);
                 $("#innerLoader").css('display', 'block');
                 e.preventDefault();
 
                 if (!$('#createNewUser').valid()) {
                     $("#innerLoader").css('display', 'none');
-                    $('#submit').removeAttr("disabled");
+                    $('.submitContact').removeAttr("disabled");
                     me.data('requestRunning', false);
                     return false;
                 }
@@ -461,7 +463,7 @@
                             $('#showError').append(errotHtml);
                             $('#showError').show();
                             $("#innerLoader").css('display', 'none');
-                            $('#submit').removeAttr("disabled");
+                            $('.submitContact').removeAttr("disabled");
                             // $("#AddContactModal").scrollTop(0);
                             $('#AddContactModal').animate({
                                 scrollTop: 0

@@ -224,7 +224,7 @@
                                     name="case_or_lead[1]" data-placeholder="Search for an existing contact or company">
                                     <option value="">Select case</option>
                                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                    <option <?php //if($case_id==$Caseval->id){ echo "selected=selected"; } ?> 
+                                    <option <?php if($case_id==$Caseval->id){ echo "selected=selected"; } ?> 
                                         value="{{$Caseval->id}}">{{$Caseval->case_title}}
                                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
                                     </option>
@@ -268,10 +268,9 @@
                         <div class="">
                             <div class="form-check">
                                 <label class="form-check-label ">
-                                    <input type="checkbox" name="billable[1]" class="billable-field form-check-input"
-                                        checked="checked">
+                                    <input type="checkbox"  name="billable[1]" dvid="1" class="billable-field  bulk_billable_field form-check-input" value="on">
 
-                                    <?php if($default_rate<"0.00"){?>
+                                    <?php if($default_rate > 0){?>
                                             <div class="billtext" id="replaceAmt1"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
@@ -298,7 +297,7 @@
                                     data-placeholder="Search for an existing contact or company">
                                     <option value="">Select case</option>
                                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                                    <option  <?php //if($case_id==$Caseval->id){ echo "selected=selected"; } ?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
+                                    <option  <?php if($case_id==$Caseval->id){ echo "selected=selected"; } ?> value="{{$Caseval->id}}">{{$Caseval->case_title}}
                                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?>
                                     </option>
                                     <?php } ?>
@@ -340,9 +339,8 @@
                         <div class="">
                             <div class="form-check">
                                 <label class="form-check-label ">
-                                    <input type="checkbox" name="billable[]" class="billable-field form-check-input"
-                                        checked="">
-                                        <?php if($default_rate<"0.00"){?>
+                                    <input type="checkbox" name="billable[]" class="billable-field  bulk_billable_field  form-check-input" value="on">
+                                        <?php if($default_rate > 0){?>
                                             <div class="billtext"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
@@ -385,7 +383,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
-        
+        $(".bulk_billable_field").attr('checked',true);
         $('#savenewTimeEntry')[0].reset();
         $("#case_or_lead").select2({
             placeholder: "Select...",
@@ -451,11 +449,16 @@
             $option3.attr('required', 'required');
 
             $option33 = $clone.find('[name="billable[]"]');
+            $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
 
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
+
+            $optionDescripton = $clone.find('[name="description[]"]');
+            $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
+            
             // Add new field
             $('#savebulkTimeEntry').validate('add-one-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
@@ -481,6 +484,9 @@
             $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                 'billable[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
+            //For description
+            $('#descriptionid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
             $('#hideinputcount2').val((parseInt(hideinputcount2) + parseInt(1)));
 
@@ -517,6 +523,7 @@
                     min: " Duration must be greater than 0"
                 }
             });
+            $(".bulk_billable_field").attr('checked',true);
             $("#savebulkTimeEntry").validate();
         });
 
@@ -527,10 +534,10 @@
 
             $row.remove();
             $('#savebulkTimeEntry').validate('removeField', $option);
-            var count = $('#hideinputcount2').val();
+            // var count = $('#hideinputcount2').val();
 
-            count--;
-            $('#hideinputcount2').val(count);
+            // count--;
+            // // $('#hideinputcount2').val(count);
 
         });
 
@@ -549,13 +556,13 @@
             }
             var dataString = '';
             dataString = $("#savebulkTimeEntry").serialize();
-            beforeLoader();
+            $("#preloader").show();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/savebulkTimeEntry", // json datasource
                 data: dataString,
                 success: function (res) {
-                    afterLoader();
+                    $("#preloader").hide();
                     $("#innerLoader").css('display', 'block');
                     if (res.errors != '') {
                         $('#showError').html('');
@@ -597,7 +604,7 @@
                         '<div class="alert alert-danger"><strong>Whoops!</strong> There were some internal problem, Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
                     $('.showError').append(errotHtml);
                     $('.showError').show();
-                    afterLoader();
+                    $("#preloader").hide();
                 }
             });
         });
@@ -607,7 +614,8 @@
             for (var i = 1; i <= 5; i++) {
                 var hideinputcount2 = $('#hideinputcount2').val();
                 var $template = $('#optionTemplate2'),
-                    $clone = $template
+                
+                $clone = $template
                     .clone()
                     .removeClass('hide')
                     .removeAttr('id')
@@ -616,33 +624,29 @@
                     $option = $clone.find('[name="case_or_lead[]"]');
                 $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
-
                 $option.attr('required', 'required');
 
                 $option12 = $clone.find('[name="defaultrate[]"]');
-                $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +
-                    '');
+                $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +'');
                 $option12.attr('required', 'required');
 
                 $option2 = $clone.find('[name="activity[]"]');
-                $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(
-                    1)) + '');
+                $option2.attr('id', 'hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option2.attr('required', 'required');
 
                 $option3 = $clone.find('[name="duration[]"]');
-                $option3.attr('id', 'hideoptioninput2duration' + (parseInt(hideinputcount2) + parseInt(
-                    1)) + '');
+                $option3.attr('id', 'hideoptioninput2duration' + (parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option3.attr('required', 'required');
 
                 $option22 = $clone.find('[class="billtext"]');
                 $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
                 $option33 = $clone.find('[name="billable[]"]');
+                $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
                 $optionDescripton = $clone.find('[name="description[]"]');
-                $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(
-                    1)) + '');
+                $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
                 // Add new field
                 $('#savebulkTimeEntry').validate('add-one-more', $option);
@@ -655,7 +659,7 @@
                 
                 //For option 12
                 $('#hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
-                                'defaultrate[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                    'defaultrate[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
                 //For option 2
                 $('#hideoptioninput2activity' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
@@ -666,12 +670,13 @@
                     'duration[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
                 //For option 3
-                $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 'billable[' +
-                    (parseInt(hideinputcount2) + parseInt(1)) + ']');
+                $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 
+                    'billable[' +(parseInt(hideinputcount2) + parseInt(1)) + ']');
 
                 //For description
                 $('#descriptionid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
                     'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
+
                 $('#hideinputcount2').val((parseInt(hideinputcount2) + parseInt(1)));
 
                 $('#hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1))).rules("add", {
@@ -699,6 +704,7 @@
                             min: " Duration must be greater than 0"
                         }
                     });
+                $(".bulk_billable_field").attr('checked',true);
                 $("#savebulkTimeEntry").validate();
             }
 
@@ -769,8 +775,7 @@
                         }
                     },
                     min : 0.1,
-                    number: true,
-                   
+                    number: true,                   
                 }
             },
             messages: {
@@ -837,14 +842,14 @@
             var dataString = '';
             dataString = $("#savenewTimeEntry").serialize();
 
-            beforeLoader();
+            $("#preloader").show();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/saveTimeEntryPopup", // json datasource
                 data: dataString,
                 success: function (res) {
 
-                    afterLoader();
+                    $("#preloader").hide();
                     $("#innerLoader").css('display', 'block');
                     if (res.errors != '') {
                         $('#showError').html('');
@@ -891,14 +896,30 @@
         });
 
         $(document).on('change', ".case_or_lead", function () {
-            beforeLoader();
+            $("#preloader").show();
             var f = $(this).attr("dvid");
             var case_id = $(this).val();
             getAndCheckDefaultCaseRate(f, case_id)
         });
 
+        $(document).on('change', ".bulk_billable_field", function () {
+            var f = $(this).attr("dvid");
+            if (!$(this).is(":checked")) {
+                $("input[name='billable["+f+"]']").attr('checked',false);
+                $("input[name='billable["+f+"]']").prop('checked',false);
+                $("input[name='billable["+f+"]']").val('off');
+            }
+        });
+
         $(document).on('change', "#bulk_staff_user", function () {
-            
+            $("#preloader").show();
+            $(".case_or_lead").each(function(ind, item) {
+                var f = $(this).attr("dvid");
+                var case_id = $(this).val();
+                if(case_id != '' && case_id > 0){
+                    getAndCheckDefaultCaseRate(f, case_id)
+                }
+            });            
         });
     });
     showDropdown();
@@ -912,13 +933,13 @@
                 'staff_id' : $("#bulk_staff_user").val(),
             },
             success: function (res) {
-                afterLoader();
+                $("#preloader").hide();
                 console.log(f);
                 $("#hideoptioninput2defaultrate"+f).val("");
                 // $(".staff_user").val(res.staff_id).trigger('change');
                 $("#rate-field-id").val(res.data);   
                 if(res.data > 0){                    
-                    $("#replaceAmt" + f).text("Billable - "+ res.data);
+                    $("#replaceAmt" + f).text("Billable - Rate :"+ res.data);
                     $("#hideoptioninput2defaultrate"+f).val(res.data);
                 }else{
                     $("#hideoptioninput2defaultrate"+f).val(0);
@@ -948,7 +969,6 @@
             url: baseUrl + "/task/loadTaskActivity", // json datasource
             data: '',
             success: function (res) {
-
                 $("#TaskActivityDown").html(res);
                 $("#preloader").hide();
             }
@@ -983,12 +1003,10 @@
                 $option = $clone.find('[name="case_or_lead[]"]');
             $option.attr('id', 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             $option.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
-
             $option.attr('required', 'required');
 
             $option12 = $clone.find('[name="defaultrate[]"]');
-            $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +
-                '');
+            $option12.attr('id', 'hideoptioninput2defaultrate' + (parseInt(hideinputcount2) + parseInt(1)) +'');
             $option12.attr('required', 'required');
 
             $option2 = $clone.find('[name="activity[]"]');
@@ -1000,11 +1018,14 @@
             $option3.attr('required', 'required');
 
             $option22 = $clone.find('[class="billtext"]');
-            $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) +
-                '');
+            $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) +'');
+
             $option33 = $clone.find('[name="billable[]"]');
-            $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
-                '');
+            $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
+            $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +'');
+
+            $optionDescripton = $clone.find('[name="description[]"]');
+            $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             // Add new field
             $('#savebulkTimeEntry').validate('add-one-more', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
@@ -1027,9 +1048,12 @@
                 'duration[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
             //For option 3
-            $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 'billable[' + (parseInt(
-                hideinputcount2) + parseInt(1)) + ']');
+            $('#billableid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name', 
+                'billable[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
+            //For description
+            $('#descriptionid' + (parseInt(hideinputcount2) + parseInt(1))).attr('name',
+                'description[' + (parseInt(hideinputcount2) + parseInt(1)) + ']');
 
             $('#hideinputcount2').val((parseInt(hideinputcount2) + parseInt(1)));
 

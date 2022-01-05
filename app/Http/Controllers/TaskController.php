@@ -1060,8 +1060,6 @@ class TaskController extends BaseController
         }
         if($request->time_tracking_enabled=="on"){
             $TaskTimeEntry->time_entry_billable="yes";
-        }else{
-            $TaskTimeEntry->time_entry_billable="no";
         }
         $TaskTimeEntry->description=$request->case_description;
         $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
@@ -1125,8 +1123,7 @@ class TaskController extends BaseController
     }else{
         
         foreach($request->case_or_lead as $i=>$v){
-            \Log::info('index >'.$i);
-            \Log::info('1121 >'.$request->case_or_lead[$i]);
+            \Log::info('index >'.$i);            
             if($request->case_or_lead[$i]!='' && $request->activity[$i]!='' && $request->duration[$i]!=''){
                 \Log::info('1123 >'.$request->case_or_lead[$i]);
                 $TaskTimeEntry = new TaskTimeEntry; 
@@ -1134,10 +1131,8 @@ class TaskController extends BaseController
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
                 $TaskTimeEntry->user_id =$request->bulk_staff_user;
                 $TaskTimeEntry->activity_id=$request->activity[$i];
-                if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
+                if(isset($request->billable[$i])){
                     $TaskTimeEntry->time_entry_billable="yes";
-                }else{
-                    $TaskTimeEntry->time_entry_billable="no";
                 }
                 $TaskTimeEntry->description=$request->description[$i];
                 $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 

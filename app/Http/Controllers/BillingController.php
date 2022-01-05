@@ -8003,7 +8003,7 @@ class BillingController extends BaseController
     }
     public function loadTrustAccountActivity()
     {   
-        $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
+        $columns = array('id', 'id', 'id', 'id', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
         
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")
@@ -8022,7 +8022,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
-        $FetchQuery = $FetchQuery->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $FetchQuery = $FetchQuery->orderBy('id', 'desc');
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -8035,7 +8035,7 @@ class BillingController extends BaseController
     public function printTrustAccountActivity(Request $request)
     {
        
-        $columns = array('id', 'title', 'default_description', 'flat_fees', 'firm_id','id','id','id','id','id',);
+        $columns = array('id', 'id', 'id', 'id', 'id','id','id','id','id','id',);
         $requestData= $_REQUEST;
         
         $FetchQuery = AccountActivity::leftJoin("users","account_activity.created_by","=","users.id")

@@ -189,10 +189,11 @@ if(isset($_GET['bank_account'])){
             responsive: false,
             processing: true,
             searching: false,
+            ordering: false,
             // stateSave: true,
-            "order": [
-                [0, "desc"]
-            ],
+            // "order": [
+            //     [0, "desc"]
+            // ],
             "ajax": {
                 url: baseUrl + "/bills/activities/loadTrustAccountActivity", // json datasource
                 type: "post", // method  , by default get

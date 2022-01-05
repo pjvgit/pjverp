@@ -145,7 +145,7 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
                     <div class="d-flex align-items-center pl-4 pb-4">
                         <h3> Invoices</h3>
                         <ul class="d-inline-flex nav nav-pills pl-4">
-                            <input type="hidden" name="type" value="{{$_GET['type']}}">
+                            <input type="hidden" name="type" value="{{$_GET['type'] ?? 'all'}}">
                             <li class="d-print-none nav-item">
                                 <a href="{{route('bills/invoices')}}?type=all&global_search={{$_GET['global_search']}}"
                                     class="nav-link <?php if(isset($_GET['type']) && $_GET['type']=='all' ) echo "active"; ?>">All</a>
