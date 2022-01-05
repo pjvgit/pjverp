@@ -238,10 +238,12 @@ class CaseController extends BaseController
                 $CaseMaster->case_statute_date= $var;
                 $CaseMaster->sol_satisfied="yes";
             }
-             if(isset($request->conflict_check)) { 
+            if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
-                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');
-                if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
+                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');                
+            }
+            if(isset($request->conflict_check_description)) { 
+                $CaseMaster->conflict_check_description=$request->conflict_check_description; 
             }
             $CaseMaster->case_unique_number=strtoupper(uniqid()); 
             if(isset($request->practice_area_text)) { 
@@ -548,8 +550,10 @@ class CaseController extends BaseController
             }
              if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1";                
-                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s'); 
-                if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
+                $CaseMaster->conflict_check_at=date('Y-m-d h:i:s');                 
+            }
+            if(isset($request->conflict_check_description)) { 
+                $CaseMaster->conflict_check_description=$request->conflict_check_description; 
             }
             $CaseMaster->case_unique_number=strtoupper(uniqid()); 
             if(isset($request->practice_area_text)) { 
@@ -910,7 +914,10 @@ class CaseController extends BaseController
                 }else{ $CaseMaster->case_statute_date=NULL;}
             if(isset($request->conflict_check)) { 
                 $CaseMaster->conflict_check="1"; 
-                if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
+                
+            }
+            if(isset($request->conflict_check_description)) { 
+                $CaseMaster->conflict_check_description=$request->conflict_check_description; 
             }
            
             if(isset($request->practice_area_text)) { 
@@ -1269,7 +1276,7 @@ class CaseController extends BaseController
         $requestData= $_REQUEST;
         $timeSlot=explode(" - ",$requestData['time_slot']);
         $from=$timeSlot[0];
-        $to=$timeSlot[1];
+        $to=$timeSlot[1]??convertUTCToUserTimeZone('dateOnly');
         $timeTotalBillable=$timeTotalNonBillable=$timeTotalNonBillableHours=$timeTotalBillableHours=$invoiceEntry=$invoiceEntryHours=0;
         $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[0]))))), auth()->user()->user_timezone ?? 'UTC')));
         $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[1]))))), auth()->user()->user_timezone ?? 'UTC')));

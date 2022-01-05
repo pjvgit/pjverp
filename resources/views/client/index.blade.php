@@ -311,7 +311,7 @@ function loadStep1(id) {
             data: {"user_id":id},
             success: function (res) {
                 $("#AddContactModal").modal('hide');
-               $("#step-1").html(res);
+                $("#step-1").html(res);
                 $("#preloader").hide();
             }
         })

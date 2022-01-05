@@ -252,12 +252,14 @@
 
                         }?>
                         <tr>
-                            <td colspan="3" class="total-summary-column" style="text-align: right;">
+                            <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['flat_fee']) ? count($invoiceSetting['flat_fee']) - ( in_array('amount', $invoiceSetting['flat_fee']) ? 1 : 0 ) :'3' }}" class="total-summary-column" style="text-align: right;">
                                 Flat Fee Total:
                             </td>
-
-                            <td class="total-data-column"  style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> ${{number_format($flatFeeEntryAmount,2)}}
+                            @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("amount", $invoiceSetting['flat_fee']))
+                            <td class="total-data-column"  style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;"> 
+                                    ${{number_format($flatFeeEntryAmount,2)}}
                             </td>
+                            @endif
                         </tr>
                     </tbody>
                 </table>
@@ -364,7 +366,16 @@
 
                                     ?>
                             </td>
-                            @endif
+                            @else
+                                <?php
+                                    if($v->rate_type=="flat"){
+                                        $timeEntryAmount=$timeEntryAmount+$v->entry_rate;
+                                    }else{
+                                        $timeEntryAmount=$timeEntryAmount+($v->duration * $v->entry_rate);
+                                        $timeEntryTime=$timeEntryTime+$v->duration;
+                                    }
+                                ?>
+                            @endif                            
                         </tr>
                     <?php }else{
                             $nonBillData[]=$v;
@@ -424,19 +435,21 @@
                             </tr>
                             <?php
                         }
-
+                        
                     }?>
                     <tr>
-                        <td colspan="5" class="total-summary-column" style="text-align: right;">
-                            Totals:
-                        </td>
-
+                        <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['time_entry']) ? count($invoiceSetting['time_entry']) - 2 : '5' }}" class="total-summary-column" style="text-align: right;">
+                        Totals
+                        </td>                       
                         <td class="total-entries-total-hours total-data-column" style="text-align: right; font-weight: bold;">
-                            {{$timeEntryTime}}
+                            @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("hour", $invoiceSetting['time_entry']))
+                                {{$timeEntryTime}}
+                            @endif
                         </td>
-
                         <td class="total-data-column" style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
-                            ${{number_format($timeEntryAmount,2)}}
+                            @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("line_total", $invoiceSetting['time_entry']))
+                                ${{number_format($timeEntryAmount,2)}}
+                            @endif
                         </td>
                     </tr>
                 </tbody>
@@ -531,10 +544,14 @@
                     @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                     <td style="vertical-align: top; text-align: right;" class="">
                         <?php
-                                echo "$".$Total= str_replace(",","",number_format($v->duration * $v->cost,2));
-                                $expenseAmount=$expenseAmount+$Total;
-                            ?>
+                            echo "$".$Total= str_replace(",","",number_format($v->duration * $v->cost,2));
+                            $expenseAmount=$expenseAmount+$Total;
+                        ?>
                     </td>
+                    @else
+                        <?php
+                            $expenseAmount=$expenseAmount+(str_replace(",","",number_format($v->duration * $v->cost,2)));
+                        ?>
                     @endif
                 </tr>
                 <?php } else{
@@ -597,11 +614,13 @@
 
                 }?>
                 <tr>
-                    <td colspan="6" style="text-align: right; padding-top: 5px;">
+                    <td colspan="{{ (isset($invoiceSetting) && !empty($invoiceSetting) && $invoiceSetting['expense']) ? count($invoiceSetting['expense']) - 1 : '6' }}" style="text-align: right; padding-top: 5px;">
                         Expense Total:
                     </td>
                     <td style="text-align: right; padding-top: 5px; padding-right: 5px; font-weight: bold;">
+                        @if (isset($invoiceSetting) && !empty($invoiceSetting) && in_array("line_total", $invoiceSetting['expense']))
                         ${{number_format($expenseAmount,2)}}
+                        @endif
                     </td>
                 </tr>
             </tbody>
