@@ -967,17 +967,16 @@ class BillingController extends Controller
         try {
             Log::info("conekta object order id: ". @$data->data->object->id);
             $response = $data->data;
-            // $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
-            $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+            // $paymentDetail = DB::table("invoice_online_payments")->where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
             if($paymentDetail) {
-                if($paymentDetail->payment_method == 'cash') {
-                    Log::info("invoice cash payment");
-                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
-                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
+                if($paymentDetail->payment_method == 'bank transfer') {
+                    Log::info("invoice bank payment");
+                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
+                            ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_id' => json_encode($data)]);
 
                     $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
                     if($invoiceHistory) {
-                        Log::info("cash invoice & invoice history found");
                         // Update invoice payment status
                         DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
@@ -991,16 +990,16 @@ class BillingController extends Controller
 
                         // Send confirmation email to client
                         $client = User::whereId($paymentDetail->user_id)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'invoice'));
+                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail->id, 'bank_confirm_client', 'invoice'));
 
                         // Send confirmation email to invoice created user
                         $user = User::whereId($invoice->created_by)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user', 'invoice'));
 
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
-                        Log::info('invoice cash payment webhook successfull');
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail->id, 'bank_confirm_user', 'invoice'));
+                        Log::info('invoice bank payment webhook successfull');
                     } else {
                         Log::info("cash invoice & invoice history not found");
                     }
@@ -1027,45 +1026,37 @@ class BillingController extends Controller
             if($paymentDetail) {
                 Log::info("Invoice online payment detail: ". @$paymentDetail);
                 if($paymentDetail->payment_method == 'cash') {
-                    try {
                     Log::info("invoice cash payment");
-                    // $paymentDetail->fill(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => $data])->save();
-                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()]);
+                    DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
+                            ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_id' => json_encode($data)]);
 
-                    $invoice = Invoices::whereId($paymentDetail->invoice_id)->first();
-                    $invoiceHistory = InvoiceHistory::whereId($paymentDetail->invoice_history_id)->first();
-                    if($invoice && $invoiceHistory) {
-                        Log::info("cash invoice & invoice history found");
-                        Log::info("Cash invoice history: ". @$invoiceHistory);
+                    $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
+                    if($invoiceHistory) {
                         // Update invoice payment status
-                        $invoicePayment = InvoicePayment::where("id", $invoiceHistory->invoice_payment_id)->first();
-                        Log::info("Cash invoice payment: ". @$invoicePayment);
-                        InvoicePayment::whereId($invoiceHistory->invoice_payment_id)->update(['status' => 0]);
+                        DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
                         // Update invoice history status
-                        InvoiceHistory::whereId($paymentDetail->invoice_history_id)->update(['status' => '1', 'online_payment_status' => 'paid']);
+                        DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
 
                         // Update invoice status and amount
-                        Invoices::whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
-                        // $this->updateInvoiceAmount($invoice->id);
+                        DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+                        $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
+                        $this->updateInvoiceAmount($invoice->id);
 
                         // Send confirmation email to client
                         $client = User::whereId($paymentDetail->user_id)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail->id, 'cash_confirm_client', 'invoice'));
+                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'invoice'));
 
                         // Send confirmation email to invoice created user
                         $user = User::whereId($invoice->created_by)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user', 'invoice'));
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
 
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail->id, 'cash_confirm_user', 'invoice'));
+                        $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
                         Log::info('invoice cash payment webhook successfull');
                     } else {
                         Log::info("cash invoice & invoice history not found");
-                    }
-                    } catch (Exception $e) {
-                        Log::info("invoice cash exception: ". $e->getMessage().' = '.$e->getLine());
                     }
                 } 
                 else if($paymentDetail->payment_method == 'bank transfer') {
