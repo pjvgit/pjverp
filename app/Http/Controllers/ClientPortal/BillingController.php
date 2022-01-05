@@ -631,23 +631,6 @@ class BillingController extends Controller
 
                             $invoiceOnlinePayment->fill(['invoice_history_id' => $invoiceHistory->id])->save();
                                 
-                            //Add Invoice activity
-                            $data=[];
-                            $data['case_id'] = $invoice->case_id;
-                            $data['user_id'] = $invoice->user_id;
-                            $data['activity']='accepted a payment of $'.number_format($amount,2).' (Oxxo Cash)';
-                            $data['activity_for']=$invoice->id;
-                            $data['type']='invoices';
-                            $data['action']='pay';
-                            $CommonController= new CommonController();
-                            $CommonController->addMultipleHistory($data);
-
-                            // For client activity
-                            $data['client_id'] = $client->id;
-                            $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (Oxxo Cash) for invoice';
-                            $data['is_for_client'] = 'yes';
-                            $CommonController->addMultipleHistory($data);
-
                             // Cash payment reference email to client
                             $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 32, $invoiceOnlinePayment, 'cash_reference_client', 'invoice'));
 
@@ -854,23 +837,6 @@ class BillingController extends Controller
                             ]);
 
                             $invoiceOnlinePayment->fill(['invoice_history_id' => $invoiceHistory->id])->save();
-                                
-                            //Add Invoice activity
-                            $data=[];
-                            $data['case_id'] = $invoice->case_id;
-                            $data['user_id'] = $invoice->user_id;
-                            $data['activity']='pay a payment of $'.number_format($amount,2).' (SPEI)';
-                            $data['activity_for']=$invoice->id;
-                            $data['type']='invoices';
-                            $data['action']='pay';
-                            $CommonController= new CommonController();
-                            $CommonController->addMultipleHistory($data);
-
-                            // For client activity
-                            $data['client_id'] = $client->id;
-                            $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (SPEI) for invoice';
-                            $data['is_for_client'] = 'yes';
-                            $CommonController->addMultipleHistory($data);
 
                             // Bank payment reference email to client
                             $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 35, $invoiceOnlinePayment, 'bank_reference_client', 'invoice'));
@@ -1043,6 +1009,28 @@ class BillingController extends Controller
                     $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
                     $this->updateInvoiceAmount($invoice->id);
 
+                    $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
+                    // For lawyer activity
+                    DB::table("all_history")->insert([
+                        'user_id' => $paymentDetail->user_id,
+                        'case_id' => $invoice->case_id,
+                        'activity_for' => $invoice->id,
+                        'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
+                        'type' => 'invoices',
+                        'action' => 'pay',
+                    ]);
+
+                    // For client activity
+                    DB::table("all_history")->insert([
+                        'case_id' => $invoice->case_id,
+                        'user_id' => $paymentDetail->user_id,
+                        'client_id' => $paymentDetail->user_id,
+                        'activity_for' => $invoice->id,
+                        'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
+                        'type' => 'invoices',
+                        'action' => 'pay',
+                        'is_for_client' => 'yes',
+                    ]);
                     
                     if($paymentDetail->payment_method == 'cash') {
                         // Send confirmation email to client
@@ -1056,7 +1044,9 @@ class BillingController extends Controller
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+
                         Log::info('invoice cash payment webhook successfull');
+
                     } else if($paymentDetail->payment_method == 'bank transfer') {
                         // Send confirmation email to client
                         $client = User::whereId($paymentDetail->user_id)->first();
@@ -1069,6 +1059,7 @@ class BillingController extends Controller
                         // Send confirm email to firm owner/lead attorney
                         $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
                         $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
+
                         Log::info('invoice bank payment webhook successfull');
                     } else {
 
@@ -1144,23 +1135,30 @@ class BillingController extends Controller
                             $this->updateNextPreviousCreditBalance($paymentDetail->user_id);
                         }
 
-                        $activityData=[];
-                        $activityData['user_id'] = $paymentDetail->user_id;
-                        $activityData['client_id'] = $paymentDetail->user_id;
-                        $activityData['deposit_for'] = $paymentDetail->user_id;
-                        $activityData['deposit_id']=$fundRequest->id;
-                        $activityData['activity']="pay a payment of $".number_format($paymentDetail->amount, 2)." (".$paymentMethod.") for deposit request";
-                        $activityData['type']='fundrequest';
-                        $activityData['action']='pay';
-                        $CommonController= new CommonController();
-                        $CommonController->addMultipleHistory($activityData);
+                        // For lawyer/firm staff activity 
+                        DB::table("all_history")->insert([
+                            'user_id' => $paymentDetail->user_id,
+                            'client_id' => $paymentDetail->user_id,
+                            'deposit_for' => $paymentDetail->user_id,
+                            'deposit_id' => $fundRequest->id,
+                            'activity' => "pay a payment of $".number_format($paymentDetail->amount, 2)." (".$paymentMethod.") for deposit request",
+                            'type' => 'fundrequest',
+                            'action' => 'pay',
+                        ]);
+
+                        // For client activity
+                        DB::table("all_history")->insert([
+                            'user_id' => $paymentDetail->user_id,
+                            'client_id' => $paymentDetail->user_id,
+                            'deposit_for' => $paymentDetail->user_id,
+                            'deposit_id' => $fundRequest->id,
+                            'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for deposit request",
+                            'type' => 'fundrequest',
+                            'action' => 'pay',
+                            'is_for_client' => 'yes',
+                        ]);
 
                         if($paymentDetail->payment_method == 'cash') {
-                            // For client activity
-                            $activityData['activity'] = 'pay a payment of $'.number_format($paymentDetail->amount,2).' ('.$paymentMethod.') for deposit request';
-                            $activityData['is_for_client'] = 'yes';
-                            $CommonController->addMultipleHistory($activityData);
-
                             // Send confirmation email to client
                             $client = User::whereId($paymentDetail->user_id)->first();
                             $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'fundrequest'));
