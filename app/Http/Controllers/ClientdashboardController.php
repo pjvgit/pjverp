@@ -4709,8 +4709,9 @@ class ClientdashboardController extends BaseController
     {
         // return $request->all();
         $clientCaseInfo = CaseClientSelection::where("case_id", $request->case_id)->where("selected_user", $request->client_id)->first();
-        $diffAmt = $clientCaseInfo->allocated_trust_balance - $request->allocated_balance;
-        $clientCaseInfo->fill(["allocated_trust_balance" => $request->allocated_balance])->save();
+        $allocatedBalance = str_replace( ',', '', $request->allocated_balance);
+        $diffAmt = (float)$clientCaseInfo->allocated_trust_balance - $allocatedBalance;
+        $clientCaseInfo->fill(["allocated_trust_balance" => $allocatedBalance])->save();
         $diffAmtAbs = abs($diffAmt);
         if($diffAmtAbs > 0) {
             $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
