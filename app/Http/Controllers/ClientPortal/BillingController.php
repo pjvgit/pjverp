@@ -1027,10 +1027,11 @@ class BillingController extends Controller
                 Log::info("Invoice online payment detail: ". @$paymentDetail);
                 Log::info("invoice cash payment");
                 DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
-                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_id' => json_encode($data)]);
+                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => json_encode($data)]);
 
                 $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
                 if($invoiceHistory) {
+                    Log::info("invoice history found");
                     // Update invoice payment status
                     DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
 
@@ -1080,7 +1081,7 @@ class BillingController extends Controller
                 Log::info("Fundrequest online payment detail: ". @$paymentDetail);
                 if($paymentDetail) {
                     DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
-                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_id' => json_encode($data)]);
+                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now(), 'conekta_order_object' => json_encode($data)]);
 
                     $fundRequest = RequestedFund::whereId($paymentDetail->fund_request_id)->first();
                     if($fundRequest) {
