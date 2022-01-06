@@ -1355,18 +1355,19 @@ class BillingController extends BaseController
         //     ]);
         // }
 
-
+        $authUser = auth()->user();
          $columns = array('id', 'contact_name', 'id','id', 'contact_name', 'ctitle','total_amount','paid_amount','due_amount','invoices.due_date','invoices.created_at');
          $requestData= $_REQUEST;
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
          ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
         //  ->where("invoices.created_by",Auth::user()->id);
-         ->where("invoices.firm_id",Auth::user()->firm_name);
+         ->where("invoices.firm_id", $authUser->firm_name);
         if(auth()->user()->parent_user != 0) {
-            $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) {
-                $query->where('user_id', auth()->id());
-            });
+            $Invoices = $Invoices->whereHas('case.caseStaffAll', function($query) use($authUser){
+                $query->where('user_id', $authUser->id);
+            })
+            ->orWhere("invoices.created_by", $authUser->id);
         }
       
          if(isset($requestData['type']) && in_array($requestData['type'],['unsent','sent','partial','forwarded','draft','paid','overdue'])){
@@ -6777,7 +6778,6 @@ class BillingController extends BaseController
                         ]);
                         
                         if($order->payment_status == "partially_refunded") {
-
                             $invoiceOnlinePayment = InvoiceOnlinePayment::create([
                                 'invoice_id' => $onlinePaymentDetail->invoice_id,
                                 'user_id' => $onlinePaymentDetail->user_id,
@@ -6819,6 +6819,25 @@ class BillingController extends BaseController
                             $invoiceHistoryNew['payment_from'] = "online";
                             $invoiceHistoryNew['online_payment_status'] = $order->payment_status;
                         }
+                    } else {
+                        //Insert invoice payment record.
+                        $entryDone = InvoicePayment::create([
+                            'invoice_id'=>$findInvoice['id'],
+                            'payment_from'=>'online',
+                            'amount_refund'=>$request->amount,
+                            'amount_paid'=>0.00,
+                            'payment_method'=> ($onlinePaymentDetail->payment_method == 'cash') ? "Oxxo Cash Refund" : "SPEI Refund",
+                            'notes'=>$request->notes,
+                            'refund_ref_id'=>$invoiceHistory->invoice_payment_id,
+                            'payment_date'=>convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->payment_date)))), auth()->user()->user_timezone),
+                            'status'=>"1",
+                            'entry_type'=>"0",
+                            'firm_id'=>Auth::User()->firm_name,
+                            'created_by'=>Auth::user()->id 
+                        ]);
+                        $invoiceHistoryNew['invoice_payment_id']=$entryDone->id;
+                        $invoiceHistoryNew['pay_method'] = ($onlinePaymentDetail->payment_method == 'cash') ? "Oxxo Cash Refund" : "SPEI Refund";
+                        $invoiceHistoryNew['payment_from']="online";
                     }
                 } else {
 
@@ -6839,7 +6858,7 @@ class BillingController extends BaseController
                 $newHistoryId = $this->invoiceHistory($invoiceHistoryNew);
 
                 // Update online conekta payment record
-                if($invoiceHistory->payment_from == "online" && $invoiceHistory->online_payment_status == "paid") {
+                if($invoiceHistory->payment_from == "online" && $invoiceHistory->online_payment_status == "paid" && $invoiceHistory->pay_method == "Card") {
                     $invoiceOnlinePayment->fill(['invoice_history_id' => $newHistoryId])->save();
                 }
 
@@ -6865,6 +6884,11 @@ class BillingController extends BaseController
 
                     // For account activity > payment history
                     $this->updateClientPaymentActivity($request, $findInvoice, $isDebit = "yes", $amtAction = "sub");
+                } else if($invoiceHistory->payment_from == "online") {
+                    // For account activity
+                    $request->request->add(["payment_type" => "refund payment"]);
+                    $request->request->add(["payment_type" => "refund payment"]);
+                    $this->updateClientPaymentActivity($request, $amtAction = "sub", $findInvoice, $isDebit = "yes");
                 }
 
                 //Add Invoice history for activity
@@ -7070,7 +7094,7 @@ class BillingController extends BaseController
                     $refundRefHistory->save();
                 }            
 
-                if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund"])) {
+                if($invoicePayment && !in_array($invoicePayment->payment_method, ["Refund", "Trust Refund", "Oxxo Cash Refund", "SPEI Refund"])) {
                     $this->updateInvoiceInstallment($invoicePayment->amount_paid, $PaymentMaster->invoice_id);
                 } else {
                     // For update installment amount and status
@@ -9254,7 +9278,7 @@ class BillingController extends BaseController
 
             $request->request->add(["payment_type" => 'deposit']);
             $request->request->add(["contact_id" => $DepositIntoCreditHistory->user_id]);
-            $request->request->add(["credit_history_id" => $DepositIntoCreditHistory->id]);
+            $request->request->add(["trust_history_id" => $DepositIntoCreditHistory->id]);
             $request->request->add(["applied_to" => @$refundRequest->id]);
             $this->updateClientPaymentActivity($request);
 
@@ -9354,22 +9378,28 @@ class BillingController extends BaseController
     public function depositIntoTrustClientCase(Request $request)
     {
         // return $request->all();
-        $user = User::whereId($request->user_id)->first();
-        $userAddInfo = UsersAdditionalInfo::where('user_id', $request->user_id)->select("trust_account_balance")->first();
-        if($user->user_level == 5) {
-            $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
-            $is_lead_case = 'yes';
+        $user = User::whereId($request->user_id)->select("id", 'first_name', 'last_name','user_level', 'user_type')->first()->makeHidden(['caselist','createdby']);
+        if($user) {
+            $userAddInfo = UsersAdditionalInfo::where('user_id', $request->user_id)->select("trust_account_balance")->first();
+            $allocatedTrustBalance = CaseClientSelection::where("selected_user", $request->user_id)->whereNull("deleted_at")->sum("allocated_trust_balance");
+            $unallocatedTrustBalance = (@$userAddInfo->trust_account_balance - $allocatedTrustBalance) ?? 0.00;
+            if($user->user_level == 5) {
+                $result = LeadAdditionalInfo::where('user_id', $request->user_id)->select("user_id", "allocated_trust_balance", "potential_case_title")->get();
+                $is_lead_case = 'yes';
+            } else {
+                $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
+                    ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at");
+                if($request->case_id) {
+                    $result = $result->where("case_client_selection.case_id", $request->case_id);
+                }
+                $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")
+                            ->get()->makeHidden(['caseuser', 'upcoming_event', 'upcoming_tasks']);
+                $is_lead_case = 'no';
+            }            
+            return response()->json(['errors' => '', 'result' => $result, 'user' => $user, 'is_lead_case' => $is_lead_case, /* 'userAddInfo' => $userAddInfo, */ 'unallocatedTrustBalance' => $unallocatedTrustBalance]);
         } else {
-            $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
-                ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at");
-            if($request->case_id) {
-                $result = $result->where("case_client_selection.case_id", $request->case_id);
-            }
-            $result = $result->select("case_master.id", "case_master.case_title", "case_master.total_allocated_trust_balance","case_client_selection.allocated_trust_balance")
-                        ->get()->makeHidden(['caseuser', 'upcoming_event', 'upcoming_tasks']);
-            $is_lead_case = 'no';
-        }            
-        return response()->json(['result' => $result, 'user' => $user, 'is_lead_case' => $is_lead_case, 'userAddInfo' => $userAddInfo]);
+            return response()->json(['errors' => "User not found"]);
+        }
     }
 
     /* public function depositIntoTrustByCase(Request $request)

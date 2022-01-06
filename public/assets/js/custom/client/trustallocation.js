@@ -73,7 +73,8 @@ $(document).on("input", ".allocate-fund", function() {
         $(".unallocate-fund").val("0.00");
     } else {
         var unallocateAmt = parseFloat(totalAmt) - parseFloat(amt);
-        $(".unallocate-fund").val(parseFloat(unallocateAmt).toFixed(2));
+        // $(".unallocate-fund").val(parseFloat(unallocateAmt).toFixed(2));
+        $(".unallocate-fund").val(unallocateAmt.toLocaleString());
     }
 });
 

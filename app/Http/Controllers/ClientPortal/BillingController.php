@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\AccountActivity;
 use App\CaseClientSelection;
 use App\CaseMaster;
 use App\DepositIntoCreditHistory;
@@ -319,6 +320,25 @@ class BillingController extends Controller
                                 }
                                 // For update next/previous trust balance
                                 $this->updateNextPreviousTrustBalance($trustHistory->client_id);
+                                
+                                // Add fund request account activity
+                                $AccountActivityData = AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+                                AccountActivity::create([
+                                    'user_id' => $client->id,
+                                    'case_id'=> $fundRequest->allocated_to_case_id ?? Null,
+                                    'credit_amount' => $payableAmount ?? 0.00,
+                                    'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                                    'entry_date' => date('Y-m-d'),
+                                    'payment_method' => "Card",
+                                    'payment_type' => "deposit",
+                                    'pay_type' => "trust",
+                                    'from_pay' => "client",
+                                    'trust_history_id' => $trustHistory->id ?? Null,
+                                    'firm_id' => $client->firm_name,
+                                    'section' => "request",
+                                    'related_to' => $fundRequest->id,
+                                    'created_by'=>$client->id,
+                                ]);
 
                             } else {
                                 // Deposit into credit account
@@ -339,6 +359,25 @@ class BillingController extends Controller
 
                                 // For update next/previous credit balance
                                 $this->updateNextPreviousCreditBalance($client->id);
+
+                                // Add fund request account activity
+                                $AccountActivityData=AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                                AccountActivity::create([
+                                    'user_id' => $client->id,
+                                    'credit_amount' => $payableAmount ?? 0.00,
+                                    'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                                    'entry_date' => date('Y-m-d'),
+                                    'payment_method' => 'Card',
+                                    'payment_type' => "deposit",
+                                    'trust_history_id' => $creditHistory->id ?? Null,
+                                    'status' => "unsent",
+                                    'pay_type' => "client",
+                                    'from_pay' => "client",
+                                    'firm_id' => $client->firm_name,
+                                    'section' => "request",
+                                    'related_to' => $fundRequest->id,
+                                    'created_by' => $client->id,
+                                ]);
                             }
                             
                             $data=[];
@@ -432,8 +471,26 @@ class BillingController extends Controller
                                 'created_by' => $client->id,
                                 'created_at' => Carbon::now(),
                             ]);
-
                             $invoiceOnlinePayment->fill(['invoice_history_id' => $invoiceHistory->id])->save();
+
+                            $AccountActivityData=AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                            AccountActivity::create([
+                                'user_id' => $client->id,
+                                'case_id' => $invoice->case_id,
+                                'credit_amount' => $payableAmount ?? 0.00,
+                                'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                                'entry_date' => date('Y-m-d'),
+                                'payment_method' => 'Card',
+                                'payment_type' => "payment",
+                                'invoice_history_id' => $invoiceHistory->id ?? Null,
+                                'status' => "unsent",
+                                'pay_type' => "client",
+                                'from_pay' => "client",
+                                'firm_id' => $client->firm_name,
+                                'section' => "invoice",
+                                'related_to' => $invoice->id,
+                                'created_by' => $client->id,
+                            ]);
                                 
                             //Add Invoice activity
                             $data=[];
@@ -961,7 +1018,13 @@ class BillingController extends Controller
 
                     // Update invoice status and amount
                     DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+
+                    // Update invoice/invoice installment amount
                     $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
+                    $getInstallMentIfOn = InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
+                    if(!empty($getInstallMentIfOn)){
+                        $this->installmentManagement($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
+                    }
                     $this->updateInvoiceAmount($invoice->id);
 
                     $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');

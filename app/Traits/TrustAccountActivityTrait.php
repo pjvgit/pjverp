@@ -100,6 +100,18 @@ trait TrustAccountActivityTrait {
             $activityHistory['refund_ref_id'] = @$refundRef->id;
             $activityHistory['payment_status'] = "refund entry";
         }
+
+        // Update deposit refund reference record
+        if($request->payment_type == "refund_deposit") {
+            $refundRef = AccountActivity::where("trust_history_id", $request->transaction_id)->where("pay_type","trust")->first();
+            if($refundRef) {
+                $refundRef->is_refunded = "yes";
+                $refundRef->payment_status = ($request->amount == $refundRef->credit_amount) ? "full refund" : "partial refund";
+                $refundRef->save();
+            }
+            $activityHistory['refund_ref_id'] = @$refundRef->id;
+            $activityHistory['payment_status'] = "refund entry";
+        }
         $this->saveAccountActivity($activityHistory);
         /* dbCommit();
         } catch (Exception $e) {
@@ -126,18 +138,19 @@ trait TrustAccountActivityTrait {
             $activityHistory['total_amount']=$request->amount;
         }
         $activityHistory['entry_date']=date('Y-m-d');
-        $activityHistory['payment_method']=($request->payment_type == "refund payment deposit" || $request->payment_type == "refund payment") ? "Refund" : $request->payment_method ?? 'Trust';
+        $activityHistory['payment_method']=($request->payment_type == "refund payment deposit" || $request->payment_type == "refund payment" || $request->payment_type == "refund deposit") ? "Refund" : $request->payment_method ?? 'Trust';
         $activityHistory['payment_type']=$request->payment_type;
         $activityHistory['invoice_history_id']=$request->invoice_history_id ?? NULL;
         $activityHistory['trust_history_id']=$request->trust_history_id ?? Null;
         $activityHistory['notes']=$request->notes;
         $activityHistory['status']="unsent";
         $activityHistory['pay_type']="client";
-        $activityHistory['from_pay']= $request->from_pay ?? "trust";
+        $activityHistory['from_pay']= $request->from_pay ?? "credit";
         $activityHistory['firm_id']=$authUser->firm_name;
         if(isset($request->applied_to) && $request->applied_to!=0){
             $activityHistory['section']="request";
             $activityHistory['related_to']=$request->applied_to;
+            $activityHistory['from_pay']= $request->from_pay ?? "credit";
         } else if(isset($InvoiceData) && $InvoiceData != null){
             $activityHistory['section']="invoice";
             $activityHistory['related_to']=$InvoiceData['id'];
@@ -148,9 +161,21 @@ trait TrustAccountActivityTrait {
         $activityHistory['created_by']=$authUser->id;
         $activityHistory['created_at']=date('Y-m-d H:i:s');
 
-        // Update refund reference record
+        // Update invoice refund reference record
         if($request->payment_type == "refund payment deposit" || $request->payment_type == "refund payment") {
             $refundRef = AccountActivity::where("invoice_history_id", $request->transaction_id)->where("pay_type","client")->first();
+            if($refundRef) {
+                $refundRef->is_refunded = "yes";
+                $refundRef->payment_status = ($request->amount == $refundRef->credit_amount) ? "full refund" : "partial refund";
+                $refundRef->save();
+            }
+            $activityHistory['refund_ref_id'] = @$refundRef->id;
+            $activityHistory['payment_status'] = "refund entry";
+        }
+
+        // Update deposit refund reference record
+        if($request->payment_type == "refund deposit") {
+            $refundRef = AccountActivity::where("trust_history_id", $request->transaction_id)->where("pay_type","client")->first();
             if($refundRef) {
                 $refundRef->is_refunded = "yes";
                 $refundRef->payment_status = ($request->amount == $refundRef->credit_amount) ? "full refund" : "partial refund";
@@ -172,12 +197,6 @@ trait TrustAccountActivityTrait {
             $activity = AccountActivity::where("trust_history_id", $trustHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "trust")->first();
             if($activity) {
                 if($activity->payment_type == "refund payment" || $activity->payment_type == "refund_deposit") {
-                    /* $updateRedord= AccountActivity::find($activity->refund_ref_id);
-                    if($updateRedord) {
-                        $updateRedord->is_refunded="no";
-                        $updateRedord->payment_status=NULL;
-                        $updateRedord->save();
-                    } */
                     $this->updateRefundedAcitivity($activity->refund_ref_id);
                 }
                 $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
@@ -185,13 +204,7 @@ trait TrustAccountActivityTrait {
             }
             $activity1 = AccountActivity::where("trust_history_id", $trustHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "client")->first();
             if($activity1) {
-                if($activity1->payment_type == "refund payment" || $activity1->payment_type == "refund_deposit") {
-                    /* $updateRedord= AccountActivity::find($activity1->refund_ref_id);
-                    if($updateRedord) {
-                        $updateRedord->is_refunded="no";
-                        $updateRedord->payment_status=NULL;
-                        $updateRedord->save();
-                    } */
+                if($activity1->payment_type == "refund payment" || $activity1->payment_type == "refund deposit") {
                     $this->updateRefundedAcitivity($activity1->refund_ref_id);
                 }
                 $this->updateNextPreviousTotalBalance($activity1->id, $activity1->pay_type);
@@ -202,12 +215,6 @@ trait TrustAccountActivityTrait {
             $activity = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "trust")->first();
             if($activity) {
                 if($activity->payment_type == "refund payment") {
-                    /* $updateRedord= AccountActivity::find($activity->refund_ref_id);
-                    if($updateRedord) {
-                        $updateRedord->is_refunded="no";
-                        $updateRedord->payment_status='payment';
-                        $updateRedord->save();
-                    } */
                     $this->updateRefundedAcitivity($activity->refund_ref_id);
                 }
                 $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
@@ -217,13 +224,7 @@ trait TrustAccountActivityTrait {
             // Delete payment history activity
             $activityPay = AccountActivity::where("invoice_history_id", $invoiceHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "client")->first();
             if($activityPay) {
-                if($activityPay->payment_type == "refund payment") {
-                    /* $updateRedord= AccountActivity::find($activityPay->refund_ref_id);
-                    if($updateRedord) {
-                        $updateRedord->is_refunded="no";
-                        $updateRedord->payment_status='payment';
-                        $updateRedord->save();
-                    } */
+                if($activityPay->payment_type == "refund payment" || $activityPay->payment_type == "refund deposit") {
                     $this->updateRefundedAcitivity($activityPay->refund_ref_id);
                 }
                 $this->updateNextPreviousTotalBalance($activityPay->id, $activityPay->pay_type);
@@ -273,25 +274,6 @@ trait TrustAccountActivityTrait {
             Log::info("updated record id: ".$item->id);
             $item->total_amount = $currentBal;
             $item->save();
-        }
-    }
-
-    /**
-     * Delete payment history activity
-     */
-    public function deletePaymentHistoryActivity($creditHistoryId, $invoiceHistoryId = null)
-    {
-        $activity = AccountActivity::where("credit_history_id", $creditHistoryId)->where("firm_id", auth()->user()->firm_name)->where("pay_type", "client")->first();
-        if($activity) {
-            if($activity->fund_type == "refund payment" || $activity->fund_type == "refund deposit") {
-                /* $updateRedord= AccountActivity::find($activity->refund_ref_id);
-                $updateRedord->is_refunded="no";
-                $updateRedord->payment_status=NULL;
-                $updateRedord->save(); */
-                $this->updateRefundedAcitivity($activity->refund_ref_id);
-            }
-            $this->updateNextPreviousTotalBalance($activity->id, $activity->pay_type);
-            $activity->delete();
         }
     }
 

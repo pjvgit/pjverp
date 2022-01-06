@@ -3837,7 +3837,7 @@ class ClientdashboardController extends BaseController
                     $findInvoice = Invoices::whereId($creditHistory->related_to_invoice_id)->first();
                     $request->request->add(["applied_to" => $depCredHis->related_to_fund_request_id]);
                     $request->request->add(["contact_id" => $depCredHis->user_id]);
-                    $request->request->add(['credit_history_id' => $depCredHis->id]);
+                    $request->request->add(['trust_history_id' => $depCredHis->id]);
                     $request->request->add(["payment_type" => $depCredHis->payment_type]);
                     $this->updateClientPaymentActivity($request, $findInvoice ?? null, $isDebit = "yes", $amtAction = "sub");
                 }
@@ -3924,6 +3924,10 @@ class ClientdashboardController extends BaseController
                 $data['action']='delete';
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
+
+                
+                // For account activity
+                $this->deleteTrustAccountActivity(null, $creditHistory->id);
 
                 $clientId = $creditHistory->user_id;
                 $creditHistory->delete();

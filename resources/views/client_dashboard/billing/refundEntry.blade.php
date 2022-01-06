@@ -1,5 +1,10 @@
 <div class="tab-content" id="myTabContent">
     <div class="showError" style="display:none"></div>
+    @if($TrustHistory->payment_method == "card" && $TrustHistory->online_payment_status == "paid")
+        <div class="mb-3">
+            <strong>Note:</strong> This refund will be proccessed electronically. Refunds will be issued within 3 business days. 
+        </div>
+    @endif
     <div class="tab-pane fade  active show" id="tba2" role="tabpanel" aria-labelledby="profile-basic-tab">
         <form class="refundForm" id="refundForm" name="refundForm" method="POST">
             <span id="response"></span>

@@ -13,6 +13,9 @@ class AccountActivity extends Authenticatable
     protected $table = "account_activity";
     public $primaryKey = 'id';
 
+    protected $fillable = ['user_id', 'related_to', 'case_id', 'credit_amount', 'debit_amount', 'total_amount', 'entry_date', 'status', 'notes', 'pay_type', 'firm_id', 
+        'section', 'from_pay', 'payment_method', 'payment_type', 'is_refunded', 'refund_ref_id', 'payment_status', 'invoice_history_id', 'trust_history_id', 'is_lead_invoice', 
+        'created_by', 'updated_by'];
 
     protected $appends  = ['added_date','case','decode_id','contact','refund_title','related','enter_by','enter_by_user_level','c_amt','d_amt','t_amt', 'payment_note'];
     public function getDecodeIdAttribute(){

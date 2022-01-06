@@ -114,7 +114,14 @@ function getClientCases(clientId) {
         type: 'POST',
         data: {user_id: clientId},
         success: function(data) {
+            if(data.errors != '') {
+                $(".showError").html(data.errors);
+                $(".showError").show();
+                afterLoader();
+            } else {
             $("#allocate-funds-container").show();
+            $("#allocate_fund").empty().trigger("change");
+            $("#allocate_fund").append("<option></option>");
             if(data.result.length > 0) {
                 var optgroup = "<optgroup label='Allocate to case'>";
                 $.each(data.result, function(ind, item) {
@@ -126,12 +133,13 @@ function getClientCases(clientId) {
             }
             var optgroup = "<optgroup label='Unallocated'>";
             if(data.user) {
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.userAddInfo.unallocate_trust_balance.toFixed(2)+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.unallocatedTrustBalance.toFixed(2)+")" + "</option>";
             }
             optgroup += "</optgroup>"
             $('#allocate_fund').append(optgroup);
             $(".select2-option").trigger('chosen:updated');
             afterLoader();
+            }
         }
     });
 }
