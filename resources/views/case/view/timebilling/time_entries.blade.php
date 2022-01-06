@@ -24,7 +24,7 @@
         </div>
     </div>
 </div>
-
+@include('commonPopup.add_case')
 @section('page-js-inner')
 <script type="text/javascript">
     "use strict";

@@ -32,7 +32,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('invoice:reminderemail')->everyThirtyMinutes();
         $schedule->command('invoice:reminderemail')->dailyAt('01:00');
         $schedule->command('deletefile:fullbackup')->dailyAt('05:00');
-        $schedule->command('sol:reminderemail')->everyThirtyMinutes();
+        // $schedule->command('sol:reminderemail')->everyThirtyMinutes();
+        $schedule->command('sol:reminderemail')->dailyAt('00:00');
         $schedule->command('notification:email')->everyThirtyMinutes();    
         $schedule->command('invoiceonline:paymentreminderemail')->dailyAt('02:00');
     }

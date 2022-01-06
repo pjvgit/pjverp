@@ -11,6 +11,7 @@ use App\FirmOnlinePaymentSetting;
 use App\InvoiceSetting;
 use App\LeadAdditionalInfo;
 use App\User;
+use App\CaseStage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\UsersAdditionalInfo;
@@ -130,11 +131,41 @@ function casePracticeAreaList()
 }
 
 /**
+ * return parent and its child user ids.
+ */
+function getParentAndChildUserIds(){
+    $getChildUsers = DB::table('users')->select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
+    $getChildUsers[]=Auth::user()->id;  
+    return $getChildUsers;
+}
+
+/**
+ * Get case stage list of firm
+ */
+function caseStageList()
+{
+    $getChildUsers=getParentAndChildUserIds();
+    $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
+    return $caseStageList;    
+}
+
+/**
  * Get firm office (addresses) list
  */
 function firmOfficeList()
 {
     return FirmAddress::where('firm_id', auth()->user()->firm_name)->pluck("office_name", "id")->toArray();
+}
+
+/**
+ * Get firm office (addresses) list with countries name
+ */
+function firmAddressList()
+{
+    return FirmAddress::select("firm_address.id","countries.name as countryname")
+        ->leftJoin('countries','firm_address.country',"=","countries.id")
+        ->where("firm_address.firm_id",Auth::User()->firm_name)
+        ->orderBy('firm_address.is_primary','ASC')->get();
 }
 
 //TO UTC

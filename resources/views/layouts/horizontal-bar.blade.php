@@ -467,3 +467,6 @@
         background-color: red !important;
     }
 </style>
+@section('page-js')
+<script src="{{ asset('assets\js\custom\case\addcase.js?').env('CACHE_BUSTER_VERSION') }}"></script>
+@endsection

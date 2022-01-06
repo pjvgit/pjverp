@@ -46,15 +46,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         <option value="">Search for an existing contact or company</option>
                                                         <optgroup label="Client">
                                                             <?php
-                                                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
+                                                        foreach(userClientList() as $Clientkey=>$Clientval){
                                                             ?>
-                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->first_name,0,30)}}
-                                                                {{substr($Clientval->last_name,0,30)}}</option>
+                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                         <optgroup label="Company">
-                                                            <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
-                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->first_name,0,50)}}</option>
+                                                            <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                     </select>
@@ -118,9 +117,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 <div class="col-md-6 form-group mb-3">
                                                     <select id="practice_area" name="practice_area" class="form-control custom-select col">
                                                         <option value="-1"></option>
-                                                        <?php 
-                                                            foreach($practiceAreaList as $k=>$v){?>
-                                                        <option value="{{$v->id}}">{{$v->title}}</option>
+                                                        <?php foreach(casePracticeAreaList() as $k=>$v){?>
+                                                        <option value="{{$k}}">{{$v}}</option>
                                                         <?php } ?>
 
                                                     </select>
@@ -144,7 +142,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                     <select id="case_status" name="case_status" class="form-control custom-select col">
                                                         <option value="0"></option>
                                                         <?php 
-                                                        foreach($caseStageList as $kcs=>$vcs){?>
+                                                        foreach(caseStageList() as $kcs=>$vcs){?>
                                                         <option value="{{$vcs->id}}">{{$vcs->title}}</option>
                                                         <?php } ?>
                                                     </select>
@@ -164,7 +162,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </label>
                                                 <div class="col-md-10 form-group mb-3">
                                                     <select id="case_office" name="case_office" class="form-control custom-select col">
-                                                        <?php  foreach($firmAddress as $k=>$v){?>
+                                                        <?php  foreach(firmAddressList() as $k=>$v){?>
                                                             <option value="{{ $v->id }}">{{ $v->office_name }}</option>
                                                         <?php } ?>
                                                     </select>
@@ -344,7 +342,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                             <div class="col-md-9 form-group mb-3">
                                                 <select id="lead_attorney" onchange="selectLeadAttorney();" name="lead_attorney" class="form-control custom-select col">
                                                     <option value=""></option>
-                                                    <?php foreach($loadFirmUser as $key=>$user){?>
+                                                    <?php foreach(firmUserList() as $key=>$user){?>
                                                     <option <?php if($user->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
                                                     <?php } ?>
                                                 </select>
@@ -358,7 +356,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 <select onchange="selectAttorney();" id="originating_attorney" name="originating_attorney"
                                                     class="form-control custom-select col">
                                                     <option value=""></option>
-                                                    <?php foreach($loadFirmUser as $key=>$user){?>
+                                                    <?php foreach(firmUserList() as $key=>$user){?>
                                                     <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
                                                     <?php } ?>
                                                 </select>
@@ -389,7 +387,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach($loadFirmUser as $key=>$user){?>
+                                                <?php foreach(firmUserList() as $key=>$user){?>
                                                 <tr>
                                                     <td><input <?php if($user->id==Auth::User()->id){ echo "checked=checked";} ?> class="test-all-users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]"></td>
                                                     <td>{{$user->first_name}}</td>

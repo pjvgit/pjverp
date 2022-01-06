@@ -35,7 +35,7 @@ $expenseTime=0;$expenseAmount=0;
                         <h4 class="my-0">Invoice #{{$s}}</h4>
                         
                           <div class="ml-auto">
-                            <a class="btn btn-link text-black-50" target="_blank" href="#">Manage Firm Invoice Settings</a>
+                            <a class="btn btn-link text-black-50" target="_blank" href="{{route('billing/settings')}}">Manage Firm Invoice Settings</a>
                           </div>
                       </div>
 

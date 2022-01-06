@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use File;
 use App\CaseSolReminder,App\CaseMaster,App\CaseStaff,App\User;
 use App\Mail\SolReminderMail;
+use App\Jobs\SolReminderEmailJob;
 use Carbon\Carbon;
 
 class SolReminderEmailCommand extends Command
@@ -60,19 +61,27 @@ class SolReminderEmailCommand extends Command
                 $firmDetail = $caseDetails->caseFirm;
                 // print_r($firmDetail);echo PHP_EOL;
                 //  Reminders will be sent to all firm users linked to the case.
+                
                 foreach($caseDetails->caseStaffDetails as $caseStaff => $staff) {
                     $date = Carbon::now($staff->user_timezone ?? 'UTC'); // Carbon::now('Europe/Moscow'), Carbon::now('Europe/Amsterdam') etc..
-                    Log::info("Staff > ". $staff->user_id. ' > '. $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);echo PHP_EOL;
                     $utcDate = Carbon::now('UTC');
                     if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
-                        if ($date->hour === 05) { 
-                            echo "Mail send";echo PHP_EOL;
-                            $mailSend = \Mail::to($staff->email)->send(new SolReminderMail($caseDetails, $firmDetail, $staff));
-                            Log::info("SOL reminder Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date );
-                        }
+                        Log::info("Staff > ". $staff->id. ' > '. $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);echo PHP_EOL;
+                        // if ($date->hour === 05) { 
+                        //     echo "Mail send";echo PHP_EOL;
+                        //     // $mailSend = \Mail::to($staff->email)->send(new SolReminderMail($caseDetails, $firmDetail, $staff));
+                        //     Log::info("SOL reminder Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date );
+                        // }
+                        $timestamp = $date->format('Y-m-d').' 05:00:00';
+                        $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $staff->user_timezone ?? 'UTC');
+                        $dispatchDate->setTimezone('UTC');
+                        Log::info("dispatchDate > ". $dispatchDate);
+                        dispatch(new SolReminderEmailJob($item, $staff, $caseDetails, $firmDetail))->delay($dispatchDate);
                     }
-                }    
-                CaseSolReminder::where('id',$item->id)->update(['reminded_at' => date('Y-m-d')]);
+                } 
+                
+                sleep(3);
+                CaseSolReminder::where('id',$item->id)->update(['reminded_at' => date('Y-m-d H:i:s')]);
                 Log::info("SOL reminder Update Item Id : ". $item->id." for case of :".$caseDetails->case_title."(".$caseDetails->id.")");
             }
         }

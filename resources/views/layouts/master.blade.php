@@ -215,6 +215,7 @@
     @yield('page-js')
 
     <script src="{{ asset('assets\js\custom\common\common.js') }}"></script>
+    <script src="{{ asset('assets\js\custom\case\addcase.js?').env('CACHE_BUSTER_VERSION') }}"></script>
     {{-- <script src="{{asset('assets/js/scripts/apexPieDonutChart.script.min.js')}}"></script> --}}
     @if ($message = session('popup_success'))
    

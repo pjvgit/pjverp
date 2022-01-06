@@ -403,7 +403,7 @@ class CaseMaster extends Authenticatable
      */
     
     public function caseStaffDetails(){
-        return $this->belongsToMany(User::class, 'case_staff', 'case_id', 'user_id');
+        return $this->belongsToMany(User::class, 'case_staff', 'case_id', 'user_id')->whereNull('case_staff.deleted_at');
     }
 
     /**

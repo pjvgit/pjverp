@@ -450,7 +450,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                 <a href="{{ route('bills/invoices/open') }}">
                     <button class="btn btn-secondary  m-1" type="button">Continue Billing</button>
                 </a>
-                <a href="{{route('bills/invoices')}}?type=all">
+                <a href="{{route('bills/invoices')}}?type=all" id="batchLink">
                     <button class="btn btn-secondary  m-1" type="button">View Bills</button>
                 </a>
             </div>
@@ -1013,6 +1013,7 @@ var start = 0;
                     $("#progress").modal("hide");
                     $("#batch_billing_form")[0].reset();
                     $("#createdBill").html(res.countInvoice);
+                    $("#batchLink").attr("href","").attr("href",res.batchLink);
                     $("#batchSaved").modal("show");
                     afterLoader();
                 }
@@ -1264,7 +1265,7 @@ var start = 0;
             if(unInvoiceAmount == 0){
                 $(".lazy-load-data").append(resultHtml);  
                 $.each(removedRecord, function(index, item){
-                    $("#sr_"+item).remove();
+                    // $("#sr_"+item).remove();
                 });
             }else{
                 $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    

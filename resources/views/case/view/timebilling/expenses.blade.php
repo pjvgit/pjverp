@@ -39,6 +39,7 @@
         </div>
     </div>
 </div>
+@include('commonPopup.add_case')
 <style>
     .pagination{width: 80%;float: right;}
     </style>

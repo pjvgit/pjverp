@@ -715,3 +715,7 @@ p {
 /* .flex-nowrap {
     flex-wrap: nowrap !important;
 } */
+
+#AddCaseModelUpdate.modal {
+    z-index: 1300 !important;
+}

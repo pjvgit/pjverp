@@ -2337,6 +2337,7 @@ class BillingController extends BaseController
         
         $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
+        ->leftjoin("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
         ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
         ->leftjoin("case_staff", "case_staff.case_id", "=", "case_master.id")
@@ -2354,6 +2355,7 @@ class BillingController extends BaseController
             $getChildUsers=$this->getParentAndChildUserIds();
             $Invoices = $Invoices->whereIn("case_master.created_by",$getChildUsers);
             $Invoices->where(function($Invoices){
+                $Invoices = $Invoices->orwhere("flat_fee_entry.status","unpaid");
                 $Invoices = $Invoices->orwhere("task_time_entry.status","unpaid");
                 $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
             });
@@ -2380,7 +2382,7 @@ class BillingController extends BaseController
             if($request->balance_filter == "uninvoiced") {
                 // $Invoices = $Invoices->whereDoesntHave("invoices");
                 $Invoices = $Invoices->where("task_time_entry.status","unpaid")
-                ->orWhere("expense_entry.status","unpaid");
+                ->orWhere("expense_entry.status","unpaid")->orWhere("flat_fee_entry.status","unpaid");
             } else {
                 $Invoices = $Invoices->whereHas("invoices", function($query) {
                     $query->havingRaw('SUM(due_amount) > ?', array(0));
@@ -2397,7 +2399,6 @@ class BillingController extends BaseController
         $arrData = [];
         $contactGroup = [];
         foreach ($Invoices as $k=>$v){
-            \Log::info("case_id > ". $v->case_id ." contact_id > ". $v->setup_billing . " > contact_name > ". $v->contact_name);
             if($v->setup_billing =="yes"){
                 array_push($contactGroup,$v->contact_name);
                 if(in_array($v->contact_name,$contactGroup))
@@ -2428,14 +2429,14 @@ class BillingController extends BaseController
 
         $FlatFeeEntryIds = CaseMaster::join("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
         ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
-
+        
         $TaskTimeEntryIds = CaseMaster::join("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
-
+        
         $ExpenseEntryIds = CaseMaster::join("expense_entry","expense_entry.case_id","=","case_master.id")
         ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
         
-        $uniqueCase=array_unique(array_merge($TaskTimeEntryIds,$ExpenseEntryIds));
+        $uniqueCase=array_unique(array_merge($FlatFeeEntryIds,$TaskTimeEntryIds,$ExpenseEntryIds));
         return $uniqueCase;
     }
 
@@ -2704,6 +2705,16 @@ class BillingController extends BaseController
             ->where(function($FlatFeeEntry) use($request){
                 $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
+            })->delete();
+
+            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+            ->where("flat_fee_entry.case_id",$case_id)
+            // ->where("flat_fee_entry.user_id",auth()->id())
+            ->where("flat_fee_entry.invoice_link",NULL)
+            ->where("flat_fee_entry.status","unpaid")
+            ->where(function($FlatFeeEntry) use($request){
+                $FlatFeeEntry->where("flat_fee_entry.token_id","==",$request->token);
+                $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
@@ -2810,7 +2821,11 @@ class BillingController extends BaseController
                 $TaskTimeEntry->delete();
             }else{
                 // TaskTimeEntry::where('id',$id)->update(['remove_from_current_invoice'=>'yes']);
-                TaskTimeEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
+                TaskTimeEntry::where('id',$id)->update([
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
+                    'token_id'=>$request->token_id
+                ]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
@@ -2860,7 +2875,11 @@ class BillingController extends BaseController
                 $FlatFeeEntry->deleted_at = date('Y-m-d h:i:s');
                 $FlatFeeEntry->save();
             }else{
-                FlatFeeEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
+                FlatFeeEntry::where('id',$id)->update([
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
+                    'token_id'=>$request->token_id
+                ]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
@@ -3475,7 +3494,11 @@ class BillingController extends BaseController
             if($request->action=="delete"){
                 $ExpenseEntry->delete();
             }else{
-                ExpenseEntry::where('id',$id)->update(['token_id'=>$request->token_id]);
+                ExpenseEntry::where('id',$id)->update([
+                    'status'=>'unpaid',
+                    'invoice_link' => null,
+                    'token_id'=>$request->token_id
+                ]);
             }
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
@@ -9095,7 +9118,7 @@ class BillingController extends BaseController
             $InvoiceBatch->created_by=Auth::User()->id; 
             $InvoiceBatch->save();
             dbCommit();
-            return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice)]);
+            return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
             exit; 
             } catch (Exception $e) {
                 dbEnd();

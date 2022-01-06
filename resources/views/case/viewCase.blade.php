@@ -174,7 +174,7 @@ $adjustment_token=round(microtime(true) * 1000);
                                                 </div>
                                             </div>
                                             <div class="edit-mode d-print-none" id="statusList">
-                                                <select id="case_status" onchange="selectMethod()" name="case_status"
+                                                <select id="case_status" onchange="selectCaseStageMethod()" name="case_status"
                                                     class="form-control custom-select col">
                                                     <option value="0">--</option>
                                                     <?php foreach($caseStageList as $kcs=>$vcs){?>
@@ -1235,8 +1235,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#statusEditor").toggle();
         $("#statusList").toggle();
     }
-    function selectMethod() {
-        console.log("selectMethod when case stage change");
+    function selectCaseStageMethod() {
+        console.log("selectCaseStageMethod when case stage change");
         $("#innerLoader").css('display', 'block');
         var selectdValue = $("#case_status option:selected").val();
         $.ajax({
