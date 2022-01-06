@@ -1002,13 +1002,13 @@ function getClientCases(clientId) {
             
             if(data.user) {
                 $("#selectContact").html(data.user.full_name);
-                $("#selectContactUnallocatedAmount").html(data.userAddInfo.unallocate_trust_balance.toFixed(2));
+                $("#selectContactUnallocatedAmount").html(data.unallocatedTrustBalance.toFixed(2));
                 
                 if( parseFloat($("#selectContactUnallocatedAmount").html()) <  0.01){
                     $("#allocation-alert-section").hide();
                 }
                 optgroup += "<optgroup label='Unallocated'>";
-                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.userAddInfo.unallocate_trust_balance.toFixed(2)+")" + "</option>";
+                optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.unallocatedTrustBalance.toFixed(2)+")" + "</option>";
                 optgroup += "</optgroup>";
             }
             if(case_id != 0 && data.result.length <= 0) {

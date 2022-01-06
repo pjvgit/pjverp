@@ -11,7 +11,7 @@
         <input type="hidden" name="page" id="page" value="{{ $page }}" >
         <label class=""><strong>Trust (Trust Account)</strong></label>
         <div class="row ">
-            <div class="pr-1 col-sm-3">
+            <div class="pr-1 col-sm-4">
                 <div class="allocation-in-bank-507379 input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                     <input class="form-control allocate-fund number" maxlength="15" name="allocated_balance" value="{{ number_format(@$clientCaseInfo->allocated_trust_balance, 2) }}" data-total-amt="{{ @$clientCaseInfo->allocated_trust_balance + $userAddInfo->unallocate_trust_balance }}">
@@ -23,7 +23,7 @@
         </div>
         <br>
         <div class="row ">
-            <div class="pr-1 col-sm-3">
+            <div class="pr-1 col-sm-4">
                 <div class="unallocation-in-bank-507379 input-group">
                     <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                     <input readonly class="form-control unallocate-fund" name="unallocated_balance" value="{{ number_format(@$userAddInfo->unallocate_trust_balance, 2) }}" data-unallocate-amt="{{ @$userAddInfo->unallocate_trust_balance }}">

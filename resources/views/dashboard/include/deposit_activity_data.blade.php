@@ -11,7 +11,7 @@
             $image=$ImageArray[$v->action];
             ?>
             <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
-            <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
+            <a class="name" href="{{ ($v->user_level == '2') ? route('contacts/clients/view', $v->user_id) : route('contacts/attorneys/info', base64_encode($v->user_id)) }}">
                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
             </a> 
                 {{$v->activity}} 
