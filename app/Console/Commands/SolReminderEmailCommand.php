@@ -50,7 +50,7 @@ class SolReminderEmailCommand extends Command
         Log::info("SOL reminder Command Fired : ". date('Y-m-d H:i:s'));
 
         $result = CaseSolReminder::where("reminder_type", "email")
-                    ->whereDate("remind_at", \Carbon\Carbon::now())
+                    // ->whereDate("remind_at", \Carbon\Carbon::now())
                     ->whereNull("reminded_at")
                     ->with('case','case.caseFirm','case.caseStaffDetails')
                     ->get();
