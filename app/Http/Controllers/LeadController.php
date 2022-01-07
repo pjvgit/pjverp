@@ -795,7 +795,7 @@ class LeadController extends BaseController
         
         $firmStaff = User::select("first_name","last_name","id","user_level","user_title")->where('user_level',3)->where("parent_user",Auth::user()->id)->orWhere("id",Auth::user()->id)->get();
         $firmAddress = FirmAddress::select("firm_address.*")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
-        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','firmStaff','firmAddress'));
+        return view('lead.editLead',compact('UserMaster','LeadAdditionalInfo','country','ReferalResource','LeadStatus','CasePracticeArea','firmStaff','firmAddress','CaseMasterClient'));
     }
     public function updateLead(Request $request)
     {
@@ -1043,8 +1043,10 @@ class LeadController extends BaseController
                     $CaseMaster->case_statute_date= date('Y-m-d', strtotime($var));
                 }
                 if(isset($request->conflict_check)) { 
-                    $CaseMaster->conflict_check="1"; 
-                    if(isset($request->conflict_check_description)) { $CaseMaster->conflict_check_description=$request->conflict_check_description; }
+                    $CaseMaster->conflict_check="1";                     
+                }
+                if(isset($request->conflict_check_description)) { 
+                    $CaseMaster->conflict_check_description=$request->conflict_check_description; 
                 }
                 $CaseMaster->case_unique_number=strtoupper(uniqid()); 
                 if(isset($request->practice_area_text)) { 
@@ -1057,8 +1059,7 @@ class LeadController extends BaseController
                     $CaseMaster->practice_area=$CasePracticeArea->id;
                 }else{
                     if(isset($request->practice_area)) { $CaseMaster->practice_area=$request->practice_area; }
-                }
-            
+                }            
                 $CaseMaster->created_by=Auth::User()->id; 
                 $CaseMaster->is_entry_done="0"; 
                 $CaseMaster->firm_id = auth()->user()->firm_name; 
@@ -6675,7 +6676,8 @@ class LeadController extends BaseController
                     $TaskAvtivityId = $TaskActivity->id;
                 }
                 $TaskTimeEntry = new TaskTimeEntry;
-                $TaskTimeEntry->user_id=$InvoiceSave->user_id;                
+                $TaskTimeEntry->user_id=$InvoiceSave->user_id;  
+                $TaskTimeEntry->firm_id =auth()->user()->firm_name;              
                 $TaskTimeEntry->activity_id=$TaskAvtivityId;
                 $TaskTimeEntry->time_entry_billable="yes";
                 $TaskTimeEntry->description="Consultation Fee";

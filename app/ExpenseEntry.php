@@ -15,7 +15,7 @@ class ExpenseEntry extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'case_id', 'user_id', 'activity_id', 'time_entry_billable', 'description', 'entry_date', 'entry_rate', 'rate_type', 'duration'
+        'case_id', 'user_id', 'activity_id', 'time_entry_billable', 'description', 'entry_date', 'entry_rate', 'rate_type', 'duration', 'token_id', 'firm_id'
     ];    
     protected $appends  = ['decode_id','decode_invoice_id','date_format_new','qty','cost_value','calulated_cost'];
     public function getDecodeIdAttribute(){

@@ -561,6 +561,7 @@ class BillingController extends BaseController
         $ExpenseEntry = new ExpenseEntry;
         $ExpenseEntry->case_id =$request->case_or_lead;
         $ExpenseEntry->user_id =$request->staff_user;
+        $ExpenseEntry->firm_id = Auth::User()->firm_name;
         if(isset($request->activity_text)){
             $TaskAvtivity = new TaskActivity;
             $TaskAvtivity->title=$request->activity_text;
@@ -631,6 +632,7 @@ class BillingController extends BaseController
                         $ExpenseEntry = new ExpenseEntry; 
                         $ExpenseEntry->case_id =$request->case_or_lead[$i];
                         $ExpenseEntry->user_id =$request->staff_user;
+                        $ExpenseEntry->firm_id = Auth::User()->firm_name;
                         $ExpenseEntry->activity_id=$request->activity[$i];
                         if(isset($request->billable[$i]) && $request->billable[$i]=="on"){
                             $ExpenseEntry->time_entry_billable="yes";
@@ -2159,6 +2161,7 @@ class BillingController extends BaseController
                     DB::table('flat_fee_entry')->where("id",$v->flat_fee_entry_id)->update([
                     'status'=>'unpaid',
                     'invoice_link' => null,
+                    'token_id'=>NULL,
                     ]);
                     FlatFeeEntryForInvoice::where("id", $v->id)->delete();
                 }
@@ -2167,19 +2170,20 @@ class BillingController extends BaseController
                  foreach($TimeEntryForInvoice as $k=>$v){
                      DB::table('task_time_entry')->where("id",$v->time_entry_id)->update([
                          'status'=>'unpaid',
-                         'invoice_link'=>NULL
-                     ]);
- 
-                     $deleteFromLinkTable=TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
+                         'invoice_link'=>NULL,
+                         'token_id'=>NULL,
+                     ]); 
+                     TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
                  }
                  //Removed expense entry
                  $ExpenseForInvoice=ExpenseForInvoice::where("invoice_id",$id)->get();
                  foreach($ExpenseForInvoice as $k=>$v){
                      DB::table('expense_entry')->where("id",$v->expense_entry_id)->update([
                          'status'=>'unpaid',
-                         'invoice_link'=>NULL
+                         'invoice_link'=>NULL,
+                         'token_id'=>NULL,
                      ]);
-                     $ExpenseForInvoice=ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
+                     ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
                  }
                  //Removed shared invoice 
                  $SharedInvoice=SharedInvoice::where("invoice_id",$id)->delete();
@@ -2247,8 +2251,12 @@ class BillingController extends BaseController
         $id=Auth::user()->id;
          $user = User::find($id);
         if(!empty($user)){
-            $getChildUsers=$this->getParentAndChildUserIds();
+            // $getChildUsers=$this->getParentAndChildUserIds();
             // $practiceAreaList = CasePracticeArea::where("status","1")->where("firm_id",Auth::User()->firm_name)->get();  
+            // delete all time entry or expense_entry or flatfees which token id is 9999999
+            TaskTimeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
+            ExpenseEntry::where('status','unpaid')->where('token_id','9999999')->delete();
+            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
             $upcomingInvoice=1;
             return view('billing.invoices.create_invoices',compact(/* 'practiceAreaList', */'upcomingInvoice'));
         }else{
@@ -2338,9 +2346,9 @@ class BillingController extends BaseController
         
         $Invoices = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
         ->leftJoin("users","case_client_selection.selected_user","=","users.id")
-        ->leftjoin("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
-        ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
-        ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
+        // ->leftjoin("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
+        // ->leftjoin("task_time_entry","task_time_entry.case_id","=","case_master.id")
+        // ->leftjoin("expense_entry","expense_entry.case_id","=","case_master.id")
         ->leftjoin("case_staff", "case_staff.case_id", "=", "case_master.id")
         ->leftjoin("users as lau", "lau.id", "=", "case_staff.lead_attorney")
         ->select('case_client_selection.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle",
@@ -2355,11 +2363,11 @@ class BillingController extends BaseController
         {
             $getChildUsers=$this->getParentAndChildUserIds();
             $Invoices = $Invoices->whereIn("case_master.created_by",$getChildUsers);
-            $Invoices->where(function($Invoices){
-                $Invoices = $Invoices->orwhere("flat_fee_entry.status","unpaid");
-                $Invoices = $Invoices->orwhere("task_time_entry.status","unpaid");
-                $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
-            });
+            // $Invoices->where(function($Invoices){
+            //     $Invoices = $Invoices->orwhere("flat_fee_entry.status","unpaid");
+            //     $Invoices = $Invoices->orwhere("task_time_entry.status","unpaid");
+            //     $Invoices = $Invoices->orWhere("expense_entry.status","unpaid");
+            // });
         }else{
             // $Invoices = $Invoices->where("case_master.created_by",Auth::User()->id);
             $Invoices = $Invoices->whereHas('caseStaffAll', function($query) {
@@ -2382,8 +2390,8 @@ class BillingController extends BaseController
         if($request->balance_filter != 'all') {
             if($request->balance_filter == "uninvoiced") {
                 // $Invoices = $Invoices->whereDoesntHave("invoices");
-                $Invoices = $Invoices->where("task_time_entry.status","unpaid")
-                ->orWhere("expense_entry.status","unpaid")->orWhere("flat_fee_entry.status","unpaid");
+                // $Invoices = $Invoices->where("task_time_entry.status","unpaid")
+                // ->orWhere("expense_entry.status","unpaid")->orWhere("flat_fee_entry.status","unpaid");
             } else {
                 $Invoices = $Invoices->whereHas("invoices", function($query) {
                     $query->havingRaw('SUM(due_amount) > ?', array(0));
@@ -2429,13 +2437,13 @@ class BillingController extends BaseController
         $getChildUsers=$this->getParentAndChildUserIds();
 
         $FlatFeeEntryIds = CaseMaster::join("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
-        ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
-        
+        ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereNull("flat_fee_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        \Log::info($FlatFeeEntryIds);
         $TaskTimeEntryIds = CaseMaster::join("task_time_entry","task_time_entry.case_id","=","case_master.id")
-        ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereNull("task_time_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
         
         $ExpenseEntryIds = CaseMaster::join("expense_entry","expense_entry.case_id","=","case_master.id")
-        ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
+        ->select("case_master.id","expense_entry.case_id")->where("expense_entry.status","unpaid")->whereNull("expense_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
         
         $uniqueCase=array_unique(array_merge($FlatFeeEntryIds,$TaskTimeEntryIds,$ExpenseEntryIds));
         return $uniqueCase;
@@ -2479,6 +2487,9 @@ class BillingController extends BaseController
             ->where("user_id",$client_id)
             ->first();
 
+            TaskTimeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
+            ExpenseEntry::where('status','unpaid')->where('token_id','9999999')->delete();
+            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
 
             $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
 
@@ -2610,8 +2621,10 @@ class BillingController extends BaseController
             // }
             
             //Get the Time Entry list
-            $TimeEntry=TaskTimeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")->where("task_time_entry.case_id",$case_id)
-            // ->where("task_time_entry.time_entry_billable","yes")
+            $TimeEntry=TaskTimeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")
+            ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+            ->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")
+            ->where("task_time_entry.case_id",$case_id)
             ->where("task_time_entry.status","unpaid")
             ->where(function($TimeEntry) use($request){
                 $TimeEntry->where("task_time_entry.token_id","!=",$request->token);
@@ -2651,9 +2664,9 @@ class BillingController extends BaseController
 
             //Get Flat fees entry
             if($caseMaster) {
+                if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                 $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
                 // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
-                if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     if($totalFlatFee == 0){
                         $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->withTrashed()->sum('cost');
                     }else{
@@ -2673,6 +2686,7 @@ class BillingController extends BaseController
                                 'cost' =>  $remainFlatFee,
                                 'time_entry_billable' => 'yes',
                                 'token_id' => $request->token,
+                                'firm_id' => Auth::User()->firm_name,
                                 'created_by' => auth()->id(), 
                             ]);
                         }
@@ -2698,15 +2712,15 @@ class BillingController extends BaseController
                 //     ]);
                 // }
             }
-            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
-            ->where("flat_fee_entry.case_id",$case_id)
-            // ->where("flat_fee_entry.user_id",auth()->id())
-            ->where("flat_fee_entry.invoice_link",NULL)
-            ->where("flat_fee_entry.status","unpaid")
-            ->where(function($FlatFeeEntry) use($request){
-                $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
-                $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
-            })->delete();
+            // $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+            // ->where("flat_fee_entry.case_id",$case_id)
+            // // ->where("flat_fee_entry.user_id",auth()->id())
+            // ->where("flat_fee_entry.invoice_link",NULL)
+            // ->where("flat_fee_entry.status","unpaid")
+            // ->where(function($FlatFeeEntry) use($request){
+            //     $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
+            //     $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
+            // })->delete();
 
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
@@ -2714,10 +2728,11 @@ class BillingController extends BaseController
             ->where("flat_fee_entry.invoice_link",NULL)
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
-                $FlatFeeEntry->where("flat_fee_entry.token_id","==",$request->token);
+                $FlatFeeEntry->where("flat_fee_entry.token_id","=",$request->token);
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
+                $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
             });
-
+            
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
                 $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
                 $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
@@ -3043,6 +3058,7 @@ class BillingController extends BaseController
             $FlatFeeEntry = new FlatFeeEntry;
             $FlatFeeEntry->case_id =($request->case_id)??0;
             $FlatFeeEntry->user_id =$request->staff_user;
+            $FlatFeeEntry->firm_id =auth()->user()->firm_name;
             if(isset($request->invoice_id)){
                 $FlatFeeEntry->invoice_link =$request->invoice_id;
             }
@@ -3225,6 +3241,7 @@ class BillingController extends BaseController
             $TaskTimeEntry = new TaskTimeEntry;
             $TaskTimeEntry->case_id =($request->case_id)??0;
             $TaskTimeEntry->user_id =$request->staff_user;
+            $TaskTimeEntry->firm_id =auth()->user()->firm_name;
             if(isset($request->activity_text)){
                 $TaskAvtivity = new TaskActivity;
                 $TaskAvtivity->title=$request->activity_text;
@@ -3551,6 +3568,7 @@ class BillingController extends BaseController
         $ExpenseEntry = new ExpenseEntry;
         $ExpenseEntry->case_id =($request->case_id)??0;
         $ExpenseEntry->user_id =$request->staff_user;
+        $ExpenseEntry->firm_id = Auth::User()->firm_name;
         if(isset($request->activity_text)){
             $TaskAvtivity = new TaskActivity;
             $TaskAvtivity->title=$request->activity_text;
@@ -7358,25 +7376,35 @@ class BillingController extends BaseController
                         $CommonController->addMultipleHistory($data);
                         
                         // Invoices::where("id", $v1)->delete();
-
+                        //Remove flat fee entry for the invoice and reactivated time entry
+                        $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$v1)->get();
+                        foreach($FlatFeeEntryForInvoice as $k=>$v){
+                            DB::table('flat_fee_entry')->where("id",$v->flat_fee_entry_id)->update([
+                            'status'=>'unpaid',
+                            'invoice_link' => null,
+                            'token_id'=>NULL,
+                            ]);
+                            FlatFeeEntryForInvoice::where("id", $v->id)->delete();
+                        }
                         //Removed time entry id
                         $TimeEntryForInvoice=TimeEntryForInvoice::where("invoice_id",$v1)->get();
                         foreach($TimeEntryForInvoice as $k=>$v){
                             DB::table('task_time_entry')->where("id",$v->time_entry_id)->update([
                                 'status'=>'unpaid',
-                                'invoice_link'=>NULL
+                                'invoice_link'=>NULL,
+                                'token_id'=>NULL,
                             ]);
-
-                            $deleteFromLinkTable=TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
+                            TimeEntryForInvoice::where("id",$v->time_entry_id)->delete();
                         }
                         //Removed expense entry
                         $ExpenseForInvoice=ExpenseForInvoice::where("invoice_id",$v1)->get();
                         foreach($ExpenseForInvoice as $k=>$v){
                             DB::table('expense_entry')->where("id",$v->expense_entry_id)->update([
                                 'status'=>'unpaid',
-                                'invoice_link'=>NULL
+                                'invoice_link'=>NULL,
+                                'token_id'=>NULL,
                             ]);
-                            $ExpenseForInvoice=ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
+                            ExpenseForInvoice::where("id",$v->expense_entry_id)->delete();
                         }
                         //Removed shared invoice 
                         $SharedInvoice=SharedInvoice::where("invoice_id",$v1)->delete();
@@ -8741,7 +8769,7 @@ class BillingController extends BaseController
 
 
     public function createInvoiceBatch(Request $request)
-    {
+    {        
         $request->merge([
             'case_id' => ($request->case_id!="[]") ? $request->case_id : NULL
         ]);
@@ -8888,7 +8916,66 @@ class BillingController extends BaseController
                         $expenseEntryTotal+=($v->cost*$v->duration);
                     }
                 }
-                    // print_r($request->all());
+
+
+                //  get the flat fee entry
+                $flatFinalTotalBillable=0;   
+                if(in_array($caseClient->billing_method,["flat","mixed"])){                                 
+                    $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
+                    $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
+                    $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
+                    if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
+                        $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
+                    }
+                    $FlatFeeEntry=$FlatFeeEntry->get();
+                    if(count($FlatFeeEntry) > 0){
+                        foreach($FlatFeeEntry as $k =>$v){
+                            $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                            $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                            $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
+                            $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                            $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                            $FlatFeeEntryForInvoice->save();
+                            DB::table('flat_fee_entry')->where("id",$v->id)->update([
+                                'status'=>'paid',
+                                'invoice_link'=>$InvoiceSave->id
+                            ]);
+                            $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
+                        }
+                    }else{                              
+                        $flatTotalBillable = 0;          
+                        $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
+                        foreach($flatFeeData as $TK=>$TE){
+                            if($TE->status == 'paid'){
+                                $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
+                            }
+                        }
+                        $flatFinalTotalBillable = ($caseClient->billing_amount - $flatTotalBillable);
+                        $flatFinalTotalBillable = ($flatFinalTotalBillable > 0 ) ?  $flatFinalTotalBillable : 0;                        
+                        if($flatFinalTotalBillable > 0){
+                            $flatFeeEntry = FlatFeeEntry::create([
+                                'case_id' => $caseVal,
+                                'user_id' => auth()->id(),
+                                'entry_date' => Carbon::now(),
+                                'cost' =>  $flatFinalTotalBillable,
+                                'time_entry_billable' => 'yes',
+                                'status'=>'paid',
+                                'invoice_link' => $InvoiceSave->id,
+                                'firm_id' => Auth::User()->firm_name,
+                                'created_by' => auth()->id(), 
+                            ]);
+                            $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                            $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                            $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
+                            $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                            $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                            $FlatFeeEntryForInvoice->save();
+                        }
+                    }    
+                }
+                $subTotal=$flatFinalTotalBillable+$timeEntryTotal+$expenseEntryTotal;
+
+                // print_r($request->all());
                 //Invoice Shared With Client
                 if(isset($request->batch['share']) && $request->batch['share']=="1"){
 
@@ -8953,8 +9040,7 @@ class BillingController extends BaseController
                                 "full_name" => "",
                                 "mail_body" => $mail_body
                             ];
-                            $sendEmail = $this->sendMail($user);
-                            
+                            $sendEmail = $this->sendMail($user);                            
                             
                             $SharedInvoice=new SharedInvoice;
                             $SharedInvoice->invoice_id=$InvoiceSave->id;                    
@@ -8983,38 +9069,6 @@ class BillingController extends BaseController
                 // $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$caseVal)->first();
 
                 // $flatFees=($CaseClientSelection['billing_amount'])??0;
-                
-                $flatTotalBillable=0;
-                $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
-                foreach($flatFeeData as $TK=>$TE){
-                    if($TE->status == 'paid'){
-                        $flatTotalBillable+=str_replace(",","",number_format($TE['cost'], 2));
-                    }
-                }     
-                $flatFeeTotal = 0;
-                if(in_array($caseClient->billing_method,["flat","mixed"])){
-                    $flatFeeTotal = ($caseClient->billing_amount - $flatTotalBillable);
-                    $flatFeeTotal = ($flatFeeTotal > 0 ) ?  $flatFeeTotal : 0;
-                }
-                if($flatFeeTotal > 0){
-                    $flatFeeEntry = FlatFeeEntry::create([
-                        'case_id' => $caseVal,
-                        'user_id' => auth()->id(),
-                        'entry_date' => Carbon::now(),
-                        'cost' =>  $flatFeeTotal,
-                        'time_entry_billable' => 'yes',
-                        'created_by' => auth()->id(), 
-                    ]);
-                    $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
-                    $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
-                    $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
-                    $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
-                    $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                    $FlatFeeEntryForInvoice->save();                    
-                }
-                $subTotal=$flatFeeTotal+$timeEntryTotal+$expenseEntryTotal;
-
-                
                 
                 // dd($subTotal);
                 // if(isset($request->discounts['discount_type'])){
