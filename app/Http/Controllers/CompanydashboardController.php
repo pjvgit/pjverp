@@ -115,7 +115,7 @@ class CompanydashboardController extends BaseController
         
         $clientList = $clientList->offset($requestData['start'])->limit($requestData['length']);
         $clientList = $clientList->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $clientList = $clientList->get()->each->setAppends(['caselist', 'lastloginnewformate']);
+        $clientList = $clientList->get()->each->setAppends(['decode_id', 'caselist', 'lastloginnewformate']);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -140,7 +140,7 @@ class CompanydashboardController extends BaseController
         
         $clientList = $clientList->offset($requestData['start'])->limit($requestData['length']);
         $clientList = $clientList->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $clientList = $clientList->get()->each->setAppends(['caselist', 'lastloginnewformate']);
+        $clientList = $clientList->get()->each->setAppends(['decode_id', 'caselist', 'lastloginnewformate']);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  

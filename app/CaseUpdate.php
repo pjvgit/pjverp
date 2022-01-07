@@ -19,13 +19,19 @@ class CaseUpdate extends Model
     ];
     protected $appends = ['created_new_date'];
 
-    public function getCreatedNewDateAttribute(){
-
-        $CommonController= new CommonController();
+    public function getCreatedNewDateAttribute() {
         $timezone=Auth::User()->user_timezone ?? 'UTC';
-        $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
-        return date('m-d-Y h:i A',strtotime($convertedDate));
+        $convertedDate= convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->created_at)),$timezone);
+        return date('M j, Y h:i A',strtotime($convertedDate));
     }   
 
-   
+    /**
+     * Get the createdByUser that owns the CaseUpdate
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
 }

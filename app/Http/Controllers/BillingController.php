@@ -2321,7 +2321,7 @@ class BillingController extends BaseController
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
         $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $Invoices = $Invoices->groupBy("case_master.id");
-        $Invoices = $Invoices->get();
+        $Invoices = $Invoices->get()->each->setAppends(['payment_plan_active_for_case', 'last_invoice']);
         $json_data = array(
            "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -2395,7 +2395,8 @@ class BillingController extends BaseController
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['pageLength']);
         $Invoices = $Invoices->orderBy("case_master.id", 'desc');
         $Invoices = $Invoices->groupBy("case_master.id");
-        $Invoices = $Invoices->get();
+        $Invoices = $Invoices->get()->each
+            ->setAppends(["payment_plan_active_for_case", "last_invoice", "fee_structure", "practice_area_filter", "unpaid_balance", "setup_billing", "uninvoiced_balance"]);
         // dd($Invoices); 
         $arrData = [];
         $contactGroup = [];

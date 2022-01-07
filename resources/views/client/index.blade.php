@@ -217,22 +217,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(4)', nRow).html('<div class="text-left">'+urlList+'</div>');
                     }
                 
-                    var createdbyobj = JSON.parse(aData.createdby); 
-                    if(createdbyobj != null && createdbyobj.client_portal_enable=="0"){
+                    if(aData.client_portal_enable == "0"){
                         $('td:eq(5)', nRow).html('<div class="text-left">Disabled</div>'); 
                     
                     }  else{
                         if(aData.last_login==null){
-                            $('td:eq(5)', nRow).html('<div class="text-center">-</div>'); 
+                            $('td:eq(5)', nRow).html('<div class="text-left">Never</div>'); 
                         }else{
                             $('td:eq(5)', nRow).html('<div class="text-left">'+aData.last_login+'</div>'); 
                         }
                     }
                 
-                    if(createdbyobj != null){
-                        var createdBy= createdbyobj.created_by_name;
-                        var createdAt= createdbyobj.newFormateCreatedAt;
-                        $('td:eq(6)', nRow).html('<div class="status-update"><div class="test-created-by-info">Created '+createdAt+'<small> <br>by <a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+createdbyobj.decode_user_id+'">'+createdBy+'</a></small>');
+                    if(aData.created_by_user != null){
+                        var createdBy= aData.created_by_user.full_name;
+                        $('td:eq(6)', nRow).html('<div class="status-update"><div class="test-created-by-info">'+aData.created_date_new+'<small> <br>by \
+                        <a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+aData.created_by_user.decode_id+'">'+createdBy+'</a></small>');
                     }else{
                         $('td:eq(6)', nRow).html('Not Specified');
                     }

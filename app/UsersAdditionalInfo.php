@@ -21,27 +21,28 @@ class UsersAdditionalInfo extends Authenticatable
         'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 
         'credit_account_balance', 'minimum_trust_balance'
     ];
-    protected $appends  = ['lastloginnewformate',/* 'caselist', */ 'unallocate_trust_balance'];
+    protected $appends  = ['unallocate_trust_balance'];
 
+    /**
+     * Get user's last login detail, Do not add this attribute to append array, if required please set append dynamically
+     */
     public function getLastloginnewformateAttribute(){
-        $CommonController= new CommonController();
-        if(isset(Auth::User()->user_timezone) && $this->last_login!=null) 
+        $authUser = auth()->user();
+        if(isset($authUser->user_timezone) && $this->last_login!=null) 
         {
-            $timezone=Auth::User()->user_timezone;
-            $convertedDate= $CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->last_login)),$timezone);
+            $timezone=$authUser->user_timezone;
+            $convertedDate= convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($this->last_login)),$timezone);
             return date('M j, Y h:i A',strtotime($convertedDate));
-
         }else{
             if($this->client_portal_enable=='1'){
                 return "Disabled";
             }else{
                 return "Never";
             }
-            
         }
     }
     /**
-     * Do not add this attribute to append array, If you need to use then set it dynamically
+     * Do not add this attribute to append array, if required please set append dynamically
      */
     public function getCaselistAttribute(){
         $ContractUserCase =  CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')

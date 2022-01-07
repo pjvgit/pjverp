@@ -20,8 +20,9 @@ class CaseMaster extends Authenticatable
     protected $fillable = [
         'case_title','case_status','created_at','case_statute_date','case_open_date', 'total_allocated_trust_balance','conflict_check_at'
     ];
-    protected $appends = ['payment_plan_active_for_case','last_invoice','token','caseuser','caseupdate','created_new_date','createdby','case_stage_text','upcoming_event','upcoming_tasks','lead_attorney',"fee_structure","practice_area_filter",'practice_area_text',"uninvoiced_balance","unpaid_balance","role_name","setup_billing"];
-    public function getCaseuserAttribute(){
+    protected $appends = ['token', 'created_new_date', 'createdby', "fee_structure","uninvoiced_balance","role_name","setup_billing"];
+
+    /* public function getCaseuserAttribute(){
         $ContractUserCase =  CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","case_staff.lead_attorney")
         ->where('case_id',$this->id)  
         ->get();
@@ -31,7 +32,7 @@ class CaseMaster extends Authenticatable
             }
         }
         return json_encode($ContractUserCase); 
-    }
+    } */
 
     public function getCreatedNewDateAttribute(){
         if($this->created_at!=NULL){
@@ -41,7 +42,8 @@ class CaseMaster extends Authenticatable
             return '--';
         }
     }   
-    public function getCaseUpdateAttribute(){
+
+    /* public function getCaseUpdateAttribute(){
         $ContractCaseUpdate =  CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","case_update.update_status","case_update.created_at")
         ->where('case_id',$this->id)  
         ->orderBy("case_update.id","DESC")
@@ -54,7 +56,7 @@ class CaseMaster extends Authenticatable
 
         }
         return json_encode($ContractCaseUpdate); 
-    }
+    } */
 
     public function getCaseOpenDateAttribute(){
         if(isset($this->attributes['case_open_date'])){
@@ -73,6 +75,10 @@ class CaseMaster extends Authenticatable
     public function getCreatedbyAttribute(){
         return base64_encode($this->uid);
     }
+
+    /**
+     * Do not add this attribute to append array, If required, set append dynamically
+     */
     public function getCaseStageTextAttribute(){
         $caseStageText =  CaseStage::select('title')
         ->where('id',$this->case_status)  
@@ -85,7 +91,7 @@ class CaseMaster extends Authenticatable
         } 
     }
 
-    public function getUpcomingEventAttribute(){
+    /* public function getUpcomingEventAttribute(){
         
         $CommonController= new CommonController();
         $timezone = Auth::User()->user_timezone ?? 'UTC';
@@ -107,8 +113,8 @@ class CaseMaster extends Authenticatable
             }
         }
         return json_encode($case_events); 
-    }
-    public function getUpcomingTasksAttribute(){
+    } */
+    /* public function getUpcomingTasksAttribute(){
       
         $TaskDatata =DB::table('task')->select('*')
         ->where('case_id',$this->id)  
@@ -128,7 +134,11 @@ class CaseMaster extends Authenticatable
             $TaskDatata=[];
             return json_encode($TaskDatata); 
         }
-    }
+    } */
+
+    /**
+     * Do not add this attribute to append array, If required, set append dynamically
+     */
     public function getLeadAttorneyAttribute(){
         if(isset($this->case_id)){
             $caseCllientSelection = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->select("users.id",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as lead_name'),"users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id")->where("case_client_selection.case_id",$this->case_id)->first();
@@ -137,19 +147,6 @@ class CaseMaster extends Authenticatable
             return "";
         }
      } 
-    //  public function getFeeStructureAttribute(){
-    //     $caseCllientSelection = CaseClientSelection::select("*")->where("case_client_selection.case_id",$this->case_id)->where("case_client_selection.billing_method","!=",NULL)->first();
-    //     if(empty($caseCllientSelection)){
-    //         return "Not Specified";
-    //     }else{
-    //         if($caseCllientSelection->billing_method=="flat"){
-    //             return "Flat Fee";
-    //         }else{
-    //             return ucfirst($caseCllientSelection->billing_method);
-    //         }
-            
-    //     }
-    // }
 
     public function getFeeStructureAttribute(){
       
@@ -163,6 +160,10 @@ class CaseMaster extends Authenticatable
             }
         }
     }
+
+    /**
+     * Do not add this attribute to append array, If required, set append dynamically
+     */
     public function getPracticeAreaFilterAttribute(){
         if(isset($this->case_id) && isset($this->pa) && $this->pa!='-1'){
             $CasePracticeArea = CasePracticeArea::where("id",$this->pa)->where("firm_id",Auth::User()->firm_name)->first();
@@ -176,6 +177,9 @@ class CaseMaster extends Authenticatable
         }
      } 
 
+    /**
+     * Do not add this attribute to append array, If required, set append dynamically
+     */
      public function getPracticeAreaTextAttribute(){
         if(isset($this->practice_area) && $this->practice_area!='-1'){
             $CasePracticeArea = CasePracticeArea::where("id",$this->practice_area)->first();
@@ -186,7 +190,7 @@ class CaseMaster extends Authenticatable
      }
      public function getUninvoicedBalanceAttribute(){
         if(isset($this->case_id) || isset($this->id)){
-            $flatTotalBillable=$flatTotalNonBillable=0;
+            /* $flatTotalBillable=$flatTotalNonBillable=0;
             $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $this->case_id ?? $this->id)->where("time_entry_billable","yes")->get();
             foreach($flatFeeData as $TK=>$TE){
                 if($TE->status == 'paid'){
@@ -225,28 +229,16 @@ class CaseMaster extends Authenticatable
                 }
             }
 
-            return "$".number_format(($expenseTotalBillable + $timeTotalBillable + $flatFeeTotal),2);
+            return "$".number_format(($expenseTotalBillable + $timeTotalBillable + $flatFeeTotal),2); */
+            return "0";
         }else{
             return "Not Specified";
         }
      } 
-     
-    //  public function getUnpaidAmountAttribute(){
-    //     if(isset($this->case_id)){
-    //          $ExpenseEntry=ExpenseEntry::select(DB::raw('sum(cost*duration) AS totalExpenseEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
-            
-    //          $TaskTimeEntry=TaskTimeEntry::select(DB::raw("(CASE WHEN rate_type='flat' THEN entry_rate WHEN rate_type = 'hr' THEN sum(entry_rate * duration) END) AS totalTimeEntry"))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
 
-    //         //  $TaskTimeEntry=TaskTimeEntry::select(DB::raw('sum(entry_rate*duration) AS totalTimeEntry'))->where("case_id",$this->case_id)->where("status","unpaid")->where("time_entry_billable","yes")->first();
-
-    //         return "$".number_format(($ExpenseEntry['totalExpenseEntry']+$TaskTimeEntry['totalTimeEntry']),2);
-
-            
-    //     }else{
-    //         return "Not Specified";
-    //     }
-    //  } 
-
+    /**
+     * Do not add this attribute to append array, if required, set append dynamically
+     */
      public function getUnpaidBalanceAttribute(){
         if(isset($this->ccid)){
             $lastInvoice =  Invoices::select("*")
@@ -264,6 +256,9 @@ class CaseMaster extends Authenticatable
         return substr(sha1(rand()), 0, 15);
     }
 
+    /**
+     * Do not add this attribute to append array, if required, set append dynamically
+     */
     public function getLastInvoiceAttribute(){
         $lastInvoice =  Invoices::select("invoice_date")
         ->where('case_id',$this->ccid)  
@@ -279,6 +274,9 @@ class CaseMaster extends Authenticatable
         }
     }
 
+    /**
+     * Do not add this attribute to append array, if required, set append dynamically
+     */
     public function getPaymentPlanActiveForCaseAttribute(){
         $lastInvoice =  Invoices::select("*")
         ->where('case_id',$this->ccid)  
@@ -435,5 +433,46 @@ class CaseMaster extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'case_client_selection', 'case_id', 'selected_user')->orderBy("users.id", "asc")
                 ->withPivot('allocated_trust_balance', 'minimum_trust_balance')->withTrashed();
+    }
+
+    /**
+     * Get all of the upcomingEvent for the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function upcomingEvent()
+    {
+        return $this->hasOne(CaseEvent::class, 'case_id')->where('start_date',">=",date('Y-m-d'))->where('start_time',">=",date('h:i:s'))->orderBy('start_time','ASC');
+    }
+
+    /**
+     * Get the upcomingTask associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function upcomingTask()
+    {
+        return $this->hasOne(Task::class, 'case_id')->where('task_due_on',">=",date('Y-m-d'))->where('task_due_on',"!=",'9999-12-30')
+            ->where('status','0')->whereNull('deleted_at')->orderBy('task_due_on','ASC');
+    }
+
+    /**
+     * Get all of the overdueTasks for the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function overdueTasks()
+    {
+        return $this->hasMany(Task::class, 'case_id')->where('status','0')->where('task_due_on',"<=",date('Y-m-d'));
+    }
+    
+    /**
+     * Get the case status Update associated with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseUpdate()
+    {
+        return $this->hasOne(CaseUpdate::class, 'case_id')->orderBy("case_update.id","DESC");
     }
 }

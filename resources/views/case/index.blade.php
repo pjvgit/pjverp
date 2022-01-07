@@ -909,11 +909,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     // }
                     $('td:eq(2)', nRow).html('<span style="white-space: nowrap;"> '+aData.case_stage_text+'@can("case_add_edit") <a data-toggle="modal"  data-target="#changeStatus" data-placement="bottom" href="javascript:;"  onclick="changeStatus('+aData.id+');"><i class="nav-icon i-Pen-2 font-weight-bold"></i></a>@endcan</span>');
                                 
-                    var obj = JSON.parse(aData.caseuser);
+                    var obj = aData.case_staff_details;
                     var i;
                     var urlList='';
                     for (i = 0; i < obj.length; ++i) {
-                        urlList+='<a href="'+baseUrl+'/contacts/attorneys/'+obj[i].decode_user_id+'">'+obj[i].first_name+' '+obj[i].last_name+'</a>';
+                        urlList+='<a href="'+baseUrl+'/contacts/attorneys/'+obj[i].decode_id+'">'+obj[i].first_name+' '+obj[i].last_name+'</a>';
                         if(obj[i].lead_attorney==obj[i].id){
                             urlList+='(Lead Attorney)';
                         }
@@ -921,42 +921,39 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     
                     }
 
-                var obj_upcoming_event = JSON.parse(aData.upcoming_event);
-                console.log(obj_upcoming_event);
-                    var eventTitle=eventTime=eventDate='';
-                    if(obj_upcoming_event.length > 0){
-                    if(obj_upcoming_event[0].event_title!=null && obj_upcoming_event[0].event_title!=''){
-                            eventTitle='<a href="#">'+obj_upcoming_event[0].event_title+'</a> ';
-                    }else{
-                            eventTitle='<a href="#">&lt;No Title&gt;</a> ';
-                    }
-                        eventDate=obj_upcoming_event[0].convertedDate;
-                        eventTime=obj_upcoming_event[0].convertedTime;
-
+                    var obj_upcoming_event = aData.upcoming_event;
+                    var eventTitle=eventDate='';
+                    if(obj_upcoming_event != null){
+                        if(obj_upcoming_event.event_title!=null && obj_upcoming_event.event_title!=''){
+                                eventTitle='<a href="#">'+obj_upcoming_event.event_title+'</a> ';
+                        }else{
+                                eventTitle='<a href="#">&lt;No Title&gt;</a> ';
+                        }
+                        eventDate=moment(obj_upcoming_event.start_date_time).format("MMM, DD YYYY, hh:mm a");
                     }else{
                         eventTitle='<i class="table-cell-placeholder"></i>';
                     }
                     $('td:eq(3)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+urlList+'</div>');
                     
-                    $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'  '+eventTime+'</div>');
+                    $('td:eq(4)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+eventTitle+' <br> '+eventDate+'</div>');
                     
-                    var obj_upcoming_task = JSON.parse(aData.upcoming_tasks);
+                    var obj_upcoming_task = aData.upcoming_task;
                     var taskTitle=taskDate=taskOverDue=taskAllLink='';
-                    if(obj_upcoming_task.length > 0){
-                    if(obj_upcoming_task[0].task_title!=null && obj_upcoming_task[0].task_title!=''){
-                            taskTitle='<a data-toggle="modal"  data-target="#loadTaskDetailsView" data-placement="bottom" href="javascript:;"  onclick="loadTaskDetailsView('+obj_upcoming_task[0].id+');">'+obj_upcoming_task[0].task_title+'</a> ';
-                    }else{
-                            taskTitle='<a href="#">&lt;No Title&gt;</a> ';
-                    }
-                    
-                    if(obj_upcoming_task[0].overdueTaskCounter!=0){
-                        taskDate='<span class="badge badge-danger mr-1 p-1">DUE</span>'+obj_upcoming_task[0].convertedDate;
-                        taskOverDue='<div class="overdue-tasks">'+obj_upcoming_task[0].overdueTaskCounter+' Overdue Task</div>';
-                    }else{
-                        taskOverDue='';
-                        taskDate='<span class="badge badge-secondary mr-1 p-1">DUE</span>'+obj_upcoming_task[0].convertedDate;
-                    }
-                    taskAllLink='<a href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/tasks" class="view-all-tasks d-print-none"><small>View all tasks</small></a>';
+                    if(obj_upcoming_task != null) {
+                        if(obj_upcoming_task.task_title!=null && obj_upcoming_task.task_title!=''){
+                                taskTitle='<a data-toggle="modal"  data-target="#loadTaskDetailsView" data-placement="bottom" href="javascript:;"  onclick="loadTaskDetailsView('+obj_upcoming_task.id+');">'+obj_upcoming_task.task_title+'</a> ';
+                        }else{
+                                taskTitle='<a href="#">&lt;No Title&gt;</a> ';
+                        }
+                        
+                        if(obj_upcoming_task.overdueTaskCounter!=0){
+                            taskDate='<span class="badge badge-danger mr-1 p-1">DUE</span>'+obj_upcoming_task.task_due_date;
+                            taskOverDue='<div class="overdue-tasks">'+aData.overdue_tasks_count+' Overdue Task</div>';
+                        }else{
+                            taskOverDue='';
+                            taskDate='<span class="badge badge-secondary mr-1 p-1">DUE</span>'+obj_upcoming_task.task_due_date;
+                        }
+                        taskAllLink='<a href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/tasks" class="view-all-tasks d-print-none"><small>View all tasks</small></a>';
 
                     }else{
                         taskTitle='<i class="table-cell-placeholder"></i>';
@@ -965,11 +962,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(5)', nRow).html('<div class="text-left" style="white-space: nowrap;">'+taskTitle+' <br> '+taskDate+'<br>'+taskOverDue+''+taskAllLink+'</div>');
                         var commentBy= '';
                         var comment= ''
-                        var updateobj = JSON.parse(aData.caseupdate);
-                    if(updateobj.length > 0){
-                        var commentBy= updateobj[0].first_name +' '+ updateobj[0].last_name;
-                        var comment= updateobj[0].update_status;
-                        var createdAt= updateobj[0].newFormateCreatedAt;
+                        var updateobj = aData.case_update;
+                    if(updateobj != null){
+                        var commentBy= updateobj.created_by_user.first_name ?? '' +' '+ updateobj.created_by_user.last_name ?? '';
+                        var comment= updateobj.update_status;
+                        var createdAt= updateobj.created_new_date;
                     
                         $('td:eq(6)', nRow).html('<div class="text-left"><div class="status-update"><div class="test-created-by-info">Created '+createdAt+'<small> by <a class="test-created-by-link pendo-case-info-status-created-by" href="#">'+commentBy+'</a></small></div><div class="d-print-none"><div class="mt-1 status-update-description text-break"><small><div class="more">'+comment+'</div></small></div></div><a data-toggle="modal"  data-target="#statusUpdate" data-placement="bottom" href="javascript:;"  onclick="loadCaseUpdate('+aData.id+');"><small>Add New Update</small></a></div>');
                     }else{

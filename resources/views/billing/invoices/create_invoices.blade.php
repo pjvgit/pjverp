@@ -1207,7 +1207,7 @@ var start = 0;
                     // ' mainBox_' + aData.id + ' "> <a class="name" href="' + baseUrl +
                     // '/contacts/clients/'+aData.selected_user+'">'+aData.contact_name+'</a></td></tr>';
                                    
-                    if(parseFloat(aData.uninvoiced_balance.replace("$", "")) > 0){
+                    // if(parseFloat(aData.uninvoiced_balance.replace("$", "")) > 0){
                     // unInvoiceAmount += parseFloat(aData.uninvoiced_balance.replace("$", ""));
                     resultHtml +='<tr><td><div class="text-left pl-3">';
                     if(aData.setup_billing == 'yes') {
@@ -1252,11 +1252,11 @@ var start = 0;
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
                     resultHtml +='</tr>';
-                    }else{
+                    /* }else{
                         console.log("1255 > client: "+aData.selected_user);
                         removedRecord.push(aData.selected_user);
                         
-                    }
+                    } */
                 });
                
             });
