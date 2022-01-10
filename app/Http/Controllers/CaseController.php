@@ -967,7 +967,7 @@ class CaseController extends BaseController
                             $query->where('user_id', auth()->id());
                         });
         }
-        $CaseMaster = $CaseMaster->with('caseOffice')->first();
+        $CaseMaster = $CaseMaster->with('caseOffice')->first()->setAppends(["uninvoiced_balance"]);
         if(!empty($CaseMaster)){
             $case_id= $CaseMaster->case_id;
             // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');

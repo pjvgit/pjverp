@@ -20,7 +20,7 @@ class CaseMaster extends Authenticatable
     protected $fillable = [
         'case_title','case_status','created_at','case_statute_date','case_open_date', 'total_allocated_trust_balance','conflict_check_at'
     ];
-    protected $appends = ['token', 'created_new_date', 'createdby', "fee_structure","uninvoiced_balance","role_name","setup_billing"];
+    protected $appends = ['token', 'created_new_date', 'createdby', "fee_structure"/* ,"uninvoiced_balance" */,"role_name"/* ,"setup_billing" */];
 
     /* public function getCaseuserAttribute(){
         $ContractUserCase =  CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","case_staff.lead_attorney")
@@ -188,9 +188,13 @@ class CaseMaster extends Authenticatable
             return "";
         }
      }
+
+    /**
+     * Do not add this attribute to append array, If required, set append dynamically
+     */
      public function getUninvoicedBalanceAttribute(){
         if(isset($this->case_id) || isset($this->id)){
-            /* $flatTotalBillable=$flatTotalNonBillable=0;
+            $flatTotalBillable=$flatTotalNonBillable=0;
             $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $this->case_id ?? $this->id)->where("time_entry_billable","yes")->get();
             foreach($flatFeeData as $TK=>$TE){
                 if($TE->status == 'paid'){
@@ -229,8 +233,7 @@ class CaseMaster extends Authenticatable
                 }
             }
 
-            return "$".number_format(($expenseTotalBillable + $timeTotalBillable + $flatFeeTotal),2); */
-            return "0";
+            return "$".number_format(($expenseTotalBillable + $timeTotalBillable + $flatFeeTotal),2);
         }else{
             return "Not Specified";
         }
@@ -319,6 +322,9 @@ class CaseMaster extends Authenticatable
         
     } 
 
+    /**
+     * Do not add this attribute to append array, if required, set append dynamically
+     */
     public function getSetupBillingAttribute(){
         $caseBiller = CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')
         ->leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
