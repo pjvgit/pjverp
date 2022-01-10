@@ -123,32 +123,13 @@ class CaseController extends BaseController
             $ownAssignedCase = CaseStaff::select("case_id","user_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$ownAssignedCase);
         }
-        //Load only own created case
-        // if(isset($requestData['mc']) && $requestData['mc']!=''){
-        //     $case = $case->where("case_master.created_by",Auth::user()->id); 
-        // }else{
-        //     //If Parent user logged in then show all child case to parent
-        //     if(Auth::user()->parent_user==0){
-        //         $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-        //         $getChildUsers[]=Auth::user()->id;
-        //         $case = $case->whereIn("case_master.created_by",$getChildUsers);
-        //     }else{
-        //         $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
-        //         $case = $case->whereIn("case_master.id",$childUSersCase);
-        //     }
-        // }
-
-        ///Load case base on user type
-        // If user type is parent then load all child and own case
-        // If user type is staff then load onw case only. 
+        
         if(auth()->user()->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
             $case = $case->where('firm_id', auth()->user()->firm_name);
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $case = $case->whereIn("case_master.id",$childUSersCase);
         }
-
-    //    $case = $case->where("case_master.created_by",Auth::user()->id);
      
         $case = $case->where("case_master.is_entry_done","1"); 
         $totalData=$case->count();
@@ -166,7 +147,13 @@ class CaseController extends BaseController
         }
         $case = $case->offset($requestData['start']??0)->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $case = $case->get();
+        $case = $case->with(["upcomingEvent", "upcomingTask", "caseStaffDetails" => function($query) {
+                    $query->select("users.id", "users.first_name","users.last_name","case_staff.lead_attorney");
+                }, "caseUpdate" => function($query) {
+                    $query->with("createdByUser");
+                    // $query->leftjoin('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","case_update.update_status","case_update.created_at");
+                }])->withCount("overdueTasks")->get()
+                ->each->setAppends(["created_new_date", "case_stage_text", "practice_area_text", "createdby"]);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -980,7 +967,7 @@ class CaseController extends BaseController
                             $query->where('user_id', auth()->id());
                         });
         }
-        $CaseMaster = $CaseMaster->with('caseOffice')->first();
+        $CaseMaster = $CaseMaster->with('caseOffice')->first()->setAppends(["uninvoiced_balance"]);
         if(!empty($CaseMaster)){
             $case_id= $CaseMaster->case_id;
             // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');

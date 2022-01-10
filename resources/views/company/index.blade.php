@@ -139,7 +139,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 var companyLink='<a href="'+baseUrl+'/contacts/companies/'+aData.id+'">'+aData.first_name+'</a>';
                 $('td:eq(1)', nRow).html('<div class="text-left">'+companyLink+'</div>');
 
-                // var obj = JSON.parse(aData.caselist);
                 var obj = aData.client_cases;
                 var i;
                 var urlList='';
@@ -166,11 +165,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(3)', nRow).html('<i class="table-cell-placeholder"></i>');
                 }
 
-                var createdbyobj = JSON.parse(aData.createdby); 
-                if(createdbyobj != null){
-                    var createdBy= createdbyobj.created_by_name;
-                    var createdAt= createdbyobj.newFormateCreatedAt;
-                    $('td:eq(4)', nRow).html('<div class="status-update"><div class="test-created-by-info">Created '+createdAt+'<small> <br>by <a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+createdbyobj.decode_user_id+'">'+createdBy+'</a></small>');
+                if(aData.created_by_user != null){
+                    var createdBy= aData.created_by_user.full_name;
+                    $('td:eq(4)', nRow).html('<div class="status-update"><div class="test-created-by-info">Created '+aData.created_date_new+'<small> <br>by \
+                    <a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+aData.created_by_user.decode_id+'">'+createdBy+'</a></small>');
                 }else{
                     $('td:eq(4)', nRow).html('Not Specified');
                 }

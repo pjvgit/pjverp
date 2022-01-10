@@ -53,7 +53,7 @@ class ContractController extends BaseController
        
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-        $user = $user->get();
+        $user = $user->withCount("staffCases")->get()->each->setAppends(['decode_id', 'lastloginnewformate']);
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
             "recordsTotal"    => intval( $totalData ),  // total number of records
@@ -483,94 +483,6 @@ class ContractController extends BaseController
         exit;
     }
 
-    //Verify user once click on link shared by email.
-    /* public function verifyUser($token)
-    {
-        $verifyUser = User::where('token', $token)->first();
-        if(isset($verifyUser) ){
-            if($verifyUser->user_status==1){
-                return redirect('login')->with('warning', EMAIL_ALREADY_VERIFIED);
-            }else{
-                if($this->updateSameEmailUser($verifyUser)) {
-                    return redirect()->route('get/client/profile', $token);
-                } else {
-                    $status = EMAIL_VERIFIED;
-                    return redirect('setupuserpprofile/'.$token);
-                }
-            }
-        }else{
-            return redirect('login')->with('warning', EMAIL_NOT_IDENTIFIED);
-        }
-    }
-
-     //open set password popup when verify email
-     public function setupuserpprofile($token)
-     {
-        $verifyUser = User::where('token', $token)->first();
-        return view('contract.setupprofile',['verifyUser'=>$verifyUser]);
-
-     }   
-     
-     //open set password popup when verify email
-     public function setupusersave(Request $request)
-     {
-        // return $request->all();
-        $request->validate([
-            'password' => 'required|min:6|required_with:confirm_password|same:confirm_password',
-            'confirm_password' => 'required|min:6',
-            'user_timezone' => 'required',
-        ]);
-
-        $verifyUser =  User::where(["token" => $request->utoken])->first();
-    
-        if(isset($verifyUser) ){
-            $user = $verifyUser;
-            User::where('id',$user->id)->update(['password'=>Hash::make(trim($request->password)),
-            'user_timezone'=>$request->user_timezone,
-            'verified'=>"1",
-            'user_status'=>"1"
-            ]);
-
-             //Sent welcome email to user.
-             $getTemplateData = EmailTemplate::find(4);
-             $fullName = $user->first_name . ' ' . $user->last_name;
-
-             $mail_body = $getTemplateData->content;
-             $mail_body = str_replace('{name}', $fullName, $mail_body);
-             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-             $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-             $mail_body = str_replace('{regards}', REGARDS, $mail_body);
-             $mail_body = str_replace('{year}', date('Y'), $mail_body);     
-             $user = [
-                 "from" => FROM_EMAIL,
-                 "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => $getTemplateData->subject,
-                 "to" => $user->email,
-                 "full_name" => $fullName,
-                 "mail_body" => $mail_body
-             ];
-             $sendEmail = $this->sendMail($user);   
-            if (Auth::attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
-                $userStatus = Auth::User()->user_status;
-                if($userStatus=='1') { 
-                    session(['layout' => 'horizontal']);
-                    return redirect()->intended('dashboard')->with('success','Login Successfully');
-                }else{
-                    Auth::logout();
-                    Session::flush();
-                    return redirect('login')->with('warning', INACTIVE_ACCOUNT);
-                }
-            } else {
-                Session::flush();
-                return redirect('login')->with('warning', INACTIVE_ACCOUNT);
-            }
-        }else{
-            Auth::logout();
-            Session::flush();
-            return redirect('login')->with('warning', INACTIVE_ACCOUNT);
-        }
-     } */
-
      //Send welcome email to user as many times want to send.
      public function SendWelcomeEmail(Request $request)
      {
@@ -898,21 +810,14 @@ class ContractController extends BaseController
 
     public function loadClient()
     {   
+        // According to user permission show all clients and allow access of linked cases of client
         $columns = array('users.id','users.id','first_name','last_name', 'email', 'email', 'user_title','users.user_status','last_login','users.created_at');
         $requestData= $_REQUEST;
         $user = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
                 ->leftJoin('client_group','client_group.id','=','users_additional_info.contact_group_id')
-                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id")
+                ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.contact_group_id','client_group.group_name',"users.id as id", 'users_additional_info.client_portal_enable')
                 ->where('firm_name', auth()->user()->firm_name);
         $user = $user->where("user_level","2"); //Load all client 
-        // According to user permission show all clients and allow access of liked cases of client
-        /* if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $user = $user->whereIn("parent_user",$getChildUsers);
-        }else{
-            $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-        } */
         if($requestData['tab']=="active"){
             $user = $user->whereIn("users.user_status",[1,2]);
         }else{
@@ -939,7 +844,7 @@ class ContractController extends BaseController
         if( !empty($requestData['search']['value']) ) { 
             $totalFiltered = $user->count(); 
         }
-        $user = $user->with("clientCases");
+        $user = $user->with("clientCases", "createdByUser");
         $user = $user->offset($requestData['start'])->limit($requestData['length']);
         $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $user = $user->get();
@@ -1430,14 +1335,7 @@ class ContractController extends BaseController
             
             $user = User::select('*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'))->where('firm_name', auth()->user()->firm_name);
             $user = $user->where("user_level","4");  //4=Company
-          
-            /* if(Auth::user()->parent_user==0){
-                $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-                $getChildUsers[]=Auth::user()->id;
-                $user = $user->whereIn("parent_user",$getChildUsers);              
-            }else{
-                $user = $user->where("parent_user",Auth::user()->id); //Logged in user not visible in grid
-            } */
+
             if($requestData['tab']=="active"){
                 $user = $user->whereIn("users.user_status",["1","2"]);
             }else{
@@ -1455,10 +1353,10 @@ class ContractController extends BaseController
             if( !empty($requestData['search']['value']) ) { 
                 $totalFiltered = $user->count(); 
             }
-            $user = $user->with("clientCases");
+            $user = $user->with("clientCases", "createdByUser");
             $user = $user->offset($requestData['start'])->limit($requestData['length']);
             $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-            $user = $user->get()->each->setAppends(['contactlist', 'createdby']);
+            $user = $user->get()->each->setAppends(['decode_id', 'contactlist']);
             $json_data = array(
                 "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
                 "recordsTotal"    => intval( $totalData ),  // total number of records
