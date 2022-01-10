@@ -266,7 +266,8 @@ if(!isset($addition)){ $addition=0;}
                                         </div>
                                     </td>
                                 </tr>
-                            </tbody>
+                            </tbody>                            
+                            <input type="hidden" id="adjustment_delete" name="adjustment_delete" value=""/>
                         </table>
                     </div>
                     <?php if($case_id!=""){?>
@@ -3414,8 +3415,6 @@ if(!isset($addition)){ $addition=0;}
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
-        }).on('change',function(e){
-            changeCase();
         });
         $('#bill_to_date').datepicker({
             'format': 'm/d/yyyy',
@@ -3424,7 +3423,26 @@ if(!isset($addition)){ $addition=0;}
             'clearBtn': true,
             'todayHighlight': true
         }).on('change',function(e){
-            changeCase();
+            swal({
+                title: 'warning',
+                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0CC27E',
+                cancelButtonColor: '#FF586B',
+                cancelButtonText: 'Close',
+                confirmButtonText: 'Proceed',
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-danger  mr-2',
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function(isConfirm){
+                if (isConfirm){     
+                    localStorage.setItem('forwarded_invoices', JSON.stringify([]));               
+                    $('#adjustment_delete').val('1');
+                    changeCase();
+                }
+            });
         });
 
         @if(isset($invoiceSetting) && $invoiceSetting->default_invoice_payment_terms) 
@@ -3753,6 +3771,8 @@ if(!isset($addition)){ $addition=0;}
         var bill_invoice_date  = $("#bill_invoice_date").val();
         var bill_from_date=$("#bill_from_date").val();
         var bill_to_date=$("#bill_to_date").val();
+        var adjustment_delete=$('#adjustment_delete').val();
+        
 
         var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
         if(bill_payment_terms != ''){
@@ -3769,6 +3789,9 @@ if(!isset($addition)){ $addition=0;}
         }
         if(bill_from_date != '' && bill_to_date != ''){
             URLS+='&from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
+        }
+        if(adjustment_delete != ''){
+            URLS+='&adjustment_delete='+adjustment_delete;
         }
         window.location.href=URLS;
     }
@@ -4335,11 +4358,13 @@ if(!isset($addition)){ $addition=0;}
         if ($(this).is(":checked")) {
             $('#bill_from_date').removeAttr("disabled");
             $('#bill_to_date').removeAttr("disabled");
+            $('#adjustment_delete').val('1');
         } else {
             $("#bill_from_date").attr("disabled", true);
             $("#bill_to_date").attr("disabled", true);
-            $('#bill_from_date').val('');
-            $('#bill_to_date').val('');
+            $('#bill_from_date').val('');            
+            $('#bill_to_date').val(''); 
+            $('#adjustment_delete').val('');
             if($('#bill_from_date').val('') != ''){
             var case_id=$("#court_case_id").val();
             var contact=$("#contact").val();

@@ -2629,6 +2629,18 @@ class BillingController extends BaseController
             // }
             
             //Get the Time Entry list
+            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
+                $TimeEntry=TaskTimeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")
+                ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+                ->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")
+                ->where("task_time_entry.case_id",$case_id)
+                ->where("task_time_entry.status","unpaid")
+                ->where(function($TimeEntry) use($request){
+                    $TimeEntry->where("task_time_entry.token_id","==",$request->token);
+                    $TimeEntry->orwhere("task_time_entry.token_id","9999999");
+                });
+                $TimeEntry=$TimeEntry->delete();
+            }
             $TimeEntry=TaskTimeEntry::leftJoin("users","users.id","=","task_time_entry.user_id")
             ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
             ->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd")
@@ -2650,6 +2662,18 @@ class BillingController extends BaseController
             $TimeEntry=$TimeEntry->get();
         
             //Get the Expense Entry list
+            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
+                $ExpenseEntry=ExpenseEntry::leftJoin("users","users.id","=","expense_entry.user_id")
+                ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
+                ->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")
+                ->where("expense_entry.case_id",$case_id)
+                ->where("expense_entry.status","unpaid")
+                ->where(function($ExpenseEntry) use($request){
+                    $ExpenseEntry->where("expense_entry.token_id",$request->token);
+                    $ExpenseEntry->orwhere("expense_entry.token_id","9999999");
+                });
+                $ExpenseEntry=$ExpenseEntry->delete();
+            }
             $ExpenseEntry=ExpenseEntry::leftJoin("users","users.id","=","expense_entry.user_id")
             ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
             ->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")
@@ -2720,16 +2744,17 @@ class BillingController extends BaseController
                 //     ]);
                 // }
             }
-            // $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
-            // ->where("flat_fee_entry.case_id",$case_id)
-            // // ->where("flat_fee_entry.user_id",auth()->id())
-            // ->where("flat_fee_entry.invoice_link",NULL)
-            // ->where("flat_fee_entry.status","unpaid")
-            // ->where(function($FlatFeeEntry) use($request){
-            //     $FlatFeeEntry->where("flat_fee_entry.token_id","!=",$request->token);
-            //     $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
-            // })->delete();
-
+            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
+                $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
+                ->where("flat_fee_entry.case_id",$case_id)
+                // ->where("flat_fee_entry.user_id",auth()->id())
+                ->where("flat_fee_entry.invoice_link",NULL)
+                ->where("flat_fee_entry.status","unpaid")
+                ->where(function($FlatFeeEntry) use($request){
+                    $FlatFeeEntry->where("flat_fee_entry.token_id","=",$request->token);
+                    $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
+                })->delete();
+            }
             $FlatFeeEntry=FlatFeeEntry::leftJoin("users","users.id","=","flat_fee_entry.user_id")->select("flat_fee_entry.*","users.*","flat_fee_entry.id as itd")
             ->where("flat_fee_entry.case_id",$case_id)
             // ->where("flat_fee_entry.user_id",auth()->id())
@@ -2748,16 +2773,15 @@ class BillingController extends BaseController
             }
             $FlatFeeEntry=$FlatFeeEntry->get();
             
-            //Get the Adjustment list
+            //Get the Adjustment list            
+            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
+                $InvoiceAdjustment=InvoiceAdjustment::select("*")
+                ->where("invoice_adjustment.case_id",$case_id)
+                ->where("invoice_adjustment.token",$request->token)->delete();
+            }
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
             ->where("invoice_adjustment.case_id",$case_id)
-            ->where("invoice_adjustment.token",$request->token);
-            if(isset($request->adjustment_delete)){
-                $InvoiceAdjustment=$InvoiceAdjustment->delete();
-            }else{
-                $InvoiceAdjustment=$InvoiceAdjustment->get();            
-            }
-
+            ->where("invoice_adjustment.token",$request->token)->get();
 
             $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
 
@@ -9061,6 +9085,8 @@ class BillingController extends BaseController
                             $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
                             $SharedInvoice->save();
     
+                            $InvoiceSave->status='Sent';
+
                             $invoiceHistory=[];
                             $invoiceHistory['invoice_id']=$InvoiceSave->id;
                             $invoiceHistory['acrtivity_title']='Shared w/Contacts';
@@ -9072,6 +9098,7 @@ class BillingController extends BaseController
                             $invoiceHistory['created_by']=Auth::User()->id;
                             $invoiceHistory['created_at']=date('Y-m-d H:i:s');
                             $this->invoiceHistory($invoiceHistory);
+                            $totalUnsent--;
                             $totalSent++;
 
                         }
@@ -9199,7 +9226,7 @@ class BillingController extends BaseController
             if(!empty($totalInvoice)){
                 $InvoiceBatch->invoice_id=implode(",",$totalInvoice);
             }
-            $InvoiceBatch->total_invoice=$totalDraft + $totalUnsent + $totalSent;
+            $InvoiceBatch->total_invoice=count($totalInvoice);
             $InvoiceBatch->draft_invoice=$totalDraft;
             $InvoiceBatch->unsent_invoice=$totalUnsent;
             $InvoiceBatch->sent_invoice=$totalSent;
@@ -9888,9 +9915,10 @@ class BillingController extends BaseController
         $SetFrequency=Auth::User()->goal_frequency;
 
         foreach($monthTimeEntryDataForCalander as $k=>$v){
+            $entry_date=convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($v->entry_date)),Auth::User()->user_timezone);
             $CalenderArray[$k]['title']=number_format($v->durationsum,1);
-            $CalenderArray[$k]['start']=$v->entry_date;
-            $CalenderArray[$k]['end']=$v->entry_date;
+            $CalenderArray[$k]['start']=date('Y-m-d',strtotime($entry_date));
+            $CalenderArray[$k]['end']=date('Y-m-d',strtotime($entry_date));
             if($SetFrequency=="daily"){
                 if($SetGoal > $v->durationsum ){
                     $CalenderArray[$k]['color']='#ff7e00';
@@ -9899,11 +9927,8 @@ class BillingController extends BaseController
                 }
             }
         }
-
         return response()->json(['errors'=>'','CalenderArray'=>$CalenderArray]);
-        exit;  
-
-            
+        exit;              
     }
 
     public function loadSummary(Request $request)

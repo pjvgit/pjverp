@@ -21,7 +21,7 @@ class Invoices extends Model
         'invoice_setting' => 'array',
     ];
     
-    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status","check_portal_access","invoice_id"];
+    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id"];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
@@ -112,6 +112,9 @@ class Invoices extends Model
         }
         
     }
+    /**
+     * Do not add this attribute to append array, if required, set append dynamically
+     */
     public function getCheckPortalAccessAttribute(){
         $UsersAdditionalInfo=UsersAdditionalInfo::where("user_id",$this->client_id)->select("client_portal_enable")->first();
         if(!empty($UsersAdditionalInfo) && $UsersAdditionalInfo['client_portal_enable']=="1"){

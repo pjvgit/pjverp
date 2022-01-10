@@ -971,12 +971,12 @@ td,th{
             invoiceGrid.ajax.reload(null, false);
         });
         var invoiceGrid =  $('#invoiceGrid').DataTable({
-            stateSave: true,
+            // stateSave: true,
             serverSide: true,
             "dom": '<"top">rt<"bottom"pl><"clear">',
             responsive: false,
             processing: true,
-            stateSave: true,
+            // stateSave: true,
             searching: false, "aaSorting": [],
             "order": [[0, "desc"]],
             "ajax":{

@@ -48,17 +48,17 @@ if($TaskTimeEntry->isEmpty()){?>
                         <td class="test-rate">${{number_format($v->entry_rate,2)}}/{{$v->rate_type}}</td>
                         <td class="test-duration text-right">{{number_format($v->duration)}}</td>
                         <?php 
-                    $total=0;
-                    if($v->rate_type=="hr"){
+                        $total=0;
                         $masterHours+=$v->duration;
-                        $total=$v->duration*$v->entry_rate;
-                    }else{
-                        $total=$v->entry_rate;
-                    }
-                    if($v->time_entry_billable=="yes"){
-                        $MasterTotal+=$total;
-                    }
-                    ?>
+                        if($v->rate_type=="hr"){
+                            $total=$v->duration*str_replace(",","",$v->entry_rate);
+                        }else{
+                            $total=$v->entry_rate;
+                        }
+                        // if($v->time_entry_billable=="yes"){
+                            $MasterTotal+=$total;
+                        // }
+                        ?>
                         <td class="test-total text-right">${{number_format($total,2)}}</td>
                         <td class="test-nonbillable"><?php if($v->time_entry_billable=="no"){ ?> <span
                                 class="text-muted">NB</span><?php } ?></td>
@@ -107,8 +107,6 @@ if($TaskTimeEntry->isEmpty()){?>
                 <th style="width: 10%;"></th>
                 <th style="width: 10%;"></th>
             </tr>
-
-
         </table>
     </div>
     <?php

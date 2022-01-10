@@ -265,7 +265,7 @@
                         return false;
                     } else {
                         localStorage.setItem("showWarning",localStorage.getItem("showWarning") + 1);
-                        window.location.reload();
+                        changeCase();
                         afterLoader();
                     }
                 },
