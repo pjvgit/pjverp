@@ -36,4 +36,14 @@ class Firm extends Authenticatable
     {
         return $this->hasMany(User::class, 'firm_name');
     }
+
+    /**
+     * Get the onlinePaymentSetting associated with the Firm
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function onlinePaymentSetting()
+    {
+        return $this->hasOne(FirmOnlinePaymentSetting::class, 'firm_id');
+    }
 }

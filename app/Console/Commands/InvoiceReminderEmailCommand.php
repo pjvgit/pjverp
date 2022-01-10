@@ -51,7 +51,7 @@ class InvoiceReminderEmailCommand extends Command
                             $q->whereRaw("due_date = '".Carbon::now()->subDays(7)->format("Y-m-d")."' OR due_date = '".Carbon::now()->format("Y-m-d")."' OR due_date = '".Carbon::now()->addDays(7)->format("Y-m-d")."'");
                         });
                     }) */
-                    // ->whereId(177)
+                    ->whereId(176)
                     ->whereNotNull('invoice_setting')
                     ->with("case", "invoiceSharedUser", "invoiceFirstInstallment", "firmDetail")
                     ->get();
@@ -129,7 +129,7 @@ class InvoiceReminderEmailCommand extends Command
                                 $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $useritem->user_timezone ?? 'UTC');
                                 $dispatchDate->setTimezone('UTC');
                                 Log::info("user time to utc time: ". $dispatchDate);
-                                dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))->delay($dispatchDate);
+                                dispatch(new InvoiceReminderEmailJob($item, $useritem, $emailTemplate, $remindType, $days))/* ->delay($dispatchDate) */;
                                 // }
                             }
 

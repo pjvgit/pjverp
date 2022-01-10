@@ -8,7 +8,11 @@
 @endslot
 
 @php
-    $content = str_replace('[INVOICE_LINK]', route("client/bills/detail", $invoice->decode_id), $template->content);
+$invoiceLink = '<a href="'.route("client/bills/detail", $invoice->decode_id).'">View Invoice</a>';
+if($firm && $firm->onlinePaymentSetting && $firm->onlinePaymentSetting->is_accept_online_payment) {
+$invoiceLink .= '<br><a href="route("client/bills/payment", ["type"=>"invoice", "id"=>'.encodeDecodeId($invoice->id, "encode").', "client_id"=>'.encodeDecodeId($user->id, "encode").'])">Pay Now</a>';
+}
+    $content = str_replace('[INVOICE_LINK]', $invoiceLink, $template->content);
     if($template->id == 22) {
         $date = ($invoice->invoiceFirstInstallment) ? \Carbon\Carbon::parse($invoice->invoiceFirstInstallment->due_date) : \Carbon\Carbon::parse($invoice->due_date);
         $content = str_replace('[INVOICE_DUE_DATE]', date("M d, Y", strtotime(convertUTCToUserDate($date->format("Y-m-d"), $user->user_timezone))), $content);
@@ -17,6 +21,7 @@
         $txt = $date->isTomorrow() ? "tomorrow" : date("M d, Y", strtotime(convertUTCToUserDate($date->format("Y-m-d"), $user->user_timezone)));
         $content = str_replace('[INVOICE_DUE_DATE]', $txt, $content);
     } else {}
+    $content = str_replace('[INVOICE_PAYMENT_LINK]', route("client/bills/payment", ['type'=>'invoice', 'id'=>encodeDecodeId($invoice->id, 'encode'), 'client_id'=>encodeDecodeId($user->id, 'encode')]), $content);
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
 @endphp
 {!! $content !!}

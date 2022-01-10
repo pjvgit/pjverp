@@ -1708,14 +1708,7 @@ $expenseTime=0;$expenseAmount=0;
                                                                     <img src="{{ asset('images/automated_payment_plan_marketing.png') }}"  height="80" >
                                                                 </div>
                                                                 <div class="px-1 col-md-8">
-                                                                    <div>The easy, hassle-free way to help your firm electronically collect
-                                                                        payment plan installments. <br><strong>Just set-and-forget</strong>
-                                                                    </div>
-                                                                </div>
-                                                            </div><br>
-                                                            <div class="row ">
-                                                                <div class="col-md-6 offset-md-4">
-                                                                    <a target="_blank" href="#" class="btn btn-secondry btn-rounded m-1" style="width: 100%;"><button class="btn btn-primary btn-rounded m-1" type="button">Learn More</button></a>
+                                                                    <div>If "Online Payments" is enabled, your client will receive a the default payment reminders, each with a payment link.</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1898,6 +1891,7 @@ $expenseTime=0;$expenseAmount=0;
                                             </table>
                                             <div class="reminder-tip text-right">*Once shared, you will have the option of sending reminders to clients.</div>
                                         </td>
+                                        @if(empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "no")
                                         <td id="sharing_right_side" style="width: 25%; padding-left: 10px; height: 100%;padding-top:10px;">
                     
                                             <div class="get-paid-now-ads bootstrap">
@@ -1923,6 +1917,7 @@ $expenseTime=0;$expenseAmount=0;
                                                 </div>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                 </tbody>
                             </table>

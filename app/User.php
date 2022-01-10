@@ -34,7 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id', 'created_date_new', 'full_name', 'full_address', 'user_type_text'];
+    protected $appends  = ['decode_id', 'created_date_new', 'full_name', /* 'full_address', */ 'user_type_text'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -299,10 +299,10 @@ class User extends Authenticatable
     /**
      * Get user full address attribute
      */
-    public function getFullAddressAttribute()
+    /* public function getFullAddressAttribute()
     {
         return $this->apt_unit.', '.$this->street.', '.$this->city.', '.$this->state.', '.$this->postal_code.', '.$this->country;
-    }
+    } */
 
     /**
      * Get all of the companyContactList for the User
