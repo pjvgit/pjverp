@@ -2740,23 +2740,24 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $("#delete_note_id").val(id);
     }
     function loadTimeEntryPopup(id) {
-            $("#preloader").show();
-            $("#addTimeEntry").html('');
-            $(function () {
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "/contacts/clients/loadTimeEntryPopup", // json datasource
-                    data: {
-                        "task_id": id
-                    },
-                    success: function (res) {
-                        $("#addTimeEntry").html('');
-                        $("#addTimeEntry").html(res);
-                        $("#preloader").hide();
-                    }
-                })
+        $("#preloader").show();
+        $("#addTimeEntry").html('');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                // url: baseUrl + "/contacts/clients/loadTimeEntryPopup", // json datasource
+                url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
+                data: {
+                    "task_id": id
+                },
+                success: function (res) {
+                    $("#addTimeEntry").html('');
+                    $("#addTimeEntry").html(res);
+                    $("#preloader").hide();
+                }
             })
-        }
+        })
+    }
 
     //Case Tab @END
     

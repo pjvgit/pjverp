@@ -1378,7 +1378,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/clients/loadTimeEntryPopup", // json datasource
+                // url: baseUrl + "/contacts/clients/loadTimeEntryPopup", // json datasource
+                url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
                 data: {"note_id": id},
                 success: function (res) {
                     $("#addTimeEntry").html('');

@@ -164,7 +164,7 @@ class CaseController extends BaseController
         if( !empty($requestData['search']['value']) ) { 
             $totalFiltered = $case->count(); 
         }
-        $case = $case->offset($requestData['start'])->limit($requestData['length']);
+        $case = $case->offset($requestData['start']??0)->limit($requestData['length']);
         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
         $case = $case->get();
         $json_data = array(
@@ -1280,7 +1280,7 @@ class CaseController extends BaseController
         $to=$timeSlot[1]??convertUTCToUserTimeZone('dateOnly');
         $timeTotalBillable=$timeTotalNonBillable=$timeTotalNonBillableHours=$timeTotalBillableHours=$invoiceEntry=$invoiceEntryHours=0;
         $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[0]))))), auth()->user()->user_timezone ?? 'UTC')));
-        $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($timeSlot[1]))))), auth()->user()->user_timezone ?? 'UTC')));
+        $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim(($timeSlot[1]??convertUTCToUserTimeZone('dateOnly'))))))), auth()->user()->user_timezone ?? 'UTC')));
             
         $TimeEntryLog=[];
         $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$case_id)

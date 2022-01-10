@@ -943,7 +943,7 @@
                     $("#hideoptioninput2defaultrate"+f).val(res.data);
                 }else{
                     $("#hideoptioninput2defaultrate"+f).val(0);
-                    $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                    $("#replaceAmt" + f).html("Billable - Billing rate is not specified, the system will use rate: 0");
                 }                    
                 console.log("#replaceAmt" + f);
             }

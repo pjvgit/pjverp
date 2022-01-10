@@ -868,7 +868,10 @@ class HomeController extends BaseController
 
     public function deleteTimer(Request $request){
         if($request->smart_timer_id){
-            $SmartTimer = SmartTimer::find($request->smart_timer_id)->forceDelete();
+            $SmartTimer = SmartTimer::find($request->smart_timer_id);
+            if(!empty($SmartTimer)){
+                $SmartTimer->forceDelete();
+            }
             \Session::forget('smart_timer_id');
             return response()->json(["status" => "success"]);
         }else{

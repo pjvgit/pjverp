@@ -815,7 +815,7 @@ class ClientdashboardController extends BaseController
     public function loadTimeEntryPopup(Request $request)
     {
         $defaultRate=$company_id=$case_id=$client_id='';
-        $dataNotes=ClientNotes::find(@$request->note_id);
+        $dataNotes=ClientNotes::find($request->note_id);
         if($dataNotes['client_id']!=NULL){
             $client_id=$dataNotes['client_id'];
         }else if($dataNotes['case_id']!=NULL){
@@ -1797,8 +1797,7 @@ class ClientdashboardController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $getRequestedFund=RequestedFund::find($request->fund_id);
-            RequestedFund::where('id',$request->fund_id)->delete();
-            
+
             $data=[];
             $data['deposit_id']=$getRequestedFund->id;
             $data['deposit_for']=$getRequestedFund->client_id;
@@ -1808,6 +1807,8 @@ class ClientdashboardController extends BaseController
             $data['action']='delete';
             $CommonController= new CommonController();
             $CommonController->addMultipleHistory($data);
+            
+            $getRequestedFund->delete();
 
             session(['popup_success' => 'Request #R-'.sprintf('%05d',$getRequestedFund->id).' deleted successfully']);
             return response()->json(['errors'=>'']);

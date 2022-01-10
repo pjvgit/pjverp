@@ -758,7 +758,7 @@
                     if(res.data > 0){
                         $("#replaceAmt" + f).text("Billable - Rate :" + res.data);
                     }else{
-                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified <br> <span class='error'>Update or remove this entry to continue with batch</span>");
+                        $("#replaceAmt" + f).html("Billable - Billing rate is not specified, the system will use rate: 0");
                     }
                     console.log("#replaceAmt" + f);
                 }

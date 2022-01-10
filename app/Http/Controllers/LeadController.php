@@ -2783,7 +2783,7 @@ class LeadController extends BaseController
     {
         $lead_id=$request->id;
         $LeadNotes=LeadNotes::find($lead_id);
-        $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($LeadNotes['notes_for']);
+        $userData=User::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as createdForName'))->find($LeadNotes['notes_for'] ?? $lead_id);
         $LeadActivity=LeadNotesActivity::where('status','1')->get();
         return view('lead.details.editNote',compact('userData','lead_id','LeadActivity','LeadNotes'));
     }

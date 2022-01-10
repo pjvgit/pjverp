@@ -13,7 +13,7 @@ use App\ExpenseEntry,App\RequestedFund,App\InvoiceAdjustment;
 use App\Invoices,App\CaseClientSelection,App\UsersAdditionalInfo,App\CasePracticeArea,App\InvoicePayment;
 use App\TimeEntryForInvoice,App\ExpenseForInvoice,App\SharedInvoice,App\InvoicePaymentPlan,App\InvoiceInstallment;
 use App\InvoiceHistory,App\LeadAdditionalInfo,App\CaseStaff,App\InvoiceBatch,App\DepositIntoTrust,App\AllHistory,App\AccountActivity,App\DepositIntoCreditHistory,App\FlatFeeEntryForInvoice,App\TrustHistory;
-use App\CaseStage,App\TempUserSelection;
+use App\CaseStage,App\TempUserSelection,App\ClientNotes;
 use App\InvoiceApplyTrustCreditFund;
 use App\InvoiceCustomizationSetting;
 use App\InvoiceOnlinePayment;
@@ -142,7 +142,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
-        $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
         $case = $case->get();
         // dd($case);
        
@@ -160,6 +160,16 @@ class BillingController extends BaseController
     public function loadTimeEntryPopup(Request $request)
     {  
         $case_id=$request->case_id;
+        if(isset($request->note_id)){
+            $dataNotes=ClientNotes::find($request->note_id);
+            if($dataNotes['client_id']!=NULL){
+                $client_id=$dataNotes['client_id'];
+            }else if($dataNotes['case_id']!=NULL){
+                $case_id=$dataNotes['case_id'];
+            }else if($dataNotes['company_id']!=NULL){
+                $company_id=$dataNotes['company_id'];
+            }
+        }
         // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
         $CaseMasterData = userCaseList();
         // $loadFirmStaff = User::select("first_name","last_name","id","user_title")->where("parent_user",Auth::user()->id)->where("user_level","3")->orWhere("id",Auth::user()->id)->orderBy('first_name','DESC')->get();
@@ -519,10 +529,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $case = $case->offset($requestData['start'])->limit($requestData['length']);
-        if(!isset($requestData['order'][0]['dir'])){
-            $requestData['order'][0]['dir']="DESC";
-        }
-        $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
         $case = $case->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -1039,7 +1046,7 @@ class BillingController extends BaseController
  
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          if(isset($requestData['order']) && $requestData['order']!=''){
-         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
          }
          $case = $case->withCount('fundPaymentHistory');
          $case = $case->with('user', 'allocateToCase')->get();
@@ -1127,7 +1134,7 @@ class BillingController extends BaseController
          $totalFiltered = $totalData; 
  
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
-         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+         $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
          $case = $case->get();
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
@@ -1397,7 +1404,7 @@ class BillingController extends BaseController
          $totalData=$Invoices->count();
          $totalFiltered = $totalData; 
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
-        $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
         $Invoices = $Invoices->with(['invoiceForwardedToInvoice', 'invoiceShared' => function($query) {
                         $query->where('is_viewed', 'yes')->whereNotNull('last_viewed_at')->orderBy('last_viewed_at', 'asc');
                     }])->get();
@@ -1418,7 +1425,7 @@ class BillingController extends BaseController
             $totalFiltered = $totalData; 
 
             $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
-            $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+            $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
             $Invoices = $Invoices->get();
             $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -2327,7 +2334,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
         
         $Invoices = $Invoices->offset($requestData['start'])->limit($requestData['length']);
-        $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $Invoices = $Invoices->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
         $Invoices = $Invoices->groupBy("case_master.id");
         $Invoices = $Invoices->get();
         $json_data = array(
@@ -2743,8 +2750,12 @@ class BillingController extends BaseController
             //Get the Adjustment list
             $InvoiceAdjustment=InvoiceAdjustment::select("*")
             ->where("invoice_adjustment.case_id",$case_id)
-            ->where("invoice_adjustment.token",$request->token)
-            ->get();
+            ->where("invoice_adjustment.token",$request->token);
+            if(isset($request->adjustment_delete)){
+                $InvoiceAdjustment=$InvoiceAdjustment->delete();
+            }else{
+                $InvoiceAdjustment=$InvoiceAdjustment->get();            
+            }
 
 
             $maxInvoiceNumber = DB::table("invoices")->max("id") + 1;
@@ -7924,7 +7935,7 @@ class BillingController extends BaseController
         $totalFiltered = $totalData; 
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
-        $FetchQuery = $FetchQuery->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $FetchQuery = $FetchQuery->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
         $FetchQuery = $FetchQuery->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
