@@ -1178,6 +1178,7 @@ var start = 0;
         })
         .done(function(result)
         {
+            $("#preloader").show();
             roundPage = round + 1;
             var res = JSON.parse(result);
             var resultHtml = '';
@@ -1252,16 +1253,15 @@ var start = 0;
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';
                     }
                     resultHtml +='</tr>';
-                    /* }else{
-                        console.log("1255 > client: "+aData.selected_user);
-                        removedRecord.push(aData.selected_user);
-                        
-                    } */
+                    // }else{
+                    //     console.log("1255 > client: "+aData.selected_user);
+                    //     removedRecord.push(aData.selected_user);                        
+                    // }
                 });
                
             });
             // afterLoader();
-            $("#preloader").hide();
+            
             if(unInvoiceAmount == 0){
                 $(".lazy-load-data").append(resultHtml);  
                 $.each(removedRecord, function(index, item){
@@ -1273,7 +1273,7 @@ var start = 0;
             
             // $(".lazy-load-data").html('');
             // $(".lazy-load-data").html(resultHtml);
-            // $("#preloader").hide();
+            $("#preloader").hide();
             reloadBilling();
         })
         .fail(function(jqXHR, ajaxOptions, thrownError)

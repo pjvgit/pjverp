@@ -48,7 +48,7 @@
                         </div>
                         <?php } ?>
 
-                        <a class="btn btn-lg btn-link px-2 mr-2 text-black-50" href="#">
+                        <a class="btn btn-lg btn-link px-2 mr-2 text-black-50 m2" href="#">
                             <i class="fas fa-link test-payment-link-icon" data-toggle="tooltip" data-placement="top"
                                 title=""
                                 data-original-title="A client credit card entry link is not available because your firm has not signed up for  {{config('app.name')}} Payments. Please enable  {{config('app.name')}} Payments to use this feature"></i>

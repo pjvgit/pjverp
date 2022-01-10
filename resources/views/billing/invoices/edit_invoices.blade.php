@@ -1213,9 +1213,9 @@ $expenseTime=0;$expenseAmount=0;
                                         </div>
                                     </td>
                                     <td style="text-align: right;">
-                                        <div class="locked" style="padding-bottom: 15px;">
+                                        <div class="locked" style="padding-bottom: 7px;">
                                             @if(count($unpaidInvoices))
-                                            <div class="billing-additions-area">
+                                            <div class="billing-additions-area-1"  style="padding-top: 7px;">
                                                 $<span id="forwarded_total_amount">{{ number_format($totalFwdAmt, 2) }}</span>
                                             </div>
                                             @endif
@@ -1226,7 +1226,7 @@ $expenseTime=0;$expenseAmount=0;
                                             </div>
                                             <?php } ?>
                                             <?php if($addition!="0"){?>
-                                            <div style="border: none; padding-top: 7px;" class="billing-additions-area ">
+                                            <div class="billing-additions-area">
                                                 $<span id="additions_section_total"
                                                     class="table_total amount additions_section_total">{{$addition}}</span>
                                             </div>
@@ -4388,12 +4388,18 @@ $expenseTime=0;$expenseAmount=0;
                             discount = (discount<=0) ? 0 : discount;                        
                             $("#addition_total_text").val(discount.toFixed(2));
                             $(".additions_section_total").text(discount.toFixed(2));
+                            if(discount <=0){
+                                $(".billing-additions-area").html('');
+                            }
                         }else{
                             var discount = $("#discount_total_text").val();
                             discount = discount - amount;
                             discount = (discount<=0) ? 0 : discount;                        
                             $("#discount_total_text").val(discount.toFixed(2));
                             $(".discounts_section_total").text(discount.toFixed(2));
+                            if(discount <=0){
+                                $(".billing-discounts-area").html('');
+                            }
                         }
                         $("#entry_"+id).remove(); 
                         recalculate();

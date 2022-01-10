@@ -17,7 +17,7 @@
         <div class="col-sm-10">
             <label class="radio radio-outline-success">
                 <input type="radio" name="link_to" <?php echo ($case_id == 0 || $case_id == NULL) ? 'checked' : ''; ?> value="1"><span>No cases</span><span
-                    class="checkmark"></span>
+                    class="checkmark caseMark"></span>
             </label>
         </div>
     </div>
@@ -27,7 +27,7 @@
 
             <label class="radio radio-outline-success">
                 <input type="radio" name="link_to" value="2"><span>All active cases</span><span
-                    class="checkmark"></span>
+                    class="checkmark caseMark"></span>
             </label>
         </div>
     </div>
@@ -36,7 +36,7 @@
         <div class="col-sm-10">
             <label class="radio radio-outline-success">
                 <input type="radio" name="link_to" id="specificcase" value="3" <?php echo ($case_id > 0) ? 'checked' : ''; ?>><span>A specific case</span><span
-                    class="checkmark"></span>
+                    class="checkmark caseMark"></span>
             </label>
         </div>
 
@@ -64,7 +64,7 @@
         </label>
         <div class="col-md-10 form-group mb-3">
             <label class="switch pr-5 switch-success mr-3"><span>Add all case events to user's calendar</span>
-                <input type="checkbox" name="sharing_setting_1"><span class="slider"></span>
+                <input type="checkbox" name="sharing_setting_1" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?>><span class="slider"></span>
             </label>
 
         </div>
@@ -75,7 +75,7 @@
         <div class="col-md-10 form-group mb-3">
             <label class="switch pr-5 switch-success mr-3"><span> Share all open and completed case tasks with this
                     user</span>
-                <input type="checkbox" name="sharing_setting_2" ><span class="slider"></span>
+                <input type="checkbox" name="sharing_setting_2" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?> ><span class="slider"></span>
             </label>
 
         </div>
@@ -85,9 +85,9 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label">
         </label>
         <div class="col-md-10 form-group mb-3">
-            <label class="switch pr-5 switch-success mr-3"><span> Mark all items as read (only available when a
+            <label class="switch pr-5 switch-success mr-3" ><span> Mark all items as read (only available when a
                     specific case is selected)</span>
-                <input type="checkbox" name="sharing_setting_3" id="sharing_setting_3"><span class="slider"></span>
+                <input type="checkbox" name="sharing_setting_3" id="sharing_setting_3" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?>><span class="slider"></span>
             </label>
 
         </div>
@@ -97,7 +97,7 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label">Case Rate</label>
         <div class="col-sm-10">
             <label class="radio radio-outline-success">
-                <input type="radio" name="case_rate" class="case_rate" checked="checked" value="0"><span>Use lawyer
+                <input type="radio" name="case_rate" class="case_rate" checked="checked" value="0" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?>><span>Use lawyer
                     default rate</span><span class="checkmark"></span>
             </label>
         </div>
@@ -106,14 +106,13 @@
         <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-4">
             <label class="radio radio-outline-success">
-                <input type="radio" name="case_rate" class="case_rate" value="1"><span>Specify a default rate for this
+                <input type="radio" name="case_rate" class="case_rate" value="1" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?> ><span>Specify a default rate for this
                     case</span><span class="checkmark"></span>
             </label>
         </div>
         <div class="input-group mb-3 col-sm-5">
             <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-            <input class="form-control case_rate" name="default_rate" type="text"
-                aria-label="Amount (to the nearest dollar)">
+            <input class="form-control case_rate" name="default_rate" type="text" aria-label="Amount (to the nearest dollar)" <?php echo ($case_id == 0 || $case_id == NULL) ? 'disabled' : ''; ?>>
             <div class="input-group-append"><span class="input-group-text">/hr</span></div>
         </div>
     </div>
@@ -172,19 +171,35 @@
             }
         });
         <?php if($case_id == 0 || $case_id == NULL) { ?>
+        $(".case_list").attr('disabled', true);
         $(".case_rate").attr('disabled', true);
         $("#sharing_setting_3").attr('disabled', true);
         <?php } ?>
         $("input[name='link_to']").on("change", function () {
             var radioValue = $("input[name='link_to']:checked").val();
             if (radioValue == "3") {
-                $('.case_rate').removeAttr("disabled");
-                $('#sharing_setting_3').removeAttr("disabled");
-            } else {
-                $("#sharing_setting_3").attr('disabled', true);
+                $("input[name='sharing_setting_1']").attr('disabled', false);
+                $("input[name='sharing_setting_2']").attr('disabled', false);
+                $("input[name='sharing_setting_3']").attr('disabled', false);
+                $('.case_rate').attr('disabled', false);
+                $(".case_list").attr('disabled', false);
+            } else if (radioValue == "2") {
+                $("input[name='sharing_setting_3']").prop('checked', false);
+                $("input[name='sharing_setting_1']").attr('disabled', false);
+                $("input[name='sharing_setting_2']").attr('disabled', false);
+                $("input[name='sharing_setting_3']").attr('disabled', true);
                 $(".case_rate").attr('disabled', true);
+                $(".case_list").attr('disabled', true);
+            } else {
+                $("input[name='sharing_setting_1']").prop('checked', false);
+                $("input[name='sharing_setting_2']").prop('checked', false);
+                $("input[name='sharing_setting_3']").prop('checked', false);
+                $("input[name='sharing_setting_1']").attr('disabled', true);
+                $("input[name='sharing_setting_2']").attr('disabled', true);
+                $("input[name='sharing_setting_3']").attr('disabled', true);
+                $(".case_rate").attr('disabled', true);
+                $(".case_list").attr('disabled', true);
             }
-
         });
     });
 

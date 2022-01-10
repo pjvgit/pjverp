@@ -852,6 +852,7 @@ class ClientdashboardController extends BaseController
             $TaskTimeEntry = new TaskTimeEntry;
             $TaskTimeEntry->case_id =$request->case_or_lead;
             $TaskTimeEntry->user_id =$request->staff_user;
+            $TaskTimeEntry->firm_id =auth()->user()->firm_name;
             if(isset($request->activity_text)){
                 $TaskAvtivity = new TaskActivity;
                 $TaskAvtivity->title=$request->activity_text;
@@ -3098,9 +3099,9 @@ class ClientdashboardController extends BaseController
                             $User->bulk_id=$ClientCompanyImport->id;
                             $User->parent_user=Auth::User()->id;
                             $User->firm_name=Auth::User()->firm_name;
+                            $User->created_by=Auth::User()->id;
+                            $User->created_at=date('Y-m-d H:i:s');
                             $User->save();
-
-
                             
                             $UsersAdditionalInfo= new UsersAdditionalInfo;
                             $UsersAdditionalInfo->user_id=$User->id; 
@@ -3115,6 +3116,7 @@ class ClientdashboardController extends BaseController
                             $UsersAdditionalInfo->dob=date('Y-m-d',strtotime($finalOperationVal['dob'])); 
                             $UsersAdditionalInfo->client_portal_enable=$finalOperationVal['client_portal_enable']; 
                             $UsersAdditionalInfo->created_by =Auth::User()->id;
+                            $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
                             $UsersAdditionalInfo->save();
 
                             if(!is_numeric($finalOperationVal['mobile_number'])){
@@ -3230,6 +3232,8 @@ class ClientdashboardController extends BaseController
                             $User->bulk_id=$ClientCompanyImport->id;
                             $User->parent_user=Auth::User()->id;
                             $User->firm_name=Auth::User()->firm_name;
+                            $User->created_by=Auth::User()->id;
+                            $User->created_at=date('Y-m-d H:i:s');
                             $User->save();
 
                             
@@ -3239,6 +3243,7 @@ class ClientdashboardController extends BaseController
                             $UsersAdditionalInfo->website=$finalOperationVal['website']; 
                             $UsersAdditionalInfo->notes=$finalOperationVal['notes']; 
                             $UsersAdditionalInfo->created_by =Auth::User()->id;
+                            $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
                             $UsersAdditionalInfo->save();
 
                       
@@ -3391,6 +3396,8 @@ class ClientdashboardController extends BaseController
                         $User->mobile_number=$userVal['mobile_number']?? NULL; 
                         $User->parent_user=Auth::User()->id;
                         $User->firm_name=Auth::User()->firm_name;
+                        $User->created_by=Auth::User()->id;
+                        $User->created_at=date('Y-m-d H:i:s');
                         $User->save();
                         
                         $UsersAdditionalInfo= new UsersAdditionalInfo;
@@ -3398,6 +3405,7 @@ class ClientdashboardController extends BaseController
                         $UsersAdditionalInfo->multiple_compnay_id=$userVal['multiple_compnay_id'] ?? NULL; 
                         $UsersAdditionalInfo->notes=$userVal['UsersAdditionalInfoNotes'] ?? NULL; 
                         $UsersAdditionalInfo->created_by = Auth::User()->id;
+                        $UsersAdditionalInfo->created_at=date('Y-m-d H:i:s');
                         $UsersAdditionalInfo->save();
 
                         $ClientCompanyImportHistory=new ClientCompanyImportHistory;

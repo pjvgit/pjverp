@@ -650,6 +650,7 @@ class CompanydashboardController extends BaseController
             $TaskTimeEntry = new TaskTimeEntry;
             $TaskTimeEntry->case_id =$request->case_or_lead;
             $TaskTimeEntry->user_id =$request->staff_user;
+            $TaskTimeEntry->firm_id =auth()->user()->firm_name;
             if(isset($request->activity_text)){
                 $TaskAvtivity = new TaskActivity;
                 $TaskAvtivity->title=$request->activity_text;

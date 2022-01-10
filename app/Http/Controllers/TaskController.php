@@ -1047,6 +1047,7 @@ class TaskController extends BaseController
         $TaskTimeEntry->task_id=$request->task_id;
         $TaskTimeEntry->case_id =$request->case_or_lead;
         $TaskTimeEntry->user_id =$request->staff_user;
+        $TaskTimeEntry->firm_id =auth()->user()->firm_name;
         if(isset($request->activity_text)){
             $TaskAvtivity = new TaskActivity;
             $TaskAvtivity->title=$request->activity_text;
@@ -1130,6 +1131,7 @@ class TaskController extends BaseController
                 $TaskTimeEntry->task_id=$request->task_id;
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
                 $TaskTimeEntry->user_id =$request->bulk_staff_user;
+                $TaskTimeEntry->firm_id =auth()->user()->firm_name;
                 $TaskTimeEntry->activity_id=$request->activity[$i];
                 if(isset($request->billable[$i])){
                     $TaskTimeEntry->time_entry_billable="yes";

@@ -1248,6 +1248,7 @@ class CaseController extends BaseController
                         'entry_date' => Carbon::now(),
                         'cost' =>  $remainFlatFee,
                         'time_entry_billable' => 'yes',
+                        'firm_id' => Auth::User()->firm_name,
                         'created_by' => auth()->id(),
                     ]);
                 }                                
