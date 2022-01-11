@@ -1246,8 +1246,7 @@ var start = 0;
                     console.log("case_setup: "+aData.setup_billing);                    
                     if(aData.setup_billing == 'yes') {
                         resultHtml +='<td><div class="text-left"><a class="name" href="' + baseUrl +
-                            '/bills/invoices/new?page=open&court_case_id=' + aData.ccid + '&token=' + aData
-                            .token + '">Invoice This Case</a></div></td>';
+                            '/bills/invoices/new?page=open&court_case_id=' + aData.ccid +'">Invoice This Case</a></div></td>';
                     } else {
                         resultHtml +='<td><div class="text-left"><a class="name" data-toggle="modal" data-target="#editBillingContactPopup"\
                             data-placement="bottom" href="javascript:;" onclick="editBillingContactPopup(' + aData.ccid + ');" data-case-id="' + aData.ccid + '">Setup Billing</a></div></td>';

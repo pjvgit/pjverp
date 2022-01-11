@@ -3,17 +3,17 @@
     <input type="hidden" name="case_id" value="{{$case_id}}"">
     @csrf
              
-    <div class=" col-md-12">
+    <div class=" col-md-12" bladeFile="resources/views/case/loadStep4.blade.php">
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
     </div>
     <div class="form-group row">
         <label for="inputEmail3" class="col-sm-3 col-form-label">Lead Attorney</label>
         <div class="col-md-9 form-group mb-3">
-            <select id="lead_attorney" name="lead_attorney" class="form-control custom-select col">
+            <select id="lead_attorney" onchange="selectLeadAttorney();" name="lead_attorney" class="form-control custom-select col">
                 <option value=""></option>
                 <?php foreach($loadFirmUser as $key=>$user){?>
-                <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
+                <option <?php if($user->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
                 <?php } ?>
             </select>
             <small>The user you select will automatically be checked in the table below.</small>
@@ -59,7 +59,7 @@
         <tbody>
             <?php foreach($loadFirmUser as $key=>$user){?>
             <tr>
-                <td><input class="test-all-users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]"></td>
+                <td><input  <?php if($user->id==Auth::User()->id){ echo "checked=checked";} ?>  class="test-all-users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]"></td>
                 <td>{{$user->first_name}}</td>
                 <td>{{$user->last_name}}</td>
                 <td>{{$user->user_title}}</td>
@@ -205,6 +205,10 @@ $('.number').mask("#,##0.00", {reverse: true});
 
     function selectAttorney() {
         var selectdValue = $("#originating_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+    function selectLeadAttorney() {
+        var selectdValue = $("#lead_attorney option:selected").val();
         $("#" + selectdValue).prop('checked', true);
     }
     function backStep3() {

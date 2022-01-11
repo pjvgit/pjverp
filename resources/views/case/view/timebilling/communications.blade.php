@@ -40,7 +40,8 @@
             processing: true,
             stateSave: true,
             searching: false, "aaSorting": [],
-            "order": [[0, "desc"]],
+            ordering: false,
+            // "order": [[0, "desc"]],
             "ajax":{
                 url :baseUrl +"/court_cases/communications/loadMessagesEntry", // json datasource
                 type: "post",  // method  , by default get

@@ -23,7 +23,8 @@
                     </div>
                     <div style="margin-left: 50px;">
                         <h2 class="details_header" style="margin-bottom: 0px; padding-bottom: 10px; font-weight: normal;">{{$messagesData->subject}}</h2>
-                        A {{ucwords($messagesData->replies_is)}} Message Sent To:
+                        <!-- A {{ucwords($messagesData->replies_is)}} Message Sent To: -->
+                        A Conversation Between: You,
                         @if($messagesData->user_id != '')
                             @foreach($clientList as $k=>$v)
                             <span class="message_user_name">
@@ -112,7 +113,7 @@
                     <span id="response"></span>    
                     <div class="row">
                         <div class="col-md-12 form-group mb-3">
-                            <div id="editor" class="field">
+                            <div id="editorMessage" class="field">
                             </div>
                         </div>
                     </div>
@@ -149,12 +150,12 @@
 @endsection
 @section('bottom-js')
 <style>
-    body>#editor {
+    body>#editorMessage {
         margin: 50px auto;
         max-width: 720px;
     }
 
-    #editor {
+    #editorMessage {
         height: 200px;
         background-color: white;
     }
@@ -276,7 +277,7 @@ var toolbarOptions = [
     }],
     ['clean'] // remove formatting button
 ];
-var quill = new Quill('#editor', {
+var quill = new Quill('#editorMessage', {
     modules: {
         toolbar: toolbarOptions
     },

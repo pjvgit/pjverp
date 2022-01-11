@@ -13,7 +13,7 @@
             <select id="lead_attorney" name="lead_attorney" onclick="selectLeadAttorney();" class="form-control custom-select col">
                 <option value=""></option>
                 <?php foreach($loadFirmUser as $key=>$user){?>
-                <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
+                <option  <?php if($user->id==Auth::User()->id){ echo "selected=selected"; } ?>  value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
                 <?php } ?>
             </select>
             <small>The user you select will automatically be checked in the table below.</small>
@@ -59,7 +59,7 @@
         <tbody>
             <?php foreach($loadFirmUser as $key=>$user){?>
             <tr>
-                <td><input class="test-all-users-checkbox" <?php if($user->id==Auth::User()->id){ echo "checked=checked"; } ?> type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]"></td>
+                <td><input  <?php if($user->id==Auth::User()->id){ echo "checked=checked"; } ?>  class="test-all-users-checkbox" <?php if($user->id==Auth::User()->id){ echo "checked=checked"; } ?> type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]"></td>
                 <td>{{$user->first_name}}</td>
                 <td>{{$user->last_name}}</td>
                 <td>{{$user->user_title}}</td>

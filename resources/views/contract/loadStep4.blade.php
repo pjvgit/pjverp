@@ -7,7 +7,7 @@
     <input type="hidden" name="user_id" value="{{$user->id}}">
     <input type="hidden" name="case_id" value="{{$case_id}}">
              
-    <div class=" col-md-12">
+    <div class=" col-md-12" bladeFile="resources/views/contract/loadStep4.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-6 col-form-label">   <h6>Should this user be able to...</h6></label>
             <a href="#" class="col text-right col-sm-6" target="_blank" rel="noopener noreferrer">Learn more about user permissions</a>

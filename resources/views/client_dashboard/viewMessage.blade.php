@@ -1,4 +1,4 @@
-<div id="printArea">
+<div id="printArea" bladefilename="resources/views/client_dashboard/viewMessage.blade.php">
 <div class="message_details_header" data-message-id="{{$messagesData->id}}">
     <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
     <div style="float: left; width: 50px;">
@@ -6,7 +6,8 @@
     </div>
     <div style="margin-left: 50px;">
         <h2 class="details_header" style="margin-bottom: 0px; padding-bottom: 10px; font-weight: normal;">{{$messagesData->subject}}</h2>
-        A {{ucwords($messagesData->replies_is)}} Message Sent To:
+        <!-- A {{ucwords($messagesData->replies_is)}} Message Sent To: -->
+        A Conversation Between: You, 
         @if($messagesData->user_id != '')
             @foreach($clientList as $k=>$v)
             <span class="message_user_name">
@@ -57,7 +58,7 @@
                     <div class="comment_wrapper">
                         <div class="comment_header clearfix">
                         <div style="font-weight: bold; float: left;">
-                            <a href="{{ route('contacts/attorneys/info', base64_encode(Auth::user()->id)) }}">{{Auth::user()->first_name .' '.Auth::user()->last_name}} (Attorney)</a>
+                            <a href="{{ route('contacts/attorneys/info', base64_encode($msg->id)) }}">{{$msg->first_name .' '.$msg->last_name}} (Attorney)</a>
                         </div>
                         <div style="float: right;">
                         {{ $msg->created_date_new }}
@@ -94,7 +95,7 @@
     <span id="response"></span>    
     <div class="row">
         <div class="col-md-12 form-group mb-3">
-            <div id="editor" class="field">
+            <div id="editorMessage" class="field">
             </div>
         </div>
     </div>
@@ -122,12 +123,12 @@
 </div>
 @endif
 <style>
-    body>#editor {
+    body>#editorMessage {
         margin: 50px auto;
         max-width: 720px;
     }
 
-    #editor {
+    #editorMessage {
         height: 200px;
         background-color: white;
     }
@@ -249,7 +250,7 @@ var toolbarOptions = [
     }],
     ['clean'] // remove formatting button
 ];
-var quill = new Quill('#editor', {
+var quill = new Quill('#editorMessage', {
     modules: {
         toolbar: toolbarOptions
     },

@@ -167,8 +167,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profile-basic-tab"
-                            href="{{URL::to('contacts/clients/'.$client_id)}}"  aria-controls="profileBasic" aria-selected="true">Info</a>
+                        <a class="nav-link <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="contact-basic-tab"
+                            href="{{URL::to('contacts/clients/'.$client_id)}}"  aria-controls="contactBasic" aria-selected="true">Info</a>
                     </li>
                     @canany(['case_add_edit', 'case_view'])
                     <li class="nav-item">
@@ -203,8 +203,8 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                 </ul>
                 <div class="tab-content" id="myTabContent">
 
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="profileBasic" role="tabpanel"
-                        aria-labelledby="profile-basic-tab">
+                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts/clients/view"){ echo "active show"; } ?>" id="contactBasic" role="tabpanel"
+                        aria-labelledby="contact-basic-tab">
                         <div id="contact_info_page" style="display: block;">
                             <h2 class="mx-2 mb-0 text-nowrap hiddenLable"> {{ ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name) }} (Client)    </h2>
                             <div class="align-items-md-start w-100">
@@ -1937,7 +1937,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         sub="-";
                     }
 
-                    $('td:eq(0)', nRow).html('<div class="text-left"><div class="expanded-content"><a class="text-default" data-toggle="collapse" onclick="hidez('+aData.id+')" href="#accordion-item-group'+aData.id+'" value="'+aData.id+'"><div class="c-pointer d-flex mb-3 test-note-subject">'+isdraft+'<span class="font-weight-bold pt-2">'+sub+'</span><i aria-hidden="true" class="fa fa-angle-down icon-angle-down icon icon-angle-down-'+aData.id+'" style="margin-left: 8px;padding-top: 10px;"></i></div></a><div class="collapse" id="accordion-item-group'+aData.id+'" va="'+aData.id+'"><div><p class="note-note"><p>'+aData.notes+'</p></p></div><div><div class="test-note-created-at text-black-50 font-italic small">'+createdat+'</div><div class="test-note-updated-at text-black-50 font-italic small">'+updateat+'</div></div><div class="d-flex align-items-center"><div class="d-flex flex-row"><a data-toggle="modal"  data-target="#editNoteModal" data-placement="bottom" href="javascript:;" href="javascript:;"><button class="btn btn-outline-secondary btn-rounded " type="button" onclick="loadEditNotBox('+aData.id+');"><i class="fas fa-pencil-alt mr-1"></i>Edit Note</button></a><button type="button" class="mr-1 add-time-entry-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadTimeEntryPopup('+aData.id+');"><i class="fas fa-stopwatch mr-1"></i>Add Time Entry</a></button><button type="button" class="mr-1 delete-note-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#deleteNote" data-placement="bottom" href="javascript:;" class="text-dark" onclick="deleteNote('+aData.id+');"><i class="fas fa-trash mr-1"></i>Delete Note</a></button></div><div class="btn c-pointer"><a class="btn" onclick="hideshow('+aData.id+')">Hide Details</a><i aria-hidden="true" class="fa fa-angle-up icon-angle-up icon"></i></div></div></div></div></div>');
+                    $('td:eq(0)', nRow).html('<div class="text-left"><div class="expanded-content"><a class="text-default" data-toggle="collapse" onclick="hidez('+aData.id+')" href="#accordion-item-group'+aData.id+'" value="'+aData.id+'"><div class="c-pointer d-flex mb-3 test-note-subject">'+isdraft+'<span class="font-weight-bold pt-2">'+sub+'</span><i aria-hidden="true" class="fa fa-angle-down icon-angle-down icon icon-angle-down-'+aData.id+'" style="margin-left: 8px;padding-top: 10px;"></i></div></a><div class="collapse" id="accordion-item-group'+aData.id+'" va="'+aData.id+'"><div><p class="note-note"><p>'+aData.notes+'</p></p></div><div><div class="test-note-created-at text-black-50 font-italic small">'+createdat+'</div><div class="test-note-updated-at text-black-50 font-italic small">'+updateat+'</div></div><div class="d-flex align-items-center"><div class="d-flex flex-row"><a data-toggle="modal"  data-target="#editNoteModal" data-placement="bottom" href="javascript:;" href="javascript:;"><button class="btn btn-outline-secondary btn-rounded " type="button" onclick="loadEditNotBox('+aData.id+');"><i class="fas fa-pencil-alt mr-1"></i>Edit Note</button></a><button type="button" class="mr-1 add-time-entry-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadTimeEntryPopup('+aData.id+');"><i class="fas fa-stopwatch mr-1"></i>Add Time Entry</a></button><button type="button" class="mr-1 delete-note-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#deleteNote" data-placement="bottom" href="javascript:;" class="text-dark" onclick="deleteNote('+aData.id+');"><i class="fas fa-trash mr-1"></i>Delete Note</a></button></div><div class="btn c-pointer"><a class="btn" onclick="hideshow('+aData.id+')">Hide Details <i aria-hidden="true" class="fa fa-angle-up icon-angle-up icon"></i></a></div></div></div></div></div>');
 
                     $('td:eq(1)', nRow).html('<div class="text-left">'+aData.created_date_new+'</div>');
 
@@ -2839,7 +2839,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     {
         $('.hiddenLable').show();
         <?php if(Route::currentRouteName()=="contacts/clients/view"){ ?>
-        var canvas = $(".printDiv").html(document.getElementById("profileBasic").innerHTML);
+        var canvas = $(".printDiv").html(document.getElementById("contactBasic").innerHTML);
         <?php }else if(Route::currentRouteName()=="contacts_clients_cases"){ ?>
         var canvas = $(".printDiv").html(document.getElementById("contactStaff").innerHTML);
         <?php }else if(Route::currentRouteName()=="contacts_clients_activity"){ ?>

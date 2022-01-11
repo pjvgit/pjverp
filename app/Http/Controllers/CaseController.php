@@ -6362,10 +6362,11 @@ class CaseController extends BaseController
         $totalFiltered = $totalData; 
 
         $messages = $messages->offset($requestData['start'])->limit($requestData['length']);
-        if(!isset($requestData['order'][0]['dir'])){
-            $requestData['order'][0]['dir']="DESC";
-        }
-        $messages = $messages->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        // if(!isset($requestData['order'][0]['dir'])){
+        //     $requestData['order'][0]['dir']="DESC";
+        // }
+        // $messages = $messages->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
+        $messages = $messages->orderBy("messages.updated_at", 'desc');
         $messages = $messages->get();
 
         $json_data = array(

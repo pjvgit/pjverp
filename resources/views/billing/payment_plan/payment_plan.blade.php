@@ -263,7 +263,7 @@ th td{
             "dom": '<"top">rt<"bottom"pl><"clear">',
             responsive: false,
             processing: true,
-            stateSave: true,
+            // stateSave: true,
             searching: false,
             "ajax":{
                 url :baseUrl +"/payment_plans/loadAllPlans", // json datasource

@@ -2285,9 +2285,14 @@ class ClientdashboardController extends BaseController
         ->select('messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),"case_master.case_title","case_master.case_unique_number")
         ->where('messages.id', $request->id)
         ->first();
+        if(!empty($messagesData)){
+            if($messagesData->user_id != Auth::User()->id){
+            abort(404);
+            }
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"))
+        ->leftJoin("users","users.id","=","messages.created_by")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),'users.id as staff_id','users.first_name','users.last_name')
         ->where('reply_messages.message_id', $request->id)
         ->get();
     
@@ -2299,6 +2304,9 @@ class ClientdashboardController extends BaseController
         }
 
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
+        }else{
+            abort(404);
+        }
     }
 
     public function sendMailGlobal($request,$id, $messageID)
@@ -4047,15 +4055,18 @@ class ClientdashboardController extends BaseController
         ->first();
 
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->select('reply_messages.*',"messages.updated_at as last_post")
+        ->leftJoin("users","users.id","=","messages.created_by")
+        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"), "messages.updated_at as last_posts",'users.id as staff_id','users.first_name','users.last_name')
         ->where('reply_messages.message_id', $request->message_id)
         ->get();
     
         $clientList = [];    
         $userlist = explode(',', $messagesData->user_id);
-        foreach ($userlist as $key => $value) {
-            $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
-            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+        if(count($userlist) > 0) {
+            foreach ($userlist as $key => $value) {
+                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
+                $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+            }
         }
         return view('client_dashboard.viewMessage',compact('messagesData','messageList','clientList'));   
         exit;  

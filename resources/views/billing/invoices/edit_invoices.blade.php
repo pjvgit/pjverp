@@ -241,6 +241,7 @@ $expenseTime=0;$expenseAmount=0;
                                     </td>
                                 </tr>
                             </tbody>
+                            <input type="hidden" id="adjustment_delete" name="adjustment_delete" value=""/>
                         </table>
                     </div>
                     <?php } ?>
@@ -2755,8 +2756,6 @@ $expenseTime=0;$expenseAmount=0;
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
-        }).on('change',function(e){
-            changeCase();
         });       
         $('#bill_to_date').datepicker({
             'format': 'm/d/yyyy',
@@ -2765,7 +2764,25 @@ $expenseTime=0;$expenseAmount=0;
             'clearBtn': true,
             'todayHighlight': true
         }).on('change',function(e){
-            changeCase();
+            swal({
+                title: 'warning',
+                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0CC27E',
+                cancelButtonColor: '#FF586B',
+                cancelButtonText: 'Close',
+                confirmButtonText: 'Proceed',
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-danger  mr-2',
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function(isConfirm){
+                if (isConfirm){     
+                    $('#adjustment_delete').val('1');
+                    changeCase();
+                }
+            });
         });
 
         $('.tdTime').hover(
@@ -3520,6 +3537,9 @@ $expenseTime=0;$expenseAmount=0;
     
     function fetchClientAddress(){
         var currentclient=$("#contact").val();
+        var URLS=baseUrl+'/bills/invoices/load_new?contact='+$currentclient;
+        window.location.href=URLS;
+        return true;
 
         $.ajax({
             type: "POST",
@@ -3577,9 +3597,13 @@ $expenseTime=0;$expenseAmount=0;
         var case_id=$("#court_case_id").val();
         var bill_from_date=$("#bill_from_date").val();
         var bill_to_date=$("#bill_to_date").val();
+        var adjustment_delete=$('#adjustment_delete').val();
         var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
         if(bill_from_date != '' && bill_to_date != ''){
             URLS+='&bill_from_date='+bill_from_date+'&bill_to_date='+bill_to_date;
+        }
+        if(adjustment_delete != ''){
+            URLS+='&adjustment_delete='+adjustment_delete;
         }
         window.location.href=URLS;
     }
@@ -4520,9 +4544,28 @@ $("input:checkbox#range_check_box").click(function () {
     if ($(this).is(":checked")) {
         $('#bill_from_date').removeAttr("disabled");
         $('#bill_to_date').removeAttr("disabled");
+        swal({
+            title: 'warning',
+            text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0CC27E',
+            cancelButtonColor: '#FF586B',
+            cancelButtonText: 'Close',
+            confirmButtonText: 'Proceed',
+            confirmButtonClass: 'btn btn-success',
+            cancelButtonClass: 'btn btn-danger  mr-2',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then(function(isConfirm){
+            if (isConfirm){     
+                $('#adjustment_delete').val('1');
+            }
+        });
     } else {
         $("#bill_from_date").attr("disabled", true);
         $("#bill_to_date").attr("disabled", true);
+        $('#adjustment_delete').val('');
         $('#bill_from_date').val('');
         $('#bill_to_date').val('');
         if($('#bill_from_date').val('') != ''){

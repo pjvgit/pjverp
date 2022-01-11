@@ -1758,12 +1758,9 @@ if(!isset($addition)){ $addition=0;}
                                                                             class="col-form-label ">Amount/<br>Installment</label></div>
                                                                     <div class="col-md-6">
                                                                         <div class="input-group">
-                                                                            <div class="input-group-prepend"><span
-                                                                                    class="input-group-text">$</span></div><input
-                                                                                id="amount_per_installment_field"  name="amount_per_installment_field" class="form-control number"
-                                                                                value="">
-                                                                                <span class="d-flex invalid-feedback amount_per_installment_field_error"></span>
-                                                                                
+                                                                            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                                                            <input id="amount_per_installment_field"  type="number" name="amount_per_installment_field" class="form-control number" value="" min="0" oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');">
+                                                                            <span class="d-flex invalid-feedback amount_per_installment_field_error"></span>
                                                                         </div>
                                                                         <div class="d-flex invalid-feedback"></div>
                                                                     </div>
@@ -3209,8 +3206,8 @@ if(!isset($addition)){ $addition=0;}
                 error = 0;
                 $(".start_date_error").html("");
             }
-            if($("#amount_per_installment_field").val() == ''){
-                $(".amount_per_installment_field_error").html("Amount is required");
+            if($("#amount_per_installment_field").val() == '' || $("#amount_per_installment_field").val() >= 0.01){
+                $(".amount_per_installment_field_error").html("Amount is required or value greater than 0.");
                 error = 1;
             }else{
                 error = 0;
@@ -3697,7 +3694,12 @@ if(!isset($addition)){ $addition=0;}
     }
 
     var contact =  $("#contact").val()
-    $("#contact").on("click", function() {
+    $("#contact").on("change", function() {
+        $("#preloader").show();
+        // alert($(this).val());
+        var URLS=baseUrl+'/bills/invoices/load_new?contact='+$(this).val();
+        window.location.href=URLS;
+        return true;
         if(localStorage.getItem("showWarning") > 0){
             swal({
                 title: 'warning',
@@ -3714,7 +3716,9 @@ if(!isset($addition)){ $addition=0;}
                 reverseButtons: true
             }).then(function(isConfirm){
                 if (isConfirm){
-                    fetchClientAddress();
+                    $('#adjustment_delete').val('1');
+                    $("#court_case_id").val('');
+                    changeCase();
                 }
             }, function (dismiss) {
                 $("#contact").val(contact);
@@ -3744,6 +3748,7 @@ if(!isset($addition)){ $addition=0;}
                 reverseButtons: true
             }).then(function(isConfirm){
                 if (isConfirm){
+                    $('#adjustment_delete').val('1');
                     changeCase();
                 }
             }, function (dismiss) {
@@ -3769,7 +3774,10 @@ if(!isset($addition)){ $addition=0;}
         var adjustment_delete=$('#adjustment_delete').val();
         
 
-        var URLS=baseUrl+'/bills/invoices/load_new?court_case_id='+case_id+'&token={{$adjustment_token}}&contact='+contact;
+        var URLS=baseUrl+'/bills/invoices/load_new?token={{$adjustment_token}}&contact='+contact;
+        if(case_id != ''){
+            URLS+='&court_case_id='+case_id;
+        }
         if(bill_payment_terms != ''){
             URLS+='&bill_payment_terms='+bill_payment_terms;
         }
