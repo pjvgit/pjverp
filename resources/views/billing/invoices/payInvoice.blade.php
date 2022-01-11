@@ -61,44 +61,7 @@ $finalAmt=$invoice-$paid;
             @csrf
             <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
             <div class="col-md-12">
-                <div class="payment-confirmation-container">
-                    <div>
-                        <div class="row">
-                            <div class="col-3 pl-4 pt-4">
-                                <span class="money-graph"></span>
-                            </div>
-                            <div class="col-9">
-                                <div data-testid="payments-platform-promo-header"
-                                    class="payments-platform-promo-header">
-                                    <h3>Start Accepting Online Payments!</h3>
-                                </div>
-                                <br>
-                                <ul class="invoice-payments-platform-promo-list clearfix" style="list-style-type:none;">
-                                    <li data-testid="payments-platform-promo-list-item"
-                                        class="payments-platform-promo-list-item clearfix"><i
-                                            class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                        <span class="payments-platform-promo-list-item-text">Get paid faster by
-                                            accepting credit card payments in office</span></li>
-                                    <li data-testid="payments-platform-promo-list-item"
-                                        class="payments-platform-promo-list-item clearfix"><i
-                                            class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                        <span class="payments-platform-promo-list-item-text">Get paid faster by
-                                            letting your clients pay online</span></li>
-                                    <li data-testid="payments-platform-promo-list-item"
-                                        class="payments-platform-promo-list-item clearfix"><i
-                                            class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                        <span class="payments-platform-promo-list-item-text">Access from your MyCase
-                                            account, no 3rd party</span></li>
-                                    <li data-testid="payments-platform-promo-list-item"
-                                        class="payments-platform-promo-list-item clearfix"><i
-                                            class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                        <span class="payments-platform-promo-list-item-text">Save money with free
-                                            eCheck payments and competitive credit card fees</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
                 <br>
                 <div class="modal-footer"></div>
                 <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime"
