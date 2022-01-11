@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\UsersAdditionalInfo;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,12 +17,24 @@ class CheckForClientPortalAccess
      */
     public function handle($request, Closure $next)
     {
-        $user = Auth::user();
-        if($user->userAdditionalInfo->client_portal_enable == '1') {
-            return $next($request);
+        $currentRouteName = $request->route()->getName();
+        if(!Auth::check() && $currentRouteName == "client/bills/payment") {
+            $clientId = $request->route('client_id');
+            $client = UsersAdditionalInfo::where("user_id", encodeDecodeId($clientId, 'decode'))->first();
+            if($client && $client->client_portal_enable == "1") {
+                auth()->loginUsingId($client->user_id);
+                return $next($request);
+                // return $request->url();
+            } else {
+                abort(403);
+            }
         } else {
-            abort(403);
+            $user = Auth::user();
+            if($user->userAdditionalInfo->client_portal_enable == '1') {
+                return $next($request);
+            } else {
+                abort(403);
+            }
         }
-        return redirect('login');
     }
 }

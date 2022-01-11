@@ -10,7 +10,7 @@
 @php
 $invoiceLink = '<a href="'.route("client/bills/detail", $invoice->decode_id).'">View Invoice</a>';
 if($firm && $firm->onlinePaymentSetting && $firm->onlinePaymentSetting->is_accept_online_payment) {
-$invoiceLink .= '<br><a href="route("client/bills/payment", ["type"=>"invoice", "id"=>'.encodeDecodeId($invoice->id, "encode").', "client_id"=>'.encodeDecodeId($user->id, "encode").'])">Pay Now</a>';
+$invoiceLink .= '<br><a href="'.route("client/bills/payment", ["type"=>"invoice", "id"=>encodeDecodeId($invoice->id, "encode"), "client_id"=>encodeDecodeId($user->id, "encode")]).'">Pay Now</a>';
 }
     $content = str_replace('[INVOICE_LINK]', $invoiceLink, $template->content);
     if($template->id == 22) {

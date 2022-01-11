@@ -1188,6 +1188,11 @@ Route::group(['namespace' => "ClientPortal"], function () {
     Route::any('client/bills/conekta/webhook', 'BillingController@paymentWebhook')->name('client/bills/conekta/webhook');
 });
 
+// If user not login, want to access this route(as per client requirement)
+Route::group(['middleware' => ['clientportal.access', 'user.role:client'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
+    Route::get('bills/payment/{type}/{id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
+});
+
 // AUth routes of client portal
 Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
@@ -1199,7 +1204,7 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('bills/invoices/download/{id}', 'BillingController@downloaInvoivePdf')->name('client/bills/invoices/download');
 
     // For billing > invoice > payment
-    Route::get('bills/payment/{type}/{id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
+    // Route::get('bills/payment/{type}/{id}/{client_id}', 'BillingController@paymentDetail')->name('client/bills/payment');
     Route::post('bills/payment/{type}/{id}/{client_id}/card/option', 'BillingController@getCardPaymentOption')->name('client/bills/payment/card/option');
     Route::post('bills/payment/card', 'BillingController@cardPayment')->name('client/bills/payment/card');
     Route::post('bills/payment/cash', 'BillingController@cashPayment')->name('client/bills/payment/cash');

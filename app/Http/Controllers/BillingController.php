@@ -1018,7 +1018,10 @@ class BillingController extends BaseController
          $case = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
          ->leftJoin("users as u2","u2.id","=","requested_fund.deposit_into")
          ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),DB::raw('CONCAT_WS(" ",u2.first_name,u2.last_name) as trust_account'),"users.id as uid");
- 
+        
+        $getFirmsAllUserIds = User::where("firm_name", auth()->user()->firm_name)->pluck('id')->toArray();
+        $case = $case->whereIn("requested_fund.created_by", $getFirmsAllUserIds);
+
          if(isset($requestData['c']) && $requestData['c']!=''){
              $case = $case->where("requested_fund.client_id",$requestData['c']);
          }
@@ -1067,6 +1070,9 @@ class BillingController extends BaseController
         $case = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
         ->leftJoin("users as u2","u2.id","=","requested_fund.deposit_into")
         ->select('requested_fund.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),DB::raw('CONCAT_WS(" ",u2.first_name,u2.last_name) as trust_account'),"users.id as uid");
+
+        $getFirmsAllUserIds = User::where("firm_name", auth()->user()->firm_name)->pluck('id')->toArray();
+        $case = $case->whereIn("requested_fund.created_by", $getFirmsAllUserIds);
 
         if(isset($requestData['c']) && $requestData['c']!=''){
             $case = $case->where("requested_fund.client_id",$requestData['c']);
