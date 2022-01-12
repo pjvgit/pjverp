@@ -547,6 +547,9 @@ class BillingController extends Controller
         }
     }
 
+    /**
+     * Get cash payment detail and do payment
+     */
     public function cashPayment(Request $request)
     {
         // return $request->all();
@@ -721,6 +724,9 @@ class BillingController extends Controller
         }
     }
 
+    /**
+     * Get bank transfer payment detail and do payment
+     */
     public function bankPayment(Request $request)
     {
         // return $request->all();

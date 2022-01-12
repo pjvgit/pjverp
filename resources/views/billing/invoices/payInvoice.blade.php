@@ -31,12 +31,12 @@ $finalAmt=$invoice-$paid;
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
+        <a class="nav-link active show" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
             aria-selected="false">Online Payment
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link  active show" id="offline-payment-tab" data-toggle="tab" href="#offline_payment_tab" role="tab"
+        <a class="nav-link " id="offline-payment-tab" data-toggle="tab" href="#offline_payment_tab" role="tab"
             aria-controls="offline_payment_tab" aria-selected="true">Offline Payment
         </a>
     </li>
@@ -55,24 +55,59 @@ $finalAmt=$invoice-$paid;
 </ul>
 <div class="tab-content" id="myTabContent">
 
-    <div class="tab-pane fade " id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
-        <form class="AddIncomingCall" id="AddIncomingCall" name="AddIncomingCall" method="POST">
-            <span id="response"></span>
-            @csrf
-            <input type="hidden" id="invoice_id" value="{{$invoice_id}}" name="invoice_id">
+    <div class="tab-pane fade active show" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+        <div class="scrollbar scrollbar-primary">
+        @if(empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "no")
             <div class="col-md-12">
-                
+                <div class="payment-confirmation-container">
+                    <div class="row">
+                        <div class="col-3 pl-4 pt-4">
+                            <span class="money-graph"></span>
+                        </div>
+                        <div class="col-9">
+                            <div data-testid="payments-platform-promo-header"
+                                class="payments-platform-promo-header">
+                                <h3>Start Accepting Online Payments!</h3>
+                            </div>
+                            <br>
+                            <ul class="invoice-payments-platform-promo-list clearfix" style="list-style-type:none;">
+                                <li data-testid="payments-platform-promo-list-item"
+                                    class="payments-platform-promo-list-item clearfix"><i
+                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
+                                    <span class="payments-platform-promo-list-item-text">Get paid faster by
+                                        accepting credit card payments in office</span></li>
+                                <li data-testid="payments-platform-promo-list-item"
+                                    class="payments-platform-promo-list-item clearfix"><i
+                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
+                                    <span class="payments-platform-promo-list-item-text">Get paid faster by
+                                        letting your clients pay online</span></li>
+                                <li data-testid="payments-platform-promo-list-item"
+                                    class="payments-platform-promo-list-item clearfix"><i
+                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
+                                    <span class="payments-platform-promo-list-item-text">Access from your MyCase
+                                        account, no 3rd party</span></li>
+                                <li data-testid="payments-platform-promo-list-item"
+                                    class="payments-platform-promo-list-item clearfix"><i
+                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
+                                    <span class="payments-platform-promo-list-item-text">Save money with free
+                                        eCheck payments and competitive credit card fees</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <br>
                 <div class="modal-footer"></div>
-                <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime"
-                    style="display: none;"></div>
+                <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
                 <div class="form-group row float-right">
-                    <a class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">Get Started Now!</a>
+                    <a class="btn btn-primary" href="{{ route("billing/settings") }}" target="_blank" rel="noopener noreferrer">Get Started Now!</a>
                 </div>
             </div>
-        </form>
+        @else
+            @include('billing.invoices.partials.load_online_payment_form')
+        @endif
+        </div>
     </div>
-    <div class="tab-pane fade  active show" id="offline_payment_tab" role="tabpanel" aria-labelledby="offline-payment-tab">
+    <div class="tab-pane fade " id="offline_payment_tab" role="tabpanel" aria-labelledby="offline-payment-tab">
         <form class="PayInvoiceForm" id="PayInvoiceForm" name="PayInvoiceForm" method="POST">
             <span id="response"></span>
             @csrf
@@ -387,6 +422,8 @@ $finalAmt=$invoice-$paid;
     </div>
 </div>
 <script src="{{ asset('assets\js\custom\client\trustallocation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('.input-date').datepicker({
@@ -561,6 +598,18 @@ $finalAmt=$invoice-$paid;
         $("#chkDeposit").hide();
         $("#ca").hide();
         $("#allocation-alert-section").hide();
+
+        // For online payment
+        $('select[name="online_payment_method"]').change(function() {
+            var inputValue = $(this).val();
+            if(inputValue != "") {
+                var targetBox = $("." + inputValue);
+                $(".selectt").not(targetBox).hide();
+                $(targetBox).show();
+            } else {
+                $(".selectt").hide();
+            }
+        });
     });
 
     function paymentConfitmation() {
@@ -996,4 +1045,94 @@ $(".trust_account").on("change", function() {
         $("#"+selectedTab).find(".is_case").val("");
     }
 })
+
+// For online payment
+function onlinePaymentConfirmation() {
+    $(".innerLoader").show();
+    if (!$('#pay_online_payment').valid()) {
+        $(".innerLoader").hide();
+        return false;
+    } else {
+        if($("#online_payment_method").val() == "credit-card") {
+            // Conekta Public Key
+            Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
+            Conekta.token.create($('#pay_online_payment')[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
+        } else {
+            didOnlinePayment();
+        }
+        return false;
+    }
+}
+function didOnlinePayment() {
+    var f= $.number($('.payment-amount').val().replace(/,/g, ''),2);
+    var currentAmt = f;
+    // var currentAmt = $.number($('#amountTrust').val(),2);
+    swal({
+        title: 'Confirm the payment amount of $' + currentAmt + '?',
+        text: "",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0CC27E',
+        cancelButtonColor: '#FF586B',
+        confirmButtonText: 'Confirm Payment',
+        cancelButtonText: 'Close',
+        confirmButtonClass: 'btn btn-success ml-3',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false,
+        reverseButtons: true
+    }).then(function () {
+        beforeLoader();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/bills/invoices/online/payment", // json datasource
+            data: $("#pay_online_payment").serialize(),
+            beforeSend: function (xhr, settings) {
+                settings.data += '&save=yes';
+            },
+            success: function (res) {
+                if (res.errors != '') {
+                    $('.showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('.showError').append(errotHtml);
+                    $('.showError').show();
+                    $('#payInvoice').animate({
+                        scrollTop: 0
+                    }, 'slow');
+                    afterLoader();
+                    return false;
+                } else {
+                    if($("#is_lead_invoice").val() != 'yes') {
+                        swal('Payment Successful!', res.msg, 'success');
+                        afterLoader();
+                        setTimeout(function () {
+                            $("#payInvoice").modal("hide")
+                        }, 1000);
+                        $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                        $('#invoiceGrid').DataTable().ajax.reload(null, false);
+                        updateInvoiceDetail();
+                    }else{
+                        swal('Payment Successful!', res.msg, 'success').then(function(){
+                            window.location.reload();
+                        });
+                        afterLoader();                        
+                    }
+                }
+            },
+            error: function (jqXHR, exception) {
+                afterLoader();
+                $('.showError').html('');
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+            },
+        });
+
+    });
+}
 </script>
