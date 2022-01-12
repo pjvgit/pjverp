@@ -452,7 +452,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 </style>
 @section('page-js-inner')
 <script type="text/javascript">
-    $(document).ready(function () {       
+    $(document).ready(function () {   
+        localStorage.setItem('adjustment_token', "");  
         $('[data-toggle="tooltip"]').tooltip();
 
         $(".show-history-btn").click(function () {

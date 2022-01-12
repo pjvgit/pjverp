@@ -29,7 +29,8 @@
                 type: "POST",
                 url: baseUrl + "/leads/loadAddTaskPopup", // json datasource
                 data: {
-                    "user_id": ""
+                    'case_id': "{{$CaseMaster['case_id'] ?? ''}}",
+                    'user_id': "{{$user_id ?? ''}}"
                 },
                 success: function (res) {
                     $("#addTaskArea").html('');

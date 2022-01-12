@@ -957,6 +957,7 @@ td,th{
 @section('page-js-inner')
 <script type="text/javascript">
     $(document).ready(function () {
+        localStorage.setItem('adjustment_token', "");
         $(".global_search").select2({
             placeholder: "Filter bills by case, billing contact or batch...",
             theme: "classic",

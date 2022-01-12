@@ -58,7 +58,6 @@
         var tableName2 = 'StaffLinkedCaseList';
         var url = "{{ route('admin/stafflist/loadStaffCase') }}";
         $('#'+tableName2).DataTable({
-            stateSave:true,
             processing: true,
             // "order": [[1, "desc"]],
             "oLanguage": {

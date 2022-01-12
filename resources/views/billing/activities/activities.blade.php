@@ -162,7 +162,6 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             "dom": '<"top">rt<"bottom"pl><"clear">',
             responsive: false,
             processing: true,
-            stateSave: true,
             searching: false,
             "order": [[0, "desc"]],
             "ajax":{

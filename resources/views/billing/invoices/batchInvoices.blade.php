@@ -137,7 +137,6 @@ if(isset($_GET['global_search']) && $_GET['global_search']!="")
             responsive: false,
             processing: true,
             searching: false,
-            stateSave: true,
             "aaSorting": [],
             "order": [
                 [0, "desc"]

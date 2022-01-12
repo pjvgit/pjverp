@@ -187,7 +187,7 @@ td,th{
                     }
                     $('td:eq(5)', nRow).html('<div class="d-flex align-items-center">'+downloadOption+'</div>');
 
-                    var addTaskOption='<a  data-toggle="modal"  data-target="#addTaskFromLog" onclick="addTaskFromLog('+aData.case_id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
+                    var addTaskOption='<a  data-toggle="modal"  data-target="#loadAddTaskPopup" onclick="loadAddTaskPopup('+aData.case_id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Add Task"><i class="fas fa-tasks  align-middle" data="MyText"></i></span></a>';
 
 
                     var editOption='<a  data-toggle="modal"  data-target="#editCall" onclick="editCall('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Edit Call Log"><i class="fas fa-pen align-middle" data="MyText"></i></span></a>';

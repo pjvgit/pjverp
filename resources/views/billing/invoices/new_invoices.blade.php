@@ -1759,7 +1759,7 @@ if(!isset($addition)){ $addition=0;}
                                                                     <div class="col-md-6">
                                                                         <div class="input-group">
                                                                             <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                                                            <input id="amount_per_installment_field"  type="number" name="amount_per_installment_field" class="form-control number" value="" min="0" oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');">
+                                                                            <input id="amount_per_installment_field"  type="number" name="amount_per_installment_field" class="form-control" value="" min="0">
                                                                             <span class="d-flex invalid-feedback amount_per_installment_field_error"></span>
                                                                         </div>
                                                                         <div class="d-flex invalid-feedback"></div>
@@ -1814,7 +1814,7 @@ if(!isset($addition)){ $addition=0;}
                                                                 </div>
                                                                 <div class="row form-group">
                                                                     <div class="col-md-12">
-                                                                        <button type="button"  name="installmentBreak" class="submitbutton btn btn-outline-secondary btn-rounded m-1" style="width: 40%;"><strong>Apply</strong></button>
+                                                                        <button type="button" id="installmentBreak"  name="installmentBreak" class="submitbutton btn btn-outline-secondary btn-rounded m-1" style="width: 40%;"><strong>Apply</strong></button>
                                                                     </div>
                                                                     <span class="d-flex invalid-feedback installmentBreak_error"></span>
                                                                 </div>
@@ -2634,11 +2634,6 @@ if(!isset($addition)){ $addition=0;}
         $('[data-toggle="tooltip"]').on('click', function () {
             $(this).tooltip('hide')
         }); 
-
-        $("#payment_plan").prop('checked',false);
-        $("#first_payment_amount").attr("disabled",true);
-        $("#with_first_payment").attr("checked",false);
-       
         
         // $("#time_entry_sub_total_text").val({{$timeEntryAmount}});
         // $("#expense_sub_total_text").val({{$expenseAmount}});
@@ -2699,6 +2694,33 @@ if(!isset($addition)){ $addition=0;}
         );
         
         $('.image_link_sprite_cancel').hide();
+        
+        var FT= $("#final_total_text").val()
+        if(FT > 0.01){
+            if(localStorage.getItem('adjustment_token') == "{{ $adjustment_token }}" &&  localStorage.getItem('payment_plan_checked') == 1){ 
+                $("#payment_plan").prop('checked',true);
+                $("#payment_plan_details").slideToggle();
+                if(localStorage.getItem('number_installment_field') > 0){
+                    $("#number_installment_field").val(localStorage.getItem('number_installment_field'));
+                    $("#amount_per_installment_field").val(localStorage.getItem('amount_per_installment_field'));
+                    $("#installment_frequency_field").val(localStorage.getItem('installment_frequency_field'));
+                    if(localStorage.getItem("with_first_payment") == '1'){
+                        $("#with_first_payment").trigger('click');
+                        $("#with_first_payment").prop("checked",true);
+                        $("#first_payment_amount").prop("disabled",false);
+                        $("#first_payment_amount").val(localStorage.getItem('first_payment_amount'));
+                    } 
+                    $("#start_date").val(localStorage.getItem('start_date'));
+                    setTimeout(() => {
+                        $("#installmentBreak").trigger('click');    
+                    }, 2000);
+                }
+            }
+        }else{
+            $("#payment_plan").prop('checked',false);
+            $("#first_payment_amount").prop("disabled",true);
+            $("#with_first_payment").prop("checked",false);
+        } 
 
         $('.invoice_entry_nonbillable_time').change(function () { //".checkbox" change 
             console.log("2573 > invoice_entry_nonbillable_time event occurs");
@@ -2897,13 +2919,25 @@ if(!isset($addition)){ $addition=0;}
 
         
         $("input:checkbox#payment_plan").click(function () {
+            if($(this).is(":checked")) {
+                localStorage.setItem('payment_plan_checked', 1);  
+            }else{
+                localStorage.setItem('payment_plan_checked', 0);
+                localStorage.setItem('number_installment_field','');
+                localStorage.setItem('amount_per_installment_field','');
+                localStorage.setItem('installment_frequency_field','');
+                localStorage.setItem("with_first_payment",'0');
+                localStorage.setItem('first_payment_amount','');
+                localStorage.setItem('start_date','');
+            }            
+            localStorage.setItem('adjustment_token', "{{ $adjustment_token }}");
             $("#payment_plan_details").slideToggle();
         });
         $("input:checkbox#with_first_payment").click(function () {
             if ($(this).is(":checked")) {
                 $("#first_payment_amount").removeAttr("disabled");
             } else {
-                $("#first_payment_amount").attr("disabled",true);    
+                $("#first_payment_amount").prop("disabled",true);    
                 $("#first_payment_amount").val("");
             }
         });
@@ -2940,13 +2974,13 @@ if(!isset($addition)){ $addition=0;}
             if(totalInstalment < 0) {
                 totalInstalment = 1;
             }else{
-                totalInstalment = Math.floor(totalInstalment) + 1
+                totalInstalment = Math.ceil(totalInstalment) + 1
             }
             $("#number_installment_field").val(totalInstalment);
 
         });
         $("#SaveInvoiceButton").on("click",function(){
-            $(this).attr("disabled",true);
+            $(this).prop("disabled",true);
             $("#innerLoader").show();
         });
         $("#saveInvoiceForm").validate({
@@ -3023,135 +3057,6 @@ if(!isset($addition)){ $addition=0;}
             }
         });
 
-        $("#paymentPlansForm1").validate({
-            rules: {
-                start_date: {
-                    required: true
-                },
-                amount_per_installment_field: {
-                    required: true
-                },
-                number_installment_field: {
-                    required: true,
-                    min: 1
-                },
-                percentage: {
-                    min: 0,
-                    max: 100
-                },
-            },
-            messages: {
-                start_date: {
-                    required: "Start date can't be blank"
-                },
-                amount_per_installment_field: {
-                    required: "Amount is required"
-                },
-                number_installment_field: {
-                    required: "Number is required"
-                },
-            }
-        });
-        $('#paymentPlansForm1').submit(function (e) {
-        
-            beforeLoader();
-            e.preventDefault();
-            if (!$('#paymentPlansForm').valid()) {
-                afterLoader();
-                return false;
-            }
-            var dataString=firstInstallment = '';
-            dataString = $("#paymentPlansForm").serialize();
-           
-            var number_installment_field=$("#number_installment_field").val();
-            var amount_per_installment_field=$("#amount_per_installment_field").val();
-            var installment_frequency_field=$("#installment_frequency_field").val();
-            var start_date=$("#start_date").val();
-           
-           var headerHtml='<tr><th style="width: 30px; border-right: none;"> &nbsp;</th><th style="width: 150px; border-left: none;"> Due Date</th><th style="width: 120px; border-right: none;"> Amount</th><th style="width: 30px; border-left: none;"> &nbsp;</th><th><p style="display: none; padding-left: 20px;" class="autopay-field m-0">Status</p></th></tr>';
-           var wrapper = $('.field_wrapper').html('').html(headerHtml); //Input field wrapper
-           
-          
-           var removeclass='';
-           var tt = start_date;
-            var date = new Date(tt);
-            var newdate = new Date(date);
-            var countSum=0;
-            for(var loopVar=1;loopVar<=Math.floor(number_installment_field);loopVar++){
-               
-                var dd = newdate.getDate();
-                var mm = newdate.getMonth()+1;
-                var y = newdate.getFullYear();
-
-                var someFormattedDate = mm + '/' + dd + '/' + y;
-                
-                if(loopVar==1 || loopVar==2 ){
-                    var removeclass='';
-                }else{
-                    var removeclass='<i class="fas fa-times"></i>';
-                }
-
-                if ($("#with_first_payment").is(":checked") && loopVar==1) {
-                    firstInstallment=$("#first_payment_amount").val().replace(/,/g, '');
-                    countSum+=parseFloat(firstInstallment);
-                }else{
-                    firstInstallment=amount_per_installment_field;
-                    if(loopVar==Math.floor(number_installment_field)){
-                        totalAMT=parseFloat($("#final_total_text").val().replace(/,/g, ''));
-                        firstInstallment=totalAMT-countSum;
-                    }else{
-                        countSum+=parseFloat(firstInstallment);
-                    }
-                   
-                }
-                var fieldHTML = '<tr class="invoice_entry payment_plan_row tablePaymentPlanRemove" id="row_'+x+'"><td style="vertical-align: center; text-align: center; border-right: none;" class="remove_button" ><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel " href="javascript:void(0);">'+removeclass+'</a></div></td><td style="border-left: none;" class=""><div id="invoice_entry_date_plan_'+x+'" class="invoice-entry-date" data-entry-id="plan161122040617875"> <input value="'+someFormattedDate+'" id="invoice_entry_date_text_plan161122040617875" style="width: 100%;border:none;" class="invoice-entry-date-text boxsizingBorder datepicker" type="text" name="new_payment_plans['+loopVar+'][due_date]" placeholder="Choose Date"></div></td><td style="text-align: right; border-right: none;" class=""> <input id="invoice_plan_amount_text_plan161122040617875" style="width: 100%; text-align: right;border:none;" class="boxsizingBorder edit_payment_plan_amount" type="text" name="new_payment_plans['+loopVar+'][amount]" onblur="installmentCalculation(this)" value="'+firstInstallment+'"></td><td style="vertical-align: center; text-align: center; border-right: none;dispaly:none;"><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" ><i class="fas fa-pen"></i></a></div></td><td style="vertical-align: middle;" class="tablePaymentPlanEdit"><p class="autopay-field m-0" data-testid="autopay-field" style="display: none; padding-left: 20px;"></p></td></tr>'; //New input field html 
-       
-                // $(wrapper).append(fieldHTML); //Add field html
-                $(this).find('.image_link_sprite_cancel').hide();
-                
-                $(".tablePaymentPlanRemove").find('.image_link_sprite_cancel').hide();
-                $('.tablePaymentPlanRemove').hover(
-                    function () { //this is fired when the mouse hovers over
-                        $(this).find('.image_link_sprite_cancel').show();
-                    },
-                    function () { //this is fired when the mouse hovers out
-                        $(this).find('.image_link_sprite_cancel').hide();
-                    }
-                );
-
-                $('.tablePaymentPlanEdit').hover(
-                    function () { //this is fired when the mouse hovers over
-                        $(this).find('.image_link_sprite_cancel').show();
-                    },
-                    function () { //this is fired when the mouse hovers out
-                        $(this).find('.image_link_sprite_cancel').hide();
-                    }
-                );
-
-                $('.datepicker').datepicker({
-                    'format': 'm/d/yyyy',
-                    'autoclose': true,
-                    'todayBtn': "linked",
-                    'clearBtn': true,
-                    startDate: "dateToday",
-                    'todayHighlight': true
-                });
-
-                if(installment_frequency_field=="weekly"){
-                    newdate.setDate(newdate.getDate() + 7);
-                }else if(installment_frequency_field=="biweekly"){
-                    newdate.setDate(newdate.getDate() + 14);
-                }else if(installment_frequency_field=="monthly"){
-                    newdate.setMonth(newdate.getMonth() + 1);
-                    // newdate.setDate(newdate.getMonth() + 1);
-                }
-                
-            }
-            $('.edit_payment_plan_amount').number(true, 2);
-            installmentCalculation();
-        });
-
-        
         var buttonpressed;
         $('.submitbutton').click(function () {
             buttonpressed = $(this).attr('name');
@@ -3206,8 +3111,8 @@ if(!isset($addition)){ $addition=0;}
                 error = 0;
                 $(".start_date_error").html("");
             }
-            if($("#amount_per_installment_field").val() == '' || $("#amount_per_installment_field").val() >= 0.01){
-                $(".amount_per_installment_field_error").html("Amount is required or value greater than 0.");
+            if($("#amount_per_installment_field").val() == ''){
+                $(".amount_per_installment_field_error").html("Amount is required.");
                 error = 1;
             }else{
                 error = 0;
@@ -3225,7 +3130,7 @@ if(!isset($addition)){ $addition=0;}
                     $(".first_payment_amount_error").html("Amount is required");
                     error = 1;
                 }else{
-                    if($("#first_payment_amount").val() != '' && $("#first_payment_amount").val().replace(/,/g, '') >= $("#final_total").html()){
+                    if($("#first_payment_amount").val() != '' && $("#first_payment_amount").val().replace(/,/g, '') >= parseFloat($("#final_total").html())){
                     $(".first_payment_amount_error").html("Amount exceeds max payment amount (max: $"+$("#final_total").html()+")");
                         if($("#number_installment_field").val() <= '2'){
                             $(".number_installment_field_error").html("Number must be at least 2");
@@ -3255,6 +3160,10 @@ if(!isset($addition)){ $addition=0;}
             var headerHtml='<tr><th style="width: 30px; border-right: none;"> &nbsp;</th><th style="width: 150px; border-left: none;"> Due Date</th><th style="width: 120px; border-right: none;"> Amount</th><th style="width: 30px; border-left: none;"> &nbsp;</th><th><p style="display: none; padding-left: 20px;" class="autopay-field m-0">Status</p></th></tr>';
             var wrapper = $('.field_wrapper').html('').html(headerHtml); //Input field wrapper
             
+            localStorage.setItem("start_date", start_date);
+            localStorage.setItem("number_installment_field", number_installment_field);
+            localStorage.setItem("amount_per_installment_field", amount_per_installment_field);
+            localStorage.setItem("installment_frequency_field", installment_frequency_field);
             
             var removeclass='';
             var tt = start_date;
@@ -3286,7 +3195,14 @@ if(!isset($addition)){ $addition=0;}
                     }else{
                         countSum+=parseFloat(firstInstallment);
                     }
-                
+                    
+                }
+                if ($("#with_first_payment").is(":checked") == true){
+                    localStorage.setItem("with_first_payment", '1');
+                    localStorage.setItem("first_payment_amount", $("#first_payment_amount").val().replace(/,/g, ''));   
+                }else{
+                    localStorage.setItem("with_first_payment", '0');
+                    localStorage.setItem("first_payment_amount", '');  
                 }
                 var fieldHTML = '<tr class="invoice_entry payment_plan_row tablePaymentPlanRemove" id="row_'+x+'"><td style="vertical-align: center; text-align: center; border-right: none;" class="remove_button" ><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel " href="javascript:void(0);">'+removeclass+'</a></div></td><td style="border-left: none;" class=""><div id="invoice_entry_date_plan_'+x+'" class="invoice-entry-date" data-entry-id="plan161122040617875"> <input value="'+someFormattedDate+'" id="invoice_entry_date_text_plan161122040617875" style="width: 100%;border:none;" class="invoice-entry-date-text boxsizingBorder datepicker" type="text" name="new_payment_plans['+loopVar+'][due_date]" placeholder="Choose Date"></div></td><td style="text-align: right; border-right: none;" class=""> <input id="invoice_plan_amount_text_plan161122040617875" style="width: 100%; text-align: right;border:none;" class="boxsizingBorder edit_payment_plan_amount" type="text" name="new_payment_plans['+loopVar+'][amount]" onblur="installmentCalculation(this)" value="'+firstInstallment+'"></td><td style="vertical-align: center; text-align: center; border-right: none;dispaly:none;"><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" ><i class="fas fa-pen"></i></a></div></td><td style="vertical-align: middle;" class="tablePaymentPlanEdit"><p class="autopay-field m-0" data-testid="autopay-field" style="display: none; padding-left: 20px;"></p></td></tr>'; //New input field html 
 
@@ -3345,7 +3261,7 @@ if(!isset($addition)){ $addition=0;}
             
         // });
         $('#confirmAccessModal').on('hidden.bs.modal', function () {
-            $("#client_portal_enable").attr('checked',false);
+            $("#client_portal_enable").prop('checked',false);
         });
         // $('#EnableAccessForm').submit(function (e) {
         //     beforeLoader();
@@ -3822,7 +3738,7 @@ if(!isset($addition)){ $addition=0;}
                 console.log(jsObj);
                 if ($(this).val() in jsObj) {
                     console.log($(this).val() +" exists");
-                    $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                    $("#forwarded_invoices_check_"+$(this).val()).prop('checked', true);
                     arr[$(this).val()] = 'checked';
                 }else{
                     delete arr[$(this).val()];
@@ -4363,8 +4279,8 @@ if(!isset($addition)){ $addition=0;}
             $('#bill_to_date').removeAttr("disabled");
             $('#adjustment_delete').val('1');
         } else {
-            $("#bill_from_date").attr("disabled", true);
-            $("#bill_to_date").attr("disabled", true);
+            $("#bill_from_date").prop("disabled", true);
+            $("#bill_to_date").prop("disabled", true);
             $('#bill_from_date').val('');            
             $('#bill_to_date').val(''); 
             $('#adjustment_delete').val('');

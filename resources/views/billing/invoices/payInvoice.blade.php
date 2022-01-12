@@ -623,7 +623,9 @@ $finalAmt=$invoice-$paid;
                             setTimeout(function () {
                                 $("#payInvoice").modal("hide");                           
                             }, 1000);
-                            updateInvoiceDetail();
+                            $('#billing_invoice_table').DataTable().ajax.reload(null, false);
+                            $('#invoiceGrid').DataTable().ajax.reload(null, false);
+                            // updateInvoiceDetail();
                         }else{
                             swal('Payment Successful!', res.msg, 'success').then(function(){
                                 window.location.reload();
@@ -706,7 +708,7 @@ $finalAmt=$invoice-$paid;
                             }, 1000);
                             $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                             $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                            updateInvoiceDetail();
+                            // updateInvoiceDetail();
                         }else{
                             swal('Payment Successful!', res.msg, 'success').then(function(){
                                 window.location.reload();
@@ -836,7 +838,7 @@ function didCreditPayment() {
                         }, 1000);
                         $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                         $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                        updateInvoiceDetail();
+                        // updateInvoiceDetail();
                     }else{
                         swal('Payment Successful!', res.msg, 'success').then(function(){
                             window.location.reload();

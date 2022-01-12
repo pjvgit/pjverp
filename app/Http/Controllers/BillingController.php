@@ -2452,7 +2452,7 @@ class BillingController extends BaseController
 
         $FlatFeeEntryIds = CaseMaster::join("flat_fee_entry","flat_fee_entry.case_id","=","case_master.id")
         ->select("case_master.id","flat_fee_entry.case_id")->where("flat_fee_entry.status","unpaid")->whereNull("flat_fee_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
-        \Log::info($FlatFeeEntryIds);
+        
         $TaskTimeEntryIds = CaseMaster::join("task_time_entry","task_time_entry.case_id","=","case_master.id")
         ->select("case_master.id","task_time_entry.case_id")->where("task_time_entry.status","unpaid")->whereNull("task_time_entry.deleted_at")->whereIn("case_master.created_by",$getChildUsers)->get()->pluck('case_id')->toArray();
         
@@ -2655,9 +2655,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $TimeEntry=$TimeEntry->whereBetween('entry_date', [$startDt,$endDt]);
+                // $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                // $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                // $TimeEntry=$TimeEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2685,9 +2685,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [$startDt,$endDt]);
+                // $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                // $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                // $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2765,11 +2765,11 @@ class BillingController extends BaseController
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
             });
             
-            if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
-            }
+            // if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
+            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
+            // }
             $FlatFeeEntry=$FlatFeeEntry->get();
             
             //Get the Adjustment list            
@@ -5557,6 +5557,40 @@ class BillingController extends BaseController
                 $bill_from_date=$request->bill_from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
+            }        
+            $case_id=$findInvoice->case_id;
+
+            if((isset($request->adjustment_delete) && $request->adjustment_delete!="") || isset($request->removeAllCreatedEntry)){
+                $TimeEntry=TaskTimeEntry::where("task_time_entry.case_id",$case_id)
+                ->where("task_time_entry.status","unpaid")
+                ->where("task_time_entry.token_id","9999999")
+                ->get();
+                foreach($TimeEntry as $k=>$v){
+                    TimeEntryForInvoice::where("time_entry_id",$v->id)->delete();
+                    DB::table('task_time_entry')->where("id",$v->id)->delete();
+                }
+                $ExpenseEntry=ExpenseEntry::where("expense_entry.case_id",$case_id)
+                ->where("expense_entry.status","unpaid")->where("expense_entry.token_id","9999999")
+                ->get();
+                foreach($ExpenseEntry as $k=>$v){
+                    ExpenseForInvoice::where("expense_entry_id",$v->id)->delete();
+                    DB::table('expense_entry')->where("id",$v->id)->delete();
+                }
+                
+                $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
+                ->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.token_id","=",'9999999')
+                ->get();
+                foreach($FlatFeeEntry as $k=>$v){
+                    FlatFeeEntryForInvoice::where("flat_fee_entry_for_invoice.flat_fee_entry_id",$v->id)->delete();
+                    DB::table('flat_fee_entry')->where("id",$v->id)->delete();
+                }
+                
+                $InvoiceAdjustment=InvoiceAdjustment::where("invoice_adjustment.case_id",$case_id)
+                ->where("invoice_adjustment.token",$request->token)->delete();
+
+                if(isset($request->removeAllCreatedEntry)){
+                    return redirect('bills/invoices/'.base64_encode($findInvoice->id).'/edit?token='.base64_encode($findInvoice->id));
+                }
             }
             //Get all client related to firm
             // $ClientList = User::select("email","first_name","last_name","id","user_level",DB::raw('CONCAT_WS(" ",first_name,middle_name,last_name) as name'))->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
@@ -5565,8 +5599,7 @@ class BillingController extends BaseController
             //Get all company related to firm
             // $CompanyList = User::select("email","first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
             $CompanyList = userCompanyList();
-        
-            $case_id=$findInvoice->case_id;
+
             $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$case_id)->where('case_client_selection.is_billing_contact','yes')->select("*")->first();
           
             $client_id=$findInvoice->user_id;
@@ -5592,61 +5625,49 @@ class BillingController extends BaseController
             $caseMaster = CaseMaster::whereId($case_id)->with("caseAllClient")->first();
 
             //Get the Time Entry list
-            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
-                $TimeEntry=TaskTimeEntry::where("task_time_entry.case_id",$case_id)
-                ->where("task_time_entry.status","unpaid")
-                ->where("task_time_entry.token_id","9999999")
-                ->delete();
-            }
+            
             $TimeEntry=TimeEntryForInvoice::leftJoin("task_time_entry","time_entry_for_invoice.time_entry_id","=","task_time_entry.id");
             $TimeEntry=$TimeEntry->leftJoin("users","users.id","=","task_time_entry.user_id");
             $TimeEntry=$TimeEntry->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id");
             $TimeEntry=$TimeEntry->select("task_time_entry.*","task_activity.*","users.*","task_time_entry.id as itd");
             $TimeEntry=$TimeEntry->where("time_entry_for_invoice.invoice_id",$invoiceID);
             // ->where("task_time_entry.remove_from_current_invoice","no")
-            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $TimeEntry=$TimeEntry->whereBetween('task_time_entry.entry_date', [$startDt,$endDt]);
-            }
+            // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $TimeEntry=$TimeEntry->whereBetween('task_time_entry.entry_date', [$startDt,$endDt]);
+            // }
             $TimeEntry=$TimeEntry->get();
         
             //Get the Expense Entry list
-            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
-                $ExpenseEntry=ExpenseEntry::where("expense_entry.case_id",$case_id)
-                ->where("expense_entry.status","unpaid")->where("expense_entry.token_id","9999999")
-                ->delete();
-            }
             $ExpenseEntry=ExpenseForInvoice::leftJoin("expense_entry","expense_for_invoice.expense_entry_id","=","expense_entry.id");
             $ExpenseEntry=$ExpenseEntry->leftJoin("users","users.id","=","expense_entry.user_id")->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")->select("expense_entry.*","task_activity.*","users.*","expense_entry.id as eid")->where("expense_entry.case_id",$case_id);
             // ->where("expense_entry.remove_from_current_invoice","no")
             $ExpenseEntry=$ExpenseEntry->where("expense_for_invoice.invoice_id",$invoiceID);
-            if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
-                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                $ExpenseEntry=$ExpenseEntry->whereBetween('expense_entry.entry_date', [$startDt,$endDt]);
-            }
+            // if(isset($request->bill_from_date) && isset($request->bill_to_date) && $request->bill_from_date!=NULL && $request->bill_to_date!=NULL){
+            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+            //     $ExpenseEntry=$ExpenseEntry->whereBetween('expense_entry.entry_date', [$startDt,$endDt]);
+            // }
             $ExpenseEntry=$ExpenseEntry->get();
             
             //Get the Adjustment list
-            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
-                $InvoiceAdjustment=InvoiceAdjustment::where("invoice_adjustment.case_id",$case_id)
-                ->where("invoice_adjustment.token",$request->token)->delete();
-            }
             $Adjustment_token = InvoiceAdjustment::where("invoice_adjustment.token",$request->token)->get();
-            if($Adjustment_token->count() > 0 )
+            if($Adjustment_token->count() > 0 ){
                 $InvoiceAdjustment=InvoiceAdjustment::select("*")
                 ->where("invoice_adjustment.token",$request->token)
                 ->where("invoice_adjustment.case_id",$case_id)->get();
-            else
-                $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoiceID)->where("invoice_adjustment.amount",">",0)->get();
-
+            }else{
+                $InvoiceAdjustment=InvoiceAdjustment::select("*")
+                ->where("invoice_adjustment.invoice_id",$invoiceID)
+                ->where("invoice_adjustment.amount",">",0)->get();
+            }
             $InvoiceInstallment=InvoiceInstallment::select("*")
             ->where("invoice_installment.invoice_id",$invoiceID)
             ->get();
                         
             //Get the flat fee Entry list
-            if(isset($request->adjustment_delete) && $request->adjustment_delete!=""){
+            if((isset($request->adjustment_delete) && $request->adjustment_delete!="") || isset($request->removeAllCreatedEntry)){
                 $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
                 ->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.token_id","=",'9999999')
                 ->get();

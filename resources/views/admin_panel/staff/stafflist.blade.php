@@ -110,7 +110,6 @@
         var tableName2 = 'ClientListGrid';
         var url = "{{ route('admin/loadFirmStaffList') }}";
         var table = $('#'+tableName2).DataTable({
-            stateSave:true,
             processing: true,
             // "order": [[1, "desc"]],
             "oLanguage": {

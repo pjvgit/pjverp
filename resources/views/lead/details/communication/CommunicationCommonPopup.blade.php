@@ -157,8 +157,11 @@
                     'user_id': "{{$user_id ?? ''}}"
                 },
                 success: function (res) {
-                    $("#addTaskFromLogArea").html('');
-                    $("#addTaskFromLogArea").html(res);
+                    // $("#addTaskFromLogArea").html('');
+                    // $("#addTaskFromLogArea").html(res);
+                    // $("#preloader").hide();
+                    $("#addTaskArea").html('');
+                    $("#addTaskArea").html(res);
                     $("#preloader").hide();
                 }
             })

@@ -695,7 +695,6 @@ var start = 0;
             "dom": '<"top">rt<"bottom"l><"clear">',
             responsive: false,
             processing: true,
-            stateSave: true,
             searching: false,
             "aaSorting": [],
             "order": [

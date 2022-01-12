@@ -1688,7 +1688,7 @@ $expenseTime=0;$expenseAmount=0;
                                                                 </div>
                                                                 <div class="row form-group">
                                                                     <div class="col-md-12">
-                                                                        <button type="button"  name="installmentBreak" class="submitbutton btn btn-outline-secondary btn-rounded m-1" style="width: 40%;"><strong>Recalculate</strong></button>
+                                                                        <button type="button" id="installmentBreak" name="installmentBreak" class="submitbutton btn btn-outline-secondary btn-rounded m-1" style="width: 40%;"><strong>Recalculate</strong></button>
                                                                     </div>
                                                                     <div class="d-flex invalid-feedback installmentBreak_error"></div>
                                                                 </div>
@@ -2710,14 +2710,9 @@ $expenseTime=0;$expenseAmount=0;
         
         $('[data-toggle="tooltip"]').on('click', function () {
             $(this).tooltip('hide')
-        }); 
-
-        <?php if($findInvoice->payment_plan_enabled=="yes"){?>
-            $("#payment_plan_details").slideToggle();
-        <?php } ?>
-        // $("#payment_plan").prop('checked',false);
-        $("#first_payment_amount").attr("disabled",true);
-        $("#with_first_payment").attr("checked",false);
+        });
+        
+        
        
         // $("#time_entry_sub_total_text").val({{$timeEntryAmount}});
         // $("#expense_sub_total_text").val({{$expenseAmount}});
@@ -2823,6 +2818,35 @@ $expenseTime=0;$expenseAmount=0;
         );
         
         $('.image_link_sprite_cancel').hide();
+
+        <?php if($findInvoice->payment_plan_enabled=="yes"){?>
+            $("#payment_plan").prop('checked',true);
+            $("#payment_plan_details").slideToggle();
+        <?php }else{ ?>
+            if(localStorage.getItem('adjustment_token') == "{{ $adjustment_token }}" &&  localStorage.getItem('payment_plan_checked') == 1){ 
+                $("#payment_plan").prop('checked',true);
+                $("#payment_plan_details").slideToggle();
+                $("#number_installment_field").val(localStorage.getItem('number_installment_field'));
+                $("#amount_per_installment_field").val(localStorage.getItem('amount_per_installment_field'));
+                $("#installment_frequency_field").val(localStorage.getItem('installment_frequency_field'));
+                if(localStorage.getItem("with_first_payment") == '1'){
+                    $("#with_first_payment").trigger('click');
+                    $("#with_first_payment").prop("checked",true);
+                    $("#first_payment_amount").prop("disabled",false);
+                    $("#first_payment_amount").val(localStorage.getItem('first_payment_amount'));
+                } 
+                $("#start_date").val(localStorage.getItem('start_date'));
+                setTimeout(() => {
+                    $("#installmentBreak").trigger('click');    
+                }, 2000);   
+            }else{
+                $("#payment_plan").prop('checked',false);
+                $("#first_payment_amount").prop("disabled",true);
+                $("#with_first_payment").prop("checked",false);
+            }
+            // $("#first_payment_amount").prop("disabled",true);
+            // $("#with_first_payment").prop("checked",false);
+        <?php } ?>
 
         $('.invoice_entry_nonbillable_time').change(function () { //".checkbox" change 
             var id = $(this).attr('id');
@@ -3020,13 +3044,25 @@ $expenseTime=0;$expenseAmount=0;
 
         
         $("input:checkbox#payment_plan").click(function () {
+            if($(this).is(":checked")) {
+                localStorage.setItem('payment_plan_checked', 1);  
+            }else{
+                localStorage.setItem('payment_plan_checked', 0);
+                localStorage.setItem('number_installment_field','');
+                localStorage.setItem('amount_per_installment_field','');
+                localStorage.setItem('installment_frequency_field','');
+                localStorage.setItem("with_first_payment",'0');
+                localStorage.setItem('first_payment_amount','');
+                localStorage.setItem('start_date','');
+            }            
+            localStorage.setItem('adjustment_token', "{{ $adjustment_token }}");
             $("#payment_plan_details").slideToggle();
         });
         $("input:checkbox#with_first_payment").click(function () {
             if ($(this).is(":checked")) {
                 $("#first_payment_amount").removeAttr("disabled");
             } else {
-                $("#first_payment_amount").attr("disabled",true);    
+                $("#first_payment_amount").prop("disabled",true);    
                 $("#first_payment_amount").val("");
             }
         });
@@ -3062,13 +3098,13 @@ $expenseTime=0;$expenseAmount=0;
             if(totalInstalment < 0) {
                 totalInstalment = 1;
             }else{
-                totalInstalment = Math.floor(totalInstalment) + 1
+                totalInstalment = Math.ceil(totalInstalment) + 1
             }
             $("#number_installment_field").val(totalInstalment);
 
         });
         $("#SaveInvoiceButton").on("click",function(){
-            $(this).attr("disabled",true);
+            $(this).prop("disabled",true);
             $("#innerLoader").show();
         });
         $("#saveInvoiceForm").validate({
@@ -3292,7 +3328,7 @@ $expenseTime=0;$expenseAmount=0;
             
         // });
         $('#confirmAccessModal').on('hidden.bs.modal', function () {
-            $("#client_portal_enable").attr('checked',false);
+            $("#client_portal_enable").prop('checked',false);
         });
         // $('#EnableAccessForm').submit(function (e) {
         //     beforeLoader();
@@ -3633,7 +3669,7 @@ $expenseTime=0;$expenseAmount=0;
                 console.log(jsObj);
                 if ($(this).val() in jsObj) {
                     console.log($(this).val() +" exists");
-                    $("#forwarded_invoices_check_"+$(this).val()).attr('checked', true);
+                    $("#forwarded_invoices_check_"+$(this).val()).prop('checked', true);
                     arr[$(this).val()] = 'checked';
                 }else{
                     delete arr[$(this).val()];
@@ -4282,7 +4318,11 @@ $expenseTime=0;$expenseAmount=0;
         
         var headerHtml='<tr><th style="width: 30px; border-right: none;"> &nbsp;</th><th style="width: 150px; border-left: none;"> Due Date</th><th style="width: 120px; border-right: none;"> Amount</th><th style="width: 30px; border-left: none;"> &nbsp;</th><th><p style="display: none; padding-left: 20px;" class="autopay-field m-0">Status</p></th></tr>';
         var wrapper = $('.field_wrapper').html('').html(headerHtml); //Input field wrapper
-        
+       
+        localStorage.setItem("start_date", start_date);
+        localStorage.setItem("number_installment_field", number_installment_field);
+        localStorage.setItem("amount_per_installment_field", amount_per_installment_field);
+        localStorage.setItem("installment_frequency_field", installment_frequency_field);
         
         var removeclass='';
         var tt = start_date;
@@ -4315,6 +4355,13 @@ $expenseTime=0;$expenseAmount=0;
                     countSum+=parseFloat(firstInstallment);
                 }
             
+            }
+            if ($("#with_first_payment").is(":checked") == true){
+                localStorage.setItem("with_first_payment", '1');
+                localStorage.setItem("first_payment_amount", $("#first_payment_amount").val().replace(/,/g, ''));   
+            }else{
+                localStorage.setItem("with_first_payment", '0');
+                localStorage.setItem("first_payment_amount", '');  
             }
             var fieldHTML = '<tr class="invoice_entry payment_plan_row tablePaymentPlanRemove" id="row_'+x+'"><td style="vertical-align: center; text-align: center; border-right: none;" class="remove_button" ><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel " href="javascript:void(0);">'+removeclass+'</a></div></td><td style="border-left: none;" class=""><div id="invoice_entry_date_plan_'+x+'" class="invoice-entry-date" data-entry-id="plan161122040617875"> <input value="'+someFormattedDate+'" id="invoice_entry_date_text_plan161122040617875" style="width: 100%;border:none;" class="invoice-entry-date-text boxsizingBorder datepicker" type="text" name="new_payment_plans['+loopVar+'][due_date]" placeholder="Choose Date"></div></td><td style="text-align: right; border-right: none;" class=""> <input id="invoice_plan_amount_text_plan161122040617875" style="width: 100%; text-align: right;border:none;" class="boxsizingBorder edit_payment_plan_amount" type="text" name="new_payment_plans['+loopVar+'][amount]" onblur="installmentCalculation(this)" value="'+firstInstallment+'"></td><td style="vertical-align: center; text-align: center; border-right: none;dispaly:none;"><div class="payment_plan_entry"> <a class="image_link_sprite image_link_sprite_cancel" href="javascript:void(0);" ><i class="fas fa-pen"></i></a></div></td><td style="vertical-align: middle;" class="tablePaymentPlanEdit"><p class="autopay-field m-0" data-testid="autopay-field" style="display: none; padding-left: 20px;"></p></td></tr>'; //New input field html 
 
@@ -4569,10 +4616,8 @@ $("input:checkbox#range_check_box").click(function () {
         $('#bill_from_date').val('');
         $('#bill_to_date').val('');
         if($('#bill_from_date').val('') != ''){
-        var case_id=$("#court_case_id").val();
-        var contact=$("#contact").val();
-        var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}';
-        window.location.href=URLS;
+            var URLS=baseUrl+'/bills/invoices/{{base64_encode($findInvoice->id)}}/edit?token={{base64_encode($findInvoice->id)}}&removeAllCreatedEntry=1';
+            window.location.href=URLS;
         }
     }
 });

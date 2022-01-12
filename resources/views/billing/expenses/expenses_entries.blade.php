@@ -338,7 +338,11 @@ if(isset($_GET['type'])){
             "dom": '<"top">rt<"bottom"pl><"clear">',
             responsive: false,
             processing: true,
-            stateSave: true,
+            <?php if(isset($c) && $c != ''){?>
+                stateSave: false,
+            <?php }else{ ?>
+                stateSave: true,
+            <?php } ?>
             searching: false,
             "aoColumnDefs": [{'bSortable': false,'aTargets': ['nosort']}],
             "order": [[1, "desc"]],
