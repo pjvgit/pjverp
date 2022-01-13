@@ -722,12 +722,11 @@ p {
 
 /* For scrollbar */
 .scrollbar {
-    height: 450px;
+    height: 400px;
     background: #fff;
     overflow-y: auto;
-}
-.force-overflow {
-    min-height: 450px;
+    overflow-x: hidden;
+    padding-right: 20px;
 }
 .scrollbar-primary::-webkit-scrollbar {
     width: 8px;
@@ -739,7 +738,10 @@ p {
     background-color: #663399; 
 }
 /* To resolve on model close, windlow scroll disappear issue */
-.modal-open {
-    overflow: scroll;
-}
+/* body {
+    overflow: auto !important;
+} */
+/* #payInvoice {
+    overflow-y: hidden !important;
+} */
 

@@ -1091,18 +1091,9 @@ function didOnlinePayment() {
             },
             success: function (res) {
                 if (res.errors != '') {
-                    $('.showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                    $.each(res.errors, function (key, value) {
-                        errotHtml += '<li>' + value + '</li>';
-                    });
-                    errotHtml += '</ul></div>';
-                    $('.showError').append(errotHtml);
-                    $('.showError').show();
-                    $('#payInvoice').animate({
-                        scrollTop: 0
-                    }, 'slow');
+                    $("#error-alert .error-text").text(res.errors);
+                    $("#error-alert").show();
+                    $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
                     afterLoader();
                     return false;
                 } else {
@@ -1125,11 +1116,8 @@ function didOnlinePayment() {
             },
             error: function (jqXHR, exception) {
                 afterLoader();
-                $('.showError').html('');
-                var errotHtml =
-                    '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-                $('.showError').append(errotHtml);
-                $('.showError').show();
+                $("#error-alert .error-text").text("Sorry, something went wrong. Please try again later.");
+                $("#error-alert").show();
             },
         });
 

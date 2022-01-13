@@ -144,6 +144,12 @@ $(document).ready(function() {
                 }
             }, 300);
         });
+
+    // To resolve, Bootstrap modal makes window scrollbar disappear after closing issue
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        // $('.modal:visible').length && $(document.body).addClass('modal-open');
+        $('body').removeClass('modal-open');
+    });
 });
 
 // Start smart timer Modules
