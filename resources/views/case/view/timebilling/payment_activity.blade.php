@@ -58,8 +58,13 @@
             },
             "aoColumnDefs": [{
                 "bVisible": false,
-                "aTargets": [0]
-            }],
+                "aTargets": [0],
+                },
+                {
+                    targets: 6,
+                    render: $.fn.dataTable.render.number(',', '.', 3, '')
+                }
+            ],
             pageResize: true, // enable page resize
             pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
             columns: [
@@ -186,7 +191,7 @@
                 if(finalAmount == "0.00"){
                     $('td:eq(5)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                 }else{
-                    $('td:eq(5)', nRow).html('<div class="text-left">' + finalAmount + '</div>');
+                    $('td:eq(5)', nRow).html('<div class="text-left">' + finalAmount.toLocaleString() + '</div>');
                 }
             },
 
