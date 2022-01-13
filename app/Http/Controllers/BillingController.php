@@ -114,8 +114,7 @@ class BillingController extends BaseController
             $case = $case->where("case_master.id",$requestData['c']);
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to']!=''){
-            $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))))
-                           ->where('task_time_entry.entry_date', '<=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC'))));
+            $case = $case->whereBetween('task_time_entry.entry_date', [ date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))), date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['to']))))), auth()->user()->user_timezone ?? 'UTC')))]);
         }
         if(isset($requestData['from']) && $requestData['from'] !='' && isset($requestData['to']) && $requestData['to'] ==''){
             $case = $case->where('task_time_entry.entry_date', '>=', date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($requestData['from']))))), auth()->user()->user_timezone ?? 'UTC'))));
@@ -1281,7 +1280,8 @@ class BillingController extends BaseController
              $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
             ->leftJoin("case_master","invoices.case_id","=","case_master.id")
             ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
-            ->where("invoices.created_by",$id);
+            // ->where("invoices.created_by",$id);
+            ->where("invoices.firm_id", Auth::User()->firm_name);
             $InvoiceCounter=$Invoices->count();
             
             $InvoicesPaidAmount = $InvoicesDraftAmount = $InvoicesSentAmount = $InvoicesPaidPartialAmount = $InvoicesUnsentAmount = $InvoicesPartialAmount = $InvoicesOverdueAmount = 0;
@@ -1294,25 +1294,25 @@ class BillingController extends BaseController
                             $updateInvoice->save();
                         }
                     }   
-                    if($v->created_by == $id && $v->status == "Paid"){
+                    if($v->status == "Paid"){
                         $InvoicesPaidAmount += $v->paid_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Draft"){
+                    if($v->status == "Draft"){
                         $InvoicesDraftAmount += $v->total_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Sent"){
+                    if($v->status == "Sent"){
                         $InvoicesSentAmount += $v->total_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Partial"){
+                    if($v->status == "Partial"){
                         $InvoicesPaidPartialAmount += $v->paid_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Unsent"){
+                    if($v->status == "Unsent"){
                         $InvoicesUnsentAmount += $v->total_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Partial"){
+                    if($v->status == "Partial"){
                         $InvoicesPartialAmount += $v->paid_amount;
                     }
-                    if($v->created_by == $id && $v->status == "Overdue"){
+                    if($v->status == "Overdue"){
                         $InvoicesOverdueAmount += $v->due_amount;
                     }
                 }
@@ -9810,19 +9810,19 @@ class BillingController extends BaseController
             $startDate=date('Y-m-d',strtotime($cutDate[0]));
             $endDate=date('Y-m-d',strtotime($cutDate[1]));
         }
-        $InvoicesPaidAmount = Invoices::where("invoices.created_by",$id)->where("invoices.status","Paid")->whereBetween('invoices.invoice_date',[$startDate,$endDate])->where("invoices.created_by",$id)->sum("paid_amount");
+        $InvoicesPaidAmount = Invoices::where("invoices.created_by",$id)->where("invoices.status","Paid")->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("paid_amount");
            
-        $InvoicesPaidPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status","Partial")->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("paid_amount");
+        $InvoicesPaidPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status","Partial")->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("paid_amount");
 
-        $InvoicesSentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Sent')->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
+        $InvoicesSentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Sent')->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
 
-        $InvoicesDraftAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Draft')->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
+        $InvoicesDraftAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Draft')->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
 
-        $InvoicesUnsentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Unsent')->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
+        $InvoicesUnsentAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Unsent')->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("total_amount");
 
-        $InvoicesPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Partial')->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("paid_amount");
+        $InvoicesPartialAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Partial')->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("paid_amount");
         
-        $InvoicesOverdueAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Overdue')->where("invoices.created_by",$id)->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("due_amount");
+        $InvoicesOverdueAmount=Invoices::where("invoices.created_by",$id)->where("invoices.status",'Overdue')->whereBetween('invoices.invoice_date',[$startDate,$endDate])->sum("due_amount");
       
         
         return view('billing.dashboard.InvoiceOverview',compact('InvoicesPaidAmount','InvoicesPaidPartialAmount','InvoicesSentAmount','InvoicesDraftAmount','InvoicesUnsentAmount','InvoicesPartialAmount','InvoicesOverdueAmount'));

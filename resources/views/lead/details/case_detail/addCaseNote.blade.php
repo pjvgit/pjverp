@@ -3,7 +3,7 @@
 
     <span id="response"></span>
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/lead/details/case_detail/addCaseNote.blade.php">
         <input class="form-control" value="{{$id}}" id="user_id" maxlength="250" name="user_id"
         type="hidden">
         <input class="form-control" value="{{$lead_id}}" id="lead_id" maxlength="250" name="lead_id"

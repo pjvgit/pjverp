@@ -7342,15 +7342,17 @@ class LeadController extends BaseController
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
+        }else{            
             $callSave = Calls::find($request->id);
             if($callSave['call_resolved']=="yes"){
+                $report = 'no';
                 $callSave->call_resolved="no"; 
             }else{
                 $callSave->call_resolved="yes"; 
+                $report = 'yes';
             } 
             $callSave->save();
-            return response()->json(['errors'=>'']);
+            return response()->json(['errors'=>'','report' => $report]);
             exit;   
         }
     }   

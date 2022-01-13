@@ -19,6 +19,7 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
         <span class="text-danger">[ Archived ]</span>
         <?php } ?>
     </h2>
+    <input type="hidden" id="userName" value="<?php echo ucfirst($userProfile->first_name) .' '.ucfirst($userProfile->last_name);?>"/>
     <div class="ml-auto d-flex align-items-center d-print-none">
         <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
             <button onclick="setFeedBackForm('single','Contact Details');" type="button" class="feedback-button mr-2 text-black-50 btn btn-link">Tell us what you think</button>
@@ -188,12 +189,6 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                     @can(['messaging_add_edit'])
                     <li class="nav-item">
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/messages')}}" >Messages</a>
-                    </li>
-                    @endcan
-                    @can(['text_messaging_add_edit'])
-                    <li class="nav-item">
-                        <a class="nav-link <?php if(in_array(Route::currentRouteName(),["contacts_clients_text_messages"])){ echo "active show"; } ?>"  href="{{URL::to('contacts/clients/'.$client_id.'/text_messages')}}" >Text
-                            Messages</a>
                     </li>
                     @endcan
                     @can(['messaging_add_edit'])
@@ -506,11 +501,6 @@ $client_name= ucfirst($userProfile->first_name .' '.$userProfile->last_name);
                             @include('client_dashboard.messages')
                         <?php } ?>                    
                     </div>
-                    <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_text_messages"){ echo "active show"; } ?> " id="contactTextMessage" role="tabpanel" aria-labelledby="contact-basic-tab">
-                        <?php  if(Route::currentRouteName()=="contacts_clients_text_messages"){ ?>
-                            @include('client_dashboard.text_messages')
-                        <?php } ?>                    
-                    </div>
                     <div class="tab-pane fade <?php if(Route::currentRouteName()=="contacts_clients_email"){ echo "active show"; } ?> " id="contactEmails" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <?php  if(Route::currentRouteName()=="contacts_clients_email"){ ?>
                             @include('client_dashboard.email')
@@ -707,7 +697,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             <h5 class="text-center my-4">Would you like to add a new or existing court case?</h5>
 
             <section class="ul-widget-stat-s1">
-                <div class="row">
+                <div class="row" bladeFile="resources/views/client_dashboard/cientView.blade.php">
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         
                         <a data-toggle="modal" data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" onclick="loadStep1();"> 

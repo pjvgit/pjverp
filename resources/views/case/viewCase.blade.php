@@ -858,7 +858,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 <script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(document).ready(function () {        
+        $isSet=localStorage.getItem("addTimeEntry");
+        if($isSet!=""){
+            $("#loadTimeEntryPopup").modal("show");
+            loadTimeEntryPopup();
+        }
+        localStorage.setItem("addTimeEntry","");
         $('[data-toggle="popover"]').popover();
         $('[data-toggle="tooltip"]').tooltip();
         $('#duedate').datepicker({

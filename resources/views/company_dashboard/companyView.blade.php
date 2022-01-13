@@ -1997,7 +1997,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/companies/addNotes", 
+                // url: baseUrl + "/contacts/companies/addNotes", 
+                url: baseUrl + "/contacts/clients/addNotes", 
                 data: {"user_id": "{{$company_id}}"},
                 success: function (res) {
                     $("#addNoteModalArea").html(res);

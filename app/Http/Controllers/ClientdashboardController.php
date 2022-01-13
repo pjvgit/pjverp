@@ -465,18 +465,18 @@ class ClientdashboardController extends BaseController
             $userData=User::find($client_id);
         }
         
-        $LeadNotes = new ClientNotes; 
-        $LeadNotes->client_id=NULL;
-        $LeadNotes->note_date=NULL;
-        $LeadNotes->note_subject=NULL;
-        $LeadNotes->notes=NULL;
-        $LeadNotes->status="0";
-        $LeadNotes->created_by=NULL;
-        $LeadNotes->created_at=NULL;            
-        $LeadNotes->updated_by=NULL;
-        $LeadNotes->updated_at=NULL;
-        $LeadNotes->save();
-        $note_id=$LeadNotes->id;
+        $ClientNotes = new ClientNotes; 
+        $ClientNotes->client_id=NULL;
+        $ClientNotes->note_date=NULL;
+        $ClientNotes->note_subject=NULL;
+        $ClientNotes->notes=NULL;
+        $ClientNotes->status="0";
+        $ClientNotes->created_by=NULL;
+        $ClientNotes->created_at=NULL;            
+        $ClientNotes->updated_by=NULL;
+        $ClientNotes->updated_at=NULL;
+        $ClientNotes->save();
+        $note_id=$ClientNotes->id;
         return view('client_dashboard.addNote',compact('userData','client_id','note_id','caseMaster','case_id'));
     }
 
@@ -486,18 +486,18 @@ class ClientdashboardController extends BaseController
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterCompany = User::select("first_name","last_name","id","user_level")->where('user_level',4)->where("parent_user",Auth::user()->id)->get();
         $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
-        $LeadNotes = new ClientNotes; 
-        $LeadNotes->client_id=NULL;
-        $LeadNotes->note_date=NULL;
-        $LeadNotes->note_subject=NULL;
-        $LeadNotes->notes=NULL;
-        $LeadNotes->status="0";
-        $LeadNotes->created_by=NULL;
-        $LeadNotes->created_at=NULL;            
-        $LeadNotes->updated_by=NULL;
-        $LeadNotes->updated_at=NULL;
-        $LeadNotes->save();
-        $note_id=$LeadNotes->id;
+        $ClientNotes = new ClientNotes; 
+        $ClientNotes->client_id=NULL;
+        $ClientNotes->note_date=NULL;
+        $ClientNotes->note_subject=NULL;
+        $ClientNotes->notes=NULL;
+        $ClientNotes->status="0";
+        $ClientNotes->created_by=NULL;
+        $ClientNotes->created_at=NULL;            
+        $ClientNotes->updated_by=NULL;
+        $ClientNotes->updated_at=NULL;
+        $ClientNotes->save();
+        $note_id=$ClientNotes->id;
 
         return view('client_dashboard.addNoteForDashboard',compact('CaseMasterClient','CaseMasterCompany','CaseMasterData','note_id'));
     }
@@ -1977,23 +1977,40 @@ class ClientdashboardController extends BaseController
     //     return response()->json(['errors'=>'','msg'=>$returnMsg]);
     //     exit;   
     // }
+    // public function checkBeforProceed(Request $request)
+    // {
+    //     $returnMsg='';
+    //     $id=$request->userid;
+    //     $type= $request->type;
+    //     if($type=='case'){
+    //         $case_id=$request->id;
+    //         $caseCllientSelection = CaseClientSelection::join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users_additional_info.id","users_additional_info.client_portal_enable","users_additional_info.user_id")->where("case_client_selection.case_id",$case_id)->get();
+    //         $canAdd="no";
+    //         foreach($caseCllientSelection as $k=>$v){
+    //             if($v->client_portal_enable=="yes"){
+    //                 $canAdd="yes"; 
+    //             }
+    //         }
+    //         if($canAdd=="no"){
+    //             $returnMsg="The court case  you selected had no contacts that can receive messages";
+    //         }
+    //     }
+    //     return response()->json(['errors'=>'','msg'=>$returnMsg]);
+    //     exit;   
+    // }
     public function checkBeforProceed(Request $request)
     {
         $returnMsg='';
-        $id=$request->userid;
-        $type= $request->type;
-        if($type=='case'){
-            $case_id=$request->id;
-            $caseCllientSelection = CaseClientSelection::join('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select("users_additional_info.id","users_additional_info.client_portal_enable","users_additional_info.user_id")->where("case_client_selection.case_id",$case_id)->get();
-            $canAdd="no";
-            foreach($caseCllientSelection as $k=>$v){
-                if($v->client_portal_enable=="yes"){
-                    $canAdd="yes"; 
-                }
-            }
-            if($canAdd=="no"){
-                $returnMsg="The court case  you selected had no contacts that can receive messages";
-            }
+        $case_id=$request->case_id;
+        $case_name=$request->case_name;
+        $user_id=$request->user_id;
+        $userName=$request->userName;   
+             
+        $getClientWiseCaseList=$this->getClientWiseCaseList($user_id);
+        if(count($getClientWiseCaseList) == 0){
+            $returnMsg.='The <b>'.$userName.'</b> recipients are not directly linked to case <b>'.$case_name.'</b> Send anyway?';
+        }else{
+
         }
         return response()->json(['errors'=>'','msg'=>$returnMsg]);
         exit;   
@@ -2329,7 +2346,7 @@ class ClientdashboardController extends BaseController
         $mail_body = str_replace('{year}', date('Y'), $mail_body);        
 
         $clientData=User::find($id);
-            if(isset($clientData->email)){
+        if(isset($clientData->email)){
             $user = [
                 "from" => FROM_EMAIL,
                 // "from_title" => FROM_EMAIL_TITLE,
@@ -2340,8 +2357,9 @@ class ClientdashboardController extends BaseController
                 "to" => $clientData->email,
                 "full_name" => "",
                 "mail_body" => $mail_body
-            ];
+            ];            
             $sendEmail = $this->sendMail($user);
+            \Log::info("sendMailGlobal > email > ".$clientData->email. ' > sendMail > '.$sendEmail);
         }
         return true;
     }

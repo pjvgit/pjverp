@@ -141,7 +141,7 @@ if(isset($_GET['type'])){
                         <a class="nav-link <?php if(in_array(Route::currentRouteName(),["case_details/info","case_details/activity","case_details/tasks","case_details/notes","case_details/calendars","case_details/intake_forms"])){ echo "active show"; } ?>" id="contact-basic-tab"  href="{{URL::to('leads/'.$user_id.'/case_details/info')}}" >Potential Case Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">Communications</a>
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">Communications</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["case_details/invoices","case_details/trust_history","case_details/credit_history"])){ echo "active show"; } ?>" id="billing-basic-tab" href="{{URL::to('leads/'.$user_id.'/case_details/invoices')}}">Billing</a>
@@ -295,14 +295,8 @@ if(isset($_GET['type'])){
                         }
                         ?>  
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/text_messages","communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/calls","communications/mailbox"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
-                            <!-- <div class="nav-item">
-                                <a class="nav-link pendo-case-recent-activity <?php if(Route::currentRouteName() =="communications/text_messages"){ echo "active"; } ?>" data-page="recent_activity"
-                                    href="{{URL::to('leads/'.$user_id.'/communications/text_messages')}}">
-                                    <span class="d-flex"> <i class="i-Newspaper-2 text-16 mr-1"></i>&nbsp; Text Messages  </span>
-                                </a>
-                            </div> -->
                             <div class="nav-item">
                                 <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/calls"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('leads/'.$user_id.'/communications/calls')}}">
                                     <span> <i class="i-Old-Telephone text-16 mr-1"></i>Call Log</span>
@@ -315,14 +309,6 @@ if(isset($_GET['type'])){
                             </div>
                         </div>
                         <hr class="mt-2 mb-2">
-                        <?php
-                        // if(Route::currentRouteName()=="communications/text_messages"){
-                        ?>
-                                <!-- @include('lead.details.communication.text_messages') -->
-                        <?php
-                        // }
-                        ?>  
-
                         <?php
                         if(Route::currentRouteName()=="communications/calls"){
                         ?>
@@ -1370,9 +1356,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     $('td:eq(4)', nRow).html('<div class="text-left more">'+aData.message+'</div>');
 
                     if(aData.call_resolved=="yes"){
-                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" style="display:none;" class="error">Unresolved</span><input id="'+aData.id+'" type="checkbox" class="yes" name="call_resolved" checked="checked"><span class="slider"></span></label>';
+                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" style="display:none;">Unresolved</span><input id="'+aData.id+'" type="checkbox" class="yes" name="call_resolved" checked="checked"><span class="slider"></span></label>';
                     }else if(aData.call_resolved=="no"){
-                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'" style="display:none;" class="error">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" >Unresolved</span><input id="'+aData.id+'" type="checkbox" class="no"  name="call_resolved" ><span class="slider"></span></label>';
+                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'" style="display:none;">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" >Unresolved</span><input id="'+aData.id+'" type="checkbox" class="no"  name="call_resolved" ><span class="slider"></span></label>';
                     }
                     $('td:eq(5)', nRow).html('<div class="d-flex align-items-center">'+downloadOption+'</div>');
 

@@ -2,7 +2,7 @@
     <span id="response"></span>
     @csrf
     <div id="showError" class="showError" style="display:none"></div>
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/client_dashboard/addNoteForDashboard.blade.php">
         <div class="alert alert-warning warning-message" id="autoSavingMsg">Auto-saving of notes is disabled until a
             contact or court case is selected.</div>
  

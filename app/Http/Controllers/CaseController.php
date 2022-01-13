@@ -1270,25 +1270,30 @@ class CaseController extends BaseController
         $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim(($timeSlot[1]??convertUTCToUserTimeZone('dateOnly'))))))), auth()->user()->user_timezone ?? 'UTC')));
             
         $TimeEntryLog=[];
-        $TimeEntry=TaskTimeEntry::select("*")->where("case_id",$case_id)
+        $TimeEntry=TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
+        ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+        ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
+        ->leftJoin("invoices","invoices.id","=","task_time_entry.invoice_link")
+        ->select('task_time_entry.*')
+        ->where("case_master.id",$case_id)
         ->whereBetween("task_time_entry.entry_date",[$startDt,$endDt])
         ->get();
         foreach($TimeEntry as $TK=>$TE){
             if($TE['rate_type']=="flat"){
                 if($TE['time_entry_billable']=="yes"){
-                        $timeTotalBillable+=$TE['entry_rate'];
-                        $timeTotalBillableHours+=$TE['duration'];
+                        $timeTotalBillable+= str_replace(",","",$TE['entry_rate']);
+                        $timeTotalBillableHours+=str_replace(",","",$TE['duration']);
                 }else{
-                        $timeTotalNonBillable+=$TE['entry_rate'];
-                        $timeTotalNonBillableHours+=$TE['duration'];
+                        $timeTotalNonBillable+= str_replace(",","",$TE['entry_rate']);
+                        $timeTotalNonBillableHours+=str_replace(",","",$TE['duration']);
                 }
             }else{
                 if($TE['time_entry_billable']=="yes"){
-                    $timeTotalBillable+=($TE['entry_rate']*$TE['duration']);
-                    $timeTotalBillableHours+=$TE['duration'];
+                    $timeTotalBillable+=( str_replace(",","",$TE['entry_rate'])*str_replace(",","",$TE['duration']));
+                    $timeTotalBillableHours+=str_replace(",","",$TE['duration']);
                 }else{
-                    $timeTotalNonBillable+=($TE['entry_rate']*$TE['duration']);
-                    $timeTotalNonBillableHours+=$TE['duration'];
+                    $timeTotalNonBillable+=( str_replace(",","",$TE['entry_rate'])*str_replace(",","",$TE['duration']));
+                    $timeTotalNonBillableHours+=str_replace(",","",$TE['duration']);
 
                 }
             }
@@ -1296,18 +1301,19 @@ class CaseController extends BaseController
             if($TE['status']=="paid"){
                 if($TE['rate_type']=="flat"){
                     if($TE['time_entry_billable']=="yes"){
-                            $invoiceEntry+=$TE['entry_rate'];
-                            $invoiceEntryHours+=$TE['duration'];
+                            $invoiceEntry+= str_replace(",","",$TE['entry_rate']);
+                            $invoiceEntryHours+=str_replace(",","",$TE['duration']);
                     }
                 }else{
                     if($TE['time_entry_billable']=="yes"){
-                        $invoiceEntry+=($TE['entry_rate']*$TE['duration']);
-                        $invoiceEntryHours+=$TE['duration'];
+                        $invoiceEntry+=( str_replace(",","",$TE['entry_rate'])*str_replace(",","",$TE['duration']));
+                        $invoiceEntryHours+=str_replace(",","",$TE['duration']);
                     }
                 }
     
             }
         }
+        \Log::info("timeTotalBillableHours > " .$timeTotalBillableHours);
         $TimeEntryLog['billable_entry_hours']=$timeTotalBillableHours;
         $TimeEntryLog['non_billable_entry_hours']=$timeTotalNonBillableHours;
         $TimeEntryLog['billable_entry']=$timeTotalBillable;

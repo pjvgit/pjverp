@@ -181,9 +181,9 @@ td,th{
                     $('td:eq(4)', nRow).html('<div class="text-left more">'+aData.message+'</div>');
 
                     if(aData.call_resolved=="yes"){
-                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" style="display:none;" class="error">Unresolved</span><input id="'+aData.id+'" type="checkbox" class="yes" name="call_resolved" checked="checked"><span class="slider"></span></label>';
+                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" style="display:none;">Unresolved</span><input id="'+aData.id+'" type="checkbox" class="yes" name="call_resolved" checked="checked"><span class="slider"></span></label>';
                     }else if(aData.call_resolved=="no"){
-                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'" style="display:none;" class="error">Resolved</span><span id="ListOnonResolveText_'+aData.id+'" >Unresolved</span><input id="'+aData.id+'" type="checkbox" class="no"  name="call_resolved" ><span class="slider"></span></label>';
+                        var downloadOption='<label class="switch pr-3 switch-success mr-3"><span id="ListOresolveText_'+aData.id+'" style="display:none;">Resolved</span><span id="ListOnonResolveText_'+aData.id+'">Unresolved</span><input id="'+aData.id+'" type="checkbox" class="no"  name="call_resolved" ><span class="slider"></span></label>';
                     }
                     $('td:eq(5)', nRow).html('<div class="d-flex align-items-center">'+downloadOption+'</div>');
 

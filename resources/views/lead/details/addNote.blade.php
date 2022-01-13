@@ -4,7 +4,7 @@
     <div id="showError" class="showError" style="display:none"></div>
 
     @csrf
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/lead/details/addNote.blade.php">
         <input class="form-control" value="{{$id}}" id="user_id" maxlength="250" name="user_id"
         type="hidden">
         <div class="form-group row">

@@ -280,12 +280,12 @@
         $("#show_contact_group_text").hide();
         $("#show_contact_group_dropdown").show();
         $('#company_name').select2();
-        $("#countryListData").select2({
-            placeholder: "Select a country",
-            theme: "classic",
-            allowClear: true,
-            dropdownParent: $("#AddContact")
-        });
+        // $("#countryListData").select2({
+        //     placeholder: "Select a country",
+        //     theme: "classic",
+        //     allowClear: true,
+        //     dropdownParent: $("#AddContactModal")
+        // });
         $("#createNewUser").validate({
             rules: {
                 first_name: {
@@ -368,134 +368,200 @@
         $("#show_company_text").hide();
 
     });
+    
+    $('.submitContact').click(function (e) {
+    // $('#createNewUser').submit(function (e) {
+        var page = $(this).val();
+        $(".submitContact").attr("disabled", true);
+        $("#innerLoader").css('display', 'block');
+        e.preventDefault();
 
-    $(":submit").on('click', function () {
-        console.log("resources/views/client/addClient.blade.php > 373");
-        // alert($(this).val());
-        if ($(this).val() == 'savandaddcase') {
-            $('#createNewUser').submit(function (e) {
-                $(".submitContact").attr("disabled", true);
-                $("#innerLoader").css('display', 'block');
-                e.preventDefault();
-
-                if (!$('#createNewUser').valid()) {
-                    $("#innerLoader").css('display', 'none');
-                    $('.submitContact').removeAttr("disabled");
-                    return false;
-                }
-                var dataString = '';
-                dataString = $("#createNewUser").serialize();
-                $("#preloader").show();
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "/contacts/saveAddContact", // json datasource
-                    data: dataString,
-                    beforeSend: function (xhr, settings) {
-                        settings.data += '&saveandaddcase=yes';
-                    },
-                    success: function (res) {
-                        $("#preloader").hide();
-                        $("#innerLoader").css('display', 'block');
-                        if (res.errors != '') {
-                            $('#showError').html('');
-                            var errotHtml =
-                                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                            $.each(res.errors, function (key, value) {
-                                errotHtml += '<li>' + value + '</li>';
-                            });
-                            errotHtml += '</ul></div>';
-                            $('#showError').append(errotHtml);
-                            $('#showError').show();
-                            $("#innerLoader").css('display', 'none');
-                            $('.submitContact').removeAttr("disabled");
-                            $('#AddContactModal').animate({
-                                scrollTop: 0
-                            }, 'slow');
-
-                            return false;
-                        } else {
-                            loadStep1(res.user_id);
-                            $('#AddCaseModel').modal('show');
-
-                        }
-                    }
-                });
-            });
-        } else {
-            $('#createNewUser').submit(function (e) {
-            console.log("resources/views/client/addClient.blade.php > 424");
-                var me = $(this);
-                e.preventDefault();
-
-                if ( me.data('requestRunning') ) {
-                    return;
-                }
-
-                me.data('requestRunning', true);
-                 $(".submitContact").attr("disabled", true);
-                $("#innerLoader").css('display', 'block');
-                e.preventDefault();
-
-                if (!$('#createNewUser').valid()) {
-                    $("#innerLoader").css('display', 'none');
-                    $('.submitContact').removeAttr("disabled");
-                    me.data('requestRunning', false);
-                    return false;
-                }
-                var dataString = '';
-                dataString = $("#createNewUser").serialize();
-                $("#preloader").show();
-                $.ajax({
-                    type: "POST",
-                    url: baseUrl + "/contacts/saveAddContact", // json datasource
-                    data: dataString,
-                    success: function (res) {
-                        $("#innerLoader").css('display', 'block');
-                        if (res.errors != '') {
-                            $("#preloader").hide();
-                            $('#showError').html('');
-                            var errotHtml =
-                                '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
-                            $.each(res.errors, function (key, value) {
-                                errotHtml += '<li>' + value + '</li>';
-                            });
-                            errotHtml += '</ul></div>';
-                            $('#showError').append(errotHtml);
-                            $('#showError').show();
-                            $("#innerLoader").css('display', 'none');
-                            $('.submitContact').removeAttr("disabled");
-                            // $("#AddContactModal").scrollTop(0);
-                            $('#AddContactModal').animate({
-                                scrollTop: 0
-                            }, 'slow');
-
-                            return false;
-                        } else {
-                            <?php if($adjustment_token !=''){?>
-                                var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token={{$adjustment_token}}&contact='+res.user_id;
-                                window.location.href=URLS;
-                            <?php }else{ ?>
-                            localStorage.setItem("addedClient", res.user_id);
-                            toastr.success('Your client has been created.', "", {
-                                progressBar: !0,
-                                positionClass: "toast-top-full-width",
-                                containerId: "toast-top-full-width"
-                            });
-                            window.location.reload();
-                            // $("#response").html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Success!</b> Changes saved.</div>');
-                            // $("#response").show();
-                            // $("#innerLoader").css('display', 'none');
-                            // // $('#EditContactModal').modal('hide'); 
-                            // $('#submit').removeAttr("disabled");                
-                            <?php } ?>
-                        }
-                    },complete: function() {
-                        me.data('requestRunning', false);
-                    }
-                });
-            });
+        if (!$('#createNewUser').valid()) {
+            $("#innerLoader").css('display', 'none');
+            $('.submitContact').removeAttr("disabled");
+            return false;
         }
+        var dataString = '';
+        dataString = $("#createNewUser").serialize();
+        $("#preloader").show();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/contacts/saveAddContact", // json datasource
+            data: dataString,
+            beforeSend: function (xhr, settings) {
+                settings.data += '&saveandaddcase=yes';
+            },
+            success: function (res) {
+                $("#preloader").hide();
+                $("#innerLoader").css('display', 'block');
+                if (res.errors != '') {
+                    $('#showError').html('');
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    $.each(res.errors, function (key, value) {
+                        errotHtml += '<li>' + value + '</li>';
+                    });
+                    errotHtml += '</ul></div>';
+                    $('#showError').append(errotHtml);
+                    $('#showError').show();
+                    $("#innerLoader").css('display', 'none');
+                    $('.submitContact').removeAttr("disabled");
+                    $('#AddContactModal').animate({
+                        scrollTop: 0
+                    }, 'slow');
+
+                    return false;
+                } else {
+                    toastr.success('Your client has been created.', "", {
+                    progressBar: !0,
+                    positionClass: "toast-top-full-width",
+                    containerId: "toast-top-full-width"
+                    });
+                    if (page == 'savandaddcase') {
+                        localStorage.setItem("addedClient", res.user_id);
+                        loadStep1(res.user_id);
+                        $('#AddCaseModel').modal('show');
+                    }else{
+                        <?php if($adjustment_token !=''){?>
+                            var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token={{$adjustment_token}}&contact='+res.user_id;
+                            window.location.href=URLS;
+                        <?php }else{ ?>
+                            window.location.reload();
+                        <?php } ?>
+                    }
+
+                }
+            }
+        });
     });
+
+    // $(":submit").on('click', function () {
+    //     console.log("resources/views/client/addClient.blade.php > 373");
+    //     // alert($(this).val());
+    //     if ($(this).val() == 'savandaddcase') {
+    //         $('#createNewUser').submit(function (e) {
+    //             $(".submitContact").attr("disabled", true);
+    //             $("#innerLoader").css('display', 'block');
+    //             e.preventDefault();
+
+    //             if (!$('#createNewUser').valid()) {
+    //                 $("#innerLoader").css('display', 'none');
+    //                 $('.submitContact').removeAttr("disabled");
+    //                 return false;
+    //             }
+    //             var dataString = '';
+    //             dataString = $("#createNewUser").serialize();
+    //             $("#preloader").show();
+    //             $.ajax({
+    //                 type: "POST",
+    //                 url: baseUrl + "/contacts/saveAddContact", // json datasource
+    //                 data: dataString,
+    //                 beforeSend: function (xhr, settings) {
+    //                     settings.data += '&saveandaddcase=yes';
+    //                 },
+    //                 success: function (res) {
+    //                     $("#preloader").hide();
+    //                     $("#innerLoader").css('display', 'block');
+    //                     if (res.errors != '') {
+    //                         $('#showError').html('');
+    //                         var errotHtml =
+    //                             '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+    //                         $.each(res.errors, function (key, value) {
+    //                             errotHtml += '<li>' + value + '</li>';
+    //                         });
+    //                         errotHtml += '</ul></div>';
+    //                         $('#showError').append(errotHtml);
+    //                         $('#showError').show();
+    //                         $("#innerLoader").css('display', 'none');
+    //                         $('.submitContact').removeAttr("disabled");
+    //                         $('#AddContactModal').animate({
+    //                             scrollTop: 0
+    //                         }, 'slow');
+
+    //                         return false;
+    //                     } else {
+    //                         loadStep1(res.user_id);
+    //                         $('#AddCaseModel').modal('show');
+
+    //                     }
+    //                 }
+    //             });
+    //         });
+    //     } else {
+    //         $('#createNewUser').submit(function (e) {
+    //         console.log("resources/views/client/addClient.blade.php > 424");
+    //             var me = $(this);
+    //             e.preventDefault();
+
+    //             if ( me.data('requestRunning') ) {
+    //                 return;
+    //             }
+
+    //             me.data('requestRunning', true);
+    //              $(".submitContact").attr("disabled", true);
+    //             $("#innerLoader").css('display', 'block');
+    //             e.preventDefault();
+
+    //             if (!$('#createNewUser').valid()) {
+    //                 $("#innerLoader").css('display', 'none');
+    //                 $('.submitContact').removeAttr("disabled");
+    //                 me.data('requestRunning', false);
+    //                 return false;
+    //             }
+    //             var dataString = '';
+    //             dataString = $("#createNewUser").serialize();
+    //             $("#preloader").show();
+    //             $.ajax({
+    //                 type: "POST",
+    //                 url: baseUrl + "/contacts/saveAddContact", // json datasource
+    //                 data: dataString,
+    //                 success: function (res) {
+    //                     $("#innerLoader").css('display', 'block');
+    //                     if (res.errors != '') {
+    //                         $("#preloader").hide();
+    //                         $('#showError').html('');
+    //                         var errotHtml =
+    //                             '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+    //                         $.each(res.errors, function (key, value) {
+    //                             errotHtml += '<li>' + value + '</li>';
+    //                         });
+    //                         errotHtml += '</ul></div>';
+    //                         $('#showError').append(errotHtml);
+    //                         $('#showError').show();
+    //                         $("#innerLoader").css('display', 'none');
+    //                         $('.submitContact').removeAttr("disabled");
+    //                         // $("#AddContactModal").scrollTop(0);
+    //                         $('#AddContactModal').animate({
+    //                             scrollTop: 0
+    //                         }, 'slow');
+
+    //                         return false;
+    //                     } else {
+    //                         <?php if($adjustment_token !=''){?>
+    //                             var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token={{$adjustment_token}}&contact='+res.user_id;
+    //                             window.location.href=URLS;
+    //                         <?php }else{ ?>
+    //                         localStorage.setItem("addedClient", res.user_id);
+    //                         toastr.success('Your client has been created.', "", {
+    //                             progressBar: !0,
+    //                             positionClass: "toast-top-full-width",
+    //                             containerId: "toast-top-full-width"
+    //                         });
+    //                         window.location.reload();
+    //                         // $("#response").html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Success!</b> Changes saved.</div>');
+    //                         // $("#response").show();
+    //                         // $("#innerLoader").css('display', 'none');
+    //                         // // $('#EditContactModal').modal('hide'); 
+    //                         // $('#submit').removeAttr("disabled");                
+    //                         <?php } ?>
+    //                     }
+    //                 },complete: function() {
+    //                     me.data('requestRunning', false);
+    //                 }
+    //             });
+    //         });
+    //     }
+    // });
 
 
     $('#collapsed').click(function () {

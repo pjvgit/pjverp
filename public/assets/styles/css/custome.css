@@ -719,3 +719,6 @@ p {
 #AddCaseModelUpdate.modal {
     z-index: 1300 !important;
 }
+#AddContactModal.modal {
+    z-index: 1600 !important;
+}

@@ -3,7 +3,7 @@
     <span id="response"></span>
     @csrf
     <div id="showError" class="showError" style="display:none"></div>
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/company_dashboard/addNote.blade.php">
         <input class="form-control" value="{{$client_id}}" id="client_id" maxlength="250" name="client_id"
             type="hidden">
         <input class="form-control" value="{{$note_id}}" id="note_id" maxlength="250" name="note_id" type="hidden">

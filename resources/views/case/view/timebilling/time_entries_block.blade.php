@@ -9,8 +9,8 @@
             $InvoicePercent=$TimeEntryLog['invoice_hours_total']/$TimeEntryLog['total_entry']*100;
         } 
         ?>
-        <div class="pr-4 col-12 col-md-3 col-lg-4"><strong class="h5"><span
-                    class="text-info">Billable</span> vs total</strong>
+        <div class="pr-4 col-12 col-md-3 col-lg-4">
+            <strong class="h5"><span class="text-info">Billable</span> vs total</strong>
             <div class="my-1 progress" style="height: 10px;">
                 <div class="progress-bar bg-info" role="progressbar" aria-valuenow="10000" aria-valuemin="0"
                     aria-valuemax="10000" style="width: {{$BillablePercent}}%"></div>
@@ -18,8 +18,8 @@
             <div class="h3 mb-0 font-weight-bold">${{number_format($TimeEntryLog['billable_entry'],2)}} </div>
             <div>{{$TimeEntryLog['billable_entry_hours']}} hour(s)</div>
         </div>
-        <div class="pr-4 col-12 col-md-3 col-lg-4"><strong class="h5"><span
-                    class="text-success">Invoiced</span> vs total</strong>
+        <div class="pr-4 col-12 col-md-3 col-lg-4">
+            <strong class="h5"><span class="text-success">Invoiced</span> vs total</strong>
             <div class="my-1 progress" style="height: 10px;">
                 <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0"
                     aria-valuemax="10000" style="width: {{$InvoicePercent}}%;"></div>
@@ -27,7 +27,8 @@
             <div class="h3 mb-0 font-weight-bold">${{number_format($TimeEntryLog['invoice_hours_total'],2)}}</div>
             <div>{{$TimeEntryLog['invoice_hours']}} hour(s)</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4"><strong class="h5">Total amount and hours recorded</strong>
+        <div class="col-12 col-md-6 col-lg-4">
+            <strong class="h5">Total amount and hours recorded</strong>
             <div class="h1 mb-1 font-weight-bold">${{number_format($TimeEntryLog['total_entry'],2)}}</div>
             <div>{{$TimeEntryLog['total_entry_hours']}} hour(s)</div>
         </div>

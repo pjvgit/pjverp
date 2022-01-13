@@ -925,17 +925,14 @@
                                             </div>
                                             @if(IsCaseSolEnabled() == 'yes')
                                             <div class="form-group row">
-                                                <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of
-                                                    Limitations</label>
+                                                <label for="inputEmail3" class="col-sm-2 col-form-label">Statute of Limitations</label>
                                                 <div class="col-md-10 form-group mb-3">
-                                                    <input class="form-control datepicker" id="case_statute" value=""
-                                                        name="case_statute" type="text" placeholder="mm/dd/yyyy">
+                                                    <input class="form-control datepicker" id="case_statute" value="" name="case_statute" type="text" placeholder="mm/dd/yyyy">
 
                                                 </div>
                                             </div>
                                             <div class="form-group row" id="addMoreReminder">
-                                                <label for="sol_reminders" class="col-sm-2 col-form-label">SOL
-                                                    Reminders</label>
+                                                <label for="sol_reminders" class="col-sm-2 col-form-label">SOL Reminders</label>
                                                 <div class="col">
                                                     @forelse (firmSolReminders() as $key => $item)
                                                         <div class="row form-group fieldGroup">
@@ -1117,7 +1114,7 @@
                                                         name="lead_attorney" class="form-control custom-select col">
                                                         <option value=""></option>
                                                         <?php foreach($loadFirmUser as $key=>$user){?>
-                                                        <option value="{{$user->id}}">{{$user->first_name}}
+                                                        <option <?php if($user->id==Auth::User()->id){ echo "selected=selected"; } ?> value="{{$user->id}}">{{$user->first_name}}
                                                             {{$user->last_name}}</option>
                                                         <?php } ?>
                                                     </select>
@@ -1171,8 +1168,7 @@
                                                 <tbody>
                                                     <?php foreach($loadFirmUser as $key=>$user){?>
                                                     <tr>
-                                                        <td><input class="test-all-users-checkbox" type="checkbox"
-                                                                id="{{$user->id}}" name="selectedUSer[{{$user->id}}]">
+                                                        <td><input <?php if($user->id==Auth::User()->id){ echo "checked=checked";} ?> class="test-all-users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]">
                                                         </td>
                                                         <td>{{$user->first_name}}</td>
                                                         <td>{{$user->last_name}}</td>

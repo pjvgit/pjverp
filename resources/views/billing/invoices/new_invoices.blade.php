@@ -4277,7 +4277,24 @@ if(!isset($addition)){ $addition=0;}
         if ($(this).is(":checked")) {
             $('#bill_from_date').removeAttr("disabled");
             $('#bill_to_date').removeAttr("disabled");
-            $('#adjustment_delete').val('1');
+            swal({
+                title: 'warning',
+                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0CC27E',
+                cancelButtonColor: '#FF586B',
+                cancelButtonText: 'Close',
+                confirmButtonText: 'Proceed',
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-danger  mr-2',
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function(isConfirm){
+                if (isConfirm){     
+                    $('#adjustment_delete').val('1');
+                }
+            });
         } else {
             $("#bill_from_date").prop("disabled", true);
             $("#bill_to_date").prop("disabled", true);

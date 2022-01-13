@@ -302,6 +302,57 @@
         allowClear: true,
         dropdownParent: $("#addNewMessagePopup"),
     });
+    $('#sendto').on("select2:select", function (e) {
+        var userID = e.params.data.id.split('-');        
+        if(userID[0] == 'client' && userID[1] == "{{Auth::user()->id}}"){
+            var wanted_id = e.params.data.id;
+            var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
+            wanted_option.prop('selected', false);
+            $('#sendto').trigger('change.select2');            
+            swal('Error!', 'You cannot send a message to yourself');        
+        }
+    });
+
+    $('#case_link').on('change',function(){
+        if($(this).val() != ''){
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/checkBeforProceed",
+                data: {
+                    "case_id": $(this).val(),
+                    "case_name": $("#case_link option:selected").text(),
+                    "user_id": $("#user_id").val(),
+                    "userName" : $("#userName").val(),
+                },
+                success: function (res) {
+                    if (res.msg != "") {
+                        swal({
+                            title: 'Please note',
+                            text: res.msg,
+                            // type: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#0CC27E',
+                            cancelButtonColor: '#FF586B',
+                            confirmButtonText: 'Send now',
+                            cancelButtonText: 'Do not send',
+                            confirmButtonClass: 'btn btn-primary ml-5',
+                            cancelButtonClass: 'btn btn-default',
+                            reverseButtons: true,
+                            buttonsStyling: false
+                            }).then(function () {
+                                $(function () {
+                                    return true;
+                                });
+                            }, function (dismiss) {
+                                $('#case_link').val('');
+                        }); 
+                    }
+                }
+            })
+        }
+    });
+
+
     // $('#sendto').on("select2:select", function (evt) {
     //     var element = evt.params.data.element;
     //     var $element = $(element);
@@ -412,6 +463,7 @@
         }
         var dataString = '';
         dataString = $("#sendEmails").serialize();
+        $("#preloader").show();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/clients/sendNewMessageToUser", // json datasource
@@ -422,6 +474,7 @@
             success: function (res) {
                 $("#innerLoaderTime").css('display', 'block');
                 if (res.errors != '') {
+                    $("#preloader").hide();
                     $('#showError').html('');
                     var errotHtml =
                         '<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';

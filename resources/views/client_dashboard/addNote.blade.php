@@ -3,7 +3,7 @@
     <span id="response"></span>
     @csrf
     <div id="showError" class="showError" style="display:none"></div>
-    <div class="col-md-12">
+    <div class="col-md-12" bladeFile="resources/views/client_dashboard/addNote.blade.php">
         <?php if($client_id!=''){?>
             <input class="form-control" value="{{$client_id}}" id="client_id" maxlength="250" name="client_id"type="hidden">
         <?php } ?>
@@ -188,7 +188,7 @@
                     }else{
                         $("#addNoteModal").modal("hide");
                         // Store
-                        localStorage.setItem("addTimeEntry", "{{$client_id}}");
+                        localStorage.setItem("addTimeEntry", "{{ ($client_id != '') ? $client_id : $case_id}}");
                     }   
                     
                 }
