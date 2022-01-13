@@ -85,7 +85,13 @@ var conektaSuccessResponseHandler = function (token) {
     /* Inserta el token_id en la forma para que se envíe al servidor */
     $("#conekta_token_id").val(token.id);
     /* and submit */
-    $("#card_form").get(0).submit();
+    if($("#card_form").length > 0) {
+        // Online payment from client portal
+        $("#card_form").get(0).submit();
+    } else {
+        // Online payment from lawyer
+        didOnlinePayment();
+    }
 };
 var conektaErrorResponseHandler = function (response) {
     /* Conekta card erros */
@@ -110,7 +116,10 @@ var conektaErrorResponseHandler = function (response) {
     }
     $("#error-alert .error-text").text(response.message);
     $("#error-alert").show();
-    $(".preloader").css("display", "none");
+    $(".preloader, .innerLoader").css("display", "none");
+    $('.scrollbar').animate({
+        scrollTop: $('#error-alert').offset().top - 20 //#DIV_ID is an example. Use the id of your destination on the page
+    }, 'slow');
 };
 $("#card_form").submit(function (event) {
     event.preventDefault();
@@ -122,6 +131,9 @@ $("#card_form").submit(function (event) {
     return false;
 });
 
+/**
+ * Cash payment
+ */
 $("#cash_pay_form").validate({
     ignore: [],
     rules: {
@@ -165,6 +177,9 @@ $(document).on('keypress , paste', '.phone-number', function (e) {
     }
 });
 
+/**
+ * Bank tansfer payment
+ */
 $("#bank_pay_form").validate({
     ignore: [],
     rules: {
@@ -195,4 +210,91 @@ $("#bank_pay_form").validate({
     submitHandler: function(form) {
         form.submit();
     }
+});
+
+
+/**
+ * From lawyer portal, online payment
+ */
+ $("#pay_online_payment").validate({
+    ignore: "hidden",
+    rules: {
+        'client_id': {
+            required: true,
+        },
+        amount: {
+            required: true,
+            maxamount: true,
+            minStrict: true
+        },
+        online_payment_method: {
+            required: true
+        },
+        'name_on_card': {
+            required: true,
+            validName: true
+        },
+        'phone_number': {
+            required: true,
+            number: true,
+            minlength: 10,
+            maxlength: 13
+        },
+        'card_number': {
+            required: true
+        },
+        'expiry_month': {
+            required: true,
+            validMonth: true
+        },
+        'expiry_year': {
+            required: true,
+            validYear: true
+        },
+        'cvv': {
+            required: true,
+            validCvv: true
+        },
+    },
+    messages: {
+        name_on_card: {
+            required: "Favor de ingresar esta información.",
+        },
+        phone_number: {
+            required: "Favor de ingresar esta información.",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+        },
+        card_number: {
+            required: "Favor de ingresar esta información.",
+        },
+        expiry_month: {
+            required: "Favor de ingresar esta información.",
+        },
+        expiry_year: {
+            required: "Favor de ingresar esta información.",
+        },
+        cvv: {
+            required: "Favor de ingresar esta información.",
+        },
+    },
+    errorPlacement: function (error, element) {
+        if (element.attr("name") == "expiry_month")
+        error.insertAfter(".card-date-error");
+        else if (element.attr("name") == "expiry_year")
+        error.insertAfter(".card-date-error");
+        else if (element.attr("name") == "client_id")
+        error.insertAfter(".clientid-error");
+        else
+        error.insertAfter(element);
+    },
+});
+
+$("#card_form").submit(function (event) {
+    event.preventDefault();
+    $("#error-alert").hide();
+    if ($(this).valid()) {
+        $(".preloader").css("display", "inline-block");
+        Conekta.token.create($(this)[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
+    }
+    return false;
 });

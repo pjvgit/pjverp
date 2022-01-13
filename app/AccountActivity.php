@@ -130,11 +130,14 @@ class AccountActivity extends Authenticatable
         else if($paymentType=="refund deposit"){
             $ftype="Refund Payment into Credit (Operating Account)";
         }
-        else if($paymentType=="payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "normal"){
+        else if($paymentType=="payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && in_array($this->from_pay, ["normal","online"])){
             $ftype = "Payment into Operating (Operating Account)";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "trust"){
             $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+        }
+        else if($paymentType=="payment" && $this->is_lead_invoice == "no" && $this->pay_type == "client" && $this->from_pay == "online"){
+            $ftype = "Payment into Operating (Operating Account)";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "no"){
             $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
@@ -145,11 +148,14 @@ class AccountActivity extends Authenticatable
         else if($paymentType=="refund payment deposit"){
             $ftype = "Refund Payment into Trust (Trust Account)";
         }
-        else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "normal"){
+        else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && in_array($this->from_pay, ["normal","online"])){
             $ftype = "Refund Payment into Operating (Operating Account)";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "trust"){
             $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+        }
+        else if($paymentType=="refund payment" && $this->is_lead_invoice == "no" && $this->pay_type == "client" && $this->from_pay == "online"){
+            $ftype = "Refund Payment into Operating (Operating Account)";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "no"){
             $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";

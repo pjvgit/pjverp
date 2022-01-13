@@ -50,7 +50,7 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" id="case-tab" data-toggle="tab" href="#cash_tab" role="tab" aria-controls="cash_tab" aria-selected="false"> Cash
+                                                    <a class="nav-link" id="cash-tab" data-toggle="tab" href="#cash_tab" role="tab" aria-controls="cash_tab" aria-selected="false"> Cash
                                                     </a>
                                                 </li>
                                                 <li class="nav-item">
@@ -111,7 +111,7 @@
                                                         </div>
                                                     </form>
                                                 </div>
-                                                <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="case-tab">
+                                                <div class="tab-pane fade" id="cash_tab" role="tabpanel" aria-labelledby="cash-tab">
                                                     <div class="col-md-6 mt-5">
                                                         <form id="cash_pay_form" method="POST" action="{{ route('client/bills/payment/cash') }}">
                                                             @csrf
@@ -227,10 +227,8 @@
 
 @section('bottom-js')
 <script type="text/javascript">
-    // Conekta Public Key
-    Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
-</script>
-<script>
+// Conekta Public Key
+Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
 $(document).ready(function () {
 	// Smart Wizard
 	$('#smartwizard').smartWizard({

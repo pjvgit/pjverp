@@ -3644,12 +3644,16 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->editColumn('related_to_invoice_id', function ($data) {
-                if($data->related_to_invoice_id)
-                    return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
-                else if($data->related_to_fund_request_id)
+                if($data->related_to_invoice_id) {
+                    if($data->invoice)
+                        return '<a href="'.route("bills/invoices/view", @$data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
+                    else
+                        return sprintf("%06d", $data->related_to_invoice_id);
+                } else if($data->related_to_fund_request_id) {
                     return $data->fundRequest->padding_id;
-                else
+                } else {
                     return '--';
+                }
             })
             ->editColumn('payment_method', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";

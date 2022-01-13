@@ -332,7 +332,7 @@ class BillingController extends Controller
                                     'payment_method' => "Card",
                                     'payment_type' => "deposit",
                                     'pay_type' => "trust",
-                                    'from_pay' => "client",
+                                    'from_pay' => "online",
                                     'trust_history_id' => $trustHistory->id ?? Null,
                                     'firm_id' => $client->firm_name,
                                     'section' => "request",
@@ -372,7 +372,7 @@ class BillingController extends Controller
                                     'trust_history_id' => $creditHistory->id ?? Null,
                                     'status' => "unsent",
                                     'pay_type' => "client",
-                                    'from_pay' => "client",
+                                    'from_pay' => "online",
                                     'firm_id' => $client->firm_name,
                                     'section' => "request",
                                     'related_to' => $fundRequest->id,
@@ -464,7 +464,7 @@ class BillingController extends Controller
                                 'pay_method' => 'Card',
                                 'amount' => $payableAmount,
                                 'responsible_user' => $client->id,
-                                'payment_from' => 'online',
+                                'payment_from' => 'client_online',
                                 'invoice_payment_id' => $InvoicePayment->id,
                                 'status' => "1",
                                 'online_payment_status' => $order->payment_status,
@@ -485,7 +485,7 @@ class BillingController extends Controller
                                 'invoice_history_id' => $invoiceHistory->id ?? Null,
                                 'status' => "unsent",
                                 'pay_type' => "client",
-                                'from_pay' => "client",
+                                'from_pay' => "online",
                                 'firm_id' => $client->firm_name,
                                 'section' => "invoice",
                                 'related_to' => $invoice->id,
@@ -547,6 +547,9 @@ class BillingController extends Controller
         }
     }
 
+    /**
+     * Get cash payment detail and do payment
+     */
     public function cashPayment(Request $request)
     {
         // return $request->all();
@@ -681,7 +684,7 @@ class BillingController extends Controller
                                 'pay_method' => 'Oxxo Cash',
                                 'amount' => $amount,
                                 'responsible_user' => $client->id,
-                                'payment_from' => 'online',
+                                'payment_from' => 'client_online',
                                 'invoice_payment_id' => $InvoicePayment->id,
                                 'status' => "0",
                                 'online_payment_status' => 'pending',
@@ -721,6 +724,9 @@ class BillingController extends Controller
         }
     }
 
+    /**
+     * Get bank transfer payment detail and do payment
+     */
     public function bankPayment(Request $request)
     {
         // return $request->all();
@@ -792,46 +798,6 @@ class BillingController extends Controller
                                 'online_payment_status' => 'pending',
                             ])->save();
 
-                            //Deposit into trust account
-                            /* $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance")->where("user_id", $client->id)->first();
-                            $trustHistory = TrustHistory::create([
-                                'client_id' => $client->id,
-                                'payment_method' => 'SPEI',
-                                'amount_paid' => $amount,
-                                'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                                'payment_date' => date('Y-m-d'),
-                                'fund_type' => 'diposit',
-                                'related_to_fund_request_id' => $fundRequest->id,
-                                'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
-                                'created_by' => $client->id,
-                                'online_payment_status' => 'pending',
-                            ]);
-
-                            $requestOnlinePayment->fill(['trust_history_id' => $trustHistory->id])->save();
-
-                            $this->updateNextPreviousTrustBalance($trustHistory->client_id);
-
-                            // Account activity
-                            $request->request->add(["payment_type" => 'deposit']);
-                            $request->request->add(["trust_history_id" => $trustHistory->id]);
-                            $this->updateTrustAccountActivity($request);
-
-                            $data=[];
-                            $data['user_id'] = $client->id;
-                            $data['client_id'] = $client->id;
-                            $data['deposit_for'] = $client->id;
-                            $data['deposit_id']=$fundRequest->id;
-                            $data['activity']="pay a payment of $".number_format($amount, 2)." (SPEI) for deposit request";
-                            $data['type']='fundrequest';
-                            $data['action']='pay';
-                            $CommonController= new CommonController();
-                            $CommonController->addMultipleHistory($data);
-
-                            // For client activity
-                            $data['activity'] = 'pay a payment of $'.number_format($amount,2).' (SPEI) for fund request';
-                            $data['is_for_client'] = 'yes';
-                            $CommonController->addMultipleHistory($data); */
-
                             // Bank payment reference email to client
                             $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 35, $requestOnlinePayment, 'bank_reference_client', 'fundrequest'));
 
@@ -890,7 +856,7 @@ class BillingController extends Controller
                                 'pay_method' => 'SPEI',
                                 'amount' => $amount,
                                 'responsible_user' => $client->id,
-                                'payment_from' => 'online',
+                                'payment_from' => 'client_online',
                                 'invoice_payment_id' => $InvoicePayment->id,
                                 'status' => "0",
                                 'online_payment_status' => 'pending',
