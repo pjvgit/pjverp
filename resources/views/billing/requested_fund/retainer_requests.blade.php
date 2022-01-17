@@ -231,7 +231,7 @@ if(isset($_GET['type'])){
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');
                     $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>');
-                    $('td:eq(7)', nRow).html('<span class="dnone">'+moment(aData.due_date_format).format('YYYYMMDD')+'</span>'+aData.due_date_format);
+                    $('td:eq(7)', nRow).html('<span class="d-none">'+moment(aData.due_date_format).format('YYYYMMDD')+'</span>'+aData.due_date_format);
                     $('td:eq(8)', nRow).html('<div class="text-left">'+aData.last_send+'</div>');
                   
                     if(aData.is_viewed=="no"){
