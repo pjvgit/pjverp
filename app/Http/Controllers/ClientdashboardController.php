@@ -1866,11 +1866,11 @@ class ClientdashboardController extends BaseController
             $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
             $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
             $mail_body = str_replace('{year}', date('Y'), $mail_body);     
+            $requestUrl = '<a href="'.route('client/bills/request/detail', base64_encode($RequestedFund->id)).'" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Request</a>';
             if(!empty(getFirmOnlinePaymentSetting()) && getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") {
-                $mail_body = str_replace('{request_url}', '<a href="'.route('client/bills/payment', ['type'=>'fundrequest', 'id'=>encodeDecodeId($RequestedFund->id, 'encode'), 'client_id'=>encodeDecodeId($RequestedFund->client_id, 'encode')]).'" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">Deposit Now</a>', $mail_body);   
-            } else {
-                $mail_body = str_replace('{request_url}', '<a href="'.route('client/bills/request/detail', base64_encode($RequestedFund->id)).'" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">View Request</a>', $mail_body);
-            }   
+                $requestUrl .= '<br><br><br><a href="'.route('client/bills/payment', ['type'=>'fundrequest', 'id'=>encodeDecodeId($RequestedFund->id, 'encode'), 'client_id'=>encodeDecodeId($RequestedFund->client_id, 'encode')]).'" style="background-color: #036fb7;padding: 12px;border-radius: 5px;color: #fff;">Deposit Now</a>';   
+            }
+            $mail_body = str_replace('{request_url}', $requestUrl, $mail_body);
 
             $clientData=User::find($RequestedFund->client_id);
             $user = [

@@ -4601,7 +4601,7 @@ class BillingController extends BaseController
             
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
 
-            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
 
             $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
@@ -5108,7 +5108,7 @@ class BillingController extends BaseController
         //Get the Adjustment list
         $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
         $firmData=Firm::find($userData['firm_name']);
 
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
@@ -5155,7 +5155,7 @@ class BillingController extends BaseController
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
 
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
         $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -5247,7 +5247,7 @@ class BillingController extends BaseController
         $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
 
         $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
         //Get the flat fee Entry list
         $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -5311,7 +5311,7 @@ class BillingController extends BaseController
 
         //Get the Adjustment list
         $InvoiceAdjustment=InvoiceAdjustment::select("*")->where("invoice_adjustment.invoice_id",$invoice_id)->where("invoice_adjustment.amount",">",0)->get();
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
 
         $InvoiceInstallment=InvoiceInstallment::select("*")
         ->where("invoice_installment.invoice_id",$invoice_id)
@@ -5436,7 +5436,7 @@ class BillingController extends BaseController
             $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
     
             $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+            $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
     
             //Get the flat fee Entry list
             $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::leftJoin("flat_fee_entry","flat_fee_entry_for_invoice.flat_fee_entry_id","=","flat_fee_entry.id")
@@ -8365,7 +8365,7 @@ class BillingController extends BaseController
               
               $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoiceID)->get();
   
-              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+              $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoiceID)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
   
   
               $SharedInvoiceCount=SharedInvoice::Where("invoice_id",$invoiceID)->count();
@@ -10602,7 +10602,7 @@ class BillingController extends BaseController
                     $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
                     $pdfData[$invoice_id]['InvoiceInstallment']=$InvoiceInstallment;
 
-                    $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+                    $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
                     $pdfData[$invoice_id]['InvoiceHistoryTransaction']=$InvoiceHistoryTransaction;
 
             
@@ -10647,7 +10647,7 @@ class BillingController extends BaseController
          $InvoiceHistory=InvoiceHistory::where("invoice_id",$invoice_id)->orderBy("id","DESC")->get();
  
          $InvoiceInstallment=InvoiceInstallment::Where("invoice_id",$invoice_id)->get();
-         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+         $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id",$invoice_id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
  
          $filename="Invoice_".$invoice_id.'.pdf';
          $PDFData=view('billing.invoices.viewInvoicePdf',compact('userData','firmData','invoice_id','Invoice','firmAddress','caseMaster','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','InvoiceHistory','InvoiceInstallment','InvoiceHistoryTransaction'));
@@ -10686,7 +10686,7 @@ class BillingController extends BaseController
      */
     public function invoicePaymentHistory(Request $request)
     {
-        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC")->get();
+        $InvoiceHistoryTransaction=InvoiceHistory::where("invoice_id", $request->id)->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC")->get();
         return view("billing.invoices.partials.load_invoice_payment_history", ["InvoiceHistoryTransaction" => $InvoiceHistoryTransaction])->render();
     }
 
@@ -11129,15 +11129,17 @@ class BillingController extends BaseController
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
                 }
+                $msg = "Las indicaciones para hacer el pago se han enviado correctamente al correo de su cliente. En cuanto su cliente haga el pago se lo haremos saber por correo y se verá reflejado en el sistema.";
                 if($request->online_payment_method == "credit-card") {
                     $this->cardPayment($request, $client);
+                    $msg = "Se ha recibido correctamente el pago de ".number_format($request->amount,2)." pesos con Tarjeta de débito o crédito.";
                 } else if($request->online_payment_method == "cash") {
                     $this->cashPayment($request, $client);
                 } else if($request->online_payment_method == "bank-transfer") {
                     $this->bankPayment($request, $client);
                 } else {}
-                $firmData=Firm::find($client->firm_name);
-                $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
+                // $firmData=Firm::find($client->firm_name);
+                // $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
                 return response()->json(['errors'=>'', 'msg' => $msg]);
             }
         } catch (\Conekta\AuthenticationError $e){
@@ -11474,7 +11476,7 @@ class BillingController extends BaseController
     public function cashPayment($request, $client)
     {
         $customerId = $client->conekta_customer_id;           
-        $amount = $request->payable_amount;
+        $amount = $request->amount;
         $validOrderWithCharge = [
             'line_items' => [
                 [
@@ -11564,7 +11566,7 @@ class BillingController extends BaseController
                     //Insert invoice payment record.
                     $InvoicePayment=InvoicePayment::create([
                         'invoice_id' => $invoice->id,
-                        'payment_from' => 'client',
+                        'payment_from' => 'online',
                         'amount_paid' => $amount,
                         'payment_method' => 'Oxxo Cash',
                         'payment_date'=>convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
@@ -11584,7 +11586,7 @@ class BillingController extends BaseController
 
                     $invoiceHistory = InvoiceHistory::create([
                         'invoice_id' => $invoice->id,
-                        'acrtivity_title' => 'Payment Pending',
+                        'acrtivity_title' => 'Awaiting Online Payment',
                         'pay_method' => 'Oxxo Cash',
                         'amount' => $amount,
                         'responsible_user' => $authUser->id,
@@ -11613,7 +11615,7 @@ class BillingController extends BaseController
     public function bankPayment($request, $client)
     {
         $customerId = $client->conekta_customer_id;
-        $amount = $request->payable_amount;
+        $amount = $request->amount;
         $authUser = auth()->user();
         $validOrderWithCharge = [
             'line_items' => [
@@ -11699,7 +11701,7 @@ class BillingController extends BaseController
                     //Insert invoice payment record.
                     $InvoicePayment=InvoicePayment::create([
                         'invoice_id' => $invoice->id,
-                        'payment_from' => 'client',
+                        'payment_from' => 'online',
                         'amount_paid' => $amount,
                         'payment_method' => 'SPEI',
                         'payment_date'=>convertDateToUTCzone(date("Y-m-d"), auth()->user()->user_timezone),
@@ -11718,7 +11720,7 @@ class BillingController extends BaseController
 
                     $invoiceHistory = InvoiceHistory::create([
                         'invoice_id' => $invoice->id,
-                        'acrtivity_title' => 'Payment Pending',
+                        'acrtivity_title' => 'Awaiting Online Payment',
                         'pay_method' => 'SPEI',
                         'amount' => $amount,
                         'responsible_user' => $authUser->id,

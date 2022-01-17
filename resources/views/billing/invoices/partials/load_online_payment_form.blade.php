@@ -132,12 +132,11 @@
                 </div>
             </div>
             <div class="cash selectt" style="display: none;">
-                <div class="form-group row">
+                <div class="mt-16 form-group row">
                     <img class="col-md-3" src="{{ asset('images/payment/pago2.png') }}" />
                     <div class="col-md-9">
                         <label class="radio radio-primary">
-                            <input type="radio" name="radio" value="1" checked>
-                            <span> @lang('billing.c_radio_text') </span><span class="checkmark"></span>
+                            <input type="radio" name="cash_radio" value="0" checked><span>@lang('billing.c_radio_text')</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -153,20 +152,13 @@
                         <input type="text" class="form-control phone-number" name="phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label class="col-md-3"></label>
-                    <div class="col-md-9">
-                        <button type="submit" class="btn btn-primary mt-2">Continue</button>
-                    </div>
-                </div>
             </div>
             <div class="bank-transfer selectt" style="display: none;">
-                <div class="form-group row">
+                <div class="mt-16 form-group row">
                     <img class="col-md-3" src="{{ asset('images/payment/pago3.png') }}" />
                     <div class="col-md-9">
                         <label class="radio radio-primary">
-                            <input type="radio" name="radio" value="1" checked>
-                            <span> @lang('billing.bt_radio_text') </span><span class="checkmark"></span>
+                            <input type="radio" name="bt_radio" value="0" checked><span>@lang('billing.bt_radio_text')</span><span class="checkmark"></span>
                         </label>
                     </div>
                 </div>
@@ -180,12 +172,6 @@
                     <label class="col-md-3">Phone number</label>
                     <div class="col-md-9">
                         <input type="text" class="form-control phone-number" name="bt_phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-md-3"></label>
-                    <div class="col-md-9">
-                        <button type="submit" class="btn btn-primary mt-2">Continue</button>
                     </div>
                 </div>
             </div>

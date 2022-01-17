@@ -86,7 +86,7 @@ if(isset($_GET['type'])){
                                 <th> Amount </th>
                                 <th> Paid </th>
                                 <th> Amount Due </th>
-                                <th>Due </th>
+                                <th data-sort='YYYYMMDD'>Due </th>
                                 <th> Date Sent</th>
                                 <th class="nosort"> Viewed </th>
                                 <th class="status-col-header nosort">Status</th>
@@ -192,11 +192,14 @@ if(isset($_GET['type'])){
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
 
                     $('td:eq(0)', nRow).html('<div class="text-left">'+aData.padding_id+'</div>');
-
+                    if(aData.user == null) {
+                        $('td:eq(1)', nRow).html('<div class="text-left">'+aData.contact_name+'</div>');
+                    } else {
                     if(aData.user.user_level == 2)
                         $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.contact_name+'</a></div>');
                     else
                         $('td:eq(1)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/contacts/companies/'+aData.client_id+'">'+aData.contact_name+'</a></div>');
+                    }
                     var trustLabel="Account";
                     /* if(aData.trust_account!=""){
                         var trustLabel=" (Trust Account)";
@@ -215,16 +218,20 @@ if(isset($_GET['type'])){
                     if(aData.allocated_to_case_id != null) {
                         var clientLink='<a class="name" href="'+baseUrl+'/court_cases/'+aData.allocate_to_case.case_unique_number+'/info/">'+aData.allocate_to_case.case_title+'</a>';
                     } else {
-                        if(aData.user.user_level == 2)
-                            var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
-                        else
-                            var clientLink='<a class="name" href="'+baseUrl+'/contacts/companies/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
+                        if(aData.user == null) {
+                            var clientLink = '<div class="text-left">'+aData.contact_name+'</div>';
+                        } else {
+                            if(aData.user != null && aData.user.user_level == 2)
+                                var clientLink='<a class="name" href="'+baseUrl+'/contacts/clients/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
+                            else
+                                var clientLink='<a class="name" href="'+baseUrl+'/contacts/companies/'+aData.client_id+'">'+aData.user.full_name+' ('+aData.user.user_type_text+')</a>';
+                        }
                     }
                     $('td:eq(3)', nRow).html('<div class="text-left">'+clientLink+'</div>');
                     $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
                     $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');
                     $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>');
-                    $('td:eq(7)', nRow).html('<div class="text-left">'+aData.due_date_format+'</div>');
+                    $('td:eq(7)', nRow).html('<span class="dnone">'+moment(aData.due_date_format).format('YYYYMMDD')+'</span>'+aData.due_date_format);
                     $('td:eq(8)', nRow).html('<div class="text-left">'+aData.last_send+'</div>');
                   
                     if(aData.is_viewed=="no"){

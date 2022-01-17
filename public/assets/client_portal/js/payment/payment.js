@@ -1,6 +1,7 @@
 $(document).ready(function() {
     // $('#card_number').mask('0000 0000 0000 0000');
     jQuery('#preloader').fadeOut(1000);
+    $.validator.setDefaults({ignore: ":hidden"});
 });
 
 $("#card_form").validate({
@@ -217,7 +218,8 @@ $("#bank_pay_form").validate({
  * From lawyer portal, online payment
  */
  $("#pay_online_payment").validate({
-    ignore: "hidden",
+    // ignore: ["hidden", "input[type='text']:hidden"],
+    ignore: ":hidden",
     rules: {
         'client_id': {
             required: true,

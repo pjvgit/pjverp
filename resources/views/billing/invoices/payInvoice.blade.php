@@ -1049,7 +1049,9 @@ $(".trust_account").on("change", function() {
 // For online payment
 function onlinePaymentConfirmation() {
     $(".innerLoader").show();
+    $.validator.setDefaults({ignore: ":hidden"});
     if (!$('#pay_online_payment').valid()) {
+        alert("invalid");
         $(".innerLoader").hide();
         return false;
     } else {
