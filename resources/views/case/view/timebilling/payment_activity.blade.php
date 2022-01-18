@@ -60,10 +60,6 @@
                 "bVisible": false,
                 "aTargets": [0],
                 },
-                {
-                    targets: 6,
-                    render: $.fn.dataTable.render.number(',', '.', 3, '')
-                }
             ],
             pageResize: true, // enable page resize
             pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
@@ -191,7 +187,7 @@
                 if(finalAmount == "0.00"){
                     $('td:eq(5)', nRow).html('<div class="text-left"><i class="table-cell-placeholder"></i></div>');
                 }else{
-                    $('td:eq(5)', nRow).html('<div class="text-left">' + finalAmount.toLocaleString() + '</div>');
+                    $('td:eq(5)', nRow).html('<div class="text-left">' + finalAmount + '</div>');
                 }
             },
 
@@ -199,7 +195,11 @@
                 $('[data-toggle="tooltip"]').tooltip();
                 $("[data-toggle=popover]").popover();
                 $('.payRow').number(true, 2);
-            }
+            },
+            "drawCallback": function (settings) { 
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.payRow').number(true, 2);
+            },
         });
     });
 

@@ -1,3 +1,7 @@
+------------------------------------ 18-JAN-2022 ------------------------------
+ALTER TABLE `invoice_installment`
+CHANGE `pay_type` `pay_type` enum('auto','manual','online') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'manual' AFTER `paid_date`;
+
 ------------------------------------ 13-JAN-2022 ------------------------------
 ALTER TABLE `invoice_history`
 CHANGE `payment_from` `payment_from` enum('offline','trust','credit','online','client_online') COLLATE 'latin1_swedish_ci' NULL DEFAULT 'offline' AFTER `responsible_user`;

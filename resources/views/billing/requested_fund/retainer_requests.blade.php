@@ -86,7 +86,7 @@ if(isset($_GET['type'])){
                                 <th> Amount </th>
                                 <th> Paid </th>
                                 <th> Amount Due </th>
-                                <th data-sort='YYYYMMDD'>Due </th>
+                                <th>Due </th>
                                 <th> Date Sent</th>
                                 <th class="nosort"> Viewed </th>
                                 <th class="status-col-header nosort">Status</th>
@@ -228,11 +228,11 @@ if(isset($_GET['type'])){
                         }
                     }
                     $('td:eq(3)', nRow).html('<div class="text-left">'+clientLink+'</div>');
-                    $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
-                    $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>');
-                    $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>');
+                    $('td:eq(4)', nRow).html('<span class="d-none">'+aData.amt_requested+'</span><div class="text-left">$'+aData.amt_requested+'</div>');
+                    $('td:eq(5)', nRow).html('<span class="d-none">'+aData.amt_paid+'</span><div class="text-left">$'+aData.amt_paid+'</div>');
+                    $('td:eq(6)', nRow).html('<span class="d-none">'+aData.amt_due+'</span><div class="text-left">$'+aData.amt_due+'</div>');
                     $('td:eq(7)', nRow).html('<span class="d-none">'+moment(aData.due_date_format).format('YYYYMMDD')+'</span>'+aData.due_date_format);
-                    $('td:eq(8)', nRow).html('<div class="text-left">'+aData.last_send+'</div>');
+                    $('td:eq(8)', nRow).html('<span class="d-none">'+moment(aData.last_send).format('YYYYMMDD')+'</span><div class="text-left">'+aData.last_send+'</div>');
                   
                     if(aData.is_viewed=="no"){
                         $('td:eq(9)', nRow).html('<div class="text-left">Never</div>');

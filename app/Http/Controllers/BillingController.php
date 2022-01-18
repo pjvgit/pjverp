@@ -1013,8 +1013,9 @@ class BillingController extends BaseController
      }
      public function loadRetainerRequestsEntry()
      {   
-         $columns = array('requested_fund.id', 'requested_fund.id','contact_name', 'trust_account', 'amount_requested', 'amount_paid','amount_due','due_date','last_reminder_sent_on','user_name','id',);
+         $columns = array('requested_fund.id', 'requested_fund.id','contact_name', 'deposit_into_type', 'trust_account', 'amount_requested', 'amount_paid','amount_due','due_date','last_reminder_sent_on','user_name','id',);
          $requestData= $_REQUEST;
+        //  return $columns[$requestData['order'][0]['column']];
          
          $case = RequestedFund::leftJoin("users","requested_fund.client_id","=","users.id")
          ->leftJoin("users as u2","u2.id","=","requested_fund.deposit_into")
@@ -10537,7 +10538,7 @@ class BillingController extends BaseController
 
     //Installment managment (Maintain paid and unpaid status base on pay amount)
     // MOved this function to CreditAccountTrait
-    /* public function installmentManagement($paidAmt,$invoice_id){
+    public function installmentManagement($paidAmt,$invoice_id){
         $invoice_installment=InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
         $arrayGrid=array();
         foreach($invoice_installment as $k=>$v){
@@ -10566,7 +10567,7 @@ class BillingController extends BaseController
                 $invoice_installment->save();
             }
         }
-    } */
+    }
     
      /********************** Payment Plans ******************/
 
@@ -11432,9 +11433,10 @@ class BillingController extends BaseController
                     ]);
 
                     //Code For installment amount
-                    $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
-                    if(!empty($getInstallMentIfOn)){
-                        $this->installmentManagement($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
+                    $getInstallMentIfOn=InvoiceInstallment::where("invoice_id",$invoice->id)->first();
+                    if(!empty($getInstallMentIfOn)) {
+                        Log::info("enter installment");
+                        $this->updateInvoiceInstallment($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
                     }
 
                     // Update invoice online payment status
@@ -11620,10 +11622,10 @@ class BillingController extends BaseController
                     ]);
 
                     //Code For installment amount
-                    $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
+                    /* $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
                     if(!empty($getInstallMentIfOn)){
                         $this->installmentManagement($amount,$invoice->id, $onlinePaymentStatus = 'pending');
-                    }
+                    } */
 
                     $invoiceHistory = InvoiceHistory::create([
                         'invoice_id' => $invoice->id,
@@ -11754,10 +11756,10 @@ class BillingController extends BaseController
                     ]);
 
                     //Code For installment amount
-                    $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
+                    /* $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
                     if(!empty($getInstallMentIfOn)){
                         $this->installmentManagement($amount,$invoice->id, $onlinePaymentStatus = 'pending');
-                    }
+                    } */
 
                     $invoiceHistory = InvoiceHistory::create([
                         'invoice_id' => $invoice->id,
