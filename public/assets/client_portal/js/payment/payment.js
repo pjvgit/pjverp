@@ -242,9 +242,9 @@ $("#bank_pay_form").validate({
             minlength: 10,
             maxlength: 13
         },
-        'card_number': {
+        /* 'card_number': {
             required: true
-        },
+        }, */
         'expiry_month': {
             required: true,
             validMonth: true

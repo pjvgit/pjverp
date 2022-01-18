@@ -191,37 +191,30 @@ trait CreditAccountTrait {
     /**
      * Update invoice installment status and paid amount
      */
-    public function installmentManagement($paidAmt, $invoice_id, $onlinePaymentStatus = null) {
-        $invoice_installment=InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
-        $arrayGrid=array();
-        foreach($invoice_installment as $k=>$v){
-            $arrayGrid[$k]['id']=$v->id;
-            $arrayGrid[$k]['installment_amt']=$v->installment_amount;
-            $arrayGrid[$k]['total_paid_amt']=$v->adjustment;
-            $arrayGrid[$k]['now_pay']=$arrayGrid[$k]['installment_amt']-$arrayGrid[$k]['total_paid_amt'];
-            if($arrayGrid[$k]['now_pay']>=$paidAmt){
-                $arrayGrid[$k]['actual_pay_amt']=$paidAmt;
-            }else{
-                $arrayGrid[$k]['actual_pay_amt']=$arrayGrid[$k]['now_pay'];
-            }
-            $arrayGrid[$k]['available_bal']=$paidAmt-$arrayGrid[$k]['now_pay'];
-            $paidAmt-=$arrayGrid[$k]['now_pay'];
-        }
-        foreach($arrayGrid as $G=>$H){
-            if($H['actual_pay_amt']>=0){
-                DB::table('invoice_installment')->where("id",$H['id'])->update([
-                    'paid_date'=>date('Y-m-d h:i:s'),
-                    'adjustment'=>DB::raw('adjustment + ' . $H['actual_pay_amt']),
-                    'online_payment_status' => $onlinePaymentStatus ?? 'paid',
-                ]);  
-                if($onlinePaymentStatus == null || $onlinePaymentStatus == 'paid') {
-                    $invoice_installment=InvoiceInstallment::find($H['id']);
-                    if($invoice_installment['installment_amount']==$invoice_installment['adjustment']){
-                        $invoice_installment->status="paid";   
-                    }
-                    $invoice_installment->save();
+    public function updateInvoiceInstallment($paidAmt, $invoice_id, $onlinePaymentStatus = null) {
+        Log::info("installment invoice id: ". $invoice_id);
+        $invoiceInstallment = InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
+        foreach($invoiceInstallment as $key => $item) {
+            Log::info("installment id: ". $item->id);
+            if($item->adjustment < $item->installment_amount && $paidAmt > 0) {
+                $pendingAmt = $item->installment_amount - $item->adjustment;
+                Log::info("installment pending amount: ". $pendingAmt);
+                if($pendingAmt > $paidAmt) {
+                    $adjustment = $paidAmt;
+                } else {
+                    $adjustment = $pendingAmt;
                 }
+                Log::info("installment pending amount: ". $adjustment);
+                $item->fill([
+                    "adjustment" => $item->adjustment + $adjustment,
+                    "status" => ($item->installment_amount == $adjustment) ? "paid" : "unpaid",
+                    "paid_date" => Carbon::now(),
+                    "pay_type" => "online",
+                    'online_payment_status' => $onlinePaymentStatus ?? 'paid',
+                ])->save();
             }
+            $paidAmt -= $adjustment;
+            Log::info("remain paid amount: ". $paidAmt);
         }
     }
 }
