@@ -12,13 +12,13 @@
                         multiple>
                         <optgroup label="Contact">
                             <?php foreach($clientLists as $clientekey=>$clientval){ ?>
-                                <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
+                                <option uType="client" data-set="client" value="client-{{$clientval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $clientval->id) ? "selected" : ""; ?>>
                                     {{substr($clientval->first_name,0,100)}} {{substr($clientval->last_name,0,100)}} </option>
                                     <?php } ?>
                         </optgroup>
                         <optgroup label="Companies">
                             <?php foreach($CaseMasterCompany as $companykey=>$companyval){ ?>
-                            <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
+                            <option uType="company" data-set="company" value="company-{{$companyval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'user_id' && $_REQUEST['id'] == $companyval->id) ? "selected" : ""; ?>>
                                 {{substr($companyval->first_name,0,100)}} </option>
                             <?php } ?>
                         </optgroup>
@@ -111,7 +111,7 @@
                     data-placeholder="Type a name">
                     <option></option>
                     <?php foreach($CaseMasterData as $casekey=>$Caseval){ ?>
-                    <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>
+                    <option uType="case" data-set="case" value="{{$Caseval->id}}" <?php echo (isset($_REQUEST['id']) && $_REQUEST['page'] == 'case_id' && $_REQUEST['id'] == $Caseval->id) ? "selected" : ""; ?>>
                         {{substr($Caseval->case_title,0,100)}}
                         <?php if($Caseval->case_number!=''){  echo "(".$Caseval->case_number.")"; }?> </option>
                     <?php } ?>
@@ -303,13 +303,42 @@
         dropdownParent: $("#addNewMessagePopup"),
     });
     $('#sendto').on("select2:select", function (e) {
-        var userID = e.params.data.id.split('-');        
-        if(userID[0] == 'client' && userID[1] == "{{Auth::user()->id}}"){
+        var userID = e.params.data.id.split('-');  
+        if(userID[0] == 'staff' && userID[1] == "{{Auth::user()->id}}"){
             var wanted_id = e.params.data.id;
             var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
             wanted_option.prop('selected', false);
             $('#sendto').trigger('change.select2');            
             swal('Error!', 'You cannot send a message to yourself');        
+        }else if(userID[0] == 'case'){
+            var wanted_id = e.params.data.id;
+            var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
+            wanted_option.prop('selected', false);
+            $('#sendto').trigger('change.select2');            
+            $('#case_link').trigger('change').val(userID[1]);        
+        }else if(userID[0] == 'company'){
+                        
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/companyContactList",
+                data: {
+                    "company_id": userID[1]
+                },
+                success: function (res) {
+                    if(res.errors == '0'){
+                        $.each(res.contactList, function (key, value) {
+                            $('#sendto option[value="client-'+value+'"]').prop('selected', true).trigger('change.select2');                      
+                        });
+                        
+                    }else{
+                        swal('Error!', res.msg);  
+                    }  
+                    var wanted_id = e.params.data.id;
+                    var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
+                    wanted_option.prop('selected', false);
+                    $('#sendto').trigger('change.select2');                    
+                }
+            });
         }
     });
 

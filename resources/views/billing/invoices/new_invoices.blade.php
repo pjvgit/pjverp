@@ -4275,8 +4275,6 @@ if(!isset($addition)){ $addition=0;}
 
     $("input:checkbox#range_check_box").click(function () {
         if ($(this).is(":checked")) {
-            $('#bill_from_date').removeAttr("disabled");
-            $('#bill_to_date').removeAttr("disabled");
             swal({
                 title: 'warning',
                 text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
@@ -4290,11 +4288,15 @@ if(!isset($addition)){ $addition=0;}
                 cancelButtonClass: 'btn btn-danger  mr-2',
                 buttonsStyling: false,
                 reverseButtons: true
-            }).then(function(isConfirm){
-                if (isConfirm){     
+            }).then(function () {
+                $(function () {
+                    $('#bill_from_date').removeAttr("disabled");
+                    $('#bill_to_date').removeAttr("disabled");
                     $('#adjustment_delete').val('1');
-                }
-            });
+                });
+            }, function (dismiss) {
+                $("#range_check_box").prop('checked', false);
+            }); 
         } else {
             $("#bill_from_date").prop("disabled", true);
             $("#bill_to_date").prop("disabled", true);

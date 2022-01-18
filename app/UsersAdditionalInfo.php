@@ -21,7 +21,11 @@ class UsersAdditionalInfo extends Authenticatable
         'license_state', 'werbsite', 'fax_number', 'notes', 'created_at', 'created_by', 'updated_at', 'updated_by', 'deleted_at', 'trust_account_balance', 
         'credit_account_balance', 'minimum_trust_balance'
     ];
-    protected $appends  = ['unallocate_trust_balance'];
+    protected $appends  = ['decode_id', 'unallocate_trust_balance'];
+
+    public function getDecodeIdAttribute(){
+        return base64_encode($this->user_id);
+    }
 
     /**
      * Get user's last login detail, Do not add this attribute to append array, if required please set append dynamically

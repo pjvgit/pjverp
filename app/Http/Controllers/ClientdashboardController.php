@@ -2009,11 +2009,33 @@ class ClientdashboardController extends BaseController
         $getClientWiseCaseList=$this->getClientWiseCaseList($user_id);
         if(count($getClientWiseCaseList) == 0){
             $returnMsg.='The <b>'.$userName.'</b> recipients are not directly linked to case <b>'.$case_name.'</b> Send anyway?';
-        }else{
-
-        }
+        }else if(count($getClientWiseCaseList) > 0){
+            $arr = [];
+            foreach($getClientWiseCaseList as $k=>$v){
+                $arr[$k] = $v;
+            }
+            if(!in_array( $case_id, $arr)){
+                $returnMsg='The <b>'.$userName.'</b> recipients are not directly linked to case <b>'.$case_name.'</b> Send anyway?';
+            }
+        }else{}
         return response()->json(['errors'=>'','msg'=>$returnMsg]);
         exit;   
+    }
+
+    public function companyContactList(Request $request){
+        $company_id=$request->company_id;
+        $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+            ->select("users.id as cid")
+            ->whereRaw("find_in_set($company_id,users_additional_info.multiple_compnay_id)")
+            ->where("users.user_status", "1")
+            ->where("users_additional_info.client_portal_enable", "1")
+        ->get()->pluck('cid');
+        \Log::info(count($userCount));
+        if(count($userCount) > 0){
+            return response()->json(['errors'=>'0','contactList'=>$userCount]);    
+        }else{
+            return response()->json(['errors'=>'1','msg'=>'The company you selected had no contacts that can receive messages.']);
+        }        
     }
     public function searchValue(Request $request)
     {

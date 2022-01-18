@@ -135,11 +135,13 @@ class User extends Authenticatable
             $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                     ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
+                    ->where("users.user_status", "1")
                     ->get();
         }else{
             $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                     ->where('users_additional_info.company_id',$companyID)
+                    ->where("users.user_status", "1")
                     ->get();
         }      
         return json_encode($userCount); 

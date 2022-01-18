@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Storage;
 use mikehaertl\wkhtmlto\Pdf;
 // use PDF;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Crypt;
 class BillingController extends BaseController
 {
     use CreditAccountTrait, InvoiceTrait, TrustAccountActivityTrait, TrustAccountTrait;
@@ -2656,9 +2657,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                // $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                // $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                // $TimeEntry=$TimeEntry->whereBetween('entry_date', [$startDt,$endDt]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $TimeEntry=$TimeEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2686,9 +2687,9 @@ class BillingController extends BaseController
             });
 
             if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-                // $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                // $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-                // $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [$startDt,$endDt]);
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $ExpenseEntry=$ExpenseEntry->whereBetween('entry_date', [$startDt,$endDt]);
                 $from_date=$request->from_date;
                 $bill_to_date=$request->bill_to_date;
                 $filterByDate='yes';
@@ -2696,35 +2697,28 @@ class BillingController extends BaseController
             $ExpenseEntry=$ExpenseEntry->get();
 
             //Get Flat fees entry
+            $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
+            ->where("flat_fee_entry.user_id",auth()->id())
+            ->where("flat_fee_entry.invoice_link",NULL)
+            ->where("flat_fee_entry.status","unpaid")
+            ->delete();
             if($caseMaster) {
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
-                $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->sum('cost');
-                // $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("flat_fee_entry.invoice_link",NULL)->sum('cost');
-                    if($totalFlatFee == 0){
-                        $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->withTrashed()->sum('cost');
-                    }else{
-                        $totalFlatFeeDeleted = FlatFeeEntry::where('case_id', $case_id)->where("time_entry_billable","yes")->where("flat_fee_entry.token_id",$request->token)->withTrashed()->sum('cost');
-                        if($totalFlatFeeDeleted > 0){
-                            $totalFlatFee = $totalFlatFee + $totalFlatFeeDeleted;
-                        }
-                    }
-                    $FlatFeeUnpaidNonBillableSum = FlatFeeEntry::where('case_id', $case_id)->where("flat_fee_entry.status","unpaid")->where("time_entry_billable","no")->sum('cost');
-                    if ($FlatFeeUnpaidNonBillableSum == 0) {
-                        $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
-                        if($remainFlatFee > 0) {
-                            FlatFeeEntry::create([
-                                'case_id' => $caseMaster->id,
-                                'user_id' => auth()->id(),
-                                'entry_date' => Carbon::now(),
-                                'cost' =>  $remainFlatFee,
-                                'time_entry_billable' => 'yes',
-                                'token_id' => $request->token,
-                                'firm_id' => Auth::User()->firm_name,
-                                'created_by' => auth()->id(), 
-                            ]);
-                        }
-                    }  
-                }       
+                    $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where('status', 'paid')->sum('cost');
+                    $remainFlatFee = $caseMaster->billing_amount - $totalFlatFee;
+                    if($remainFlatFee > 0) {
+                        FlatFeeEntry::create([
+                            'case_id' => $caseMaster->id,
+                            'user_id' => auth()->id(),
+                            'entry_date' => Carbon::now(),
+                            'cost' =>  $remainFlatFee,
+                            'time_entry_billable' => 'yes',
+                            'token_id' => $request->token,
+                            'firm_id' => Auth::User()->firm_name,
+                            'created_by' => auth()->id(), 
+                        ]);
+                    }                                
+                }
             }
             if($case_id == "none"){
                 // Fix for https://trello.com/c/3M7Dll9D/1032-invoice-from-scratch-matter-none-cant-delete-flat-fee
@@ -2766,11 +2760,11 @@ class BillingController extends BaseController
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
             });
             
-            // if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
-            //     $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
-            //     $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
-            // }
+            if(isset($request->from_date) && isset($request->bill_to_date) && $request->from_date!=NULL && $request->bill_to_date!=NULL){
+                $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->from_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($request->bill_to_date))))), auth()->user()->user_timezone ?? 'UTC')));
+                $FlatFeeEntry=$FlatFeeEntry->whereBetween('entry_date', [$startDt,$endDt]);
+            }
             $FlatFeeEntry=$FlatFeeEntry->get();
             
             //Get the Adjustment list            
@@ -3973,7 +3967,39 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             UsersAdditionalInfo::where('user_id',$request->client_id)->update(['client_portal_enable'=>"1"]);
-            return response()->json(['errors'=>'','client_id'=>$request->client_id]);
+            // send mail
+            $token = bin2hex(openssl_random_pseudo_bytes(78));;
+            User::where('id',$request->client_id)->update(['token'=>$token]);
+            $user =  User::where(["id" => $request->client_id])->first();
+            $getTemplateData = EmailTemplate::find(9);
+            $fullName=$user->first_name. ' ' .$user->last_name;
+            $email=$user->email;
+            $firmData=Firm::find($user->firm_name);
+            $token= route("client/activate/account", $user->token)."?security_patch=".Crypt::encryptString($email);
+            $mail_body = $getTemplateData->content;
+            $mail_body = str_replace('{name}', $fullName, $mail_body);
+            $mail_body = str_replace('{firm}', $firmData['firm_name'], $mail_body);
+            $mail_body = str_replace('{email}', $email,$mail_body);
+            $mail_body = str_replace('{token}', $token,$mail_body);
+            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+            $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
+            $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+            $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
+            $mail_body = str_replace('{phone_number}', '', $mail_body);                          
+            $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+            $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
+
+            $userEmail = [
+                "from" => FROM_EMAIL,
+                "from_title" => FROM_EMAIL_TITLE,
+                "subject" => $getTemplateData->subject ." ".$firmData['firm_name'],
+                "to" => $user->email,
+                "full_name" => $fullName,
+                "mail_body" => $mail_body
+            ];
+            $sendEmail = $this->sendMail($userEmail);
+            return response()->json(['errors'=>'','client_id'=>$request->client_id, 'sendEmail' => $sendEmail]);
           exit;
         }
     }
@@ -10815,11 +10841,26 @@ class BillingController extends BaseController
             if($request->page == 'edit'){
                 if($request->is_check == 'no'){
                     DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
+                    // update status
+                    $this->updateInvoiceAmount($request->id);
                 }else{               
                     DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
                 }
             }
             return response()->json(['status' => "success", 'msg' => "Record updated", "InvoiceAdjustment" => count($InvoiceAdjustment)]);
+        }else{
+            $InvoiceAdjustment = InvoiceAdjustment::where('ad_type','amount')->where('case_id', $request->case_id)->where('token',$request->token_id)->get();  
+            if(count($InvoiceAdjustment) > 0){
+                if($request->page == 'edit'){
+                    if($request->is_check == 'no'){
+                        DB::statement("DELETE FROM `invoice_forwarded_invoices` WHERE `forwarded_invoice_id` = '".$request->id."' LIMIT 1;");
+                    }else{               
+                        DB::statement("INSERT INTO `invoice_forwarded_invoices` (`invoice_id`, `forwarded_invoice_id`) values ('".base64_decode($request->token_id) ."', '".$request->id."')");
+                    }
+                    // update status
+                    $this->updateInvoiceAmount($request->id);
+                }
+            }
         } 
         return response()->json(['status' => "no adjustment record"]);
     }

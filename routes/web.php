@@ -797,6 +797,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('contacts/clients/checkBeforProceed', 'ClientdashboardController@checkBeforProceed')->name('contacts/clients/checkBeforProceed');
     Route::post('contacts/clients/searchValue', 'ClientdashboardController@searchValue')->name('contacts/clients/searchValue');
     Route::post('contacts/clients/sendNewMessageToUser', 'ClientdashboardController@sendNewMessageToUser')->name('contacts/clients/sendNewMessageToUser');
+    Route::post('contacts/clients/companyContactList', 'ClientdashboardController@companyContactList')->name('contacts/clients/companyContactList');
     Route::post('contacts/clients/uploadImage', 'ClientdashboardController@imageUploadSync')->name('contacts/clients/uploadImage');
     Route::post('contacts/clients/cropImage', 'ClientdashboardController@cropImageSync')->name('contacts/clients/cropImage');
     Route::post('contacts/clients/deleteProfileImageForm', 'ClientdashboardController@deleteProfileImageForm')->name('contacts/clients/deleteProfileImageForm');
