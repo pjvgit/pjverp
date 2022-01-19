@@ -449,7 +449,7 @@ class BillingController extends Controller
                             //Code For installment amount
                             $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
                             if(!empty($getInstallMentIfOn)){
-                                $this->updateInvoiceInstallment($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
+                                $this->updateInvoiceInstallmentAmount($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
                             }
 
                             // Update invoice online payment status
@@ -672,12 +672,6 @@ class BillingController extends Controller
                                 'created_by' => $client->id 
                             ]);
 
-                            //Code For installment amount
-                            /* $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
-                            if(!empty($getInstallMentIfOn)){
-                                $this->updateInvoiceInstallment($amount,$invoice->id, $onlinePaymentStatus = 'pending');
-                            } */
-
                             $invoiceHistory = InvoiceHistory::create([
                                 'invoice_id' => $invoice->id,
                                 'acrtivity_title' => 'Payment Pending',
@@ -844,12 +838,6 @@ class BillingController extends Controller
                                 'created_by' => $client->id 
                             ]);
 
-                            //Code For installment amount
-                            /* $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
-                            if(!empty($getInstallMentIfOn)){
-                                $this->updateInvoiceInstallment($amount,$invoice->id, $onlinePaymentStatus = 'pending');
-                            } */
-
                             $invoiceHistory = InvoiceHistory::create([
                                 'invoice_id' => $invoice->id,
                                 'acrtivity_title' => 'Payment Pending',
@@ -1002,7 +990,7 @@ class BillingController extends Controller
                         // Update invoice/invoice installment amount
                         $getInstallMentIfOn = InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
                         if(!empty($getInstallMentIfOn)){
-                            $this->updateInvoiceInstallment($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
+                            $this->updateInvoiceInstallmentAmount($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
                         }
                         $this->updateInvoiceAmount($invoice->id);
 

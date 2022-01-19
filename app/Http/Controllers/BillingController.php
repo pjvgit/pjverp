@@ -1053,7 +1053,7 @@ class BillingController extends BaseController
          if(isset($requestData['order']) && $requestData['order']!=''){
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
          }
-         $case = $case->withCount('fundPaymentHistory');
+         $case = $case->withCount('trustFundPaymentHistory', 'creditFundPaymentHistory');
          $case = $case->with('user', 'allocateToCase')->get();
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
@@ -7900,47 +7900,10 @@ class BillingController extends BaseController
                     $CommonController= new CommonController();
                     $CommonController->addMultipleHistory($data);
 
-
-                    //Get previous amount
-                    /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
-                    $activityHistory=[];
-                    $activityHistory['user_id']=$InvoiceData['user_id'];
-                    $activityHistory['related_to']=$InvoiceData['id'];
-                    $activityHistory['case_id']=$InvoiceData['case_id'];
-                    $activityHistory['credit_amount']=0.00;
-                    $activityHistory['debit_amount']=$finalAmt;
-                    $activityHistory['total_amount']=$AccountActivityData['total_amount']-$finalAmt;
-                    $activityHistory['entry_date']=date('Y-m-d');
-                    $activityHistory['notes']=NULL;
-                    $activityHistory['status']="unsent";
-                    $activityHistory['pay_type']="trust";
-                    $activityHistory['firm_id']=Auth::User()->firm_name;
-                    $activityHistory['section']="invoice";
-                    $activityHistory['created_by']=Auth::User()->id;
-                    $activityHistory['created_at']=date('Y-m-d H:i:s');
-                    $this->saveAccountActivity($activityHistory); */
+                    // Update trust account activity
                     $this->updateTrustAccountActivity($request, $amtAction = 'sub', $InvoiceData, $isDebit = "yes");
 
-                    
-                    //Get previous amount
-                    /* $AccountActivityData=AccountActivity::select("*")->where("firm_id",Auth::User()->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
-                    $activityHistory=[];
-                    $activityHistory['user_id']=$InvoiceData['user_id'];
-                    $activityHistory['related_to']=$InvoiceData['id'];
-                    $activityHistory['case_id']=$InvoiceData['case_id'];
-                    $activityHistory['debit_amount']=0.00;
-                    $activityHistory['credit_amount']=$finalAmt;
-                    $activityHistory['total_amount']=$AccountActivityData['total_amount']+$finalAmt;
-                    $activityHistory['entry_date']=date('Y-m-d');
-                    $activityHistory['notes']=NULL;
-                    $activityHistory['status']="unsent";
-                    $activityHistory['pay_type']="client";
-                    $activityHistory['from_pay']="trust";
-                    $activityHistory['firm_id']=Auth::User()->firm_name;
-                    $activityHistory['section']="invoice";
-                    $activityHistory['created_by']=Auth::User()->id;
-                    $activityHistory['created_at']=date('Y-m-d H:i:s');
-                    $this->saveAccountActivity($activityHistory); */
+                    // Update payment history activity
                     $this->updateClientPaymentActivity($request, $InvoiceData);
 
                     $savedInvoice[]=$invoice_id;
@@ -11150,11 +11113,21 @@ class BillingController extends BaseController
     }
 
     /**
+     * Get selevted client detail
+     */
+    public function getClientDetail(Request $request)
+    {
+        $client = User::whereId($request->client_id)->select(DB::raw('CONCAT_WS(" ",first_name,last_name) as client_name'),"mobile_number")->first();
+        return response()->json(["client" => $client]);
+    }
+
+    /**
      * INvoice online payment from lawyer portal, Get credit/debit card detail and do payment, cash payment and bank transfer payment 
      */
     public function payOnlinePayment(Request $request)
     {   
         // return $request->all();
+        // return $getInstallMentIfOn=InvoiceInstallment::where("invoice_id", $request->payable_record_id)->where("status", "unpaid")->first();
         DB::beginTransaction();
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
@@ -11433,10 +11406,10 @@ class BillingController extends BaseController
                     ]);
 
                     //Code For installment amount
-                    $getInstallMentIfOn=InvoiceInstallment::where("invoice_id",$invoice->id)->first();
+                    $getInstallMentIfOn = InvoiceInstallment::where("invoice_id", $request->payable_record_id)->where("status", "unpaid")->first();
                     if(!empty($getInstallMentIfOn)) {
                         Log::info("enter installment");
-                        $this->updateInvoiceInstallment($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
+                        $this->updateInvoiceInstallmentAmount($payableAmount,$invoice->id, $onlinePaymentStatus = 'paid');
                     }
 
                     // Update invoice online payment status

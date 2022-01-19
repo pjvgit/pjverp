@@ -47,7 +47,7 @@
                         }  
                         if($value->acrtivity_title=="Payment Received" && $value->status==1){
                             $refund='<a data-toggle="modal"  data-target="#RefundPopup" data-placement="bottom" href="javascript:;"  onclick="RefundPopup('.$value->id.');"><button type="button"  class="btn btn-link ">Refund</button></a>';
-                            if($value->pay_method != "Card" && $value->payment_from != "online") {
+                            if(!in_array($value->pay_method, ["Card","Oxxo Cash","SPEI"]) && $value->payment_from != "online") {
                                 $refund .= '|<a data-toggle="modal"  data-target="#Deleteopup" data-placement="bottom" href="javascript:;"  onclick="DeletePopup('.$value->id.');"><button type="button"  class="btn btn-link ">Delete</button></a>';
                             }
                         }else if($value->acrtivity_title=="Payment Received" && $value->status=2){

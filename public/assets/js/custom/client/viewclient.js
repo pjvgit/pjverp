@@ -68,19 +68,18 @@ $(document).ready(function() {
         "bPaginate":true,
         dom: '<"top">rt<"bottom"pl>',
         "columns": [
-            { "data": "view", orderable: false, searchable: false},
+            { "data": "view",'sorting':false, searchable: false},
             { "data": "invoice_number" },
             { "data": "total_amount" },
             { "data": "paid_amount"},
             { "data": "due_amount" },
             { "data": "due_date"},
             { "data": "created_at"},
-            { "data": "status"},
-            { "data": "viewed"},
+            { "data": "status",'sorting':false},
+            { "data": "viewed",'sorting':false},
             { "data": "action", orderable: false, searchable: false },
         ],
         columnDefs: [
-            { targets: [0], orderable: false},
         ],
         initComplete: function () {
             $("[data-toggle=popover]").popover();

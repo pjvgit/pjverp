@@ -788,7 +788,7 @@ class CompanydashboardController extends BaseController
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
         $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
-        $allLeads = $allLeads->withCount('fundPaymentHistory');
+        $allLeads = $allLeads->withCount('trustFundPaymentHistory', 'creditFundPaymentHistory');
         $allLeads = $allLeads->with('user', 'allocateToCase')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   

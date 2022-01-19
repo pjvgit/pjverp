@@ -191,20 +191,17 @@ trait CreditAccountTrait {
     /**
      * Update invoice installment status and paid amount
      */
-    public function updateInvoiceInstallment($paidAmt, $invoice_id, $onlinePaymentStatus = null) {
+    public function updateInvoiceInstallmentAmount($paidAmt, $invoice_id, $onlinePaymentStatus = null) {
         Log::info("installment invoice id: ". $invoice_id);
         $invoiceInstallment = InvoiceInstallment::where("invoice_id",$invoice_id)->where("status","unpaid")->orderBy("due_date","ASC")->get();
         foreach($invoiceInstallment as $key => $item) {
-            Log::info("installment id: ". $item->id);
             if($item->adjustment < $item->installment_amount && $paidAmt > 0) {
                 $pendingAmt = $item->installment_amount - $item->adjustment;
-                Log::info("installment pending amount: ". $pendingAmt);
                 if($pendingAmt > $paidAmt) {
                     $adjustment = $paidAmt;
                 } else {
                     $adjustment = $pendingAmt;
                 }
-                Log::info("installment pending amount: ". $adjustment);
                 $item->fill([
                     "adjustment" => $item->adjustment + $adjustment,
                     "status" => ($item->installment_amount == $adjustment) ? "paid" : "unpaid",
@@ -214,7 +211,6 @@ trait CreditAccountTrait {
                 ])->save();
             }
             $paidAmt -= $adjustment;
-            Log::info("remain paid amount: ". $paidAmt);
         }
     }
 }

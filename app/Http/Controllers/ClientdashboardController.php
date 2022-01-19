@@ -1563,7 +1563,9 @@ class ClientdashboardController extends BaseController
     }
     public function loadRequestedFundHistory()
     {   
+        $columns = array('requested_fund.id', 'contact_name', 'deposit_into_type', 'trust_account', 'amount_requested', 'amount_paid','amount_due','due_date','last_reminder_sent_on','user_name','id',);
         $requestData= $_REQUEST;
+        //  return $columns[$requestData['order'][0]['column']];
         $allLeads = RequestedFund::leftJoin('users','requested_fund.client_id','=','users.id');
         $allLeads = $allLeads->leftJoin('users as u1','requested_fund.client_id','=','u1.id');
         $allLeads = $allLeads->leftJoin('users_additional_info as u2','requested_fund.client_id','=','u2.id');
@@ -1573,8 +1575,11 @@ class ClientdashboardController extends BaseController
         $totalFiltered = $totalData; 
      
         $allLeads = $allLeads->offset($requestData['start'])->limit($requestData['length']);
-        $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
-        $allLeads = $allLeads->withCount('fundPaymentHistory');
+        if(isset($requestData['order']) && $requestData['order']!=''){
+            $allLeads = $allLeads->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
+        }
+        // $allLeads = $allLeads->orderBy('requested_fund.created_at','DESC');
+        $allLeads = $allLeads->withCount('trustFundPaymentHistory', 'creditFundPaymentHistory');
         $allLeads = $allLeads->with('user', 'allocateToCase')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
@@ -4013,8 +4018,15 @@ class ClientdashboardController extends BaseController
      */
     public function loadInvoices(Request $request)
     {
-        $data = Invoices::where("user_id", $request->client_id)->orderBy("created_at", "desc")
-                    ->with(['invoiceForwardedToInvoice', 'invoiceShared' => function($query) use($request) {
+        $columns = array('invoices.id', 'invoices.id','total_amount', 'paid_amount', 'due_amount', 'due_date', 'created_at');
+        // return $columns[$request['order'][0]['column']];
+        $data = Invoices::where("user_id", $request->client_id);
+        if(isset($request['order']) && $request['order']!=''){
+            $data = $data->orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'] ?? 'desc');
+        } else {
+            $data = $data->orderBy("created_at", "desc");
+        }
+        $data = $data->with(['invoiceForwardedToInvoice', 'invoiceShared' => function($query) use($request) {
                         $query->where('user_id', $request->client_id);
                     }])->get();
         $userAddInfo = UsersAdditionalInfo::where("user_id", $request->client_id)->first();
@@ -4061,19 +4073,19 @@ class ClientdashboardController extends BaseController
                         $fwd = '<div style="font-size: 11px;">Forwarded to <a href="'.route("bills/invoices/view", $invitem->decode_id).'">'.$invitem->invoice_id.'</a></div>';
                     }
                 }
-                return '$'.$data->due_amount_new.'<br>'.$fwd;
+                return '<span class="d-none">'.$data->due_amount_new.'</span>$'.$data->due_amount_new.'<br>'.$fwd;
             })
             ->editColumn('total_amount', function ($data) {
-                return '$'.$data->total_amount_new;
+                return '<span class="d-none">'.$data->total_amount_new.'</span>$'.$data->total_amount_new;
             })
             ->editColumn('paid_amount', function ($data) {
-                return '$'.$data->paid_amount_new;
+                return '<span class="d-none">'.$data->paid_amount_new.'</span>$'.$data->paid_amount_new;
             })
             ->editColumn('due_date', function ($data) {
-                return $data->due_date_new;
+                return '<span class="d-none">'.date('YYYYMMDD', strtotime($data->due_date_new)).'</span>'.$data->due_date_new;
             })
             ->editColumn('created_at', function ($data) {
-                return $data->created_date_new;
+                return '<span class="d-none">'.date('YYYYMMDD', strtotime($data->created_date_new)).'</span>'.$data->created_date_new;
             })
             ->addColumn('invoice_number', function ($data) {
                 if($data->is_lead_invoice == 'yes'){
@@ -4089,7 +4101,7 @@ class ClientdashboardController extends BaseController
                     return '<a href="'.route("bills/invoices/view", $data->decode_id).'"><button class="btn btn-primary btn-rounded" type="button" id="button">View</button> </a>';
                 }
             })
-            ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount'])
+            ->rawColumns(['action', 'view', 'invoice_number', 'status', 'due_amount', 'total_amount', 'paid_amount', 'due_date', 'created_at', '', '', '', '', '', ''])
             ->with("credit_balance", $userAddInfo->credit_account_balance ?? 0.00)
             ->with("trust_balance", $userAddInfo->trust_account_balance ?? 0.00)
             ->make(true);

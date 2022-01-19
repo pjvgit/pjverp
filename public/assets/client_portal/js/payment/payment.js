@@ -291,12 +291,23 @@ $("#bank_pay_form").validate({
     },
 });
 
-$("#card_form").submit(function (event) {
-    event.preventDefault();
-    $("#error-alert").hide();
-    if ($(this).valid()) {
-        $(".preloader").css("display", "inline-block");
-        Conekta.token.create($(this)[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
+// Get selected client detail
+$("#online_client_id").change(function() {
+    var clientId = $(this).val();
+    if(clientId != "") {
+        $.ajax({
+            url: baseUrl+"/bills/invoices/get/client/detail",
+            type: 'GET',
+            data: {'client_id': clientId},
+            success: function(data) {
+                if(data.client != null) {
+                    $("#cash_name, #bt_name").val(data.client.client_name);
+                    $("#cash_phone_number, #bt_phone_number").val(data.client.mobile_number);
+                }
+            }
+        });
+    } else {
+        $("#cash_name, #bt_name").val("");
+        $("#cash_phone_number, #bt_phone_number").val("");
     }
-    return false;
 });
