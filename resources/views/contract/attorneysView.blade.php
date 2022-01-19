@@ -1142,7 +1142,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $('td:eq(3)', nRow).html('<div class="text-left">Not Specified</div>');
                     }
                     <?php if($userProfile->user_status != 3){ ?>
-                        var caseT =  aData.case_title.replace("'", "\\'");
+                        var caseT =  aData.case_title.replace(/'/g, "\\'");
                         var d="'{{base64_decode($id)}}','{{ $userProfile->first_name}} {{ $userProfile->middle_name}} {{ $userProfile->last_name}}','"+aData.id+"','"+caseT+"',false";
                         $('td:eq(4)', nRow).html('<div class="text-center"><a  href="javascript:void(0);" onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>'); 
                     <?php }else{ ?>

@@ -6363,7 +6363,7 @@ class CaseController extends BaseController
         if(isset($requestData['user_id']) && $requestData['user_id']!=''){
             $messages = $messages->where("messages.user_id",'like', '%'.$requestData['user_id'].'%');
         }
-
+        $messages = $messages->where("messages.firm_id",Auth::User()->firm_name);
         $totalData=$messages->count();
         $totalFiltered = $totalData; 
 

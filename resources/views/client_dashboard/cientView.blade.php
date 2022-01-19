@@ -1734,7 +1734,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }
                     var action = '';
                     @can('client_add_edit')
-                    var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+aData.case_title+"',false";
+                    var caseTitle = aData.case_title.replace(/'/g, "\\'");
+                    var d="'{{$client_id}}','{{$client_name}}','"+aData.id+"','"+caseTitle+"',false";
                     action = '<div class="text-center"><a  href="javascript:;"  onclick="confirm_remove_user_link('+d+'); return false;" ><i class="fas fa-trash pr-3  align-middle"></i> </a></div>';
                     @endcan
                     $('td:eq(3)', nRow).html(action); 

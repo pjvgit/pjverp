@@ -3647,7 +3647,7 @@ if(!isset($addition)){ $addition=0;}
     });
 
     var court_case_id =  $("#court_case_id").val()
-    $("#court_case_id").on("click", function() {
+    $("#court_case_id").on("change", function() {
         if(localStorage.getItem("showWarning") > 0){
             swal({
                 title: 'warning',

@@ -2064,6 +2064,7 @@ class ClientdashboardController extends BaseController
     }
     public function sendNewMessageToUser(Request $request)
     {
+        // return $request->all();
         if(isset($request->send_global) && $request->send_global=="on"){
             $validator = \Validator::make($request->all(), [
                 'message' => 'required',
@@ -2081,8 +2082,10 @@ class ClientdashboardController extends BaseController
                         $Messages->replies_is='private';
                         $Messages->case_id=NUll;
                         $Messages->is_global = 1;
+                        $Messages->is_global_for = 'staff';
                         $Messages->subject=$request['subject'];
                         $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->firm_id =Auth::User()->firm_name;
                         $Messages->created_by =Auth::User()->id;
                         $Messages->save();
 
@@ -2112,9 +2115,11 @@ class ClientdashboardController extends BaseController
                             $Messages->replies_is='private';
                             $Messages->case_id=NUll;
                             $Messages->is_global = 1;
+                            $Messages->is_global_for = 'client';
                             $Messages->subject=$request['subject'];
                             $Messages->message=substr(strip_tags($request->delta),0,50);
                             $Messages->created_by =Auth::User()->id;
+                            $Messages->firm_id =Auth::User()->firm_name;
                             $Messages->save();
 
                             $ReplyMessages=new ReplyMessages;
@@ -2192,6 +2197,7 @@ class ClientdashboardController extends BaseController
                         $Messages->subject=$request['subject'];
                         $Messages->message=substr(strip_tags($request->delta),0,50);
                         $Messages->created_by =Auth::User()->id;
+                        $Messages->firm_id =Auth::User()->firm_name;
                         $Messages->save();
 
                         $ReplyMessages=new ReplyMessages;
@@ -2227,6 +2233,7 @@ class ClientdashboardController extends BaseController
                         $Messages->case_id=$request['case_link'];
                         $Messages->subject=$request['subject'];
                         $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->firm_id =Auth::User()->firm_name;
                         $Messages->created_by =Auth::User()->id;
                         $Messages->save();
 
@@ -2257,12 +2264,13 @@ class ClientdashboardController extends BaseController
                     $Messages->subject=$request['subject'];
                     $Messages->message=substr(strip_tags($request->delta),0,50);
                     $Messages->created_by =Auth::User()->id;
+                    $Messages->firm_id =Auth::User()->firm_name;
                     $Messages->save();
 
                     $ReplyMessages=new ReplyMessages;
                     $ReplyMessages->message_id=$Messages->id;
                     $ReplyMessages->reply_message=$request['delta'];
-                    $ReplyMessages->created_by =Auth::User()->id;
+                    $ReplyMessages->created_by =Auth::User()->id;                    
                     $ReplyMessages->save();
 
                     foreach($request->send_to as $k=>$v){     
@@ -2329,13 +2337,19 @@ class ClientdashboardController extends BaseController
         ->where('messages.id', $request->id)
         ->first();
         if(!empty($messagesData)){
-            if($messagesData->user_id != Auth::User()->id){
+        $count = 0;
+        if($messagesData->created_by == Auth::User()->id){
+            $count++;
+        }
+        if($messagesData->user_id == Auth::User()->id){
+            $count++;
+        }
+        if($count == 0){
             abort(404);
-            }
-
+        }
+  
         $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->leftJoin("users","users.id","=","messages.created_by")
-        ->select('reply_messages.*',DB::raw("DATE_FORMAT(messages.updated_at,'%d %M %H:%i %p') as last_post"),'users.id as staff_id','users.first_name','users.last_name')
+        ->select('reply_messages.*')
         ->where('reply_messages.message_id', $request->id)
         ->get();
     

@@ -137,9 +137,9 @@
                                             @endif
                                         </td>
                                         <td class="invoice-history-row-user">
-                                            <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">
-                                                {{substr($value->responsible['cname'],0,100)}}
-                                                ({{$value->responsible['user_title']}})</a>
+                                            <a href="{{ $value->createdByUser->user_route_link }}">
+                                                {{substr($value->createdByUser->full_name,0,100)}}
+                                                ({{$value->createdByUser->user_title}})</a>
                                         </td>
                                         <td class="invoice-history-row-deposited-into">
                                            <?php echo $depositInto;?>
@@ -265,9 +265,9 @@
                                             @endif
                                         </td>
                                         <td class="invoice-history-row-user">
-                                            <a href="{{BASE_URL}}contacts/attorneys/{{base64_encode($value->responsible['id'])}}">
-                                                {{substr($value->responsible['cname'],0,100)}}
-                                                ({{$value->responsible['user_title']}})</a>
+                                            <a href="{{ $value->createdByUser->user_route_link }}">
+                                            {{substr($value->createdByUser->full_name,0,100)}}
+                                            ({{$value->createdByUser->user_title}})</a>
                                         </td>
                                         <td class="invoice-history-row-deposited-into">
                                            <?php echo $depositInto;?>

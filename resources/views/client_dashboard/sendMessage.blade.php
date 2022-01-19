@@ -526,7 +526,8 @@
                         containerId: "toast-top-full-width"
                     });
                     quill.root.innerHTML = '';
-                    afterLoader()
+                    afterLoader();
+                    $("#preloader").hide();
                     if($("#current_submit").val() == 'saveandtime'){            
                         $("#addNewMessagePopup").modal('hide');
                         $("#loadTimeEntryPopup").modal('show');

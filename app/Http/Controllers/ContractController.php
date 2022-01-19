@@ -171,10 +171,9 @@ class ContractController extends BaseController
     {
         $user = User::where("id",$request->user_id)->first();       
         $country = Countries::get();
-        $CaseMaster = CaseMaster::all();
         $case_id=$request->case_id ?? 0;
         
-        return view('contract.loadStep2',compact('user','country','CaseMaster','case_id'));
+        return view('contract.loadStep2',compact('user','country','case_id'));
     }
     // Save step 2 data to database.
     public function saveStep2(Request $request)
@@ -1356,7 +1355,7 @@ class ContractController extends BaseController
             $user = $user->with("clientCases", "createdByUser");
             $user = $user->offset($requestData['start'])->limit($requestData['length']);
             $user = $user->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-            $user = $user->get()->each->setAppends(['decode_id', 'contactlist']);
+            $user = $user->get()->each->setAppends(['decode_id', 'contactlist','created_date_new']);
             $json_data = array(
                 "draw"            => intval( $requestData['draw'] ),   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
                 "recordsTotal"    => intval( $totalData ),  // total number of records

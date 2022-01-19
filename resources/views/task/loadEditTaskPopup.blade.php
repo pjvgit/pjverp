@@ -740,4 +740,8 @@
         $(".innerLoader").css('display', 'none');
         $('.submit').removeAttr("disabled");        
     }
+
+    $('#editTask').on('hidden.bs.modal', function () {
+        window.location.reload();
+    });
 </script>

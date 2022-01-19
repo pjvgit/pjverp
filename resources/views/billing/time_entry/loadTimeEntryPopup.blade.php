@@ -1,12 +1,12 @@
 <ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item"><a class="nav-link active" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
-            aria-controls="homeBasic" aria-selected="true">Single</a></li>
-    <li class="nav-item"><a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
-            aria-controls="profileBasic" aria-selected="false">Bulk</a></li>
+    <li class="nav-item"><a class="nav-link active" id="timeEntry-home-basic-tab" data-toggle="tab" href="#timeEntry-homeBasic" role="tab"
+            aria-controls="timeEntry-homeBasic" aria-selected="true">Single</a></li>
+    <li class="nav-item"><a class="nav-link" id="timeEntry-profile-basic-tab" data-toggle="tab" href="#timeEntry-profileBasic" role="tab"
+            aria-controls="timeEntry-profileBasic" aria-selected="false">Bulk</a></li>
 </ul>
 <div class="tab-content" id="myTabContent" bladeFile="resources/views/billing/time_entry/loadTimeEntryPopup.blade.php">
     <span id="showError" class="showError" style="display: none;"></span>
-    <div class="tab-pane fade show active" id="homeBasic" role="tabpanel" aria-labelledby="home-basic-tab">
+    <div class="tab-pane fade show active" id="timeEntry-homeBasic" role="tabpanel" aria-labelledby="timeEntry-home-basic-tab">
         <form class="savenewTimeEntry" id="savenewTimeEntry" name="savenewTimeEntry" method="POST">
             @csrf
             <?php 
@@ -174,7 +174,7 @@
 
         </form>
     </div>
-    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade" id="timeEntry-profileBasic" role="tabpanel" aria-labelledby="timeEntry-profile-basic-tab">
         <form class="savebulkTimeEntry" id="savebulkTimeEntry" name="savebulkTimeEntry" method="POST">
             @csrf
             <?php 

@@ -46,7 +46,7 @@
         <div class="col-sm-10">
             <select class="form-control case_list" id="case_list" name="case_list" data-placeholder="Select Case">
                 <option value="">Select Case</option>                
-                <?php foreach($CaseMaster as $k=>$v){?>
+                <?php foreach(userCaseList() as $k=>$v){?>
                     <option value="{{$v->id}}" <?php echo ($case_id == $v->id) ? ' selected' : ''; ?> >{{$v->case_title}}</option>
                 <?php } ?>
             </select>

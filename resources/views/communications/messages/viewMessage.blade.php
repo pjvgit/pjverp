@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title','Communications')
 @section('main-content')
-<div class="row">
+<div class="row" bladefile="resources/views/communications/messages/viewMessage.blade.php">
     <div class="col-md-12">
         <div class="card mb-4">
             <div class="card-body">
@@ -67,7 +67,13 @@
                                 <tbody><tr>
                                 <td style="width: 76px; vertical-align: top;">
                                     <div style="position: relative; overflow: visible;">
-                                    <div style="background-color: white;border: 0px solid #222222;border-radius: 0px;width: 56px;height: 56px;padding: 0px;display: inline-block;overflow: hidden;box-shadow: 0px 0px 4px #222222;"><img class="" src="https://assets.mycase.com/api_images/default_avatars/v1/default_avatar_64.svg" width="56" height="56"></div>
+                                    <div style="background-color: white;border: 0px solid #222222;border-radius: 0px;width: 56px;height: 56px;padding: 0px;display: inline-block;overflow: hidden;box-shadow: 0px 0px 4px #222222;">
+                                    @if($msg->createdByUser->profile_image != '' && file_exists(public_path().'/images/users/'.$msg->createdByUser->profile_image))
+                                        <img class="" src="{{asset('images/users/'.$msg->createdByUser->profile_image)}}" width="56" height="56">
+                                    @else
+                                        <img class="" src="{{asset('assets/images/faces/default_face.svg')}}" width="56" height="56">
+                                    @endif
+                                    </div>
                                     </div>
                                 </td>
                                 <td style="background-color: rgb(246, 251, 255); overflow: visible;">
@@ -75,7 +81,7 @@
                                     <div class="comment_wrapper">
                                         <div class="comment_header clearfix">
                                         <div style="font-weight: bold; float: left;">
-                                            <a href="{{ route('contacts/attorneys/info', base64_encode(Auth::user()->id)) }}">{{Auth::user()->first_name .' '.Auth::user()->last_name}} (Attorney)</a>
+                                            <a href="{{ $msg->createdByUser->user_route_link }}">{{$msg->createdByUser->full_name}} ({{$msg->createdByUser->user_title}})</a>
                                         </div>
                                         <div style="float: right;">
                                         {{ $msg->created_date_new }}

@@ -19,6 +19,7 @@ class InvoiceHistory extends Authenticatable
         "deposit_into_id", "invoice_payment_id", "status", "notes", "refund_ref_id", "created_by", "updated_by", "payment_from", "online_payment_status"];
 
     protected $appends  = ['added_date','responsible','refund_amount'];
+
     public function getCreatedatnewformateAttribute(){
         return date('M j, Y h:i A',strtotime($this->created_at));
     }
@@ -46,7 +47,7 @@ class InvoiceHistory extends Authenticatable
         }
     }
     public function getResponsibleAttribute(){
-       return User::select("*",DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as cname'))->find($this->created_by);
+        //    return User::select("*")->find($this->created_by);
     }
     public function getInvoicePaidAmtAttribute(){
         return number_format($this->amount_paid,2);
@@ -122,5 +123,15 @@ class InvoiceHistory extends Authenticatable
     public function invoice()
     {
         return $this->belongsTo(Invoices::class, 'invoice_id');
+    }
+
+    /**
+     * Get the createdByUser that owns the Invoices
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 }

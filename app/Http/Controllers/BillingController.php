@@ -2567,11 +2567,11 @@ class BillingController extends BaseController
     {
         // return $request->all();
         $id=Auth::user()->id;
-         $user = User::find($id);
-         $from_date='';
-         $bill_to_date='';
-         $filterByDate='';
-        $tempInvoiceToken = $request->temp_invoice_token;
+        $user = User::find($id);
+        $from_date='';
+        $bill_to_date='';
+        $filterByDate='';
+        $tempInvoiceToken = $request->token;
         /* if(!$request->temp_invoice_token) {
             $tempInvoiceToken = round(microtime(true) * 1000);
         } */        
@@ -2698,11 +2698,20 @@ class BillingController extends BaseController
             $ExpenseEntry=$ExpenseEntry->get();
 
             //Get Flat fees entry
-            $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
-            ->where("flat_fee_entry.user_id",auth()->id())
-            ->where("flat_fee_entry.invoice_link",NULL)
-            ->where("flat_fee_entry.status","unpaid")
-            ->delete();
+            if($tempInvoiceToken == $request->token){
+                $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
+                ->where("flat_fee_entry.user_id",auth()->id())
+                ->where("flat_fee_entry.invoice_link",NULL)
+                ->where("flat_fee_entry.status","unpaid")
+                ->where("flat_fee_entry.token_id","!=",'9999999')
+                ->delete();
+            }else{
+                $FlatFeeEntry=FlatFeeEntry::where("flat_fee_entry.case_id",$case_id)
+                ->where("flat_fee_entry.user_id",auth()->id())
+                ->where("flat_fee_entry.invoice_link",NULL)
+                ->where("flat_fee_entry.status","unpaid")
+                ->delete();
+            }
             if($caseMaster) {
                 if($caseMaster->billing_method == "flat" || $caseMaster->billing_method == "mixed") {
                     $totalFlatFee = FlatFeeEntry::where('case_id', $case_id)->where('status', 'paid')->sum('cost');

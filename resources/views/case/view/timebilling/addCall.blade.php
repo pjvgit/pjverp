@@ -5,18 +5,18 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
 
 <ul class="nav nav-tabs" id="myTab" role="tablist" bladefile="resources/views/case/view/timebilling/addCall.blade.php">
     <li class="nav-item">
-        <a class="nav-link  active show" id="home-basic-tab" data-toggle="tab" href="#homeBasic" role="tab"
-            aria-controls="homeBasic" aria-selected="false">Incoming</a>
+        <a class="nav-link  active show" id="call-home-basic-tab" data-toggle="tab" href="#call-homeBasic" role="tab"
+            aria-controls="call-homeBasic" aria-selected="false">Incoming</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
-            aria-controls="profileBasic" aria-selected="true">Outgoing</a>
+        <a class="nav-link" id="call-profile-basic-tab" data-toggle="tab" href="#call-profileBasic" role="tab"
+            aria-controls="call-profileBasic" aria-selected="true">Outgoing</a>
     </li>
 
 </ul>
 <div class="tab-content" id="myTabContent">
     <div class="showError" style="display:none"></div>
-    <div class="tab-pane fade  active show" id="homeBasic" role="tabpanel" aria-labelledby="home-basic-tab">
+    <div class="tab-pane fade  active show" id="call-homeBasic" role="tabpanel" aria-labelledby="call-home-basic-tab">
         <form class="AddIncomingCall" id="AddIncomingCall" name="AddIncomingCall" method="POST">
             <span id="response"></span>
             @csrf
@@ -126,7 +126,7 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
             </div>
         </form>
     </div>
-    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade" id="call-profileBasic" role="tabpanel" aria-labelledby="call-profile-basic-tab">
         <form class="AddOutgoingCall" id="AddOutgoingCall" name="AddOutgoingCall" method="POST">
             <span id="response"></span>
             @csrf
@@ -626,7 +626,14 @@ $currentTime = date("h:i A", strtotime($CommonController->convertUTCToUserTime(d
                     afterLoader();
                     return false;
                 } else {
-                    window.location.reload();
+                    var currentClick= $(".st").val();
+                    if(currentClick=="s"){
+                        window.location.reload();
+                    }else{
+                        $("#addCall").modal('hide');
+                        $("#loadTimeEntryPopup").modal("show");
+                        loadTimeEntryPopupByCase('{{$case_id}}');
+                    }
                 }
             },
             error: function(xhr, status, error) {

@@ -34,7 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    protected $appends  = ['decode_id', 'created_date_new', 'full_name', /* 'full_address', */ 'user_type_text'];
+    protected $appends  = ['decode_id', 'created_date_new', 'full_name', /* 'full_address', */ 'user_type_text','user_route_link'];
 
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
@@ -371,5 +371,24 @@ class User extends Authenticatable
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by', 'id')/* ->select(DB::raw('CONCAT(users.first_name, " ",users.last_name) as created_by_name')) */;
+    }
+
+    /**
+     * Get user route link attribute
+     */
+    public function getUserRouteLinkAttribute(){
+        $link="";
+        if($this->user_level=="1"){
+            $link="";
+        }else if($this->user_level=="2"){
+            $link=route('contacts/clients/view', $this->id);
+        }else if($this->user_level=="3"){
+            $link=route('contacts/attorneys/info', base64_encode($this->id));
+        }else if($this->user_level=="4"){
+            $link=route('contacts/companies/view', $this->id);
+        }else if($this->user_level=="5"){
+            $link=route('case_details/info', $this->id);
+        }
+        return $link;
     }
 }

@@ -573,8 +573,8 @@
                 @endif
             </td>
             <td class="payment-history-column-user" style="vertical-align: top;">
-                {{substr($hVal->responsible['cname'],0,100)}}
-                ({{$hVal->responsible['user_title']}})
+                {{substr($hVal->createdByUser->full_name,0,100)}}
+                ({{$hVal->createdByUser->user_title}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
                 @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
