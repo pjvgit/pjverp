@@ -130,7 +130,7 @@ class RequestedFund extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function fundPaymentHistory()
+    public function trustFundPaymentHistory()
     {
         return $this->hasMany(TrustHistory::class, 'related_to_fund_request_id');
     }
@@ -173,5 +173,15 @@ class RequestedFund extends Authenticatable
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get all of the creditFundPaymentHistory for the RequestedFund
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function creditFundPaymentHistory()
+    {
+        return $this->hasMany(DepositIntoCreditHistory::class, 'related_to_fund_request_id');
     }
 }

@@ -33,7 +33,7 @@
     <div class="row">
         <div class="col-md-12 form-group">
             <label for="contact-field">Choose contact</label>
-            <select class="form-control" name="client_id" style="width: 100%;" placeholder="Select a contact">
+            <select class="form-control" name="client_id" id="online_client_id" style="width: 100%;" placeholder="Select a contact">
                 <option></option>
                 @forelse($trustAccounts as $key=>$val)
                     <option value="{{$val->uid}}"> {{$val->user_name}} ({{ @$val->user_title }})</option>
@@ -143,13 +143,13 @@
                 <div class="form-group row">
                     <label class="col-md-3">Name</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control" name="name" value="{{ $client->full_name ?? '' }}" placeholder="Nombre" maxlength="50">
+                        <input type="text" class="form-control" name="name" id="cash_name" placeholder="Nombre" maxlength="50">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-md-3">Phone number</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control phone-number" name="phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
+                        <input type="text" class="form-control phone-number" name="phone_number" id="cash_phone_number" placeholder="Teléfono" maxlength="13" minlength="10">
                     </div>
                 </div>
             </div>
@@ -165,13 +165,13 @@
                 <div class="form-group row">
                     <label class="col-md-3">Name</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control" name="bt_name" value="{{ $client->full_name ?? '' }}" placeholder="Nombre" maxlength="50">
+                        <input type="text" class="form-control" name="bt_name" id="bt_name" placeholder="Nombre" maxlength="50">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-md-3">Phone number</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control phone-number" name="bt_phone_number" value="{{ $client->mobile_number ?? '' }}" placeholder="Teléfono" maxlength="13" minlength="10">
+                        <input type="text" class="form-control phone-number" name="bt_phone_number" id="bt_phone_number" placeholder="Teléfono" maxlength="13" minlength="10">
                     </div>
                 </div>
             </div>

@@ -267,7 +267,7 @@ if(isset($_GET['type'])){
                             <i class="fas fa-bell pr-3 align-middle"></i>\
                         </a>';
                     }
-                    action += '<a data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+', this);" data-payment-count="'+aData.fund_payment_history_count+'">\
+                    action += '<a data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+', this);" data-payment-count="'+((aData.deposit_into_type == "credit") ? aData.credit_fund_payment_history_count : aData.trust_fund_payment_history_count)+'">\
                             <i class="fas fa-trash align-middle "></i>\
                         </a>\
                     </div>';

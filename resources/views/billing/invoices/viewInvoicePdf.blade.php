@@ -808,7 +808,7 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             </td>
         </tr>
         <?php  foreach($InvoiceHistoryTransaction as $hKey=>$hVal){
-                    if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund","Payment Pending"])){ ?>
+                    if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund"])){ ?>
         <tr class="invoice_info_row invoice-table-row">
             <td class="payment-history-column-activity " style="vertical-align: top;">
                 {{$hVal->acrtivity_title}}
@@ -831,7 +831,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 ({{$hVal->createdByUser->user_title}})
             </td>
             <td class="payment-history-column-deposited-into" style="vertical-align: top;">
-                @if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
+                @if($hVal->acrtivity_title=="Payment Received" && in_array($hVal->payment_from, ['online','client_online']))
+                    Operating Account
+                @elseif($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
                     {{ $hVal->deposit_into }}
                 @endif
             </td>
@@ -840,6 +842,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 } ?>
     </tbody>
 </table>
+
+@include('billing.invoices.partials.load_invoice_pending_payment_history')
+
 <?php } ?>
 &nbsp;
 &nbsp;

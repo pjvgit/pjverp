@@ -93,16 +93,16 @@ $(document).ready(function() {
         columns: [
             { data: 'id'},
             { data: 'id'},
-            { data: 'id'},
+            { data: 'id','sorting':false},
+            { data: 'id','sorting':false}, 
             { data: 'id'}, 
-            { data: 'id'}, 
             { data: 'id'},
             { data: 'id'},
             { data: 'id'},
             { data: 'id'},
-            { data: 'id'},
-            { data: 'id'},
-            { data: 'id'}
+            { data: 'id','sorting':false},
+            { data: 'id','sorting':false},
+            { data: 'id','sorting':false}
         ],
         "fnCreatedRow": function (nRow, aData, iDataIndex) {
             
@@ -124,11 +124,11 @@ $(document).ready(function() {
             }
             $('td:eq(3)', nRow).html('<div class="text-left">'+clientLink+'</div>');
 
-            $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.amt_requested+'</div>');
-            $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.amt_paid+'</div>')
-            $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.amt_due+'</div>')
-            $('td:eq(7)', nRow).html('<div class="text-left">'+aData.due_date_format+'</div>')
-            $('td:eq(8)', nRow).html('<div class="text-left">'+aData.send_date_format+'</div>')
+            $('td:eq(4)', nRow).html('<span class="d-none">'+aData.amt_requested+'</span><div class="text-left">$'+aData.amt_requested+'</div>');
+            $('td:eq(5)', nRow).html('<span class="d-none">'+aData.amt_paid+'</span><div class="text-left">$'+aData.amt_paid+'</div>')
+            $('td:eq(6)', nRow).html('<span class="d-none">'+aData.amt_due+'</span><div class="text-left">$'+aData.amt_due+'</div>')
+            $('td:eq(7)', nRow).html('<span class="d-none">'+moment(aData.due_date_format).format('YYYYMMDD')+'</span><div class="text-left">'+aData.due_date_format+'</div>')
+            $('td:eq(8)', nRow).html('<span class="d-none">'+moment(aData.last_send).format('YYYYMMDD')+'</span><div class="text-left">'+aData.send_date_format+'</div>')
 
             if(aData.is_viewed=="no"){
                 var isSeen="Never";
@@ -158,7 +158,7 @@ $(document).ready(function() {
                     <i class="fas fa-bell pr-3 align-middle"></i>\
                 </a>';
             }
-            action += '<a data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+', this);" data-payment-count="'+aData.fund_payment_history_count+'">\
+            action += '<a data-toggle="modal" data-placement="bottom" href="javascript:;"  onclick="deleteRequestFund('+aData.id+', this);" data-payment-count="'+((aData.deposit_into_type == "credit") ? aData.credit_fund_payment_history_count : aData.trust_fund_payment_history_count)+'">\
                     <i class="fas fa-trash align-middle "></i>\
                 </a>\
             </div>';

@@ -969,6 +969,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('bills/invoices/refreshAccountHistory', 'BillingController@invoiceAccountHistory')->name('bills/invoices/refreshAccountHistory');
 
     // For online payment
+    Route::get('bills/invoices/get/client/detail', 'BillingController@getClientDetail')->name('bills/invoices/get/client/detail');
     Route::post('bills/invoices/online/payment', 'BillingController@payOnlinePayment')->name('bills/invoices/online/payment');
     
     Route::get('bills/invoices/open', 'BillingController@open')->name('bills/invoices/open')->middleware('permission:billing_add_edit');
