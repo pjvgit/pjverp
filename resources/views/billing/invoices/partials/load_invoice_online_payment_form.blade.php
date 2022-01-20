@@ -13,16 +13,16 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text">$</span>
                 </div>
-                <input class="form-control payment-amount number" style="width:50%; " maxlength="20" name="amount" value="" type="text" aria-label="Amount (to the nearest dollar)" data-payable-amount="{{ $finalAmt }}" data-max-amount="{{ $finalAmt }}">
+                <input class="form-control online-pay-amount number" style="width:50%; " maxlength="20" name="amount" value="" type="text" aria-label="Amount (to the nearest dollar)" data-payable-amount="{{ $finalAmt }}" data-max-amount="{{ $finalAmt }}">
                 <small>&nbsp;</small>
                 <div class="input-group col-sm-9" id="TypeError"></div>
                 <span id="amt"></span>
             </div>
         </div>
         <div class="col-md-2 form-group">
-            <label for="payfull">&nbsp;</label>
+            <label for="payfullOnline">&nbsp;</label>
             <label class="checkbox checkbox-outline-primary">
-                <input type="checkbox" class="payfullFirst" id="payfull" value="{{$finalAmt}}" name="payfull"><span>Pay in full</span><span class="checkmark"></span>
+                <input type="checkbox" class="payfullOnline" id="payfullOnline" value="{{$finalAmt}}" name="payfull"><span>Pay in full</span><span class="checkmark"></span>
             </label>
         </div>
         <div class="col-md-6 form-group">

@@ -311,3 +311,15 @@ $("#online_client_id").change(function() {
         $("#cash_phone_number, #bt_phone_number").val("");
     }
 });
+
+// CHeck online payment full
+$('.payfullOnline').change(function () {
+    alert();
+    if ($(this).is(":checked")) {
+        $(".online-pay-amount").val($(this).val());
+        $(".online-pay-amount").attr("readonly", true);
+    } else {
+        $(".online-pay-amount").val("");
+        $(".online-pay-amount").removeAttr("readonly");
+    }
+});

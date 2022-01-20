@@ -103,7 +103,7 @@ $finalAmt=$invoice-$paid;
                 </div>
             </div>
         @else
-            @include('billing.invoices.partials.load_online_payment_form')
+            @include('billing.invoices.partials.load_invoice_online_payment_form')
         @endif
         </div>
     </div>
@@ -1066,7 +1066,7 @@ function onlinePaymentConfirmation() {
     }
 }
 function didOnlinePayment() {
-    var f= $.number($('.payment-amount').val().replace(/,/g, ''),2);
+    var f= $.number($('.online-pay-amount').val().replace(/,/g, ''),2);
     var currentAmt = f;
     // var currentAmt = $.number($('#amountTrust').val(),2);
     swal({

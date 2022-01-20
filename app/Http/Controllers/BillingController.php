@@ -1383,8 +1383,9 @@ class BillingController extends BaseController
         // }
 
         $authUser = auth()->user();
-         $columns = array('id', 'contact_name', 'id','id', 'contact_name', 'ctitle','total_amount','paid_amount','due_amount','invoices.due_date','invoices.created_at');
+        $columns = array('invoices.id', 'invoices.id', 'invoices.id','invoices.id', 'contact_name', 'ctitle','total_amount','paid_amount','due_amount','invoices.due_date','invoices.created_at');
          $requestData= $_REQUEST;
+
          $Invoices = Invoices::leftJoin("users","invoices.user_id","=","users.id")
          ->leftJoin("case_master","invoices.case_id","=","case_master.id")
          ->select('invoices.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.user_level","users.id as uid","case_master.case_title as ctitle","case_master.case_unique_number","case_master.id as ccid")
@@ -1407,6 +1408,7 @@ class BillingController extends BaseController
             $serachBy=base64_decode($MixVal[0]);
             if($serachOn=="case"){
                 $Invoices = $Invoices->where("invoices.case_id",$serachBy);
+                $columns = array('invoices.id', 'invoices.id','invoices.id', 'contact_name', 'ctitle','total_amount','paid_amount','due_amount','invoices.due_date','invoices.created_at');
             }
             if($serachOn=="contact" || $serachOn=="company"){
                 $Invoices = $Invoices->where("invoices.user_id",$serachBy);
@@ -1418,6 +1420,7 @@ class BillingController extends BaseController
                 $Invoices = $Invoices->whereIn("invoices.id",$AllIDs);
             }
          }
+        // return $columns[$requestData['order'][0]['column']];
         //  $Invoices = $Invoices->where("invoices.is_lead_invoice",'no');
          $totalData=$Invoices->count();
          $totalFiltered = $totalData; 

@@ -106,8 +106,8 @@
                     $('td:eq(3)', nRow).html('<div class="text-left"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.ctitle+'</a></div>');
                     
                     
-                    $('td:eq(4)', nRow).html('<div class="text-left">$'+aData.total_amount_new+'</div>');
-                    $('td:eq(5)', nRow).html('<div class="text-left">$'+aData.paid_amount_new+'</div>');
+                    $('td:eq(4)', nRow).html('<span class="d-none">'+aData.total_amount_new+'</span><div class="text-left">$'+aData.total_amount_new+'</div>');
+                    $('td:eq(5)', nRow).html('<span class="d-none">'+aData.paid_amount_new+'</span><div class="text-left">$'+aData.paid_amount_new+'</div>');
 
                     var fwd = "";
                     if(aData.status == "Forwarded") {
@@ -115,9 +115,9 @@
                             fwd = '<div style="font-size: 11px;">Forwarded to <a href="'+baseUrl+'/bills/invoices/view/'+invitem.decode_id+'">'+invitem.invoice_id+'</a></div>'
                         });
                     }
-                    $('td:eq(6)', nRow).html('<div class="text-left">$'+aData.due_amount_new+'</div><div>'+fwd+'</div>');
-                    $('td:eq(7)', nRow).html('<div class="text-left">'+aData.due_date_new+'</div>');
-                    $('td:eq(8)', nRow).html('<div class="text-left">'+aData.created_date_new+'</div>');
+                    $('td:eq(6)', nRow).html('<span class="d-none">'+aData.due_amount_new+'</span><div class="text-left">$'+aData.due_amount_new+'</div><div>'+fwd+'</div>');
+                    $('td:eq(7)', nRow).html('<span class="d-none">'+moment(aData.due_date_new).format('YYYYMMDD')+'</span><div class="text-left">'+aData.due_date_new+'</div>');
+                    $('td:eq(8)', nRow).html('<span class="d-none">'+moment(aData.created_date_new).format('YYYYMMDD')+'</span><div class="text-left">'+aData.created_date_new+'</div>');
                     
                     if(aData.status=="Paid"){
                         var curSetatus='<i class="fas fa-circle fa-sm  mr-1 text-success" style="display: inline;"></i>'+aData.status;
