@@ -19,7 +19,7 @@
                 <td class="payment-history-column-pay-method" style="vertical-align: top;">{{ $hVal->pay_method }}</td>
                 <td class="payment-history-column-amount" style="vertical-align: top;">${{number_format($hVal->amount,2)}}</td>
                 <td class="payment-history-column-user" style="vertical-align: top;">
-                    {{substr($hVal->->createdByUser->full_name,0,100)}} ({{$hVal->createdByUser->user_title}})
+                    {{substr($hVal->createdByUser->full_name,0,100)}} ({{$hVal->createdByUser->user_title}})
                 </td>
             </tr>
         @empty

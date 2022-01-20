@@ -48,3 +48,4 @@
     </table>
 
     @include('billing.invoices.partials.load_invoice_pending_payment_history')
+@endif
