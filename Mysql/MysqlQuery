@@ -1,3 +1,28 @@
+------------------------------------ 20-JAN-2022 ------------------------------
+CREATE TABLE `user_trust_credit_fund_online_payments` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` int(11) NOT NULL COMMENT 'client/company user id',
+  `payment_method` enum('card','cash','bank transfer') NULL,
+  `amount` decimal(11,2) NULL,
+  `card_emi_month` int(11) NULL,
+  `conekta_order_id` varchar(255) NULL,
+  `conekta_charge_id` varchar(255) NULL,
+  `conekta_customer_id` varchar(255) NULL,
+  `conekta_payment_status` varchar(255) NULL,
+  `conekta_payment_reference_id` varchar(255) NULL,
+  `conekta_reference_expires_at` timestamp NULL,
+  `paid_at` timestamp NULL,
+  `status` enum('deposit','full refund','partial refund','refund entry') NOT NULL DEFAULT 'deposit',
+  `trust_history_id` int(11) NULL,
+  `credit_history_id` int(11) NULL,
+  `firm_id` int(11) NULL,
+  `conekta_order_object` json NULL,
+  `created_by` timestamp NULL,
+  `created_at` int(11) NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
+
 ------------------------------------ 19-JAN-2022 ------------------------------
 ALTER TABLE `messages`
 ADD `is_global_for` enum('client','staff') NULL AFTER `is_global`;

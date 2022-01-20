@@ -4032,7 +4032,7 @@ class ClientdashboardController extends BaseController
      */
     public function loadInvoices(Request $request)
     {
-        $columns = array('invoices.id', 'invoices.id','total_amount', 'paid_amount', 'due_amount', 'due_date', 'created_at');
+        $columns = array('id', 'id','total_amount', 'paid_amount', 'due_amount', 'due_date', 'created_at');
         // return $columns[$request['order'][0]['column']];
         $data = Invoices::where("user_id", $request->client_id);
         if(isset($request['order']) && $request['order']!=''){
@@ -4087,25 +4087,25 @@ class ClientdashboardController extends BaseController
                         $fwd = '<div style="font-size: 11px;">Forwarded to <a href="'.route("bills/invoices/view", $invitem->decode_id).'">'.$invitem->invoice_id.'</a></div>';
                     }
                 }
-                return '<span class="d-none">'.$data->due_amount_new.'</span>$'.$data->due_amount_new.'<br>'.$fwd;
+                return '<span class="d-none">'.$data->due_amount.'</span>$'.$data->due_amount_new.'<br>'.$fwd;
             })
             ->editColumn('total_amount', function ($data) {
-                return '<span class="d-none">'.$data->total_amount_new.'</span>$'.$data->total_amount_new;
+                return '<span class="d-none">'.$data->total_amount.'</span>$'.$data->total_amount_new;
             })
             ->editColumn('paid_amount', function ($data) {
-                return '<span class="d-none">'.$data->paid_amount_new.'</span>$'.$data->paid_amount_new;
+                return '<span class="d-none">'.$data->paid_amount.'</span>$'.$data->paid_amount_new;
             })
             ->editColumn('due_date', function ($data) {
-                return '<span class="d-none">'.date('YYYYMMDD', strtotime($data->due_date_new)).'</span>'.$data->due_date_new;
+                return '<span class="d-none">'.date('Ymd', strtotime($data->due_date_new)).'</span>'.$data->due_date_new;
             })
             ->editColumn('created_at', function ($data) {
-                return '<span class="d-none">'.date('YYYYMMDD', strtotime($data->created_date_new)).'</span>'.$data->created_date_new;
+                return '<span class="d-none">'.date('Ymd', strtotime($data->created_date_new)).'</span>'.$data->created_date_new;
             })
             ->addColumn('invoice_number', function ($data) {
                 if($data->is_lead_invoice == 'yes'){
-                    return '<a href="'.route("bills/invoices/potentialview", $data->decode_id).'">'.$data->invoice_id.'</a>';
+                    return '<span class="d-none">'.$data->id.'</span><a href="'.route("bills/invoices/potentialview", $data->decode_id).'">'.$data->invoice_id.'</a>';
                 }else{
-                    return '<a href="'.route("bills/invoices/view", $data->decode_id).'">'.$data->invoice_id.'</a>';
+                    return '<span class="d-none">'.$data->id.'</span><a href="'.route("bills/invoices/view", $data->decode_id).'">'.$data->invoice_id.'</a>';
                 }
             })
             ->addColumn('view', function ($data) {
