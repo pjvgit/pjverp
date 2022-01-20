@@ -8,6 +8,8 @@
     <span id="showError" class="showError" style="display: none;"></span>
     <div class="tab-pane fade show active" id="timeEntry-homeBasic" role="tabpanel" aria-labelledby="timeEntry-home-basic-tab">
         <form class="savenewTimeEntry" id="savenewTimeEntry" name="savenewTimeEntry" method="POST">
+            <input class="form-control" id="id" value="{{$task_id}}" name="task_id" type="hidden">
+            <input class="form-control" id="id" value="{{$from_view}}" name="from_view" type="hidden">
             @csrf
             <?php 
             if(isset($from)){?>

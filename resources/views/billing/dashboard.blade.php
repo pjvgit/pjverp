@@ -230,8 +230,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     </div>
                                     <div id="timesheet_overview">
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        <a href="{{BASE_URL}}/time_tracking">Find more billable time with the Smart Time Finder</a>
+                                    <div class="d-flex justify-content-center m2">
+                                        <a href="#">Find more billable time with the Smart Time Finder</a>
                                     </div>
                                 </div>
                             </div>

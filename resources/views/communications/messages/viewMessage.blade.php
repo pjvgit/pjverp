@@ -107,13 +107,15 @@
                     </div>
                 </div>
                 </div>
-                @if ($messagesData->is_global == "0")
+                @if ($messagesData->is_global == "0" || $messagesData->is_global_for == 'staff')
                 <br>
                 <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
                     @csrf
                     <input class="form-control" value="{{$messagesData->replies_is}}" id="replies_is" name="replies_is" type="hidden">
+                    <input class="form-control" value="{{$messagesData->is_global_for}}" id="is_global_for" name="is_global_for" type="hidden">
                     <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
                     <input class="form-control" value="{{$messagesData->user_id}}" id="selected_user_id" name="selected_user_id" type="hidden">
+                    <input class="form-control" value="{{$messagesData->created_by}}" id="created_by" name="created_by" type="hidden">
                     <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
                     <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
                     <span id="response"></span>    
@@ -179,6 +181,7 @@ $(document).on("click", ":submit", function (e) {
     $("#current_submit").val($(this).val());
 });
 $('#replyEmails').submit(function (e) {
+        $("#preloader").show();
         beforeLoader();
         e.preventDefault();
         var delta = quill.root.innerHTML;
@@ -187,11 +190,13 @@ $('#replyEmails').submit(function (e) {
                 positionClass: "toast-top-full-width",
                 containerId: "toast-top-full-width"
             })
+            $("#preloader").hide();
             afterLoader();
             return false;
         }
         if (!$('#replyEmails').valid()) {
             afterLoader();
+            $("#preloader").hide();
             return false;
         }
         var dataString = '';
@@ -217,6 +222,7 @@ $('#replyEmails').submit(function (e) {
                     $('#showError').append(errotHtml);
                     $('#showError').show();
                     afterLoader();
+                    $("#preloader").hide();
                     // $("#replyEmails").scrollTop(0);
                     $('#replyEmails').animate({
                         scrollTop: 0
@@ -224,12 +230,14 @@ $('#replyEmails').submit(function (e) {
 
                     return false;
                 } else {
-                    // toastr.success('Your note has been created', "", {
-                    //     positionClass: "toast-top-full-width",
-                    //     containerId: "toast-top-full-width"
-                    // });
+                    $("#preloader").hide();
+                    toastr.success('Your message has been send', "", {
+                        positionClass: "toast-top-full-width",
+                        containerId: "toast-top-full-width"
+                    });
                     quill.root.innerHTML = '';
                     afterLoader()
+                    
                     if($("#current_submit").val() == 'saveandtime'){            
                         $("#loadMessagesEntryPopup").modal('hide');
                         $("#loadTimeEntryPopup").modal('show');

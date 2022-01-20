@@ -1,12 +1,13 @@
 <form class="sendEmails" id="sendEmails" name="sendEmails" method="POST">
     @csrf
+    <input class="form-control" id="current_contact" name="current_contact" type="hidden" value="{{ ($_REQUEST['page'] == 'user_id') ? $_REQUEST['id'] : ''}}">
+    <input class="form-control" id="current_case" name="current_case" type="hidden" value="{{ ($_REQUEST['page'] == 'case_id') ? $_REQUEST['id'] : ''}}">
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>
     <div class="col-md-12" bladeFile="resources/views/client_dashboard/sendMessage.blade.php">
         <div class="row">
             <div class="col-md-8 form-group mb-3">
                 <label for="firstName1">Send To</label>
-                {{-- <input class="form-control" id="sent_to" name="send_to" type="text" placeholder=""> --}}
                 <span id="to_user_input_area">
                     <select class="form-control contact_group" id="sendto" name="send_to[]" data-placeholder="Type a name"
                         multiple>

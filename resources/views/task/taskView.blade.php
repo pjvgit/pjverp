@@ -27,8 +27,8 @@
                                     @can('billing_add_edit')
                                     <div>
                                         <a class="align-items-center" data-toggle="modal"
-                                                data-target="#loadTimeEntryPopupInView" data-placement="bottom"
-                                                href="javascript:;" onclick="loadTimeEntryPopupInView({{$TaskData->id}});">
+                                                data-target="#loadTimeEntryPopup" data-placement="bottom"
+                                                href="javascript:;" onclick="loadTimeEntryPopup({{$TaskData->id}});">
                                                 <span data-toggle="tooltip"  title="Add time entry"
                                                     data-content="Add time entry" data-placement="top" data-html="true">
                                                     <i class="fas fa-clock pr-3 align-middle"></i></span>

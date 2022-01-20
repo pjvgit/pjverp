@@ -184,6 +184,15 @@ class BillingController extends BaseController
             $curDate=$request->curDate;
         }
 
+        $task_id="";
+        if(isset($request->task_id)){
+            $task_id=$request->task_id;
+        }
+        $from_view="no";
+        if(isset($request->from_view) && $request->from_view=='yes'){
+            $from_view="yes";
+        }
+
         // $rateUsers = CaseStaff::select("*")->where("case_id",$case_id)->whereRaw('case_staff.user_id = case_staff.lead_attorney')->first();
         // if(!empty($rateUsers) && $rateUsers['rate_type']=="0"){
         //     $defaultRate = User::select("*")->where("id",$rateUsers['user_id'])->first();
@@ -208,7 +217,7 @@ class BillingController extends BaseController
                 }
             }
         }
-        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "caseStaffRates", "request"));     
+        return view('billing.time_entry.loadTimeEntryPopup',compact('CaseMasterData','loadFirmStaff','TaskActivity',"from","curDate","case_id","default_rate", "caseStaffRates", "request","task_id","from_view"));     
         exit;    
     } 
     public function loadTimeEntryPopupDontRefresh(Request $request)
@@ -9954,6 +9963,7 @@ class BillingController extends BaseController
 
         foreach($monthTimeEntryDataForCalander as $k=>$v){
             $entry_date=convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($v->entry_date)),Auth::User()->user_timezone);
+            \Log::info("loadDataOnly > durationsum ". $v->durationsum);
             $CalenderArray[$k]['title']=number_format($v->durationsum,1);
             $CalenderArray[$k]['start']=date('Y-m-d',strtotime($entry_date));
             $CalenderArray[$k]['end']=date('Y-m-d',strtotime($entry_date));
@@ -9995,8 +10005,6 @@ class BillingController extends BaseController
         }
         $FinalArray['monthTotal']=$monthTotal;
 
-        
-        
         $monthTimeEntryDataForCalander = DB::table('task_time_entry')
         ->select(
             DB::raw('SUM(duration) as durationsum'),'entry_date'
@@ -10008,15 +10016,39 @@ class BillingController extends BaseController
         }else if($request->type=="b"){
             $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("time_entry_billable","yes");
         }
-        $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereBetween('entry_date',[$startDate,$endDate]);
-        if($request->forUser!=0){
-            $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where('user_id',$request->forUser);
+        if(isset($request->forUser) && $request->forUser!="0"){
+            $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("user_id",$request->forUser);
         }
-        $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->groupBy('entry_date')
-        ->get();  
+
+        $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereBetween('entry_date',[$startDate,$endDate])
+        ->where('deleted_at',NULL)
+        ->groupBy('entry_date')
+        ->get(); 
+        
+        
+        // $monthTimeEntryDataForCalander = DB::table('task_time_entry')
+        // ->select(
+        //     DB::raw('SUM(duration) as durationsum'),'entry_date'
+        // );
+        // if($request->type=="all"){
+        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
+        // }else if($request->type=="nb"){
+        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("time_entry_billable","no");
+        // }else if($request->type=="b"){
+        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where("time_entry_billable","yes");
+        // }
+        // $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereBetween('entry_date',[$startDate,$endDate]);
+        // if($request->forUser!=0){
+        //     $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->where('user_id',$request->forUser);
+        // }
+        // $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->groupBy('entry_date')
+        // ->get();  
         
         $CalenderArray=[];
+        $monthlyHourss=0;
         foreach($monthTimeEntryDataForCalander as $k=>$v){
+            \Log::info("durationsum ". $v->durationsum);
+            $monthlyHourss +=$v->durationsum;
             $CalenderArray[$k]['title']=number_format($v->durationsum,1);
             $CalenderArray[$k]['start']=$v->entry_date;
             $CalenderArray[$k]['end']=$v->entry_date;
@@ -10040,9 +10072,9 @@ class BillingController extends BaseController
         $type=$request->type;
         if(isset($request->from))
         {
-            return view('billing.timesheet.loadSummary',compact('monthTimeEntryDataForCalander','FinalArray','CalenderArray','monthlyHours','type'));
+            return view('billing.timesheet.loadSummary',compact('monthTimeEntryDataForCalander','FinalArray','CalenderArray','monthlyHours','type','monthlyHourss'));
         }else{
-            return view('billing.dashboard.loadSummary',compact('monthTimeEntryDataForCalander','FinalArray','CalenderArray','monthlyHours','type'));
+            return view('billing.dashboard.loadSummary',compact('monthTimeEntryDataForCalander','FinalArray','CalenderArray','monthlyHours','type','monthlyHourss'));
         }
         exit;  
             

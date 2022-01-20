@@ -31,6 +31,7 @@ $('#deleteTimeEntryForm').submit(function (e) {
                 return false;
             } else {
                 if(res.from=="timesheet"){
+                    afterLoader();
                     $("#deleteTimeEntry").modal("hide");
                 }else{
                     window.location.reload();

@@ -2080,7 +2080,7 @@ class ClientdashboardController extends BaseController
             }else{
                 if(isset($request->message['global_lawyers'])){
                     //Get firm user list 
-                    $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->get();
+                    $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->where("user_status","1")->get();
                     foreach($loadFirmUser as $k=>$v){
                         $Messages=new Messages;
                         $Messages->user_id=$v->id;
@@ -2100,9 +2100,33 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->created_by =Auth::User()->id;
                         $ReplyMessages->save();
 
-                        $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                        // $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
                     }            
-                
+                    // save for current user or case also                    
+                    $Messages=new Messages;
+                    if($request['current_contact'] != ''){
+                        $Messages->user_id=$request['current_contact'];
+                        $Messages->case_id=NUll;                        
+                    }
+                    if($request['current_case'] != ''){
+                        $Messages->user_id=NUll;                        
+                        $Messages->case_id=$request['current_case'];
+                    }
+                    $Messages->replies_is='private';
+                    $Messages->is_global = 1;
+                    $Messages->is_global_for = 'staff';
+                    $Messages->subject=$request['subject'];
+                    $Messages->message=substr(strip_tags($request->delta),0,50);
+                    $Messages->firm_id =Auth::User()->firm_name;
+                    $Messages->created_by =Auth::User()->id;
+                    $Messages->save();
+
+                    $ReplyMessages=new ReplyMessages;
+                    $ReplyMessages->message_id=$Messages->id;
+                    $ReplyMessages->reply_message=$request['delta'];
+                    $ReplyMessages->created_by =Auth::User()->id;
+                    $ReplyMessages->save();
+                    
                 }
                 if(isset($request->message['global_clients'])){
                     //Get client list with client enable portal is active
@@ -2110,6 +2134,7 @@ class ClientdashboardController extends BaseController
                     ->select("first_name","last_name","users.id","user_level","users_additional_info.client_portal_enable")
                     ->where("users_additional_info.client_portal_enable", "1")
                     ->where("users.user_level","2")
+                    ->where("users.user_status","1")
                     ->where("users.parent_user",Auth::user()->id)                    
                     ->get();
                     
@@ -2133,8 +2158,29 @@ class ClientdashboardController extends BaseController
                             $ReplyMessages->created_by =Auth::User()->id;
                             $ReplyMessages->save();
 
-                            $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                            // $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
                         }
+                    }
+
+                    // save for current user or case also                    
+                    if($request['current_case'] != ''){                    
+                        $Messages=new Messages;
+                        $Messages->user_id=NUll;                        
+                        $Messages->case_id=$request['current_case'];
+                        $Messages->replies_is='private';
+                        $Messages->is_global = 1;
+                        $Messages->is_global_for = 'staff';
+                        $Messages->subject=$request['subject'];
+                        $Messages->message=substr(strip_tags($request->delta),0,50);
+                        $Messages->firm_id =Auth::User()->firm_name;
+                        $Messages->created_by =Auth::User()->id;
+                        $Messages->save();
+
+                        $ReplyMessages=new ReplyMessages;
+                        $ReplyMessages->message_id=$Messages->id;
+                        $ReplyMessages->reply_message=$request['delta'];
+                        $ReplyMessages->created_by =Auth::User()->id;
+                        $ReplyMessages->save();
                     }
                     
                 }
@@ -2159,7 +2205,9 @@ class ClientdashboardController extends BaseController
                     if($decideCode[0]=='client'){     
                         $userInfo = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
                         ->select('users.*',DB::raw('CONCAT_WS(" ",first_name,last_name) as name'),'users_additional_info.client_portal_enable')
-                        ->where('users.id',$decideCode[1])->first();
+                        ->where('users.id',$decideCode[1])
+                        ->where("users.user_status","1")
+                        ->first();
                         if(!empty($userInfo)){
                             if(!$userInfo->client_portal_enable){
                                 $error[$k] = "Please enable client portal for ".$userInfo->name;
@@ -2293,14 +2341,13 @@ class ClientdashboardController extends BaseController
     public function replyMessageToUserCase(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'selected_user_id' => 'required',
-            'selected_case_id' => 'required'
+            'selected_case_id' => ($request->is_global_for == 'client') ? 'required' : '',
+            'selected_user_id' => 'required'
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            // dd($request->delta);
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->delta;
@@ -2311,9 +2358,19 @@ class ClientdashboardController extends BaseController
             $Messages->message=substr(strip_tags($request->delta),0,50);
             $Messages->save();
 
-            $userlist = explode(",",$request->selected_user_id);
-            foreach ($userlist as $k=>$v){
+            if($request->is_global_for != ''){
+                if($request->created_by == Auth::User()->id){
+                    $v = $request->selected_user_id;     
+                }
+                if($request->selected_user_id == Auth::User()->id){
+                    $v = $request->created_by;
+                }
                 $this->sendMailGlobal($request->all(),$v,$request->message_id);
+            }else{
+                $userlist = explode(",",$request->selected_user_id);
+                foreach ($userlist as $k=>$v){
+                    $this->sendMailGlobal($request->all(),$v,$request->message_id);
+                }
             }
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);

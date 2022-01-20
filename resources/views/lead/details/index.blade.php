@@ -1800,14 +1800,17 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/tasks/loadTimeEntryPopup", // json datasource
+                // url: baseUrl + "/tasks/loadTimeEntryPopup", // json datasource
+                url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
                 data: {
                     "task_id": id,
                     "from_view":"yes"
                 },
                 success: function (res) {
-                    $("#addTimeEntryInView").html('<img src="{{LOADER}}"> Loading...');
-                    $("#addTimeEntryInView").html(res);
+                    // $("#addTimeEntryInView").html('<img src="{{LOADER}}"> Loading...');
+                    // $("#addTimeEntryInView").html(res);
+                    // $("#preloader").hide();
+                    $("#addTimeEntry").html('<img src="{{LOADER}}"> Loading...').html(res);
                     $("#preloader").hide();
                     
                 }

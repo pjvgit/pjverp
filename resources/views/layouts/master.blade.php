@@ -50,7 +50,7 @@
 
 {{-- <body class="text-left" onload="StartTimers();" onmousemove="ResetTimers();"> --}}
 <body class="text-left">
-<input type="hidden" name="auth_login_user_id" id="auth_login_user_id" value="{{Auth::user()->id}}">
+<input type="hidden" name="auth_login_user_id" id="auth_login_user_id" value="{{Auth::user()->id ?? ''}}">
     @php
     $layout = session('layout');
     @endphp

@@ -1042,8 +1042,7 @@ class TaskController extends BaseController
         return response()->json(['errors'=>$validator->errors()->all()]);
     }else{
 
-        $TaskTimeEntry = new TaskTimeEntry;
-        
+        $TaskTimeEntry = new TaskTimeEntry;        
         $TaskTimeEntry->task_id=$request->task_id;
         $TaskTimeEntry->case_id =$request->case_or_lead;
         $TaskTimeEntry->user_id =$request->staff_user;
@@ -1068,7 +1067,7 @@ class TaskController extends BaseController
         $TaskTimeEntry->rate_type=$request->rate_type_field_id;
         $TaskTimeEntry->duration =$request->duration_field;
         $TaskTimeEntry->created_by=Auth::User()->id;   
-        ; 
+        
         $TaskTimeEntry->save();
         if($request->from_view=="yes"){
             Session::put('task_id', $request->task_id);

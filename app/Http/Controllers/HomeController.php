@@ -205,7 +205,9 @@ class HomeController extends BaseController
         //Get 15 upcoming task for dashboard
         $upcomingTask=Task::leftJoin('case_master','case_master.id','=','task.case_id')->leftJoin('users','users.id','=','task.lead_id')
                 ->select("case_master.id","case_master.case_title","case_master.case_unique_number","users.first_name","users.middle_name","users.last_name","task.*")
-                ->where("task_due_on","!=","9999-12-30")/* ->where('task.created_by',Auth::User()->id) */
+                ->where("task_due_on","!=","9999-12-30") 
+                ->where('task.firm_id',Auth::User()->firm_name)
+                // ->where('task.task_due_on','>',date('Y-m-d'))
                 ->whereHas('taskLinkedStaff', function($query) {
                     $query->where('users.id', auth()->id());
                 })
