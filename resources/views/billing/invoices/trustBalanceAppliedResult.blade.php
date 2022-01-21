@@ -41,8 +41,8 @@
                 </table>
             </div>
         </div>
-        <hr>
         <?php } ?>
+        @if(!empty($NonSavedInvoices) && count($NonSavedInvoices))
         <div id="apply-funds-failures">
             @if(isset($fund_type) && $fund_type == "credit")
                 <div>
@@ -89,5 +89,6 @@
                 </div>
             @endif
         </div>
+        @endif
     </div>
 </div>

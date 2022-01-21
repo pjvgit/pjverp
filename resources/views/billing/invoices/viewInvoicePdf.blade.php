@@ -843,8 +843,6 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
     </tbody>
 </table>
 
-@include('billing.invoices.partials.load_invoice_pending_payment_history')
-
 <?php } ?>
 &nbsp;
 &nbsp;
