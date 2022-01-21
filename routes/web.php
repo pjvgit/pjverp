@@ -1088,6 +1088,9 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('bills/dashboard/loadDepositIntoCredit', 'BillingController@loadDepositIntoCredit')->name('bills/dashboard/loadDepositIntoCredit');
     Route::post('bills/dashboard/depositIntoNonTrustPopup', 'BillingController@depositIntoNonTrustPopup')->name('bills/dashboard/depositIntoNonTrustPopup');
     Route::post('bills/dashboard/saveDepositIntoNonTrustPopup', 'BillingController@saveDepositIntoNonTrustPopup')->name('bills/dashboard/saveDepositIntoNonTrustPopup');
+
+    // For online payment of trust/credit and fund request
+    Route::post('bills/dashboard/fund/online/payment', 'BillingController@fundOnlinePayment')->name('bills/dashboard/fund/online/payment');
     
      //Timesheet
      Route::get('time_entries/timesheet_calendar', 'BillingController@viewTimesheet')->name('time_entries/timesheet_calendar');

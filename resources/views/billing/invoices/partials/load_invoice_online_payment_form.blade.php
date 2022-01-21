@@ -6,6 +6,7 @@
     @csrf
     <input type="text" name="type" value="invoice" >
     <input type="text" name="payable_record_id" value="{{ $invoice_id }}" >
+    <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
     <div class="row">
         <div class="col-md-4 form-group mb-3">
             <label for="firstName1">Amount</label>
@@ -67,7 +68,7 @@
                         </label>
                     </li>
                     @if($invoiceData->due_amount >= 300)
-                    <li class="list-group-item border-0 pb-0">
+                    <li class="list-group-item border-0 pb-0 emi-li">
                         <label class="radio radio-primary">
                             <input type="radio" class="payment-option" name="emi_month" value="3">
                             <span>3 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
@@ -75,7 +76,7 @@
                     </li>
                     @endif
                     @if($invoiceData->due_amount >= 600)
-                    <li class="list-group-item border-0 pb-0">
+                    <li class="list-group-item border-0 pb-0 emi-li">
                         <label class="radio radio-primary">
                             <input type="radio" class="payment-option" name="emi_month" value="6">
                             <span>6 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
@@ -83,7 +84,7 @@
                     </li>
                     @endif
                     @if($invoiceData->due_amount >= 800)
-                    <li class="list-group-item border-0 pb-0">
+                    <li class="list-group-item border-0 pb-0 emi-li">
                         <label class="radio radio-primary">
                             <input type="radio" class="payment-option" name="emi_month" value="9">
                             <span>9 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
@@ -91,7 +92,7 @@
                     </li>
                     @endif
                     @if($invoiceData->due_amount >= 1200)
-                    <li class="list-group-item border-0 pb-0">
+                    <li class="list-group-item border-0 pb-0 emi-li">
                         <label class="radio radio-primary">
                             <input type="radio" class="payment-option" name="emi_month" value="12">
                             <span>12 interest free Monthly Payments with credit card</span><span class="checkmark"></span>

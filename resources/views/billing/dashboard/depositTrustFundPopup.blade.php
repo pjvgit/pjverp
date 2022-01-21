@@ -170,7 +170,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         // var f = $.number($('#amountFirst').val(), 2);
         var currentAmt = f;
         swal({
-            title: "Confirm the deposit amount of $" + $('#amountFirst').val() + ".00?",
+            title: "Confirm the deposit amount of $" + $('form#DepositTrustFund input#amountFirst').val() + ".00?",
             text: "",
             type: 'warning',
             showCancelButton: true,

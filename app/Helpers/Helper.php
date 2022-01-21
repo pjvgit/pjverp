@@ -638,3 +638,15 @@ function callLogStatus()
     $firmData = \App\Firm::find(Auth::User()->firm_name);
     return $firmData->call_log_status;
 }
+
+/**
+ * List online payment methods
+ */
+function onlinePaymentMethod()
+{
+    return [
+        'credit-card' => "Credit Card",
+        'cash' => "Cash",
+        'bank-transfer' => "Bank Transfer",
+    ];
+}

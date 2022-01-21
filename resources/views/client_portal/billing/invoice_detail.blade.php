@@ -281,38 +281,69 @@
 
 				{{-- Payment history --}}
 				@if(!empty($invoice->invoicePaymentHistory) && count($invoice->invoicePaymentHistory))
-				<div id="payment_history">
-					<div class="payable-detail-header payable-detail-header--dark">
-						<div class="payable-detail-line-header-name">Payment History</div>
-						<div class="payable-detail-line-header-description">Description</div>
-						<div class="payable-detail-line-header-status"></div>
-						<div class="payable-detail-line-header-price"></div>
-					</div>
-					@forelse ($invoice->invoicePaymentHistory as $key => $item)
-					<div class="list-row  ">
-						<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
-							<div>{{ $item->acrtivity_title }}
-								<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->created_at)) }}</div>
+					@php
+						$paymentHistory = $invoice->invoicePaymentHistory->whereIn("acrtivity_title", ["Payment Received","Payment Refund"]);
+						$pendingPayments = $invoice->invoicePaymentHistory->whereIn("acrtivity_title", ["Awaiting Online Payment","Payment Pending"]);
+					@endphp
+					@if (count($pendingPayments))
+					<div id="pending_payment_history">
+						<div class="payable-detail-header payable-detail-header--dark">
+							<div class="payable-detail-line-header-name">Pending Payment History</div>
+							<div class="payable-detail-line-header-description">Description</div>
+							<div class="payable-detail-line-header-status"></div>
+							<div class="payable-detail-line-header-price"></div>
+						</div>
+						@forelse ($pendingPayments as $key => $item)
+						<div class="list-row  ">
+							<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
+								<div>{{ $item->acrtivity_title }}
+									<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->created_at)) }}</div>
+								</div>
 							</div>
+							<div class="payable-detail-item-description">
+								Deposited into Operating via {{ $item->pay_method }}
+							</div>
+							<div class="payable-detail-item-status "></div>
+							<div class="payable-detail-item-price">${{number_format($item->amount,2)}}</div>
 						</div>
-						<div class="payable-detail-item-description">
-							Deposited into Operating via {{ $item->pay_method }}
-							@if($item->refund_amount)
-							(Refunded)
-							@endif
+						@empty
+						@endforelse
+					</div>		
+					@endif
+					@if(count($paymentHistory))
+						<div id="payment_history">
+							<div class="payable-detail-header payable-detail-header--dark">
+								<div class="payable-detail-line-header-name">Payment History</div>
+								<div class="payable-detail-line-header-description">Description</div>
+								<div class="payable-detail-line-header-status"></div>
+								<div class="payable-detail-line-header-price"></div>
+							</div>
+							@forelse ($paymentHistory as $key => $item)
+							<div class="list-row  ">
+								<div class="payable-detail-item-entry"><i class="fas fa-dollar-sign list-row__icon"></i>
+									<div>{{ $item->acrtivity_title }}
+										<div class="list-row__header-detail">{{ date('M d, Y', strtotime($item->created_at)) }}</div>
+									</div>
+								</div>
+								<div class="payable-detail-item-description">
+									Deposited into Operating via {{ $item->pay_method }}
+									@if($item->refund_amount)
+									(Refunded)
+									@endif
+								</div>
+								<div class="payable-detail-item-status "></div>
+								<div class="payable-detail-item-price">
+									@if($item->acrtivity_title=="Payment Received")
+										${{number_format($item->amount,2)}}
+									@elseif($item->acrtivity_title=="Payment Refund")
+										(${{number_format($item->amount,2)}})
+									@endif
+								</div>
+							</div>
+							@empty
+							@endforelse
 						</div>
-						<div class="payable-detail-item-status "></div>
-						<div class="payable-detail-item-price">
-							@if($item->acrtivity_title=="Payment Received")
-								${{number_format($item->amount,2)}}
-							@elseif($item->acrtivity_title=="Payment Refund")
-								(${{number_format($item->amount,2)}})
-							@endif
-						</div>
-					</div>
-					@empty
-					@endforelse
-				</div>
+					@endif
 				@endif
 
 				{{-- Invoice total --}}

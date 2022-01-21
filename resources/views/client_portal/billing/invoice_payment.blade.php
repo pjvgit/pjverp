@@ -65,6 +65,7 @@
                                                         @csrf
                                                         <input type="hidden" name="type" value="{{ $type }}" >
                                                         <input type="hidden" name="payable_record_id" value="{{ encodeDecodeId($payableRecordId, 'encode') }}" >
+                                                        <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
                                                         <ul class="list-group">
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">
@@ -222,13 +223,14 @@
 @section('page-js')
 <script src="{{ asset('assets/js/plugins/jquery.smartWizard.min.js') }}"></script>
 <script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\client_portal\js\payment\conekta_validation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @endsection
 
 @section('bottom-js')
 <script type="text/javascript">
 // Conekta Public Key
-Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
+Conekta.setPublicKey($("#conekta_key").val());
 $(document).ready(function () {
 	// Smart Wizard
 	$('#smartwizard').smartWizard({
