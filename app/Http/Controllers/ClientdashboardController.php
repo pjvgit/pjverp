@@ -2135,14 +2135,13 @@ class ClientdashboardController extends BaseController
                 }
                 if(isset($request->message['global_clients'])){
                     //Get client list with client enable portal is active
-                    $clientLists = UsersAdditionalInfo::leftJoin('users','users_additional_info.user_id','=','users.id')
-                    ->select("first_name","last_name","users.id","user_level","users_additional_info.client_portal_enable")
-                    ->where("users_additional_info.client_portal_enable", "1")
-                    ->where("users.user_level","2")
-                    ->where("users.user_status","1")
-                    ->where("users.parent_user",Auth::user()->id)                    
-                    ->get();
-                    
+                    $clientLists = User::leftJoin('users_additional_info','users_additional_info.user_id','=','users.id')
+                        ->select("first_name","last_name","users.id","user_level","users_additional_info.client_portal_enable")        
+                        ->where('firm_name', auth()->user()->firm_name)
+                        ->where("user_level","2")
+                        ->where("users_additional_info.client_portal_enable", "1")
+                        ->whereIn("users.user_status",[1,2])
+                        ->get();
                     foreach($clientLists as $k=>$v){
                         if($v->client_portal_enable == '1'){
                             $Messages=new Messages;
@@ -2163,7 +2162,7 @@ class ClientdashboardController extends BaseController
                             $ReplyMessages->created_by =Auth::User()->id;
                             $ReplyMessages->save();
 
-                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
+                            // \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
                         }
                     }
 
