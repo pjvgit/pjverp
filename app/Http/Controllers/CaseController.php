@@ -6358,6 +6358,17 @@ class CaseController extends BaseController
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
         ->select('messages.*', DB::raw('CONCAT_WS("- ",messages.subject,messages.message) as subject'), "messages.updated_at as last_post", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         if(isset($requestData['case_id']) && $requestData['case_id']!=''){
+            $ContractUser = User::where("id",Auth::user()->id)->first();
+            $userPermissions = $ContractUser->getPermissionNames()->toArray();
+            // dd($userPermissions);
+            if((in_array('access_all_messages', $userPermissions))){
+                $messages = $messages->where(function($messages){
+                    $messages = $messages->orWhere("messages.created_by",Auth::user()->parent_user);
+                    $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
+                });
+            }else{
+                $messages = $messages->where("messages.created_by",Auth::user()->id);
+            }
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
         }
         if(isset($requestData['user_id']) && $requestData['user_id']!=''){

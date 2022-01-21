@@ -309,7 +309,7 @@ $adjustment_token=round(microtime(true) * 1000);
                     </li>
                     @endcanany
                     <li class="nav-item">
-                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
+                        <a class="nav-link  <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls"])){ echo "active show"; } ?>" id="contact-basic-tab" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/messages')}}">Communications</a>
                     </li>
                     @canany(['client_add_edit', 'client_view', 'add_firm_user'])
                     <li class="nav-item">
@@ -470,7 +470,7 @@ $adjustment_token=round(microtime(true) * 1000);
                             @endcannot
                         </div>
                     </div>
-                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls","communications/emails","communications/chat_conversations"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
+                    <div class="tab-pane fade <?php if(in_array(Route::currentRouteName(),["communications/messages","communications/calls"])){ echo "active show"; } ?>" id="communications" role="tabpanel" aria-labelledby="contact-basic-tab">
                         <div class="nav nav-pills test-info-page-subnav pt-0 pb-2 d-print-none">
                             @can(['messaging_add_edit'])
                             <div class="nav-item">
@@ -485,18 +485,6 @@ $adjustment_token=round(microtime(true) * 1000);
                                     <span> <i class="i-Old-Telephone text-16 mr-1"></i>Call Log</span>
                                 </a>
                             </div>
-                            @can(['messaging_add_edit'])
-                            <div class="nav-item">
-                                <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/emails"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/emails')}}">
-                                    <span> <i class="i-Email  text-16 mr-1"></i>Emails</span>
-                                </a>
-                            </div>
-                            @endcan
-                            <div class="nav-item">
-                                <a class="nav-link  pendo-case-calendar <?php if(Route::currentRouteName()=="communications/chat_conversations"){ echo "active"; } ?>" data-page="calendar" href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/communications/chat_conversations')}}">
-                                    <span> <i class="far fa-comments fa-lg pr-11"></i> Chat Conversations</span><label class="badge badge-success p-1 ml-2 align-top">NEW</label>
-                                </a>
-                            </div>
                         </div>
                         <div class="row"  <?php if(in_array(Route::currentRouteName(),["communications/messages"])){ ?> id="printHtml" <?php } ?>>
                             <?php if(Route::currentRouteName()=="communications/messages"){ ?>
@@ -504,14 +492,6 @@ $adjustment_token=round(microtime(true) * 1000);
                             <?php } ?>
                             <?php if(Route::currentRouteName()=="communications/calls"){ ?>
                                 @include('case.view.timebilling.calls')
-                            <?php } ?>
-
-                            <?php if(Route::currentRouteName()=="communications/emails"){ ?>
-                                @include('case.view.timebilling.email')
-                            <?php } ?>             
-                            
-                            <?php if(Route::currentRouteName()=="communications/chat_conversations"){ ?>
-                                @include('case.view.timebilling.chat_conversations')
                             <?php } ?>
 
                         </div>

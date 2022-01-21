@@ -144,7 +144,7 @@
             $("#collapsed").find('i').toggleClass('fa-sort-up align-bottom').toggleClass(
                 'fa-sort-down align-text-top');
         });
-        $("#innerLoader").css('display', 'none');
+        $("#addCompany #innerLoader").css('display', 'none');
         $("#editForm").validate({
             rules: {
                 company_name: {

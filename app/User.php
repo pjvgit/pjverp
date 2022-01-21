@@ -132,16 +132,18 @@ class User extends Authenticatable
     public function getContactlistAttribute(){
         $companyID = $this->id;
         if($companyID != null){
-            $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
+            $userCount = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
-                    ->whereRaw("find_in_set($companyID,users_additional_info.multiple_compnay_id)")
-                    ->where("users.user_status", "1")
+                    ->where("users.user_level","2")
+                    ->where("parent_user",auth()->user()->id)
+                    ->whereIn("users.user_status",[1,2,3]) //1 Active
+                    ->whereRaw("find_in_set($companyID,`multiple_compnay_id`)")
                     ->get();
         }else{
             $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                     ->select("users.id as cid","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as fullname'))
                     ->where('users_additional_info.company_id',$companyID)
-                    ->where("users.user_status", "1")
+                    ->where("users.user_level","2")
                     ->get();
         }      
         return json_encode($userCount); 

@@ -60,7 +60,7 @@
                 <div class="header-left-group">
                     <h5 class="mb-0"><span class="modal-title">Tell us about your firm</span></h5></div>
                 <div class="header-right-group">
-                    <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
             </div>
             <div class="modal-body">

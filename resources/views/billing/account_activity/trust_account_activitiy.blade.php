@@ -383,12 +383,16 @@ if(isset($_GET['bank_account'])){
                 url: baseUrl + "/bills/invoices/printTrustAccountActivity",
                 data :{ 'range': '{{$range}}','account': '{{$account}}','current_page':current_page,'length':length,'orderon':orderon,'exportType':type },
                 success: function (res) {
-                    $("#preloader").hide();
-                    swal('Success!', res.msg, 'success');
-                    window.open(res.url);
-                    // setTimeout(function () {
-                    //     window.location.reload();
-                    // }, 2000);
+                    $("#preloader").hide();                    
+                    if(res.url != '') {
+                        swal('Success!', res.msg, 'success');
+                        window.open(res.url);
+                    }else{
+                        swal('', res.msg, 'error');
+                    }                    
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
                 }
             })
         });

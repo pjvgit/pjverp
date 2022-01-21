@@ -302,7 +302,7 @@
                     </li>
                     @endcanany
                     @canany(['messaging_add_edit', 'text_messaging_add_edit', 'commenting_add_edit', 'commenting_view'])
-                    <li class="{{ request()->is('forms/*') ? 'active' : '' }}">
+                    <li class="{{ request()->is('forms/*') ? 'active' : '' }} m2">
                         <div>
                             <div>
                                 <label class="toggle" for="drop-2">

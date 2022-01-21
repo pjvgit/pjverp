@@ -389,9 +389,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::get('court_cases/{id}/communications/messages','CaseController@showCaseDetails')->name('communications/messages');
     Route::post('court_cases/communications/loadMessagesEntry', 'CaseController@loadMessagesEntry')->name('court_cases/communications/loadMessagesEntry');
     Route::get('court_cases/{id}/communications/calls','CaseController@showCaseDetails')->name('communications/calls');
-    Route::get('court_cases/{id}/communications/emails','CaseController@showCaseDetails')->name('communications/emails');
-    Route::get('court_cases/{id}/communications/chat_conversations','CaseController@showCaseDetails')->name('communications/chat_conversations');
-
+    
     Route::post('court_cases/overview/editBillingContactPopup','CaseController@editBillingContactPopup')->name('court_cases/overview/editBillingContactPopup');
     Route::post('court_cases/overview/saveBillingContactPopup','CaseController@saveBillingContactPopup')->name('court_cases/overview/saveBillingContactPopup');
     Route::post('court_cases/time_entries/loadTimeEntryBlocks','CaseController@loadTimeEntryBlocks')->name('court_cases/time_entries/loadTimeEntryBlocks');

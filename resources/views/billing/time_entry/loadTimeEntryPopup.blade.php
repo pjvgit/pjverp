@@ -270,7 +270,7 @@
                         <div class="">
                             <div class="form-check">
                                 <label class="form-check-label ">
-                                    <input type="checkbox"  name="billable[1]" dvid="1" class="billable-field  bulk_billable_field form-check-input" value="on">
+                                    <input type="checkbox"  name="billable[1]" dvid="1" class="billable-field form-check-input" checked="checked">
 
                                     <?php if($default_rate > 0){?>
                                             <div class="billtext" id="replaceAmt1"> Billable - Rate :{{number_format($default_rate,2)}}</div>
@@ -341,7 +341,7 @@
                         <div class="">
                             <div class="form-check">
                                 <label class="form-check-label ">
-                                    <input type="checkbox" name="billable[]" class="billable-field  bulk_billable_field  form-check-input" value="on">
+                                    <input type="checkbox" name="billable[]" class="billable-field form-check-input">
                                         <?php if($default_rate > 0){?>
                                             <div class="billtext"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
@@ -357,7 +357,6 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="text-right col-4 showtaax" >0.1 = 6 minutes</div> --}}
                     <div class="col-1"></div>
                 </div>
             </div>
@@ -385,7 +384,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
-        $(".bulk_billable_field").attr('checked',true);
+        // $(".bulk_billable_field").prop('checked',true);
         $('#savenewTimeEntry')[0].reset();
         $("#case_or_lead").select2({
             placeholder: "Select...",
@@ -452,8 +451,8 @@
 
             $option33 = $clone.find('[name="billable[]"]');
             $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
-            $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
-                '');
+            $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +'');
+            $option33.attr('checked', true);
 
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
@@ -525,7 +524,7 @@
                     min: " Duration must be greater than 0"
                 }
             });
-            $(".bulk_billable_field").attr('checked',true);
+            // $(".bulk_billable_field").prop('checked',true);
             $("#savebulkTimeEntry").validate();
         });
 
@@ -646,6 +645,7 @@
                 $option33 = $clone.find('[name="billable[]"]');
                 $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
                 $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
+                $option33.attr('checked', true);
 
                 $optionDescripton = $clone.find('[name="description[]"]');
                 $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(1)) + '');
@@ -706,7 +706,7 @@
                             min: " Duration must be greater than 0"
                         }
                     });
-                $(".bulk_billable_field").attr('checked',true);
+                // $(".bulk_billable_field").prop('checked',true);
                 $("#savebulkTimeEntry").validate();
             }
 
@@ -904,14 +904,13 @@
             getAndCheckDefaultCaseRate(f, case_id)
         });
 
-        $(document).on('change', ".bulk_billable_field", function () {
-            var f = $(this).attr("dvid");
-            if (!$(this).is(":checked")) {
-                $("input[name='billable["+f+"]']").attr('checked',false);
-                $("input[name='billable["+f+"]']").prop('checked',false);
-                $("input[name='billable["+f+"]']").val('off');
-            }
-        });
+        // $(document).on('change', ".bulk_billable_field", function () {
+        //     var f = $(this).attr("dvid");
+        //     if (!$(this).is(":checked")) {
+        //         $("input[name='billable["+f+"]']").prop('checked',false);
+        //         $("input[name='billable["+f+"]']").val('off');
+        //     }
+        // });
 
         $(document).on('change', "#bulk_staff_user", function () {
             $("#preloader").show();
@@ -1025,6 +1024,8 @@
             $option33 = $clone.find('[name="billable[]"]');
             $option33.attr('dvid', +(parseInt(hideinputcount2) + parseInt(1)) + '');
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +'');
+            $option33.attr('checked', true);
+
 
             $optionDescripton = $clone.find('[name="description[]"]');
             $optionDescripton.attr('id', 'descriptionid' + (parseInt(hideinputcount2) + parseInt(1)) + '');

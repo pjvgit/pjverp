@@ -8214,6 +8214,7 @@ class BillingController extends BaseController
         $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         if(isset($request->exportType)){
             $casesCsvData=[];
+            $Path='';
             if(count($FetchQuery) > 0){
                 $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
                 $folderPath = public_path($fileDestination);
@@ -8246,8 +8247,9 @@ class BillingController extends BaseController
                 }   
                 fclose($file); 
                 $Path= asset($fileDestination.'/account_activities.csv');
+                return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
             }
-            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"No records founds..."]);
             exit;
         }else{
             $filename="trust_account_activity".time().'.pdf';
@@ -8329,8 +8331,9 @@ class BillingController extends BaseController
                 }   
                 fclose($file); 
                 $Path.= asset($fileDestination.'/account_activities.csv');
+                return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
             }
-            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"Building File... it will downloading automaticaly"]);
+            return response()->json(['errors'=>'','url'=>$Path,'msg'=>"No Records Found..."]);
             exit;
         }else{
             $filename="account_activity".time().'.pdf';

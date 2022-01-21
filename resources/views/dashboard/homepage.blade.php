@@ -190,7 +190,7 @@
                     <div class="flex-fill p-3 text-center border-right">
                         @can('client_add_edit')
                         <a data-toggle="modal" data-target="#typeSelectDashboard" data-placement="bottom"
-                            href="javascript:;" onclick="typeSelectDashboard();" class="typeSelectDashboard">
+                            href="javascript:;" class="typeSelectDashboard">
                             <img alt="" class="mr-1" src="{{ asset('svg/contact.svg') }}" width="24" height="24">
                             <span class="d-none d-lg-inline"> Contact</span>
                         </a>

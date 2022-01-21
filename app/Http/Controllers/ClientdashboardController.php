@@ -2070,6 +2070,9 @@ class ClientdashboardController extends BaseController
     public function sendNewMessageToUser(Request $request)
     {
         // return $request->all();
+        $senderName=Auth::User()->first_name." ".Auth::User()->last_name;
+        $firmData=Firm::find(Auth::User()->firm_name);
+        $getTemplateData = EmailTemplate::find(11);
         if(isset($request->send_global) && $request->send_global=="on"){
             $validator = \Validator::make($request->all(), [
                 'message' => 'required',
@@ -2082,25 +2085,27 @@ class ClientdashboardController extends BaseController
                     //Get firm user list 
                     $loadFirmUser = User::select("first_name","last_name","id")->where("parent_user",Auth::user()->id)->where("user_level","3")->where("user_status","1")->get();
                     foreach($loadFirmUser as $k=>$v){
-                        $Messages=new Messages;
-                        $Messages->user_id=$v->id;
-                        $Messages->replies_is='private';
-                        $Messages->case_id=NUll;
-                        $Messages->is_global = 1;
-                        $Messages->is_global_for = 'staff';
-                        $Messages->subject=$request['subject'];
-                        $Messages->message=substr(strip_tags($request->delta),0,50);
-                        $Messages->firm_id =Auth::User()->firm_name;
-                        $Messages->created_by =Auth::User()->id;
-                        $Messages->save();
+                        if($v->id != Auth::User()->id){
+                            $Messages=new Messages;
+                            $Messages->user_id=$v->id;
+                            $Messages->replies_is='private';
+                            $Messages->case_id=NUll;
+                            $Messages->is_global = 1;
+                            $Messages->is_global_for = 'staff';
+                            $Messages->subject=$request['subject'];
+                            $Messages->message=substr(strip_tags($request->delta),0,50);
+                            $Messages->firm_id =Auth::User()->firm_name;
+                            $Messages->created_by =Auth::User()->id;
+                            $Messages->save();
 
-                        $ReplyMessages=new ReplyMessages;
-                        $ReplyMessages->message_id=$Messages->id;
-                        $ReplyMessages->reply_message=$request['delta'];
-                        $ReplyMessages->created_by =Auth::User()->id;
-                        $ReplyMessages->save();
+                            $ReplyMessages=new ReplyMessages;
+                            $ReplyMessages->message_id=$Messages->id;
+                            $ReplyMessages->reply_message=$request['delta'];
+                            $ReplyMessages->created_by =Auth::User()->id;
+                            $ReplyMessages->save();
 
-                        $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
+                        }
                     }            
                     // save for current user or case also                    
                     $Messages=new Messages;
@@ -2158,7 +2163,7 @@ class ClientdashboardController extends BaseController
                             $ReplyMessages->created_by =Auth::User()->id;
                             $ReplyMessages->save();
 
-                            $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
                         }
                     }
 
@@ -2169,7 +2174,7 @@ class ClientdashboardController extends BaseController
                         $Messages->case_id=$request['current_case'];
                         $Messages->replies_is='private';
                         $Messages->is_global = 1;
-                        $Messages->is_global_for = 'staff';
+                        $Messages->is_global_for = 'client';
                         $Messages->subject=$request['subject'];
                         $Messages->message=substr(strip_tags($request->delta),0,50);
                         $Messages->firm_id =Auth::User()->firm_name;
@@ -2198,7 +2203,7 @@ class ClientdashboardController extends BaseController
                 return response()->json(['errors'=>$validator->errors()->all()]);
             }else{
                 // dd($request->all());
-
+                
                 $error = [];
                 foreach($request->send_to as $k=>$v){
                     $decideCode=explode("-",$v); 
@@ -2260,7 +2265,7 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->save();
 
                         foreach($compnayIdWithEnablePortal as $k=>$v){  
-                            $this->sendMailGlobal($request->all(),$v, $Messages->id);
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $Messages->id, $senderName, $firmData, $getTemplateData);
                         }                    
                     }
                     
@@ -2297,7 +2302,7 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->save();
 
                         foreach($userIdWithEnablePortal as $k=>$v){
-                            $this->sendMailGlobal($request->all(),$v,$Messages->id);
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $Messages->id, $senderName, $firmData, $getTemplateData);
                         }                    
                     }
                     
@@ -2328,7 +2333,7 @@ class ClientdashboardController extends BaseController
 
                     foreach($request->send_to as $k=>$v){     
                         $decideCode=explode("-",$v);
-                        $this->sendMailGlobal($request->all(),$decideCode[1],$Messages->id);
+                        \App\Jobs\SendMessageJob::dispatch($request->all(), $decideCode[1], $Messages->id, $senderName, $firmData, $getTemplateData);
                     }  
                 }
                 session(['popup_success' => 'Your message has been sent']);
@@ -2358,6 +2363,9 @@ class ClientdashboardController extends BaseController
             $Messages->message=substr(strip_tags($request->delta),0,50);
             $Messages->save();
 
+            $senderName= Auth::User()->first_name." ".Auth::User()->last_name;
+            $firmData=Firm::find(Auth::User()->firm_name);
+            $getTemplateData = EmailTemplate::find(11);
             if($request->is_global_for != ''){
                 if($request->created_by == Auth::User()->id){
                     $v = $request->selected_user_id;     
@@ -2365,11 +2373,11 @@ class ClientdashboardController extends BaseController
                 if($request->selected_user_id == Auth::User()->id){
                     $v = $request->created_by;
                 }
-                $this->sendMailGlobal($request->all(),$v,$request->message_id);
-            }else{
+                \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
+            }else{                
                 $userlist = explode(",",$request->selected_user_id);
                 foreach ($userlist as $k=>$v){
-                    $this->sendMailGlobal($request->all(),$v,$request->message_id);
+                    \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
                 }
             }
             session(['popup_success' => 'Your message has been sent']);
@@ -2457,7 +2465,6 @@ class ClientdashboardController extends BaseController
                 "mail_body" => $mail_body
             ];            
             $sendEmail = $this->sendMail($user);
-            \Log::info("sendMailGlobal > email > ".$clientData->email. ' > sendMail > '.$sendEmail);
         }
         return true;
     }

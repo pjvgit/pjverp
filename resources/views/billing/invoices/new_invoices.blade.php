@@ -3024,6 +3024,7 @@ if(!isset($addition)){ $addition=0;}
         });
 
         $('#saveInvoiceForm').submit(function (e) {
+            recalculate();
             $('#saveInvoiceForm').valid();
             beforeLoader();
             if (!$('#saveInvoiceForm').valid()) {
@@ -3031,6 +3032,7 @@ if(!isset($addition)){ $addition=0;}
                 return false;
             }else{
                 var alert = 0;
+                var final_total = ($(".final_total").html() != undefined) ? $(".final_total").html().replace(/,/g, '') : 0.00;        
                 <?php if($case_id == "none"){ ?>
                     var flat_fee_sub_total_text = ($(".flat_fee_total_amount").html() != undefined) ? $(".flat_fee_total_amount").html().replace(/,/g, '') : 0.00;
                     var discount_amount = ($(".discounts_section_total").html() != undefined) ? $(".discounts_section_total").html().replace(/,/g, '') : 0.00;
@@ -3045,7 +3047,8 @@ if(!isset($addition)){ $addition=0;}
                         alert++;
                     }                    
                 <?php } ?>
-                if($("#final_total_text").val() == 0 && alert == 0){
+                // if($("#final_total_text").val() == 0 && alert == 0){
+                if(final_total == 0){
                     swal("","You are attempting to save a blank invoice, please edit the invoice to add an activity (such as time entries or expenses) or delete the invoice.",'error');
                     alert++;
                     afterLoader();
@@ -4275,28 +4278,9 @@ if(!isset($addition)){ $addition=0;}
 
     $("input:checkbox#range_check_box").click(function () {
         if ($(this).is(":checked")) {
-            swal({
-                title: 'warning',
-                text: "Are you sure you want to proceed?<br>Any changes you have made to the invoice entries below will be lost.",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#0CC27E',
-                cancelButtonColor: '#FF586B',
-                cancelButtonText: 'Close',
-                confirmButtonText: 'Proceed',
-                confirmButtonClass: 'btn btn-success',
-                cancelButtonClass: 'btn btn-danger  mr-2',
-                buttonsStyling: false,
-                reverseButtons: true
-            }).then(function () {
-                $(function () {
-                    $('#bill_from_date').removeAttr("disabled");
-                    $('#bill_to_date').removeAttr("disabled");
-                    $('#adjustment_delete').val('1');
-                });
-            }, function (dismiss) {
-                $("#range_check_box").prop('checked', false);
-            }); 
+            $('#bill_from_date').removeAttr("disabled");
+            $('#bill_to_date').removeAttr("disabled");
+            $('#adjustment_delete').val('1');
         } else {
             $("#bill_from_date").prop("disabled", true);
             $("#bill_to_date").prop("disabled", true);
@@ -4313,7 +4297,7 @@ if(!isset($addition)){ $addition=0;}
     });
 
     <?php if(isset($filterByDate) && $filterByDate=="yes") {?>
-        $("input:checkbox#range_check_box").attr("checked","checked");
+        $("input:checkbox#range_check_box").prop("checked","checked");
         $('#bill_from_date').removeAttr("disabled");
         $('#bill_to_date').removeAttr("disabled");
     <?php } ?>
