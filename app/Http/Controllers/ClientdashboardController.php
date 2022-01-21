@@ -2162,7 +2162,7 @@ class ClientdashboardController extends BaseController
                             $ReplyMessages->created_by =Auth::User()->id;
                             $ReplyMessages->save();
 
-                            // \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
+                            \App\Jobs\SendMessageJob::dispatch($request->all(), $v->id, $Messages->id, $senderName, $firmData, $getTemplateData);
                         }
                     }
 
