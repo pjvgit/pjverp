@@ -2100,7 +2100,7 @@ class ClientdashboardController extends BaseController
                         $ReplyMessages->created_by =Auth::User()->id;
                         $ReplyMessages->save();
 
-                        // $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                        $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
                     }            
                     // save for current user or case also                    
                     $Messages=new Messages;
@@ -2158,7 +2158,7 @@ class ClientdashboardController extends BaseController
                             $ReplyMessages->created_by =Auth::User()->id;
                             $ReplyMessages->save();
 
-                            // $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
+                            $this->sendMailGlobal($request->all(),$v->id, $Messages->id);
                         }
                     }
 
