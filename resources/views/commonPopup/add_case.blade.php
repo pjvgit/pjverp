@@ -681,7 +681,22 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
     $('#AddCaseModelUpdate').on('hidden.bs.modal', function () {
         window.location.reload();
-    });
+    });    
+
+    function selectAttorney() {
+        var selectdValue = $("#originating_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+
+    function selectLeadAttorney() {
+        var selectdValue = $("#lead_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+    
+    function backStep3() {
+        $('#smartwizard').smartWizard('prev');
+        return false;
+    }
 </script>
 
 @stop

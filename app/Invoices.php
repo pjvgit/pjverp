@@ -21,10 +21,16 @@ class Invoices extends Model
         'invoice_setting' => 'array',
     ];
     
-    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id"];
+    protected $appends  = ['decode_id','total_amount_new','paid_amount_new','due_amount_new','due_date_new','created_date_new',"current_status",/*"check_portal_access",*/"invoice_id", "days_aging"];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     } 
+
+    public function getDaysAgingAttribute(){
+        $date = \Carbon\Carbon::parse($this->invoice_date);
+        $now = \Carbon\Carbon::now();
+        return $date->diffInDays($now);
+    }
 
     public function getTotalAmountNewAttribute(){
         return number_format($this->total_amount,2);

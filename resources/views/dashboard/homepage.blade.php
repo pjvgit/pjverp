@@ -1156,7 +1156,7 @@
                                                 </colgroup>
                                                 <thead>
                                                     <tr>
-                                                        <th><input class="test-all-users-checkbox" id="select-all"
+                                                        <th><input class="all-users-checkbox" id="select-all"
                                                                 type="checkbox"></th>
                                                         <th>First Name</th>
                                                         <th>Last Name</th>
@@ -1168,7 +1168,7 @@
                                                 <tbody>
                                                     <?php foreach($loadFirmUser as $key=>$user){?>
                                                     <tr>
-                                                        <td><input <?php if($user->id==Auth::User()->id){ echo "checked=checked";} ?> class="test-all-users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]">
+                                                        <td><input <?php if($user->id==Auth::User()->id){ echo "checked=checked";} ?> class="users-checkbox" type="checkbox" id="{{$user->id}}" name="selectedUSer[{{$user->id}}]">
                                                         </td>
                                                         <td>{{$user->first_name}}</td>
                                                         <td>{{$user->last_name}}</td>
@@ -1561,6 +1561,27 @@
 
     }
 
+    $(".all-users-checkbox").click(function () {
+        $(".users-checkbox").prop('checked', $(this).prop('checked'));
+    });
+    $(".users-checkbox").click(function () {
+        if ($('.users-checkbox:checked').length == $('.users-checkbox').length) {
+            $('.all-users-checkbox').prop('checked', true);
+        } else {
+            $('.all-users-checkbox').prop('checked', false);
+        }
+    });
+    
+    function selectAttorney() {
+        var selectdValue = $("#originating_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+    
+    function selectLeadAttorney() {
+        var selectdValue = $("#lead_attorney option:selected").val();
+        $("#" + selectdValue).prop('checked', true);
+    }
+
     function backStep3() {
         $('#smartwizard').smartWizard('prev');
 
@@ -1595,6 +1616,7 @@
         });
 
     }   
+
     
     function selectMethod() {
         $("#innerLoader").css('display', 'block');

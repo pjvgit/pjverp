@@ -388,9 +388,6 @@
             type: "POST",
             url: baseUrl + "/contacts/saveAddContact", // json datasource
             data: dataString,
-            beforeSend: function (xhr, settings) {
-                settings.data += '&saveandaddcase=yes';
-            },
             success: function (res) {
                 $("#preloader").hide();
                 $("#innerLoader").css('display', 'block');

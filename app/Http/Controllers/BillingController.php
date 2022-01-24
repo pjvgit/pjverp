@@ -8095,7 +8095,7 @@ class BillingController extends BaseController
             if($requestData['account']=="trust_account"){
                 $FetchQuery = $FetchQuery->where("from_pay","trust");
             }else{
-                $FetchQuery = $FetchQuery->where("from_pay","none");
+                $FetchQuery = $FetchQuery->where("from_pay", "!=", "trust");
             }
         }
        

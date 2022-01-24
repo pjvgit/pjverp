@@ -3139,6 +3139,7 @@ $expenseTime=0;$expenseAmount=0;
                     error.appendTo('#2Error');
                 } else if (element.is('#final_total_amount')) {
                     error.appendTo('#2ErrorFinal_total_text');
+                    $('html, body').animate({scrollTop:($('#2ErrorFinal_total_text').offset().top - 250)}, 'slow');
                 } else {
                     element.after(error);
                 }

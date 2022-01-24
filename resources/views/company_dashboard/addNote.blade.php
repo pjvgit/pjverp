@@ -19,7 +19,7 @@
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Date</label>
             <div class="col-sm-9">
-                <input class="form-control field" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="dateadded" maxlength="250" name="note_date"
+                <input class="form-control field datepicker" value="{{ convertUTCToUserTimeZone('dateOnly') }}" id="dateadded" maxlength="250" name="note_date"
                     type="text">
             </div>
         </div>
@@ -81,6 +81,14 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
+        $('.datepicker').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        });
+        
         afterLoader();
         $(document).on("click", ":submit", function(e){
             $("#current_submit").val($(this).val());

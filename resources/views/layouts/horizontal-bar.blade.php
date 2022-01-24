@@ -263,11 +263,8 @@
                     <!-- end Forms -->
                     @endcanany
                     @canany(['reporting_entire_firm', 'reporting_personal_only'])
-                    <li class="{{ request()->is('charts/*') ? 'active' : '' }}">
-
+                    <li class="{{ request()->is('reporting/*') ? 'active' : '' }}">
                         <div>
-
-
                             <div>
                                 <label class="toggle" for="drop-2">
                                     Reports
@@ -276,27 +273,19 @@
                                     Reports
                                 </a><input type="checkbox" id="drop-2">
                                 <ul>
-
                                     <li class="nav-item">
-                                        <a class="{{ Route::currentRouteName()=='echarts' ? 'open' : '' }}"
-                                            href="{{route('echarts')}}" title='charts'>
-                                            <i class="nav-icon mr-2 i-Bar-Chart-2"></i>
-                                            <span class="item-name">echarts</span>
+                                        <a class="{{ Route::currentRouteName()=='reporting/accounts_receivable' ? 'open' : '' }}"
+                                            href="{{route('reporting/accounts_receivable')}}" title='Accounts Receivable'>
+                                            <span class="item-name">Accounts Receivable Report</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="{{ Route::currentRouteName()=='chartjs' ? 'open' : '' }}"
-                                            href="{{route('chartjs')}}">
-                                            <i class="nav-icon mr-2 i-File-Clipboard-Text--Image"></i>
-                                            <span class="item-name">ChartJs</span>
+                                        <a class="{{ Route::currentRouteName()=='reporting/case_revenue_reports' ? 'open' : '' }}"
+                                            href="{{route('reporting/case_revenue_reports')}}" title='Case Revenue'>
+                                            <span class="item-name">Case Revenue Report</span>
                                         </a>
                                     </li>
-
-
-
                                 </ul>
-
-
                             </div>
                         </div>
                     </li>
