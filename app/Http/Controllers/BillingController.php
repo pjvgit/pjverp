@@ -11193,12 +11193,12 @@ class BillingController extends BaseController
                 }
                 $msg = "Las indicaciones para hacer el pago se han enviado correctamente al correo de su cliente. En cuanto su cliente haga el pago se lo haremos saber por correo y se verá reflejado en el sistema.";
                 if($request->online_payment_method == "credit-card") {
-                    $this->cardPayment($request, $client);
+                    $this->invoiceCardPayment($request, $client);
                     $msg = "Se ha recibido correctamente el pago de ".number_format($request->amount,2)." pesos con Tarjeta de débito o crédito.";
                 } else if($request->online_payment_method == "cash") {
-                    $this->cashPayment($request, $client);
+                    $this->invoiceCashPayment($request, $client);
                 } else if($request->online_payment_method == "bank-transfer") {
-                    $this->bankPayment($request, $client);
+                    $this->invoiceBankPayment($request, $client);
                 } else {}
                 // $firmData=Firm::find($client->firm_name);
                 // $msg="Thank you. Your payment of $".number_format($request->amount,2)." has been sent to ".$firmData['firm_name']." ";
@@ -11226,9 +11226,9 @@ class BillingController extends BaseController
     }
 
     /**
-     * Card payment
+     * Invoice Card payment
      */
-    public function cardPayment($request, $client)
+    public function invoiceCardPayment($request, $client)
     {
         $customerId = $client->conekta_customer_id;
         $payableAmount = $request->amount;
@@ -11271,7 +11271,7 @@ class BillingController extends BaseController
             ];
         }
         $authUser = auth()->user();
-        if($request->type == 'fundrequest') {
+        if($request->type == 'fund') {
             $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
             if($fundRequest && $fundRequest->status != 'paid') {
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11534,9 +11534,9 @@ class BillingController extends BaseController
     }
 
     /**
-     * Get cash payment detail and do payment
+     * Get invoice cash payment detail and do payment
      */
-    public function cashPayment($request, $client)
+    public function invoiceCashPayment($request, $client)
     {
         $customerId = $client->conekta_customer_id;           
         $amount = $request->amount;
@@ -11673,9 +11673,9 @@ class BillingController extends BaseController
     }
 
     /**
-     * Get bank transfer payment detail and do payment
+     * Get invoice bank transfer payment detail and do payment
      */
-    public function bankPayment($request, $client)
+    public function invoiceBankPayment($request, $client)
     {
         $customerId = $client->conekta_customer_id;
         $amount = $request->amount;
@@ -11798,6 +11798,255 @@ class BillingController extends BaseController
 
                     // Bank payment reference email to client
                     $this->dispatch(new OnlinePaymentEmailJob($invoice, $client, $emailTemplateId = 35, $invoiceOnlinePayment, 'bank_reference_client', 'invoice'));
+
+                    DB::commit();
+                }
+            }
+        }
+    }
+
+    /**
+     * Trust/Credit/Request fund online payment from lawyer portal, Get credit/debit card detail and do payment, cash payment and bank transfer payment 
+     */
+    public function fundOnlinePayment(Request $request)
+    {   
+        // return $request->all();
+        DB::beginTransaction();
+        try {
+            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+            $client = User::whereId($request->client_id)->first();
+            if($client) {
+                if(empty($client->conekta_customer_id)) {
+                    $customer = \Conekta\Customer::create([
+                                    "name"=> $client->full_name,
+                                    "email"=> $client->email,
+                                    // "phone"=> $request->phone_number ?? $client->mobile_number,
+                                    "phone"=> "55-5555-5555",
+                                ]);
+                    $client->fill(['conekta_customer_id' => $customer->id])->save();
+                    $client->refresh();
+                }
+                $msg = "Las indicaciones para hacer el pago se han enviado correctamente al correo de su cliente. En cuanto su cliente haga el pago se lo haremos saber por correo y se verá reflejado en el sistema.";
+                if($request->online_payment_method == "credit-card") {
+                    $this->fundCardPayment($request, $client);
+                    $msg = "Se ha recibido correctamente el pago de ".number_format($request->amount,2)." pesos con Tarjeta de débito o crédito.";
+                } else if($request->online_payment_method == "cash") {
+                    // $this->cashPayment($request, $client);
+                } else if($request->online_payment_method == "bank-transfer") {
+                    // $this->bankPayment($request, $client);
+                } else {}
+                return response()->json(['errors'=>'', 'msg' => $msg]);
+            }
+        } catch (\Conekta\AuthenticationError $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        } catch (\Conekta\ApiError $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        } catch (\Conekta\ProcessingError $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        } catch (\Conekta\ParameterValidationError $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        } catch (\Conekta\Handler $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        } catch (Exception $e){
+            DB::rollback();
+            return response()->json(['errors'=> $e->getMessage()]);
+        }
+    }
+
+     /**
+     * Trust/Credit/Request fund card payment
+     */
+    public function fundCardPayment($request, $client)
+    {
+        $customerId = $client->conekta_customer_id;
+        $payableAmount = $request->amount;
+        $validOrderWithCharge = [
+            'line_items' => [
+                [
+                    'name' => ucfirst($request->type).' number '.$request->payable_record_id,
+                    'unit_price' => (int)$payableAmount * 100,
+                    'quantity' => 1,
+                ]
+            ],
+            'customer_info' => array(
+                'customer_id' => $customerId
+            ),
+            'currency'    => 'MXN',
+            'metadata'    => array('payment' => 'Invoice/FundRequest cash payment')
+        ];
+        if($request->emi_month == 0) {
+            $validOrderWithCharge['charges'] = [
+                [
+                    'payment_method' => [
+                        'type'       => 'card',
+                        'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000",
+                        'token_id' => $request->conekta_token_id,
+                    ],
+                    'amount' => (int)$payableAmount * 100,
+                ]
+            ];
+        } else {
+            $validOrderWithCharge['charges'] = [
+                [
+                    'payment_method' => [
+                        'type'       => 'card',
+                        'expires_at' => strtotime(date("Y-m-d H:i:s")) + "36000",
+                        'token_id' => $request->conekta_token_id,
+                        'monthly_installments' => (int)$request->emi_month
+                    ],
+                    'amount' => (int)$payableAmount * 100,
+                ]
+            ];
+        }
+        $authUser = auth()->user();
+        if($request->type == 'fund') {
+            $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
+            if($fundRequest && $fundRequest->status != 'paid') {
+                $order = \Conekta\Order::create($validOrderWithCharge);
+                if($order->payment_status == 'paid') {
+                    $requestOnlinePayment = RequestedFundOnlinePayment::create([
+                        'fund_request_id' => $fundRequest->id,
+                        'user_id' => $client->id,
+                        'payment_method' => 'card',
+                        'amount' => $payableAmount,
+                        'card_emi_month' => $request->emi_month ?? 0,
+                        'conekta_order_id' => $order->id,
+                        'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                        'conekta_customer_id' => $customerId,
+                        'conekta_payment_status' => $order->payment_status,
+                        'created_by' => auth()->id(),
+                        'firm_id' => $client->firm_name,
+                        'conekta_order_object' => $order,
+                        'status' => 'deposit',
+                    ]);
+
+                    // Update fund request paid/due amount and status
+                    $remainAmt = $fundRequest->amount_due - $payableAmount;
+                    $fundRequest->fill([
+                        'amount_due' => $remainAmt,
+                        'amount_paid' => ($fundRequest->amount_paid + $payableAmount),
+                        'payment_date' => date('Y-m-d'),
+                        'status' => ($remainAmt == 0) ? 'paid' : 'partial',
+                        'online_payment_status' => 'paid',
+                    ])->save();
+
+                    //Deposit into trust account
+                    $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $client->id)->first();
+                    if($fundRequest->deposit_into_type == "trust") {
+                        UsersAdditionalInfo::where("user_id", $client->id)->increment('trust_account_balance', $payableAmount);
+                        $trustHistory = TrustHistory::create([
+                            'client_id' => $client->id,
+                            'payment_method' => 'card',
+                            'amount_paid' => $payableAmount,
+                            'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                            'payment_date' => date('Y-m-d'),
+                            'fund_type' => 'diposit',
+                            'related_to_fund_request_id' => $fundRequest->id,
+                            'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
+                            'created_by' => $client->id,
+                            'online_payment_status' => $order->payment_status,
+                        ]);
+                        $requestOnlinePayment->fill(['trust_history_id' => $trustHistory->id])->save();
+
+                        // For allocated case trust balance
+                        if($fundRequest->allocated_to_case_id != '') {
+                            CaseMaster::where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $payableAmount);
+                            CaseClientSelection::where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $client->id)->increment('allocated_trust_balance', $payableAmount);
+                        }
+                        // For update next/previous trust balance
+                        $this->updateNextPreviousTrustBalance($trustHistory->client_id);
+                        
+                        // Add fund request account activity
+                        $AccountActivityData = AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+                        AccountActivity::create([
+                            'user_id' => $client->id,
+                            'case_id'=> $fundRequest->allocated_to_case_id ?? Null,
+                            'credit_amount' => $payableAmount ?? 0.00,
+                            'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                            'entry_date' => date('Y-m-d'),
+                            'payment_method' => "Card",
+                            'payment_type' => "deposit",
+                            'pay_type' => "trust",
+                            'from_pay' => "online",
+                            'trust_history_id' => $trustHistory->id ?? Null,
+                            'firm_id' => $client->firm_name,
+                            'section' => "request",
+                            'related_to' => $fundRequest->id,
+                            'created_by'=>$client->id,
+                        ]);
+
+                    } else {
+                        // Deposit into credit account
+                        UsersAdditionalInfo::where("user_id", $client->id)->increment('credit_account_balance', $payableAmount);
+                        $creditHistory = DepositIntoCreditHistory::create([
+                            'user_id' => $client->id,
+                            'deposit_amount' => $payableAmount,
+                            'payment_method' => "card",
+                            'payment_date' => date("Y-m-d"),
+                            'total_balance' => @$userAdditionalInfo->credit_account_balance,
+                            'payment_type' => "deposit",
+                            'firm_id' => $client->firm_name,
+                            'related_to_fund_request_id' => $fundRequest->id,
+                            'created_by' => $client->id,
+                            'online_payment_status' => $order->payment_status,
+                        ]);
+                        $requestOnlinePayment->fill(['credit_history_id' => $creditHistory->id])->save();
+
+                        // For update next/previous credit balance
+                        $this->updateNextPreviousCreditBalance($client->id);
+
+                        // Add fund request account activity
+                        $AccountActivityData=AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","client")->orderBy("id","DESC")->first();
+                        AccountActivity::create([
+                            'user_id' => $client->id,
+                            'credit_amount' => $payableAmount ?? 0.00,
+                            'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                            'entry_date' => date('Y-m-d'),
+                            'payment_method' => 'Card',
+                            'payment_type' => "deposit",
+                            'trust_history_id' => $creditHistory->id ?? Null,
+                            'status' => "unsent",
+                            'pay_type' => "client",
+                            'from_pay' => "client",
+                            'firm_id' => $client->firm_name,
+                            'section' => "request",
+                            'related_to' => $fundRequest->id,
+                            'created_by' => $client->id,
+                        ]);
+                    }
+                    
+                    $data=[];
+                    $data['user_id'] = $client->id;
+                    $data['client_id'] = $client->id;
+                    $data['deposit_for'] = $client->id;
+                    $data['deposit_id']=$fundRequest->id;
+                    $data['activity']="pay a payment of $".number_format($payableAmount, 2)." (Card) for deposit request";
+                    $data['type']='fundrequest';
+                    $data['action']='pay';
+                    $CommonController= new CommonController();
+                    $CommonController->addMultipleHistory($data);
+
+                    // For client activity
+                    $data['activity'] = 'pay a payment of $'.number_format($payableAmount,2).' (Card) for fund request';
+                    $data['is_for_client'] = 'yes';
+                    $CommonController->addMultipleHistory($data);
+
+                    // Send confirm email to client
+                    $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $client, $emailTemplateId = 30, $requestOnlinePayment, 'client', 'fundrequest'));
+
+                    // Send confirm email to lawyer/invoice created user
+                    $user = User::whereId($fundRequest->created_by)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 31, $requestOnlinePayment, 'user', 'fundrequest'));
+                    
+                    // Send confirm email to firm owner/lead attorney
+                    $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 31, $requestOnlinePayment, 'user', 'fundrequest'));
 
                     DB::commit();
                 }

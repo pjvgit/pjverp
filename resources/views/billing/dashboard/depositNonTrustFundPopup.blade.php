@@ -90,8 +90,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="firstName1">Payment Method</label>
-                    <select class="form-control caller_name select2" id="payment_method1" name="payment_method"
-                        style="width: 100%;" placeholder="Select or enter a name...">
+                    <select class="form-control caller_name select2" id="payment_method1" name="payment_method" style="width: 100%;" placeholder="Select or enter a name...">
                         <option></option>
                         <?php foreach($paymentMethod as $key=>$val){?>
                             <option value="{{$val}}"> {{$val}}</option>
@@ -138,6 +137,10 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         </form>
     </div>
 </div>
+
+<script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\js\custom\client\onlinepayment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\client_portal\js\payment\conekta_validation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#dynTitleForNonTrust").html("{{$userData['user_name']}}");

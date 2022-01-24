@@ -423,6 +423,7 @@ $finalAmt=$invoice-$paid;
 </div>
 <script src="{{ asset('assets\js\custom\client\trustallocation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\client_portal\js\payment\conekta_validation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -1049,15 +1050,13 @@ $(".trust_account").on("change", function() {
 // For online payment
 function onlinePaymentConfirmation() {
     $(".innerLoader").show();
-    $.validator.setDefaults({ignore: ":hidden"});
     if (!$('#pay_online_payment').valid()) {
-        alert("invalid");
         $(".innerLoader").hide();
         return false;
     } else {
         if($("#online_payment_method").val() == "credit-card") {
             // Conekta Public Key
-            Conekta.setPublicKey('key_G4QB4RszLMz8p11sNFxBn6A');
+            Conekta.setPublicKey($("#conekta_key").val());
             Conekta.token.create($('#pay_online_payment')[0], conektaSuccessResponseHandler, conektaErrorResponseHandler);
         } else {
             didOnlinePayment();

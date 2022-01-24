@@ -309,7 +309,7 @@ class Invoices extends Model
      */
     public function invoicePaymentHistory()
     {
-        return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending"])->orderBy("id","DESC");
+        return $this->hasMany(InvoiceHistory::class, 'invoice_id')->whereIn("acrtivity_title",["Payment Received","Payment Refund","Payment Pending","Awaiting Online Payment"])->orderBy("id","DESC");
     }
 
     /**
