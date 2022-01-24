@@ -350,6 +350,10 @@ class ContractController extends BaseController
             (isset($request->financialInsightsPermission)) ? 'billing_access_financial_insight' : '',
         ];
         $user->givePermissionTo($permissions);
+        
+        // allowed user to show in list
+        $user->user_status  = "1";
+        $user->save();
 
         $data=[];
         $data['user_id']=Auth::User()->id;

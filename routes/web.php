@@ -1169,6 +1169,11 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // feedback
     Route::post('saveFeedback', 'HomeController@saveFeedback')->name('saveFeedback');
     
+    // Reports
+    Route::middleware(['permission:reporting_entire_firm|reporting_personal_only'])->group(function () {
+        Route::get('reporting/accounts_receivable','ReportsController@accountsReceivableView')->name('reporting/accounts_receivable');
+        Route::get('reporting/case_revenue_reports','ReportsController@caseRevenueReportsView')->name('reporting/case_revenue_reports');
+    });
 });
 
 /**
