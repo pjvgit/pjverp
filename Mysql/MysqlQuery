@@ -1,3 +1,7 @@
+------------------------------------ 24-JAN-2022 ------------------------------
+ALTER TABLE `user_trust_credit_fund_online_payments`
+ADD `fund_type` enum('trust','credit') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'trust' AFTER `status`;
+
 ------------------------------------ 20-JAN-2022 ------------------------------
 CREATE TABLE `user_trust_credit_fund_online_payments` (
   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,

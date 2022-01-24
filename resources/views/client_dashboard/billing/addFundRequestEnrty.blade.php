@@ -384,7 +384,7 @@
                                 if($("#deposit_into").val() == "trust") {
                                     var optgroup = "<optgroup label='Allocate to case'>";
                                     $.each(res.clientCases, function(ind, item) {
-                                        optgroup += "<option value='" + item.case_id + "'>" + item.case.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
+                                        optgroup += "<option value='" + item.case_id + "' data-minimum-trust-balance='"+item.minimum_trust_balance+"'>" + item.case.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
                                     });
                                     optgroup += "</optgroup>"
                                     $('#allocate_fund').append(optgroup);
@@ -407,12 +407,13 @@
                                 if($("#deposit_into").val() == "credit") {
                                     optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.credit_account_balance)+")" + "</option>";
                                 } else {
-                                    optgroup += "<option value='" + res.freshData.user_id + "'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
+                                    optgroup += "<option value='" + res.freshData.user_id + "' data-minimum-trust-balance='"+res.freshData.minimum_trust_balance+"'>" + res.freshData.user.full_name +" ("+res.freshData.user.user_type_text+") (Balance $"+(res.freshData.unallocate_trust_balance - leadAllocateAmount)+")" + "</option>";
                                 }
                             }
                             optgroup += "</optgroup>"
                             $('#allocate_fund').append(optgroup);
                             $(".select2-option").trigger('chosen:updated');
+                            $('#allocate_fund').trigger("change");
                         }
                     }
                 })
@@ -455,11 +456,12 @@ $("#deposit_into").on("change", function() {
     }
 });
 
-/* $("#contact").on("change", function() {
-    if($(this).val() != '') {
-        $('#deposit_into').prop("disabled", false);
+$(document).on("change", "#allocate_fund", function() {
+    var minimumBal = $(this).find(':selected').attr("data-minimum-trust-balance");
+    if(minimumBal != '') {
+        $('#minimum-trust-balance').text(minimumBal);
     } else {
-        $('#deposit_into').prop("disabled", true);
+        $('#minimum-trust-balance').text("0.00");
     }
-}); */
+});
 </script>

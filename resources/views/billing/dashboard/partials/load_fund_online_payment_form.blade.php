@@ -5,7 +5,8 @@
 <form class="pay-online-payment" id="pay_online_payment" name="pay_online_payment" method="POST">
     @csrf
     <input type="text" name="type" value="fund" >
-    <input type="text" name="payable_record_id" value="{{ $userData->uid }}" >
+    <input type="text" name="fund_type" value="{{ $fundType }}" >
+    <input type="text" name="client_id" value="{{ $userData->uid }}" >
     <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
     <span id="response"></span>
             @csrf
@@ -65,31 +66,31 @@
                     <div class="credit-card selectt" style="display: none;">
                         <img src="{{ asset('images/payment/pago1.png') }}" class="img-fluid img-thumbnail" width="50%"/>
                         <ul class="list-group">
-                            <li class="list-group-item border-0 pb-0">
+                            <li class="list-group-item border-0 pb-0 emi-li">
                                 <label class="radio radio-primary">
                                     <input type="radio" class="payment-option" name="emi_month" value="0" checked>
                                     <span>Pay with Visa, MasterCard or American Express Credit or Debit Card</span><span class="checkmark"></span>
                                 </label>
                             </li>
-                            <li class="list-group-item border-0 pb-0">
+                            <li class="list-group-item border-0 pb-0 emi-li">
                                 <label class="radio radio-primary">
                                     <input type="radio" class="payment-option" name="emi_month" value="3">
                                     <span>3 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                 </label>
                             </li>
-                            <li class="list-group-item border-0 pb-0">
+                            <li class="list-group-item border-0 pb-0 emi-li">
                                 <label class="radio radio-primary">
                                     <input type="radio" class="payment-option" name="emi_month" value="6">
                                     <span>6 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                 </label>
                             </li>
-                            <li class="list-group-item border-0 pb-0">
+                            <li class="list-group-item border-0 pb-0 emi-li">
                                 <label class="radio radio-primary">
                                     <input type="radio" class="payment-option" name="emi_month" value="9">
                                     <span>9 interest free Monthly Payments with credit card</span><span class="checkmark"></span>
                                 </label>
                             </li>
-                            <li class="list-group-item border-0 pb-0">
+                            <li class="list-group-item border-0 pb-0 emi-li">
                                 <label class="radio radio-primary">
                                     <input type="radio" class="payment-option" name="emi_month" value="12">
                                     <span>12 interest free Monthly Payments with credit card</span><span class="checkmark"></span>

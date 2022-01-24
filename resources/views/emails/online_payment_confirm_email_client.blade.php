@@ -14,12 +14,17 @@
         if(isset($payableRecord)) {
             $content = str_replace('[INVOICE_LINK]', route('client/bills/request/detail', base64_encode($payableRecord->id)), $content);
         }
-    } else {
+    } else if($payableType == 'invoice'){
         $content = str_replace('[PAYABLE_ID]', 'Invoice #'.$onlinePayment->invoice_id, $content);
         if(isset($payableRecord)) {
             $content = str_replace('[INVOICE_LINK]', route('client/bills/detail', $payableRecord->decode_id), $content);
         }
-    }
+    } else if($payableType == 'fund'){
+        $content = str_replace('[PAYABLE_ID]', '#'.$onlinePayment->user_id, $content);
+        if(isset($payableRecord)) {
+            $content = str_replace('[INVOICE_LINK]', "#", $content);
+        }
+    } else {}
     $content = str_replace('[FIRM_NAME]', @$firm->firm_name, $content);
 @endphp
 {!! $content !!}

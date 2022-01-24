@@ -1,7 +1,6 @@
 // For online payment
 $('select[name="online_payment_method"]').change(function() {
     var inputValue = $(this).val();
-    alert(inputValue);
     if(inputValue != "") {
         var targetBox = $("." + inputValue);
         $(".selectt").not(targetBox).hide();
@@ -14,10 +13,9 @@ $('select[name="online_payment_method"]').change(function() {
 /**
  * Show credit card emi options as per the amount entered by lawyer
  */
-$(document).on('input , paste', '.online-pay-amount', function (e) {
+ $(document).on('input , paste', '.online-pay-amount', function (e) {
     var amount = $(this).val().replace(/,/g,'');
     if(amount > 0) {
-        console.log(amount);
         $(".emi-li").hide();
         $("input[name=emi_month][value=0]").parents("li").show();
         if(amount >= 1200) {
@@ -204,25 +202,17 @@ function didOnlinePayment() {
                 if (res.errors != '') {
                     $("#error-alert .error-text").text(res.errors);
                     $("#error-alert").show();
-                    $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
+                    $('#depositIntoNonTrustAccount').animate({ scrollTop: 0 }, 'slow');
+                    /* $('.modal, #depositIntoNonTrustAccount').animate({
+                        scrollTop: $("#error-alert").offset().top
+                    }, 2000); */
                     afterLoader();
                     return false;
                 } else {
-                    if($("#is_lead_invoice").val() != 'yes') {
-                        swal('Payment Successful!', res.msg, 'success');
-                        afterLoader();
-                        setTimeout(function () {
-                            $("#payInvoice").modal("hide")
-                        }, 1000);
-                        $('#billing_invoice_table').DataTable().ajax.reload(null, false);
-                        $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                        updateInvoiceDetail();
-                    }else{
-                        swal('Payment Successful!', res.msg, 'success').then(function(){
-                            window.location.reload();
-                        });
-                        afterLoader();                        
-                    }
+                    swal('Payment Successful!', res.msg, 'success').then(function(){
+                        window.location.reload();
+                    });
+                    afterLoader(); 
                 }
             },
             error: function (jqXHR, exception) {

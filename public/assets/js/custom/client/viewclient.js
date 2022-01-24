@@ -56,7 +56,7 @@ $(document).ready(function() {
     $('#'+tableName1).DataTable({
         stateSave:true,
         "processing": true,
-        // "order": [[1, "desc"]],
+        "order": [[1, "desc"]],
         "oLanguage": {
             "sEmptyTable":"No Record Found",
         },

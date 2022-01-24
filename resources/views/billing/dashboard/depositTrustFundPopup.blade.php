@@ -166,11 +166,11 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = parseFloat($('#DepositTrustFund #amountFirst').val().replace(/,/g, '')).toFixed(2);;
+        var f = $('#DepositTrustFund #amountFirst').val().replace(/,/g, '');
         // var f = $.number($('#amountFirst').val(), 2);
-        var currentAmt = f;
+        var currentAmt = parseFloat(f).toFixed(2);
         swal({
-            title: "Confirm the deposit amount of $" + $('form#DepositTrustFund input#amountFirst').val() + ".00?",
+            title: "Confirm the deposit amount of $" + currentAmt + "?",
             text: "",
             type: 'warning',
             showCancelButton: true,

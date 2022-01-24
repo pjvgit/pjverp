@@ -979,7 +979,7 @@ td,th{
             processing: true,
             // stateSave: true,
             searching: false, "aaSorting": [],
-            "order": [[0, "desc"]],
+            "order": [[3, "desc"]],
             "ajax":{
                 url :baseUrl +"/bills/invoices/loadInvoices",
                 type: "post",  

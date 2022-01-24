@@ -93,16 +93,16 @@ $(document).ready(function() {
         columns: [
             { data: 'id'},
             { data: 'id'},
-            { data: 'id','sorting':false},
-            { data: 'id','sorting':false}, 
+            { data: 'id', 'orderable': false},
+            { data: 'id', 'orderable': false}, 
             { data: 'id'}, 
             { data: 'id'},
             { data: 'id'},
             { data: 'id'},
             { data: 'id'},
-            { data: 'id','sorting':false},
-            { data: 'id','sorting':false},
-            { data: 'id','sorting':false}
+            { data: 'id', 'orderable': false},
+            { data: 'id', 'orderable': false},
+            { data: 'id', 'orderable': false}
         ],
         "fnCreatedRow": function (nRow, aData, iDataIndex) {
             
