@@ -51,6 +51,8 @@ class SolReminderEmailCommand extends Command
 
         $result = CaseSolReminder::where("reminder_type", "email")
                     // ->whereDate("remind_at", \Carbon\Carbon::now())
+                    // ->whereDate("remind_at", '>=',  \Carbon\Carbon::now())
+                    ->where("remind_at", '!=', null)
                     ->whereNull("reminded_at")
                     ->with('case','case.caseFirm','case.caseStaffDetails')
                     ->get();
@@ -81,7 +83,7 @@ class SolReminderEmailCommand extends Command
 
                     // new logic
                     $date = date("Y-m-d", strtotime($item->remind_at));
-                    $timestamp = $date->format('Y-m-d').' 05:00:00';
+                    $timestamp = $date.' 05:00:00';
                     $dispatchDate = Carbon::createFromFormat('Y-m-d H:i:s', $timestamp, $staff->user_timezone ?? 'UTC');
                     $dispatchDate->setTimezone('UTC');
                     Log::info("dispatchDate > ". $dispatchDate);
