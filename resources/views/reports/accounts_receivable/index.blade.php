@@ -15,6 +15,9 @@
         <div class="card text-left">
             <div class="card-body row">
             <form class="run_report" id="run_report" name="run_report">
+                <div style="display: none;">
+                    <input type="hidden" name="export_csv" id="export_csv" value="0" />
+                </div>
                 <div class="d-flex align-items-center">
                         <div class="col-md-3 form-group p-1">
                             <label for="picker1">Filter By Client</label>
@@ -43,11 +46,11 @@
                         </div>
                         <div class="col-md-2 form-group p-1">
                             <label for="picker1">Group By Case</label>
-                            <select id="broup_by" name="broup_by" class="form-control">
+                            <select id="grp_by" name="grp_by" class="form-control">
                                 <option value="">None</option>
-                                <option value="client">Client</option>
-                                <option value="case">Case</option>
-                                <option value="practive_area">Practice Area</option>                                
+                                <option value="client" <?php echo ("client" == $grp_by) ? ' selected' : ''; ?>>Client</option>
+                                <option value="case" <?php echo ("case" == $grp_by) ? ' selected' : ''; ?>>Case</option>
+                                <option value="practive_area" <?php echo ("practive_area" == $grp_by) ? ' selected' : ''; ?>>Practice Area</option>                                
                             </select>
                         </div>
                         <div class="col-md-3 form-group p-1">
@@ -84,7 +87,8 @@
             </div>
         </div>
        
-        <div class="reportList">
+        <div class="reportList" id="printHtml">
+            <h3 id="hiddenLable">Accounts Receivable Report</h3>
             <?php 
             $receivables_group_total = 0.00;
             $receivables_group_paid = 0.00;
@@ -99,7 +103,109 @@
             @endif
             <br>
             <br>
-            @if(count($Invoices) > 0)
+            @if(count($clientArray) > 0)
+                @foreach($clientArray as $client => $Invoices)
+                <table class="table reporting report_table report_table_spaced accounts_receivable_reporting">
+                    <tbody>
+                        <tr class="header info_header">
+                            <th class="receivables_title" colspan="3">
+                            {{ ($grp_by == 'client') ? 'Client' : (($grp_by == 'client') ? 'Case' : 'Practice') }} : {{ ($client != '') ? $client : "Not Specified" }}
+                            </th>
+                            <th class="receivables_group_total_client">
+                               
+                            </th>
+                            <th class="receivables_group_paid_client">
+                               
+                            </th>
+                            <th class="receivables_group_due_client">
+                               
+                            </th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="header">
+                            <th>Invoice #</th>
+                            <th>Client</th>
+                            <th>Case</th>
+                            <th>Invoice Total</th>
+                            <th>Amount Paid</th>
+                            <th>Amount Receivable</th>
+                            <th>Due Date</th>
+                            <th>Invoice Status</th>
+                            <th>Days Aging</th>
+                        </tr>
+                        <?php 
+                        $receivables_group_total_client = 0.00;
+                        $receivables_group_paid_client = 0.00;
+                        $receivables_group_due_client = 0.00;
+                        ?>
+                        @foreach($Invoices as $k => $aData)
+                        <?php 
+                        $receivables_group_total_client += $aData->total_amount;
+                        $receivables_group_paid_client += $aData->paid_amount;
+                        $due_amount = str_replace(",","",number_format($aData->total_amount,2)) - str_replace(",","",number_format($aData->paid_amount,2));
+                        $receivables_group_due_client += $due_amount;
+                        $receivables_group_due += $due_amount;
+                        ?>
+                        <tr class="even receivable_col">
+                                <td>
+                                <a target="_blank" href="{{ route('bills/invoices/view', $aData->decode_id) }}">#{{$aData->invoice_id}} </a>
+                                </td>
+                                <td>
+                                    <?php 
+                                    if($aData->user_level == 2){
+                                        $route = route('contacts/clients/view', $aData->uid);
+                                    }else if($aData->user_level == 5 && $aData->is_lead_invoice == 'yes'){
+                                        $route = route('case_details/info', $aData->uid);
+                                    }else{
+                                        $route = route('contacts/companies/view', $aData->uid);
+                                    }
+                                    ?>
+                                    <a target="_blank" href="{{$route}}">{{$aData->contact_name}} </a>
+                                </td>
+                                <td>
+                                @if($aData->ctitle == null)
+                                    @if($aData->user_level == 5 && $aData->is_lead_invoice == 'yes')
+                                        <a target="_blank" class="name" href="{{route('case_details/invoices', $aData->uid)}}">Potential Case: {{ $aData->contact_name }}</a>
+                                    @else
+                                        None
+                                    @endif
+                                @else
+                                    <a target="_blank" class="name" href="{{route('info', $aData->case_unique_number)}}">{{$aData->ctitle}}</a>
+                                @endif
+                                </td>
+                                <td> ${{$aData->total_amount_new}}</td>
+                                <td> ${{$aData->paid_amount_new}} </td>
+                                <td> ${{$aData->due_amount_new}}</td>
+                                <td> 
+                                    @if($aData->due_date!=NULL)
+                                        {{date('m/d/Y',strtotime($aData->due_date))}}
+                                    @else
+                                        --
+                                    @endif
+                                </td>
+                                <td> {{$aData->status}} </td>
+                                <td> {{$aData->days_aging}} </td>
+                        </tr>
+                        @endforeach
+                        <tr class="header total_row">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <th>${{number_format($receivables_group_total_client,2)}}</th>
+                            <th>${{number_format($receivables_group_paid_client,2)}}</th>
+                            <th>${{number_format($receivables_group_due_client,2)}}</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                @endforeach
+            @endif
+            
+            @if($grp_by == '' && count($Invoices) > 0)
             <table class="table reporting report_table report_table_spaced accounts_receivable_reporting">
                 <tbody>
                     <tr class="header info_header">
@@ -214,6 +320,7 @@ div.report_summary_box {
 @section('page-js')
 <script type="text/javascript">
     $(document).ready(function () {
+        $('#hiddenLable').hide();
         $(".select2").select2({
             theme: "classic",
             allowClear: true,
@@ -224,5 +331,18 @@ div.report_summary_box {
         $(".receivables_group_total").html("$"+$("#receivables_group_total").val());
         $(".receivables_group_due").html("$"+$("#receivables_group_due").val());
     });
+    function exportPDF()
+    {
+        $('#hiddenLable').show();        
+        var canvas = $(".printDiv").html(document.getElementById("printHtml").innerHTML);
+        $(".main-content-wrap").remove();
+        window.print();
+        window.location.reload();
+        return false;  
+    }
+    function exportCSV(){
+        $("#export_csv").val(1);
+        $("#export_csv").prop("type",'text');
+    }
 </script>
 @endsection
