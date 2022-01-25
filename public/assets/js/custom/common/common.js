@@ -152,6 +152,13 @@ $(document).ready(function() {
     });
 });
 
+/**
+ * Format number to comma seperated number
+ */
+function numberWithCommasDecimal(x) {
+    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Start smart timer Modules
 // localStorage.setItem("counter", "0");
 // removeLocalStorage();

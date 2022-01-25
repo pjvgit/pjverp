@@ -56,6 +56,6 @@ var conektaErrorResponseHandler = function (response) {
     $("#error-alert").show();
     $(".preloader, .innerLoader").css("display", "none");
     $('.scrollbar').animate({
-        scrollTop: $('#error-alert').offset().top - 20 //#DIV_ID is an example. Use the id of your destination on the page
+        scrollTop: $('#error-alert').offset().top - 20
     }, 'slow');
 };

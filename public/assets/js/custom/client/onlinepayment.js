@@ -173,9 +173,8 @@ function onlinePaymentConfirmation() {
     }
 }
 function didOnlinePayment() {
-    var f= $.number($('.online-pay-amount').val().replace(/,/g, ''),2);
-    var currentAmt = f;
-    // var currentAmt = $.number($('#amountTrust').val(),2);
+    var f= $('.online-pay-amount').val().replace(/,/g, '');
+    var currentAmt = numberWithCommasDecimal(parseFloat(f).toFixed(2));
     swal({
         title: 'Confirm the payment amount of $' + currentAmt + '?',
         text: "",
@@ -202,10 +201,9 @@ function didOnlinePayment() {
                 if (res.errors != '') {
                     $("#error-alert .error-text").text(res.errors);
                     $("#error-alert").show();
-                    $('#depositIntoNonTrustAccount').animate({ scrollTop: 0 }, 'slow');
-                    /* $('.modal, #depositIntoNonTrustAccount').animate({
-                        scrollTop: $("#error-alert").offset().top
-                    }, 2000); */
+                    $('.scrollbar').animate({
+                        scrollTop: $('#error-alert').offset().top - 20 
+                    }, 'slow');
                     afterLoader();
                     return false;
                 } else {

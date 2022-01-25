@@ -4,9 +4,9 @@
 </div>
 <form class="pay-online-payment" id="pay_online_payment" name="pay_online_payment" method="POST">
     @csrf
-    <input type="text" name="type" value="invoice" >
-    <input type="text" name="payable_record_id" value="{{ $invoice_id }}" >
-    <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
+    <input type="hidden" name="type" value="invoice" >
+    <input type="hidden" name="payable_record_id" value="{{ $invoice_id }}" >
+    <input type="hidden" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
     <div class="row">
         <div class="col-md-4 form-group mb-3">
             <label for="firstName1">Amount</label>

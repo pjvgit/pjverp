@@ -20,52 +20,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 </ul>
 <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade active show" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
-        <div class="scrollbar scrollbar-primary">
-        @if(empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "no")
-            <div class="col-md-12">
-                <div class="payment-confirmation-container">
-                    <div class="row">
-                        <div class="col-3 pl-4 pt-4">
-                            <span class="money-graph"></span>
-                        </div>
-                        <div class="col-9">
-                            <div data-testid="payments-platform-promo-header"
-                                class="payments-platform-promo-header">
-                                <h3>Start Accepting Online Payments!</h3>
-                            </div>
-                            <br>
-                            <ul class="invoice-payments-platform-promo-list clearfix" style="list-style-type:none;">
-                                <li data-testid="payments-platform-promo-list-item" class="payments-platform-promo-list-item clearfix">
-                                    <i class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Get paid faster by accepting credit card payments in office</span>
-                                </li>
-                                <li data-testid="payments-platform-promo-list-item" class="payments-platform-promo-list-item clearfix">
-                                    <i class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Get paid faster by letting your clients pay online</span>
-                                </li>
-                                <li data-testid="payments-platform-promo-list-item" class="payments-platform-promo-list-item clearfix">
-                                    <i class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Access from your MyCase account, no 3rd party</span>
-                                </li>
-                                <li data-testid="payments-platform-promo-list-item" class="payments-platform-promo-list-item clearfix">
-                                    <i class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Save money with free Check payments and competitive credit card fees</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <div class="modal-footer"></div>
-                <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
-                <div class="form-group row float-right">
-                    <a class="btn btn-primary" href="{{ route("billing/settings") }}" target="_blank" rel="noopener noreferrer">Get Started Now!</a>
-                </div>
-            </div>
-        @else
-            @include('billing.dashboard.partials.load_fund_online_payment_form')
-        @endif
-        </div>
+        @include('billing.dashboard.partials.load_fund_online_payment_form')
     </div>
     <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
         <form class="DepositTrustFund" id="DepositTrustFund" name="DepositTrustFund" method="POST">
@@ -213,9 +168,9 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         }
     }
     function didTrustPayment() {
-        var f = parseFloat($('#DepositTrustFund #amountFirst').val().replace(/,/g, '')).toFixed(2);;
+        var f = $('#DepositTrustFund #amountFirst').val().replace(/,/g, '');
         // var f = $.number($('#amountFirst').val(), 2);
-        var currentAmt = f;
+        var currentAmt = numberWithCommasDecimal(parseFloat(f).toFixed(2));
         swal({
             title: 'Confirm the deposit amount of $' + currentAmt + '?',
             text: "",
@@ -257,7 +212,9 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         afterLoader();
                         return false;
                     } else {
-                        swal('Deposit Successful!', res.msg, 'success');
+                        swal('Deposit Successful!', res.msg, 'success').then(function(){
+                            window.location.reload();
+                        });
                         afterLoader();
                         setTimeout(function () {
                             $("#depositIntoNonTrustAccount").modal("hide")
@@ -265,7 +222,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
                         /* if($("#billing_credit_history_table").length > 0) {
                             $('#billing_credit_history_table').DataTable().ajax.reload(null, false);
                         } else { */
-                            window.location.reload();
+                            // window.location.reload();
                         // }
                     }
                 },
