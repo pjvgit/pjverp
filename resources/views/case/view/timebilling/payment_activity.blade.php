@@ -64,13 +64,13 @@
             pageResize: true, // enable page resize
             pageLength: <?php echo USER_PER_PAGE_LIMIT; ?>,
             columns: [
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
-                {data: 'id','sorting': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
+                {data: 'id','orderable': false},
             ],
             // Old code
             /* "fnCreatedRow": function (nRow, aData, iDataIndex) {
@@ -197,7 +197,7 @@
                 $('.payRow').number(true, 2);
             },
             "drawCallback": function (settings) { 
-                $('[data-toggle="tooltip"]').tooltip();
+                $("[data-toggle=popover]").popover();
                 $('.payRow').number(true, 2);
             },
         });

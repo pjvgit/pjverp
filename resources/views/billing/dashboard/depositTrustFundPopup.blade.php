@@ -14,13 +14,21 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link  active show" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
+        <a class="nav-link active show" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
+            aria-selected="false">Online Payment
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
             aria-controls="profileBasic" aria-selected="true">Offline Payment
         </a>
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade  active show" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade active show" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+        @include('billing.dashboard.partials.load_fund_online_payment_form')
+    </div>
+    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
         <form class="DepositTrustFund" id="DepositTrustFund" name="DepositTrustFund" method="POST">
             <span id="response"></span>
             @csrf
@@ -94,6 +102,10 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         </form>
     </div>
 </div>
+
+<script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
+<script src="{{ asset('assets\js\custom\client\onlinepayment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\client_portal\js\payment\conekta_validation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#dynTitle").html("{{$userData['user_name']}}");
@@ -168,7 +180,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
     function didTrustPayment() {
         var f = $('#DepositTrustFund #amountFirst').val().replace(/,/g, '');
         // var f = $.number($('#amountFirst').val(), 2);
-        var currentAmt = parseFloat(f).toFixed(2);
+        var currentAmt = numberWithCommasDecimal(parseFloat(f).toFixed(2));
         swal({
             title: "Confirm the deposit amount of $" + currentAmt + "?",
             text: "",
@@ -234,5 +246,6 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 
         });
     }
+
 
 </script>

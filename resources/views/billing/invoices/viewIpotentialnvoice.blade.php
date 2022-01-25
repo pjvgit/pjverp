@@ -375,7 +375,7 @@
             }
 
             ?>
-        <hr><h3 class="mb-3"><strong>Amount Due: <span class="test-amount-due">${{number_format($dueAmt,2)}}</span></strong></h3>
+        <hr><h3 class="mb-3"><strong>Amount: <span class="test-amount-due">${{number_format($dueAmt,2)}}</span></strong></h3>
         <span><strong>Description:</strong></span></br>{!! nl2br($findInvoice->notes) !!}</div></div>
     <br>
     <br>    </div>

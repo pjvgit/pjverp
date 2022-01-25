@@ -1,3 +1,7 @@
+------------------------------------ 25-JAN-2022 ------------------------------
+ALTER TABLE `user_trust_credit_fund_online_payments`
+ADD `allocated_to_case_id` int(11) NULL AFTER `fund_type`;
+
 ------------------------------------ 24-JAN-2022 ------------------------------
 ALTER TABLE `user_trust_credit_fund_online_payments`
 ADD `fund_type` enum('trust','credit') COLLATE 'utf8mb4_general_ci' NOT NULL DEFAULT 'trust' AFTER `status`;
@@ -21,8 +25,8 @@ CREATE TABLE `user_trust_credit_fund_online_payments` (
   `credit_history_id` int(11) NULL,
   `firm_id` int(11) NULL,
   `conekta_order_object` json NULL,
-  `created_by` timestamp NULL,
-  `created_at` int(11) NULL,
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
   `updated_at` timestamp NULL,
   `deleted_at` timestamp NULL
 ) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
