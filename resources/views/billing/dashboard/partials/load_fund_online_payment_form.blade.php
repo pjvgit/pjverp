@@ -219,12 +219,14 @@
         </div>
         <hr>
         <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
-        <div class="form-group row float-right">
+        <div class="form-group row float-right form-group-main">
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
             </a>
             <button class="btn btn-primary ladda-button example-button m-1 submit" type="button" onclick="onlinePaymentConfirmation()">Deposit Funds</button>
         </div>
+        <p><strong>Nota:</strong> Los pagos con estatus “Pendientes de Pago” aparecerán en el historial una vez que hayan sido pagados</p>
     </form>
+   
 @endif
 </div>

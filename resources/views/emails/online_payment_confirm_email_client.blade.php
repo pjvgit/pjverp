@@ -20,7 +20,7 @@
             $content = str_replace('[INVOICE_LINK]', route('client/bills/detail', $payableRecord->decode_id), $content);
         }
     } else if($payableType == 'fund'){
-        $content = str_replace('[PAYABLE_ID]', '#'.$onlinePayment->user_id, $content);
+        $content = str_replace('[PAYABLE_ID]', 'Client#'.$onlinePayment->user_id, $content);
         if(isset($payableRecord)) {
             $content = str_replace('[INVOICE_LINK]', "#", $content);
         }

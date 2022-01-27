@@ -83,7 +83,7 @@ class ClientdashboardController extends BaseController
             ->groupBy("case_master.id")  
             ->orderBy("case_master.id","DESC")  
             ->get(); */
-            $case = $userProfile->clientCases;
+            $case = $userProfile->clientCases->whereNull("case_close_date");
             
             $closed_case =CaseMaster::join('case_client_selection','case_master.id','=','case_client_selection.case_id')
             ->select("case_master.case_title","case_master.id as cid","case_master.case_unique_number as case_unique_number")
@@ -1120,7 +1120,7 @@ class ClientdashboardController extends BaseController
         $userCases = CaseMaster::
                     join('case_client_selection', function($join)  use($request) {
                         $join->on('case_client_selection.case_id', '=', 'case_master.id')->where('case_client_selection.selected_user', $request->user_id)->whereNull('case_client_selection.deleted_at');
-                    })
+                    })->whereNull("case_master.case_close_date")
                     ->select("case_master.id", "case_master.case_title", "case_client_selection.allocated_trust_balance")->get();
 
         return view('client_dashboard.billing.withdrawTrustEntry',compact('userData','UsersAdditionalInfo', 'userCases'));     
