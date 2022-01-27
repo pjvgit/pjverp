@@ -24,6 +24,7 @@ use App\Traits\TrustAccountTrait;
 use App\TrustHistory;
 use App\User;
 use App\UsersAdditionalInfo;
+use App\UserTrustCreditFundOnlinePayment;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -950,259 +951,17 @@ class BillingController extends Controller
             $response = $data->data;
             $paymentDetail = InvoiceOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
             if($paymentDetail) {
-                Log::info("Invoice online payment detail: ". @$paymentDetail);
-                Log::info("invoice cash payment");
-                DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
-                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
-
-                $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
-                $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
-                if($invoiceHistory) {
-                    if(empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
-                        // Get user additional info
-                        $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
-                        $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-                        DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
-                        $trustHistoryId = DB::table('trust_history')->insertGetId([
-                            'client_id' => $paymentDetail->user_id,
-                            'payment_method' => $paymentMethod,
-                            'amount_paid' => $paymentDetail->amount,
-                            'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                            'payment_date' => date('Y-m-d'),
-                            'fund_type' => 'diposit',
-                            'online_payment_status' => 'paid',
-                            'created_by' => $paymentDetail->user_id,
-                            'created_at' => Carbon::now(),
-                        ]);
-                        $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
-                        // For update next/previous trust balance
-                        $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
-                    } else {
-                        // Update invoice payment status
-                        DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
-
-                        // Update invoice history status
-                        DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
-
-                        // Update invoice status and amount
-                        DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
-
-                        // Update invoice/invoice installment amount
-                        $getInstallMentIfOn = InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
-                        if(!empty($getInstallMentIfOn)){
-                            $this->updateInvoiceInstallmentAmount($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
-                        }
-                        $this->updateInvoiceAmount($invoice->id);
-
-                        $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-                        // For lawyer activity
-                        DB::table("all_history")->insert([
-                            'user_id' => $paymentDetail->user_id,
-                            'case_id' => $invoice->case_id,
-                            'activity_for' => $invoice->id,
-                            'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
-                            'type' => 'invoices',
-                            'action' => 'pay',
-                            'created_by' => $paymentDetail->user_id,
-                            'created_at' => Carbon::now(),
-                        ]);
-
-                        // For client activity
-                        DB::table("all_history")->insert([
-                            'case_id' => $invoice->case_id,
-                            'user_id' => $paymentDetail->user_id,
-                            'client_id' => $paymentDetail->user_id,
-                            'activity_for' => $invoice->id,
-                            'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
-                            'type' => 'invoices',
-                            'action' => 'pay',
-                            'is_for_client' => 'yes',
-                            'created_by' => $paymentDetail->user_id,
-                            'created_at' => Carbon::now(),
-                        ]);
-                        
-                        if($paymentDetail->payment_method == 'cash') {
-                            // Send confirmation email to client
-                            $client = User::whereId($paymentDetail->user_id)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'invoice'));
-
-                            // Send confirmation email to invoice created user
-                            $user = User::whereId($invoice->created_by)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
-
-                            // Send confirm email to firm owner/lead attorney
-                            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
-
-                            Log::info('invoice cash payment webhook successfull');
-
-                        } else if($paymentDetail->payment_method == 'bank transfer') {
-                            // Send confirmation email to client
-                            $client = User::whereId($paymentDetail->user_id)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail, 'bank_confirm_client', 'invoice'));
-
-                            // Send confirmation email to invoice created user
-                            $user = User::whereId($invoice->created_by)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-
-                            // Send confirm email to firm owner/lead attorney
-                            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                            $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
-
-                            Log::info('invoice bank payment webhook successfull');
-                        } else {
-                        }
-                    }
-                } else {
-                    Log::info("cash invoice & invoice history not found");
-                }
+                $this->invoiceOrderConfirm($paymentDetail, $response);
             } else {
                 $paymentDetail = RequestedFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
                 Log::info("Fundrequest online payment detail: ". @$paymentDetail);
                 if($paymentDetail) {
-                    DB::table("requested_fund_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
-                        ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
-
-                    $fundRequest = RequestedFund::whereId($paymentDetail->fund_request_id)->first();
-                    // Get user additional info
-                    $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
-                    $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
-                    if(empty($fundRequest) || $fundRequest->status == "paid") {
-                            DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
-                            $trustHistoryId = DB::table('trust_history')->insertGetId([
-                                'client_id' => $paymentDetail->user_id,
-                                'payment_method' => $paymentMethod,
-                                'amount_paid' => $paymentDetail->amount,
-                                'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                                'payment_date' => date('Y-m-d'),
-                                'fund_type' => 'diposit',
-                                'online_payment_status' => 'paid',
-                                'created_by' => $paymentDetail->user_id,
-                                'created_at' => Carbon::now(),
-                            ]);
-                            $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
-                            // For update next/previous trust balance
-                            $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
-                    } else {
-                        // Update fund request paid/due amount and status
-                        $remainAmt = $fundRequest->amount_due - $paymentDetail->amount;
-                        DB::table("requested_fund")->where("id", $paymentDetail->fund_request_id)
-                            ->update([
-                                'amount_due' => $remainAmt,
-                                'amount_paid' => ($fundRequest->amount_paid + $paymentDetail->amount),
-                                'payment_date' => date('Y-m-d'),
-                                'status' => ($remainAmt == 0) ? 'paid' : 'partial',
-                                'online_payment_status' => 'paid',
-                                'updated_at' => Carbon::now()
-                            ]);                        
-                        //Deposit into trust account
-                        if($fundRequest->deposit_into_type == "trust") {
-                            DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
-                            $trustHistoryId = DB::table('trust_history')->insertGetId([
-                                'client_id' => $paymentDetail->user_id,
-                                'payment_method' => $paymentMethod,
-                                'amount_paid' => $paymentDetail->amount,
-                                'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
-                                'payment_date' => date('Y-m-d'),
-                                'fund_type' => 'diposit',
-                                'related_to_fund_request_id' => $fundRequest->id,
-                                'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
-                                'created_by' => $paymentDetail->user_id,
-                                'online_payment_status' => 'paid',
-                                'created_by' => $paymentDetail->user_id,
-                                'created_at' => Carbon::now(),
-                            ]);
-                            $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
-
-                            // For allocated case trust balance
-                            if($fundRequest->allocated_to_case_id != '') {
-                                DB::table('case_master')->where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $paymentDetail->amount);
-                                DB::table('case_client_selection')->where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
-                            }
-                            // For update next/previous trust balance
-                            $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
-                        } else {
-                            // Deposit into credit account
-                            DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $paymentDetail->amount);
-                            $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
-                                'user_id' => $paymentDetail->user_id,
-                                'deposit_amount' => $paymentDetail->amount,
-                                'payment_method' => strtolower($paymentMethod),
-                                'payment_date' => date("Y-m-d"),
-                                'total_balance' => @$userAdditionalInfo->credit_account_balance,
-                                'payment_type' => "deposit",
-                                'firm_id' => $paymentDetail->firm_id,
-                                'related_to_fund_request_id' => $fundRequest->id,
-                                'created_by' => $paymentDetail->user_id,
-                                'online_payment_status' => 'paid',
-                                'created_by' => $paymentDetail->user_id,
-                                'created_at' => Carbon::now(),
-                            ]);
-                            $paymentDetail->fill(['credit_history_id' => $creditHistoryId])->save();
-
-                            // For update next/previous credit balance
-                            $this->updateNextPreviousCreditBalance($paymentDetail->user_id);
-                        }
-                    }
-
-                    // For lawyer/firm staff activity 
-                    DB::table("all_history")->insert([
-                        'user_id' => $paymentDetail->user_id,
-                        'client_id' => $paymentDetail->user_id,
-                        'deposit_for' => $paymentDetail->user_id,
-                        'deposit_id' => $fundRequest->id,
-                        'activity' => "pay a payment of $".number_format($paymentDetail->amount, 2)." (".$paymentMethod.") for deposit request",
-                        'type' => 'fundrequest',
-                        'action' => 'pay',
-                        'created_by' => $paymentDetail->user_id,
-                        'created_at' => Carbon::now(),
-                    ]);
-
-                    // For client activity
-                    DB::table("all_history")->insert([
-                        'user_id' => $paymentDetail->user_id,
-                        'client_id' => $paymentDetail->user_id,
-                        'deposit_for' => $paymentDetail->user_id,
-                        'deposit_id' => $fundRequest->id,
-                        'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for deposit request",
-                        'type' => 'fundrequest',
-                        'action' => 'pay',
-                        'is_for_client' => 'yes',
-                        'created_by' => $paymentDetail->user_id,
-                        'created_at' => Carbon::now(),
-                    ]);
-
-                    if($paymentDetail->payment_method == 'cash') {
-                        // Send confirmation email to client
-                        $client = User::whereId($paymentDetail->user_id)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'fundrequest'));
-
-                        // Send confirmation email to fundRequest created user
-                        $user = User::whereId($fundRequest->created_by)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
-
-                        // Send confirm email to firm owner/lead attorney
-                        $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
-
-                        Log::info('fundRequest cash payment webhook successfull');
-
-                    } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
-                        // Send confirmation email to client
-                        $client = User::whereId($paymentDetail->user_id)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'bank_confirm_client', 'fundrequest'));
-
-                        // Send confirmation email to fundRequest created user
-                        $user = User::whereId($fundRequest->created_by)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
-
-                        // Send confirm email to firm owner/lead attorney
-                        $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
-                        $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
-                        
-                        Log::info('fundRequest bank payment webhook successfull');
-                    } else {
-                        Log::info("No email sent for request:". @$fundRequest->id);
+                    $this->fundRequestOrderConfirm($paymentDetail, $response);
+                } else {
+                    $paymentDetail = UserTrustCreditFundOnlinePayment::where("conekta_order_id", $response->object->id)->where('conekta_payment_status', 'pending_payment')->first();
+                    Log::info("User trust/credit fund online payment detail: ". @$paymentDetail);
+                    if($paymentDetail) {
+                        $this->fundOrderConfirm($paymentDetail, $response);
                     }
                 }
             }
@@ -1289,5 +1048,405 @@ class BillingController extends Controller
     public function conektaOrderRefund($data)
     {
         Log::info("Conekta order refund response: ". json_encode($data));
+    }
+
+    /**
+     * Invoice cash/bank payment, order confirmed
+     */
+    public function invoiceOrderConfirm($paymentDetail, $response)
+    {
+        Log::info("Invoice online payment detail: ". @$paymentDetail);
+        Log::info("invoice cash payment");
+        DB::table("invoice_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
+                ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
+
+        $invoice = Invoices::where("id", $paymentDetail->invoice_id)->first();
+        $invoiceHistory = DB::table("invoice_history")->where("id", $paymentDetail->invoice_history_id)->first();
+        if($invoiceHistory) {
+            if(empty($invoice) && in_array($invoice->status, ["Paid", "Forwarded"])) {
+                // Get user additional info
+                $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
+                $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                $trustHistoryId = DB::table('trust_history')->insertGetId([
+                    'client_id' => $paymentDetail->user_id,
+                    'payment_method' => $paymentMethod,
+                    'amount_paid' => $paymentDetail->amount,
+                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                    'payment_date' => date('Y-m-d'),
+                    'fund_type' => 'diposit',
+                    'online_payment_status' => 'paid',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+                $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
+                // For update next/previous trust balance
+                $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+            } else {
+                // Update invoice payment status
+                DB::table("invoice_payment")->whereId($invoiceHistory->invoice_payment_id)->update(['status' => '0']);
+
+                // Update invoice history status
+                DB::table("invoice_history")->whereId($paymentDetail->invoice_history_id)->update(['acrtivity_title' => 'Payment Received', 'status' => '1', 'online_payment_status' => 'paid']);
+
+                // Update invoice status and amount
+                DB::table("invoices")->whereId($paymentDetail->invoice_id)->update(['online_payment_status' => 'paid']);
+
+                // Update invoice/invoice installment amount
+                $getInstallMentIfOn = InvoicePaymentPlan::where("invoice_id",$invoice->id)->first();
+                if(!empty($getInstallMentIfOn)){
+                    $this->updateInvoiceInstallmentAmount($paymentDetail->amount, $invoice->id, $onlinePaymentStatus = 'paid');
+                }
+                $this->updateInvoiceAmount($invoice->id);
+
+                $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
+                // For lawyer activity
+                DB::table("all_history")->insert([
+                    'user_id' => $paymentDetail->user_id,
+                    'case_id' => $invoice->case_id,
+                    'activity_for' => $invoice->id,
+                    'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
+                    'type' => 'invoices',
+                    'action' => 'pay',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+
+                // For client activity
+                DB::table("all_history")->insert([
+                    'case_id' => $invoice->case_id,
+                    'user_id' => $paymentDetail->user_id,
+                    'client_id' => $paymentDetail->user_id,
+                    'activity_for' => $invoice->id,
+                    'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for invoice",
+                    'type' => 'invoices',
+                    'action' => 'pay',
+                    'is_for_client' => 'yes',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+                
+                if($paymentDetail->payment_method == 'cash') {
+                    // Send confirmation email to client
+                    $client = User::whereId($paymentDetail->user_id)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'invoice'));
+
+                    // Send confirmation email to invoice created user
+                    $user = User::whereId($invoice->created_by)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+
+                    // Send confirm email to firm owner/lead attorney
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'invoice'));
+
+                    Log::info('invoice cash payment webhook successfull');
+
+                } else if($paymentDetail->payment_method == 'bank transfer') {
+                    // Send confirmation email to client
+                    $client = User::whereId($paymentDetail->user_id)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 36, $paymentDetail, 'bank_confirm_client', 'invoice'));
+
+                    // Send confirmation email to invoice created user
+                    $user = User::whereId($invoice->created_by)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($invoice, $user, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
+
+                    // Send confirm email to firm owner/lead attorney
+                    $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+                    $this->dispatch(new OnlinePaymentEmailJob($invoice, $firmOwner, $emailTemplateId = 37, $paymentDetail, 'bank_confirm_user', 'invoice'));
+
+                    Log::info('invoice bank payment webhook successfull');
+                } else {
+                }
+            }
+        } else {
+            Log::info("cash invoice & invoice history not found");
+        }
+    }
+
+    /**
+     * Fund request cash/bank payment, order confirmed
+     */
+    public function fundRequestOrderConfirm($paymentDetail, $response)
+    {
+        DB::table("requested_fund_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
+            ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
+
+        $fundRequest = RequestedFund::whereId($paymentDetail->fund_request_id)->first();
+        // Get user additional info
+        $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
+        $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
+        if(empty($fundRequest) || $fundRequest->status == "paid") {
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                $trustHistoryId = DB::table('trust_history')->insertGetId([
+                    'client_id' => $paymentDetail->user_id,
+                    'payment_method' => $paymentMethod,
+                    'amount_paid' => $paymentDetail->amount,
+                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                    'payment_date' => date('Y-m-d'),
+                    'fund_type' => 'diposit',
+                    'online_payment_status' => 'paid',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+                $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
+                // For update next/previous trust balance
+                $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+        } else {
+            // Update fund request paid/due amount and status
+            $remainAmt = $fundRequest->amount_due - $paymentDetail->amount;
+            DB::table("requested_fund")->where("id", $paymentDetail->fund_request_id)
+                ->update([
+                    'amount_due' => $remainAmt,
+                    'amount_paid' => ($fundRequest->amount_paid + $paymentDetail->amount),
+                    'payment_date' => date('Y-m-d'),
+                    'status' => ($remainAmt == 0) ? 'paid' : 'partial',
+                    'online_payment_status' => 'paid',
+                    'updated_at' => Carbon::now()
+                ]);                        
+            //Deposit into trust account
+            if($fundRequest->deposit_into_type == "trust") {
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('trust_account_balance', $paymentDetail->amount);
+                $trustHistoryId = DB::table('trust_history')->insertGetId([
+                    'client_id' => $paymentDetail->user_id,
+                    'payment_method' => $paymentMethod,
+                    'amount_paid' => $paymentDetail->amount,
+                    'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                    'payment_date' => date('Y-m-d'),
+                    'fund_type' => 'diposit',
+                    'related_to_fund_request_id' => $fundRequest->id,
+                    'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
+                    'created_by' => $paymentDetail->user_id,
+                    'online_payment_status' => 'paid',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+                $paymentDetail->fill(['trust_history_id' => $trustHistoryId])->save();
+
+                // For allocated case trust balance
+                if($fundRequest->allocated_to_case_id != '') {
+                    DB::table('case_master')->where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $paymentDetail->amount);
+                    DB::table('case_client_selection')->where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                }
+                // For update next/previous trust balance
+                $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+            } else {
+                // Deposit into credit account
+                DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $paymentDetail->amount);
+                $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
+                    'user_id' => $paymentDetail->user_id,
+                    'deposit_amount' => $paymentDetail->amount,
+                    'payment_method' => strtolower($paymentMethod),
+                    'payment_date' => date("Y-m-d"),
+                    'total_balance' => @$userAdditionalInfo->credit_account_balance,
+                    'payment_type' => "deposit",
+                    'firm_id' => $paymentDetail->firm_id,
+                    'related_to_fund_request_id' => $fundRequest->id,
+                    'created_by' => $paymentDetail->user_id,
+                    'online_payment_status' => 'paid',
+                    'created_by' => $paymentDetail->user_id,
+                    'created_at' => Carbon::now(),
+                ]);
+                $paymentDetail->fill(['credit_history_id' => $creditHistoryId])->save();
+
+                // For update next/previous credit balance
+                $this->updateNextPreviousCreditBalance($paymentDetail->user_id);
+            }
+        }
+
+        // For lawyer/firm staff activity 
+        DB::table("all_history")->insert([
+            'user_id' => $paymentDetail->user_id,
+            'client_id' => $paymentDetail->user_id,
+            'deposit_for' => $paymentDetail->user_id,
+            'deposit_id' => $fundRequest->id,
+            'activity' => "pay a payment of $".number_format($paymentDetail->amount, 2)." (".$paymentMethod.") for deposit request",
+            'type' => 'fundrequest',
+            'action' => 'pay',
+            'created_by' => $paymentDetail->user_id,
+            'created_at' => Carbon::now(),
+        ]);
+
+        // For client activity
+        DB::table("all_history")->insert([
+            'user_id' => $paymentDetail->user_id,
+            'client_id' => $paymentDetail->user_id,
+            'deposit_for' => $paymentDetail->user_id,
+            'deposit_id' => $fundRequest->id,
+            'activity' => "pay a payment of $".number_format($paymentDetail->amount,2)." (".$paymentMethod.") for deposit request",
+            'type' => 'fundrequest',
+            'action' => 'pay',
+            'is_for_client' => 'yes',
+            'created_by' => $paymentDetail->user_id,
+            'created_at' => Carbon::now(),
+        ]);
+
+        if($paymentDetail->payment_method == 'cash') {
+            // Send confirmation email to client
+            $client = User::whereId($paymentDetail->user_id)->first();
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'fundrequest'));
+
+            // Send confirmation email to fundRequest created user
+            $user = User::whereId($fundRequest->created_by)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
+
+            // Send confirm email to firm owner/lead attorney
+            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fundrequest'));
+
+            Log::info('fundRequest cash payment webhook successfull');
+
+        } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
+            // Send confirmation email to client
+            $client = User::whereId($paymentDetail->user_id)->first();
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'bank_confirm_client', 'fundrequest'));
+
+            // Send confirmation email to fundRequest created user
+            $user = User::whereId($fundRequest->created_by)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
+
+            // Send confirm email to firm owner/lead attorney
+            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fundrequest'));
+            
+            Log::info('fundRequest bank payment webhook successfull');
+        } else {
+            Log::info("No email sent for request:". @$fundRequest->id);
+        }
+    }
+
+    /**
+     * User trust/credit fund  cash/bank payment, order confirmed
+     */
+    public function fundOrderConfirm($paymentDetail, $response)
+    {
+        DB::table("user_trust_credit_fund_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)
+            ->update(['conekta_payment_status' => 'paid', 'paid_at' => Carbon::now()/* , 'conekta_order_object' => json_encode($data) */]);
+
+        $client = User::whereId($paymentDetail->user_id)->first();
+        // Get user additional info
+        $userAdditionalInfo = UsersAdditionalInfo::select("trust_account_balance", "credit_account_balance")->where("user_id", $paymentDetail->user_id)->first();
+        $paymentMethod = ($paymentDetail->payment_method == 'cash') ? 'Oxxo Cash' : (($paymentDetail->payment_method == 'bank transfer') ? 'SPEI' : '');
+        $payableAmount = $paymentDetail->amount;
+        if($paymentDetail->fund_type == "trust") {
+            DB::table('users_additional_info')->where("user_id", $client->id)->increment('trust_account_balance', $payableAmount);
+
+            $trustHistoryId = DB::table('trust_history')->insertGetId([
+                'client_id' => $paymentDetail->user_id,
+                'payment_method' => $paymentMethod,
+                'amount_paid' => $payableAmount,
+                'current_trust_balance' => @$userAdditionalInfo->trust_account_balance,
+                'payment_date' => date('Y-m-d'),
+                'fund_type' => 'diposit',
+                'allocated_to_case_id' => $paymentDetail->allocated_to_case_id,
+                'created_by' => $paymentDetail->user_id,
+                'online_payment_status' => 'paid',
+                'created_at' => Carbon::now(),
+            ]);
+            DB::table("user_trust_credit_fund_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['trust_history_id' => $trustHistoryId]);
+
+            // For allocated case trust balance
+            if($paymentDetail->allocated_to_case_id != '') {
+                DB::table('case_master')->where('id', $paymentDetail->allocated_to_case_id)->increment('total_allocated_trust_balance', $payableAmount);
+                DB::table('case_client_selection')->where('case_id', $paymentDetail->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $payableAmount);
+            }
+            // For update next/previous trust balance
+            $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
+            
+            // Add fund account activity
+            $AccountActivityData = AccountActivity::select("*")->where("firm_id",$client->firm_name)->where("pay_type","trust")->orderBy("id","DESC")->first();
+            DB::table('account_activity')->insert([
+                'user_id' => $client->id,
+                'case_id'=> $paymentDetail->allocated_to_case_id ?? Null,
+                'credit_amount' => $payableAmount ?? 0.00,
+                'total_amount' => ($AccountActivityData) ? $AccountActivityData['total_amount'] + $payableAmount : $payableAmount,
+                'entry_date' => date('Y-m-d'),
+                'payment_method' => $paymentMethod,
+                'payment_type' => "deposit",
+                'pay_type' => "trust",
+                'from_pay' => "online",
+                'trust_history_id' => $trustHistoryId ?? Null,
+                'firm_id' => $client->firm_name,
+                'section' => "other",
+                'created_by'=> $client->id,
+                'created_at' => Carbon::now(),
+            ]);
+
+            // FOr acitivity
+            DB::table("all_history")->insert([
+                'user_id' => $paymentDetail->user_id,
+                'client_id' => $paymentDetail->user_id,
+                'deposit_for' => $paymentDetail->user_id,
+                'deposit_id' => $trustHistoryId,
+                'activity' => "deposit into trust of $".number_format($payableAmount,2)." (".$paymentMethod.") for ",
+                'type' => 'deposit',
+                'action' => 'add',
+                'created_by' => $paymentDetail->user_id,
+                'created_at' => Carbon::now(),
+            ]);
+        } else {
+            // Deposit into credit account
+            DB::table('users_additional_info')->where("user_id", $paymentDetail->user_id)->increment('credit_account_balance', $payableAmount);
+            $creditHistoryId = DB::table('deposit_into_credit_history')->insertGetId([
+                'user_id' => $paymentDetail->user_id,
+                'deposit_amount' => $payableAmount,
+                'payment_method' => strtolower($paymentMethod),
+                'payment_date' => date("Y-m-d"),
+                'total_balance' => @$userAdditionalInfo->credit_account_balance,
+                'payment_type' => "deposit",
+                'firm_id' => $paymentDetail->firm_id,
+                'created_by' => $paymentDetail->user_id,
+                'online_payment_status' => 'paid',
+                'created_at' => Carbon::now(),
+            ]);
+            DB::table("user_trust_credit_fund_online_payments")->where("conekta_order_id", $paymentDetail->conekta_order_id)->update(['credit_history_id' => $creditHistoryId]);
+
+            // For update next/previous credit balance
+            $this->updateNextPreviousCreditBalance($paymentDetail->user_id);
+
+            // For recent activity
+            DB::table("all_history")->insert([
+                'user_id' => $paymentDetail->user_id,
+                'client_id' => $paymentDetail->user_id,
+                'deposit_for' => $paymentDetail->user_id,
+                'deposit_id' => $creditHistoryId,
+                'activity' => "deposit into credit of $".number_format($payableAmount,2)." (".$paymentMethod.") for ",
+                'type' => 'credit',
+                'action' => 'add',
+                'created_by' => $paymentDetail->user_id,
+                'created_at' => Carbon::now(),
+            ]);
+        }
+
+        if($paymentDetail->payment_method == 'cash') {
+            // Send confirmation email to client
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'cash_confirm_client', 'fund'));
+
+            // Send confirmation email to fundRequest created user
+            $user = User::whereId($paymentDetail->created_by)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fund'));
+
+            // Send confirm email to firm owner/lead attorney
+            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'cash_confirm_user', 'fund'));
+
+            Log::info('fund cash payment webhook successfull');
+
+        } else if($paymentDetail && $paymentDetail->payment_method == 'bank transfer') { 
+            // Send confirmation email to client
+            $client = User::whereId($paymentDetail->user_id)->first();
+            $this->dispatch(new OnlinePaymentEmailJob(null, $client, $emailTemplateId = 33, $paymentDetail, 'bank_confirm_client', 'fund'));
+
+            // Send confirmation email to fundRequest created user
+            $user = User::whereId($paymentDetail->created_by)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($client, $user, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fund'));
+
+            // Send confirm email to firm owner/lead attorney
+            $firmOwner = User::where('firm_name', $paymentDetail->firm_id)->where('parent_user', 0)->first();
+            $this->dispatch(new OnlinePaymentEmailJob($client, $firmOwner, $emailTemplateId = 34, $paymentDetail, 'bank_confirm_user', 'fund'));
+            
+            Log::info('fund bank payment webhook successfull');
+        } else {
+            Log::info("No email sent for fund user:". @$client->id);
+        }
     }
 }

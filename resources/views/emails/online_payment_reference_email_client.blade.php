@@ -12,8 +12,10 @@
     $content = str_replace('[REFERENCE_NUMBER]', @$onlinePayment->conekta_payment_reference_id ?? '', $content);
     if($payableType == 'fundrequest') {
         $content = str_replace('[PAYABLE_ID]', 'Request #'.$onlinePayment->fund_request_id, $content);
-    } else {
+    } else if($payableType == 'invoice') {
         $content = str_replace('[PAYABLE_ID]', 'Invoice #'.$onlinePayment->invoice_id, $content);
+    } else {
+        $content = str_replace('[PAYABLE_ID]', 'Client#'.$onlinePayment->user_id, $content);
     }
     $content = str_replace('[EXPIRES_DATE]', @$onlinePayment->expires_date, $content);
     $content = str_replace('[EXPIRES_TIME]', @$onlinePayment->expires_time, $content);

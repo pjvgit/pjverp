@@ -9528,7 +9528,7 @@ class BillingController extends BaseController
                 $is_lead_case = 'yes';
             } else {
                 $result = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")
-                    ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at");
+                    ->where("case_client_selection.selected_user", $request->user_id)->whereNull("case_client_selection.deleted_at")->whereNull("case_master.case_close_date");
                 if($request->case_id) {
                     $result = $result->where("case_client_selection.case_id", $request->case_id);
                 }
@@ -12015,10 +12015,19 @@ class BillingController extends BaseController
                         'from_pay' => "online",
                         'trust_history_id' => $trustHistory->id ?? Null,
                         'firm_id' => $client->firm_name,
-                        'section' => "request",
-                        'related_to' => $fundRequest->id,
+                        'section' => ($fundRequest) ? "request" : "other",
+                        'related_to' => ($fundRequest) ? $fundRequest->id : Null,
                         'created_by'=> $authUser->id,
                     ]);
+
+                    $data=[];
+                    $data['deposit_id']=$trustHistory->id;
+                    $data['deposit_for']=$trustHistory->user_id;
+                    $data['user_id']=$trustHistory->created_by;
+                    $data['client_id']=$trustHistory->user_id;
+                    $data['activity']='accepted a deposit into trust of $'.$trustHistory->deposit_amount.' ('.ucfirst($trustHistory->payment_method).') for';
+                    $data['type']='trust';
+                    $data['action']='add';
                 } else {
                     // Deposit into credit account
                     UsersAdditionalInfo::where("user_id", $client->id)->increment('credit_account_balance', $payableAmount);
@@ -12060,16 +12069,17 @@ class BillingController extends BaseController
                             'created_by' => $authUser->id,
                         ]);
                     }
+                    // For recent activity
+                    $data=[];
+                    $data['deposit_id']=$creditHistory->id;
+                    $data['deposit_for']=$creditHistory->user_id;
+                    $data['user_id']=$creditHistory->created_by;
+                    $data['client_id']=$creditHistory->user_id;
+                    $data['activity']='accepted a deposit into credit of $'.$creditHistory->deposit_amount.' ('.ucfirst($creditHistory->payment_method).') for';
+                    $data['type']='credit';
+                    $data['action']='add';
                 }
-                
-                $data=[];
-                $data['deposit_id']=$creditHistory->id;
-                $data['deposit_for']=$creditHistory->user_id;
-                $data['user_id']=$creditHistory->created_by;
-                $data['client_id']=$creditHistory->user_id;
-                $data['activity']='accepted a deposit into credit of $'.$creditHistory->deposit_amount.' ('.ucfirst($creditHistory->payment_method).') for';
-                $data['type']='credit';
-                $data['action']='add';
+                // For add activity
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
                 
@@ -12079,11 +12089,11 @@ class BillingController extends BaseController
 
                 // Send confirm email to lawyer/invoice created user
                 $user = User::whereId($client->created_by)->first();
-                $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $user, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
+                $this->dispatch(new OnlinePaymentEmailJob($fundRequest ?? $client, $user, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
                 
                 // Send confirm email to firm owner/lead attorney
                 $firmOwner = User::where('firm_name', $client->firm_name)->where('parent_user', 0)->first();
-                $this->dispatch(new OnlinePaymentEmailJob($fundRequest, $firmOwner, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
+                $this->dispatch(new OnlinePaymentEmailJob($fundRequest ?? $client, $firmOwner, $emailTemplateId = 31, $requestOnlinePayment, 'user', $emailType));
                 DB::commit();
             }
         }
@@ -12162,6 +12172,7 @@ class BillingController extends BaseController
                         'conekta_order_object' => $order,
                         'status' => 'deposit',
                         'fund_type' => $request->fund_type,
+                        'allocated_to_case_id' => $request->case_id,
                     ]);
                 }                
 
@@ -12246,6 +12257,7 @@ class BillingController extends BaseController
                         'conekta_order_object' => $order,
                         'status' => 'deposit',
                         'fund_type' => $request->fund_type,
+                        'allocated_to_case_id' => $request->case_id,
                     ]);
                 }       
 
