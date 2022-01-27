@@ -1168,7 +1168,7 @@ class LeadController extends BaseController
             $datauser=[];
             $datauser['activity_title']='linked client';
             $datauser['case_id']=$request->case_id;
-            $datauser['staff_id']=$request->user_id;
+            $datauser['staff_id']=$request->id;
             $this->caseActivity($datauser);
             return response()->json(['errors'=>'','case_id'=>$request->case_id]);
             exit;
@@ -1299,7 +1299,14 @@ class LeadController extends BaseController
                         $ClientNotes->created_at=date('Y-m-d H:i:s');            
                         $ClientNotes->updated_by=Auth::User()->id;
                         $ClientNotes->updated_at=date('Y-m-d H:i:s');
-                        $ClientNotes->save();        
+                        $ClientNotes->save();    
+                        
+                        //Activity tab
+                        $data=[];
+                        $data['activity_title']='added note';
+                        $data['case_id']=$request->case_id;
+                        $data['activity_type']='';
+                        $this->caseActivity($data);
                     }
                 }
                 // delete all case notes from lead

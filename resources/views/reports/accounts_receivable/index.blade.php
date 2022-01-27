@@ -12,8 +12,8 @@
                         Accounts Receivable Report
             </h3>
         </div>
-        <div class="card text-left">
-            <div class="card-body row">
+        <div class="filters table">
+            <div class="cards">
             <form class="run_report" id="run_report" name="run_report">
                 <div style="display: none;">
                     <input type="hidden" name="export_csv" id="export_csv" value="0" />
@@ -62,7 +62,9 @@
                                 <?php } ?>
                             </select>
                         </div>
-                        <div class="col-md-1 form-group p-1">
+                </div>
+                <div class="d-flex align-items-center">
+                        <div class="col-md-4 form-group p-1">
                             <div class="btn-group show">
                                 <button class="btn btn-primary btn-rounded m-1 dropdown-toggle" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false"  id="trustDropdown">
@@ -77,7 +79,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <input type="submit" class="btn btn-primary btn-rounded m-1" name="submit" value="Run Report"/>
+                            <input type="submit" class="btn btn-primary btn-rounded m-1" id="submitForm" name="submit" value="Run Report"/>
                             <button type="button" class="test-clear-filters text-black-50 btn btn-link resetClear">
                                 <a href="{{route('reporting/accounts_receivable')}}">Reset Filters</a>
                             </button>
@@ -95,13 +97,36 @@
             $receivables_group_due = 0.00;
             ?>
             @if(isset($request->submit) && $request->submit != '' )
-            <div class="report_summary_box">
-                Total Receivable
-                <hr class="inset">
-                <span class="receivables_group_due">$0.00</span>
-            </div>
-            @endif
-            <br>
+            <table class="table ">
+                <tbody>
+                     <tr class="header info_header">
+                        @if(count($clientArray) > 0)
+                        <td>
+                            <div class="report_summary_box">
+                                Total Invoice
+                                <hr class="inset">
+                                <span class="receivables_group_total">$0.00</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="report_summary_box">
+                                Total Payable
+                                <hr class="inset">
+                                <span class="receivables_group_paid">$0.00</span>
+                            </div>
+                        </td>
+                        @endif
+                        <td>
+                            <div class="report_summary_box">
+                                Total Receivable
+                                <hr class="inset">
+                                <span class="receivables_group_due">$0.00</span>
+                            </div>
+                        </td>
+                        @endif
+                    </tr>
+                </tbody>
+            </table>
             <br>
             @if(count($clientArray) > 0)
                 @foreach($clientArray as $client => $Invoices)
@@ -109,7 +134,7 @@
                     <tbody>
                         <tr class="header info_header">
                             <th class="receivables_title" colspan="3">
-                            {{ ($grp_by == 'client') ? 'Client' : (($grp_by == 'client') ? 'Case' : 'Practice') }} : {{ ($client != '') ? $client : "Not Specified" }}
+                            {{ ($grp_by == 'client') ? 'Client' : (($grp_by == 'case') ? 'Case' : 'Practice') }} : {{ ($client != '') ? $client : "Not Specified" }}
                             </th>
                             <th class="receivables_group_total_client">
                                
@@ -147,6 +172,8 @@
                         $due_amount = str_replace(",","",number_format($aData->total_amount,2)) - str_replace(",","",number_format($aData->paid_amount,2));
                         $receivables_group_due_client += $due_amount;
                         $receivables_group_due += $due_amount;
+                        $receivables_group_total += $aData->total_amount;
+                        $receivables_group_paid += $aData->paid_amount;
                         ?>
                         <tr class="even receivable_col">
                                 <td>
@@ -314,12 +341,22 @@ div.report_summary_box {
     font-weight: 400;
     font-size: 18px;
 }
+hr{
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+.filters{
+    border:solid 1px;
+}
 </style>
 @endsection
 
 @section('page-js')
 <script type="text/javascript">
     $(document).ready(function () {
+        <?php if($export_csv_path != ''){ ?>
+            window.open("{{$export_csv_path}}");
+        <?php } ?>
         $('#hiddenLable').hide();
         $(".select2").select2({
             theme: "classic",
@@ -329,7 +366,7 @@ div.report_summary_box {
         $("#trustDropdown").trigger('click');
         $(".receivables_group_due").html("$"+$("#receivables_group_due").val());
         $(".receivables_group_total").html("$"+$("#receivables_group_total").val());
-        $(".receivables_group_due").html("$"+$("#receivables_group_due").val());
+        $(".receivables_group_paid").html("$"+$("#receivables_group_paid").val());
     });
     function exportPDF()
     {
@@ -341,8 +378,10 @@ div.report_summary_box {
         return false;  
     }
     function exportCSV(){
+        $("#preloader").show();
         $("#export_csv").val(1);
         $("#export_csv").prop("type",'text');
+        $("#submitForm").trigger('click');
     }
 </script>
 @endsection

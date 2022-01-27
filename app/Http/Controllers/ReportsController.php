@@ -104,7 +104,7 @@ class ReportsController extends BaseController
                     $clientArray[$v->practice_area_title][] = $v;       
                 }
                 if($export_csv == 1){
-                    $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->total_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date : '--')."|".$v->status."|".$v->days_aging;
+                    $casesCsvData[]=$v->invoice_id."|".$v->contact_name."|".$v->ctitle."|".$v->total_amount_new."|".$v->paid_amount_new."|".$v->due_amount_new."|".(($v->due_date!=NULL)? $v->due_date : '--')."|".$v->status."|".$v->days_aging;
                 }
             }
 
@@ -124,8 +124,47 @@ class ReportsController extends BaseController
         return view('reports.accounts_receivable.index', compact('Invoices','clientArray','request','client_id','case_id','staff_id','grp_by','export_csv_path'));
     }
     
-    public function caseRevenueReportsView(){
-        return view('reports.case_revenue_reports.index');
+    public function caseRevenueReportsView(Request $request){
+
+        $from = $request->from ?? date('m/01/Y');
+        $to = $request->to ?? date('m/d/Y');
+        $case_status = $request->case_status ?? '';
+        $staff_id = $request->staff_id ?? '';
+        $practice_area = $request->practice_area ?? '';
+        $office = $request->office ?? '';
+        $billing_type = $request->billing_type ?? '';
+        $lead_id = $request->lead_id ?? '';
+        $export_csv = $request->export_csv ?? '';
+        $export_csv_path = "";
+        $clientArray = [];
+        
+        $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($from))))), auth()->user()->user_timezone ?? 'UTC')));
+        $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim(($to)))))), auth()->user()->user_timezone ?? 'UTC')));
+         
+        $cases = CaseMaster::join("users","case_master.created_by","=","users.id")
+        ->select('case_master.case_title');
+        // ->whereBetween("case_master.case_open_date",[$startDt,$endDt]);
+        
+        if(auth()->user()->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
+            $cases = $cases->where('case_master.firm_id', auth()->user()->firm_name);
+        }else{
+            $childUSersCase = CaseStaff::select("case_id")->where('user_id',auth()->user()->id)->get()->pluck('case_id');
+            $cases = $cases->whereIn("case_master.id",$childUSersCase);
+        }
+        
+        if($case_status == 'close'){
+            $cases = $cases->where("case_close_date","!=", NULL);
+        }
+        if($case_status == 'open'){
+            $cases = $cases->where("case_close_date", NULL);
+        }
+
+        $cases = $cases->where("case_master.is_entry_done","1"); 
+        $cases = $cases->groupBy("case_master.id"); 
+        $cases = $cases->with(['caseTaskTimeEntry']); 
+        $cases = $cases->get(); 
+        
+        return view('reports.case_revenue_reports.index', compact("from", "to", "case_status","staff_id", "practice_area", "office", "billing_type", "lead_id", "export_csv_path", "cases"));
     }
 }
   

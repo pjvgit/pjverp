@@ -1078,8 +1078,8 @@ class CaseController extends BaseController
                     $convertedDate=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($vv->created_at)),$timezone);
                     $mainArray[$k]['created_at']=$convertedDate;
 
-                    $caseCreatedAt=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($CaseMaster->created_new_date)),$timezone);
-                    $caseCreatedDate=date('m-d-Y h:i A',strtotime($caseCreatedAt));
+                    $caseCreatedAt=$CommonController->convertUTCToUserTime(date('Y-m-d h:i:s',strtotime($CaseMaster->created_at)),$timezone);
+                    $caseCreatedDate=date('m-d-Y h:i a',strtotime($caseCreatedAt));
                     
                 }
                 // print_r($mainArray);
@@ -5789,6 +5789,13 @@ class CaseController extends BaseController
                
                $CommonController= new CommonController();
                $CommonController->addMultipleHistory($data);
+
+               //Activity tab
+               $data=[];
+               $data['activity_title']='added note';
+               $data['case_id']=$request->case_id;
+               $data['activity_type']='';
+               $this->caseActivity($data);
 
                session(['popup_success' => 'Your note has been created']);
            }else{
