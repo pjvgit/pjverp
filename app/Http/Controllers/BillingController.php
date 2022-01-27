@@ -12227,7 +12227,7 @@ class BillingController extends BaseController
                         'amount' => $amount,
                         'conekta_order_id' => $order->id,
                         'conekta_charge_id' => $order->charges[0]->id ?? Null,
-                        'conekta_payment_reference_id' => $order->charges[0]->payment_method->reference ?? Null,
+                        'conekta_payment_reference_id' => $order->charges[0]->payment_method->clabe ?? Null, // CLABE number for bank transfer
                         'conekta_reference_expires_at' => Carbon::createFromTimestamp($order->charges[0]->payment_method->expires_at)->toDateTimeString() ?? Null,
                         'conekta_customer_id' => $customerId,
                         'conekta_payment_status' => $order->payment_status,
@@ -12248,7 +12248,7 @@ class BillingController extends BaseController
                         'amount' => $amount,
                         'conekta_order_id' => $order->id,
                         'conekta_charge_id' => $order->charges[0]->id ?? Null,
-                        'conekta_payment_reference_id' => $order->charges[0]->payment_method->reference ?? Null,
+                        'conekta_payment_reference_id' => $order->charges[0]->payment_method->clabe ?? Null, // CLABE number for bank transfer
                         'conekta_reference_expires_at' => Carbon::createFromTimestamp($order->charges[0]->payment_method->expires_at)->toDateTimeString() ?? Null,
                         'conekta_customer_id' => $customerId,
                         'conekta_payment_status' => $order->payment_status,
