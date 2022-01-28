@@ -32,6 +32,7 @@ use App\Traits\TrustAccountTrait;
 use Exception;
 use App\Http\Controllers\CommonController;
 use App\RequestedFundOnlinePayment;
+use App\UserTrustCreditFundOnlinePayment;
 
 class ClientdashboardController extends BaseController
 {
@@ -1278,9 +1279,7 @@ class ClientdashboardController extends BaseController
                             'reason' => 'requested_by_client',
                             'amount' => (int) $request->amount,
                         ]);
-                        
                         if($order->payment_status == "partially_refunded") {
-
                             $requestOnlinePayment = RequestedFundOnlinePayment::create([
                                 'fund_request_id' => $onlinePaymentDetail->fund_request_id,
                                 'user_id' => $onlinePaymentDetail->user_id,
@@ -1297,10 +1296,42 @@ class ClientdashboardController extends BaseController
                                 'conekta_order_object' => $order,
                                 'trust_history_id' => $TrustInvoice->id,
                             ]);
-                            
                             // Update payment detail status
                             $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
                             $TrustInvoice->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    } else {
+                        $onlinePaymentDetail = UserTrustCreditFundOnlinePayment::where("trust_history_id", $request->transaction_id)->first();
+                        if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            $order->refund([
+                                'reason' => 'requested_by_client',
+                                'amount' => (int) $request->amount,
+                            ]);
+                            if($order->payment_status == "partially_refunded") {
+                                $requestOnlinePayment = UserTrustCreditFundOnlinePayment::create([
+                                    'user_id' => $onlinePaymentDetail->user_id,
+                                    'payment_method' => 'card',
+                                    'amount' => $request->amount,
+                                    'conekta_order_id' => $order->id,
+                                    'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                    'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                    'conekta_payment_status' => $order->payment_status,
+                                    'status' => 'refund entry',
+                                    'refund_reference_id' => $onlinePaymentDetail->id,
+                                    'created_by' => $authUser->id,
+                                    'firm_id' => $authUser->firm_name,
+                                    'conekta_order_object' => $order,
+                                    'trust_history_id' => $TrustInvoice->id,
+                                    'fund_type' => 'trust',
+                                    'allocated_to_case_id' => $onlinePaymentDetail->allocated_to_case_id,
+                                ]);
+                                // Update payment detail status
+                                $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                                $TrustInvoice->fill(["online_payment_status" => $order->payment_status])->save();
+                            }
                         }
                     }
                 }
@@ -3943,7 +3974,6 @@ class ClientdashboardController extends BaseController
                             'reason' => 'requested_by_client',
                             'amount' => (int) $request->amount,
                         ]);
-                        
                         if($order->payment_status == "partially_refunded") {
                             $requestOnlinePayment = RequestedFundOnlinePayment::create([
                                 'fund_request_id' => $onlinePaymentDetail->fund_request_id,
@@ -3961,10 +3991,42 @@ class ClientdashboardController extends BaseController
                                 'conekta_order_object' => $order,
                                 'credit_history_id' => $depCredHis->id,
                             ]);
-                            
                             // Update payment detail status
                             $onlinePaymentDetail->fill(["status" => ($onlinePaymentDetail->amount == $request->amount) ? 'full refund' : 'partial refund', ])->save();
                             $depCredHis->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    } else {
+                        $onlinePaymentDetail = UserTrustCreditFundOnlinePayment::where("credit_history_id", $request->transaction_id)->first();
+                        if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            $order->refund([
+                                'reason' => 'requested_by_client',
+                                'amount' => (int) $request->amount,
+                            ]);
+                            if($order->payment_status == "partially_refunded") {
+                                $requestOnlinePayment = UserTrustCreditFundOnlinePayment::create([
+                                    'user_id' => $onlinePaymentDetail->user_id,
+                                    'payment_method' => 'card',
+                                    'amount' => $request->amount,
+                                    'conekta_order_id' => $order->id,
+                                    'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                    'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                    'conekta_payment_status' => $order->payment_status,
+                                    'status' => 'refund entry',
+                                    'refund_reference_id' => $onlinePaymentDetail->id,
+                                    'created_by' => $authUser->id,
+                                    'firm_id' => $authUser->firm_name,
+                                    'conekta_order_object' => $order,
+                                    'credit_history_id' => $depCredHis->id,
+                                    'fund_type' => 'credit',
+                                    'allocated_to_case_id' => $onlinePaymentDetail->allocated_to_case_id,
+                                ]);
+                                // Update payment detail status
+                                $onlinePaymentDetail->fill(["status" => ($onlinePaymentDetail->amount == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                                $depCredHis->fill(["online_payment_status" => $order->payment_status])->save();
+                            }
                         }
                     }
                 }

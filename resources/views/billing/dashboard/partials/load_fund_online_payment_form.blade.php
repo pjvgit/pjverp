@@ -47,11 +47,11 @@
     </div>
     <form class="pay-online-payment" id="pay_online_payment" name="pay_online_payment" method="POST">
         @csrf
-        <input type="text" name="type" value="fund" >
-        <input type="text" name="fund_type" value="{{ $fundType }}" >
-        <input type="text" name="client_id" value="{{ $userData->uid }}" >
-        <input type="text" id="case_id" name="case_id" value="{{ @$case->id }}">
-        <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
+        <input type="hidden" name="type" value="fund" >
+        <input type="hidden" name="fund_type" value="{{ $fundType }}" >
+        <input type="hidden" name="client_id" value="{{ $userData->uid }}" >
+        <input type="hidden" id="case_id" name="case_id" value="{{ @$case->id }}">
+        <input type="hidden" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
         <span id="response"></span>
         @if(!empty($fundRequestList) && count($fundRequestList))
         <div class="row">
