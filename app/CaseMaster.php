@@ -481,4 +481,14 @@ class CaseMaster extends Authenticatable
     {
         return $this->hasOne(CaseUpdate::class, 'case_id')->orderBy("case_update.id","DESC");
     }
+
+    /**
+     * Get the all TaskTimeEntry with the CaseMaster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function caseTaskTimeEntry()
+    {
+        return $this->hasMany("App\TaskTimeEntry", 'case_id');
+    }
 }

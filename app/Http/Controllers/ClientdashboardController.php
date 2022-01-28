@@ -562,10 +562,18 @@ class ClientdashboardController extends BaseController
 
                 
                 $data['type']='notes';
-                $data['action']='add';
-                
+                $data['action']='add';                
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
+
+                //Activity tab
+                if($request->text_case_id!=''){
+                    $data=[];
+                    $data['activity_title']='added note';
+                    $data['case_id']=$request->text_case_id;
+                    $data['activity_type']='';
+                    $this->caseActivity($data);
+                }
 
                 session(['popup_success' => 'Your note has been created']);
             }else{
@@ -634,6 +642,14 @@ class ClientdashboardController extends BaseController
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
 
+                //Activity tab
+                if(isset($request->case_id) && $request->case_id!=''){
+                    $data=[];
+                    $data['activity_title']='added note';
+                    $data['case_id']=$request->case_id;
+                    $data['activity_type']='';
+                    $this->caseActivity($data);
+                }
                 session(['popup_success' => 'Your note has been created']);
             }else{
                 session(['popup_success' => 'Your draft has been autosaved']);
