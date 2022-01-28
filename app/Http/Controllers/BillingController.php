@@ -4441,7 +4441,7 @@ class BillingController extends BaseController
 
                             $appliedTrustFund->fill([
                                 'applied_amount' => @$item['applied_amount'] ?? 0.00,
-                                'deposite_into' => @$item['deposite_into'] ?? NULL,
+                                'deposite_into' => "operating account",
                             ])->save();
 
                             $InvoicePayment = $this->invoiceApplyTrustFund($item, $request, $InvoiceSave);
@@ -4455,7 +4455,7 @@ class BillingController extends BaseController
 
                             $appliedTrustFund->fill([
                                 'allocate_applied_amount' => @$item["allocate_applied_amount"] ?? 0.00,
-                                'deposite_into' => @$item['deposite_into'] ?? NULL,
+                                'deposite_into' => "operating account",
                             ])->save();
 
                             $InvoicePayment = $this->invoiceApplyTrustFund($item, $request, $InvoiceSave, 'allocate');
@@ -4569,8 +4569,8 @@ class BillingController extends BaseController
                         $data['action']='pay';
                         $CommonController= new CommonController();
                         $CommonController->addMultipleHistory($data);
-
                     }
+                    sleep(2); // This is for credit history order
                 }
             }
 
@@ -9541,26 +9541,6 @@ class BillingController extends BaseController
             return response()->json(['errors' => "User not found"]);
         }
     }
-
-    /* public function depositIntoTrustByCase(Request $request)
-    {
-        
-       $validator = \Validator::make($request->all(), [
-        //    'id' => 'required|min:1|max:255',
-       ]);
-       if ($validator->fails())
-       {
-           return response()->json(['errors'=>$validator->errors()->all()]);
-        }else{
-            $activityData=[];
-            $caseClient = User::leftJoin("case_client_selection","case_client_selection.selected_user","=","users.id")
-            ->select("case_client_selection.*",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as contact_name'),"users.id as uid","users.user_level")
-            ->where("case_client_selection.case_id",$request->case_id);
-            $caseClient=$caseClient->get();
-            return view('billing.dashboard.depositIntoTrustByCase',compact('caseClient'));     
-            exit;    
-       }
-    }   */
 
     public function depositIntoTrustPopup(Request $request)
     {

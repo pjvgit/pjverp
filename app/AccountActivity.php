@@ -116,55 +116,55 @@ class AccountActivity extends Authenticatable
         $paymentType = $this->payment_type;
         $isRefund = ($this->is_refunded == "yes") ? "(Refunded)" : "";
         if($paymentType=="withdraw" && $this->pay_type == "trust"){
-            $ftype="Withdraw from Trust (Trust Account)";
+            $ftype="Withdraw from Trust Account";
         } 
         else if($paymentType=="withdraw" && $this->pay_type == "client"){
-            $ftype="Withdraw from Trust (Trust Account) to Operating (Operating Account)";
+            $ftype="Withdraw from Trust Account to Operating Account";
         }
         else if($paymentType=="refund_withdraw"){
-            $ftype="Refund Withdraw from Trust (Trust Account)";
+            $ftype="Refund Withdraw from Trust Account";
         }
         else if($paymentType=="refund_deposit"){
-            $ftype="Refund Deposit into Trust (Trust Account)";
+            $ftype="Refund Deposit into Trust Account";
         }
         else if($paymentType=="refund deposit"){
-            $ftype="Refund Payment into Credit (Operating Account)";
+            $ftype="Refund Payment into Credit Account";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && in_array($this->from_pay, ["normal","online"])){
-            $ftype = "Payment into Operating (Operating Account)";
+            $ftype = "Payment into Operating Account";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "trust"){
-            $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+            $ftype = "Payment from Trust Account to Operating Account";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "no" && $this->pay_type == "client" && $this->from_pay == "online"){
-            $ftype = "Payment into Operating (Operating Account)";
+            $ftype = "Payment into Operating Account";
         }
         else if($paymentType=="payment" && $this->is_lead_invoice == "no"){
-            $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+            $ftype = "Payment from Trust Account to Operating Account";
         }
         else if($paymentType=="payment deposit"){
-            $ftype = "Payment into Trust (Trust Account)";
+            $ftype = "Payment into Trust Account";
         }
         else if($paymentType=="refund payment deposit"){
-            $ftype = "Refund Payment into Trust (Trust Account)";
+            $ftype = "Refund Payment into Trust Account";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && in_array($this->from_pay, ["normal","online"])){
-            $ftype = "Refund Payment into Operating (Operating Account)";
+            $ftype = "Refund Payment into Operating Account";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "yes" && $this->pay_type == "client" && $this->from_pay == "trust"){
-            $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+            $ftype = "Refund Payment from Trust Account to Operating Account";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "no" && $this->pay_type == "client" && $this->from_pay == "online"){
-            $ftype = "Refund Payment into Operating (Operating Account)";
+            $ftype = "Refund Payment into Operating Account";
         }
         else if($paymentType=="refund payment" && $this->is_lead_invoice == "no"){
-            $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+            $ftype = "Refund Payment from Trust Account to Operating Account";
         }
         else if($paymentType=="deposit" && $this->pay_type == "client"){
-            $ftype="Payment into Credit (Operating Account)";
+            $ftype="Payment into Credit Account";
         }
         else{
-            $ftype="Deposit into Trust (Trust Account)";
+            $ftype="Deposit into Trust Account";
         }
         return $ftype.' '.$isRefund;
     }

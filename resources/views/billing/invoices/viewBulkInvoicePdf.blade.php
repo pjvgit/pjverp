@@ -655,9 +655,9 @@ $finalAmt=$invoice-$paid;
                 <td class="invoice_info_bg" style="width: 15%;">
                     Responsible User
                 </td>
-                <td class="invoice_info_bg" style="width: 18%;">
+                {{-- <td class="invoice_info_bg" style="width: 18%;">
                     Deposited Into
-                </td>
+                </td> --}}
             </tr>
             <?php  foreach($valueData['InvoiceHistoryTransaction'] as $hKey=>$hVal){
                     if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund","Payment Pending"])){ ?>
@@ -682,11 +682,11 @@ $finalAmt=$invoice-$paid;
                     {{substr($hVal->createdByUser->full_name,0,100)}}  
                     ({{$hVal->createdByUser->user_title}})
                 </td>
-                <td class="payment-history-column-deposited-into" style="vertical-align: top;">
+                {{-- <td class="payment-history-column-deposited-into" style="vertical-align: top;">
                     <?php if($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account'){
                         echo $hVal->deposit_into;
                     } ?>
-                </td>
+                </td> --}}
             </tr>
             <?php } 
                 } ?>

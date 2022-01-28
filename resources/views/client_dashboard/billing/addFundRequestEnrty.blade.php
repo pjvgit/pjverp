@@ -65,13 +65,13 @@
                                 <option></option>
                                 <option value="trust">Trust Account</option>
                                 @if(getInvoiceSetting() && getInvoiceSetting()->is_non_trust_retainers_credit_account == "yes" && $isFromTrustAllocation == 'no')
-                                <option value="credit">Operating Account</option>
+                                <option value="credit">Credit Account</option>
                                 @endif
                             </select>
                             <span class="deposit_into_error" ></span>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row" id="allocate_fund_div">
                         <label class="d-block col-4 pt-2">Allocate Funds
                             <span id="allocate-funds-tooltip" data-toggle="tooltip" data-html="true" title="<b>Now you can earmark trust funds by case:</b> <br> - Keep each case's trust balance seperate <br> - Prevent improperly applying trust funds <br><b>Note:</b> select client name to keep trust funds on the client level (Unallocated option)"><i class="fas fa-info-circle ml-1"></i></span>
                         </label>
@@ -373,7 +373,7 @@
                         $("#current-balance-list-down").text(res.minimum_trust_balance);
                         // $('#deposit_into').html('<option value="trust">Trust Account</option>');
                         if(res.is_non_trust_retainer == "yes" && $("#deposit_into option[value='credit']").length < 0) {
-                            $('#deposit_into').append('<option value="credit">Operating Account</option>'); 
+                            $('#deposit_into').append('<option value="credit">Credit Account</option>'); 
                         }
                         $(".text-muted").show();
                         $('#disabledArea').removeClass('retainer-request-opaque');
@@ -436,7 +436,7 @@
                 $("#current-balance-list-down").text(res.minimum_trust_balance);
                 // $('#deposit_into').html('<option value="'+res.freshData.user_id+'">Trust Account  ($'+res.trust_account_balance+')</option>'); 
                 if(res.is_non_trust_retainer == "yes" && $("#deposit_into option[value='credit']").length < 0) {
-                    $('#deposit_into').append('<option value="credit">Operating Account  ($'+res.credit_account_balance+')</option>');
+                    $('#deposit_into').append('<option value="credit">Credit Account ($'+res.credit_account_balance+')</option>');
                 }
             }
         })
@@ -451,8 +451,10 @@ $("#deposit_into").on("change", function() {
     reloadClientAmount();
     if($(this).val() == 'trust') {
         $("#allocate-funds-tooltip").show();
+        $("#allocate_fund_div").show();
     } else {
         $("#allocate-funds-tooltip").hide();
+        $("#allocate_fund_div").hide();
     }
 });
 

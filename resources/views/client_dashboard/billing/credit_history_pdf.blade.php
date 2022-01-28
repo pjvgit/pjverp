@@ -110,17 +110,17 @@
                 @php
                     $isRefund = ($v->is_refunded == "yes") ? "(Refunded)" : "";
                     if($v->payment_type == "withdraw")
-                        $dText = "Withdraw from Credit (Operating Account)";
+                        $dText = "Withdraw from Credit Account";
                     else if($v->payment_type == "refund withdraw")
-                        $dText = "Refund Withdraw from Credit (Operating Account)";
+                        $dText = "Refund Withdraw from Credit Account";
                     else if($v->payment_type == "payment")
-                        $dText = "Payment from Credit (Operating Account)";
+                        $dText = "Payment from Credit Account";
                     else if($v->payment_type == "refund payment")
-                        $dText = "Refund Payment from Credit (Operating Account)";
+                        $dText = "Refund Payment from Credit Account";
                     else if($v->payment_type == "refund deposit")
-                        $dText = "Refund Deposit into Credit (Operating Account)";
+                        $dText = "Refund Deposit into Credit Account";
                     else
-                        $dText = "Deposit into Credit (Operating Account)";  
+                        $dText = "Deposit into Credit Account";  
                         
                     if($v->payment_type == "deposit" || $v->payment_type == "refund withdraw") {
                         $amt = '$'.number_format($v->deposit_amount, 2);

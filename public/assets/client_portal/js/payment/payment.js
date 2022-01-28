@@ -271,7 +271,6 @@ $("#online_client_id").change(function() {
 
 // CHeck online payment full
 $('.payfullOnline').change(function () {
-    alert();
     if ($(this).is(":checked")) {
         $(".online-pay-amount").val($(this).val());
         $(".online-pay-amount").attr("readonly", true);

@@ -31,12 +31,12 @@ $finalAmt=$invoice-$paid;
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active show" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
+        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
             aria-selected="false">Online Payment
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link " id="offline-payment-tab" data-toggle="tab" href="#offline_payment_tab" role="tab"
+        <a class="nav-link active show" id="offline-payment-tab" data-toggle="tab" href="#offline_payment_tab" role="tab"
             aria-controls="offline_payment_tab" aria-selected="true">Offline Payment
         </a>
     </li>
@@ -55,59 +55,10 @@ $finalAmt=$invoice-$paid;
 </ul>
 <div class="tab-content" id="myTabContent">
 
-    <div class="tab-pane fade active show" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
-        <div class="scrollbar scrollbar-primary">
-        @if(empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "no")
-            <div class="col-md-12">
-                <div class="payment-confirmation-container">
-                    <div class="row">
-                        <div class="col-3 pl-4 pt-4">
-                            <span class="money-graph"></span>
-                        </div>
-                        <div class="col-9">
-                            <div data-testid="payments-platform-promo-header"
-                                class="payments-platform-promo-header">
-                                <h3>Start Accepting Online Payments!</h3>
-                            </div>
-                            <br>
-                            <ul class="invoice-payments-platform-promo-list clearfix" style="list-style-type:none;">
-                                <li data-testid="payments-platform-promo-list-item"
-                                    class="payments-platform-promo-list-item clearfix"><i
-                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Get paid faster by
-                                        accepting credit card payments in office</span></li>
-                                <li data-testid="payments-platform-promo-list-item"
-                                    class="payments-platform-promo-list-item clearfix"><i
-                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Get paid faster by
-                                        letting your clients pay online</span></li>
-                                <li data-testid="payments-platform-promo-list-item"
-                                    class="payments-platform-promo-list-item clearfix"><i
-                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Access from your MyCase
-                                        account, no 3rd party</span></li>
-                                <li data-testid="payments-platform-promo-list-item"
-                                    class="payments-platform-promo-list-item clearfix"><i
-                                        class="fas fa-check-circle payments-platform-promo-list-item-icon"></i>
-                                    <span class="payments-platform-promo-list-item-text">Save money with free
-                                        eCheck payments and competitive credit card fees</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <div class="modal-footer"></div>
-                <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
-                <div class="form-group row float-right">
-                    <a class="btn btn-primary" href="{{ route("billing/settings") }}" target="_blank" rel="noopener noreferrer">Get Started Now!</a>
-                </div>
-            </div>
-        @else
-            @include('billing.invoices.partials.load_invoice_online_payment_form')
-        @endif
-        </div>
+    <div class="tab-pane fade" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+        @include('billing.invoices.partials.load_invoice_online_payment_form')
     </div>
-    <div class="tab-pane fade " id="offline_payment_tab" role="tabpanel" aria-labelledby="offline-payment-tab">
+    <div class="tab-pane fade active show" id="offline_payment_tab" role="tabpanel" aria-labelledby="offline-payment-tab">
         <form class="PayInvoiceForm" id="PayInvoiceForm" name="PayInvoiceForm" method="POST">
             <span id="response"></span>
             @csrf
@@ -166,16 +117,14 @@ $finalAmt=$invoice-$paid;
                         if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} ({{ @$val->user_title }})</option>
-                        <?php } }/* else{ */ ?>
-                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option> --}}
-                        {{-- <?php }  ?> --}}
+                        <?php } } ?>
                         @if (!empty($invoiceUserNotInCase))
                             <option value="{{ $invoiceUserNotInCase->user_id }}">{{ @$invoiceUserNotInCase->user->full_name }} ({{ @$invoiceUserNotInCase->user->user_type_text }})</option>
                         @endif
                     </select>  
                     <span id="contactin"></span>
                 </div>                
-                <div class="col-md-12 form-group">
+                {{-- <div class="col-md-12 form-group">
                     <label for="firstName1">Deposit Into </label>
                     <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;"
                         placeholder="Select a bank account" disabled>
@@ -186,9 +135,9 @@ $finalAmt=$invoice-$paid;
                         } ?>
                     </select>
                     <span id="depositin"></span>                    
-                </div>  
+                </div> --}}  
                 <?php if($invoiceData['is_lead_invoice'] == 'no'){ ?>              
-                <div class="col-md-12 form-group" id="chkDeposit">
+                {{-- <div class="col-md-12 form-group" id="chkDeposit">
                     <div class="col-form-label d-flex align-items-center h-100 credit-payment-field form-check">
                         <input id="credit-payment-field" name="credit_payment" type="checkbox" class="my-0 form-check-input">
                         <label for="credit-payment-field" class="my-0 form-check-label ">Mark as Credit Payment</label>
@@ -202,11 +151,7 @@ $finalAmt=$invoice-$paid;
                             if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}})</option>
-                        <?php } }/* else{ */ ?>
-                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
-                                ${{number_format($userData['credit_account_balance'],2)}})
-                            </option>
-                        <?php } ?> --}}
+                        <?php } } ?>
                     </select>
                     <span id="caacount"></span>
                 </div>
@@ -218,7 +163,7 @@ $finalAmt=$invoice-$paid;
                     </select>
                     <span id="taacount"></span>
                     <input type="hidden" name="is_case" class="is_case">
-                </div>
+                </div> --}}
 
                 <?php } ?>
             </div>
@@ -247,9 +192,7 @@ $finalAmt=$invoice-$paid;
                             if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
                             <option value="{{$val->uid}}"> {{$val->user_name}} ({{ @$val->user_title }})</option>
-                        <?php } }/* else{ */ ?>
-                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} </option>
-                        <?php } ?> --}}
+                        <?php } } ?>
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance ${{number_format($userData['trust_account_balance'],2)}}) - Trust(Trust Account) </option> -->
                         
                         @if (!empty($invoiceUserNotInCase))
@@ -259,7 +202,8 @@ $finalAmt=$invoice-$paid;
                     <span id="ttcaccount"></span>
                 </div>
             </div>
-            <div class="row">
+            {{-- Removed, as per client requirement --}}
+            {{-- <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Select Bank Account</label>
                     <select class="form-control caller_name " id="bank_account" name="bank_account" style="width: 100%;"
@@ -269,7 +213,7 @@ $finalAmt=$invoice-$paid;
                     </select>
                     <span id="bankacount"></span>
                 </div>
-            </div>
+            </div> --}}
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="firstName1">Trust Account</label>
@@ -357,12 +301,8 @@ $finalAmt=$invoice-$paid;
                         <?php 
                         if(count($trustAccounts) > 0) {
                             foreach($trustAccounts as $key=>$val){?>
-                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Operating (Operating Account)</option>
-                        <?php } }/* else{ */ ?>
-                            {{-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
-                                ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
-                            </option>
-                        <?php } ?> --}}
+                            <option value="{{$val->uid}}"> {{$val->user_name}}  (Balance {{number_format($val->credit_account_balance,2)}}) - Credit Account</option>
+                        <?php } } ?>
                         <!-- <option value="{{$userData['uid']}}"> {{$userData['user_name']}} (Balance
                             ${{number_format($userData['credit_account_balance'],2)}}) - Operating (Operating Account)
                         </option> -->
@@ -455,11 +395,11 @@ $finalAmt=$invoice-$paid;
             theme: "classic",
 
         });
-        $("#deposit_into").select2({
+        /* $("#deposit_into").select2({
             placeholder: "Select a bank account",
             theme: "classic",
 
-        });
+        }); */
         $("#trust_account").select2({
             placeholder: "Select an account",
             theme: "classic",
@@ -480,9 +420,9 @@ $finalAmt=$invoice-$paid;
                 contact_id: {
                     required: true,
                 },
-                deposit_into: {
+                /* deposit_into: {
                     required: true,
-                },
+                }, */
                 trust_account:{
                     required: true,
                 }
@@ -498,9 +438,9 @@ $finalAmt=$invoice-$paid;
                 contact_id: {
                     required: "Contact is required",
                 },
-                deposit_into: {
+                /* deposit_into: {
                     required: "Deposit Account is required",
-                },
+                }, */
                 trust_account: {
                     required: "Trust Account is required",
                 }
@@ -512,8 +452,8 @@ $finalAmt=$invoice-$paid;
                     error.appendTo('#amt');
                 } else if (element.is('#contact_id')) {
                     error.appendTo('#contactin');    
-                } else if (element.is('#deposit_into')) {
-                    error.appendTo('#depositin');
+                /* } else if (element.is('#deposit_into')) {
+                    error.appendTo('#depositin'); */
                 } else if (element.is('#trust_account')) {
                     error.appendTo('#taacount');
                 } else {
@@ -526,9 +466,9 @@ $finalAmt=$invoice-$paid;
                 contact_id: {
                     required: true,
                 },
-                bank_account: {
+                /* bank_account: {
                     required: true,
-                },
+                }, */
                 trust_account: {
                     required: true,
                 },
@@ -540,9 +480,9 @@ $finalAmt=$invoice-$paid;
                 contact_id: {
                     required: "Contact is required",
                 },
-                bank_account: {
+                /* bank_account: {
                     required: "Bank Account is required",
-                },
+                }, */
                 trust_account: {
                     required: "Account is required",
                 },
@@ -578,7 +518,7 @@ $finalAmt=$invoice-$paid;
                 $(".amountFirst").removeAttr("readonly");
             }
         });
-        $('#deposit_into').change(function () {            
+        /* $('#deposit_into').change(function () {            
             if ($(this).val()=="Trust Account") {
                 $("#ta").show();
                 $("#chkDeposit").hide();
@@ -587,7 +527,7 @@ $finalAmt=$invoice-$paid;
                 $("#ta").hide();
                 $("#chkDeposit").show();
             }
-        });
+        }); */
         $('#credit-payment-field').on('change', function () {
             if ($(this).is(":checked")) {
                 $("#ca").show();
@@ -595,9 +535,9 @@ $finalAmt=$invoice-$paid;
                 $("#ca").hide();
             }
         });
-        $("#ta").hide();
-        $("#chkDeposit").hide();
-        $("#ca").hide();
+        // $("#ta").hide();
+        // $("#chkDeposit").hide();
+        // $("#ca").hide();
         $("#allocation-alert-section").hide();
 
         // For online payment
@@ -913,7 +853,7 @@ $('#contact_id').on('select2:select', function (e) {
     var data = e.params.data;
     getClientCases(data.id);
     // localStorage.setItem("selectedContact", data.id);
-    $("#deposit_into").removeAttr('disabled');
+    // $("#deposit_into").removeAttr('disabled');
     $("#from_credit_account").val(data.id);
     $('#from_credit_account').find('option').not('[value='+data.id+']').hide();
 });
@@ -923,16 +863,21 @@ $('#trust_contact_id').on('select2:select', function (e) {
     getClientCases(data.id);
     // localStorage.setItem("selectedContact", data.id);
     // $("#bank_account").attr("disabled",false);
-    $("#bank_account").removeAttr('disabled');
-    $(".balance-allocation-link").attr("data-user-id",data.id)
-});
-
-$('#bank_account').on('change', function (e) {
+    // $("#bank_account").removeAttr('disabled'); 
     $(".bank_trust_account").removeAttr('disabled');
     if( parseFloat($("#selectContactUnallocatedAmount").html()) >  0.10){
         $("#allocation-alert-section").show();
     }
+    $(".balance-allocation-link").attr("data-user-id",data.id)
 });
+
+// Removed, as per client requirement
+/* $('#bank_account').on('change', function (e) {
+    $(".bank_trust_account").removeAttr('disabled');
+    if( parseFloat($("#selectContactUnallocatedAmount").html()) >  0.10){
+        $("#allocation-alert-section").show();
+    }
+}); */
 
 $('#offline-payment-tab').on('click', function (e) {
     $("#PayInvoiceForm").trigger("reset");
@@ -946,11 +891,11 @@ $('#offline-payment-tab').on('click', function (e) {
         theme: "classic",
         allowClear: true,
     });
-    $("#deposit_into").select2({
+    /* $("#deposit_into").select2({
         placeholder: "Select a bank account",
         theme: "classic",
         allowClear: true,
-    });
+    }); */
     $("#trust_account").select2({
         placeholder: "Select an account",
         theme: "classic",
@@ -965,11 +910,11 @@ $('#trust-account-tab').on('click', function (e) {
         theme: "classic",
         allowClear: true,
     });
-    $("#bank_account").select2({
+    /* $("#bank_account").select2({
         placeholder: "Select a bank account",
         theme: "classic",
         allowClear: true,
-    });
+    }); */
     $("#trust_account").select2({
         placeholder: "Select an account",
         theme: "classic",
@@ -1000,7 +945,7 @@ function getClientCases(clientId) {
             $('.trust_account').html('');
             $('.trust_account').html('<option value=""></option>');
             if(data.result.length > 0) {
-                optgroup += "<optgroup label='Allocate to case'>";
+                optgroup += "<optgroup label='ALLOCATED TO A CASE'>";
                 if(data.is_lead_case == 'yes') {
                     $.each(data.result, function(ind, item) {
                         optgroup += "<option value='" + item.user_id + "'>" + item.potential_case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
@@ -1022,7 +967,7 @@ function getClientCases(clientId) {
                 if( parseFloat($("#selectContactUnallocatedAmount").html()) <  0.01){
                     $("#allocation-alert-section").hide();
                 }
-                optgroup += "<optgroup label='Unallocated'>";
+                optgroup += "<optgroup label='UNALLOCATED'>";
                 optgroup += "<option value='" + data.user.id + "'>" + data.user.full_name +" ("+data.user.user_type_text+") (Balance $"+data.unallocatedTrustBalance.toFixed(2)+")" + "</option>";
                 optgroup += "</optgroup>";
             }
@@ -1040,7 +985,7 @@ function getClientCases(clientId) {
 $(".trust_account").on("change", function() {
     var label = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
     var selectedTab = $("#payInvoice ul#myTab li a.active").attr('aria-controls');
-    if(label == 'Allocate to case') {
+    if(label == 'ALLOCATED TO A CASE') {
         $("#"+selectedTab).find(".is_case").val("yes");
     } else {
         $("#"+selectedTab).find(".is_case").val("");

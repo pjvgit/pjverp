@@ -321,8 +321,11 @@ if(isset($_GET['bank_account'])){
             },
             "initComplete": function (settings, json) {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('[data-toggle="popover"]').popover();
+                // $('[data-toggle="popover"]').popover();
                 $('.payRow').number(true, 2);
+            },
+            "drawCallback": function (settings) { 
+                $('[data-toggle="popover"]').popover();
             }
         });
 

@@ -158,7 +158,6 @@ $("#pay_online_payment").validate({
 function onlinePaymentConfirmation() {
     $(".innerLoader").show();
     if (!$('#pay_online_payment').valid()) {
-        alert("invalid");
         $(".innerLoader").hide();
         return false;
     } else {

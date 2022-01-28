@@ -14,14 +14,14 @@
                                 <select class="form-control caller_name select2" id="trust_account" name="trust_account" style="width: 100%;" placeholder="Select user's account...">
                                     <option></option>
                                     @if(isset($userCases) && count($userCases))
-                                    <optgroup label="Withdraw from a case">
+                                    <optgroup label="WITHDRAW FROM A CASE (ALLOCATED)">
                                         @forelse ($userCases as $item)
                                             <option value="{{ $item->id }}" data-amount={{ $item->allocated_trust_balance }}>{{ ucfirst($item->case_title) }} (Balance ${{ number_format($item->allocated_trust_balance, 2) }})
                                         @empty
                                         @endforelse
                                     </optgroup>
                                     @endif
-                                    <optgroup label="Withdraw from unallocated">
+                                    <optgroup label="WITHDRAW FROM UNALLOCATED">
                                         <option data-amount={{ $UsersAdditionalInfo->unallocate_trust_balance }}>Trust Account (Balance ${{number_format(($UsersAdditionalInfo->unallocate_trust_balance),2)}})</option>
                                     </optgroup>
                                 </select>
@@ -139,7 +139,7 @@
 
         $("#trust_account").on("change", function() {
             var label=$('#trust_account :selected').parent().attr('label');
-            if(label == "Withdraw from a case") {
+            if(label == "WITHDRAW FROM A CASE (ALLOCATED)") {
                 $("#case_id").val($(this).val());
             } else {
                 $("#case_id").val("");

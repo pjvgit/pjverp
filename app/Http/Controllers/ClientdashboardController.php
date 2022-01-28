@@ -32,6 +32,7 @@ use App\Traits\TrustAccountTrait;
 use Exception;
 use App\Http\Controllers\CommonController;
 use App\RequestedFundOnlinePayment;
+use App\UserTrustCreditFundOnlinePayment;
 
 class ClientdashboardController extends BaseController
 {
@@ -1021,14 +1022,15 @@ class ClientdashboardController extends BaseController
             ->addColumn('detail', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
                 if($data->user->user_level == 5) {
+                    $allocateTxt = ($data->allocated_to_lead_case_id) ? "(Allocated)" : "(Unallocated)";
                     if($data->fund_type == "diposit") {
-                        $ftype = "Payment into Trust (Trust Account)";
+                        $ftype = "Payment into Trust ".$allocateTxt;
                     }else if($data->fund_type=="refund_deposit"){
-                        $ftype="Refund Deposit into Trust (Trust Account)";
+                        $ftype="Refund Deposit into Trust ".$allocateTxt;
                     }else if($data->fund_type=="payment"){
-                        $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        $ftype = "Payment from Trust ".$allocateTxt." to Operating Account";
                     }else if($data->fund_type=="refund payment"){
-                        $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        $ftype = "Refund Payment from Trust ".$allocateTxt." to Operating Account";
                     } else {
                         $ftype = '';
                     }
@@ -1040,11 +1042,12 @@ class ClientdashboardController extends BaseController
                     }
                     return $ftype.$isRefund.$noteContent;
                 } else {
+                    $allocateTxt = ($data->allocated_to_case_id) ? "(Allocated)" : "(Unallocated)";
                     if($data->fund_type=="withdraw"){
                         if($data->withdraw_from_account!=null){
-                            $ftype="Withdraw from Trust (Trust Account) to Operating(".$data->withdraw_from_account.")";
+                            $ftype="Withdraw from Trust ".$allocateTxt." to Operating(".$data->withdraw_from_account.")";
                         }else{
-                            $ftype="Withdraw from Trust (Trust Account)";
+                            $ftype="Withdraw from Trust ".$allocateTxt;
                         }
                         $noteContent = '';
                         if($data->notes != '') {
@@ -1054,7 +1057,7 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="refund_withdraw"){
-                        $ftype="Refund Withdraw from Trust (Trust Account)";
+                        $ftype="Refund Withdraw from Trust ".$allocateTxt;
                     }else if($data->fund_type=="allocate_trust_fund"){
                         $notes = $data->notes;
                         $myString = substr($notes, strpos($notes, "#"));
@@ -1064,7 +1067,7 @@ class ClientdashboardController extends BaseController
                         $myString = substr($notes, strpos($notes, "#"));
                         $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
                     }else if($data->fund_type=="payment"){
-                        return $ftype = "Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        return $ftype = "Payment from Trust ".$allocateTxt." to Operating Account";
                         $noteContent = '';
                         if($data->notes != '') {
                             $noteContent = '<br>
@@ -1073,7 +1076,7 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="refund payment"){
-                        $ftype = "Refund Payment from Trust (Trust Account) to Operating (Operating Account)";
+                        $ftype = "Refund Payment from Trust ".$allocateTxt." to Operating Account";
                         $noteContent = '';
                         if($data->notes != '') {
                             $noteContent = '<br>
@@ -1082,7 +1085,7 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="payment deposit"){
-                        $ftype = "Payment into Trust (Trust Account)";
+                        $ftype = "Payment into Trust ".$allocateTxt;
                         $noteContent = '';
                         if($data->notes != '') {
                             $noteContent = '<br>
@@ -1091,7 +1094,7 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="refund payment deposit"){
-                        $ftype = "Refund Payment into Trust (Trust Account)";
+                        $ftype = "Refund Payment into Trust ".$allocateTxt;
                         $noteContent = '';
                         if($data->notes != '') {
                             $noteContent = '<br>
@@ -1100,10 +1103,10 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="refund_deposit"){
-                        $ftype="Refund Deposit into Trust (Trust Account)";
+                        $ftype="Refund Deposit into Trust ".$allocateTxt;
                     }else{
                         $onlinePaymentStatus = ($data->online_payment_status == 'pending') ? "(Payment Pending)" : (($data->online_payment_status == 'expired') ? "(Expired)" : "");
-                        $ftype="Deposit into Trust (Trust Account)".$isRefund.$onlinePaymentStatus;
+                        $ftype="Deposit into Trust ".$allocateTxt." ".$isRefund.$onlinePaymentStatus;
                     }
                 }
                 return $ftype;
@@ -1294,9 +1297,7 @@ class ClientdashboardController extends BaseController
                             'reason' => 'requested_by_client',
                             'amount' => (int) $request->amount,
                         ]);
-                        
                         if($order->payment_status == "partially_refunded") {
-
                             $requestOnlinePayment = RequestedFundOnlinePayment::create([
                                 'fund_request_id' => $onlinePaymentDetail->fund_request_id,
                                 'user_id' => $onlinePaymentDetail->user_id,
@@ -1313,10 +1314,42 @@ class ClientdashboardController extends BaseController
                                 'conekta_order_object' => $order,
                                 'trust_history_id' => $TrustInvoice->id,
                             ]);
-                            
                             // Update payment detail status
                             $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
                             $TrustInvoice->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    } else {
+                        $onlinePaymentDetail = UserTrustCreditFundOnlinePayment::where("trust_history_id", $request->transaction_id)->first();
+                        if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            $order->refund([
+                                'reason' => 'requested_by_client',
+                                'amount' => (int) $request->amount,
+                            ]);
+                            if($order->payment_status == "partially_refunded") {
+                                $requestOnlinePayment = UserTrustCreditFundOnlinePayment::create([
+                                    'user_id' => $onlinePaymentDetail->user_id,
+                                    'payment_method' => 'card',
+                                    'amount' => $request->amount,
+                                    'conekta_order_id' => $order->id,
+                                    'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                    'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                    'conekta_payment_status' => $order->payment_status,
+                                    'status' => 'refund entry',
+                                    'refund_reference_id' => $onlinePaymentDetail->id,
+                                    'created_by' => $authUser->id,
+                                    'firm_id' => $authUser->firm_name,
+                                    'conekta_order_object' => $order,
+                                    'trust_history_id' => $TrustInvoice->id,
+                                    'fund_type' => 'trust',
+                                    'allocated_to_case_id' => $onlinePaymentDetail->allocated_to_case_id,
+                                ]);
+                                // Update payment detail status
+                                $onlinePaymentDetail->fill(["status" => ($mt == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                                $TrustInvoice->fill(["online_payment_status" => $order->payment_status])->save();
+                            }
                         }
                     }
                 }
@@ -3732,7 +3765,7 @@ class ClientdashboardController extends BaseController
 
                 } else if($data->payment_method == "refund") {
                     if($data->online_payment_status == "partially_refunded") 
-                        $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted." data-html="true"><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
+                        $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted."><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
                     else
                         $action .= '<a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteCreditEntry('.$data->id.');">Delete</a>';
                 } else {
@@ -3778,7 +3811,7 @@ class ClientdashboardController extends BaseController
             ->editColumn('payment_method', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
                 if($data->payment_method == "withdraw" || $data->payment_method == "payment")
-                    $pMethod = "Non-Trust Credit Account";
+                    $pMethod = "Credit Account";
                 else
                     $pMethod = $data->payment_method;
                 return ucwords($pMethod).' '.$isRefund;
@@ -3799,19 +3832,19 @@ class ClientdashboardController extends BaseController
             ->addColumn('detail', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
                 if($data->payment_type == "withdraw")
-                    $dText = "Withdraw from Credit (Operating Account)";
+                    $dText = "Withdraw from Credit Account";
                 else if($data->payment_type == "refund withdraw")
-                    $dText = "Refund Withdraw from Credit (Operating Account)";
+                    $dText = "Refund Withdraw from Credit Account";
                 else if($data->payment_type == "payment")
-                    $dText = "Payment from Credit (Operating Account)";
+                    $dText = "Payment from Credit Account";
                 else if($data->payment_type == "refund payment")
-                    $dText = "Refund Payment from Credit (Operating Account)";
+                    $dText = "Refund Payment from Credit Account";
                 else if($data->payment_type == "refund deposit")
-                    $dText = "Refund Deposit into Credit (Operating Account)";
+                    $dText = "Refund Deposit into Credit Account";
                 else if($data->payment_type == "payment deposit")
                     $dText = "Payment into Credit (Operating Account)";
                 else
-                    $dText = "Deposit into Credit (Operating Account)";
+                    $dText = "Deposit into Credit Account";
 
                 $noteContent = '<div>'.$data->notes.'</div>';
                 return $dText.' '.$isRefund. (($data->notes) ? '<br>
@@ -3959,7 +3992,6 @@ class ClientdashboardController extends BaseController
                             'reason' => 'requested_by_client',
                             'amount' => (int) $request->amount,
                         ]);
-                        
                         if($order->payment_status == "partially_refunded") {
                             $requestOnlinePayment = RequestedFundOnlinePayment::create([
                                 'fund_request_id' => $onlinePaymentDetail->fund_request_id,
@@ -3977,10 +4009,42 @@ class ClientdashboardController extends BaseController
                                 'conekta_order_object' => $order,
                                 'credit_history_id' => $depCredHis->id,
                             ]);
-                            
                             // Update payment detail status
                             $onlinePaymentDetail->fill(["status" => ($onlinePaymentDetail->amount == $request->amount) ? 'full refund' : 'partial refund', ])->save();
                             $depCredHis->fill(["online_payment_status" => $order->payment_status])->save();
+                        }
+                    } else {
+                        $onlinePaymentDetail = UserTrustCreditFundOnlinePayment::where("credit_history_id", $request->transaction_id)->first();
+                        if($onlinePaymentDetail && $onlinePaymentDetail->payment_method == 'card') {
+                            $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
+                            \Conekta\Conekta::setApiKey($firmOnlinePaymentSetting->private_key);
+                            $order = \Conekta\Order::find($onlinePaymentDetail->conekta_order_id);
+                            $order->refund([
+                                'reason' => 'requested_by_client',
+                                'amount' => (int) $request->amount,
+                            ]);
+                            if($order->payment_status == "partially_refunded") {
+                                $requestOnlinePayment = UserTrustCreditFundOnlinePayment::create([
+                                    'user_id' => $onlinePaymentDetail->user_id,
+                                    'payment_method' => 'card',
+                                    'amount' => $request->amount,
+                                    'conekta_order_id' => $order->id,
+                                    'conekta_charge_id' => $order->charges[0]->id ?? Null,
+                                    'conekta_customer_id' => $onlinePaymentDetail->conekta_customer_id,
+                                    'conekta_payment_status' => $order->payment_status,
+                                    'status' => 'refund entry',
+                                    'refund_reference_id' => $onlinePaymentDetail->id,
+                                    'created_by' => $authUser->id,
+                                    'firm_id' => $authUser->firm_name,
+                                    'conekta_order_object' => $order,
+                                    'credit_history_id' => $depCredHis->id,
+                                    'fund_type' => 'credit',
+                                    'allocated_to_case_id' => $onlinePaymentDetail->allocated_to_case_id,
+                                ]);
+                                // Update payment detail status
+                                $onlinePaymentDetail->fill(["status" => ($onlinePaymentDetail->amount == $request->amount) ? 'full refund' : 'partial refund', ])->save();
+                                $depCredHis->fill(["online_payment_status" => $order->payment_status])->save();
+                            }
                         }
                     }
                 }

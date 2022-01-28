@@ -803,9 +803,9 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
             <td class="invoice_info_bg" style="width: 15%;">
                 Responsible User
             </td>
-            <td class="invoice_info_bg" style="width: 18%;">
+            {{-- <td class="invoice_info_bg" style="width: 18%;">
                 Deposited Into
-            </td>
+            </td> --}}
         </tr>
         <?php  foreach($InvoiceHistoryTransaction as $hKey=>$hVal){
                     if(in_array($hVal->acrtivity_title,["Payment Received","Payment Refund"])){ ?>
@@ -830,13 +830,13 @@ $flatFeeEntryAmount=$forwardedInvoices=$discount=$addition=$timeEntryTime=$timeE
                 {{substr($hVal->createdByUser->full_name,0,100)}}
                 ({{$hVal->createdByUser->user_title}})
             </td>
-            <td class="payment-history-column-deposited-into" style="vertical-align: top;">
+            {{-- <td class="payment-history-column-deposited-into" style="vertical-align: top;">
                 @if($hVal->acrtivity_title=="Payment Received" && in_array($hVal->payment_from, ['online','client_online']))
                     Operating Account
                 @elseif($hVal->acrtivity_title=="Payment Received" && $hVal->pay_method != 'Non-Trust Credit Account')
                     {{ $hVal->deposit_into }}
                 @endif
-            </td>
+            </td> --}}
         </tr>
         <?php } 
                 } ?>
