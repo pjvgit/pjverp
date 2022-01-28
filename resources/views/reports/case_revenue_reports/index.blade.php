@@ -105,12 +105,15 @@
                         <button type="button" class="test-clear-filters text-black-50 btn btn-link resetClear">
                             <a href="{{route('reporting/case_revenue_reports')}}">Reset Filters</a>
                         </button>
-                    </div>
+                    </div>                    
+                </div>
+                <div class="d-flex align-items-center">       
+                &nbsp;&nbsp;<input type="checkbox" name="show_case_with_daterange" {{ ($show_case_with_daterange == 'on') ? 'checked' : '' }}>&nbsp;<label for="checkbox-boolean-input-0" class="my-0 form-check-label ">Only show cases with data in this date range</label>
                 </div>
             </form>
             </div>
         </div>
-        <div class="reportList">
+        <div class="reportList" style="overflow-x: scroll;">
             @if(count($cases) > 0)
             <table class="table reporting report_table report_table_spaced accounts_receivable_reporting">
                 <tbody>
@@ -147,53 +150,95 @@
                         <td>Additions</td>
                         <td>Discounts</td>
                     </tr>
+                    <?php 
+                        $totalCaseFlatfees = $totalCaseDuration = $totalCaseTimeEntry = $totalCaseExpenseEntry = 0;
+                        $totalCaseBalanceForwarded = $totalCaseInterestAdjustment = $totalCaseTaxAdjustment = $totalCaseAdditionsAdjustment = $totalCaseDiscountsAdjustment = 0;
+                        $totalCaseNonBillableDuration = $totalCaseNonBillableEntry =  $totalCaseBilled = 0;
+                    ?>
                     @foreach($cases as $k => $case)
+                    <?php
+                        $totalCaseFlatfees += str_replace(",","",$case->caseFlatfees); 
+                        $totalCaseDuration += str_replace(",","",$case->caseDuration);
+                        $totalCaseTimeEntry += str_replace(",","",$case->caseTimeEntry);
+                        $totalCaseExpenseEntry += str_replace(",","",$case->caseExpenseEntry);
+                        $totalCaseBalanceForwarded += str_replace(",","",$case->caseBalanceForwarded);
+                        $totalCaseInterestAdjustment += str_replace(",","",$case->caseInterestAdjustment);
+                        $totalCaseTaxAdjustment += str_replace(",","",$case->caseTaxAdjustment);
+                        $totalCaseAdditionsAdjustment += str_replace(",","",$case->caseAdditionsAdjustment);
+                        $totalCaseDiscountsAdjustment += str_replace(",","",$case->caseDiscountsAdjustment);
+                        $totalCaseNonBillableDuration += str_replace(",","",$case->caseNonBillableDuration);
+                        $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
+                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) + str_replace(",","",$case->caseDiscountsAdjustment) + str_replace(",","",$case->caseNonBillableEntry);
+                        $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) + str_replace(",","",$case->caseDiscountsAdjustment) + str_replace(",","",$case->caseNonBillableEntry);
+
+                        $totalPaidInvoice = $case->caseInvoicePaidAmount;
+                        $totalPaidFlatfee = $totalPaidTimeEntry = 0;
+                        if(str_replace(",","",$case->caseFlatfees) > 0){
+                            if($totalPaidInvoice > str_replace(",","",$case->caseFlatfees)){
+                                $totalPaidFlatfee = str_replace(",","",$case->caseFlatfees);
+                                $totalPaidInvoice -= $totalPaidFlatfee;
+                            }else{
+                                $totalPaidFlatfee = str_replace(",","",$case->caseFlatfees) - $totalPaidFlatfee ;
+                                $totalPaidInvoice -= $totalPaidFlatfee;
+                            }
+                        }     
+                        if(str_replace(",","",$case->caseTimeEntry) > 0){
+                            if($totalPaidInvoice > str_replace(",","",$case->caseTimeEntry)){
+                                $totalPaidTimeEntry = str_replace(",","",$case->caseTimeEntry);
+                                $totalPaidInvoice -= $totalPaidTimeEntry;
+                            }else{
+                                $totalPaidTimeEntry = $totalPaidInvoice;
+                                $totalPaidInvoice -= $totalPaidTimeEntry;
+                            }
+                        }    
+                    ?>        
+
                     <tr class="">
-                        <td>{{$case->case_title}}</td>
-                        <td></td>
-                        <td>{{$case->caseDuration}}</td>
-                        <td>{{$case->caseTaskTimeEntry}}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td><a target="_blank" href="{{route('info', $case->case_unique_number)}}">{{$case->case_title}}</a></td>
+                        <td>{{($case->caseFlatfees > 0) ? '$'.$case->caseFlatfees : '--'}}</td>
+                        <td>{{($case->caseDuration > 0) ? $case->caseDuration : '--'}}</td>
+                        <td>{{($case->caseTimeEntry > 0) ? '$'.$case->caseTimeEntry : '--'}}</td>
+                        <td>{{($case->caseExpenseEntry > 0) ? '$'.$case->caseExpenseEntry : '--'}}</td>
+                        <td>{{($case->caseBalanceForwarded > 0) ? '$'.$case->caseBalanceForwarded : '--'}}</td>
+                        <td>{{($case->caseInterestAdjustment > 0) ? '$'.$case->caseInterestAdjustment : '--'}}</td>
+                        <td>{{($case->caseTaxAdjustment > 0) ? '$'.$case->caseTaxAdjustment : '--'}}</td>
+                        <td>{{($case->caseAdditionsAdjustment > 0) ? '$'.$case->caseAdditionsAdjustment : '--'}}</td>
+                        <td>{{($case->caseDiscountsAdjustment > 0) ? '$'.$case->caseDiscountsAdjustment : '--'}}</td>
+                        <td>{{($case->caseNonBillableDuration > 0) ? $case->caseNonBillableDuration : '--'}}</td>
+                        <td>{{($case->caseNonBillableEntry > 0) ? '$'.$case->caseNonBillableEntry : '--'}}</td>
+                        <th>${{number_format($totalBilled,2)}}</th>
+                        <td>{{($totalPaidFlatfee > 0) ? '$'.$totalPaidFlatfee : '--'}}</td>
+                        <td>{{($totalPaidTimeEntry > 0) ? '$'.$totalPaidTimeEntry : '--'}}</td>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
+                        <td>{{$case->caseInvoicePaidAmount}}</td>
                     </tr>
                     @endforeach
                     <tr class="header total_row">
                         <th width="200px">Page Total (Sum of the {{count($cases)}} rows displayed)</th>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <th>${{number_format($totalCaseFlatfees,2)}}</th>
+                        <th>{{$totalCaseDuration}}</th>
+                        <th>${{number_format($totalCaseTimeEntry,2)}}</th>
+                        <th>${{number_format($totalCaseExpenseEntry,2)}}</th>
+                        <th>${{number_format($totalCaseBalanceForwarded,2)}}</th>
+                        <th>${{number_format($totalCaseInterestAdjustment,2)}}</th>
+                        <th>${{number_format($totalCaseTaxAdjustment,2)}}</th>
+                        <th>${{number_format($totalCaseAdditionsAdjustment,2)}}</th>
+                        <th>${{number_format($totalCaseDiscountsAdjustment,2)}}</th>
+                        <th>{{number_format($totalCaseNonBillableDuration,2)}}</th>
+                        <th>${{number_format($totalCaseNonBillableEntry,2)}}</th>
+                        <th>${{number_format($totalCaseBilled,2)}}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </tbody>
             </table>

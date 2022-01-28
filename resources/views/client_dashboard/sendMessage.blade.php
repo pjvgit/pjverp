@@ -533,6 +533,7 @@
                         $("#addNewMessagePopup").modal('hide');
                         $("#loadTimeEntryPopup").modal('show');
                         if($("#current_submit").val() == 'saveandtime'){
+                            $('#messagesGrid').DataTable().ajax.reload(null, false);
                             loadTimeEntryPopupByCase($("#case_link").val());
                         }
                     }else{

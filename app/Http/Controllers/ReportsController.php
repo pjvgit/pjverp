@@ -135,16 +135,15 @@ class ReportsController extends BaseController
         $billing_type = $request->billing_type ?? '';
         $lead_id = $request->lead_id ?? '';
         $export_csv = $request->export_csv ?? '';
+        $show_case_with_daterange = $request->show_case_with_daterange ?? '';
+        
         $export_csv_path = "";
         $clientArray = [];
         
         $startDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim($from))))), auth()->user()->user_timezone ?? 'UTC')));
         $endDt =  date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime(trim(($to)))))), auth()->user()->user_timezone ?? 'UTC')));
-         
-        $cases = CaseMaster::join("users","case_master.created_by","=","users.id")
-        ->select('case_master.case_title');
-        // ->whereBetween("case_master.case_open_date",[$startDt,$endDt]);
         
+        $cases = CaseMaster::select('case_master.id', 'case_master.case_unique_number', 'case_master.case_title');
         if(auth()->user()->hasPermissionTo('access_all_cases')) { // Show cases as per user permission
             $cases = $cases->where('case_master.firm_id', auth()->user()->firm_name);
         }else{
@@ -152,6 +151,9 @@ class ReportsController extends BaseController
             $cases = $cases->whereIn("case_master.id",$childUSersCase);
         }
         
+        // if($show_case_with_daterange == 'on'){
+        //     $cases = $cases->whereBetween("case_master.case_open_date",[$startDt,$endDt]);
+        // }
         if($case_status == 'close'){
             $cases = $cases->where("case_close_date","!=", NULL);
         }
@@ -159,12 +161,153 @@ class ReportsController extends BaseController
             $cases = $cases->where("case_close_date", NULL);
         }
 
-        $cases = $cases->where("case_master.is_entry_done","1"); 
+        $cases = $cases->where("case_master.is_entry_done","1");
+        // $cases = $cases->where("case_master.id","108"); 
         $cases = $cases->groupBy("case_master.id"); 
-        $cases = $cases->with(['caseTaskTimeEntry']); 
-        $cases = $cases->get(); 
-        
-        return view('reports.case_revenue_reports.index', compact("from", "to", "case_status","staff_id", "practice_area", "office", "billing_type", "lead_id", "export_csv_path", "cases"));
+        $cases = $cases->get();
+        foreach($cases as $key => $case) {
+            // get Flat fee Entries list
+            $FlatFeeEntry=FlatFeeEntry::leftJoin("users","flat_fee_entry.user_id","=","users.id")
+            ->leftJoin("case_master","case_master.id","=","flat_fee_entry.case_id")
+            ->leftJoin("invoices","invoices.id","=","flat_fee_entry.invoice_link")
+            ->select('flat_fee_entry.*')
+            ->where("case_master.id",$case->id)
+            ->whereBetween("flat_fee_entry.created_at",[$startDt,$endDt])
+            ->get();
+            $caseFlatfees =  0;
+            foreach($FlatFeeEntry as $k => $v){
+                $caseFlatfees += str_replace(",","",$v->cost);
+            }
+            $cases[$key]['caseFlatfees'] = number_format($caseFlatfees,2);
+            // get Flat fee Entries list
+            
+            // get Time Entries list
+            $TimeEntry=TaskTimeEntry::leftJoin("users","task_time_entry.user_id","=","users.id")
+            ->leftJoin("task_activity","task_activity.id","=","task_time_entry.activity_id")
+            ->leftJoin("case_master","case_master.id","=","task_time_entry.case_id")
+            ->leftJoin("invoices","invoices.id","=","task_time_entry.invoice_link")
+            ->select('task_time_entry.*')
+            ->where("case_master.id",$case->id)
+            ->whereBetween("task_time_entry.created_at",[$startDt,$endDt])
+            ->get();
+            
+            $caseDuration = $caseTimeEntry = $caseNonBillableDuration =  $caseNonBillableEntry = 0;
+            foreach($TimeEntry as $k => $v){
+                if($v->rate_type=="flat"){
+                    if($v->time_entry_billable == "yes"){
+                        $caseTimeEntry += str_replace(",","",$v->entry_rate);
+                        $caseDuration += $v->duration;
+                    }else{
+                        $caseNonBillableDuration += $v->duration;
+                        $caseNonBillableEntry += str_replace(",","",$v->entry_rate);
+                    }
+                }else{
+                    if($v->time_entry_billable =="yes"){
+                        $caseTimeEntry += str_replace(",","",$v->duration) * str_replace(",","",$v->entry_rate);
+                    }else{
+                        $caseNonBillableEntry += str_replace(",","",$v->duration) * str_replace(",","",$v->entry_rate);
+                    }
+                }
+            }
+            $cases[$key]['caseDuration'] = $caseDuration;
+            $cases[$key]['caseNonBillableDuration'] = $caseNonBillableDuration;
+            $cases[$key]['caseTimeEntry'] = number_format($caseTimeEntry,2); 
+            
+            // get Time Entries list
+
+            // get ExpenseEntry list
+            $ExpenseEntry = ExpenseEntry::leftJoin("users","expense_entry.user_id","=","users.id")
+            ->leftJoin("task_activity","task_activity.id","=","expense_entry.activity_id")
+            ->leftJoin("case_master","case_master.id","=","expense_entry.case_id")
+            ->select('expense_entry.*')
+            ->where("case_master.id",$case->id)
+            ->whereBetween("expense_entry.created_at",[$startDt,$endDt])
+            ->get();
+            
+            $caseExpenseEntry = $caseNonBillableEntry = 0;
+            foreach($ExpenseEntry as $k => $v){
+                if($v->time_entry_billable == "yes"){
+                    $caseExpenseEntry += str_replace(",","",$v->duration) * str_replace(",","",$v->cost);
+                }else{
+                    $caseNonBillableEntry += str_replace(",","",$v->duration) * str_replace(",","",$v->cost);
+                }
+            }
+            $cases[$key]['caseExpenseEntry'] = number_format($caseExpenseEntry,2); 
+            $cases[$key]['caseNonBillableEntry'] = number_format($caseNonBillableEntry,2); 
+            // get ExpenseEntry list
+
+            // get balance forwarded list
+
+            $Invoices=Invoices::select('invoices.*')
+            ->where("invoices.case_id",$case->id)
+            ->whereBetween("invoices.created_at",[$startDt,$endDt])
+            ->get();
+            $caseBalanceForwarded = $caseInvoicePaidAmount =  0;
+            foreach($Invoices as $k => $v){
+                if($v->status == 'forwarded'){
+                    $caseBalanceForwarded += str_replace(",","",$v->total_amount);
+                }
+                $caseInvoicePaidAmount += str_replace(",","",$v->paid_amount);
+            }
+            $cases[$key]['caseInvoicePaidAmount'] = number_format($caseInvoicePaidAmount,2);
+            $cases[$key]['caseBalanceForwarded'] = number_format($caseBalanceForwarded,2);
+            // get balance forwarded list
+
+            // get adjustment amount list
+            
+            $InvoiceAdjustment=InvoiceAdjustment::select('invoice_adjustment.*')
+            ->where("invoice_adjustment.case_id",$case->id)
+            ->whereBetween("invoice_adjustment.created_at",[$startDt,$endDt])
+            ->get();
+            $caseInterestAdjustment = $caseTaxAdjustment = $caseAdditionsAdjustment = $caseDiscountsAdjustment = 0;
+            foreach($InvoiceAdjustment as $k => $v){
+                switch ($v->item) {
+                    case 'discount':
+                        if($v->ad_type=="amount"){
+                            $invoiceAmount = $v->basis;
+                        }else{
+                            $invoiceAmount = ($v->basis * $v->percentages ) / 100; 
+                        }
+                        $caseDiscountsAdjustment += str_replace(",","",$invoiceAmount);
+                        break;
+                    case 'intrest':
+                        if($v->ad_type=="amount"){
+                            $invoiceAmount = $v->basis;
+                        }else{
+                            $invoiceAmount = ($v->basis * $v->percentages ) / 100; 
+                        }
+                        $caseInterestAdjustment += str_replace(",","",$invoiceAmount);
+                        break;
+                    case 'tax':
+                        if($v->ad_type=="amount"){
+                            $invoiceAmount = $v->basis;
+                        }else{
+                            $invoiceAmount = ($v->basis * $v->percentages ) / 100; 
+                        }
+                        $caseTaxAdjustment += str_replace(",","",$invoiceAmount);
+                        break;
+                    case 'addition':
+                        if($v->ad_type=="amount"){
+                            $invoiceAmount = $v->basis;
+                        }else{
+                            $invoiceAmount = ($v->basis * $v->percentages ) / 100; 
+                        }
+                        $caseAdditionsAdjustment += str_replace(",","",$invoiceAmount);
+                        break;
+                    default:
+                        break;
+                }
+                
+            }
+            $cases[$key]['caseInterestAdjustment'] = number_format($caseInterestAdjustment,2);
+            $cases[$key]['caseTaxAdjustment'] = number_format($caseTaxAdjustment,2);
+            $cases[$key]['caseAdditionsAdjustment'] = number_format($caseAdditionsAdjustment,2);
+            $cases[$key]['caseDiscountsAdjustment'] = number_format($caseDiscountsAdjustment,2);
+            // get adjustment amount list
+
+        }
+  
+        return view('reports.case_revenue_reports.index', compact("from", "to", "case_status","staff_id", "practice_area", "office", "billing_type", "lead_id", "export_csv_path", "cases", "show_case_with_daterange"));
     }
 }
   

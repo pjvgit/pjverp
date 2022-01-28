@@ -146,7 +146,7 @@
                 <div class="test-sol-reminders fieldGroup">
                     
                     <div>
-                        <button type="button" class="btn btn-link pl-0 add-more">Add a reminder</button>
+                        <button type="button" class="btn btn-link pl-0 add-more-case">Add a reminder</button>
                     </div>
                 </div>
             </div>
@@ -277,7 +277,7 @@
             }
         });
         
-        $(".add-more").click(function () {
+        $(".add-more-case").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);

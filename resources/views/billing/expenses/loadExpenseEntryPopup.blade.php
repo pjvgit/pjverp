@@ -352,7 +352,7 @@
             </div>
             <div class="after-add-more-new"></div>
             <div class="row ">
-                <button type="button" id="add-one-row-id" class="btn btn-link add-more">Add another</button>
+                <button type="button" id="add-one-row-id" class="btn btn-link add-more-expenses">Add another</button>
                 <button type="button" id="add-five-rows-id" class="btn btn-link add-more-five">Add 5 more rows</button>
             </div>
             <div class="modal-footer pb-0">
@@ -407,7 +407,7 @@
         });
 
         
-        $(".add-more").click(function () {
+        $(".add-more-expenses").click(function () {
             var hideinputcount2 = $('#hideinputcount2').val();
 
 
@@ -453,7 +453,7 @@
             $option22 = $clone.find('[class="billtext"]');
             $option22.attr('id', 'replaceAmt' + (parseInt(hideinputcount2) + parseInt(1)) + '');
             // Add new field
-            $('#savebulkExpenses').validate('add-more', $option);
+            $('#savebulkExpenses').validate('add-more-expenses', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -646,7 +646,7 @@
                     1)) + '');
 
                 // Add new field
-                $('#savebulkExpenses').validate('add-more', $option);
+                $('#savebulkExpenses').validate('add-more-expenses', $option);
                 $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                     'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 
@@ -967,7 +967,7 @@
             $option33.attr('id', 'billableid' + (parseInt(hideinputcount2) + parseInt(1)) +
                 '');
             // Add new field
-            $('#savebulkExpenses').validate('add-more', $option);
+            $('#savebulkExpenses').validate('add-more-expenses', $option);
             $("#div" + (parseInt(hideinputcount2) + parseInt(1)) + "").find("label").attr("for",
                 'hideoptioninput2' + (parseInt(hideinputcount2) + parseInt(1)) + '');
 

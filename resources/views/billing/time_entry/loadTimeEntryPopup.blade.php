@@ -276,7 +276,7 @@
                                             <div class="billtext" id="replaceAmt1"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
-                                            <div class="billtext" id="replaceAmt1"> Billable - Rate will be calculated once court case is selected</div>
+                                            <div class="billtext" id="replaceAmt1"> Billable - Billing rate is not specified, the system will use rate: 0</div>
                                         <?php }?>
                                     <div>
                                         <input type="text" name="defaultrate[1]" id="hideoptioninput2defaultrate1" value="" style="display: none;"/>
@@ -346,7 +346,7 @@
                                             <div class="billtext"> Billable - Rate :{{number_format($default_rate,2)}}</div>
 
                                         <?php }else{ ?>
-                                            <div class="billtext"> Billable - Rate will be calculated once court case is selected</div>
+                                            <div class="billtext"> Billable - Billing rate is not specified, the system will use rate: 0</div>
                                         <?php }?>
                                     <div>
                                         <input type="text" name="defaultrate[]" value="" style="display: none;"/>
