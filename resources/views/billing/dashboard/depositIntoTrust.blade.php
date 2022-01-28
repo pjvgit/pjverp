@@ -32,7 +32,7 @@
     <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;">
     </div>
     <div id="allocate-funds-container" style="display: none;">
-        <div class="col-md-12">
+        {{-- <div class="col-md-12">
             <div class="row form-group">
                 <div class="col-md-12">
                     <label for="user-bank-account-select-field" class="col-form-label">Select Account</label>
@@ -42,7 +42,7 @@
                     </select>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-12">
             <div class="row form-group">
                 <div class="col-md-12">
@@ -89,22 +89,6 @@
             // depositIntoTrustPopup(localStorage.getItem("selectedContact"));
             // $("#depositIntoTrustAccount").modal("show");
         });
-
-        /* $("#depositForm").validate({
-            rules: {
-                contact: "required",
-                allocate_fund: "required",
-                user_account: "required",
-            },
-            errorPlacement: function (error, element) {
-                if (element.attr("name") == "allocate_fund")
-                error.insertAfter(".allocate_fund_error");
-                else if (element.attr("name") == "contact")
-                error.insertAfter(".contact_error");
-                else
-                error.insertAfter(element);
-            },
-        }); */
     });
 
 function getClientCases(clientId) {

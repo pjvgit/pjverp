@@ -8,21 +8,21 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active show" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
+        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
             aria-selected="false">Online Payment
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
+        <a class="nav-link active show" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
             aria-controls="profileBasic" aria-selected="true">Offline Payment
         </a>
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade active show" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+    <div class="tab-pane fade" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
         @include('billing.dashboard.partials.load_fund_online_payment_form')
     </div>
-    <div class="tab-pane fade" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade active show" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
         <form class="DepositTrustFund" id="DepositTrustFund" name="DepositTrustFund" method="POST">
             <span id="response"></span>
             @csrf

@@ -1361,7 +1361,7 @@ if(!isset($addition)){ $addition=0;}
                                                         <th>Available Amount</th>
                                                         <th>Amount to Apply</th>
                                                         <th>Balance After Application</th>
-                                                        <th>Deposit Into</th>
+                                                        {{-- <th>Deposit Into</th>  --}}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1391,7 +1391,8 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-balance-after-application">
                                                                     <div>$<span class="remain-trust-balance">{{ ($tempinfo) ? number_format(($citem->userAdditionalInfo->unallocate_trust_balance - $tempinfo->applied_amount) ?? 0.00, 2) : '0.00' }}</span></div>
                                                                 </td>
-                                                                <td class="apply-funds-deposit-into">
+                                                                {{-- Removed, as per client requirement --}}
+                                                                {{-- <td class="apply-funds-deposit-into">
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
                                                                             <select class="form-control trust-deposit-into deposit-into-account-{{ $citem->id }}" name="trust[{{$citem->id}}][deposite_into]" data-client-id="{{ $citem->id }}" data-trust-type="unallocate" data-token-id="{{$adjustment_token}}">
@@ -1400,7 +1401,7 @@ if(!isset($addition)){ $addition=0;}
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                </td>
+                                                                </td> --}}
                                                             </tr>
                                                         @endif
                                                         @if($citem->pivot->allocated_trust_balance > 0)
@@ -1411,14 +1412,10 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-client">
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][client_id]" value="{{ $citem->id }}" >
                                                                     <input type="hidden" name="trust[{{ $citem->id }}][case_id]" value="{{ @$citem->pivot->case_id }}" >
-                                                                    {{-- @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0) --}}
                                                                     <span>{{ $citem->full_name ?? "" }}</span>
-                                                                    {{-- @endif --}}
                                                                 </td>
                                                                 <td class="apply-funds-account">
-                                                                    {{-- @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0) --}}
                                                                     <div>Trust (Trust Account)</div>
-                                                                    {{-- @endif --}}
                                                                 </td>
                                                                 <td class="apply-funds-available-amount">
                                                                     <div>$<span class="trust-balance">{{ number_format($citem->pivot->allocated_trust_balance ?? 0.00, 2) }}</span> <span class="allocation-status">(Allocated)</span></div>
@@ -1432,7 +1429,8 @@ if(!isset($addition)){ $addition=0;}
                                                                 <td class="apply-funds-balance-after-application">
                                                                     <div>$<span class="remain-trust-balance">{{ ($tempinfo) ? number_format(($citem->pivot->allocated_trust_balance - $tempinfo->applied_amount) ?? 0.00, 2) : '0.00' }}</span></div>
                                                                 </td>
-                                                                <td class="apply-funds-deposit-into">
+                                                                {{-- Removed, as per client requirement --}}
+                                                                {{-- <td class="apply-funds-deposit-into">
                                                                     @if($citem->userAdditionalInfo->unallocate_trust_balance <= 0)
                                                                     <div class="row form-group">
                                                                         <div class="col-12 col-sm-12">
@@ -1443,7 +1441,7 @@ if(!isset($addition)){ $addition=0;}
                                                                         </div>
                                                                     </div>
                                                                     @endif
-                                                                </td>
+                                                                </td> --}}
                                                             </tr>
                                                         @endif
                                                     @empty
@@ -1522,7 +1520,7 @@ if(!isset($addition)){ $addition=0;}
                                                                     <span>{{ $citem->full_name ?? "" }}</span>
                                                                 </td>
                                                                 <td class="apply-funds-account">
-                                                                    <div>Credit (Operating Account)</div>
+                                                                    <div>Credit Account</div>
                                                                 </td>
                                                                 <td class="apply-funds-available-amount">
                                                                     <div>$<span class="credit-balance">{{ number_format($citem->userAdditionalInfo->credit_account_balance ?? 0.00, 2) }}</span> <span class="allocation-status"></span></div>

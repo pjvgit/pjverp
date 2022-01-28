@@ -58,13 +58,13 @@
                             <?php 
                                     $value=$lastEntry;
                                     $depositInto=$notes=$print=$refund='';
-                                    if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Operating Account"){
-                                            $depositInto="Operating (Operating Account)";
+                                        /* if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Operating Account"){
+                                            $depositInto="Operating Account";
                                         } else  if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Trust Account"){  
                                             $depositInto= "Trust (Trust Account)";
                                         }else{
                                             $depositInto="<i class='table-cell-placeholder'></i>";
-                                        } 
+                                        }  */
                                         
                                         if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
@@ -152,9 +152,9 @@
                                                 {{substr($value->createdByUser->full_name,0,100)}}
                                                 ({{$value->createdByUser->user_title}})</a>
                                         </td>
-                                        <td class="invoice-history-row-deposited-into">
+                                        {{-- <td class="invoice-history-row-deposited-into">
                                            <?php echo $depositInto;?>
-                                        </td>
+                                        </td> --}}
                                         <td style="overflow: visible;" class="invoice-history-row-notes">
                                             <div style="position: relative;">
                                                 <?php echo $notes;?>
@@ -184,7 +184,7 @@
                                 <th>Pay Method</th>
                                 <th>Amount</th>
                                 <th>Responsible User</th>
-                                <th>Deposited Into</th>
+                                {{-- <th>Deposited Into</th> --}}
                                 <th>Notes</th>
                                 <th>&nbsp;</th>
                                 <th>&nbsp;</th>
@@ -194,13 +194,13 @@
                             <?php 
                                     $depositInto=$notes=$print=$refund='';
                                     foreach ($InvoiceHistory as $key => $value) {
-                                        if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Operating Account"){
-                                            $depositInto="Operating (Operating Account)";
+                                        /* if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Operating Account"){
+                                            $depositInto="Operating Account";
                                         } else  if($value->acrtivity_title=="Payment Received" && $value->deposit_into=="Trust Account"){  
                                             $depositInto= "Trust (Trust Account)";
                                         }else{
                                             $depositInto="<i class='table-cell-placeholder'></i>";
-                                        } 
+                                        }  */
                                         
                                         if($value->acrtivity_title=="Payment Received" && $value->notes==NULL){
                                             $notes='<a href="javascript:void(0);" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Notes" data-content="Deposited Into: '.$value->deposit_into.'" data-original-title="Dismissible popover">View Payment Notes</a>';
@@ -291,9 +291,9 @@
                                             {{substr($value->createdByUser->full_name,0,100)}}
                                             ({{$value->createdByUser->user_title}})</a>
                                         </td>
-                                        <td class="invoice-history-row-deposited-into">
+                                        {{-- <td class="invoice-history-row-deposited-into">
                                            <?php echo $depositInto;?>
-                                        </td>
+                                        </td> --}}
                                         <td style="overflow: visible;" class="invoice-history-row-notes">
                                             <div style="position: relative;">
                                                 <?php echo $notes;?>

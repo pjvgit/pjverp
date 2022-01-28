@@ -1442,7 +1442,7 @@ $expenseTime=0;$expenseAmount=0;
                                                         <td class="apply-funds-client">
                                                             <span>{{ @$item->client->full_name }}</span></td>
                                                         <td class="apply-funds-account">
-                                                            <div>Credit (Operating Account)</div>
+                                                            <div>Credit Account</div>
                                                         </td>
                                                         <td class="apply-funds-available-amount">
                                                             <div>${{ number_format(@$item->userAdditionalInfo->credit_account_balance ?? 0, 2) }} <span class="allocation-status"></span></div>

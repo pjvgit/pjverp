@@ -101,7 +101,7 @@ trait InvoiceTrait {
         $CommonController= new CommonController();
         $CommonController->addMultipleHistory($data);
 
-        sleep(2);
+        sleep(3); // This is for trust history order
     }
 
     /**

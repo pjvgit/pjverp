@@ -163,10 +163,10 @@
                     ftype = "Payment into Trust (Trust Account)";
                     finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
                 }else if(aData.payment_from == "credit" && aData.acrtivity_title == "Payment Received"){
-                    ftype = "Payment from Credit (Operating Account)";
+                    ftype = "Payment from Credit Account";
                     finalAmount = '-$<span class="payRow">' + aData.amount + '</span>';
                 }else if(aData.payment_from == "credit" && aData.acrtivity_title == "Payment Refund"){
-                    ftype = "Refund Payment from Credit (Operating Account)";
+                    ftype = "Refund Payment from Credit Account";
                     finalAmount = '$<span class="payRow">' + aData.amount + '</span>';
                 }else if(aData.fund_type=="diposit") {
                     ftype="Deposit into Trust (Trust Account)";

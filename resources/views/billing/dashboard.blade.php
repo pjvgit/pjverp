@@ -307,42 +307,6 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
     </div>
 </div>
 
-{{-- <div id="depositIntoTrust" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog  modal-lg ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depostifundtitle">Deposit Into Trust</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="showError" style="display:none"></div>
-                <div id="depositIntoTrustArea">
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
-{{-- <div id="loadDepositIntoCreditPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog  modal-lg ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depostifundtitle">Deposit Into Non-Trust Credit Account</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="showError" style="display:none"></div>
-                <div id="loadDepositIntoCreditArea">
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
 @include('client_dashboard.billing.credit_history_modal')
 
 <!-- Modals -->

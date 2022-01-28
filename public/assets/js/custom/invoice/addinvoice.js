@@ -403,17 +403,18 @@ $(".apply-trust-amt").on("focusout", function() {
             $(this).val(totalAmt.toFixed(2));
             $(this).parents('tr').find(".remain-trust-balance").text("0.00");
         }
-        $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).addClass("required");
+        // $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).addClass("required");
     } else {
         $(this).parents('tr').find(".remain-trust-balance").text(totalAmt.toFixed(2));
-        $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).removeClass("required");
+        // $(".apply-trust-funds-table").find(".deposit-into-account-"+clientId).removeClass("required");
     }
     calculateAppliedTotalAmount();
     var clientId = $(this).attr('data-client-id');
     var caseId = $("#court_case_id").val();
     var trustType = $(this).attr('data-trust-type');
     var tokenId = $(this).attr("data-token-id");
-    var depositInto = $("[name='trust["+clientId+"][deposite_into]']").val();
+    // var depositInto = $("[name='trust["+clientId+"][deposite_into]']").val();
+    var depositInto = "operating account";
     var showHistory = $("[name='trust["+clientId+"][show_trust_account_history]']").val();
     $.ajax({
         url: baseUrl+'/bills/invoices/save/temp/info',
@@ -479,8 +480,9 @@ function calculateAppliedTotalAmount() {
     $(".invoice-total-amount").text('$'+$(".final_total").text());
 }
 
+// Removed, as per client requirement
 // Change trust deposit into dropdown
-$(".trust-deposit-into").on("change", function() {
+/* $(".trust-deposit-into").on("change", function() {
     var clientId = $(this).attr('data-client-id');
     var caseId = $("#court_case_id").val();
     var trustType = $(this).attr('data-trust-type');
@@ -496,7 +498,8 @@ $(".trust-deposit-into").on("change", function() {
             console.log(data);
         }
     });
-});
+}); */
+
 // Trust/Credit account history dropdown changes
 $(".trust-history-dd, .credit-history-dd").on("change", function() {
     var clientId = $(this).attr('data-client-id');

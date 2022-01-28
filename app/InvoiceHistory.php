@@ -109,7 +109,7 @@ class InvoiceHistory extends Authenticatable
     public function setPayMethodAttribute($value)
     {
         if($value == "Credit") {
-            $this->attributes['pay_method'] = 'Non-Trust Credit Account';
+            $this->attributes['pay_method'] = 'Credit Account';
         } else {
             $this->attributes['pay_method'] = $value;
         }
