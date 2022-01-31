@@ -615,7 +615,7 @@ $finalAmt=$invoice-$paid;
                             }, 1000);
                             $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                             $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                            // updateInvoiceDetail();
+                            updateInvoiceDetail();
                         }else{
                             swal('Payment Successful!', res.msg, 'success').then(function(){
                                 window.location.reload();
@@ -698,7 +698,7 @@ $finalAmt=$invoice-$paid;
                             }, 1000);
                             $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                             $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                            // updateInvoiceDetail();
+                            updateInvoiceDetail();
                         }else{
                             swal('Payment Successful!', res.msg, 'success').then(function(){
                                 window.location.reload();
@@ -828,7 +828,7 @@ function didCreditPayment() {
                         }, 1000);
                         $('#billing_invoice_table').DataTable().ajax.reload(null, false);
                         $('#invoiceGrid').DataTable().ajax.reload(null, false);
-                        // updateInvoiceDetail();
+                        updateInvoiceDetail();
                     }else{
                         swal('Payment Successful!', res.msg, 'success').then(function(){
                             window.location.reload();
@@ -851,7 +851,7 @@ function didCreditPayment() {
 }
 $('#contact_id').on('select2:select', function (e) {
     var data = e.params.data;
-    getClientCases(data.id);
+    // getClientCases(data.id); 
     // localStorage.setItem("selectedContact", data.id);
     // $("#deposit_into").removeAttr('disabled');
     $("#from_credit_account").val(data.id);

@@ -435,38 +435,49 @@
                             <table class="table table-sm table-borderless">
                                 <tbody>
                                     @forelse ($clientList as $k => $v)
+                                        @php
+                                            $userUrl = route('contacts/companies/billing/trust/allocation', $v->id);
+                                            if($v->user_level=="2") {
+                                                $userUrl = route('contacts/clients/billing/trust/allocation', $v->id);
+                                            }
+                                        @endphp
                                         @if($v->userAdditionalInfo->minimum_trust_balance > $v->userAdditionalInfo->unallocate_trust_balance)
                                             <tr class="border-bottom">
                                                 <td class="overdue-invoice">
-                                                    <small> 
-                                                    <?php  if($v->user_level=="2"){?>
-                                                    <a class="pendo-low-trust-user" href="{{ route('contacts/clients/billing/trust/allocation', $v->id) }}">{{ $v->full_name }}</a>
-                                                    <?php }else{ ?>
-                                                        <a class="pendo-low-trust-user" href="{{ route('contacts/companies/billing/trust/allocation', $v->id) }}">{{ $v->full_name }}   
-                                                        </a>
-                                                    <?php } ?>
-                                                    
-                                                    ({{ $v->user_type_text }})
-                                                            <span class="font-weight-bold">${{number_format($v->userAdditionalInfo->minimum_trust_balance - $v->userAdditionalInfo->unallocate_trust_balance,2)}}</span>
-                                                            <small>(under min. trust balance)</small>
-                                                
+                                                    <small><a class="pendo-low-trust-user" href="{{ $userUrl }}">{{ $v->full_name }}</a> ({{ $v->user_type_text }})
+                                                    <span class="font-weight-bold">${{number_format($v->userAdditionalInfo->minimum_trust_balance - $v->userAdditionalInfo->unallocate_trust_balance,2)}}</span>
+                                                    <small>(under min. trust balance)</small>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex flex-row-reverse flex-nowrap">
-                                                    <?php  if($v->user_level=="2"){?>
-                                                    <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ route('contacts/clients/billing/trust/allocation', $v->id) }}">
-                                                    <?php }else{ ?>
-                                                        <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ route('contacts/companies/billing/trust/allocation', $v->id) }}">
-                                                    
-                                                    <?php } ?>
+                                                    <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ $userUrl }}">
+                                                        <i class="fas fa-eye" title="" data-toggle="tooltip" data-placement="top" data-original-title="View Client"></i>
+                                                        <span class="sr-only">View {{$CommonController->getUserTypeText($v->user_level)}}</span>
+                                                    </a> 
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if (count($v->clientCasesSelection))
+                                            @forelse ($v->clientCasesSelection as $item)
+                                                <tr class="border-bottom">
+                                                    <td class="overdue-invoice">
+                                                        <small><a class="pendo-low-trust-user" href="{{ $userUrl }}">{{ $v->full_name }}</a> ({{ $v->user_type_text }})
+                                                        <span class="font-weight-bold">${{number_format($item->minimum_trust_balance - $item->allocated_trust_balance,2)}}</span>
+                                                        <small>(under min. trust balance)</small>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-row-reverse flex-nowrap">
+                                                        <a class="btn btn-link py-0 text-black-50 pendo-low-trust-view-user" href="{{ $userUrl }}">
                                                             <i class="fas fa-eye" title="" data-toggle="tooltip" data-placement="top" data-original-title="View Client"></i>
                                                             <span class="sr-only">View {{$CommonController->getUserTypeText($v->user_level)}}</span>
                                                         </a> 
-                                                    </div>
-                                                </td>
-
-
-                                            </tr>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                
+                                            @endforelse
                                         @endif
                                     @empty
                                     @endforelse

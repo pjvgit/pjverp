@@ -393,4 +393,14 @@ class User extends Authenticatable
         }
         return $link;
     }
+
+    /**
+     * Get all of the clientCasesSelection for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function clientCasesSelection()
+    {
+        return $this->hasMany(CaseClientSelection::class, 'selected_user');
+    }
 }

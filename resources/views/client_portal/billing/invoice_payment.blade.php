@@ -65,7 +65,7 @@
                                                         @csrf
                                                         <input type="hidden" name="type" value="{{ $type }}" >
                                                         <input type="hidden" name="payable_record_id" value="{{ encodeDecodeId($payableRecordId, 'encode') }}" >
-                                                        <input type="text" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
+                                                        <input type="hidden" id="conekta_key" value="{{ (!empty(getFirmOnlinePaymentSetting()) || getFirmOnlinePaymentSetting()->is_accept_online_payment == "yes") ? getFirmOnlinePaymentSetting()->public_key : ''}}" >
                                                         <ul class="list-group">
                                                             <li class="list-group-item border-0">
                                                                 <label class="radio radio-primary">

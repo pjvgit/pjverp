@@ -223,7 +223,9 @@ class HomeController extends BaseController
                 ->whereHas("userAdditionalInfo", function($query) {
                     $query->where("minimum_trust_balance", ">", 0);
                 })
-                ->with("userAdditionalInfo")->get();
+                ->with(["userAdditionalInfo", "clientCasesSelection" => function($query) {
+                    $query->whereRaw('allocated_trust_balance < minimum_trust_balance');
+                }])->get();
 
         //Low trust balance notification
         // $clientList = UsersAdditionalInfo::join('users','users_additional_info.user_id','=','users.id')
