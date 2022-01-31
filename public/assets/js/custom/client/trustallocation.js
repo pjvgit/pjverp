@@ -3,6 +3,8 @@ $(document).ready(function() {
         $(this).parents('td').find(".setup-input-div").show();
         $(this).parents('td').find(".setup-btn-div").hide();
     });
+
+    trustAllocationList();
 });
 
 $(document).on("click", ".save-minimum-trust-balance", function() {
