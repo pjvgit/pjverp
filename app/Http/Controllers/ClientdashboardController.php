@@ -517,7 +517,7 @@ class ClientdashboardController extends BaseController
         }else{
             $data=[];
             $data['case_id']=NULL;
-            $data['user_id']=Auth::User()->id;
+            
             $data['activity']='added a note';
 
             $LeadNotes = ClientNotes::find($request->note_id); 
@@ -527,18 +527,21 @@ class ClientdashboardController extends BaseController
                 $LeadNotes->case_id=$request->text_case_id;
                 $uid=$LeadNotes->case_id;
                 $data['notes_for_case']=$request->text_case_id;
+                $data['user_id']=Auth::User()->id;
             }
             if($request->text_company_id!=''){
                 $LeadNotes->client_id=NULL;
                 $LeadNotes->company_id=$request->text_company_id;
                 $LeadNotes->case_id=NULL;
                 $data['notes_for_company']=$request->text_company_id;
+                $data['user_id']=$request->text_company_id;
             }
             if($request->text_client_id!=''){
                 $LeadNotes->client_id=$request->text_client_id;
                 $LeadNotes->company_id=NULL;
                 $LeadNotes->case_id=NULL;
                 $data['notes_for_client']=$request->text_client_idd;
+                $data['user_id']=$request->text_client_id;
             }
             
             $LeadNotes->note_date=date('Y-m-d',strtotime(convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->note_date)))), auth()->user()->user_timezone ?? 'UTC')));
@@ -624,17 +627,18 @@ class ClientdashboardController extends BaseController
                 if(isset($request->case_id) && $request->case_id!=''){
                     $data['case_id']=$request->case_id;
                     $data['notes_for_case']=$request->case_id;
+                    $data['user_id']=Auth::User()->id;
                 }     
                 if(isset($request->company_id) && $request->company_id!=''){
                     $data['company_id']=$request->company_id;
                     $data['notes_for_company']=$request->company_id;
+                    $data['user_id']=$request->company_id;
                 }
                 if(isset($request->client_id) && $request->client_id!=''){
                     $data['client_id']=$request->client_id;
                     $data['notes_for_client']=$request->client_id;
-                }
-               
-                $data['user_id']=Auth::User()->id;
+                    $data['user_id']=$request->client_id;
+                }                
                 $data['activity']='added a note';
                 $data['type']='notes';
                 $data['action']='add';
