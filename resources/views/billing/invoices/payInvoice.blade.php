@@ -89,7 +89,7 @@ $finalAmt=$invoice-$paid;
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input class="form-control amountFirst" style="width:50%; " maxlength="20" name="amount"
+                        <input class="form-control amountFirst number" style="width:50%; " maxlength="20" name="amount"
                             id="amountFirst" value="" type="text" aria-label="Amount (to the nearest dollar)" data-payable-amount="{{ $finalAmt }}">
 
                         <small>&nbsp;</small>
@@ -364,7 +364,7 @@ $finalAmt=$invoice-$paid;
 <script src="{{ asset('assets\js\custom\client\trustallocation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript" src="https://conektaapi.s3.amazonaws.com/v1.0.0/js/conekta.js"></script>
 <script src="{{ asset('assets\client_portal\js\payment\conekta_validation.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
-<script src="{{ asset('assets\client_portal\js\payment\payment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\onlinepayment.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('.input-date').datepicker({

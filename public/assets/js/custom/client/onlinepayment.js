@@ -38,6 +38,16 @@ $('select[name="online_payment_method"]').change(function() {
     }
 });
 
+// CHeck online payment full
+$('.payfullOnline').change(function () {
+    if ($(this).is(":checked")) {
+        $(".online-pay-amount").val($(this).val());
+        $(".online-pay-amount").attr("readonly", true);
+    } else {
+        $(".online-pay-amount").val("");
+        $(".online-pay-amount").removeAttr("readonly");
+    }
+});
 
 // Get selected client detail
 $("#online_client_id").change(function() {
@@ -88,7 +98,8 @@ $("#pay_online_payment").validate({
             maxlength: 13
         },
         'card_number': {
-            required: true
+            required: true,
+            digits: true
         },
         'expiry_month': {
             required: true,
@@ -198,11 +209,15 @@ function didOnlinePayment() {
             },
             success: function (res) {
                 if (res.errors != '') {
-                    $("#error-alert .error-text").text(res.errors);
+                    /* $("#error-alert .error-text").text(res.errors);
                     $("#error-alert").show();
                     $('.scrollbar').animate({
                         scrollTop: $('#error-alert').offset().top - 20 
-                    }, 'slow');
+                    }, 'slow'); */
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> '+res.errors+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').html(errotHtml);
+                    $('.showError').show();
                     afterLoader();
                     return false;
                 } else {
@@ -214,8 +229,12 @@ function didOnlinePayment() {
             },
             error: function (jqXHR, exception) {
                 afterLoader();
-                $("#error-alert .error-text").text("Sorry, something went wrong. Please try again later.");
-                $("#error-alert").show();
+                /* $("#error-alert .error-text").text("Sorry, something went wrong. Please try again later.");
+                $("#error-alert").show(); */
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').html(errotHtml);
+                $('.showError').show();
             },
         });
 

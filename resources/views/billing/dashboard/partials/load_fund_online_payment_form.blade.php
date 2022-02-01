@@ -41,10 +41,10 @@
         </div>
     </div>
 @else
-    <div class="alert alert-danger" role="alert" id="error-alert" style="display:none;">
+    {{-- <div class="alert alert-danger" role="alert" id="error-alert" style="display:none;">
         <span class="error-text"><strong class="text-capitalize">Error!</strong></span>
         <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-    </div>
+    </div> --}}
     <form class="pay-online-payment" id="pay_online_payment" name="pay_online_payment" method="POST">
         @csrf
         <input type="hidden" name="type" value="fund" >

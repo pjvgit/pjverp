@@ -49,6 +49,7 @@
                         <div class="col-md-2">
                             <input type="password" class="form-control" placeholder="CVV" maxlength="4" size="4" name="cvv" id="cvv" value="" data-conekta="card[cvc]">
                         </div>
+                        <span class="cvv-error"></span>
                     </div>
                     <div class="form-group row">
                         <label class="col-md-3"></label>

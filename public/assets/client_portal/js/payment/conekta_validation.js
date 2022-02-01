@@ -55,7 +55,11 @@ var conektaErrorResponseHandler = function (response) {
     $("#error-alert .error-text").text(response.message);
     $("#error-alert").show();
     $(".preloader, .innerLoader").css("display", "none");
-    $('.scrollbar').animate({
+    /* $('.scrollbar').animate({
         scrollTop: $('#error-alert').offset().top - 20
-    }, 'slow');
+    }, 'slow'); */
+    var errotHtml =
+        '<div class="alert alert-danger"><strong>Whoops!</strong> '+ response.message +'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+    $('.showError').html(errotHtml);
+    $('.showError').show();
 };

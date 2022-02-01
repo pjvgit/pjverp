@@ -16,7 +16,8 @@ $("#card_form").validate({
             number: true,
         },
         'card_number': {
-            required: true
+            required: true,
+            digits: true
         },
         'expiry_month': {
             required: true,
@@ -53,10 +54,12 @@ $("#card_form").validate({
         },
     },
     errorPlacement: function (error, element) {
-        if (element.attr("name") == "expiry_month")
+        /* if (element.attr("name") == "expiry_month")
         error.insertAfter(".card-date-error");
         else if (element.attr("name") == "expiry_year")
         error.insertAfter(".card-date-error");
+        else */ if (element.attr("name") == "cvv")
+        error.insertAfter(".cvv-error");
         else
         error.insertAfter(element);
     },
@@ -154,131 +157,6 @@ $("#bank_pay_form").validate({
 });
 
 
-/**
- * From lawyer portal, online payment
- */
- $("#pay_online_payment").validate({
-    ignore: ":hidden",
-    rules: {
-        'client_id': {
-            required: true,
-        },
-        amount: {
-            required: true,
-            maxamount: true,
-            minStrict: true
-        },
-        online_payment_method: {
-            required: true
-        },
-        'name_on_card': {
-            required: true,
-            validName: true
-        },
-        'phone_number': {
-            required: true,
-            number: true,
-            minlength: 10,
-            maxlength: 13
-        },
-        'card_number': {
-            required: true
-        },
-        'expiry_month': {
-            required: true,
-            validMonth: true
-        },
-        'expiry_year': {
-            required: true,
-            validYear: true
-        },
-        'cvv': {
-            required: true,
-            validCvv: true
-        },
-        'name': {
-            required: true
-        },
-        'phone_number': {
-            required: true,
-            number: true,
-            minlength: 10,
-            maxlength: 13,
-        },
-        'bt_name': {
-            required: true
-        },
-        'bt_phone_number': {
-            required: true,
-            number: true,
-            minlength: 10,
-            maxlength: 13
-        },
-    },
-    messages: {
-        name_on_card: {
-            required: "Favor de ingresar esta información.",
-        },
-        phone_number: {
-            required: "Favor de ingresar esta información.",
-            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
-        },
-        card_number: {
-            required: "Favor de ingresar esta información.",
-        },
-        expiry_month: {
-            required: "Favor de ingresar esta información.",
-        },
-        expiry_year: {
-            required: "Favor de ingresar esta información.",
-        },
-        cvv: {
-            required: "Favor de ingresar esta información.",
-        },
-    },
-    errorPlacement: function (error, element) {
-        if (element.attr("name") == "expiry_month")
-        error.insertAfter(".card-date-error");
-        else if (element.attr("name") == "expiry_year")
-        error.insertAfter(".card-date-error");
-        else if (element.attr("name") == "client_id")
-        error.insertAfter(".clientid-error");
-        else
-        error.insertAfter(element);
-    },
-});
-
-// Get selected client detail
-$("#online_client_id").change(function() {
-    var clientId = $(this).val();
-    if(clientId != "") {
-        $.ajax({
-            url: baseUrl+"/bills/invoices/get/client/detail",
-            type: 'GET',
-            data: {'client_id': clientId},
-            success: function(data) {
-                if(data.client != null) {
-                    $("#cash_name, #bt_name").val(data.client.client_name);
-                    $("#cash_phone_number, #bt_phone_number").val(data.client.mobile_number);
-                }
-            }
-        });
-    } else {
-        $("#cash_name, #bt_name").val("");
-        $("#cash_phone_number, #bt_phone_number").val("");
-    }
-});
-
-// CHeck online payment full
-$('.payfullOnline').change(function () {
-    if ($(this).is(":checked")) {
-        $(".online-pay-amount").val($(this).val());
-        $(".online-pay-amount").attr("readonly", true);
-    } else {
-        $(".online-pay-amount").val("");
-        $(".online-pay-amount").removeAttr("readonly");
-    }
-});
 
 /**
  * Show credit card emi options as per the amount entered by lawyer

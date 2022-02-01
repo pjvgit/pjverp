@@ -24,8 +24,6 @@ class UserRoleMiddleware
             return $next($request);
         } else if($userRole == "user" && $user->user_level == 3 && $user->user_status == 1) {
             return $next($request);
-        } else if($userRole == "admin" && $user->user_level == 1) {
-            return $next($request);
         } else {
             abort(403);
         }
