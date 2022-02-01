@@ -10946,7 +10946,6 @@ class BillingController extends BaseController
     public function payOnlinePayment(Request $request)
     {   
         // return $request->all();
-        // return $getInstallMentIfOn=InvoiceInstallment::where("invoice_id", $request->payable_record_id)->where("status", "unpaid")->first();
         DB::beginTransaction();
         try {
             $firmOnlinePaymentSetting = getFirmOnlinePaymentSetting();
@@ -10954,11 +10953,12 @@ class BillingController extends BaseController
             $client = User::whereId($request->client_id)->first();
             if($client) {
                 if(empty($client->conekta_customer_id)) {
+                    $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
                     $customer = \Conekta\Customer::create([
                                     "name"=> $client->full_name,
                                     "email"=> $client->email,
-                                    // "phone"=> $request->phone_number ?? $client->mobile_number,
-                                    "phone"=> "55-5555-5555",
+                                    "phone"=> $phoneNumber,
+                                    // "phone"=> "55-5555-5555",
                                 ]);
                     $client->fill(['conekta_customer_id' => $customer->id])->save();
                     $client->refresh();
@@ -11611,11 +11611,12 @@ class BillingController extends BaseController
                 $client = User::whereId($request->client_id)->first();
                 if($client) {
                     if(empty($client->conekta_customer_id)) {
+                        $phoneNumber = ($request->phone_number) ? $request->phone_number : (($request->bt_phone_number) ? $request->bt_phone_number : $client->mobile_number);
                         $customer = \Conekta\Customer::create([
                                         "name"=> $client->full_name,
                                         "email"=> $client->email,
-                                        // "phone"=> $request->phone_number ?? $client->mobile_number,
-                                        "phone"=> "55-5555-5555",
+                                        "phone"=> $phoneNumber,
+                                        // "phone"=> "55-5555-5555",
                                     ]);
                         $client->fill(['conekta_customer_id' => $customer->id])->save();
                         $client->refresh();

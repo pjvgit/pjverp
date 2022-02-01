@@ -22,14 +22,13 @@ class RedirectIfAuthenticated
             return redirect('admin/dashboard');
         }
         if (Auth::guard($guard)->check()) {
-            // return redirect(RouteServiceProvider::HOME);
-            if(in_array(auth()->user()->user_level, [2/* , 4, 5 */])) {
+            if(auth()->user()->user_level == "2") {
                 return redirect('client/home');
             } else {
-                return redirect(RouteServiceProvider::HOME);
+                // return redirect(RouteServiceProvider::HOME);
+                return redirect()->route("dashboard");
             }
         }
-
         return $next($request);
     }
 }
