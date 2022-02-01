@@ -2780,6 +2780,15 @@ class LeadController extends BaseController
             $noteHistory['for_lead']=$request->user_id;
             $this->noteActivity($noteHistory);
 
+            $data=[];
+            $data['notes_for_client']=$request->user_id;
+            $data['user_id']=$request->user_id;
+            $data['activity']='added a note';
+            $data['type']='notes';
+            $data['action']='add';            
+            $CommonController= new CommonController();
+            $CommonController->addMultipleHistory($data);
+
             session(['popup_success' => 'Note has been created.']);
             return response()->json(['errors'=>'','id'=>$request->user_id]);
             exit;
@@ -3077,6 +3086,13 @@ class LeadController extends BaseController
             $CaseNotes->created_by=Auth::User()->id;
             $CaseNotes->created_at=date('Y-m-d H:i:s');
             $CaseNotes->save();
+
+            $noteHistory=[];
+            $noteHistory['acrtivity_title']='added';
+            $noteHistory['activity_by']=Auth::User()->id;
+            $noteHistory['for_lead']=$request->user_id;
+            $this->noteActivity($noteHistory);
+
             session(['popup_success' => 'Note has been created.']);
             return response()->json(['errors'=>'','id'=>$request->user_id]);
             exit;
@@ -6634,7 +6650,7 @@ class LeadController extends BaseController
             $InvoiceSave->id=$request->invoice_number;
             $InvoiceSave->user_id=$request->lead_id;
             $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
-            $InvoiceSave->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->due_date=date('Y-m-d',strtotime($request->due_date));
             $InvoiceSave->total_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->due_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->notes=$request->description;
@@ -6744,7 +6760,7 @@ class LeadController extends BaseController
             $InvoiceSave=Invoices::find($request->invoice_id);
             $InvoiceSave->is_lead_invoice='yes';
             $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->invoice_date)))), auth()->user()->user_timezone ?? 'UTC');
-            $InvoiceSave->due_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->due_date)))), auth()->user()->user_timezone ?? 'UTC');
+            $InvoiceSave->due_date=date('Y-m-d',strtotime($request->due_date));
             $InvoiceSave->total_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->due_amount=str_replace(",","",$request->total_amount);
             $InvoiceSave->notes=$request->description;

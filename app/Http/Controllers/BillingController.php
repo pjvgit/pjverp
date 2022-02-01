@@ -8694,51 +8694,6 @@ class BillingController extends BaseController
             foreach($allCases as $caseVal){
                 $caseClient = CaseMaster::leftJoin("case_client_selection","case_client_selection.case_id","=","case_master.id")->where("case_master.id",$caseVal)->where('case_client_selection.is_billing_contact','yes')->select("*")->first();
                 if(!empty($caseClient)){
-                $InvoiceSave=new Invoices;
-                $InvoiceSave->id=$request->invoice_number_padded;
-                $InvoiceSave->user_id=$caseClient['selected_user'];
-                $InvoiceSave->case_id=$caseVal;
-                $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->batch['invoice_date'])))), auth()->user()->user_timezone ?? 'UTC');
-                if($request->batch['payment_terms']==""){
-                    $InvoiceSave->payment_term="5";
-                }else{
-                    $InvoiceSave->payment_term=$request->batch['payment_terms'];
-                }
-                $InvoiceSave->due_date=($request->batch['due_date']) ? date('Y-m-d',strtotime($request->batch['due_date'])) : NULL;   
-                $InvoiceSave->automated_reminder="no";
-                $InvoiceSave->payment_plan_enabled="no";
-                if(isset($request->batch['draft'])){
-                    $InvoiceSave->status='Draft';
-                    $InvoiceSave->bill_sent_status='Draft';
-                    $totalDraft++;
-                }else{
-                    $InvoiceSave->status='Unsent';
-                    $InvoiceSave->bill_sent_status='Unsent';
-                    $totalUnsent++;
-                }
-                $InvoiceSave->notes=($request->bill['notes'])??'';
-                $InvoiceSave->created_by=Auth::User()->id; 
-                $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
-                $InvoiceSave->save();
-
-                $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
-                $InvoiceSave->invoice_token=Str::random(250);
-                $InvoiceSave->firm_id = auth()->user()->firm_name;
-                $InvoiceSave->save();
-
-
-                $invoiceHistory=[];
-                $invoiceHistory['invoice_id']=$InvoiceSave->id;
-                $invoiceHistory['acrtivity_title']='Invoice Created';
-                $invoiceHistory['pay_method']=NULL;
-                $invoiceHistory['amount']=NULL;
-                $invoiceHistory['responsible_user']=Auth::User()->id;
-                $invoiceHistory['deposit_into']=NULL;
-                $invoiceHistory['notes']=NULL;
-                $invoiceHistory['created_by']=Auth::User()->id;
-                $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-                $this->invoiceHistory($invoiceHistory);
-
 
                 //Get the Time Entry list
                 $TimeEntry=TaskTimeEntry::select("task_time_entry.*");
@@ -8748,22 +8703,11 @@ class BillingController extends BaseController
                     $TimeEntry=$TimeEntry->whereBetween("task_time_entry.entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
                 }
                 $TimeEntry=$TimeEntry->get();
- 
+
                 //Time entry referance
                 $timeEntryTotal=0;
                 if(!$TimeEntry->isEmpty()){
                     foreach($TimeEntry as $k=>$v){
-                        $TimeEntryForInvoice=new TimeEntryForInvoice;
-                        $TimeEntryForInvoice->invoice_id=$InvoiceSave->id;                    
-                        $TimeEntryForInvoice->time_entry_id=$v->id;
-                        $TimeEntryForInvoice->created_by=Auth::User()->id; 
-                        $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                        $TimeEntryForInvoice->save();
-                        DB::table('task_time_entry')->where("id",$v->id)->update([
-                            'status'=>'paid',
-                            'invoice_link'=>$InvoiceSave->id
-                        ]);
-
                         if($v->rate_type=="flat"){
                             $timeEntryTotal+=$v->entry_rate;
                         }else{
@@ -8771,7 +8715,7 @@ class BillingController extends BaseController
                         }
                     }
                 }
-                
+
                 //Get the Expense Entry list
                 $ExpenseEntry=ExpenseEntry::select("expense_entry.*");
                 $ExpenseEntry=$ExpenseEntry->where("expense_entry.case_id",$caseVal);
@@ -8786,16 +8730,6 @@ class BillingController extends BaseController
                 $expenseEntryTotal=0;
                 if(!$ExpenseEntry->isEmpty()){
                     foreach($ExpenseEntry as $k=>$v){
-                        $ExpenseEntryForInvoice=new ExpenseForInvoice;
-                        $ExpenseEntryForInvoice->invoice_id=$InvoiceSave->id;                    
-                        $ExpenseEntryForInvoice->expense_entry_id =$v->id;
-                        $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
-                        $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                        $ExpenseEntryForInvoice->save();
-                        DB::table('expense_entry')->where("id",$v->id)->update([
-                            'status'=>'paid',
-                            'invoice_link'=>$InvoiceSave->id
-                        ]);
                         $expenseEntryTotal+=($v->cost*$v->duration);
                     }
                 }
@@ -8813,16 +8747,6 @@ class BillingController extends BaseController
                     $FlatFeeEntry=$FlatFeeEntry->get();
                     if(count($FlatFeeEntry) > 0){
                         foreach($FlatFeeEntry as $k =>$v){
-                            $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
-                            $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
-                            $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
-                            $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
-                            $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                            $FlatFeeEntryForInvoice->save();
-                            DB::table('flat_fee_entry')->where("id",$v->id)->update([
-                                'status'=>'paid',
-                                'invoice_link'=>$InvoiceSave->id
-                            ]);
                             $flatFinalTotalBillable += str_replace(",","",number_format($v->cost, 2));
                         }
                     }else{                              
@@ -8835,255 +8759,302 @@ class BillingController extends BaseController
                         }
                         $flatFinalTotalBillable = ($caseClient->billing_amount - $flatTotalBillable);
                         $flatFinalTotalBillable = ($flatFinalTotalBillable > 0 ) ?  $flatFinalTotalBillable : 0;                        
-                        if($flatFinalTotalBillable > 0){
-                            $flatFeeEntry = FlatFeeEntry::create([
-                                'case_id' => $caseVal,
-                                'user_id' => auth()->id(),
-                                'entry_date' => Carbon::now(),
-                                'cost' =>  $flatFinalTotalBillable,
-                                'time_entry_billable' => 'yes',
-                                'status'=>'paid',
-                                'invoice_link' => $InvoiceSave->id,
-                                'firm_id' => Auth::User()->firm_name,
-                                'created_by' => auth()->id(), 
-                            ]);
-                            $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
-                            $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
-                            $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
-                            $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
-                            $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
-                            $FlatFeeEntryForInvoice->save();
-                        }
                     }    
                 }
                 $subTotal=$flatFinalTotalBillable+$timeEntryTotal+$expenseEntryTotal;
-
-                // print_r($request->all());
-                //Invoice Shared With Client
-                if(isset($request->batch['share']) && $request->batch['share']=="1"){
-
-                    if($request->batch['sharing_user']=="billing_only"){
-                            $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$caseVal)->get()->pluck("selected_user");
+                
+                if($subTotal > 0){
+                    $InvoiceSave=new Invoices;
+                    $InvoiceSave->id=$request->invoice_number_padded;
+                    $InvoiceSave->user_id=$caseClient['selected_user'];
+                    $InvoiceSave->case_id=$caseVal;
+                    $InvoiceSave->invoice_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->batch['invoice_date'])))), auth()->user()->user_timezone ?? 'UTC');
+                    if($request->batch['payment_terms']==""){
+                        $InvoiceSave->payment_term="5";
                     }else{
-                            $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$caseVal)->get()->pluck("selected_user");
+                        $InvoiceSave->payment_term=$request->batch['payment_terms'];
                     }
-                   
-                    if(!$CaseClientSelection->isEmpty()){
-                        foreach($CaseClientSelection as $k=>$vselected_user){
-                            $GetAccessDAta=UsersAdditionalInfo::select("*")->where('user_id',$vselected_user)->first();
-                            if($GetAccessDAta['client_portal_enable']=='0')
-                            {
-                                    $user=User::find($vselected_user);
-                                    $enableAccess=UsersAdditionalInfo::where('user_id',$vselected_user)->update(['client_portal_enable'=>"1"]);
+                    $InvoiceSave->due_date=($request->batch['due_date']) ? date('Y-m-d',strtotime($request->batch['due_date'])) : NULL;   
+                    $InvoiceSave->automated_reminder="no";
+                    $InvoiceSave->payment_plan_enabled="no";
+                    if(isset($request->batch['draft'])){
+                        $InvoiceSave->status='Draft';
+                        $InvoiceSave->bill_sent_status='Draft';
+                        $totalDraft++;
+                    }else{
+                        $InvoiceSave->status='Unsent';
+                        $InvoiceSave->bill_sent_status='Unsent';
+                        $totalUnsent++;
+                    }
+                    $InvoiceSave->terms_condition=$request->batch['terms'] ?? null;
+                    $InvoiceSave->notes=$request->batch['notes'] ?? null;
+                    $InvoiceSave->created_by=Auth::User()->id; 
+                    $InvoiceSave->created_at=date('Y-m-d h:i:s'); 
+                    $InvoiceSave->invoice_unique_token=Hash::make($InvoiceSave->id);
+                    $InvoiceSave->invoice_token=Str::random(250);
+                    $InvoiceSave->firm_id = auth()->user()->firm_name;
+                    $InvoiceSave->save();
 
-                                    $getTemplateData = EmailTemplate::find(6);
-                                    $fullName=$user['first_name']. ' ' .$user['last_name'];
-                                    $email=$user['email'];
-                                    $token=url('user/verify', $user->token);
-                                    $mail_body = $getTemplateData->content;
-                                    $mail_body = str_replace('{name}', $fullName, $mail_body);
-                                    $mail_body = str_replace('{email}', $email,$mail_body);
-                                    $mail_body = str_replace('{token}', $token,$mail_body);
-                                    $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                                    $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-                                    $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
-                                    $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-                                    $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
-                                    $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                                    $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
-                                    $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
-                                    $userEmail = [
-                                        "from" => FROM_EMAIL,
-                                        "from_title" => FROM_EMAIL_TITLE,
-                                        "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
-                                        "to" => $user['email'],
-                                        "full_name" => $fullName,
-                                        "mail_body" => $mail_body
-                                        ];
-                                    $sendEmail = $this->sendMail($userEmail);
+
+                    $invoiceHistory=[];
+                    $invoiceHistory['invoice_id']=$InvoiceSave->id;
+                    $invoiceHistory['acrtivity_title']='Invoice Created';
+                    $invoiceHistory['pay_method']=NULL;
+                    $invoiceHistory['amount']=NULL;
+                    $invoiceHistory['responsible_user']=Auth::User()->id;
+                    $invoiceHistory['deposit_into']=NULL;
+                    $invoiceHistory['notes']=NULL;
+                    $invoiceHistory['created_by']=Auth::User()->id;
+                    $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                    $this->invoiceHistory($invoiceHistory);
+
+                    if(!$TimeEntry->isEmpty()){
+                        foreach($TimeEntry as $k=>$v){
+                            $TimeEntryForInvoice=new TimeEntryForInvoice;
+                            $TimeEntryForInvoice->invoice_id=$InvoiceSave->id;                    
+                            $TimeEntryForInvoice->time_entry_id=$v->id;
+                            $TimeEntryForInvoice->created_by=Auth::User()->id; 
+                            $TimeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                            $TimeEntryForInvoice->save();
+                            DB::table('task_time_entry')->where("id",$v->id)->update([
+                                'status'=>'paid',
+                                'invoice_link'=>$InvoiceSave->id
+                            ]);
+                        }
+                    }      
+                    if(!$ExpenseEntry->isEmpty()){
+                        foreach($ExpenseEntry as $k=>$v){
+                            $ExpenseEntryForInvoice=new ExpenseForInvoice;
+                            $ExpenseEntryForInvoice->invoice_id=$InvoiceSave->id;                    
+                            $ExpenseEntryForInvoice->expense_entry_id =$v->id;
+                            $ExpenseEntryForInvoice->created_by=Auth::User()->id; 
+                            $ExpenseEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                            $ExpenseEntryForInvoice->save();
+                            DB::table('expense_entry')->where("id",$v->id)->update([
+                                'status'=>'paid',
+                                'invoice_link'=>$InvoiceSave->id
+                            ]);
+                        }
+                    }   
+
+                    if(in_array($caseClient->billing_method,["flat","mixed"])){                                 
+                        $FlatFeeEntry=FlatFeeEntry::select("id","cost","entry_date");
+                        $FlatFeeEntry=$FlatFeeEntry->where("case_id",$caseVal);
+                        $FlatFeeEntry=$FlatFeeEntry->where("status","unpaid");
+                        if(isset($request->batch['start_date']) && isset($request->batch['end_date'])){
+                            $FlatFeeEntry = $FlatFeeEntry->whereBetween("entry_date",[date('Y-m-d',strtotime($request->batch['start_date'])),date('Y-m-d',strtotime($request->batch['end_date']))]);
+                        }
+                        $FlatFeeEntry=$FlatFeeEntry->get();
+                        if(count($FlatFeeEntry) > 0){
+                            foreach($FlatFeeEntry as $k =>$v){
+                                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                                $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                                $FlatFeeEntryForInvoice->flat_fee_entry_id=$v->id;
+                                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                                $FlatFeeEntryForInvoice->save();
+                                DB::table('flat_fee_entry')->where("id",$v->id)->update([
+                                    'status'=>'paid',
+                                    'invoice_link'=>$InvoiceSave->id
+                                ]);
                             }
-                            
-                            $firmData=Firm::find(Auth::User()->firm_name);
-                            $getTemplateData = EmailTemplate::find(12);
-                            // $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
-                            $token = route("client/bills/detail", $InvoiceSave->decode_id);
-                            $mail_body = $getTemplateData->content;
-                            $mail_body = str_replace('{message}', $request->message, $mail_body);
-                            $mail_body = str_replace('{token}', $token, $mail_body);
-                            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                            $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
-                            $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
-                            $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                            $clientData=User::find($vselected_user);
-                            $user = [
-                                "from" => FROM_EMAIL,
-                                "from_title" => FROM_EMAIL_TITLE,
-                                "subject" => $firmData->firm_name." has sent you an invoice",
-                                "to" => $clientData['email'],
-                                "full_name" => "",
-                                "mail_body" => $mail_body
-                            ];
-                            $sendEmail = $this->sendMail($user);                            
-                            
-                            $SharedInvoice=new SharedInvoice;
-                            $SharedInvoice->invoice_id=$InvoiceSave->id;                    
-                            $SharedInvoice->user_id =$vselected_user;
-                            $SharedInvoice->created_by=Auth::User()->id; 
-                            $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
-                            $SharedInvoice->save();
-    
-                            $InvoiceSave->status='Sent';
+                        }else{                              
+                            $flatTotalBillable1 = 0;          
+                            $flatFeeData = FlatFeeEntry::select("*")->where('case_id', $caseVal)->where("time_entry_billable","yes")->get();
+                            foreach($flatFeeData as $TK=>$TE){
+                                if($TE->status == 'paid'){
+                                    $flatTotalBillable1+=str_replace(",","",number_format($TE['cost'], 2));
+                                }
+                            }
+                            $flatFinalTotalBillable1 = ($caseClient->billing_amount - $flatTotalBillable1);
+                            $flatFinalTotalBillable1 = ($flatFinalTotalBillable1 > 0 ) ?  $flatFinalTotalBillable1 : 0;                        
+                            if($flatFinalTotalBillable1 > 0){
+                                $flatFeeEntry = FlatFeeEntry::create([
+                                    'case_id' => $caseVal,
+                                    'user_id' => auth()->id(),
+                                    'entry_date' => Carbon::now(),
+                                    'cost' =>  $flatFinalTotalBillable1,
+                                    'time_entry_billable' => 'yes',
+                                    'status'=>'paid',
+                                    'invoice_link' => $InvoiceSave->id,
+                                    'firm_id' => Auth::User()->firm_name,
+                                    'created_by' => auth()->id(), 
+                                ]);
+                                $FlatFeeEntryForInvoice=new FlatFeeEntryForInvoice;
+                                $FlatFeeEntryForInvoice->invoice_id=$InvoiceSave->id;              
+                                $FlatFeeEntryForInvoice->flat_fee_entry_id=$flatFeeEntry->id;
+                                $FlatFeeEntryForInvoice->created_by=Auth::User()->id; 
+                                $FlatFeeEntryForInvoice->created_at=date('Y-m-d h:i:s'); 
+                                $FlatFeeEntryForInvoice->save();
+                            }
+                        }    
+                    }           
 
-                            $invoiceHistory=[];
-                            $invoiceHistory['invoice_id']=$InvoiceSave->id;
-                            $invoiceHistory['acrtivity_title']='Shared w/Contacts';
-                            $invoiceHistory['pay_method']=NULL;
-                            $invoiceHistory['amount']=NULL;
-                            $invoiceHistory['responsible_user']=Auth::User()->id;
-                            $invoiceHistory['deposit_into']=NULL;
-                            $invoiceHistory['notes']=NULL;
-                            $invoiceHistory['created_by']=Auth::User()->id;
-                            $invoiceHistory['created_at']=date('Y-m-d H:i:s');
-                            $this->invoiceHistory($invoiceHistory);
-                            $totalUnsent--;
-                            $totalSent++;
+                    // print_r($request->all());
+                    //Invoice Shared With Client
+                    if(isset($request->batch['share']) && $request->batch['share']=="1"){
 
+                        if($request->batch['sharing_user']=="billing_only"){
+                                $CaseClientSelection=CaseClientSelection::select("selected_user")->where("is_billing_contact","yes")->where("case_id",$caseVal)->get()->pluck("selected_user");
+                        }else{
+                                $CaseClientSelection=CaseClientSelection::select("selected_user")->where("case_id",$caseVal)->get()->pluck("selected_user");
                         }
-                    }
-                }
-                
-                // $CaseClientSelection=CaseClientSelection::select("selected_user","billing_amount")->where("billing_method","!=",NULL)->where("case_id",$caseVal)->first();
+                    
+                        if(!$CaseClientSelection->isEmpty()){
+                            foreach($CaseClientSelection as $k=>$vselected_user){
+                                $GetAccessDAta=UsersAdditionalInfo::select("*")->where('user_id',$vselected_user)->first();
+                                if($GetAccessDAta['client_portal_enable']=='0')
+                                {
+                                        $user=User::find($vselected_user);
+                                        $enableAccess=UsersAdditionalInfo::where('user_id',$vselected_user)->update(['client_portal_enable'=>"1"]);
 
-                // $flatFees=($CaseClientSelection['billing_amount'])??0;
-                
-                // dd($subTotal);
-                // if(isset($request->discounts['discount_type'])){
-                //     for($k=0;$k<count($request->discounts['discount_type']);$k++){
-                //         $finalAmount=0;
-                //         $InvoiceAdjustment = new InvoiceAdjustment;
-                //         $InvoiceAdjustment->case_id =$caseVal;
-                //         $InvoiceAdjustment->token =NULL;
-                //         $InvoiceAdjustment->invoice_id =$InvoiceSave->id;
-                //         $InvoiceAdjustment->item=$request->discounts['discount_type'][$k];
-                //         $InvoiceAdjustment->applied_to=$request->discounts['discount_applied_to'][$k];
-                //         $InvoiceAdjustment->ad_type=$request->discounts['discount_amount_type'][$k];
-                //         $InvoiceAdjustment->percentages =(float)$request->discounts['amount'][$k];
-
-                //         if($request->discounts['discount_applied_to'][$k]=="flat_fees"){
-                //             $InvoiceAdjustment->basis =str_replace(",","",$flatFees);
-                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$flatFees;
-                //             }else{
-                //                 $finalAmount=$request->discounts['amount'][$k];
-                //             }
-
-                //         }
-                //         if($request->discounts['discount_applied_to'][$k]=="time_entries"){
-                //         $InvoiceAdjustment->basis =str_replace(",","",$timeEntryTotal);
-                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
+                                        $getTemplateData = EmailTemplate::find(6);
+                                        $fullName=$user['first_name']. ' ' .$user['last_name'];
+                                        $email=$user['email'];
+                                        $token=url('user/verify', $user->token);
+                                        $mail_body = $getTemplateData->content;
+                                        $mail_body = str_replace('{name}', $fullName, $mail_body);
+                                        $mail_body = str_replace('{email}', $email,$mail_body);
+                                        $mail_body = str_replace('{token}', $token,$mail_body);
+                                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                                        $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+                                        $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
+                                        $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+                                        $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
+                                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
+                                        $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
+                                        $userEmail = [
+                                            "from" => FROM_EMAIL,
+                                            "from_title" => FROM_EMAIL_TITLE,
+                                            "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
+                                            "to" => $user['email'],
+                                            "full_name" => $fullName,
+                                            "mail_body" => $mail_body
+                                            ];
+                                        $sendEmail = $this->sendMail($userEmail);
+                                }
                                 
-                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$timeEntryTotal;
-                //             }else{
-                //                 $finalAmount=$request->discounts['amount'][$k];
-                //             }
-                //         }
-                //         if($request->discounts['discount_applied_to'][$k]=="expenses"){
-                //         $InvoiceAdjustment->basis =str_replace(",","",$expenseEntryTotal);
-                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$expenseEntryTotal;
-                //             }else{
-                //                 $finalAmount=$request->discounts['amount'][$k];
-                //             }
-                //         }
-                //         if($request->discounts['discount_applied_to'][$k]=="sub_total"){
-                //             $InvoiceAdjustment->basis =str_replace(",","",$subTotal);
-                //             if($request->discounts['discount_amount_type'][$k]=="percentage"){
-                //                 $finalAmount=($request->discounts['amount'][$k]/100)*$subTotal;
-                //             }else{
-                //                 $finalAmount=$request->discounts['amount'][$k];
-                //             }
-                //         }
-                        
-                //         if($request->discounts['discount_applied_to'][$k]=="balance_forward_total"){
-                //             $InvoiceAdjustment->basis =str_replace(",","",$request->basic);
-                //         }
-                    
-                //         $InvoiceAdjustment->amount =str_replace(",","",$finalAmount);
-                //         $InvoiceAdjustment->notes =$request->discounts['notes'][$k];
-                //         $InvoiceAdjustment->created_at=date('Y-m-d h:i:s'); 
-                //         $InvoiceAdjustment->created_by=Auth::User()->id; 
-                //         $InvoiceAdjustment->save();
-                        
-                //         if($request->discounts['discount_type'][$k]=="discount"){
-                //             $subTotal=$subTotal-$finalAmount;
-                //         }else{
-                //             $subTotal=$subTotal+$finalAmount;
-                //         }
-                    
-                //     }
-                // }
-                $InvoiceSave->total_amount=$subTotal;
-                $InvoiceSave->due_amount=$subTotal;
-                
-                // Store invoice view settings
-                $jsonData = [];
-                $preferenceSetting = InvoiceSetting::where("firm_id", auth()->user()->firm_name)->with("reminderSchedule")->first();
-                $customizationSetting = InvoiceCustomizationSetting::where("firm_id", auth()->user()->firm_name)->with("flatFeeColumn", "timeEntryColumn", "expenseColumn")->first();
-                if($preferenceSetting) {
-                    $jsonData = [
-                        'hours_decimal_point' => $preferenceSetting->time_entry_hours_decimal_point,
-                        'payment_terms' => $preferenceSetting->time_entry_default_invoice_payment_terms,
-                        'trust_credit_activity_on_invoice' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
-                        'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
-                        'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
-                        // 'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
-                        'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
-                    ];
-                    if($preferenceSetting->reminderSchedule) {
-                        foreach($preferenceSetting->reminderSchedule as $key => $item) {
-                            $jsonData['reminder'][] = [
-                                'remind_type' => $item->remind_type,
-                                'days' => $item->days,
-                                'is_reminded' => "no",
-                            ];
+                                $firmData=Firm::find(Auth::User()->firm_name);
+                                $getTemplateData = EmailTemplate::find(12);
+                                // $token=url('activate_account/bills=&web_token='.$InvoiceSave->invoice_unique_token);
+                                $token = route("client/bills/detail", $InvoiceSave->decode_id);
+                                $mail_body = $getTemplateData->content;
+                                $mail_body = str_replace('{message}', $request->message, $mail_body);
+                                $mail_body = str_replace('{token}', $token, $mail_body);
+                                $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                                $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+                                $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);
+                                $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                                $clientData=User::find($vselected_user);
+                                $user = [
+                                    "from" => FROM_EMAIL,
+                                    "from_title" => FROM_EMAIL_TITLE,
+                                    "subject" => $firmData->firm_name." has sent you an invoice",
+                                    "to" => $clientData['email'],
+                                    "full_name" => "",
+                                    "mail_body" => $mail_body
+                                ];
+                                $sendEmail = $this->sendMail($user);                            
+                                
+                                $SharedInvoice=new SharedInvoice;
+                                $SharedInvoice->invoice_id=$InvoiceSave->id;                    
+                                $SharedInvoice->user_id =$vselected_user;
+                                $SharedInvoice->created_by=Auth::User()->id; 
+                                $SharedInvoice->created_at=date('Y-m-d h:i:s'); 
+                                $SharedInvoice->save();
+        
+                                $InvoiceSave->status='Sent';
+                                $InvoiceSave->bill_sent_status='Sent';
+
+                                $invoiceHistory=[];
+                                $invoiceHistory['invoice_id']=$InvoiceSave->id;
+                                $invoiceHistory['acrtivity_title']='Shared w/Contacts';
+                                $invoiceHistory['pay_method']=NULL;
+                                $invoiceHistory['amount']=NULL;
+                                $invoiceHistory['responsible_user']=Auth::User()->id;
+                                $invoiceHistory['deposit_into']=NULL;
+                                $invoiceHistory['notes']=NULL;
+                                $invoiceHistory['created_by']=Auth::User()->id;
+                                $invoiceHistory['created_at']=date('Y-m-d H:i:s');
+                                $this->invoiceHistory($invoiceHistory);
+                                $totalUnsent--;
+                                $totalSent++;
+
+                            }
                         }
                     }
-                }
-                if($customizationSetting) {
-                    $jsonData['invoice_theme'] = $customizationSetting->invoice_theme;
-                    $jsonData['show_case_no_after_case_name'] = $customizationSetting->show_case_no_after_case_name;
-                    $jsonData['non_billable_time_entries_and_expenses'] = $customizationSetting->non_billable_time_entries_and_expenses;
-                    if($customizationSetting->flatFeeColumn) {
-                        $jsonData['flat_fee'] = getColumnsIfYes($customizationSetting->flatFeeColumn->toArray());
+                
+                
+                    $InvoiceSave->total_amount=$subTotal;
+                    $InvoiceSave->due_amount=$subTotal;
+                
+                
+                    // Store invoice view settings
+                    $jsonData = [];
+                    $preferenceSetting = InvoiceSetting::where("firm_id", auth()->user()->firm_name)->with("reminderSchedule")->first();
+                    $customizationSetting = InvoiceCustomizationSetting::where("firm_id", auth()->user()->firm_name)->with("flatFeeColumn", "timeEntryColumn", "expenseColumn")->first();
+                    if($preferenceSetting) {
+                        $jsonData = [
+                            'hours_decimal_point' => $preferenceSetting->time_entry_hours_decimal_point,
+                            'payment_terms' => $preferenceSetting->time_entry_default_invoice_payment_terms,
+                            'trust_credit_activity_on_invoice' => $preferenceSetting->default_trust_and_credit_display_on_new_invoices,
+                            'default_terms_conditions' => $preferenceSetting->time_entry_default_terms_conditions,
+                            'is_non_trust_retainers_credit_account' => $preferenceSetting->is_non_trust_retainers_credit_account,
+                            // 'is_ledes_billing' => $preferenceSetting->is_ledes_billing,
+                            'request_funds_preferences_default_msg' => $preferenceSetting->request_funds_preferences_default_msg,
+                        ];
+                        if($preferenceSetting->reminderSchedule) {
+                            foreach($preferenceSetting->reminderSchedule as $key => $item) {
+                                $jsonData['reminder'][] = [
+                                    'remind_type' => $item->remind_type,
+                                    'days' => $item->days,
+                                    'is_reminded' => "no",
+                                ];
+                            }
+                        }
                     }
-                    if($customizationSetting->timeEntryColumn) {
-                        $jsonData['time_entry'] = getColumnsIfYes($customizationSetting->timeEntryColumn->toArray());
+                    if($customizationSetting) {
+                        $jsonData['invoice_theme'] = $customizationSetting->invoice_theme;
+                        $jsonData['show_case_no_after_case_name'] = $customizationSetting->show_case_no_after_case_name;
+                        $jsonData['non_billable_time_entries_and_expenses'] = $customizationSetting->non_billable_time_entries_and_expenses;
+                        if($customizationSetting->flatFeeColumn) {
+                            $jsonData['flat_fee'] = getColumnsIfYes($customizationSetting->flatFeeColumn->toArray());
+                        }
+                        if($customizationSetting->timeEntryColumn) {
+                            $jsonData['time_entry'] = getColumnsIfYes($customizationSetting->timeEntryColumn->toArray());
+                        }
+                        if($customizationSetting->expenseColumn) {
+                            $jsonData['expense'] = getColumnsIfYes($customizationSetting->expenseColumn->toArray());
+                        }
                     }
-                    if($customizationSetting->expenseColumn) {
-                        $jsonData['expense'] = getColumnsIfYes($customizationSetting->expenseColumn->toArray());
+                    $InvoiceSave->invoice_setting = $jsonData;
+                    $InvoiceSave->save();
+                    $totalInvoice[]=$InvoiceSave->id;
+                    
                     }
-                }
-                $InvoiceSave->invoice_setting = $jsonData;
-                $InvoiceSave->save();
-                $totalInvoice[]=$InvoiceSave->id;
                 }
             }
 
-            $InvoiceBatch=new InvoiceBatch;
             if(!empty($totalInvoice)){
+                $InvoiceBatch=new InvoiceBatch;
+            
                 $InvoiceBatch->invoice_id=implode(",",$totalInvoice);
+            
+                $InvoiceBatch->total_invoice=count($totalInvoice);
+                $InvoiceBatch->draft_invoice=$totalDraft;
+                $InvoiceBatch->unsent_invoice=$totalUnsent;
+                $InvoiceBatch->sent_invoice=$totalSent;
+                $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s", strtotime($request->batch['invoice_date'])), auth()->user()->user_tiezone ?? 'UTC')))."-".count($totalInvoice);
+                $InvoiceBatch->firm_id=Auth::User()->firm_name; 
+                $InvoiceBatch->created_by=Auth::User()->id; 
+                $InvoiceBatch->save();
+                dbCommit();
+                return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
+                exit; 
+            }else{
+                return response()->json(['errors' =>'No Invoice Found...']);
             }
-            $InvoiceBatch->total_invoice=count($totalInvoice);
-            $InvoiceBatch->draft_invoice=$totalDraft;
-            $InvoiceBatch->unsent_invoice=$totalUnsent;
-            $InvoiceBatch->sent_invoice=$totalSent;
-            $InvoiceBatch->batch_code=date('M, d Y',strtotime(convertUTCToUserTime(date("Y-m-d H:i:s", strtotime($request->batch['invoice_date'])), auth()->user()->user_tiezone ?? 'UTC')))."-".count($totalInvoice);
-            $InvoiceBatch->firm_id=Auth::User()->firm_name; 
-            $InvoiceBatch->created_by=Auth::User()->id; 
-            $InvoiceBatch->save();
-            dbCommit();
-            return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
-            exit; 
             } catch (Exception $e) {
                 dbEnd();
                 return response()->json(['errors' => $e->getMessage()]);
