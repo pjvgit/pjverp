@@ -1,15 +1,16 @@
-<form class="AddNote" id="AddNote" name="AddNote" method="POST">
+<form class="EditNote" id="EditNote" name="EditNote" method="POST">
 
     <span id="response"></span>
     @csrf
     <div id="showError" class="showError" style="display:none"></div>
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/client_dashboard/editNote.blade.php">
         <?php if($client_id!=''){?>
             <input class="form-control" value="{{$client_id}}" id="client_id" maxlength="250" name="client_id"type="hidden">
         <?php } ?>
         <?php if($case_id!=''){?>
             <input class="form-control" value="{{$case_id}}" id="case_id" maxlength="250" name="case_id" type="hidden">
-        <?php } ?><input class="form-control" value="{{$note_id}}" id="note_id" maxlength="250" name="note_id" type="hidden">
+        <?php } ?>
+        <input class="form-control" value="{{$note_id}}" id="note_id" maxlength="250" name="note_id" type="hidden">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Case / Contact</label>
             <div class="col-sm-9">
@@ -93,7 +94,7 @@
             }, 400); //i find 400 milliseconds works good
         });
 
-        $("#AddNote").validate({
+        $("#EditNote").validate({
             rules: {
                 notes: {
                     required: true
@@ -115,7 +116,7 @@
     $(document).on("click", ":submit", function(e){
         $("#current_submit").val($(this).val());
     });
-    $('#AddNote').submit(function (e) {
+    $('#EditNote').submit(function (e) {
         beforeLoader();
         e.preventDefault();
         var delta = quill.root.innerHTML;
@@ -127,12 +128,12 @@
             afterLoader();
 
         }
-        if (!$('#AddNote').valid()) {
+        if (!$('#EditNote').valid()) {
             afterLoader();
             return false;
         }
         var dataString = '';
-        dataString = $("#AddNote").serialize();
+        dataString = $("#EditNote").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/clients/updateNote", // json datasource
@@ -153,8 +154,8 @@
                     $('#showError').append(errotHtml);
                     $('#showError').show();
                     afterLoader();
-                    // $("#AddNote").scrollTop(0);
-                    $('#AddNote').animate({
+                    // $("#EditNote").scrollTop(0);
+                    $('#EditNote').animate({
                         scrollTop: 0
                     }, 'slow');
 
@@ -186,7 +187,7 @@
         $("#status").html("Processing....");
         var delta = quill.root.innerHTML;
         var dataString = '';
-        dataString = $("#AddNote").serialize();
+        dataString = $("#EditNote").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/contacts/clients/updateNote", // json datasource
@@ -207,8 +208,8 @@
                     $('#showError').append(errotHtml);
                     $('#showError').show();
                     afterLoader();
-                    // $("#AddNote").scrollTop(0);
-                    $('#AddNote').animate({
+                    // $("#EditNote").scrollTop(0);
+                    $('#EditNote').animate({
                         scrollTop: 0
                     }, 'slow');
 

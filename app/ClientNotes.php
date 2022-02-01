@@ -19,7 +19,7 @@ class ClientNotes extends Authenticatable
         'client_id', 'note_date', 'not_activity', 'note_subject', 'notes', 'status'
     ];
 
-    protected $appends  = ['created_date_new','updated_date_new'];
+    protected $appends  = ['created_date_new','updated_date_new','note_date_new'];
 
     public function getCreatedDateNewAttribute(){
         $CommonController= new CommonController();
@@ -49,6 +49,12 @@ class ClientNotes extends Authenticatable
         if(isset($this->attributes['note_date'])){
             $userTime = convertUTCToUserDate($this->attributes['note_date'], auth()->user()->user_timezone ?? 'UTC');
             return date('Y-m-d', strtotime($userTime));  
+        }
+    }
+    public function getNoteDateNewAttribute(){
+        if(isset($this->attributes['note_date'])){
+            $userTime = convertUTCToUserDate($this->attributes['note_date'], auth()->user()->user_timezone ?? 'UTC');
+            return date('M j, Y', strtotime($userTime));  
         }
     }
 }

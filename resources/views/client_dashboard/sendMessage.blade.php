@@ -180,62 +180,7 @@
         background: #5c9ccc url('{{BASE_URL}}icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
         color: #fff;
         font-weight: 700;
-    }
-
-
-    .clear {
-        clear: both;
-        margin-top: 20px;
-    }
-
-    #searchResult {
-        list-style: none;
-        padding: 0px;
-        width: 480px;
-        position: absolute;
-        margin: 0;
-        z-index: 9991;
-        max-height: 300px !important;
-        overflow-x: scroll;
-        background-color: white;
-        padding-left: 5px;
-        max-height: 300px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 20px;
-        z-index: 9991;
-    }
-
-
-    #searchResult li:hover {
-        cursor: pointer;
-    }
-
-    .ui-widget-header {
-        border: 1px solid #4297d7;
-        background: #5c9ccc url('{{BASE_URL}}icon/ui-bg_gloss-wave.png') 50% 50% repeat-x;
-        color: #fff;
-        font-weight: 700;
-    }
-
-    .ui-menu-item a {
-        text-decoration: none;
-        display: block;
-        padding: .2em .4em;
-        line-height: 1.5;
-        zoom: 1;
-    }
-
-    li {
-        padding: 8px;
-    }
-
-    #searchResult li:hover {
-        cursor: pointer;
-
-        background-color: #d5e6f2;
-    }
-
+    }    
 </style>
 <script type="text/javascript">
     $(document).ready(function () {

@@ -271,7 +271,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         displayed
                                         alongside any comments or messages you post in {{config('app.name')}} including the client
                                         portal. </p>
-                                    @if(!file_exists(public_path().'/images/users/'.Auth::user()->profile_image)  && Auth::user()->profile_image!='')
+                                    @if(!file_exists(public_path().'/images/users/'.$user->profile_image)  && $user->profile_image!='')
                                     <p class="privacy"> You're currently using the default picture. </p>
                                     @endif
 
@@ -287,17 +287,15 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     @include('pages.errors')
                                 <?php 
                                 } ?>
-                                
-
-                                   
-                                    @if(file_exists(public_path().'/images/users/'.Auth::user()->profile_image) && Auth::user()->profile_image!='' && Auth::user()->is_published=="no")
+                                                                  
+                                    @if(file_exists(public_path().'/images/users/'.$user->profile_image) && $user->profile_image!='' && $user->is_published=="no")
                                     <div class="row">
                                     <form id="profile_image" method="POST" action="{{ route('users.saveCropedProfileimage') }}"
                                         autocomplete="off" enctype="multipart/form-data">
                                         @csrf
                                         <div class="col-md-12 form-group mb-3">To finish uploading your profile picture, please crop your image.</div>
                                         <div class="col-md-10 form-group mb-3">
-                                            <img class="border border-dark cropper" src="{{URL::asset('/public/images/users/')}}/{{Auth::user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false">
+                                            <img class="border border-dark cropper" src="{{URL::asset('/public/images/users/')}}/{{$user->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false">
                                         </div>
                                         <input type="hidden" name="imageCode" id="imageCode">
 
@@ -353,8 +351,8 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                             <div class="col-md-4 form-group mb-3">
                                                 <div class="col-md-12 form-group mb-3 float-right">
                                                     
-                                                    @if(file_exists(public_path().'/images/users/'.Auth::user()->profile_image) && Auth::user()->profile_image!='')
-                                                    <img class="border border-dark" src="{{URL::asset('/public/images/users/')}}/{{Auth::user()->profile_image}}"
+                                                    @if(file_exists(public_path().'/images/users/'.$user->profile_image) && $user->profile_image!='')
+                                                    <img class="border border-dark" src="{{URL::asset('/public/images/users/')}}/{{$user->profile_image}}"
                                                         id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"
                                                         aria-expanded="false">
                                                         <a class="btn btn-outline-danger  btn-rounded   m-1" onclick="removeImage();">

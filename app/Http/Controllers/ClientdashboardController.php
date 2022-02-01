@@ -560,7 +560,7 @@ class ClientdashboardController extends BaseController
                 $LeadNotes->is_publish="yes";
                 $LeadNotes->is_draft="no";
                 $LeadNotes->save();
-                $LeadNotes->original_content=json_encode($LeadNotes);
+                $LeadNotes->original_content=json_encode(["note_date"=>$LeadNotes->note_date,"note_subject"=>$LeadNotes->note_subject,"notes"=>$LeadNotes->notes]);
                 $LeadNotes->save();
 
                 
@@ -696,19 +696,16 @@ class ClientdashboardController extends BaseController
             $beforeCheck=ClientNotes::find($request->note_id);
             if($beforeCheck->is_draft=="yes"){
                 // ClientNotes::where("id",$request->note_id)->delete();
-            }else{
-                $beforeCheckData=ClientNotes::find($request->note_id);
-                $original_content=json_decode($beforeCheckData->original_content);
+            // }else{
+                // $beforeCheckData=ClientNotes::find($request->note_id);
+                $original_content=json_decode($beforeCheck->original_content);
                 // print_r($original_content);
-                $beforeCheckData->client_id=$original_content->client_id;
-                $beforeCheckData->note_date=$original_content->note_date;
-                $beforeCheckData->note_subject=$original_content->note_subject;
-                $beforeCheckData->notes=$original_content->notes;
-                $beforeCheckData->status=$original_content->status;
-                $beforeCheckData->is_draft=$original_content->is_draft;
-                $beforeCheckData->is_publish=$original_content->is_publish;
-                // print_r($beforeCheckData);
-                $beforeCheckData->save();
+                $beforeCheck->note_date=$original_content->note_date;
+                $beforeCheck->note_subject=$original_content->note_subject;
+                $beforeCheck->notes=$original_content->notes;
+                // print_r($beforeCheck);
+                $beforeCheck->is_draft="no";
+                $beforeCheck->save();
             }
             return response()->json(['errors'=>'','id'=>$request->note_id]);
             exit;
@@ -732,7 +729,6 @@ class ClientdashboardController extends BaseController
     
     public function updateNote(Request $request)
     {
-       
         $validator = \Validator::make($request->all(), [
             'note_date' => 'required',
             'delta' => 'required',
@@ -759,9 +755,9 @@ class ClientdashboardController extends BaseController
             $LeadNotes->save();
 
             if($request->current_submit=="publish_note"){
-              
                 $LeadNotes->is_publish="yes";
                 $LeadNotes->is_draft="no";
+                $LeadNotes->original_content=json_encode(["note_date"=>$LeadNotes->note_date,"note_subject"=>$LeadNotes->note_subject,"notes"=>$LeadNotes->notes]);
                 $LeadNotes->save();
 
                 $data=[];
@@ -782,8 +778,6 @@ class ClientdashboardController extends BaseController
                 
                 $CommonController= new CommonController();
                 $CommonController->addMultipleHistory($data);
-
-
             }
             if($request->current_submit=="save_draft"){
                 $LeadNotes->is_draft="yes";

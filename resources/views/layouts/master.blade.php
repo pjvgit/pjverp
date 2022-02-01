@@ -82,7 +82,7 @@
     </div>
     <!--=============== End app-admin-wrap ================-->
     <!-- ============ Search UI Start ============= -->
-    @include('layouts.search')
+    {{-- @include('layouts.search')  --}}
     <!-- ============ Search UI End ============= -->
     {{-- @include('layouts.horizontal-customizer') --}}
     <!-- ============ Horizontal Layout End ============= -->
@@ -117,7 +117,7 @@
     </div>
     <!--=============== End app-admin-wrap ================-->
     <!-- ============ Search UI Start ============= -->
-    @include('layouts.search')
+    {{-- @include('layouts.search')  --}}
     <!-- ============ Search UI End ============= -->
     <!-- ============ Large Sidebar Layout End ============= -->
     @else
@@ -139,7 +139,7 @@
     </div>
     <!--=============== End app-admin-wrap ================-->
     <!-- ============ Search UI Start ============= -->
-    @include('layouts.search')
+    {{-- @include('layouts.search')  --}}
     <!-- ============ Search UI End ============= -->
     {{-- @include('layouts.large-sidebar-customizer') --}}
     <!-- ============ Large Sidebar Layout End ============= -->

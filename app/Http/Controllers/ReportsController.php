@@ -51,6 +51,7 @@ class ReportsController extends BaseController
         $staff_id = $request->staff_id ?? '';
         $grp_by = $request->grp_by ?? '';
         $export_csv = $request->export_csv ?? '';
+        $export_pdf = $request->export_pdf ?? '';
         $clientArray = [];
         $export_csv_path = "";
             
@@ -77,7 +78,7 @@ class ReportsController extends BaseController
             $Invoices = $Invoices->orderBy('invoices.id', 'desc');
             $Invoices = $Invoices->get();   
             
-            if($export_csv == 1){
+            if($export_csv == 1 || $export_pdf == 1){
                 $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
                 $folderPath = public_path($fileDestination);
 
@@ -117,6 +118,19 @@ class ReportsController extends BaseController
                 fclose($file); 
                 $export_csv_path = asset($fileDestination.'/accounts_receivable_report.csv');
             }
+
+            if($export_pdf == 1){
+                $file_path =  $folderPath.'/accounts_receivable_report.pdf';  
+                $PDFData=view('reports.accounts_receivable.pdfview',  compact('Invoices','clientArray','request','client_id','case_id','staff_id','grp_by','export_csv_path'));
+                $pdf = new Pdf;
+                if($_SERVER['SERVER_NAME']=='localhost'){
+                    $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+                }
+                $pdf->addPage($PDFData);
+                $pdf->setOptions(['javascript-delay' => 5000]);
+                $pdf->saveAs($file_path);
+                $export_csv_path = asset($fileDestination.'/accounts_receivable_report.pdf');
+            }
         }else{
             $Invoices = [];
         }
@@ -137,7 +151,7 @@ class ReportsController extends BaseController
         $lead_id = $request->lead_id ?? '';
         $export_csv = $request->export_csv ?? '';
         $show_case_with_daterange = $request->show_case_with_daterange ?? '';
-        
+        $export_pdf = $request->export_pdf ?? '';
         $export_csv_path = "";
         $clientArray = [];
         
@@ -152,9 +166,9 @@ class ReportsController extends BaseController
             $cases = $cases->whereIn("case_master.id",$childUSersCase);
         }
         
-        if($show_case_with_daterange == 'on'){
-            $cases = $cases->whereBetween("case_master.case_open_date",[$startDt,$endDt]);
-        }
+        // if($show_case_with_daterange == 'on'){
+        //     $cases = $cases->whereBetween("case_master.case_open_date",[$startDt,$endDt]);
+        // }
         
         if($case_status == 'close'){
             $cases = $cases->where("case_close_date","!=", NULL);
@@ -193,7 +207,7 @@ class ReportsController extends BaseController
         $cases = $cases->get();
 
 
-        if($export_csv == 1){
+        if($export_csv == 1 || $export_pdf == 1){
             $fileDestination = 'export/'.date('Y-m-d').'/'.Auth::User()->firm_name;
             $folderPath = public_path($fileDestination);
 
@@ -464,7 +478,7 @@ class ReportsController extends BaseController
                     }
                     $totalPaidBalanceForward += $paidBalanceForward;
                 }
-                $casesCsvData[]= $case->case_title."|$".number_format($caseFlatfees,2)."|".$caseDuration."|$".number_format($caseTimeEntry,2)."|$".number_format($caseExpenseEntry,2)."|$".number_format($caseBalanceForwarded,2)."|$".number_format($caseInterestAdjustment,2)."|$".number_format($caseTaxAdjustment,2)."|$".number_format($caseAdditionsAdjustment,2)."|$".number_format($caseDiscountsAdjustment,2)."|$0.00|".number_format($caseNonBillableDuration,2)."|$".number_format($caseNonBillableDuration,2)."|".number_format($totalBilled,2)."|$".number_format($paidFlatfee,2)."|$".number_format($paidTimeEntry,2)."|$".number_format($paidExpenses,2)."|$".number_format($paidBalanceForward,2)."|$".number_format($paidInterest,2)."|$".number_format($paidTax,2)."|$".number_format($paidAdditions,2)."|$".number_format($paidDiscounts,2)."|$0.00|$".number_format($case->caseInvoicePaidAmount,2);
+                $casesCsvData[]= $case->case_title."|$".number_format($caseFlatfees,2)."|".$caseDuration."|$".number_format($caseTimeEntry,2)."|$".number_format($caseExpenseEntry,2)."|$".number_format($caseBalanceForwarded,2)."|$".number_format($caseInterestAdjustment,2)."|$".number_format($caseTaxAdjustment,2)."|$".number_format($caseAdditionsAdjustment,2)."|$".number_format($caseDiscountsAdjustment,2)."|$0.00|".$caseNonBillableDuration."|$".number_format($caseNonBillableDuration,2)."|".number_format($totalBilled,2)."|$".number_format($paidFlatfee,2)."|$".number_format($paidTimeEntry,2)."|$".number_format($paidExpenses,2)."|$".number_format($paidBalanceForward,2)."|$".number_format($paidInterest,2)."|$".number_format($paidTax,2)."|$".number_format($paidAdditions,2)."|$".number_format($paidDiscounts,2)."|$0.00|$".number_format(str_replace(",","",$case->caseInvoicePaidAmount),2);
             }
         }
         if($export_csv == 1){
@@ -473,15 +487,28 @@ class ReportsController extends BaseController
             }
         }
         if($export_csv == 1){
-            $file_path =  $folderPath.'/'.$startDt.'_to_'.$endDt.'_case_revenue_reports.csv';  
+            $file_path =  $folderPath.'/'.str_replace("/","-",$from).'_to_'.str_replace("/","-",$to).'_case_revenue_reports.csv';  
             $file = fopen($file_path,"w+");
             foreach ($casesCsvData as $exp_data){
             fputcsv($file, explode('|', iconv('UTF-8', 'Windows-1252', $exp_data)));
             }   
             fclose($file); 
-            $export_csv_path = asset($fileDestination.'/'.$startDt.'_to_'.$endDt.'_case_revenue_reports.csv');
+            $export_csv_path = asset($fileDestination.'/'.str_replace("/","-",$from).'_to_'.str_replace("/","-",$to).'_case_revenue_reports.csv');
         }
-  
+        if($export_pdf == 1){
+            $file_path =  $folderPath.'/'.str_replace("/","-",$from).'_to_'.str_replace("/","-",$to).'_case_revenue_reports.pdf';  
+            $PDFData=view('reports.case_revenue_reports.pdfview', compact("from", "to", "cases"));
+            $pdf = new Pdf;
+            if($_SERVER['SERVER_NAME']=='localhost'){
+                $pdf->binary = 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe';
+            }
+            $pdf->addPage($PDFData);
+            $pdf->setOptions(['javascript-delay' => 5000,'orientation' => 'landscape']);
+            $pdf->saveAs($file_path);
+            $export_csv_path = $file_path;
+            $export_csv_path = asset($fileDestination.'/'.str_replace("/","-",$from).'_to_'.str_replace("/","-",$to).'_case_revenue_reports.pdf');
+        }
+        
         return view('reports.case_revenue_reports.index', compact("from", "to", "case_status","staff_id", "practice_area", "office", "billing_type", "lead_id", "export_csv_path", "cases", "show_case_with_daterange"));
     }
 }

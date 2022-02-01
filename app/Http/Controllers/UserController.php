@@ -569,7 +569,7 @@ class UserController extends BaseController
     }
     public function saveProfileimage(Request $request)
     {
-        $id=Auth::user()->id;
+        $id=Auth::user()->id;        
         $input = $request->all();
         $user = User::find($id);
         $validator = Validator::make($input, [
@@ -634,7 +634,7 @@ class UserController extends BaseController
 
         // }
         $request->session()->flash('page', 'image');
-        return redirect()->route('load_profile')->with('success');
+        return redirect()->route('load_profile')->with('success',SUCCESS_SAVE_PROFILE);
            
         
         }

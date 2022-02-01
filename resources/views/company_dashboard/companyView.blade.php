@@ -1443,7 +1443,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             searching: false,
             "order": [[0, "desc"]],
             "ajax":{
-                url :baseUrl +"/contacts/companies/ClientNotes", // json datasource
+                url :baseUrl +"/contacts/clients/ClientNotes", // json datasource
                 type: "post",  // method  , by default get
                 data :{ 'user_id' : '{{$company_id}}' },
                 error: function(){  // error handling
@@ -1479,7 +1479,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                     $('td:eq(0)', nRow).html('<div class="text-left"><div class="expanded-content"><a class="text-default" data-toggle="collapse" onclick="hidez('+aData.id+')" href="#accordion-item-group'+aData.id+'" value="'+aData.id+'"><div class="c-pointer d-flex mb-3 test-note-subject">'+isdraft+'<span class="font-weight-bold pt-2">'+sub+'</span><i aria-hidden="true" class="fa fa-angle-down icon-angle-down icon icon-angle-down-'+aData.id+'" style="margin-left: 8px;padding-top: 10px;"></i></div></a><div class="collapse" id="accordion-item-group'+aData.id+'" va="'+aData.id+'"><div><p class="note-note"><p>'+aData.notes+'</p></p></div><div><div class="test-note-created-at text-black-50 font-italic small">'+createdat+'</div><div class="test-note-updated-at text-black-50 font-italic small">'+updateat+'</div></div><div class="d-flex align-items-center"><div class="d-flex flex-row"><a data-toggle="modal"  data-target="#editNoteModal" data-placement="bottom" href="javascript:;" href="javascript:;"><button class="btn btn-outline-secondary btn-rounded " type="button" onclick="loadEditNotBox('+aData.id+');"><i class="fas fa-pencil-alt mr-1"></i>Edit Note</button></a><button type="button" class="mr-1 add-time-entry-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadTimeEntryPopup('+aData.id+');"><i class="fas fa-stopwatch mr-1"></i>Add Time Entry</a></button><button type="button" class="mr-1 delete-note-button text-dark btn btn-link"><a data-toggle="modal"  data-target="#deleteNote" data-placement="bottom" href="javascript:;" class="text-dark" onclick="deleteNote('+aData.id+');"><i class="fas fa-trash mr-1"></i>Delete Note</a></button></div><div class="btn c-pointer"><a class="btn" onclick="hideshow('+aData.id+')">Hide Details <i aria-hidden="true" class="fa fa-angle-up icon-angle-up icon"></i></a></div></div></div></div></div>');
 
-                    $('td:eq(1)', nRow).html('<div class="text-left">'+aData.created_date_new+'</div>');
+                    $('td:eq(1)', nRow).html('<div class="text-left">'+aData.note_date_new+'</div>');
 
                     $('td:eq(2)', nRow).html('<div class="text-center"><a data-toggle="modal"  data-target="#editNoteModal" data-placement="bottom" href="javascript:;"  onclick="loadEditNotBox('+aData.id+');"><i class="fas fa-pen align-middle p-2"></i></a><a data-toggle="modal"  data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadTimeEntryPopup('+aData.id+');"><i class="fas fa-stopwatch mr-1 p-2 align-middle"></i></a><a data-toggle="modal"  data-target="#deleteNote" data-placement="bottom" href="javascript:;"  onclick="deleteNote('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></div>');
                 },
@@ -2016,7 +2016,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/contacts/companies/editNotes", 
+                url: baseUrl + "/contacts/clients/editNotes", 
                 data: {"user_id": "{{$company_id}}","id": id},
                 success: function (res) {
                     $("#editNoteModalArea").html(res);
@@ -2044,10 +2044,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $(function () {
                 $.ajax({
                     type: "POST",
-                    url: baseUrl + "/contacts/companies/loadTimeEntryPopup", // json datasource
-                    data: {
-                        "task_id": id
-                    },
+                    // url: baseUrl + "/contacts/companies/loadTimeEntryPopup",
+                    url: baseUrl + "/bills/loadTimeEntryPopup", // json datasource
+                    data: {},
                     success: function (res) {
                         $("#addTimeEntry").html('');
                         $("#addTimeEntry").html(res);

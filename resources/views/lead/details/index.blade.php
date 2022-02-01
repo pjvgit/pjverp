@@ -1007,13 +1007,13 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             columns: [{ data: 'id'}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                    if(aData.acrtivity_title=='added'){
-                       var img='<img src="'+baseUrl+'/public/icon/activity_note_added.png" width="27" height="21">';
+                       var img='<img src="'+baseUrl+'/icon/activity_note_added.png" width="27" height="21">';
                
                    }else if(aData.acrtivity_title=='edited'){
-                        var img='<img src="'+baseUrl+'/public/icon/activity_note_updated.png" width="27" height="21">';
+                        var img='<img src="'+baseUrl+'/icon/activity_note_updated.png" width="27" height="21">';
                    
                    }else if(aData.acrtivity_title=='deleted'){
-                        var img='<img src="'+baseUrl+'/public/icon/activity_note_deleted.png" width="27" height="21">';
+                        var img='<img src="'+baseUrl+'/icon/activity_note_deleted.png" width="27" height="21">';
 
                    }else{
                         var img='<i class="fas fa-user text-black-50 ml-1"></i>';
@@ -1057,10 +1057,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             columns: [{ data: 'id'}],
                 "fnCreatedRow": function (nRow, aData, iDataIndex) {
                    if(aData.acrtivity_title=='added'){
-                       var img='<img src="'+baseUrl+'/public/icon/activity_note_added.png" width="27" height="21">';
+                       var img='<img src="'+baseUrl+'/icon/activity_note_added.png" width="27" height="21">';
                
                    }else if(aData.acrtivity_title=='updated'){
-                        var img='<img src="'+baseUrl+'/public/icon/activity_note_updated.png" width="27" height="21">';
+                        var img='<img src="'+baseUrl+'/icon/activity_note_updated.png" width="27" height="21">';
                    
                    }
                    if(aData.type==1){
