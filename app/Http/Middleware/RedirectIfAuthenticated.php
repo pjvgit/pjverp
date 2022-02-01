@@ -21,14 +21,14 @@ class RedirectIfAuthenticated
         if ($guard == "admin" && Auth::guard($guard)->check()) {
             return redirect('admin/dashboard');
         }
-        if (Auth::guard($guard)->check()) {
+        else if ($guard == "web" && Auth::guard($guard)->check()) {
             // return redirect(RouteServiceProvider::HOME);
             if(in_array(auth()->user()->user_level, [2/* , 4, 5 */])) {
                 return redirect('client/home');
             } else {
                 return redirect(RouteServiceProvider::HOME);
             }
-        }
+        } else {}
 
         return $next($request);
     }

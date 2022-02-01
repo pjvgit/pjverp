@@ -26,8 +26,8 @@ Route::group(['middleware' => ['guest:admin'], 'namespace' => 'Admin'], function
 /**
  * After login routes
  */
-Route::group(['middleware' => [/* 'admin', */ 'auth:admin'], 'namespace' => 'Admin'], function () {
-    Route::get("/", "DashboardController@index")->name('admin/dashboard');
+Route::group(['middleware' => ['admin', 'auth:admin', 'user.role:admin'], 'namespace' => 'Admin'], function () {
+    // Route::get("/", "DashboardController@index")->name('admin/dashboard');
     Route::get("/dashboard", "DashboardController@index")->name('admin/dashboard');
     Route::post("/searchUsers", "DashboardController@searchUsers")->name('admin/searchUsers');
     Route::post("/loadallstaffdata", "UserController@loadAllStaffData")->name('admin/loadallstaffdata');
