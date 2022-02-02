@@ -64,16 +64,6 @@
             <tr class="sharing-user">
                 <td class=" no-border ">
                     <span class="mr-2">{{$val->first_name}} {{$val->last_name}}</span>
-                    {{-- <div style="text-indent: 0px;">
-                        <div id="communication-19798317"><i class="texting-off-icon"></i><i class="no-email-icon"></i>
-                        </div>
-                    </div>
-                    <small class="client-portal-alert float-right" style="visibility: hidden;">
-                        <span style="position: relative;" class="tooltip-wrapper"><span>
-                                <i class="tooltip-alert"></i>
-                            </span>
-                        </span>
-                    </small> --}}
                 </td>
                 <td>
                     <label class="mb-0">

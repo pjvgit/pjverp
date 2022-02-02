@@ -1659,6 +1659,10 @@
         })
     }
 
+    function loadStep1(id) {        
+        window.location.reload();
+    }
+
     function toggleUpcomingEvent(appointmentId) {
         const toggleDownSelector = $('#event-row-' + appointmentId + ' .upcoming-event-toggle-down');
         const toggleUpSelector = $('#event-row-' + appointmentId + ' .upcoming-event-toggle-up');

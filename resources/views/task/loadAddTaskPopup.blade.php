@@ -505,9 +505,11 @@
                 firmStaff();
             }
           
+            setTimeout(function () {
             if($("input:checkbox#time_tracking_enabled").is(":checked")){
                 loadTimeEstimationUsersLinkedStaffList1();
             }
+            },3000);
         }else{
             $("#loadTaskSection").html('');
             $("#HideShowNonlink").hide();
@@ -592,9 +594,9 @@
     }
     function loadTimeEstimationUsersLinkedStaffList1() {
         $(".innerLoader").css('display', 'block');
+        var selectdValue = $("#case_or_lead option:selected").val() // or
+        var SU=getCheckedUser1();
         setTimeout(function () {
-            var selectdValue = $("#case_or_lead option:selected").val() // or
-            var SU=getCheckedUser1();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/tasks/loadTimeEstimationCaseWiseUsersList",
@@ -604,9 +606,9 @@
                     $(".innerLoader").css('display', 'none');
                 }
             })
-        },10);
+        },1000);
     }
-    function getCheckedUser1(){
+    function getCheckedUser1(){        
         var array = [];
         $('input[name="linked_staff_checked_attend[]"]:checked').each(function(i){
             array.push($(this).val());

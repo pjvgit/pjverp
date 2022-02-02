@@ -174,8 +174,9 @@
                         $totalCaseDiscountsAdjustment += str_replace(",","",$case->caseDiscountsAdjustment);
                         $totalCaseNonBillableDuration += str_replace(",","",$case->caseNonBillableDuration);
                         $totalCaseNonBillableEntry += str_replace(",","",$case->caseNonBillableEntry);
-                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) + str_replace(",","",$case->caseDiscountsAdjustment) + str_replace(",","",$case->caseNonBillableEntry);
-                        $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment) + str_replace(",","",$case->caseDiscountsAdjustment) + str_replace(",","",$case->caseNonBillableEntry);
+
+                        $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
+                        $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
 
                         $totalPaidInvoice = str_replace(",","",$case->caseInvoicePaidAmount);
                         $totalcaseInvoicePaidAmount +=$totalPaidInvoice;
@@ -275,7 +276,7 @@
                         <td>{{($case->caseInterestAdjustment > 0) ? '$'.$case->caseInterestAdjustment : '--'}}</td>
                         <td>{{($case->caseTaxAdjustment > 0) ? '$'.$case->caseTaxAdjustment : '--'}}</td>
                         <td>{{($case->caseAdditionsAdjustment > 0) ? '$'.$case->caseAdditionsAdjustment : '--'}}</td>
-                        <td>{{($case->caseDiscountsAdjustment > 0) ? '$'.$case->caseDiscountsAdjustment : '--'}}</td>
+                        <td>{{($case->caseDiscountsAdjustment > 0) ? '$-'.$case->caseDiscountsAdjustment : '--'}}</td>
                         <td>{{($case->caseNonBillableDuration > 0) ? $case->caseNonBillableDuration : '--'}}</td>
                         <td>{{($case->caseNonBillableEntry > 0) ? '$'.$case->caseNonBillableEntry : '--'}}</td>
                         <th>${{number_format($totalBilled,2)}}</th>
@@ -286,7 +287,7 @@
                         <td>{{($paidInterest > 0) ? '$'.number_format($paidInterest,2) : '--'}}</td>
                         <td>{{($paidTax > 0) ? '$'.number_format($paidTax,2) : '--'}}</td>
                         <td>{{($paidAdditions > 0) ? '$'.number_format($paidAdditions,2) : '--'}}</td>
-                        <td>{{($paidDiscounts > 0) ? '$'.number_format($paidDiscounts,2) : '--'}}</td>
+                        <td>{{($paidDiscounts > 0) ? '$-'.number_format($paidDiscounts,2) : '--'}}</td>
                         <th>${{$case->caseInvoicePaidAmount}}</th>
                     </tr>
                     @endforeach
@@ -302,7 +303,7 @@
                         <th>${{number_format($totalCaseInterestAdjustment,2)}}</th>
                         <th>${{number_format($totalCaseTaxAdjustment,2)}}</th>
                         <th>${{number_format($totalCaseAdditionsAdjustment,2)}}</th>
-                        <th>${{number_format($totalCaseDiscountsAdjustment,2)}}</th>
+                        <th>$-{{number_format($totalCaseDiscountsAdjustment,2)}}</th>
                         <th>{{number_format($totalCaseNonBillableDuration,2)}}</th>
                         <th>${{number_format($totalCaseNonBillableEntry,2)}}</th>
                         <th>${{number_format($totalCaseBilled,2)}}</th>

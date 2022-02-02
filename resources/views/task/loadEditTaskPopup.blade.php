@@ -574,7 +574,7 @@
         var selectdValue = $("#case_or_lead option:selected").val() 
        
         if(selectdValue!=''){
-            $("#time_tracking_enabled").prop('checked',false);
+            // $("#time_tracking_enabled").prop('checked',false);
             if(uType=="case"){                
                 $("#text_case_id").val(selectdValue);
                 $("#text_lead_id").val('');
@@ -627,6 +627,7 @@
     });
     var beforeload = false;
     $("input:checkbox#time_tracking_enabled").click(function () {
+        alert($(this).is(":checked"));
         if ($(this).is(":checked")) {
             $("#dynamicUSerTimes").show();
             if($("input:checkbox#no_case_link").is(":checked")){
@@ -642,12 +643,15 @@
                 }
                 else if(beforeload==false){
                     console.log("timeTrackingEnabled > 700");    
-                    loadTimeEstimationUsersLinkedStaffList11();
+                    // loadTimeEstimationUsersLinkedStaffList11();
+                    var SU = getCheckedUser();
+                    loadTimeEstimationUsersList(SU);
                     beforeload=true;
                 }
                 else{
                     // console.log("timeTrackingEnabled > 704");    
-                    // loadTimeEstimationUsersLinkedStaffList1();
+                    var SU = getCheckedUser();
+                    loadTimeEstimationUsersList(SU);
                 }
             }
             afterLoader();
@@ -704,7 +708,10 @@
     }
     function getCheckedUser(){
         var array = [];
-        $("input[class=linked_staff]:checked").each(function(i){
+        $('input[name="linked_staff_checked_attend[]"]:checked').each(function(i){
+            array.push($(this).val());
+        });
+        $('input[name="share_checkbox_nonlinked[]"]:checked').each(function(i){
             array.push($(this).val());
         });
         
@@ -734,7 +741,7 @@
                 var SU = getCheckedUser();
                 loadTimeEstimationUsersList(SU);
             }
-        }, 500);        
+        }, 1000);        
     }
     function afterLoader(){
         $(".innerLoader").css('display', 'none');
