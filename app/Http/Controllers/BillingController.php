@@ -11582,7 +11582,7 @@ class BillingController extends BaseController
      */
     public function fundOnlinePayment(Request $request)
     {   
-        // return $request->all();
+        // return $request->all();s
         $request['amount'] = str_replace(",", "", $request->amount);
         if(isset($request->applied_to) && $request->applied_to != 0) {
             $requestData = RequestedFund::find($request->applied_to);
@@ -11734,6 +11734,9 @@ class BillingController extends BaseController
                     if($fundRequest->allocated_to_case_id != '') {
                         $request["case_id"] = $fundRequest->allocated_to_case_id;
                     }
+                    if($fundRequest->allocated_to_lead_case_id != '') {
+                        $request["lead_case_id"] = $fundRequest->allocated_to_lead_case_id;
+                    }
                 } else {
                     $requestOnlinePayment = UserTrustCreditFundOnlinePayment::create([
                         'user_id' => $client->id,
@@ -11765,6 +11768,7 @@ class BillingController extends BaseController
                         'fund_type' => 'diposit',
                         'related_to_fund_request_id' => @$fundRequest->id,
                         'allocated_to_case_id' => ($request->case_id != '') ? $request->case_id : @$fundRequest->allocated_to_case_id,
+                        'allocated_to_lead_case_id' => ($fundRequest && $fundRequest->allocated_to_lead_case_id != '') ? $request->lead_case_id : Null,
                         'created_by' => $authUser->id,
                         'online_payment_status' => $order->payment_status,
                         'notes' => $request->notes,
@@ -11775,6 +11779,11 @@ class BillingController extends BaseController
                     if($request->case_id != '') {
                         CaseMaster::where('id', $request->case_id)->increment('total_allocated_trust_balance', $payableAmount);
                         CaseClientSelection::where('case_id', $request->case_id)->where('selected_user', $client->id)->increment('allocated_trust_balance', $payableAmount);
+                    }
+
+                    // For allocated lead case trust balance
+                    if($request->lead_case_id != '') {
+                        LeadAdditionalInfo::where('user_id', $trustHistory->allocated_to_lead_case_id)->increment('allocated_trust_balance', $payableAmount);
                     }
                     // For update next/previous trust balance
                     $this->updateNextPreviousTrustBalance($trustHistory->client_id);

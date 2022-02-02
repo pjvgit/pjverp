@@ -75,7 +75,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">$</span>
                     </div>
-                    <input class="form-control online-pay-amount" style="width:50%; " maxlength="20" name="amount" id="online_pay_amount" value="" type="text" aria-label="Amount (to the nearest dollar)">
+                    <input class="form-control online-pay-amount number" style="width:50%; " maxlength="20" name="amount" id="online_pay_amount" value="" type="text" aria-label="Amount (to the nearest dollar)">
                     <small>&nbsp;</small>
                     <div class="input-group col-sm-9" id="TypeError"></div>
                     <span id="amt"></span>

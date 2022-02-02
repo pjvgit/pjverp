@@ -31,8 +31,8 @@ $finalAmt=$invoice-$paid;
 <br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
-            aria-selected="false">Online Payment
+        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online_payment_div" role="tab" aria-controls="online_payment_div"
+            aria-selected="true">Online Payment
         </a>
     </li>
     <li class="nav-item">
@@ -55,7 +55,7 @@ $finalAmt=$invoice-$paid;
 </ul>
 <div class="tab-content" id="myTabContent">
 
-    <div class="tab-pane fade" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+    <div class="tab-pane fade" id="online_payment_div" role="tabpanel" aria-labelledby="online-payment-tab">
         @include('billing.invoices.partials.load_invoice_online_payment_form')
     </div>
     <div class="tab-pane fade active show" id="offline_payment_tab" role="tabpanel" aria-labelledby="offline-payment-tab">
@@ -1037,9 +1037,13 @@ function didOnlinePayment() {
             },
             success: function (res) {
                 if (res.errors != '') {
-                    $("#error-alert .error-text").text(res.errors);
+                    /* $("#error-alert .error-text").text(res.errors);
                     $("#error-alert").show();
-                    $('#payInvoice').animate({ scrollTop: 0 }, 'slow');
+                    $('#payInvoice').animate({ scrollTop: 0 }, 'slow'); */
+                    var errotHtml =
+                        '<div class="alert alert-danger"><strong>Whoops!</strong> '+res.errors+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                    $('.showError').html(errotHtml);
+                    $('.showError').show();
                     afterLoader();
                     return false;
                 } else {
@@ -1062,8 +1066,10 @@ function didOnlinePayment() {
             },
             error: function (jqXHR, exception) {
                 afterLoader();
-                $("#error-alert .error-text").text("Sorry, something went wrong. Please try again later.");
-                $("#error-alert").show();
+                var errotHtml =
+                    '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').html(errotHtml);
+                $('.showError').show();
             },
         });
 

@@ -15,7 +15,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
         <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
-            aria-selected="false">Online Payment
+            aria-selected="true">Online Payment
         </a>
     </li>
     <li class="nav-item">

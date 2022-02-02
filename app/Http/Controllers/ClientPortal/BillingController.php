@@ -16,6 +16,7 @@ use App\InvoicePayment;
 use App\InvoicePaymentPlan;
 use App\Invoices;
 use App\Jobs\OnlinePaymentEmailJob;
+use App\LeadAdditionalInfo;
 use App\RequestedFund;
 use App\RequestedFundOnlinePayment;
 use App\SharedInvoice;
@@ -1215,6 +1216,7 @@ class BillingController extends Controller
                     'fund_type' => 'diposit',
                     'related_to_fund_request_id' => $fundRequest->id,
                     'allocated_to_case_id' => $fundRequest->allocated_to_case_id,
+                    'allocated_to_lead_case_id' => $fundRequest->allocated_to_lead_case_id,
                     'created_by' => $paymentDetail->user_id,
                     'online_payment_status' => 'paid',
                     'created_by' => $paymentDetail->user_id,
@@ -1227,6 +1229,11 @@ class BillingController extends Controller
                     DB::table('case_master')->where('id', $fundRequest->allocated_to_case_id)->increment('total_allocated_trust_balance', $paymentDetail->amount);
                     DB::table('case_client_selection')->where('case_id', $fundRequest->allocated_to_case_id)->where('selected_user', $paymentDetail->user_id)->increment('allocated_trust_balance', $paymentDetail->amount);
                 }
+                // For allocated lead case trust balance
+                if($fundRequest->allocated_to_lead_case_id != '') {
+                    LeadAdditionalInfo::where('user_id', $fundRequest->allocated_to_lead_case_id)->increment('allocated_trust_balance', $paymentDetail->amount);
+                }
+
                 // For update next/previous trust balance
                 $this->updateNextPreviousTrustBalance($paymentDetail->user_id);
             } else {
