@@ -10,7 +10,7 @@ $(document).ready(function() {
 $(document).on("click", ".save-minimum-trust-balance", function() {
     var minBalance = $(this).parents("form.setup-min-trust-balance-form").find("input[name=min_balance]").val();
     minBalance = minBalance.replace(/,/g, '');
-    if (minBalance > 0) {
+    // if (minBalance > 0) {
         $(this).parents("form.setup-min-trust-balance-form").find("input[name=min_balance]").val(minBalance);
         var formData = $(this).parents("form.setup-min-trust-balance-form").serialize();
         $.ajax({
@@ -29,9 +29,9 @@ $(document).on("click", ".save-minimum-trust-balance", function() {
                 }
             }
         });
-    } else {
+    /* } else {
         $(this).parents("form.setup-min-trust-balance-form").find("input[name=min_balance]").val("0.00");
-    }
+    } */
 });
 
 function trustAllocationList() {
@@ -83,11 +83,13 @@ $(document).on("input", ".allocate-fund", function() {
 $(document).on("click", ".confirm-btn", function() {
     var formData = $(this).parents("form.trust-allocate-form").serialize();
     var page = $("#page").val();
+    beforeLoader();
     $.ajax({
         url: baseUrl + "/contacts/clients/save/trust/allocation",
         type: 'POST',
         data: formData,
         success: function(res) {
+            afterLoader();
             if (res.errors != '') {
                 return false;
             } else {

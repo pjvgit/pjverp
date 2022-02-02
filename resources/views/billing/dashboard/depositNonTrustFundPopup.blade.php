@@ -6,23 +6,23 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
     <div class="col-md-12 selenium-invoice-number"><strong>Current Balance: ${{number_format($userData['credit_account_balance'],2)}}</strong></div>
 </div>
 <br>
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs" id="credit_tabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link" id="online-payment-tab" data-toggle="tab" href="#online-payment-div" role="tab" aria-controls="online-payment-div"
-            aria-selected="false">Online Payment
+        <a class="nav-link" id="credit_online_payment_tab" data-toggle="tab" href="#credit_online_payment_div" role="tab" aria-controls="credit_online_payment_div"
+            aria-selected="true">Online Payment
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link active show" id="profile-basic-tab" data-toggle="tab" href="#profileBasic" role="tab"
-            aria-controls="profileBasic" aria-selected="true">Offline Payment
+        <a class="nav-link active show" id="credit_offline_payment_tab" data-toggle="tab" href="#credit_offline_payment_div" role="tab"
+            aria-controls="credit_offline_payment_div" aria-selected="true">Offline Payment
         </a>
     </li>
 </ul>
-<div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade" id="online-payment-div" role="tabpanel" aria-labelledby="online-payment-tab">
+<div class="tab-content" id="credit_tabs_content">
+    <div class="tab-pane fade" id="credit_online_payment_div" role="tabpanel" aria-labelledby="credit_online_payment_tab">
         @include('billing.dashboard.partials.load_fund_online_payment_form')
     </div>
-    <div class="tab-pane fade active show" id="profileBasic" role="tabpanel" aria-labelledby="profile-basic-tab">
+    <div class="tab-pane fade active show" id="credit_offline_payment_div" role="tabpanel" aria-labelledby="credit_offline_payment_tab">
         <form class="DepositTrustFund" id="DepositTrustFund" name="DepositTrustFund" method="POST">
             <span id="response"></span>
             @csrf

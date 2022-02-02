@@ -152,6 +152,13 @@ $("#pay_online_payment").validate({
         cvv: {
             required: "Favor de ingresar esta información.",
         },
+        bt_name: {
+            required: "Favor de ingresar esta información.",
+        },
+        bt_phone_number: {
+            required: "Favor de ingresar esta información.",
+            number: "Ingrese un número telefónico válido con lada. No use paréntesis.",
+        },
     },
     errorPlacement: function (error, element) {
         if (element.attr("name") == "expiry_month")

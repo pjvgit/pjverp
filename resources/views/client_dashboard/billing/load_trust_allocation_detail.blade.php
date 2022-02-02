@@ -37,6 +37,7 @@
     </div>
 </div>
 <div class="modal-footer">
+    <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoaderTime" style="display: none;"></div>
     <button type="button" class="close-btn-0 btn btn-link mr-2" data-dismiss="modal">Cancel</button>
     <button type="button" class="confirm-btn btn btn-primary mr-2">OK</button>
 </div>
