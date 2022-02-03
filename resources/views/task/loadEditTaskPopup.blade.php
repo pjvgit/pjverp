@@ -573,8 +573,7 @@
         var uType=$("#case_or_lead option:selected").attr('uType');
         var selectdValue = $("#case_or_lead option:selected").val() 
        
-        if(selectdValue!=''){
-            // $("#time_tracking_enabled").prop('checked',false);
+        if(selectdValue!=''){ 
             if(uType=="case"){                
                 $("#text_case_id").val(selectdValue);
                 $("#text_lead_id").val('');
@@ -584,9 +583,17 @@
                 $("#text_lead_id").val(selectdValue);
                 $("#text_case_id").val('');
                 firmStaff();
-            }
-            if($("#timeTrackingEnabled").val() == "yes" && $("#time_tracking_enabled").is(":checked")){
-                $('input:checkbox#time_tracking_enabled').trigger('click');
+            }                       
+            if($("#timeTrackingEnabled").val() == "yes"){
+                setTimeout(function(){  
+                    $("input:checkbox#time_tracking_enabled").prop('checked',true);
+                    // $('input:checkbox#time_tracking_enabled').trigger('click');
+                    if($("input:checkbox#time_tracking_enabled").is(":checked")){
+                        var SU = getCheckedUser();
+                        // alert(593);
+                        loadTimeEstimationUsersList(SU);
+                    }
+                }, 1000);        
             }
         }else{
             $("#loadTaskSection").html('');
@@ -627,7 +634,6 @@
     });
     var beforeload = false;
     $("input:checkbox#time_tracking_enabled").click(function () {
-        alert($(this).is(":checked"));
         if ($(this).is(":checked")) {
             $("#dynamicUSerTimes").show();
             if($("input:checkbox#no_case_link").is(":checked")){
@@ -732,17 +738,7 @@
         $(".innerLoader").css('display', 'block');
         $('.submit').prop("disabled", true);
     }
-    if($("#timeTrackingEnabled").val() == "yes"){
-        setTimeout(function(){  
-            $('input:checkbox#time_tracking_enabled').trigger('click');
-            if($("input:checkbox#time_tracking_enabled").is(":checked")){
-                console.log("timeTrackingEnabled > 785");
-                // loadTimeEstimationUsersLinkedStaffList1();
-                var SU = getCheckedUser();
-                loadTimeEstimationUsersList(SU);
-            }
-        }, 1000);        
-    }
+    
     function afterLoader(){
         $(".innerLoader").css('display', 'none');
         $('.submit').removeAttr("disabled");        

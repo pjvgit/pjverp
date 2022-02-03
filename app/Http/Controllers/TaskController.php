@@ -36,7 +36,7 @@ class TaskController extends BaseController
         $getChildUsers=$this->getParentAndChildUserIds();
         $caseStageList = CaseStage::whereIn("created_by",$getChildUsers)->where("status","1")->get();          
 
-        $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->groupBy('case_staff.lead_attorney')->get();
+        $CaseLeadAttorney = CaseStaff::join('users','users.id','=','case_staff.lead_attorney')->select("users.id","users.first_name","users.last_name",DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'))->where("users.firm_name",Auth::user()->firm_name)->groupBy('case_staff.lead_attorney')->get();
        
         
         $columns = array('id');
@@ -536,7 +536,7 @@ class TaskController extends BaseController
             if(isset($userList)){
                 $loadFirmStaff = User::select("first_name","last_name","id")->whereIn("id",$userList)->orderBy("id","ASC")->get();                
                 if($request->edit=="edit"){
-                    if($task_case_id == $request->case_id){
+                    // if($task_case_id == $request->case_id){
                         $fillsedHours=CaseTaskLinkedStaff::select('time_estimate_total',"user_id")->where('is_contact','no')->where("task_id", $request->task_id)->orderBy("user_id","ASC")->get();
                         foreach($fillsedHours as $k=>$v){
                             $fillsedHours[$v->user_id]=$v->time_estimate_total;
@@ -546,7 +546,7 @@ class TaskController extends BaseController
                                 $fillsedHours[$v['id']]=$v['hour'];
                             } 
                         }
-                    }
+                    // }
                 }else{
                     //This code is for show old added hours    
                     if(isset($userListWithHours) && !empty($userListWithHours)){
@@ -1506,20 +1506,24 @@ class TaskController extends BaseController
       $loadFirmUser = User::select("first_name","last_name","id","parent_user")->where("firm_name",Auth::user()->firm_name)->orderBy('id',"ASC")->groupBy('id')->where("user_level","3")->where("user_status","1")->whereNotIn('id',$caseNoneLinkedStaffList)->get();
 
      //Load Linked staff
-      $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")->where("case_id",$case_id)->orderBy('case_staff.user_id',"ASC")->groupBy('case_staff.user_id')->get();
+      $caseLinkedStaffList = CaseStaff::join('users','users.id','=','case_staff.user_id')
+      ->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","lead_attorney","case_staff.rate_amount as staff_rate_amount","users.default_rate as user_default_rate","case_staff.rate_type as rate_type","case_staff.originating_attorney","case_staff.id as case_staff_id","case_staff.user_id as case_staff_user_id")
+      ->where("case_id",$case_id)->orderBy('case_staff.user_id',"ASC")->groupBy('case_staff.user_id')->get();
     
   
       if(isset($task_id) && $task_id!=''){
      
-        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
+        // $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
+        $caseLinkedSavedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
         $caseLinkedSavedAssigned= $caseLinkedSavedAssigned->toArray();
   
-        $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","no")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","no")->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
+        // $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","no")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","no")->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
+        $caseNonLinkedAssigned = CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_contact","no")->get()->pluck('user_id');
         $caseNonLinkedAssigned= $caseNonLinkedAssigned->toArray();
         $from="edit";
 
 
-        $caseLinkeSavedAttendingContact= CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$request->task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","yes")->get()->pluck('user_id');
+        $caseLinkeSavedAttendingContact= CaseTaskLinkedStaff::select("task_linked_staff.user_id")->where("linked_or_not_with_case","yes")->where("task_linked_staff.task_id",$task_id)->where("task_linked_staff.is_assign","yes")->where("task_linked_staff.is_contact","yes")->get()->pluck('user_id');
         $caseLinkeSavedAttendingContact= $caseLinkeSavedAttendingContact->toArray();
         
       }

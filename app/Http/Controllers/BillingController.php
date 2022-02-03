@@ -2311,7 +2311,7 @@ class BillingController extends BaseController
 
             TaskTimeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
             ExpenseEntry::where('status','unpaid')->where('token_id','9999999')->delete();
-            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->delete();
+            FlatFeeEntry::where('status','unpaid')->where('token_id','9999999')->orWhereNull('token_id')->delete();
 
             $getAllClientForSharing=  CaseClientSelection::join('users','users.id','=','case_client_selection.selected_user')->leftJoin('users_additional_info','users_additional_info.user_id','=','case_client_selection.selected_user')->select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as unm'),"users.id","users.first_name","users.last_name","users.user_level","users.email","users.mobile_number","case_client_selection.id as case_client_selection_id","users.id as user_id","users_additional_info.client_portal_enable")->where("case_client_selection.case_id",$case_id)->get();
 
@@ -2571,7 +2571,6 @@ class BillingController extends BaseController
             ->where("flat_fee_entry.status","unpaid")
             ->where(function($FlatFeeEntry) use($request){
                 $FlatFeeEntry->where("flat_fee_entry.token_id","=",$request->token);
-                $FlatFeeEntry->orwhere("flat_fee_entry.token_id",NULL);
                 $FlatFeeEntry->orwhere("flat_fee_entry.token_id","=",'9999999');
             });
             
@@ -8892,6 +8891,7 @@ class BillingController extends BaseController
 
                     // print_r($request->all());
                     //Invoice Shared With Client
+                    $notSharedInvoice ='';
                     if(isset($request->batch['share']) && $request->batch['share']=="1"){
 
                         if($request->batch['sharing_user']=="billing_only"){
@@ -8906,7 +8906,7 @@ class BillingController extends BaseController
                                 if($GetAccessDAta['client_portal_enable']=='0')
                                 {
                                         $user=User::find($vselected_user);
-                                        $enableAccess=UsersAdditionalInfo::where('user_id',$vselected_user)->update(['client_portal_enable'=>"1"]);
+                                        // $enableAccess=UsersAdditionalInfo::where('user_id',$vselected_user)->update(['client_portal_enable'=>"1"]);
 
                                         $getTemplateData = EmailTemplate::find(6);
                                         $fullName=$user['first_name']. ' ' .$user['last_name'];
@@ -8933,6 +8933,8 @@ class BillingController extends BaseController
                                             "mail_body" => $mail_body
                                             ];
                                         $sendEmail = $this->sendMail($userEmail);
+
+                                    $notSharedInvoice .='<li>Bill #'.sprintf('%06d',$InvoiceSave->id).' ('.$caseClient->case_title.') was not shared with any clients, but it was marked as sent.</li>';
                                 }
                                 
                                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -9050,7 +9052,7 @@ class BillingController extends BaseController
                 $InvoiceBatch->created_by=Auth::User()->id; 
                 $InvoiceBatch->save();
                 dbCommit();
-                return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
+                return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'notSharedInvoice' => $notSharedInvoice,  'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
                 exit; 
             }else{
                 return response()->json(['errors' =>'No Invoice Found...']);

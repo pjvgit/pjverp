@@ -178,92 +178,29 @@
                         $totalBilled  = str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
                         $totalCaseBilled += str_replace(",","",$case->caseFlatfees) + str_replace(",","",$case->caseTimeEntry) + str_replace(",","",$case->caseExpenseEntry) + str_replace(",","",$case->caseBalanceForwarded) + str_replace(",","",$case->caseInterestAdjustment) + str_replace(",","",$case->caseTaxAdjustment) + str_replace(",","",$case->caseAdditionsAdjustment)  + str_replace(",","",$case->caseNonBillableEntry) -  str_replace(",","",$case->caseDiscountsAdjustment);
 
-                        $totalPaidInvoice = str_replace(",","",$case->caseInvoicePaidAmount);
-                        $totalcaseInvoicePaidAmount +=$totalPaidInvoice;
+                        // collected amount
+                        $totalPaidFlatfee += str_replace(",","",$case->paidFlatfee);
+                        $totalPaidTimeEntry += str_replace(",","",$case->paidTimeEntry);
+                        $totalPaidExpenses += str_replace(",","",$case->paidExpenses);
+                        $totalPaidBalanceForward += str_replace(",","",$case->paidBalanceForward);
+                        $totalPaidInterest += str_replace(",","",$case->paidInterest);
+                        $totalPaidTax += str_replace(",","",$case->paidTax);
+                        $totalPaidAdditions += str_replace(",","",$case->paidAdditions);
+                        $totalPaidDiscounts += str_replace(",","",$case->paidDiscounts);
 
-                        $paidFlatfee = $paidTimeEntry = $paidExpenses = $paidBalanceForward = $paidInterest = $paidTax = $paidAdditions = $paidDiscounts = 0;
-                        
-                        
-                        if(str_replace(",","",$case->caseFlatfees) > 0 && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseFlatfees)){
-                                $paidFlatfee = str_replace(",","",$case->caseFlatfees);
-                                $totalPaidInvoice -= $paidFlatfee;
-                            }else{
-                                $paidFlatfee = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidFlatfee;
-                            }
-                            $totalPaidFlatfee += $paidFlatfee;
-                        }     
-                        if(str_replace(",","",$case->caseTimeEntry) > 0 && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseTimeEntry)){
-                                $paidTimeEntry = str_replace(",","",$case->caseTimeEntry);
-                                $totalPaidInvoice -= $paidTimeEntry;
-                            }else{
-                                $paidTimeEntry = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidTimeEntry;
-                            }
-                            $totalPaidTimeEntry += $paidTimeEntry;
-                        }    
-                        if(str_replace(",","",$case->caseExpenseEntry) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseExpenseEntry)){
-                                $paidExpenses = str_replace(",","",$case->caseExpenseEntry);
-                                $totalPaidInvoice -= $paidExpenses;
-                            }else{
-                                $paidExpenses = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidExpenses;
-                            }
-                            $totalPaidExpenses += $paidExpenses;
-                        }   
-                        if(str_replace(",","",$case->caseAdditionsAdjustment) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseAdditionsAdjustment)){
-                                $paidAdditions = str_replace(",","",$case->caseAdditionsAdjustment);
-                                $totalPaidInvoice -= $paidAdditions;
-                            }else{
-                                $paidAdditions = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidAdditions;
-                            }
-                            $totalPaidAdditions += $paidAdditions;
-                        }   
-                        if(str_replace(",","",$case->caseTaxAdjustment) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseTaxAdjustment)){
-                                $paidTax = str_replace(",","",$case->caseTaxAdjustment);
-                                $totalPaidInvoice -= $paidTax;
-                            }else{
-                                $paidTax = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidTax;
-                            }
-                            $totalPaidTax += $paidTax;
-                        } 
-                        if(str_replace(",","",$case->caseInterestAdjustment) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseInterestAdjustment)){
-                                $paidInterest = str_replace(",","",$case->caseInterestAdjustment);
-                                $totalPaidInvoice -= $paidInterest;
-                            }else{
-                                $paidInterest = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidInterest;
-                            }
-                            $totalPaidInterest += $paidInterest;
-                        }  
-                        if(str_replace(",","",$case->caseDiscountsAdjustment) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseDiscountsAdjustment)){
-                                $paidDiscounts = str_replace(",","",$case->caseDiscountsAdjustment);
-                                $totalPaidInvoice -= $paidDiscounts;
-                            }else{
-                                $paidDiscounts = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidDiscounts;
-                            }
-                            $totalPaidDiscounts += $paidDiscounts;
-                        }  
-                        if(str_replace(",","",$case->caseBalanceForwarded) > 0  && $totalPaidInvoice > 0){
-                            if($totalPaidInvoice > str_replace(",","",$case->caseBalanceForwarded)){
-                                $paidBalanceForward = str_replace(",","",$case->caseBalanceForwarded);
-                                $totalPaidInvoice -= $paidBalanceForward;
-                            }else{
-                                $paidBalanceForward = $totalPaidInvoice;
-                                $totalPaidInvoice -= $paidBalanceForward;
-                            }
-                            $totalPaidBalanceForward += $paidBalanceForward;
-                        }                            
+                        $totalCollected = str_replace(",","",$case->paidFlatfee)
+                        + str_replace(",","",$case->paidTimeEntry)
+                        + str_replace(",","",$case->paidExpenses)
+                        + str_replace(",","",$case->paidBalanceForward)
+                        + str_replace(",","",$case->paidInterest)
+                        + str_replace(",","",$case->paidTax)
+                        + str_replace(",","",$case->paidAdditions)
+                        - str_replace(",","",$case->paidDiscounts);
+                        $totalcaseInvoicePaidAmount = $totalPaidFlatfee + $totalPaidTimeEntry + $totalPaidExpenses + $totalPaidBalanceForward + $totalPaidInterest + $totalPaidTax + $totalPaidAdditions - $totalPaidDiscounts;
+
+                        // $totalPaidInvoice = str_replace(",","",$case->caseInvoicePaidAmount);
+                        // $totalcaseInvoicePaidAmount +=$totalPaidFlatfee;
+
                     ?>        
 
                     <tr class="">
@@ -280,15 +217,15 @@
                         <td>{{($case->caseNonBillableDuration > 0) ? $case->caseNonBillableDuration : '--'}}</td>
                         <td>{{($case->caseNonBillableEntry > 0) ? '$'.$case->caseNonBillableEntry : '--'}}</td>
                         <th>${{number_format($totalBilled,2)}}</th>
-                        <td>{{($paidFlatfee > 0) ? '$'.number_format($paidFlatfee,2) : '--'}}</td>
-                        <td>{{($paidTimeEntry > 0) ? '$'.number_format($paidTimeEntry,2) : '--'}}</td>
-                        <td>{{($paidExpenses > 0) ? '$'.number_format($paidExpenses,2) : '--'}}</td>
-                        <td>{{($paidBalanceForward > 0) ? '$'.number_format($paidBalanceForward,2) : '--'}}</td>
-                        <td>{{($paidInterest > 0) ? '$'.number_format($paidInterest,2) : '--'}}</td>
-                        <td>{{($paidTax > 0) ? '$'.number_format($paidTax,2) : '--'}}</td>
-                        <td>{{($paidAdditions > 0) ? '$'.number_format($paidAdditions,2) : '--'}}</td>
-                        <td>{{($paidDiscounts > 0) ? '$-'.number_format($paidDiscounts,2) : '--'}}</td>
-                        <th>${{$case->caseInvoicePaidAmount}}</th>
+                        <td>{{($case->paidFlatfee > 0) ? '$'.number_format($case->paidFlatfee,2) : '--'}}</td>
+                        <td>{{($case->paidTimeEntry > 0) ? '$'.number_format($case->paidTimeEntry,2) : '--'}}</td>
+                        <td>{{($case->paidExpenses > 0) ? '$'.number_format($case->paidExpenses,2) : '--'}}</td>
+                        <td>{{($case->paidBalanceForward > 0) ? '$'.number_format($case->paidBalanceForward,2) : '--'}}</td>
+                        <td>{{($case->paidInterest > 0) ? '$'.number_format($case->paidInterest,2) : '--'}}</td>
+                        <td>{{($case->paidTax > 0) ? '$'.number_format($case->paidTax,2) : '--'}}</td>
+                        <td>{{($case->paidAdditions > 0) ? '$'.number_format($case->paidAdditions,2) : '--'}}</td>
+                        <td>{{($case->paidDiscounts > 0) ? '$-'.number_format($case->paidDiscounts,2) : '--'}}</td>
+                        <th>${{number_format($totalCollected,2)}}</th>
                     </tr>
                     @endforeach
                 </tbody>

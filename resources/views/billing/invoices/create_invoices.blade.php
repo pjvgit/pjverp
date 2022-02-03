@@ -98,8 +98,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
 
                     </div>
                 </form>
-                <?php  if($upcomingInvoice<=0){?>
-                <div id="open_bills_list">
+                <div class="open-bills-list m2" id="open_bills_list" >
                     <div class="empty-state">
                         <img alt="Invoice List Example" class="thumbnail"
                             srcset="https://assets.mycase.com/packs/empty-state/create-new-invoice-9b639a02cc.png 1x, https://assets.mycase.com/packs/empty-state/create-new-invoice@2x-33b2c97763.png 2x"
@@ -177,8 +176,6 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                     </style>
                     <br>
                 </div>
-                <?php }else{
-                    ?>
                 <div class="open-bills">
                     <table class="table">
                         <tbody>
@@ -207,8 +204,6 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                         </tbody>
                     </table>
                 </div>
-                <?php
-                } ?>
             </div>
 
             <form id="batch_billing_form"  name="batch_billing_form" accept-charset="UTF-8" method="post">
@@ -435,7 +430,7 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
     </div>
 </div>
 <div id="batchSaved" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="depostifundtitle">Batch Saved</h5>
@@ -444,7 +439,11 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
                 </button>
             </div>
             <div class="modal-body">
-                Successfully created <span id="createdBill"></span> bill.
+                <p>Successfully created <span id="createdBill"></span> bill.</p>
+                <div class="billingWarninig m2">
+                    <h4>Batch billing warnings</h4>
+                    <ul class="caseList"></ul>
+                </div>
             </div>
             <div class="modal-footer  pb-1">
                 <a href="{{ route('bills/invoices/open') }}">
@@ -1012,6 +1011,10 @@ var start = 0;
                     $("#progress").modal("hide");
                     $("#batch_billing_form")[0].reset();
                     $("#createdBill").html(res.countInvoice);
+                    if(res.notSharedInvoice != '') {
+                        $(".billingWarninig").removeClass("m2");
+                        $(".caseList").html(res.notSharedInvoice);
+                    }
                     $("#batchLink").attr("href","").attr("href",res.batchLink);
                     $("#batchSaved").modal("show");
                     afterLoader();
@@ -1184,6 +1187,8 @@ var start = 0;
             var last = null;
             var unInvoiceAmount = 0;
             var removedRecord = [];
+            if(res.recordsTotal > 0){
+            $(".open-bills-list").remove();
             if(!$.trim(res.data)){
                 lazyLoadingActive = 999;
             }
@@ -1259,13 +1264,15 @@ var start = 0;
                
             });
             // afterLoader();
-            
-            if(unInvoiceAmount == 0){
+            }
+            if(res.recordsTotal > 0){
                 $(".lazy-load-data").append(resultHtml);  
                 $.each(removedRecord, function(index, item){
                     // $("#sr_"+item).remove();
                 });
             }else{
+                $(".open-bills-list").removeClass("m2");
+                $(".open-bills").addClass("m2");
                 $(".lazy-load-data").html("<tr><td colspan='10'> No Record founds.</td></tr>");    
             }
             

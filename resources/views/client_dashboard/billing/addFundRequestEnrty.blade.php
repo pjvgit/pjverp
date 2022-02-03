@@ -38,7 +38,7 @@
                         </div>
                     </div>
                     <span id="disabledArea">
-                    <div class="form-group row"><label for="amount" class="col-4 pt-2 ">Amount</label>
+                    <div class="form-group row disabledArea"><label for="amount" class="col-4 pt-2 ">Amount</label>
                         <div class="amount-holder col-8">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -48,7 +48,7 @@
                             <span id="amterror"></span>
                         </div>
                     </div>
-                    <div class="form-group row"><label for="due-date" class="col-4 pt-2">Due Date</label>
+                    <div class="form-group row disabledArea"><label for="due-date" class="col-4 pt-2">Due Date</label>
                         <div class="date-input-wrapper col-8">
                             <div class="">
                                 <div>
@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row" data-testid="user-bank-account-autocomplete">
+                    <div class="form-group row disabledArea" data-testid="user-bank-account-autocomplete">
                         <label for="bank-account" class="d-block col-4 pt-2 ">Deposit Into</label>
                         <div class="col-8">
                             <select class="form-control caller_name" id="deposit_into" name="deposit_into" style="width: 100%;" placeholder="Select user's account...">
@@ -71,7 +71,7 @@
                             <span class="deposit_into_error" ></span>
                         </div>
                     </div>
-                    <div class="form-group row" id="allocate_fund_div">
+                    <div class="form-group row disabledArea" id="allocate_fund_div">
                         <label class="d-block col-4 pt-2">Allocate Funds
                             <span id="allocate-funds-tooltip" data-toggle="tooltip" data-html="true" title="<b>Now you can earmark trust funds by case:</b> <br> - Keep each case's trust balance seperate <br> - Prevent improperly applying trust funds <br><b>Note:</b> select client name to keep trust funds on the client level (Unallocated option)"><i class="fas fa-info-circle ml-1"></i></span>
                         </label>
@@ -83,7 +83,7 @@
                         </div>
                         <input type="hidden" name="case_id" id="case_id">
                     </div>
-                    <div class="form-group row"><label for="retainer-request-email-notes-el"
+                    <div class="form-group row disabledArea"><label for="retainer-request-email-notes-el"
                             class="col-4 pt-2 d-block ">Email Message</label>
                         <div class="email-notes-wrapper col-8">
                             <textarea name="message"  id="retainer-request-email-notes-el" class="retainer-request-email-message form-control"
@@ -95,7 +95,7 @@
                               </div>
                         </div>
                     </div>
-                    <div class="row form-group"><span class="col-4 pt-2">Online Payments</span>
+                    <div class="form-group row disabledArea"><span class="col-4 pt-2">Online Payments</span>
                         @if(getFirmOnlinePaymentSetting() && getFirmOnlinePaymentSetting()->is_accept_online_payment == 'yes')
                             <span class="col-8 text-success">Enabled</span>
                         @else
@@ -244,7 +244,7 @@
                 afterLoader();
                 $("#preloader").hide();
                 $('.submit').prop("disabled", false);
-                $('#disabledArea').removeClass('retainer-request-opaque');
+                $('.disabledArea').removeClass('retainer-request-opaque');
                 $("#addEmailToClient").modal("show");
                 $("#client_id_for_email").val(contactSelectd);
                 return false;
@@ -310,7 +310,7 @@
         });
 
         $("#contact").on("select2:unselecting", function(e) {
-            $('#disabledArea').addClass('retainer-request-opaque');
+            $('.disabledArea').addClass('retainer-request-opaque');
         });
 
         $(".select2-option").select2({
@@ -342,7 +342,7 @@
         // $("#addEmailToClient").modal("show");
         // $("#client_id_for_email").val(contactSelectd);
         if(contactSelectd==''){
-            $('#disabledArea').addClass('retainer-request-opaque');
+            $('.disabledArea').addClass('retainer-request-opaque');
             $(".text-muted").hide();
             $("#preloader").hide();
             $('.submit').prop("disabled", true);
@@ -353,7 +353,7 @@
                 $("#email").val('');
                 $("#preloader").hide();
                 $('.submit').prop("disabled", false);
-                $('#disabledArea').removeClass('retainer-request-opaque');
+                $('.disabledArea').removeClass('retainer-request-opaque');
                 $("#addEmailToClient").modal("show");
                 $("#client_id_for_email").val(contactSelectd);
             }else{
@@ -376,7 +376,7 @@
                             $('#deposit_into').append('<option value="credit">Credit Account</option>'); 
                         }
                         $(".text-muted").show();
-                        $('#disabledArea').removeClass('retainer-request-opaque');
+                        $('.disabledArea').removeClass('retainer-request-opaque');
                         $('.submit').removeAttr("disabled"); 
                         if($("#deposit_into").val() != '') { 
                             $('#allocate_fund').html("");
