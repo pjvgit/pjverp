@@ -361,7 +361,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <?php } else if($v->form_field=="short_text"){
                                         ?>
                                 <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
-                                        class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Sort Text'}}
+                                        class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Short Text'}}
                                         <?php if($v->is_required=="yes"){ echo "<span class='error'>*</span>";} ?></label>
                                     <div class="">
                                         <div class="row ">

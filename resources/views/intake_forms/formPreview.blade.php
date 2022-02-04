@@ -9,11 +9,11 @@
         {{$firmData->firm_name}} - {{$intakeForm->form_name}} - {{config('app.name')}}
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/preview/bootstrap-style-preview.css')}}">
-    <link rel="stylesheet" media="screen" href="{{asset('public/assets/styles/css/preview/spacing.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
+    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/bootstrap-datepicker3.min.css')}}">
-    <script src="{{asset('public/assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <style>
         .logoView {
             width: 50px;
@@ -38,7 +38,7 @@
                 <div class="alert alert-primary preview-banner" role="alert">This preview allows you to see what clients
                     will see. No data will be collected or recorded.</div>
                 <div id="form-info">
-                    <h3 class="heading mb-3 test-firm-name"></h3>
+                    <h3 class="heading mb-3 test-firm-name">{{$firmData->firm_name}}</h3>
                     <h4 class="font-weight-bold heading mb-3 test-form-name">{{$intakeForm->form_name}}</h4>
 
                     <p class=" heading mb-3 test-form-name">{{$intakeForm->form_introduction}}</p>
@@ -303,15 +303,16 @@
                     <?php } else if($v->form_field=="short_text"){
                             ?>
                     <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
-                            class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Sort Text'}}
+                            class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Short Text'}}
                             <?php if($v->is_required=="yes"){ echo "<span class='error'>*</span>";} ?></label>
                         <div class="">
                             <div class="row ">
                                 <div class="pr-2 col-12">
-                                    <textarea id="driver license_number"
+                                    <input type="text" id="driver license_number"
                                         <?php if($v->is_required=="yes"){ echo "required";} ?> name="sort_text"
                                         placeholder="" autocomplete="off" class="form-control form-control"
-                                        value="{{($filledData->client_friendly_lable)??''}}"></textarea></div>
+                                        value="{{($filledData->client_friendly_lable)??''}}"/ >
+                                    </div>
 
                             </div>
                         </div>
@@ -444,6 +445,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        <?php if($v->form_field=="birthday"){ ?>
         $('#birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -452,6 +454,8 @@
             endDate: '+0d',
             'todayHighlight': true
         });
+        <?php } 
+        if($v->form_field=="date"){ ?>
         $('#datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -459,6 +463,7 @@
             'clearBtn': true,
             'todayHighlight': true
         });
+        <?php } ?>
     });
 </script>
 </html>

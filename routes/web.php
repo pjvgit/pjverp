@@ -716,6 +716,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('intake_form/loadFields','IntakeformController@loadFeilds')->name('intake_form/loadFields');
     Route::post('intake_form/loadFieldsSelected','IntakeformController@loadFieldsSelected')->name('intake_form/loadFieldsSelected');
     Route::post('intake_form/saveIntakeForm','IntakeformController@saveIntakeForm')->name('intake_form/saveIntakeForm');
+    Route::post('intake_form/saveTempIntakeForm','IntakeformController@saveTempIntakeForm')->name('intake_form/saveTempIntakeForm');
     Route::get('form_templates/{id}','IntakeformController@updateIntakeForm')->name('form_templates/view');
     Route::post('intake_form/saveUpdateIntakeForm','IntakeformController@saveUpdateIntakeForm')->name('intake_form/saveUpdateIntakeForm');
     Route::post('intake_form/deleteIntakeForm','IntakeformController@deleteIntakeForm')->name('intake_form/deleteIntakeForm');

@@ -496,6 +496,56 @@
             $("#pressButton").val(id);
             $('#SaveIntakeForm').submit();
         }
+        $('#preview-form-button').on('click', function(){
+            if (!$('#SaveIntakeForm').valid()) {
+                $("#innerLoader").css('display', 'none');
+                $('#submit').removeAttr("disabled");
+                return false;
+            }
+
+            var me = $(this);
+            if ( me.data('requestRunning') ) {
+                return;
+            }
+            me.data('requestRunning', true);
+            var dataString = '';
+            dataString = $("#SaveIntakeForm").serialize();
+           
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/intake_form/saveTempIntakeForm", // json datasource
+                data: dataString,
+                beforeSend: function (xhr, settings) {
+                    settings.data += '&save=yes';
+                },
+                success: function (res) {
+                    $("#innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('#showError').html('');
+                        var errotHtml ='<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('#showError').append(errotHtml);
+                        $('#showError').show();
+                        $("#innerLoader").css('display', 'none');
+                        $('#submit').removeAttr("disabled");
+                        me.data('requestRunning', true);
+                        return false;
+                    } else {
+                        var x=window.open();
+                        x.document.open();
+                        x.document.write(res.html);
+                        x.document.close();
+                    }
+                },
+                complete: function() {
+                    me.data('requestRunning', false);
+                }
+            });
+
+        });
 
         $('#SaveIntakeForm').submit(function (e) {
            

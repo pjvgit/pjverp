@@ -45,9 +45,9 @@
             <div><b> Driver license</b></div>
             <div> {{$filledData->driver_license_number}} {{$filledData->driver_license_state}}</div>
 
-        @elseif($v->form_field=="sort_text")
+        @elseif($v->form_field=="short_text")
             <div><br></div>
-            <div><b> {{($v->client_friendly_lable)??'Sort Text'}}</b></div>
+            <div><b> {{($v->client_friendly_lable)??'Short Text'}}</b></div>
             <div> {{$filledData->sort_text}} </div>
         @elseif($v->form_field=="long_text")
             <div><br></div>

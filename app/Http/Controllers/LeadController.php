@@ -5962,7 +5962,7 @@ class LeadController extends BaseController
                 $intakeFormFields=IntakeFormFields::where("intake_form_id",$intakeForm['id'])->orderBy("sort_order","ASC")->get();
                 $firmData=Firm::find($caseIntakeForm['firm_id']);
                 $country = Countries::get();
-                $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm['id'])->first();
+                $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm['id'])->where("case_intake_form_id",$caseIntakeForm->id)->first();
                 
                 return view('intake_forms.formSent',compact('intakeForm','intakeFormFields','firmData','country','alreadyFilldedData','caseIntakeForm','formId'));
             }
@@ -6164,12 +6164,18 @@ class LeadController extends BaseController
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $CaseIntakeFormFieldsData=CaseIntakeFormFieldsData::where("intake_form_id",$request->form_id)->first();
+            $CaseIntakeFormData = CaseIntakeForm::find($request->case_intake_form_id);
+            if($CaseIntakeFormData->is_filled == 'Yes'){
+                return response()->json(['errors'=>'Sorry, Something went wrong while submitting the form. please try again later. <br> If you still have issues after retrying, please contact the attorney to send a new from.']);
+                exit;
+            }
+            $CaseIntakeFormFieldsData=CaseIntakeFormFieldsData::where("intake_form_id",$request->form_id)->where("case_intake_form_id",$request->case_intake_form_id)->first();
             if(!empty($CaseIntakeFormFieldsData)){
                 $CaseIntakeFormFieldsData = CaseIntakeFormFieldsData::find($CaseIntakeFormFieldsData['id']);
             }else{
                 $CaseIntakeFormFieldsData = new CaseIntakeFormFieldsData;
             }
+            $CaseIntakeFormFieldsData->case_intake_form_id=$request->case_intake_form_id;
             $CaseIntakeFormFieldsData->intake_form_id=$request->form_id;
             $CaseIntakeFormFieldsData->form_value=json_encode($request->all());
             if(isset(Auth::user()->id)){
@@ -6180,7 +6186,7 @@ class LeadController extends BaseController
             $CaseIntakeFormFieldsData->save();
 
             if($request->current_submit=="saveform"){
-                CaseIntakeForm::where('intake_form_id',$request->form_id)->update(['is_filled'=>'yes','status'=>'2','submited_at'=>date('Y-m-d h:i:s')]);
+                CaseIntakeForm::where('id',$request->case_intake_form_id)->update(['is_filled'=>'yes','status'=>'2','submited_at'=>date('Y-m-d h:i:s')]);
                 return response()->json(['errors'=>'','process'=>'done']);
             }
             return response()->json(['errors'=>'']);

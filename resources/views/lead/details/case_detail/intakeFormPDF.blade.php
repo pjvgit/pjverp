@@ -1,7 +1,7 @@
 @extends('layouts.pdflayout')
 <?php
     $CommonController= new App\Http\Controllers\CommonController();
-    $filledData=json_decode($alreadyFilldedData['form_value']); 
+    $filledData=json_decode($alreadyFilldedData['form_value']);
 ?>
 <div class="main-content">
     <h4 class="heading mb-3 test-firm-name">{{$firmData['firm_name']}}</h4>
@@ -45,9 +45,9 @@
             <div><b> Driver license</b></div>
             <div> {{$filledData->driver_license_number}} {{$filledData->driver_license_state}}</div>
 
-        @elseif($v->form_field=="sort_text")
+        @elseif($v->form_field=="short_text")
             <div><br></div>
-            <div><b> {{($v->client_friendly_lable)??'Sort Text'}}</b></div>
+            <div><b> {{($v->client_friendly_lable)??'Short Text'}}</b></div>
             <div> {{$filledData->sort_text}} </div>
         @elseif($v->form_field=="long_text")
             <div><br></div>

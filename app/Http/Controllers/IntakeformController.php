@@ -126,15 +126,8 @@ class IntakeformController extends BaseController
         // print_r($request->all());exit;
         $typpe=$request->typpe;
         $alreadySelected=$request->alreadySelected;
-        if($request->typpe=="contact_field"){
-            return view('intake_forms.loadFields',compact('typpe','alreadySelected'));
-        }
-        if($request->typpe=="case_field"){
-            return view('intake_forms.loadFields',compact('typpe','alreadySelected'));
-        }
-        if($request->typpe=="unmapped_field"){
-            return view('intake_forms.loadFields',compact('typpe','alreadySelected'));
-        }
+        return view('intake_forms.loadFields',compact('typpe','alreadySelected'));
+        
     }
 
     public function loadFieldsSelected(Request $request)
@@ -195,6 +188,26 @@ class IntakeformController extends BaseController
                 // exit;
     
             }
+        }
+    }
+
+    public function saveTempIntakeForm(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'form_name' => 'required|max:255'
+        ]);
+        if($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            
+            $firmData=Firm::find(Auth::User()->firm_name);
+            $country = Countries::get();
+            $intakeForm=$intakeFormFields=[];
+            
+            // $html=view('intake_forms.tempFormPreview',compact('request','firmData','country'));
+            $html="Preview Temp Data";
+            return response()->json(['errors'=>'','html'=> $html]);
         }
     }
     public function saveAllFields($request,$formId)

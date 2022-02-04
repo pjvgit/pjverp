@@ -101,38 +101,30 @@
         });
     });
     $('#AddLocationForm').submit(function (e) {
-        $("#submit").attr("disabled", true);
-        $("#innerLoader").css('display', 'block');
         e.preventDefault();
-
+        $("#preloader").show();
         if (!$('#AddLocationForm').valid()) {
-            $("#innerLoader").css('display', 'none');
-            $('#submit').removeAttr("disabled");
+            $("#preloader").hide();
             return false;
         }
-
         var dataString = $("form").serialize();
         $.ajax({
             type: "POST",
             url: baseUrl + "/saveAddLocationPopup", // json datasource
             data: dataString,
             success: function (res) {
-                $("#innerLoader").css('display', 'block');
+                $("#preloader").hide();
                 if (res.errors != '') {
                     $('#showError').html('');
-                    var errotHtml =
-                        '<div class="alert alert-danger">Sorry, something went wrong. Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                    var errotHtml ='<div class="alert alert-danger">Sorry, something went wrong. Please try again.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
                     $.each(res.errors, function (key, value) {
                         errotHtml += '<li>' + value + '</li>';
                     });
                     errotHtml += '</ul></div>';
                     $('#showError').append(errotHtml);
                     $('#showError').show();
-                    $("#innerLoader").css('display', 'none');
-                    $('#submit').removeAttr("disabled");
                     return false;
                 } else {
-                    $('#submit').removeAttr("disabled");
                    $("#addLocationModal").modal("hide");
                    toastr.success('Location saved successfully.', "", {
                         progressBar: !0,
@@ -140,7 +132,14 @@
                         containerId: "toast-top-full-width"
                     });
                 }
-            }
+            },
+            error: function (jqXHR, exception) {
+                $("#preloader").hide();
+                $('.showError').html('');
+                var errotHtml ='<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+                $('.showError').append(errotHtml);
+                $('.showError').show();
+            },
         });
     });
 

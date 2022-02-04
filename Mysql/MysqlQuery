@@ -1,3 +1,7 @@
+------------------------------------ 04-FEB-2022 ------------------------------
+ALTER TABLE `case_intake_form_fields_data`
+ADD `case_intake_form_id` int(11) NOT NULL AFTER `intake_form_id`;
+
 ------------------------------------ 25-JAN-2022 ------------------------------
 ALTER TABLE `user_trust_credit_fund_online_payments`
 ADD `allocated_to_case_id` int(11) NULL AFTER `fund_type`;

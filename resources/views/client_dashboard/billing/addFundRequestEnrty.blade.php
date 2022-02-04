@@ -245,6 +245,7 @@
                 $("#preloader").hide();
                 $('.submit').prop("disabled", false);
                 $('.disabledArea').removeClass('retainer-request-opaque');
+                $(".disabledArea :input").prop("disabled", false);
                 $("#addEmailToClient").modal("show");
                 $("#client_id_for_email").val(contactSelectd);
                 return false;
@@ -311,6 +312,7 @@
 
         $("#contact").on("select2:unselecting", function(e) {
             $('.disabledArea').addClass('retainer-request-opaque');
+            $(".retainer-request-opaque :input").prop("disabled", true);
         });
 
         $(".select2-option").select2({
@@ -343,6 +345,7 @@
         // $("#client_id_for_email").val(contactSelectd);
         if(contactSelectd==''){
             $('.disabledArea').addClass('retainer-request-opaque');
+            $(".retainer-request-opaque :input").prop("disabled", true);
             $(".text-muted").hide();
             $("#preloader").hide();
             $('.submit').prop("disabled", true);
@@ -354,6 +357,7 @@
                 $("#preloader").hide();
                 $('.submit').prop("disabled", false);
                 $('.disabledArea').removeClass('retainer-request-opaque');
+                $(".disabledArea :input").prop("disabled", false);
                 $("#addEmailToClient").modal("show");
                 $("#client_id_for_email").val(contactSelectd);
             }else{
@@ -377,6 +381,7 @@
                         }
                         $(".text-muted").show();
                         $('.disabledArea').removeClass('retainer-request-opaque');
+                        $(".disabledArea :input").prop("disabled", false);
                         $('.submit').removeAttr("disabled"); 
                         if($("#deposit_into").val() != '') { 
                             $('#allocate_fund').html("");

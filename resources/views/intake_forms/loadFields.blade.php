@@ -30,16 +30,15 @@ if($typpe=="contact_field"){?>
 
 </optgroup>
 <optgroup label="Custom Fields">
-    <option value="custom_field"> + <a href="">Create a custom field</a></option>
+    <option value="custom_field" disabled> + <a href="">Create a custom field</a></option>
 </optgroup>
 <?php } ?>
 
 <?php 
 if($typpe=="case_field"){?>
 <optgroup label="Custom Fields">
-
-    <option value="">Select...</option>
-    <option value="custom_field"> + <a href="">Create a custom field</a></option>
+    <option selected disabled>Select...</option>
+    <option value="custom_field" disabled > + <a href="">Create a custom field</a></option>
 </optgroup>
 <?php } ?>
 

@@ -127,16 +127,13 @@
             $("#current_submit").val($(this).val());
         });
         $('#AddCaseIntakeForm').submit(function (e) {
-            // $(".submit").attr("disabled", true);
-            $(".innerLoader").css('display', 'block');
             e.preventDefault();
+            $("#preloader").show();
             if (!$('#AddCaseIntakeForm').valid()) {
-                $(".innerLoader").css('display', 'none');
-                $('.submit').removeAttr("disabled");
+                $("#preloader").hide();
                 return false;
             }
-            var dataString = '';
-            dataString = $("#AddCaseIntakeForm").serialize();
+            var dataString = $("#AddCaseIntakeForm").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveIntakeForm", // json datasource
@@ -144,9 +141,9 @@
                 beforeSend: function (xhr, settings) {
                     settings.data += '&save=yes';
                 },
-                success: function (res) {
-                    $(".innerLoader").css('display', 'block');
+                success: function (res) {                    
                     if (res.errors != '') {
+                        $("#preloader").hide();
                         $('.showError').html('');
                         var errotHtml =
                             '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
@@ -156,15 +153,13 @@
                         errotHtml += '</ul></div>';
                         $('.showError').append(errotHtml);
                         $('.showError').show();
-                        $(".innerLoader").css('display', 'none');
-                        $('.submit').removeAttr("disabled");
                         return false;
                     } else {
                         window.location.reload();
                     }
                 },
                 error: function (jqXHR, exception) {
-                    $(".innerLoader").css('display', 'none');
+                    $("#preloader").hide();
                     $('.showError').html('');
                     var errotHtml =
                         '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';

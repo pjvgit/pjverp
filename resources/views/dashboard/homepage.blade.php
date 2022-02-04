@@ -517,8 +517,7 @@
                                             {{date('M d, Y',strtotime($convertedEndDateTime))}},
                                             {{date('h:ia',strtotime($convertedEndDateTime))}})</small>
                                         <a class="pendo-upcoming-event-appt-link"
-                                            {{-- href="/appointments/31720461"> --}}
-                                            href="{{ route('events/detail', $v->id) }}">
+                                            href="{{ route('events/detail', $v->decode_id) }}">
                                             {{$v->event_title}}</a>
                                         <i class="ml-1 fas fa-angle-down upcoming-event-toggle-down"></i>
                                         <i class="ml-1 fas fa-angle-up upcoming-event-toggle-up d-none"></i>

@@ -8908,31 +8908,31 @@ class BillingController extends BaseController
                                         $user=User::find($vselected_user);
                                         // $enableAccess=UsersAdditionalInfo::where('user_id',$vselected_user)->update(['client_portal_enable'=>"1"]);
 
-                                        $getTemplateData = EmailTemplate::find(6);
-                                        $fullName=$user['first_name']. ' ' .$user['last_name'];
-                                        $email=$user['email'];
-                                        $token=url('user/verify', $user->token);
-                                        $mail_body = $getTemplateData->content;
-                                        $mail_body = str_replace('{name}', $fullName, $mail_body);
-                                        $mail_body = str_replace('{email}', $email,$mail_body);
-                                        $mail_body = str_replace('{token}', $token,$mail_body);
-                                        $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-                                        $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-                                        $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
-                                        $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
-                                        $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
-                                        $mail_body = str_replace('{year}', date('Y'), $mail_body);        
-                                        $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
-                                        $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
-                                        $userEmail = [
-                                            "from" => FROM_EMAIL,
-                                            "from_title" => FROM_EMAIL_TITLE,
-                                            "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
-                                            "to" => $user['email'],
-                                            "full_name" => $fullName,
-                                            "mail_body" => $mail_body
-                                            ];
-                                        $sendEmail = $this->sendMail($userEmail);
+                                        // $getTemplateData = EmailTemplate::find(6);
+                                        // $fullName=$user['first_name']. ' ' .$user['last_name'];
+                                        // $email=$user['email'];
+                                        // $token=url('user/verify', $user->token);
+                                        // $mail_body = $getTemplateData->content;
+                                        // $mail_body = str_replace('{name}', $fullName, $mail_body);
+                                        // $mail_body = str_replace('{email}', $email,$mail_body);
+                                        // $mail_body = str_replace('{token}', $token,$mail_body);
+                                        // $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                                        // $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+                                        // $mail_body = str_replace('{regards}', REGARDS, $mail_body);  
+                                        // $mail_body = str_replace('{site_title}', TITLE, $mail_body);  
+                                        // $mail_body = str_replace('{refuser}', Auth::User()->first_name, $mail_body);                          
+                                        // $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+                                        // $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);       
+                                        // $refUser = Auth::User()->first_name . " ". Auth::User()->last_name;
+                                        // $userEmail = [
+                                        //     "from" => FROM_EMAIL,
+                                        //     "from_title" => FROM_EMAIL_TITLE,
+                                        //     "subject" => $refUser." ".$getTemplateData->subject. " ". TITLE,
+                                        //     "to" => $user['email'],
+                                        //     "full_name" => $fullName,
+                                        //     "mail_body" => $mail_body
+                                        //     ];
+                                        // $sendEmail = $this->sendMail($userEmail);
 
                                     $notSharedInvoice .='<li>Bill #'.sprintf('%06d',$InvoiceSave->id).' ('.$caseClient->case_title.') was not shared with any clients, but it was marked as sent.</li>';
                                 }

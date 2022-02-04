@@ -10,12 +10,12 @@
         {{$firmData->firm_name}} - {{$intakeForm['form_name']}} - {{config('app.name')}}
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/preview/bootstrap-style-preview.css')}}">
-    <link rel="stylesheet" media="screen" href="{{asset('public/assets/styles/css/preview/spacing.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
+    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{{asset('public/assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
-    <script src="{{asset('public/assets/js/jquery.validate.min.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
     <style>
         .logoView {
             width: 50px;
@@ -63,6 +63,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                     <div class="form p-4 p-md-5 mx-auto shadow" data-testid="form-container"
                         style="background-color: {{$intakeForm['background_color']}}'; color: rgb(0, 0, 0); font-family: {{$intakeForm['form_font']}}">
                         <input id="form_id" name="form_id" class="form-control" type="hidden" value="{{$intakeForm['id']}}">
+                        <input id="case_intake_form_id" name="case_intake_form_id" class="form-control" type="hidden" value="{{$caseIntakeForm['id']}}">                        
                         <div id="form-info">
                             <h3 class="heading mb-3 test-firm-name">{{$firmData->firm_name}}</h3>
                             <h4 class="font-weight-bold heading mb-3 test-form-name">{{$intakeForm['form_name']}}</h4>
@@ -318,16 +319,16 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                             <?php } else if($v->form_field=="short_text"){
                                     ?>
                             <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
-                                    class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Sort Text'}}
+                                    class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Short Text'}}
                                     <?php if($v->is_required=="yes"){ echo "<span class='error'>*</span>";} ?></label>
                                 <div class="">
                                     <div class="row ">
                                         <div class="pr-2 col-12">
-                                            <textarea id="driver license_number"
+                                            <input type="text" id="driver license_number"
                                                 <?php if($v->is_required=="yes"){ echo "required";} ?> name="sort_text"
                                                 placeholder="" autocomplete="off" class="form-control form-control"
-                                                value="{{($filledData->sort_text)??''}}">{{($filledData->sort_text)??''}}</textarea></div>
-        
+                                                value="{{($filledData->sort_text)??''}}" />
+                                        </div>        
                                     </div>
                                 </div>
                             </div>
@@ -378,11 +379,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                     <div class="row ">
                                         <div class="pr-2 col-12">
                                             <label class="form-check-label">
-                                                <input type="radio"  <?php if($filledData->yesno=="Yes") { echo "checked=checked"; } ?> name="yesno" class="pick-option ml-2" value="yes">
+                                                <input type="radio"  <?php if( isset($filledData->yesno) && $filledData->yesno=="Yes") { echo "checked=checked"; }?> name="yesno" class="pick-option ml-2" value="yes">
                                                 <span>Yes</span>
                                             </label>
                                             <label class="form-check-label">
-                                                <input type="radio" name="yesno" <?php if($filledData->yesno=="No") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="No">
+                                                <input type="radio" name="yesno" <?php if(isset($filledData->yesno) && $filledData->yesno=="No") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="No">
                                                 <span>No</span>
                                             </label>
                                         </div>
@@ -448,10 +449,12 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                             <?php } ?>
                             <span class="showError"></span>
                             <div id="form-footer" class="border-top pt-3 mt-3 d-print-none">
-                                <button type="submit" id="submit-button" name="saveform" value="saveform" class="submit btn btn-cta-primary "
-                                    style="background-color:#{{$intakeForm['button_color']}}; color:#{{$intakeForm['button_font_color']}}; font-family: {{$intakeForm['button_font']}}; border-color:#{{$intakeForm['button_color']}};">Submit Form
+                                <button id="submit-button" name="saveform" value="saveform" class="submit btn btn-cta-primary "
+                                    style="background-color:#{{$intakeForm['button_color']}}; color:#{{$intakeForm['button_font_color']}}; font-family: {{$intakeForm['button_font']}}; border-color:#{{$intakeForm['button_color']}};">
+                                    Submit Form
                                 </button>
-                                <button type="submit" id="save-progress-button" name="saveprogress" value="saveprogress" class="submit ml-2 btn btn-secondary " style="background-color:#{{$intakeForm['button_color']}}; color:#{{$intakeForm['button_font_color']}}; font-family: {{$intakeForm['button_font']}}; border-color:#{{$intakeForm['button_color']}};">
+                                <button id="submit-button" name="saveprogress" value="saveprogress" class="submit ml-2 btn btn-secondary " 
+                                    style="background-color:#{{$intakeForm['button_color']}}; color:#{{$intakeForm['button_font_color']}}; font-family: {{$intakeForm['button_font']}}; border-color:#{{$intakeForm['button_color']}};">
                                     Save Progress
                                 </button>
                                 <div class="py-3 py-md-0 d-md-inline-block ml-md-3">
@@ -490,14 +493,8 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
 </body>
 <script type="text/javascript">
     "use strict";
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
     $(document).ready(function () {
-
+        <?php if(isset($v) && $v->form_field=="birthday"){ ?>
         $('#birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -506,6 +503,8 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             endDate: '+0d',
             'todayHighlight': true
         });
+        <?php } 
+        if(isset($v) && $v->form_field=="date"){ ?>
         $('#datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -513,6 +512,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             'clearBtn': true,
             'todayHighlight': true
         });
+        <?php } ?>
         $(document).on("click", ":submit", function(e){
             $("#current_submit").val($(this).val());
         });
@@ -533,6 +533,9 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                type: "POST",
                url: baseUrl + "/leads/collectFormData", // json datasource
                data: dataString,
+               headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                beforeSend: function (xhr, settings) {
                    settings.data += '&save=yes';
                },
