@@ -4,13 +4,13 @@
     @csrf
     <input type="hidden" name="case_id" value="{{$case_id}}">
     <div class="showError" style="display:none"></div>
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/case/view/addIntakeForm.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Intake Form:</label>
             <div class="col-sm-9">
                 <select class="form-control intake_form select2" id="intake_form" name="intake_form"
                 data-placeholder="Search form">
-                <option></option>
+                <option value=""></option>
                     <?php foreach($IntakeForm as $IntakeFormKey=>$IntakeFormVal){ ?>
                     <option value="{{$IntakeFormVal->id}}">{{substr($IntakeFormVal->form_name,0,40)}}</option>
                     <?php } ?>
@@ -23,11 +23,12 @@
             <div class="col-sm-9">
                 <select class="form-control intake_form select2" id="contact" name="contact"
                 data-placeholder="Select contact">
-                    <option>Select contact</option>
+                    <option value="">Select contact</option>
                     <?php foreach($clientList as $clientListKey=>$clientListVal){ ?>
                     <option value="{{$clientListVal->id}}" cmail="{{$clientListVal->email}}">{{substr($clientListVal->first_name,0,40)}}</option>
                     <?php } ?>
             </select>
+            <span id="afterShowError"></span>
             </div>
         </div>
 
@@ -101,6 +102,9 @@
                 intake_form:{
                     required: true,
                 }, 
+                contact:{
+                    required: true,
+                }, 
                 email_address: {
                     required: true,
                     email: true
@@ -109,6 +113,9 @@
             messages: {
                 intake_form:{
                     required: "You must select an intake form.",
+                }, 
+                contact:{
+                    required: "You must select a contact.",
                 }, 
                 email_address: {
                     required: "You must provide a valid email address.",

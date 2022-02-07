@@ -96,19 +96,9 @@
             
             <tr>
                 <td><b>Select All</b></td>
-                <td sr-count="{{count($caseLinkedStaffList) .' == '. count($caseLinkedSavedAssigned)}}">
-                    <?php 
-                    if(isset($from) && $from=="edit"){?>
-                    <input name="client_attend_all" id="client_attend_all"
-                        <?php if(count($caseLinkedStaffList)==count($caseLinkedSavedAssigned)){?> checked="checked" <?php } ?>
-                        type="checkbox">
-                    <?php }else{ ?>
-                    <input name="client_attend_all" id="client_attend_all" checked="checked" type="checkbox">
-                    <?php } ?>
-                </td>
-                <?php /*<td>
+                <td>
                     <input name="client-attend-all" id="client_attend_all" type="checkbox">
-                </td>*/ ?>
+                </td>
             </tr>
             <?php  foreach($caseLinkedStaffList as $key=>$val){?>
             <tr class="sharing-user">
@@ -168,7 +158,7 @@
         <?php if(!isset($from)){?>
         $(".task-fieldGroup").empty();
         <?php } ?>
-        
+        getCheckedUser();
         $("[data-toggle=popover]").popover({
             html: true
         });

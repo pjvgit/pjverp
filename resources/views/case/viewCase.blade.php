@@ -372,9 +372,9 @@ $adjustment_token=round(microtime(true) * 1000);
                                             class="i-Settings-Window  text-16 mr-1"></i> Intake Forms</span></a>
                             </div>
 
-                            <div class="nav-item">
+                            <div class="nav-item m2">
                                 <a class="workflow_submenu_button nav-link  pendo-case-workflow" data-page="workflows"
-                                    href="{{URL::to('court_cases/'.$CaseMaster->case_unique_number.'/workflows')}}"><span><i
+                                    href=""><span><i
                                             class="i-Network text-16 mr-1"></i>
                                         Workflows</span></a>
                             </div>
@@ -1111,7 +1111,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     if(aData.status=="2"){
                         var g='<a  data-testid="edit-button" style="color:gray;" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title=""><i class="fas fa-paper-plane align-middle"></i></span></a><a href="javascript:;"   style="color:gray;" class="btn btn-link copyButton"><span ><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
                     }else{
-                        var g='<a data-toggle="modal"  data-target="#emailIntakeFormFromCase" onclick="emailFormFunction('+aData.intake_form_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Send Email"><i class="fas fa-paper-plane align-middle"></i></span></a><a onclick="copyIntakeLink('+aData.id+')" link="'+baseUrl+'/cform/'+aData.form_unique_id+'" id="'+aData.id+'" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
+                        if(aData.intake_form_deleted != ''){
+                            var g='<a  data-testid="edit-button" style="color:gray;" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title=""><i class="fas fa-paper-plane align-middle"></i></span></a><a href="javascript:;"   style="color:gray;" class="btn btn-link copyButton"><span ><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
+                        }else{
+                            var g='<a data-toggle="modal"  data-target="#emailIntakeFormFromCase" onclick="emailFormFunction('+aData.intake_form_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Send Email"><i class="fas fa-paper-plane align-middle"></i></span></a><a onclick="copyIntakeLink('+aData.id+')" link="'+baseUrl+'/cform/'+aData.form_unique_id+'" id="'+aData.id+'" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
+                        }
                     }
 
                     $('td:eq(3)', nRow).html('<div class="d-flex align-items-center float-right">'+downloadOption+''+g+'<a data-toggle="modal"  data-target="#deleteIntakeFromFromListCase" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteIntakeFromFromListCase('+aData.intake_form_id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a></div>');

@@ -674,7 +674,7 @@ class UserController extends BaseController
         $User->is_published="yes";
         $User->save();
         $request->session()->flash('page', 'image');
-        return redirect()->route('load_profile')->with('success',SUCCESS_SAVE_PROFILE);
+        return redirect()->to('/load_profile')->with('success',SUCCESS_SAVE_PROFILE);
 
         exit;
     }

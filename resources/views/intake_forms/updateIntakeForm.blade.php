@@ -51,9 +51,9 @@
                                             </div>
                                          <?php } ?>
                                     </div>
-                                    <a target="_blank" href="{{ route('preview/{id}',[$intakeForm->form_unique_id]) }}">
+                                    <!-- <a target="_blank" href="{{ route('preview/{id}',[$intakeForm->form_unique_id]) }}"> -->
                                         <button type="button" id="preview-form-button" class="mr-2 btn btn-secondary">Preview Form</button>
-                                    </a>
+                                    <!-- </a> -->
                                     <div role="group" class="btn-group">
                                         <button type="submit" name=""  onclick="saveform('s')"  id="save-changes-button" class="btn btn-primary">
                                             Save Changes
@@ -190,9 +190,6 @@
                                                             <?php if($v->form_category=="contact_field") { echo "selected=selected"; } ?>
                                                             value="contact_field">Contact Field
                                                         </option>
-                                                        <option
-                                                            <?php if($v->form_category=="case_field") { echo "selected=selected"; } ?>
-                                                            value="case_field">Case Field</option>
                                                         <option
                                                             <?php if($v->form_category=="unmapped_field") { echo "selected=selected"; } ?>
                                                             value="unmapped_field">Unmapped Field</option>
@@ -534,7 +531,7 @@
                 $('#sortable').append('<div class="field-row p-2 border" id="row' + i +
                     '"> <div class="d-flex flex-row"> <div class="field-row-left"> <div class="p-2 grabcursor" tabindex="0"><i class="fas fa-bars"></i></div></div><div class="field-row-center flex-fill"> <div class="d-flex flex-row"> <div class="col-3"> <div class="select-category-container"> <select class="category_list form-control " onchange="changeCategory(' +
                     i + ')"  id="category_' + i + '" name="category[' + i +
-                    ']" style="width: 100%;"> <option value="">Select...</option> <option value="contact_field">Contact Field</option> <option value="case_field">Case Field</option> <option value="unmapped_field">Unmapped Field</option> </select> </div></div><div class="col"> <div class="select-field-container"> <select class="fields_list form-control country" onchange="changeFields(' +
+                    ']" style="width: 100%;"> <option value="">Select...</option> <option value="contact_field">Contact Field</option><option value="unmapped_field">Unmapped Field</option> </select> </div></div><div class="col"> <div class="select-field-container"> <select class="fields_list form-control country" onchange="changeFields(' +
                     i + ')" disabled id="field_' + i + '"  name="form_field[' + i +
                     ']" style="width: 100%;"> <option value="">Select...</option> </select> </div></div><div class="col"> <div class="label-field-container"> <div class=""> <input disabled id="user_friendly_label_' +
                     i + '" name="user_friendly_label[' + i +
@@ -670,8 +667,7 @@
               });  
 
             var selectedOption = $("#category_" + currentRow + " option:selected").val();
-            if (selectedOption == "contact_field" || selectedOption == "case_field" || selectedOption ==
-                "unmapped_field") {
+            if (selectedOption == "contact_field" || selectedOption == "unmapped_field") {
                 $.ajax({
                     type: "POST",
                     url: baseUrl + "/intake_form/loadFields",
@@ -850,5 +846,68 @@
         function removeDom(domid){
             $("#rowDom_"+domid).remove();
         }
+
+        $('#preview-form-button').on('click', function(){
+            $('.category_list').each(function() {
+                $(this).rules("add",{ required: true, messages: { required: "Please select a category."} });
+            });
+            $('.fields_list').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Please select a field."} });
+            });   
+            $('.unmappted_required').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Label cannot be blank."} });
+            });   
+                
+            $("#UpdateAndSaveIntakeForm").validate();
+
+            if (!$('#UpdateAndSaveIntakeForm').valid()) {
+                $("#innerLoader").css('display', 'none');
+                $('#submit').removeAttr("disabled");
+                return false;
+            }
+
+            var me = $(this);
+            if ( me.data('requestRunning') ) {
+                return;
+            }
+            me.data('requestRunning', true);
+            var dataString = '';
+            dataString = $("#UpdateAndSaveIntakeForm").serialize();
+           
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/intake_form/saveTempIntakeForm", // json datasource
+                data: dataString,
+                beforeSend: function (xhr, settings) {
+                    settings.data += '&save=yes';
+                },
+                success: function (res) {
+                    $("#innerLoader").css('display', 'block');
+                    if (res.errors != '') {
+                        $('#showError').html('');
+                        var errotHtml ='<div class="alert alert-danger"><strong>Whoops!</strong> There were some problems with your input.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
+                        $.each(res.errors, function (key, value) {
+                            errotHtml += '<li>' + value + '</li>';
+                        });
+                        errotHtml += '</ul></div>';
+                        $('#showError').append(errotHtml);
+                        $('#showError').show();
+                        $("#innerLoader").css('display', 'none');
+                        $('#submit').removeAttr("disabled");
+                        me.data('requestRunning', true);
+                        return false;
+                    } else {
+                        var x=window.open();
+                        x.document.open();
+                        x.document.write(res.html);
+                        x.document.close();
+                    }
+                },
+                complete: function() {
+                    me.data('requestRunning', false);
+                }
+            });
+
+        });
     </script>
     @stop

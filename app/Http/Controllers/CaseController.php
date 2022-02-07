@@ -6042,7 +6042,7 @@ class CaseController extends BaseController
     {
         $case_id=$request->case_id;
         $firmData=Firm::find(Auth::User()->firm_name);
-        $IntakeForm=IntakeForm::where("firm_name",Auth::User()->firm_name)->get();
+        $IntakeForm=IntakeForm::where("firm_name",Auth::User()->firm_name)->where("form_type","0")->get();
         $clientList= CaseClientSelection::leftJoin('users','users.id','=','case_client_selection.selected_user')->where("case_id",$case_id)->get();
 
         return view('case.view.addIntakeForm',compact('IntakeForm','firmData','clientList','case_id'));
@@ -6114,7 +6114,7 @@ class CaseController extends BaseController
     {   
         $requestData= $_REQUEST;
         $allForms = CaseIntakeForm::leftJoin('intake_form','intake_form.id','=','case_intake_form.intake_form_id');
-        $allForms = $allForms->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*");      
+        $allForms = $allForms->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*","intake_form.deleted_at as intake_form_deleted");      
         $allForms = $allForms->where("case_id",$requestData['case_id']);  
         $totalData=$allForms->count();
         $totalFiltered = $totalData; 

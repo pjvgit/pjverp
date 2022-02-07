@@ -35,14 +35,6 @@ if($typpe=="contact_field"){?>
 <?php } ?>
 
 <?php 
-if($typpe=="case_field"){?>
-<optgroup label="Custom Fields">
-    <option selected disabled>Select...</option>
-    <option value="custom_field" disabled > + <a href="">Create a custom field</a></option>
-</optgroup>
-<?php } ?>
-
-<?php 
 if($typpe=="unmapped_field"){?>
 
 <option value="">Select...</option>

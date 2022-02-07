@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
-        {{$firmData->firm_name}} - {{$intakeForm['form_name']}} - {{config('app.name')}}
+        {{$firmData->firm_name ?? ''}} - {{$intakeForm['form_name'] ?? ''}} - {{config('app.name')}}
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
@@ -37,7 +37,22 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
 ?>
 <body class="">
     <?php 
-    if(@$caseIntakeForm['status']=="2"){
+    if(empty($intakeForm)){
+        ?>
+         <div class="main-content">
+            <div id="form-preview-root" class="form-container">
+                <div id="submission-success-page" class="form p-4 p-md-5 mx-auto shadow">
+                    <h3 class="heading mb-3 test-firm-name">This form is unavailable.</h3>
+                    <p class="test-success-message">This form is not available at this time. Please contact your law firm for a new form.</p>
+                </div>
+            </div>
+                <div class="mycase-watermark text-muted text-center">
+                    <span class="mr-1">Powered by</span>
+                    <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
+                </div>
+         </div>
+        <?php
+    }else if(@$caseIntakeForm['status']=="2"){
         ?>
          <div class="main-content">
             <div id="form-preview-root" class="form-container">
@@ -542,17 +557,17 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                success: function (res) {
                    $(".innerLoader").css('display', 'block');
                    if (res.errors != '') {
+                       $(".innerLoader").css('display', 'none');
+                       $('.submit').removeAttr("disabled");
                        $('.showError').html('');
                        var errotHtml =
                            '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
                        $.each(res.errors, function (key, value) {
-                           errotHtml += '<li>' + value + '</li>';
+                           errotHtml += '<li>' + + '</li>';
                        });
                        errotHtml += '</ul></div>';
                        $('.showError').append(errotHtml);
                        $('.showError').show();
-                       $(".innerLoader").css('display', 'none');
-                       $('.submit').removeAttr("disabled");
                        return false;
                    } else {
                         window.location.reload();

@@ -101,7 +101,6 @@
                                                         <option value="">Select...</option>
                                                         <option selected="selected" value="contact_field">Contact Field
                                                         </option>
-                                                        <option value="case_field">Case Field</option>
                                                         <option value="unmapped_field">Unmapped Field</option>
                                                     </select>
                                                 </div>
@@ -285,7 +284,7 @@
             $('#addField').click(function (e) {
                 i++;
                 $('#sortable').append('<div class="field-row p-2 border" id="row' + i +
-                    '"> <div class="d-flex flex-row"> <div class="field-row-left"> <div class="p-2 grabcursor" tabindex="0"><i class="fas fa-bars"></i></div></div><div class="field-row-center flex-fill"> <div class="d-flex flex-row"> <div class="col-3"> <div class="select-category-container"> <select class="category_list form-control " onchange="changeCategory('+i+')"  id="category_'+i+'" name="category[' + i +']" style="width: 100%;"> <option value="">Select...</option> <option value="contact_field">Contact Field</option> <option value="case_field">Case Field</option> <option value="unmapped_field">Unmapped Field</option> </select> </div></div><div class="col"> <div class="select-field-container"> <select class="fields_list form-control country" onchange="changeFields(' +i + ')" disabled id="field_'+i+'"  name="form_field[' + i +']" style="width: 100%;"> <option value="">Select...</option> </select> </div></div><div class="col"> <div class="label-field-container"> <div class=""> <input disabled id="user_friendly_label_'+i+'" name="user_friendly_label['+i+']" placeholder="" type="text" id="text_'+i+'"  class="label-input form-control" value=""> </div></div><div class="required-checkbox pt-2 text-black-50"> <label class="d-inline-flex align-items-center"> <input id="-option" name="requiredCheckbox[' + i +']" type="checkbox" checked=""> <span class="ml-2 ">Required</span> </label> </div><div id="dyncamic_'+i+'"></div> </div></div><div class="collapse"></div></div><div class="field-row-right flex-shrink-0"> <button type="button" title="Toggle Options" class="collapse-button px-1 mr-2 invisible btn btn-link"> <i class="fas fa-caret-down"></i> </button> <button type="button" title="Delete Field" class="px-1 mr-1 btn btn-link btn_remove" name="remove" id="' +
+                    '"> <div class="d-flex flex-row"> <div class="field-row-left"> <div class="p-2 grabcursor" tabindex="0"><i class="fas fa-bars"></i></div></div><div class="field-row-center flex-fill"> <div class="d-flex flex-row"> <div class="col-3"> <div class="select-category-container"> <select class="category_list form-control " onchange="changeCategory('+i+')"  id="category_'+i+'" name="category[' + i +']" style="width: 100%;"> <option value="">Select...</option> <option value="contact_field">Contact Field</option><option value="unmapped_field">Unmapped Field</option> </select> </div></div><div class="col"> <div class="select-field-container"> <select class="fields_list form-control country" onchange="changeFields(' +i + ')" disabled id="field_'+i+'"  name="form_field[' + i +']" style="width: 100%;"> <option value="">Select...</option> </select> </div></div><div class="col"> <div class="label-field-container"> <div class=""> <input disabled id="user_friendly_label_'+i+'" name="user_friendly_label['+i+']" placeholder="" type="text" id="text_'+i+'"  class="label-input form-control" value=""> </div></div><div class="required-checkbox pt-2 text-black-50"> <label class="d-inline-flex align-items-center"> <input id="-option" name="requiredCheckbox[' + i +']" type="checkbox" checked=""> <span class="ml-2 ">Required</span> </label> </div><div id="dyncamic_'+i+'"></div> </div></div><div class="collapse"></div></div><div class="field-row-right flex-shrink-0"> <button type="button" title="Toggle Options" class="collapse-button px-1 mr-2 invisible btn btn-link"> <i class="fas fa-caret-down"></i> </button> <button type="button" title="Delete Field" class="px-1 mr-1 btn btn-link btn_remove" name="remove" id="' +
                     i + '"> <i class="fas fa-trash text-black-50"></i> </button> </div></div></div>'
                     );
 
@@ -396,8 +395,7 @@
               });  
 
             var selectedOption = $("#category_" + currentRow + " option:selected").val();
-            if (selectedOption == "contact_field" || selectedOption == "case_field" || selectedOption ==
-                "unmapped_field") {
+            if (selectedOption == "contact_field" || selectedOption == "unmapped_field") {
                 $.ajax({
                     type: "POST",
                     url: baseUrl + "/intake_form/loadFields",
@@ -497,6 +495,18 @@
             $('#SaveIntakeForm').submit();
         }
         $('#preview-form-button').on('click', function(){
+            $('.category_list').each(function() {
+                $(this).rules("add",{ required: true, messages: { required: "Please select a category."} });
+            });
+            $('.fields_list').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Please select a field."} });
+            });   
+            $('.unmappted_required').each(function() {
+                $(this).rules("add",{required: true,messages: { required: "Label cannot be blank."} });
+            });   
+                
+            $("#SaveIntakeForm").validate();
+
             if (!$('#SaveIntakeForm').valid()) {
                 $("#innerLoader").css('display', 'none');
                 $('#submit').removeAttr("disabled");

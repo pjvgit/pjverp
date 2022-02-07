@@ -45,6 +45,385 @@
                 </div>
                 <hr class="mt-4">
                 <div id="form-body">
+                    <?php 
+                    foreach($request->category as $k=>$v){
+                        if(!isset($request['form_field'][$k])){?>
+                        <div class="test-header">
+                            <hr class="mt-4">
+                            <h3>{{$request['category'][$k]}}</h3>
+                        </div>
+                        <?php } 
+                        if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "name"){?>
+                        <div class="form-fields">
+                        <div id="field-row-name" class="form-field-container mb-3 name-test">
+                            <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Name'}}
+                                <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?> </label>
+                            <div class="">
+                                <div class="">
+                                    <div class="row no-gutters">
+                                        <div class="col-5 pr-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group">
+                                                        <input id="first_name" name="first_name" class="form-control "
+                                                            type="text" placeholder="First Name"
+                                                            data-testid="first_name" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group"><input id="middle_initial"
+                                                            name="middle_initial" class="form-control " type="text"
+                                                            placeholder="Middle Name" data-testid="middle_initial"
+                                                            value=""></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-5 pl-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group"><input id="last_name" name="last_name"
+                                                            class="form-control " type="text" placeholder="Last Name"
+                                                            data-testid="last_name" value=""></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "email"){?>
+                    <div class="form-fields">
+                        <div id="field-row-name" class="form-field-container mb-3 name-test">
+                            <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Email'}}
+                                <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                            <div class="">
+                                <div class="">
+                                    <div class="row no-gutters">
+                                        <div class="col-12 pr-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group">
+                                                        <input id="first_name" name="first_name" class="form-control "
+                                                            type="text" placeholder="" data-testid="first_name"
+                                                            value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "home_phone"){?>
+                    <div class="form-fields">
+                        <div id="field-row-name" class="form-field-container mb-3 name-test">
+                            <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Home phone'}}
+                                <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                            <div class="">
+                                <div class="">
+                                    <div class="row no-gutters">
+                                        <div class="col-12 pr-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group">
+                                                        <input id="first_name" name="first_name" class="form-control "
+                                                            type="text" placeholder="" data-testid="first_name"
+                                                            value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "cell_phone"){?>
+                    <div class="form-fields">
+                        <div id="field-row-name" class="form-field-container mb-3 name-test">
+                            <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Cell phone'}}
+                                <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                            <div class="">
+                                <div class="">
+                                    <div class="row no-gutters">
+                                        <div class="col-12 pr-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group">
+                                                        <input id="first_name" name="first_name" class="form-control "
+                                                            type="text" placeholder="" data-testid="first_name"
+                                                            value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "work_phone"){?>
+                    <div class="form-fields">
+                        <div id="field-row-name" class="form-field-container mb-3 name-test">
+                            <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Work phone'}}
+                                <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                            <div class="">
+                                <div class="">
+                                    <div class="row no-gutters">
+                                        <div class="col-12 pr-2">
+                                            <div>
+                                                <div class="">
+                                                    <div class="input-group">
+                                                        <input id="first_name" name="first_name" class="form-control "
+                                                            type="text" placeholder="" data-testid="first_name"
+                                                            value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "address"){
+                            ?>
+                    <div id="field-row-address" class="form-field-container mb-3 address-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Address'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="" id="address">
+                                <div class="row form-group"><label for="address_address1"
+                                        class="sr-only sr-only-focusable col-sm-12 col-form-label">Address</label>
+                                    <div class="col-12"><input id="address_address1" name="address1"
+                                            placeholder="Address" type="text" class="form-control" value=""></div>
+                                </div>
+                                <div class="row form-group"><label for="address_address2"
+                                        class="sr-only sr-only-focusable col-sm-12 col-form-label">Address 2</label>
+                                    <div class="col-12"><input id="address_address2" name="address2"
+                                            placeholder="Address 2" type="text" class="form-control" value=""></div>
+                                </div>
+                                <div class="no-gutters row ">
+                                    <div class="pr-sm-3 col-12 col-sm-6">
+                                        <div class="row form-group"><label for="address_city"
+                                                class="sr-only sr-only-focusable col-sm-12 col-form-label">City</label>
+                                            <div class="col-12"><input id="address_city" name="city" placeholder="City"
+                                                    type="text" class="form-control" value=""></div>
+                                        </div>
+                                    </div>
+                                    <div class="pr-3 col-4 col-sm-3 col-md-2">
+                                        <div class="row form-group"><label for="address_state"
+                                                class="sr-only sr-only-focusable col-sm-12 col-form-label">State</label>
+                                            <div class="col-12"><input id="address_postal" name="postal"
+                                                    placeholder="State" type="text" class="form-control" value=""></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-8 col-sm-3 col-md-4">
+                                        <div class="row form-group"><label for="address_postal"
+                                                class="sr-only sr-only-focusable col-sm-12 col-form-label">Zip</label>
+                                            <div class="col-12"><input id="address_postal" name="postal"
+                                                    placeholder="Zip" type="text" class="form-control" value=""></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-0 row form-group"><label for="address_countryCode"
+                                        class="sr-only sr-only-focusable col-sm-12 col-form-label">Country</label>
+                                    <div class="col-12">
+                                        <select class="form-control country" id="country" name="country"
+                                            data-placeholder="Select Country" style="width: 100%;">
+                                            <option value="">Select Country</option>
+                                            <?php foreach($country as $key=>$val){?>
+                                            <option value="{{$val->id}}"> {{$val->name}}</option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "birthday"){
+                        ?>
+                    <div id="field-row-birthday" class="form-field-container mb-3 birthday-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Birthday'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="p-0 ">
+                                <div class="">
+                                    <div>
+                                        <div class="dropdown">
+                                            <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
+                                                <div class="test-form-date-field input-group">
+                                                    <input id="birthday" class="form-control" type="text" value="">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "driver_license"){
+                        ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Driver license'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-6"><input id="driver license_number" name="driver license_number"
+                                        placeholder="Driver License" autocomplete="off" type="text"
+                                        class="form-control form-control" value=""></div>
+                                <div class="p-0 col-2">
+                                    <input id="driver license_number" name="driver license_number" placeholder="State"
+                                        autocomplete="off" type="text" class="form-control form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "long_text"){
+                        ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Long Text'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <textarea id="driver license_number"
+                                        <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "required";} ?> name="long_text"
+                                        placeholder="" autocomplete="off" class="form-control form-control"
+                                        value="{{($filledData->user_friendly_label)??''}}"></textarea></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "short_text"){
+                            ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Short Text'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <input type="text" id="driver license_number"
+                                        <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "required";} ?> name="sort_text"
+                                        placeholder="" autocomplete="off" class="form-control form-control"
+                                        value="{{($filledData->user_friendly_label)??''}}"/ >
+                                    </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "multiple_choice"){
+                            ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test">
+                        <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Multiple Choice'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <select name="multiple_choice_{{$request['id'][$k]}}" class="form-control form-control"
+                                        <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "required";} ?>>
+                                        <?php  $options=json_decode($request['extra_value'][$k]);
+                                            foreach($options as $kkey=>$kVal){ ?>
+                                        <option value="{{$kVal}}">{{$kVal}}</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "checkboxes"){
+                            ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test">
+                        <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Checkboxes'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <?php  $options=json_decode($request['extra_value'][$k]);
+                                            foreach($options as $kkey=>$kVal){ ?>
+                                    <label class="form-check-label">
+                                        <input type="checkbox" class="pick-option ml-2" value="{{$kVal}}">
+                                        <span>{{$kVal}}</span>
+                                    </label>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "yesno"){
+                                ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test">
+                        <label class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Yes/No'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <label class="form-check-label">
+                                        <input type="radio" name="yesno" class="pick-option ml-2" value="on">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="form-check-label">
+                                        <input type="radio" name="yesno" class="pick-option ml-2" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "number"){
+                            ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Number'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <input id="driver license_number" name="number" placeholder="Number"
+                                        autocomplete="off" type="number" class="form-control form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "currency"){
+                            ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Currency'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <input id="driver license_number" name="currency" placeholder="Currency"
+                                        autocomplete="off" type="text" class="form-control form-control" value=""></div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <?php } else if(isset($request['form_field'][$k]) && $request['form_field'][$k] == "date"){
+                                ?>
+                    <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
+                            class="field-label font-weight-bold">{{($request['user_friendly_label'][$k])??'Date'}}
+                            <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "<span class='error'>*</span>";} ?></label>
+                        <div class="">
+                            <div class="row ">
+                                <div class="pr-2 col-12">
+                                    <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
+                                        class="form-control form-control" value=""></div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php }
+                    } ?>
                     <div id="form-footer" class="border-top pt-3 mt-3 d-print-none">
                         <button type="button" id="submit-button" disabled="" class="btn btn-cta-primary disabled"
                             style="background-color:#{{$request->button_color}}; color:#{{$request->button_font_color}}; font-family: {{$request->button_font}}; border-color:#{{$request->button_color}};">Submit
@@ -65,27 +444,5 @@
     </div>
 </body>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        <?php if($v->form_field=="birthday"){ ?>
-        $('#birthday').datepicker({
-            'format': 'm/d/yyyy',
-            'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true,
-            endDate: '+0d',
-            'todayHighlight': true
-        });
-        <?php } 
-        if($v->form_field=="date"){ ?>
-        $('#datepicker').datepicker({
-            'format': 'm/d/yyyy',
-            'autoclose': true,
-            'todayBtn': "linked",
-            'clearBtn': true,
-            'todayHighlight': true
-        });
-        <?php } ?>
-    });
-</script>
+
 </html>

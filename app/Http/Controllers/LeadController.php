@@ -5910,7 +5910,7 @@ class LeadController extends BaseController
         {   
             $requestData= $_REQUEST;
             $allForms = CaseIntakeForm::leftJoin('intake_form','intake_form.id','=','case_intake_form.intake_form_id');
-            $allForms = $allForms->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*");      
+            $allForms = $allForms->select("intake_form.id as intake_form_id","case_intake_form.created_at as case_intake_form_created_at","intake_form.*","case_intake_form.*","intake_form.deleted_at as intake_form_deleted");
             $allForms = $allForms->where("lead_id",$requestData['id']);  
             $totalData=$allForms->count();
             $totalFiltered = $totalData; 
@@ -5959,11 +5959,13 @@ class LeadController extends BaseController
                 return view('pages.404');
             }else{
                 $intakeForm=IntakeForm::where("id",$caseIntakeForm['intake_form_id'])->first();
-                $intakeFormFields=IntakeFormFields::where("intake_form_id",$intakeForm['id'])->orderBy("sort_order","ASC")->get();
-                $firmData=Firm::find($caseIntakeForm['firm_id']);
-                $country = Countries::get();
-                $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm['id'])->where("case_intake_form_id",$caseIntakeForm->id)->first();
-                
+                $intakeFormFields = $firmData = $country = $alreadyFilldedData = [];
+                if(!empty($intakeForm) > 0){
+                    $intakeFormFields=IntakeFormFields::where("intake_form_id",$intakeForm['id'])->orderBy("sort_order","ASC")->get();
+                    $firmData=Firm::find($caseIntakeForm['firm_id']);
+                    $country = Countries::get();
+                    $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm['id'])->where("case_intake_form_id",$caseIntakeForm->id)->first();
+                }
                 return view('intake_forms.formSent',compact('intakeForm','intakeFormFields','firmData','country','alreadyFilldedData','caseIntakeForm','formId'));
             }
                 
@@ -6048,7 +6050,7 @@ class LeadController extends BaseController
         $lead_id=$request->id;
         $firmData=Firm::find(Auth::User()->firm_name);
         $leadInfo=User::select('email')->Where('id',$lead_id)->first();
-        $IntakeForm=IntakeForm::where("firm_name",Auth::User()->firm_name)->get();
+        $IntakeForm=IntakeForm::where("firm_name",Auth::User()->firm_name)->where("form_type","0")->get();
         return view('lead.details.case_detail.addIntakeForm',compact('IntakeForm','firmData','lead_id','leadInfo'));
 
     }
@@ -6165,8 +6167,8 @@ class LeadController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $CaseIntakeFormData = CaseIntakeForm::find($request->case_intake_form_id);
-            if($CaseIntakeFormData->is_filled == 'Yes'){
-                return response()->json(['errors'=>'Sorry, Something went wrong while submitting the form. please try again later. <br> If you still have issues after retrying, please contact the attorney to send a new from.']);
+            if($CaseIntakeFormData->is_filled == 'yes'){
+                return response()->json(['errors'=>['Sorry, something went wrong while submitting the form. please try again later. <br> If you still have issues after retrying, please contact the attorney to send a new from.']]);
                 exit;
             }
             $CaseIntakeFormFieldsData=CaseIntakeFormFieldsData::where("intake_form_id",$request->form_id)->where("case_intake_form_id",$request->case_intake_form_id)->first();
@@ -6180,6 +6182,7 @@ class LeadController extends BaseController
             $CaseIntakeFormFieldsData->form_value=json_encode($request->all());
             if(isset(Auth::user()->id)){
                 $CaseIntakeFormFieldsData->created_by=Auth::user()->id; 
+                $CaseIntakeFormFieldsData->firm_id=Auth::user()->firm_name; 
             }
 
             $CaseIntakeFormFieldsData->case_intake_form_token=$request->case_intake_form_token;
@@ -6187,6 +6190,49 @@ class LeadController extends BaseController
 
             if($request->current_submit=="saveform"){
                 CaseIntakeForm::where('id',$request->case_intake_form_id)->update(['is_filled'=>'yes','status'=>'2','submited_at'=>date('Y-m-d h:i:s')]);
+                // send mail to creator
+                //Send email to lawyer
+                $getTemplateData = EmailTemplate::find(43);
+                $firmData=Firm::find($CaseIntakeFormData->firm_id);
+                $firmOWnertData=User::find($CaseIntakeFormData->created_by);
+                $cases = CaseMaster::find($CaseIntakeFormData->case_id);
+                $IntakeForm=IntakeForm::find($CaseIntakeFormData->intake_form_id);
+                $clientData=User::find($CaseIntakeFormData->client_id);
+                $leadData=User::find($CaseIntakeFormData->lead_id);
+                
+                $client = ($clientData) ? $clientData['first_name'].' '.$clientData['last_name'] : '';
+                
+                $email= $firmOWnertData['email'];
+                $receiver=$firmOWnertData['first_name'].' '.$firmOWnertData['last_name'];
+                $token=route('info', $cases->case_unique_number);
+                $case_title = $cases->case_title ?? '';
+                $intake_form_name = $IntakeForm->form_name ?? '';
+                $mail_body = $getTemplateData->content;
+                $mail_body = str_replace('{email}', $email,$mail_body);
+                $mail_body = str_replace('{receiver}', $receiver,$mail_body);
+                $mail_body = str_replace('{client}', $client,$mail_body);
+                $mail_body = str_replace('{intake_form_name}', $intake_form_name,$mail_body);
+                $mail_body = str_replace('{case_name}', $case_title,$mail_body);
+                $mail_body = str_replace('{url}', $token,$mail_body);
+                $mail_body = str_replace('{firmname}', $firmData->firm_name,$mail_body);
+                $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+                $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
+                $mail_body = str_replace('{regards}', REGARDS, $mail_body);
+                $mail_body = str_replace('{year}', date('Y'), $mail_body);        
+
+                $user = [
+                    "from" => FROM_EMAIL,
+                    "from_title" => FROM_EMAIL_TITLE,
+                    "subject" => $getTemplateData->subject,
+                    // "to" => $firmOWnertData['email'],
+                    "to" => 'jignesh.prajapati@plutustec.com',
+                    "full_name" => $receiver,
+                    "mail_body" => $mail_body
+                ];
+                if($email!=""){
+                    $sendEmail = $this->sendMail($user);
+                }
+                // send mail to creator
                 return response()->json(['errors'=>'','process'=>'done']);
             }
             return response()->json(['errors'=>'']);
@@ -6561,12 +6607,11 @@ class LeadController extends BaseController
     {
         $id=$request->id;
         $caseIntakeForm=CaseIntakeForm::where("id",$id)->first();
-        $intakeForm=IntakeForm::where("id",$caseIntakeForm['intake_form_id'])->first();
-        $intakeFormFields=IntakeFormFields::where("intake_form_id",$caseIntakeForm['intake_form_id'])->orderBy("sort_order","ASC")->get();
+        $intakeForm=IntakeForm::where("id",$caseIntakeForm['intake_form_id'])->withTrashed()->first();
+        $intakeFormFields=IntakeFormFields::where("intake_form_id",$caseIntakeForm['intake_form_id'])->orderBy("sort_order","ASC")->withTrashed()->get();
         $firmData=Firm::find(Auth::User()->firm_name);
         $country = Countries::get();
         $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm->id)->first();
-
         $search=array(' ',':');
         $filename=str_replace($search,"_",$intakeForm['form_name'])."_".time().'.pdf';
         $PDFData=view('lead.details.case_detail.intakeFormPDF',compact('intakeForm','country','firmData','alreadyFilldedData','intakeFormFields'));

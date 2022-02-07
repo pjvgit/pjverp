@@ -219,6 +219,7 @@ console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by)
                 } else {
                     if (data.smartTimer.is_pause == 0) {
                         $(".js-timer-root .text-nowrap").html('');
+                        localStorage.setItem("pauseCounter", 'yes');
                         intervalId = setInterval(timerstart, 1000);
                     } else {
                         $(".js-timer-root .text-nowrap").html("&nbsp;<i class='fas fa-circle' style='color: red !important;'></i>&nbsp;");
@@ -247,7 +248,7 @@ $(".startTimer").on('click', function() {
             success: function(data) {
                 if (data.status == "success") {
                     $(".logoutTimerAlert").show();
-                    localStorage.setItem("pauseCounter", 'no');
+                    localStorage.setItem("pauseCounter", 'yes');
                     localStorage.setItem("smart_timer_id", data.smart_timer_id);
                     localStorage.setItem("smart_timer_created_by", data.smart_timer_created_by);
                     $("#smart_timer_id").val(data.smart_timer_id);
@@ -266,7 +267,7 @@ $(document).on("click", "#startCounter", function() {
     resumeTimer();
     $(".logoutTimerAlert").show();
     if (!intervalId) {
-        localStorage.setItem("pauseCounter", 'no');
+        localStorage.setItem("pauseCounter", 'yes');
         intervalId = setInterval(timerstart, 1000);
     }
     $(".timerAction").removeClass("fa-play").addClass("fa-pause");
@@ -278,7 +279,7 @@ $(document).on("click", "#pauseCounter", function() {
     $(".logoutTimerAlert").hide();
     if (intervalId) {
         clearInterval(intervalId);
-        localStorage.setItem("pauseCounter", 'yes');
+        localStorage.setItem("pauseCounter", 'no');
         intervalId = null;
     }
     $(".timerAction").removeClass("fa-pause").addClass("fa-play");
@@ -436,7 +437,7 @@ function browserClose() {
 
 function removeLocalStorage() {
     localStorage.setItem("counter", "0");
-    localStorage.removeItem("pauseCounter");
+    localStorage.setItem("pauseCounter", 'no');
     localStorage.removeItem("smart_timer_id");
     localStorage.removeItem("timer_case_id");
     localStorage.removeItem("smart_timer_created_by");

@@ -26,8 +26,8 @@
                      
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link " href="https://mylegal1.mycase.com/workflows">Workflows</a>
+                    <li class="nav-item m2">
+                        <a class="nav-link " href="#">Workflows</a>
                     </li>
 
                     <li class="nav-item  ">

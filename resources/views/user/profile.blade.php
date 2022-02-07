@@ -295,7 +295,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                         @csrf
                                         <div class="col-md-12 form-group mb-3">To finish uploading your profile picture, please crop your image.</div>
                                         <div class="col-md-10 form-group mb-3">
-                                            <img class="border border-dark cropper" src="{{URL::asset('/public/images/users/')}}/{{$user->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false">
+                                            <img class="border border-dark cropper" src="{{URL::asset('/images/users/')}}/{{$user->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false">
                                         </div>
                                         <input type="hidden" name="imageCode" id="imageCode">
 
@@ -352,7 +352,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 <div class="col-md-12 form-group mb-3 float-right">
                                                     
                                                     @if(file_exists(public_path().'/images/users/'.$user->profile_image) && $user->profile_image!='')
-                                                    <img class="border border-dark" src="{{URL::asset('/public/images/users/')}}/{{$user->profile_image}}"
+                                                    <img class="border border-dark" src="{{URL::asset('/images/users/')}}/{{$user->profile_image}}"
                                                         id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true"
                                                         aria-expanded="false">
                                                         <a class="btn btn-outline-danger  btn-rounded   m-1" onclick="removeImage();">

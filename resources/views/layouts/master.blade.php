@@ -301,10 +301,11 @@
             $("#timeoutPopup").modal("hide");
         }
        
+        var dont_logout_while_timer_runnig = "{{Auth::User()->dont_logout_while_timer_runnig}}";
+        console.log("auto_logout > dont_logout_while_timer_runnig > " + dont_logout_while_timer_runnig);
         <?php if(Auth::User()->auto_logout=="on"){?>
-        if ((localStorage.getItem("smart_timer_id") > 0 && localStorage.getItem("pauseCounter") != 'no') || (localStorage.getItem("pauseCounter") == null)){
+        if (localStorage.getItem("pauseCounter") == "no"){
             console.log("auto_logout > on ");
-        <?php //if(Auth::User()->dont_logout_while_timer_runnig == "off"){?>
         $(document).ready(function () {
             setTimeout(function(){
                 IdleWarning();

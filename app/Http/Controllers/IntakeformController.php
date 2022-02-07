@@ -205,8 +205,8 @@ class IntakeformController extends BaseController
             $country = Countries::get();
             $intakeForm=$intakeFormFields=[];
             
-            // $html=view('intake_forms.tempFormPreview',compact('request','firmData','country'));
-            $html="Preview Temp Data";
+            $html=view('intake_forms.tempFormPreview',compact('request','firmData','country'))->render();
+            // $html="Preview Temp Data";
             return response()->json(['errors'=>'','html'=> $html]);
         }
     }
@@ -216,7 +216,7 @@ class IntakeformController extends BaseController
         foreach($request->category as $i=>$v){
             $IntakeFormFields=new IntakeFormFields;
             $IntakeFormFields->intake_form_id=$formId; 
-            if(in_array($request->category[$i],['contact_field','case_field'])){
+            if(in_array($request->category[$i],['contact_field'])){
                 $IntakeFormFields->form_category=$request->category[$i];
                 $IntakeFormFields->form_field=$request->form_field[$i];
                 $IntakeFormFields->client_friendly_lable=$request->user_friendly_label[$i];
@@ -325,7 +325,7 @@ class IntakeformController extends BaseController
         foreach($request->category as $i=>$v){
             $IntakeFormFields=new IntakeFormFields;
             $IntakeFormFields->intake_form_id=$formId; 
-            if(in_array($request->category[$i],['contact_field','case_field'])){
+            if(in_array($request->category[$i],['contact_field'])){
                 $IntakeFormFields->form_category=$request->category[$i];
                 $IntakeFormFields->form_field=$request->form_field[$i];
                 $IntakeFormFields->client_friendly_lable=$request->user_friendly_label[$i];

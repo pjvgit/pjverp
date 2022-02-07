@@ -6,7 +6,7 @@
     <input type="hidden" id="text_contact_id" value="" name="text_contact_id">
     <input type="hidden" id="text_lead_id" value="" name="text_lead_id">
     <input type="hidden" id="form_id" value="{{$intakeForm['id']}}" name="form_id">
-    <div class="col-md-12">
+    <div class="col-md-12" bladefile="resources/views/intake_forms/emailIntakeForm.blade.php">
         <div class="form-group row">
             <label for="inputEmail3" class="col-sm-3 col-form-label">Intake Form:</label>
             <div class="col-sm-9">
@@ -20,14 +20,16 @@
                 data-placeholder="Search for an existing contact or lead">
                 <option value="">Select Contact/Lead..</option>
                 <optgroup label="Contacts">
-                    <?php foreach($CaseMasterClient as $casekey=>$Caseval){ ?>
-                        <option uType="contact" value="{{$Caseval->id}}">{{substr($Caseval->first_name,0,40)}} {{substr($Caseval->last_name,0,40)}}</option>
-                    <?php } ?>
+                    @forelse (userClientList() as $key => $item)
+                    <option uType="contact" value="{{ $item->id }}" >{{ $item->name }}</option>
+                    @empty
+                    @endforelse
                 </optgroup>
                 <optgroup label="Leads">
-                    <?php foreach($caseLeadList as $caseLeadListKey=>$caseLeadListVal){ ?>
-                    <option uType="lead" value="{{$caseLeadListVal->id}}">{{substr($caseLeadListVal->first_name,0,40)}} {{substr($caseLeadListVal->last_name,0,40)}}</option>
-                    <?php } ?>
+                    @forelse (userLeadList() as $key => $item)
+                    <option uType="lead" value="{{ $key }}" >{{ $item }}</option>
+                    @empty
+                    @endforelse
                 </optgroup>
             </select>
             </div>
