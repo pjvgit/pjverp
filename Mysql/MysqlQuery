@@ -1,3 +1,9 @@
+------------------------------------ 07-FEB-2022 ------------------------------
+ALTER TABLE `invoice_history`
+ADD `is_invoice_cancelled` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `refund_ref_id`;
+
+ALTER TABLE `invoice_payment`
+ADD `is_invoice_cancelled` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `entry_type`;
 ------------------------------------ 04-FEB-2022 ------------------------------
 ALTER TABLE `case_intake_form_fields_data`
 ADD `case_intake_form_id` int(11) NOT NULL AFTER `intake_form_id`;
