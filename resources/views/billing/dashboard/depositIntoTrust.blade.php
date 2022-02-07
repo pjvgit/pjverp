@@ -107,7 +107,7 @@ function getClientCases(clientId) {
             $("#allocate_fund").empty().trigger("change");
             $("#allocate_fund").append("<option></option>");
             if(data.result.length > 0) {
-                var optgroup = "<optgroup label='Allocate to case'>";
+                var optgroup = "<optgroup label='Allocated to case'>";
                 $.each(data.result, function(ind, item) {
                     optgroup += "<option value='" + item.id + "'>" + item.case_title +"(Balance $"+item.allocated_trust_balance+")" + "</option>";
                 });

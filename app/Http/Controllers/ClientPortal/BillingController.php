@@ -921,7 +921,7 @@ class BillingController extends Controller
                     Log::info("conekta order paid called");
                     $this->orderPaidConfirm($data);
                     break;
-                case 'Order expired':
+                case 'order.expired':
                     Log::info("conekta order expired called");
                     $this->conektaReferenceExpired($data);
                     break;

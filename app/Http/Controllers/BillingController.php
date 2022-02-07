@@ -2021,6 +2021,35 @@ class BillingController extends BaseController
                     $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
                 }
 
+                /* $invoiceHistories = InvoiceHistory::where("invoice_id", $Invoices->id)->get();
+                $userAddInfo = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
+                $authUser = auth()->user();
+                if($invoiceHistories) {
+                    foreach($invoiceHistories as $key => $item) {
+                        if($item->payment_from == "trust") {
+
+                        } else if($item->payment_from == "credit") {
+                            TrustHistory::create([
+                                "client_id" => $request->client_id,
+                                "payment_method" => 'invoice cancelled deposit',
+                                "amount_paid" => $item->amount,
+                                "current_trust_balance" => $userAddInfo->trust_account_balance,
+                                "payment_date" => date('Y-m-d'),
+                                "fund_type" => 'payment deposit',
+                                "allocated_to_case_id" => ($Invoices->case_id > 0) ? $Invoices->case_id : Null,
+                                "created_by" => $authUser->id,
+                            ]);
+
+                            InvoicePayment::where("id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
+                            $item->fill(["is_invoice_cancelled" => "yes"])->save();
+                        } else if($item->payment_from == "offline") {
+
+                        } else {
+
+                        }
+                    }
+                } */
+
                 // Update forwarded invoices
                 $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
                 if($forwardedInvoices) {
