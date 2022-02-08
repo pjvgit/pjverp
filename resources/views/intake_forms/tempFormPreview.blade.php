@@ -24,8 +24,11 @@
         }
 
         .form-field-container {
-            color: {{$request->form_font_color}};
+            color: {{$request->form_font_color_code}};
+            font-family: {{$request->form_font_style}};
         }
+
+        
 
     </style>
 </head>
@@ -33,8 +36,8 @@
 <body class="">
     <div class="main-content">
         <div id="form-preview-root" class="form-container">
-            <div class="form p-4 p-md-5 mx-auto shadow" data-testid="form-container"
-                style="background-color: {{$request->background_color}}; color: rgb(0, 0, 0); font-family: {{$request->form_font}}">
+            <div class="form p-4 p-md-5 mx-auto shadow form-field-container" data-testid="form-container"
+                style="background-color: {{$request->background_color_code}}; color: rgb(0, 0, 0); font-family: {{$request->form_font}}">
                 <div class="alert alert-primary preview-banner" role="alert">This preview allows you to see what clients
                     will see. No data will be collected or recorded.</div>
                 <div id="form-info">
@@ -331,9 +334,9 @@
                         <div class="">
                             <div class="row ">
                                 <div class="pr-2 col-12">
-                                    <select name="multiple_choice_{{$request['id'][$k]}}" class="form-control form-control"
+                                    <select name="multiple_choice_{{$request['form_field'][$k]}}" class="form-control form-control"
                                         <?php if(isset($request['requiredCheckbox'][$k]) && $request['requiredCheckbox'][$k]=="on"){ echo "required";} ?>>
-                                        <?php  $options=json_decode($request['extra_value'][$k]);
+                                        <?php  $options=$request['currentRow'][$k];
                                             foreach($options as $kkey=>$kVal){ ?>
                                         <option value="{{$kVal}}">{{$kVal}}</option>
                                         <?php } ?>
@@ -350,7 +353,7 @@
                         <div class="">
                             <div class="row ">
                                 <div class="pr-2 col-12">
-                                    <?php  $options=json_decode($request['extra_value'][$k]);
+                                    <?php  $options=$request['currentRow'][$k];
                                             foreach($options as $kkey=>$kVal){ ?>
                                     <label class="form-check-label">
                                         <input type="checkbox" class="pick-option ml-2" value="{{$kVal}}">
@@ -404,7 +407,7 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="driver license_number" name="currency" placeholder="Currency"
-                                        autocomplete="off" type="text" class="form-control form-control" value=""></div>
+                                        autocomplete="off" type="number" min="0" class="form-control form-control" value=""></div>
                             </div>
                         </div>
                     </div>
@@ -425,12 +428,12 @@
                     <?php }
                     } ?>
                     <div id="form-footer" class="border-top pt-3 mt-3 d-print-none">
-                        <button type="button" id="submit-button" disabled="" class="btn btn-cta-primary disabled"
-                            style="background-color:#{{$request->button_color}}; color:#{{$request->button_font_color}}; font-family: {{$request->button_font}}; border-color:#{{$request->button_color}};">Submit
+                        <button type="button" id="submit-button" class="btn btn-cta-primary"
+                            style="background-color:#{{$request->button_color_code}}; color:#{{$request->button_font_color_code}}; font-family: {{$request->form_button_font_style}}; border-color:#{{$request->button_color_code}};">Submit
                             Form</button>
-                        <button type="button" id="save-progress-button" disabled=""
-                            class="ml-2 btn btn-secondary disabled"
-                            style="background-color:#{{$request->button_color}}; color:#{{$request->button_font_color}}; font-family: {{$request->button_font}}; border-color:#{{$request->button_color}};">Save
+                        <button type="button" id="save-progress-button"
+                            class="ml-2 btn btn-secondary"
+                            style="background-color:#{{$request->button_color_code}}; color:#{{$request->button_font_color_code}}; font-family: {{$request->form_button_font_style}}; border-color:#{{$request->button_color_code}};">Save
                             Progress</button>
                         <div class="py-3 py-md-0 d-md-inline-block ml-md-3"></div>
                     </div>
@@ -442,7 +445,16 @@
             <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
         </div>
     </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#datepicker').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
+            'todayHighlight': true
+        });
+    });
+</script>
 </body>
-
-
 </html>

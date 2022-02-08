@@ -18,14 +18,13 @@
             <div class="dropdown">
                 <div class="user col align-self-end">
                   
-                    <?php
+                    <?php if(isset(auth()->user()->first_name)){
                         echo substr(auth()->user()->first_name,0,15);
                         echo "&nbsp;";
                         echo substr(auth()->user()->last_name,0,15);
-                    ?>
+                    }?>
                     @if(file_exists( public_path().'/images/users/'.auth()->user()->profile_image ) && auth()->user()->profile_image!='' && auth()->user()->is_published=="yes")
-                    <img src="{{URL::asset('/public/images/users/')}}/{{auth()->user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
+                    <img class="border" src="{{URL::asset('/images/users/')}}/{{auth()->user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     @else
                     <img src="{{asset('assets/images/faces/default_face.svg')}}" id="userDropdown" alt=""
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -63,7 +62,7 @@
     <div id="logoutModel" class="modal fade" role="dialog">
         <div class="modal-dialog ">
             <!-- Modal content-->
-            <form id="logout-form" name="logout-form" action="{{ route('logout') }}" method="POST">
+            <form id="logout-form" name="logout-form" action="{{ route('autologout') }}">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">

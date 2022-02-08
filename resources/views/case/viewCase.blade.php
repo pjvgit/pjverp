@@ -1103,22 +1103,22 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     if(aData.is_filled=='yes'){
                         var downloadOption='<a  onclick="downloadIntakeForm('+aData.id+');" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
                         // var downloadOption='<a onclick="showLoad()" href="{{BASE_URL}}leads/downloadIntakeForm?id='+aData.id+'" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
-
+                        var openForm='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><i class="fas fa-clipboard-list align-middle"></i></a>';
                     }else{
+                        var openForm='<a data-placement="bottom" target="_blank" href="'+baseUrl+'/cform/'+aData.form_unique_id+'"  data-testid="edit-button" class="btn btn-link"><i class="fas fa-clipboard-list align-middle disabled"></i></a>';
                         var downloadOption='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><i class="fas fa-cloud-download-alt align-middle disabled"></i></a>';
                     }
 
                     if(aData.status=="2"){
                         var g='<a  data-testid="edit-button" style="color:gray;" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title=""><i class="fas fa-paper-plane align-middle"></i></span></a><a href="javascript:;"   style="color:gray;" class="btn btn-link copyButton"><span ><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
                     }else{
-                        if(aData.intake_form_deleted != ''){
+                        if(aData.intake_form_deleted != null){
                             var g='<a  data-testid="edit-button" style="color:gray;" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title=""><i class="fas fa-paper-plane align-middle"></i></span></a><a href="javascript:;"   style="color:gray;" class="btn btn-link copyButton"><span ><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
                         }else{
                             var g='<a data-toggle="modal"  data-target="#emailIntakeFormFromCase" onclick="emailFormFunction('+aData.intake_form_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Send Email"><i class="fas fa-paper-plane align-middle"></i></span></a><a onclick="copyIntakeLink('+aData.id+')" link="'+baseUrl+'/cform/'+aData.form_unique_id+'" id="'+aData.id+'" data-placement="bottom" href="javascript:;"   title="Copy"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Copy Link"><i class="fas fa-link align-middle" data="MyText"></i></span></a>';
                         }
                     }
-
-                    $('td:eq(3)', nRow).html('<div class="d-flex align-items-center float-right">'+downloadOption+''+g+'<a data-toggle="modal"  data-target="#deleteIntakeFromFromListCase" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteIntakeFromFromListCase('+aData.intake_form_id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a></div>');
+                    $('td:eq(3)', nRow).html('<div class="d-flex align-items-center float-right">'+openForm+''+downloadOption+''+g+'<a data-toggle="modal"  data-target="#deleteIntakeFromFromListCase" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteIntakeFromFromListCase('+aData.intake_form_id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a></div>');
                 },
                 "initComplete": function(settings, json) { 
                     $("[data-toggle=popover]").popover();

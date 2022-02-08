@@ -428,20 +428,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                     <div class="row ">
                                         <div class="pr-2 col-12">
                                             <input id="driver license_number" name="currency" placeholder="Currency"
-                                                autocomplete="off" type="text" class="form-control form-control" value="{{($filledData->currency)??''}}"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php } else if($v->form_field=="currency"){
-                                        ?>
-                            <div id="field-row-driver license" class="form-field-container mb-3 driver-license-test"><label
-                                    class="field-label font-weight-bold">{{($v->client_friendly_lable)??'Currency'}}
-                                    <?php if($v->is_required=="yes"){ echo "<span class='error'>*</span>";} ?></label>
-                                <div class="">
-                                    <div class="row ">
-                                        <div class="pr-2 col-12">
-                                            <input id="driver license_number" name="currency" placeholder="Currency"
-                                                autocomplete="off" type="text" class="form-control form-control" value="{{($filledData->currency)??''}}"></div>
+                                                autocomplete="off" type="number" min="0" class="form-control form-control" value="{{($filledData->currency)??''}}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -563,7 +550,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                        var errotHtml =
                            '<div class="alert alert-danger"><strong>Whoops!</strong> Sorry, something went wrong. Please try again later.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><br><br><ul>';
                        $.each(res.errors, function (key, value) {
-                           errotHtml += '<li>' + + '</li>';
+                           errotHtml += '<li>' + value + '</li>';
                        });
                        errotHtml += '</ul></div>';
                        $('.showError').append(errotHtml);

@@ -218,6 +218,7 @@ console.log("localStorage > smart_timer_created_by : " + smart_timer_created_by)
                     $(".timerAction").attr('id', 'startCounter');
                 } else {
                     if (data.smartTimer.is_pause == 0) {
+                        $(".logoutTimerAlert").show();
                         $(".js-timer-root .text-nowrap").html('');
                         localStorage.setItem("pauseCounter", 'yes');
                         intervalId = setInterval(timerstart, 1000);
@@ -333,13 +334,13 @@ function deleteTimer() {
                     $("#preloader").show();
                     removeLocalStorage();
                     $("#smart_timer_id").val("");
-                    window.location.reload();
+                    // window.location.reload();
                 },
                 error: function(xhr, status, error) {
                     $("#preloader").show();
                     removeLocalStorage();
                     $("#smart_timer_id").val("");
-                    window.location.reload();
+                    // window.location.reload();
                 }
             });
         });
@@ -410,17 +411,17 @@ $(document).mouseup(function(e) {
     }
 });
 
-// $('#logout-form').submit(function(e) {
-//     if (localStorage.getItem("counter") > 0 && localStorage.getItem("pauseCounter") != 'yes') {
-//         // alert("You have a timer running right now. If you logout, your active timer will be paused.");
-//         removeLocalStorage();
-//         // $("#preloader").show();
-//         $("#pauseCounter").trigger('click');
-//         return false;
-//     } else {
-//         return true;
-//     }
-// });
+$('#logout-form').submit(function(e) {
+    if (localStorage.getItem("smart_timer_id") > 0) {
+        // alert("You have a timer running right now. If you logout, your active timer will be paused.");
+        removeLocalStorage();
+        // $("#preloader").show();
+        $("#pauseCounter").trigger('click');
+        return true;
+    } else {
+        return true;
+    }
+});
 
 function browserClose() {
     var smart_timer_id = $("#smart_timer_id").val();
@@ -441,6 +442,7 @@ function removeLocalStorage() {
     localStorage.removeItem("smart_timer_id");
     localStorage.removeItem("timer_case_id");
     localStorage.removeItem("smart_timer_created_by");
+    $(".logoutTimerAlert").hide();
 }
 
 //https://www.cluemediator.com/detect-browser-or-tab-close-event-using-javascript

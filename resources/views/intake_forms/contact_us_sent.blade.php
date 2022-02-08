@@ -10,15 +10,15 @@
         {{$firmData->firm_name}} - {{$intakeForm['form_name']}} - {{config('app.name')}}
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/preview/bootstrap-style-preview.css')}}">
-    <link rel="stylesheet" media="screen" href="{{asset('public/assets/styles/css/preview/spacing.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
+    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
  
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script src="{{asset('public/assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
-    <script src="{{asset('public/assets/js/jquery.validate.min.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
     {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
 
     <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
@@ -463,7 +463,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                         <div class="row ">
                                             <div class="pr-2 col-12">
                                                 <input id="driver license_number"  <?php if($v->is_required=="yes"){ echo "required";} ?> name="currency" placeholder="Currency"
-                                                    autocomplete="off" type="text" class="form-control form-control" value=""></div>
+                                                    autocomplete="off" type="number" min="0" class="form-control form-control" value=""></div>
                                         </div>
                                     </div>
                                 </div>

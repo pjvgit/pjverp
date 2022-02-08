@@ -424,7 +424,7 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="driver license_number" name="currency" placeholder="Currency"
-                                        autocomplete="off" type="text" class="form-control form-control" value=""></div>
+                                        autocomplete="off" type="number" min="0" class="form-control form-control" value=""></div>
                             </div>
                         </div>
                     </div>

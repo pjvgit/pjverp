@@ -86,8 +86,8 @@ class NotificationEmailCommand extends Command
                 $date = Carbon::now($firmDetail->user_timezone ?? 'UTC');
                 $utcDate = Carbon::now('UTC');
                 if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
-                    Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for time zone : '.$firmDetail->user_timezone." at ".$date);
-                    if ($date->hour === 05) {
+                    if ($date->hour === 05 && $date->minute <= 29) {
+                        Log::info("Firm Notification Email sent to : ". $firmDetail->email. ' for case_id > '. $val->caseId.' > for time zone : '.$firmDetail->user_timezone." at ".$date);
                         $preparedFor = substr($firmDetail->first_name,0,100).' '.substr($firmDetail->last_name,0,100).'|'.$firmDetail->email;
                         $firmData[$preparedFor][$key] = $val;
                         $firmData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url; 
@@ -105,8 +105,9 @@ class NotificationEmailCommand extends Command
                     $date = Carbon::now($staff->user_timezone ?? 'UTC');
                     $utcDate = Carbon::now('UTC');
                     if(date("Y-m-d",strtotime($utcDate)) === date("Y-m-d",strtotime($date))){
-                        Log::info("Staff notification Email sent to : ". $staff->email. ' for time zone : '.$staff->user_timezone." at ".$date);
-                        if ($date->hour === 05) {
+                        // echo $date->hour.':'.$date->minute.':'.$date->second;echo PHP_EOL;
+                        if ($date->hour === 05 && $date->minute <= 29) {
+                            Log::info("Staff notification Email sent to : ". $staff->email. ' for case_id > '. $val->caseId.' > for time zone : '.$staff->user_timezone." at ".$date);
                             $preparedFor = substr($staff->first_name,0,100).' '.substr($staff->last_name,0,100).'|'.$staff->email.'|'.$staff->id;
                             $staffData[$preparedFor][$key] = $val;
                             $staffData[$preparedFor][$key]['logo_url'] = $val->caseFirm->firm_logo_url;

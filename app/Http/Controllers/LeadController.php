@@ -6190,6 +6190,19 @@ class LeadController extends BaseController
 
             if($request->current_submit=="saveform"){
                 CaseIntakeForm::where('id',$request->case_intake_form_id)->update(['is_filled'=>'yes','status'=>'2','submited_at'=>date('Y-m-d h:i:s')]);
+
+                //Add Intake history
+                $data=[];
+                $data['case_id']=$CaseIntakeFormData->case_id ?? null;
+                $data['user_id']=$CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
+                $data['client_id']=$CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
+                $data['activity']='completed an intake form for';
+                $data['type']='other';
+                $data['action']='complete';
+                $data['activity_for']= ($CaseIntakeFormData->client_id != '') ? '1' : '0';
+                $CommonController= new CommonController();
+                $CommonController->addMultipleHistory($data);
+
                 // send mail to creator
                 //Send email to lawyer
                 $getTemplateData = EmailTemplate::find(43);
@@ -6197,15 +6210,24 @@ class LeadController extends BaseController
                 $firmOWnertData=User::find($CaseIntakeFormData->created_by);
                 $cases = CaseMaster::find($CaseIntakeFormData->case_id);
                 $IntakeForm=IntakeForm::find($CaseIntakeFormData->intake_form_id);
-                $clientData=User::find($CaseIntakeFormData->client_id);
-                $leadData=User::find($CaseIntakeFormData->lead_id);
                 
-                $client = ($clientData) ? $clientData['first_name'].' '.$clientData['last_name'] : '';
+                if($CaseIntakeFormData->client_id){
+                    $clientData=User::find($CaseIntakeFormData->client_id);
+                    $token=route('intake_forms', $cases->case_unique_number);
+                    $case_title = $cases->case_title ?? '';
+                    $client = ($clientData) ? $clientData['first_name'].' '.$clientData['last_name'] : '';
+                    $button = 'Case';
+                }
+                if($CaseIntakeFormData->lead_id){
+                    $leadData=User::find($CaseIntakeFormData->lead_id);
+                    $client = ($leadData) ? $leadData['first_name'].' '.$leadData['last_name']. ' (Lead)' : '';
+                    $case_title = "Potential Case: ".$client;
+                    $token=route('case_details/intake_forms', $leadData->id);
+                    $button = 'Lead';
+                }               
                 
                 $email= $firmOWnertData['email'];
                 $receiver=$firmOWnertData['first_name'].' '.$firmOWnertData['last_name'];
-                $token=route('info', $cases->case_unique_number);
-                $case_title = $cases->case_title ?? '';
                 $intake_form_name = $IntakeForm->form_name ?? '';
                 $mail_body = $getTemplateData->content;
                 $mail_body = str_replace('{email}', $email,$mail_body);
@@ -6213,6 +6235,7 @@ class LeadController extends BaseController
                 $mail_body = str_replace('{client}', $client,$mail_body);
                 $mail_body = str_replace('{intake_form_name}', $intake_form_name,$mail_body);
                 $mail_body = str_replace('{case_name}', $case_title,$mail_body);
+                $mail_body = str_replace('{button}', $button,$mail_body);                
                 $mail_body = str_replace('{url}', $token,$mail_body);
                 $mail_body = str_replace('{firmname}', $firmData->firm_name,$mail_body);
                 $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
@@ -6224,7 +6247,7 @@ class LeadController extends BaseController
                     "from" => FROM_EMAIL,
                     "from_title" => FROM_EMAIL_TITLE,
                     "subject" => $getTemplateData->subject,
-                    // "to" => $firmOWnertData['email'],
+                    // "to" => $firmOWnertData['email'],    
                     "to" => 'jignesh.prajapati@plutustec.com',
                     "full_name" => $receiver,
                     "mail_body" => $mail_body

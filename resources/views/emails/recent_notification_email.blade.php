@@ -186,6 +186,42 @@
                                 </tbody>
                                 </table>
                             @endif
+                            @if($v->type == 'other')
+                            <?php 
+                            $ImageArray=[];
+                            $imageLink["complete"]="activity_intake_form_completed.png";
+                            $image=$ImageArray[$v->action];
+                            ?>                            
+                            <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+
+                            <tbody>
+                                <tr style="margin:0;padding:0;border:0">
+                                <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                <tbody>
+                                    <tr>
+                                        <td style="width:25px" width="25px">
+                                            <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                                        </td>
+                                        <td style="font-size:12px">
+                                            <?php  if($v->activity_for == 1){  ?>
+                                                {{ $v->fullname}} (Client) {{$v->activity}} 
+                                                <?php  if($v->case_unique_number!=NULL){  ?>
+                                                    <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                                                <?php }  ?>
+                                            <?php }else{ ?>
+                                                {{ $v->fullname}} (Lead) {{$v->activity}} 
+                                                    <a class="name" href="{{ route('case_details/info',$v->user_id) }}">{{ $v->fullname}}</a>
+                                            <?php } ?>
+                                        </td>
+                                    </tr> 
+                                </tbody>
+                                </table>
+                                </td>
+                                </tr>
+                                </tbody>
+                                </table>
+                            @endif
                             @if($v->type == 'contact')
                             <?php 
                                 $ImageArray=[];
@@ -744,6 +780,42 @@
 
                                 </td>
                                 </tr>
+                                @endif
+                                @if($v->type == 'other')
+                                <?php 
+                                $ImageArray=[];
+                                $imageLink["complete"]="activity_intake_form_completed.png";
+                                $image=$ImageArray[$v->action];
+                                ?>                            
+                                <table cellspacing="0" border="0" style="padding:0;border:0;margin:0" bgcolor="#ffffff" width="100%" cellpadding="0">
+
+                                <tbody>
+                                    <tr style="margin:0;padding:0;border:0">
+                                    <td style="padding:0;border:0;margin:0" cellpadding="0" align="center">
+                                    <table width="580" style="padding:0;border:0;margin:0;background-color:#ffffff;width:580px" bgcolor="#ffffff">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:25px" width="25px">
+                                                <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
+                                            </td>
+                                            <td style="font-size:12px">
+                                            <?php  if($v->activity_for == 1){  ?>
+                                                {{ $v->fullname}} (Client) {{$v->activity}} 
+                                                <?php  if($v->case_unique_number!=NULL){  ?>
+                                                    <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                                                <?php }  ?>
+                                            <?php }else{ ?>
+                                                {{ $v->fullname}} (Lead) {{$v->activity}} 
+                                                    <a class="name" href="{{ route('case_details/info',$v->user_id) }}">{{ $v->fullname}}</a>
+                                            <?php } ?>
+                                            </td>
+                                        </tr> 
+                                    </tbody>
+                                    </table>
+                                    </td>
+                                    </tr>
+                                    </tbody>
+                                    </table>
                                 @endif
                                 @if($v->type == 'contact')
                                 @if($v->case_id == null)

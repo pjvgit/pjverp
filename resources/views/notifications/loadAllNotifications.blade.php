@@ -7,7 +7,7 @@ if(!$commentData->isEmpty()){
     <tbody>
         <?php foreach($commentData as $k=>$v){ ?>
         <?php if($v->type=="case"){?>
-            @include('dashboard.include.case_activity_data   ')    
+            @include('dashboard.include.case_activity_data')    
         <?php }else if($v->type=="contact"){?>
             @include('dashboard.include.contact_activity_data')
         <?php }else if($v->type=="staff"){?>
@@ -28,6 +28,8 @@ if(!$commentData->isEmpty()){
             @include('dashboard.include.time_entry_activity_data')
         <?php }else if($v->type=="invoices" || $v->type=="lead_invoice"){ ?>
             @include('dashboard.include.invoice_activity_data')
+        <?php }else if($v->type=="other"){ ?>
+            @include('dashboard.include.other_activity_data')
         <?php } ?>
         @if($v->type == "credit")
             @include('dashboard.include.credit_activity_data')

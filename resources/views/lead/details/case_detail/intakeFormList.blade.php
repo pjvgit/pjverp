@@ -2,11 +2,9 @@
 $CommonController= new App\Http\Controllers\CommonController();
 
 ?>
-<div class="row ">
-    <div class="col">
-
-    </div>
-    <div class="col">
+<div class="row">
+    <div class="col"></div>
+    <div class="d-flex">
         <div class="float-right">
             <a href="#" target="_blank" class="mr-4"><i class="fas fa-question-circle" aria-hidden="true"></i> Learn
                 about Intake Forms</a>
@@ -41,10 +39,10 @@ if($totalForm<=0){
     <table class="display table table-striped table-bordered" id="intakeFormList" style="width:100%">
         <thead>
             <tr>
-                <th width="30%">INTAKE FORM</th>
-                <th width="20%">CREATED</th>
-                <th width="20%">STATUS</th>
-                <th width="30%"></th>
+                <th width="60%">INTAKE FORM</th>
+                <th width="15%">CREATED</th>
+                <th width="15%">STATUS</th>
+                <th width="10%"></th>
             </tr>
         </thead>
 

@@ -674,12 +674,24 @@ class UserController extends BaseController
         $User->is_published="yes";
         $User->save();
         $request->session()->flash('page', 'image');
+        \Artisan::call('view:clear');
         return redirect()->to('/load_profile')->with('success',SUCCESS_SAVE_PROFILE);
 
         exit;
     }
     public function email_template(Request $request)
-     {
+    {
+
+        $getTemplateData =  EmailTemplate::all();
+        foreach ($getTemplateData as $key => $template)
+        {
+            echo "<hr>";
+            echo "<h3 style='text-align: center;'>".$template->id ." - ".$template->subject."</h3>";
+            echo $template->content;
+        }
+    }
+    public function email_template_old(Request $request)
+    {
         echo "<hr>";
         echo "<h3 style='text-align: center;'>Rest Password OTP</h3>";
         $getTemplateData = EmailTemplate::find(3);

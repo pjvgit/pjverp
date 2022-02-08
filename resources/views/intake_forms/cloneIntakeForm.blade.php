@@ -44,9 +44,9 @@
             }
         });
         $('#CloneForm').submit(function (e) {
-            $("#submit").attr("disabled", true);
-            $("#innerLoader").css('display', 'block');
             e.preventDefault();
+            $(this).find(":submit").prop("disabled", true);
+            $("#innerLoader").css('display', 'block');
 
             if (!$('#CloneForm').valid()) {
                 $("#innerLoader").css('display', 'none');
