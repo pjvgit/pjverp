@@ -83,6 +83,7 @@ if(isset($_GET['at'])){
                                     </div>
                                 </div>
                                 <div class="col-4">
+                                    @can("lead_add_edit")
                                     <div class="d-flex align-items-center justify-content-end">
                                         <a data-toggle="modal" onclick="editStatus({{$v->id}});" data-target="#editStatus" data-placement="bottom" href="javascript:;">
                                              <i class="fas fa-pencil-alt text-black-50 m-2"></i>
@@ -91,6 +92,7 @@ if(isset($_GET['at'])){
                                                 <i class="fas fa-trash text-black-50"></i>
                                         </a>  
                                     </div>
+                                    @endcan
                                 </div>
                             </div>
                             <div class="opportunity-status-column-subheader mb-3 font-weight-bold row ">

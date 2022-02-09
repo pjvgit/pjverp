@@ -745,3 +745,11 @@ p {
     display: flex!important;
     justify-content: flex-end!important;
 }
+
+.attorney-permissions-object-image img {
+    width: 20px;
+}
+.attorney-permissions-object-image>i {
+    color: #696969;
+    font-size: 18px;
+}

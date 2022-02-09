@@ -43,6 +43,7 @@ if(isset($_GET['ld'])){
                                 <button type="button" id="opportunity-export-csv-button"  class="btn btn-info btn-rounded">
                                     <div class="d-flex align-items-center"><span>Export CSV</span></div>
                                 </button></a>
+                            @can("lead_add_edit")
                                 <span id="settingicon" class="pr-2">
                                     <div class="ml-2" id="element" data-toggle="tooltip" data-placement="bottom" title="You must select one or more leads from the table to use any of the bulk action." >
                                         <button class="btn btn-secondry dropdown-toggle m-1 dropdown-toggle settingButtons" data-toggle="dropdown" id="actionbutton" disabled="disabled" aria-haspopup="true"
@@ -64,7 +65,7 @@ if(isset($_GET['ld'])){
                                         </div>
                                     </div>
                                 </span>
-                                
+                            @endcan
                             </div>
                         </div>
                     </div>
@@ -453,7 +454,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 $('td:eq(2)', nRow).html('<div class="text-left">'+namedata+'</div>');
                 
                 if(aData.res_title!=null){
-                    var refTitle= aData.res_title +'   <a data-toggle="modal"  data-target="#changeSource" data-placement="bottom" href="javascript:;"  onclick="changeSource('+aData.id+','+aData.referal_source+');"><i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1 cursor-pointer"></i></a>';
+                    var refTitle= aData.res_title +' @can("lead_add_edit")<a data-toggle="modal"  data-target="#changeSource" data-placement="bottom" href="javascript:;"  onclick="changeSource('+aData.id+','+aData.referal_source+');"><i class="fas fa-pen fa-sm text-black-50 c-pointer pl-1 cursor-pointer"></i></a> @endcan';
                 }else{
                     var refTitle='';
                  }
@@ -504,8 +505,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 // $('td:eq(0)', nRow).html('<div class="text-center"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a></div>');
                 // $('td:eq(7)', nRow).html('<div class="text-center"><div class="details">'+aData.created_new_date+'<small> by <a href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a></small></div></div>');
                 
+                @can("lead_add_edit")
                 $('td:eq(10)', nRow).html('<div class="d-flex align-items-center actions"><a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button onclick="loadStep1('+aData.user_id+');" class="btn btn-outline-secondary m-1" type="button">Convert to Case</button></a><a data-toggle="modal"  data-target="#editLead" onclick="editLead('+aData.user_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt text-black-50 m-2"></i><//a><a data-toggle="modal"  data-target="#doNotHire" data-placement="bottom" href="javascript:;"   title="Don\'t hire" data-testid="mark-no-hire-button" class="btn btn-link" onclick="doNotHire('+aData.user_id+');"><i class="fas fa-ban text-black-50"></i></a><a data-toggle="modal"  data-target="#deleteLead" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteLeadFunction('+aData.user_id+');"><i class="fas fa-trash text-black-50"></i></a></div>');
-                        
+                @else
+                $('td:eq(10)', nRow).html('');
+                @endcan
             },
             "initComplete": function(settings, json) {
                  //When select the lead row checkbpx.

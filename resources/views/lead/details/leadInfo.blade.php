@@ -4,11 +4,13 @@
              <h5 class="section-header"><b>Lead Information</b></h5>
          </div>
          <div class="col">
+            @can('lead_add_edit')
              <div class="float-right">
                 <a data-toggle="modal" data-target="#editLead" data-placement="bottom" href="javascript:;">
                     <button class="btn btn-primary btn-rounded m-1 px-5" type="button" onclick="editLead({{$LeadData['user_id']}});">Edit Lead</button>
                 </a>
                 </div>
+            @endcan
          </div>
      </div>
      <div class="row ">

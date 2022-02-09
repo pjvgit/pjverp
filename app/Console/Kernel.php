@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sol:reminderemail')->dailyAt('00:00');
         $schedule->command('notification:email')->everyThirtyMinutes();    
         $schedule->command('invoiceonline:paymentreminderemail')->dailyAt('02:00');
+        $schedule->command('update:status')->dailyAt('02:00');
     }
 
     /**

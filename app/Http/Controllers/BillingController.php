@@ -1037,7 +1037,7 @@ class BillingController extends BaseController
          if(isset($requestData['c']) && $requestData['c']!=''){
              $case = $case->where("requested_fund.client_id",$requestData['c']);
          }
-         if(isset($requestData['type']) && $requestData['type']!=''){
+         /* if(isset($requestData['type']) && $requestData['type']!=''){
              if($requestData['type']=='sent'){
                 $case = $case->where("requested_fund.status",'sent');
                 $case = $case->where("requested_fund.due_date",">=",date('Y-m-d'));
@@ -1055,7 +1055,10 @@ class BillingController extends BaseController
                 $case = $case->where("requested_fund.amount_paid","!=",'0.00');
              }
 
-         }
+         } */
+        if(isset($requestData['type']) && $requestData['type'] != '') {
+            $case = $case->where("status", $requestData['type']);
+        }
          $totalData=$case->count();
          $totalFiltered = $totalData; 
  
@@ -2013,42 +2016,46 @@ class BillingController extends BaseController
                  $InvoiceAdjustment=InvoiceAdjustment::where("invoice_id",$id)->delete();
 
                 // Update trust balance
-                $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
+                /* $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
                 $accessUser = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
                 if($accessUser && $invoicePaymentFromTrust) {
                     $paidAmount = $invoicePaymentFromTrust->sum('amount_paid');
                     $refundAmount = $invoicePaymentFromTrust->sum('amount_refund');
                     $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
-                }
+                } */
 
-                /* $invoiceHistories = InvoiceHistory::where("invoice_id", $Invoices->id)->get();
+                $invoiceHistories = InvoiceHistory::where("invoice_id", $Invoices->id)->get();
                 $userAddInfo = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
                 $authUser = auth()->user();
                 if($invoiceHistories) {
                     foreach($invoiceHistories as $key => $item) {
-                        if($item->payment_from == "trust") {
-
-                        } else if($item->payment_from == "credit") {
-                            TrustHistory::create([
-                                "client_id" => $request->client_id,
-                                "payment_method" => 'invoice cancelled deposit',
-                                "amount_paid" => $item->amount,
-                                "current_trust_balance" => $userAddInfo->trust_account_balance,
-                                "payment_date" => date('Y-m-d'),
-                                "fund_type" => 'payment deposit',
-                                "allocated_to_case_id" => ($Invoices->case_id > 0) ? $Invoices->case_id : Null,
-                                "created_by" => $authUser->id,
-                            ]);
-
+                        if($item->payment_from != "online" && $item->refund_ref_id == '' && $item->status == '1') {
+                            $userAddInfo->fill(["trust_account_balance" => ($userAddInfo->trust_account_balance + $item->amount)])->save();
+                            if($item->payment_from == "trust") {
+                                TrustHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
+                            } else {
+                                if($item->payment_from == "credit") {
+                                    DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
+                                }
+                                TrustHistory::create([
+                                    "client_id" => $item->deposit_into_id,
+                                    "payment_method" => 'invoice cancelled deposit',
+                                    "amount_paid" => $item->amount,
+                                    "current_trust_balance" => $userAddInfo->trust_account_balance,
+                                    "payment_date" => date('Y-m-d'),
+                                    "fund_type" => 'payment deposit',
+                                    "related_to_invoice_id" => $Invoices->id,
+                                    "allocated_to_case_id" => ($Invoices->case_id > 0) ? $Invoices->case_id : Null,
+                                    "created_by" => $authUser->id,
+                                    "is_invoice_cancelled" => "yes"
+                                ]);
+                                sleep(3);
+                            }
                             InvoicePayment::where("id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                            $item->fill(["is_invoice_cancelled" => "yes"])->save();
-                        } else if($item->payment_from == "offline") {
-
-                        } else {
-
                         }
+                        $item->fill(["is_invoice_cancelled" => "yes"])->save();
                     }
-                } */
+                }
 
                 // Update forwarded invoices
                 $forwardedInvoices = Invoices::whereIn("id", $Invoices->forwardedInvoices->pluck("id")->toArray())->get();
@@ -9347,7 +9354,12 @@ class BillingController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
             $user_id=$request->id;
-            $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level")->join('users','users_additional_info.user_id','=','users.id')->where("users.id",$user_id)->first();
+            $userData = UsersAdditionalInfo::select(DB::raw('CONCAT_WS(" ",users.first_name,users.middle_name,users.last_name) as user_name'),"trust_account_balance","users.id as uid","users.user_level")
+                        ->join('users','users_additional_info.user_id','=','users.id')->where("users_additional_info.user_id",$user_id)->first();
+
+            /* return $userData = User::where("users.id", $user_id)->join('users_additional_info','users.id','=','users_additional_info.user_id')
+                        ->select(DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as user_name'),"users_additional_info.trust_account_balance","users.id as uid","users.user_level")
+                        ->first(); */
 
             if(!empty($userData)){
                 $firmData=Firm::find(Auth::User()->firm_name);
@@ -9358,7 +9370,12 @@ class BillingController extends BaseController
                     $fundRequestList = $fundRequestList->whereNull("allocated_to_case_id");
                 }
                 $fundRequestList = $fundRequestList->where("amount_due",">",0)->get();
-                $case = CaseMaster::whereId($request->case_id)->select('id', 'case_title', 'total_allocated_trust_balance')->first();
+                $case = CaseMaster::where("case_master.id", $request->case_id)
+                        ->leftJoin('case_client_selection', function($join) {
+                            $join->on('case_master.id', '=', 'case_client_selection.case_id');
+                        })
+                        ->where('case_client_selection.selected_user', $user_id)
+                        ->select('case_master.id', 'case_master.case_title', 'case_master.total_allocated_trust_balance', 'case_client_selection.allocated_trust_balance')->first();
                 $fundType = "trust";
                 return view('billing.dashboard.depositTrustFundPopup',compact('userData','fundRequestList', 'case','request', 'fundType'));
                 exit;  

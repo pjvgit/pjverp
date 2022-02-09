@@ -967,7 +967,7 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->addColumn('related_to', function ($data) {
-                if($data->related_to_invoice_id)
+                if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'no')
                     return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
                 else if($data->related_to_fund_request_id)
                     return $data->fundRequest->padding_id;
@@ -1083,14 +1083,8 @@ class ClientdashboardController extends BaseController
                         }
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="payment deposit"){
-                        $ftype = "Payment into Trust ".$allocateTxt;
-                        $noteContent = '';
-                        if($data->notes != '') {
-                            $noteContent = '<br>
-                            <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
-                            data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
-                        }
-                        return $ftype.' '.$isRefund.$noteContent;
+                        $ftype = "Deposit into Trust (Invoice #".$data->related_to_invoice_id." Cancellation)";
+                        return $ftype;
                     }else if($data->fund_type=="refund payment deposit"){
                         $ftype = "Refund Payment into Trust ".$allocateTxt;
                         $noteContent = '';
