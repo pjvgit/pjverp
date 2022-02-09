@@ -1003,7 +1003,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     <p>Customer feedback helps us to improve our product!</p>
                     <p>
                         Please give us details about your idea and how it helps your business. If you need
-                        immediate help or assistance, please access our <a href="javascript::void(0);" target="_blank" rel="noreferrer noopener">support page</a>.
+                        immediate help or assistance, please access our <a href="{{ route('ayuda') }}" target="_blank" rel="noreferrer noopener">support page</a>.
                     </p>
                     <div class="form-group">
                     <label for="message">Details</label>

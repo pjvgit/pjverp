@@ -1213,22 +1213,8 @@ class ContractController extends BaseController
         $columns = array('id','group_name','status');
         $requestData= $_REQUEST;
         $ClientGroup = ClientGroup::leftJoin("users","client_group.created_by","=","users.id")
-        ->select('client_group.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
-       
-        if(Auth::user()->parent_user==0){
-            $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
-            $getChildUsers[]=Auth::user()->id;
-            $getChildUsers[]="0"; //This 0 mean default category need to load in each user
-            $ClientGroup = $ClientGroup->where("status","1")->whereIn("client_group.created_by",$getChildUsers);
-        }else{
-            $getChildUsers=array();
-            $getChildUsers[]=Auth::user()->id;
-            $getChildUsers[]="0";
-            $ClientGroup = $ClientGroup->whereIn("client_group.created_by",$getChildUsers)->where("status","1");
-
-        }
-
-
+        ->select('client_group.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid")
+        ->where("status","1")->where("client_group.firm_id",Auth::user()->firm_name);
         $ClientGroup = $ClientGroup; 
         $totalData=$ClientGroup->count();
         $totalFiltered = $totalData;  
@@ -1277,6 +1263,7 @@ class ContractController extends BaseController
                 $ClientGroup->group_name=$request->group_name; 
                 $ClientGroup->status="1";
                 $ClientGroup->created_by =Auth::User()->id;
+                $ClientGroup->firm_id = Auth::User()->firm_name;
                 $ClientGroup->save();
                 session(['popup_success' => 'Your contact group has been created.']);
                 return response()->json(['errors'=>'','group_id'=>$ClientGroup->id]);
@@ -1292,7 +1279,8 @@ class ContractController extends BaseController
         $group_id=$request->group_id;
         ClientGroup::where("id", $group_id)->delete();
         //When delete the client group assinged to default group to each client which hase assigned this group.
-        UsersAdditionalInfo::where('contact_group_id',$group_id)->update(['contact_group_id'=>"1"]);
+        $ClientGroup = ClientGroup::where('is_default', "1")->first();
+        UsersAdditionalInfo::where('contact_group_id',$group_id)->update(['contact_group_id'=>($ClientGroup->id ?? '1')]);
         session(['popup_success' => 'Contact group was deleted']);
 
         return response()->json(['errors'=>'','group_id'=>$group_id]);
@@ -1300,9 +1288,8 @@ class ContractController extends BaseController
     }
     public function loadEditClientGroup(Request $request)
     {
-        $id=$request->id;
-       $ClientGroup=ClientGroup::find($id);    
-       return view('client_group.editClientGroup',compact("ClientGroup"));
+        $ClientGroup=ClientGroup::find($request->id);    
+        return view('client_group.editClientGroup',compact("ClientGroup"));
     }
     public function saveEditClientGroup(Request $request)
     {

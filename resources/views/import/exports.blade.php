@@ -53,7 +53,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                     When you create a full backup, we'll build a .zip file containing all of your
                                     LegalCase data so you can download and save it. You can request one full backup per day, and
                                     we'll retain your backups for seven days.  After seven days your old backups will be deleted
-                                        to save space. For additional help, take a look at <a href="http://help.mycase.com/s/" target="_blank">
+                                        to save space. For additional help, take a look at <a href="{{ route('ayuda') }}" target="_blank">
                                         our support pages</a> or
                                     contact us.
                                     </p>

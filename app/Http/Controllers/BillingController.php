@@ -9696,7 +9696,7 @@ class BillingController extends BaseController
         $monthTimeEntryDataForCalander = DB::table('task_time_entry')
         ->select(
             DB::raw('SUM(duration) as durationsum'),'entry_date'
-        );
+        )->whereIn('created_by',$getChildUsers);
         if($request->type=="all"){
             $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
         }else if($request->type=="nb"){
@@ -9749,7 +9749,7 @@ class BillingController extends BaseController
         $monthTimeEntryDataForCalander = DB::table('task_time_entry')
         ->select(
             DB::raw('SUM(duration) as durationsum'),'entry_date'
-        );
+        )->whereIn('created_by',$getChildUsers);
         if($request->type=="all"){
             $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
         }else if($request->type=="nb"){
@@ -9795,8 +9795,8 @@ class BillingController extends BaseController
         $FinalArra=[];$monthTotal=$monthHours=0;
         $startDate=date('Y-m-d',strtotime($request->start));
         $endDate=date('Y-m-d',strtotime($request->end));
-        $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*');
-        // ->whereIn('created_by',$getChildUsers)
+        $monthTimeEntryData = TaskTimeEntry::select('task_time_entry.*')
+        ->whereIn('created_by',$getChildUsers);
         if($request->forUser!=0){
             $monthTimeEntryData=$monthTimeEntryData->where('user_id',$request->forUser);
         }
@@ -9817,7 +9817,7 @@ class BillingController extends BaseController
         $monthTimeEntryDataForCalander = DB::table('task_time_entry')
         ->select(
             DB::raw('SUM(duration) as durationsum'),'entry_date'
-        );
+        )->whereIn('created_by',$getChildUsers);
         if($request->type=="all"){
             $monthTimeEntryDataForCalander=$monthTimeEntryDataForCalander->whereIn("time_entry_billable",["yes","no"]);
         }else if($request->type=="nb"){

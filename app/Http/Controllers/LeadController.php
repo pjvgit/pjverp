@@ -6192,16 +6192,19 @@ class LeadController extends BaseController
                 CaseIntakeForm::where('id',$request->case_intake_form_id)->update(['is_filled'=>'yes','status'=>'2','submited_at'=>date('Y-m-d h:i:s')]);
 
                 //Add Intake history
-                $data=[];
-                $data['case_id']=$CaseIntakeFormData->case_id ?? null;
-                $data['user_id']=$CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
-                $data['client_id']=$CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
-                $data['activity']='completed an intake form for';
-                $data['type']='other';
-                $data['action']='complete';
-                $data['activity_for']= ($CaseIntakeFormData->client_id != '') ? '1' : '0';
-                $CommonController= new CommonController();
-                $CommonController->addMultipleHistory($data);
+                $AllHistory=new AllHistory;
+                $AllHistory->case_id = $CaseIntakeFormData->case_id ?? null;
+                $AllHistory->user_id = $CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
+                $AllHistory->client_id = $CaseIntakeFormData->client_id ?? $CaseIntakeFormData->lead_id;
+                $AllHistory->activity = 'completed an intake form for';
+                $AllHistory->type = 'other';
+                $AllHistory->action = 'complete';
+                $AllHistory->activity_for = ($CaseIntakeFormData->client_id != '') ? '1' : '0';
+                $AllHistory->is_for_client = 'no';
+                $AllHistory->firm_id=Auth::User()->firm_name ?? $CaseIntakeFormData->firm_id;
+                $AllHistory->created_by=Auth::User()->id ?? $CaseIntakeFormData->created_by;
+                $AllHistory->created_at=date('Y-m-d H:i:s'); 
+                $AllHistory->save();
 
                 // send mail to creator
                 //Send email to lawyer
@@ -6634,7 +6637,7 @@ class LeadController extends BaseController
         $intakeFormFields=IntakeFormFields::where("intake_form_id",$caseIntakeForm['intake_form_id'])->orderBy("sort_order","ASC")->withTrashed()->get();
         $firmData=Firm::find(Auth::User()->firm_name);
         $country = Countries::get();
-        $alreadyFilldedData=CaseIntakeFormFieldsData::where("intake_form_id",$intakeForm->id)->first();
+        $alreadyFilldedData=CaseIntakeFormFieldsData::where("case_intake_form_id",$caseIntakeForm->id)->first();
         $search=array(' ',':');
         $filename=str_replace($search,"_",$intakeForm['form_name'])."_".time().'.pdf';
         $PDFData=view('lead.details.case_detail.intakeFormPDF',compact('intakeForm','country','firmData','alreadyFilldedData','intakeFormFields'));

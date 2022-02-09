@@ -200,7 +200,7 @@ class CaseController extends BaseController
         if(isset($request->default_rate)) {$request['default_rate']=str_replace(",","",$request->default_rate); }
       
         $validator = \Validator::make($request->all(), [
-            'case_name' => 'required|unique:case_master,case_title',
+            'case_name' => 'required|unique:case_master,case_title,NULL,id,firm_id,'.Auth::User()->firm_name,
             'default_rate' => 'nullable|numeric',
             'selectedUSer'=>'required|array'
         ],['selectedUSer.required'=>'Please select at least one staff member.']);
@@ -6347,7 +6347,7 @@ class CaseController extends BaseController
     public function checkCaseNameExists(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'case_name' => 'required|unique:case_master,case_title',
+            'case_name' => 'required|unique:case_master,case_title,NULL,id,firm_id,'.Auth::User()->firm_name
         ]);
         if ($validator->fails())
         {

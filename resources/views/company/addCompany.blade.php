@@ -144,7 +144,7 @@
             $("#collapsed").find('i').toggleClass('fa-sort-up align-bottom').toggleClass(
                 'fa-sort-down align-text-top');
         });
-        $("#addCompany #innerLoader").css('display', 'none');
+        $("#innerLoader").css('display', 'none');
         $("#editForm").validate({
             rules: {
                 company_name: {
@@ -152,6 +152,7 @@
                     minlength: 2
                 },
                 email: {
+                    required: true,
                     email: true
                 },
                 website: {
@@ -170,6 +171,7 @@
                     minlength: "Company name must consist of at least 2 characters"
                 },
                 email: {
+                    required: "Please enter email",
                     minlength: "Email is not formatted correctly"
                 },
                 website: {
@@ -246,7 +248,7 @@
                 $('.showError').append(errotHtml);
                 $('.showError').show();
                 afterLoader();
-                $('#AddCompany').animate({
+                $('#addCompanyModel').animate({
                         scrollTop: 0
                 }, 'slow');
             }

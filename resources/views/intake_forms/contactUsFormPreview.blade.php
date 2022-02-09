@@ -424,7 +424,7 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="driver license_number" name="currency" placeholder="Currency"
-                                        autocomplete="off" type="number" min="0" class="form-control form-control" value=""></div>
+                                        autocomplete="off" type="number" min="0" step="0.01" class="form-control form-control" value=""></div>
                             </div>
                         </div>
                     </div>
@@ -481,7 +481,7 @@
 
         <div class="mycase-watermark text-muted text-center">
             <span class="mr-1">Powered by</span>
-            <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
+            <img class="logoView" src="{{asset('assets/images/logo.png')}}">
         </div>
     </div>
 </body>

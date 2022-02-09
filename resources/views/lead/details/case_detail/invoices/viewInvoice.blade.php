@@ -67,7 +67,7 @@
         </div>
         <div class="mt-4 d-flex flex-row justify-content-center">
             <span class="font-weight-light powered-by">Powered by
-                <img src="{{BASE_URL}}assets/images/logo.png" width="64" height="50">
+                <img src="{{asset('assets/images/logo.png')}}" width="64" height="50">
             </span>
         </div>
     </div>

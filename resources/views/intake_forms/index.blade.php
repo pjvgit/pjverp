@@ -82,6 +82,7 @@
                     </thead>
                     <tbody>
                         <?php
+                        if(!empty($IntakeForm)){
                         foreach($IntakeForm as $k=>$v){?>
                         <tr>
                             <td>
@@ -123,7 +124,8 @@
                                 </a>
                             </td>
                         </tr>
-                        <?php }?>
+                        <?php }
+                        } ?>
                     </tbody>
                 </table>
                 <div class="border rounded text-center w-100 h-auto p-4"><i

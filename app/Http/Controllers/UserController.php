@@ -932,6 +932,8 @@ class UserController extends BaseController
                 $this->saveFirmDefaultPracticeArea($verifyUser);
                 // Set user default permissions
                 $this->saveUserDefaultPermission($verifyUser);
+                // Set Firm client group 
+                $this->saveFirmClientGroup($verifyUser);
                 
                 FirmAddress::create([
                     'office_name' => 'Primary',

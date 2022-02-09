@@ -29,4 +29,8 @@ class PageController extends BaseController
     {
         return view('pages.privacy');
     }  
+    public function supportPage()
+    {
+        return view('pages.support_page');
+    }  
 }

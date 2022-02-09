@@ -112,12 +112,10 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             "fnCreatedRow": function (nRow, aData, iDataIndex) { 
                 $('td:eq(1)', nRow).html(aData.count_attach_contact); 
                
-                if(aData.id=="1"){
+                if(aData.is_default=="1"){
                     $('td:eq(2)', nRow).html('System Default'); 
                     $('td:eq(3)', nRow).html(''); 
                 }else{
-                    // $('td:eq(2)', nRow).html(aData.created_by_name); 
-
                     $('td:eq(2)', nRow).html('<a class="test-created-by-link pendo-case-info-status-created-by" href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a>');
                     var deleteAction = '';
                     @can(['client_add_edit','delete_items'])

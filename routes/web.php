@@ -142,6 +142,7 @@ Auth::routes();
 Route::get('/privacy', 'PageController@privacy')->name('privacy');
 Route::get('/terms', 'PageController@terms')->name('terms');
 Route::get('/', 'PageController@index')->name('index');
+Route::get('/ayuda', 'PageController@supportPage')->name('ayuda');
 
 //Without login can access this route
 Route::post('login','UserController@login');

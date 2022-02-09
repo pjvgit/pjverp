@@ -48,7 +48,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             </div>
                 <div class="mycase-watermark text-muted text-center">
                     <span class="mr-1">Powered by</span>
-                    <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
+                    <img class="logoView" src="{{asset('assets/images/logo.png')}}">
                 </div>
          </div>
         <?php
@@ -64,7 +64,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             </div>
                 <div class="mycase-watermark text-muted text-center">
                     <span class="mr-1">Powered by</span>
-                    <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
+                    <img class="logoView" src="{{asset('assets/images/logo.png')}}">
                 </div>
          </div>
         <?php
@@ -359,7 +359,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                                 <?php if($v->is_required=="yes"){ echo "required";} ?>>
                                                 <?php  $options=json_decode($v->extra_value);
                                                     foreach($options as $kkey=>$kVal){ ?>
-                                                <option <?php if($filledData->multiple_choice==$kVal) { echo "selected=selected"; } ?> value="{{$kVal}}">{{$kVal}}</option>
+                                                <option <?php if(isset($filledData->multiple_choice) && $filledData->multiple_choice==$kVal) { echo "selected=selected"; } ?> value="{{$kVal}}">{{$kVal}}</option>
                                                 <?php } ?>
                                             </select>
                                         </div>
@@ -377,7 +377,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                             <?php  $options=json_decode($v->extra_value);
                                                     foreach($options as $kkey=>$kVal){ ?>
                                             <label class="form-check-label">
-                                                <input type="checkbox" name="checkboxes[]" <?php if(isset($filledData->checkboxes) && in_array($kVal,$filledData->checkboxes)) { echo "checked=checked"; } ?> class="pick-option ml-2" value="{{$kVal}}">
+                                                <input type="checkbox" <?php if($v->is_required=="yes"){ echo "required";} ?> name="checkboxes[]" <?php if(isset($filledData->checkboxes) && in_array($kVal,$filledData->checkboxes)) { echo "checked=checked"; } ?> class="pick-option ml-2" value="{{$kVal}}">
                                                 <span>{{$kVal}}</span>
                                             </label>
                                             <?php } ?>
@@ -394,11 +394,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                     <div class="row ">
                                         <div class="pr-2 col-12">
                                             <label class="form-check-label">
-                                                <input type="radio"  <?php if( isset($filledData->yesno) && $filledData->yesno=="Yes") { echo "checked=checked"; }?> name="yesno" class="pick-option ml-2" value="yes">
+                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> <?php if( isset($filledData->yesno) && $filledData->yesno=="Yes") { echo "checked=checked"; }?> name="yesno" class="pick-option ml-2" value="yes">
                                                 <span>Yes</span>
                                             </label>
                                             <label class="form-check-label">
-                                                <input type="radio" name="yesno" <?php if(isset($filledData->yesno) && $filledData->yesno=="No") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="No">
+                                                <input type="radio" <?php if($v->is_required=="yes"){ echo "required";} ?> name="yesno" <?php if(isset($filledData->yesno) && $filledData->yesno=="No") { echo "checked=checked"; } ?>  class="pick-option ml-2" value="No">
                                                 <span>No</span>
                                             </label>
                                         </div>
@@ -413,7 +413,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <div class="">
                                     <div class="row ">
                                         <div class="pr-2 col-12">
-                                            <input id="driver license_number" name="number" placeholder="Number"
+                                            <input id="driver license_number" name="number" placeholder="Number" <?php if($v->is_required=="yes"){ echo "required";} ?>
                                                 autocomplete="off" type="number" class="form-control form-control" value="{{($filledData->number)??''}}">
                                         </div>
                                     </div>
@@ -427,8 +427,8 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <div class="">
                                     <div class="row ">
                                         <div class="pr-2 col-12">
-                                            <input id="driver license_number" name="currency" placeholder="Currency"
-                                                autocomplete="off" type="number" min="0" class="form-control form-control" value="{{($filledData->currency)??''}}"></div>
+                                            <input id="driver license_number" name="currency" placeholder="Currency" <?php if($v->is_required=="yes"){ echo "required";} ?>
+                                                autocomplete="off" type="number" min="0" step="0.01" class="form-control form-control" value="{{($filledData->currency)??''}}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -440,7 +440,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <div class="">
                                     <div class="row ">
                                         <div class="pr-2 col-12">
-                                            <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
+                                            <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text" <?php if($v->is_required=="yes"){ echo "required";} ?>
                                                 class="form-control form-control" value="{{($filledData->date)??''}}"></div>
                                     </div>
                                 </div>
@@ -462,18 +462,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <div class="py-3 py-md-0 d-md-inline-block ml-md-3">
                                     <?php 
                                         if(isset($alreadyFilldedData['updated_at'])){
-                                            if(isset(Auth::User()->user_timezone)){
-                                                $tz=Auth::User()->user_timezone;
-                                            }else{
-                                                $tz="UTC";
-                                            }
+                                            $tz=(isset(Auth::User()->user_timezone)) ? Auth::User()->user_timezone : "UTC";
                                             $currentConvertedDate= $CommonController->convertUTCToUserTime($alreadyFilldedData['updated_at'],$tz);
                                         ?>
-                                        <span id="last-saved-timestamp" class="text-muted">Last saved {{date('M d,Y h:i a',strtotime($currentConvertedDate))}}</span><?php
-                                        }
-                                        
-                                        ?>
-    
+                                        <span id="last-saved-timestamp" class="text-muted">Last saved {{date('M d,Y h:i a',strtotime($currentConvertedDate))}}</span>
+                                        <?php } ?>    
                                 </div>
                                 <div class="loader-bubble loader-bubble-primary innerLoader" id="innerLoader" ></div>
                             </div>
@@ -483,11 +476,10 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
     
                 <div class="mycase-watermark text-muted text-center">
                     <span class="mr-1">Powered by</span>
-                    <img class="logoView" src="{{BASE_URL}}assets/images/logo.png">
+                    <img class="logoView" src="{{asset('assets/images/logo.png')}}">
                 </div>
             </div>
-            <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden"
-            placeholder="example@email.com">
+            <input class="form-control" value="" id="current_submit" maxlength="250" name="current_submit" type="hidden">
         </form>
         <?php
     }?>
@@ -495,8 +487,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
 </body>
 <script type="text/javascript">
     "use strict";
-    $(document).ready(function () {
-        <?php if(isset($v) && $v->form_field=="birthday"){ ?>
+    $(document).ready(function () {        
         $('#birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -505,8 +496,6 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             endDate: '+0d',
             'todayHighlight': true
         });
-        <?php } 
-        if(isset($v) && $v->form_field=="date"){ ?>
         $('#datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
@@ -514,7 +503,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             'clearBtn': true,
             'todayHighlight': true
         });
-        <?php } ?>
+        
         $(document).on("click", ":submit", function(e){
             $("#current_submit").val($(this).val());
         });
@@ -573,6 +562,15 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                },
            });
        });
+    });
+    jQuery(function($) {
+        var requiredCheckboxes = $(':checkbox[required]');
+        requiredCheckboxes.on('change', function(e) {
+            var checkboxGroup = requiredCheckboxes.filter('[name="' + $(this).attr('name') + '"]');
+            var isChecked = checkboxGroup.is(':checked');
+            checkboxGroup.prop('required', !isChecked);
+        });
+        requiredCheckboxes.trigger('change');
     });
 
 </script>

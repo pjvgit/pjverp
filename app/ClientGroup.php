@@ -15,7 +15,7 @@ class ClientGroup extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = [
-        'group_name','status'
+        'group_name','status','firm_id','is_default','created_by','created_at'
     ];
     protected $appends  = ['createdatnewformate','count_attach_contact','createdby'];
 

@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use App\CasePracticeArea;
-use App\User,App\NotificationSetting,App\CaseStage;
+use App\User,App\NotificationSetting,App\CaseStage,App\ClientGroup;
 use Illuminate\Support\Facades\Log;
 use DB;
 
@@ -65,5 +65,20 @@ trait FirmDefaultSettingTrait {
             array('title'=>'Tax','status' => '1','firm_id' => $user->firm_name,'created_at' => date('Y-m-d h:i:s'),'created_by' => $user->id),
         );
         CasePracticeArea::insert($CasePracticeArea);
+    }
+
+    /**
+     * Insert firm's default client group
+     */
+    public function saveFirmClientGroup($user)
+    {
+        $ClientGroup = ClientGroup::where('firm_id', $user->firm_name)->get();
+        if(count($ClientGroup) == 0){
+            $data = array(
+                array("group_name" => 'Client', "status" => 1, "firm_id" => $user->firm_name, "is_default" => 1, "created_by" => $user->id, "created_at" => date('Y-m-d')),
+                array("group_name" => 'Unassigned', "status" => 1, "firm_id" => $user->firm_name, "is_default" => 1, "created_by" => $user->id, "created_at" => date('Y-m-d')),
+            );        
+            ClientGroup::insert($data);
+        }
     }
 }

@@ -1,3 +1,6 @@
+------------------------------------ 09-FEB-2022 ------------------------------
+ALTER TABLE `client_group`
+ADD `is_default` enum('0','1') NOT NULL DEFAULT '0' AFTER `status`;
 ------------------------------------ 07-FEB-2022 ------------------------------
 ALTER TABLE `invoice_history`
 ADD `is_invoice_cancelled` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `refund_ref_id`;
