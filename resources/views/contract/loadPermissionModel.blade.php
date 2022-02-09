@@ -19,7 +19,9 @@
                     <tbody>
                        
                         <tr>
-                            <td>Clients</td>
+                            <td class="attorney-permissions-object-image">
+                                <img src="{{ asset('icon/sn_clients.svg') }}"> Clients
+                            </td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                 <input type="radio" name="clientsPermission" {{ (in_array('client_add_edit', $userPermissions)) ? 'checked' : '' }} value="client_add_edit"><span
@@ -37,7 +39,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Leads</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_lead.svg') }}"> Leads</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="leadsPermission" {{ (in_array('lead_add_edit', $userPermissions)) ? 'checked' : '' }}  value="lead_add_edit"><span
@@ -57,7 +59,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Cases</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_case.svg') }}"> Cases</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="casesPermission" {{ (in_array('case_add_edit', $userPermissions)) ? 'checked' : '' }}   checked="checked" value="case_add_edit"><span
@@ -75,7 +77,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Events</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_calendar.svg') }}"> Events</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="eventsPermission"  {{ (in_array('event_add_edit', $userPermissions)) ? 'checked' : '' }}  checked="checked" value="event_add_edit"><span
@@ -97,7 +99,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Documents</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_documents.svg') }}"> Documents</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="documentsPermission" {{ (in_array('document_add_edit', $userPermissions)) ? 'checked' : '' }} checked="checked" value="document_add_edit"><span
@@ -120,7 +122,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Commenting</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_comment.svg') }}"> Commenting</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="commentingPermission"  {{ (in_array('commenting_add_edit', $userPermissions)) ? 'checked' : '' }} checked="checked" value="commenting_add_edit"><span
@@ -143,7 +145,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td class="text-nowrap">Text Messaging</td>
+                            <td class="text-nowrap attorney-permissions-object-image"><i class="fas fa-comment" style="font-size: 18px;"></i> Text Messaging</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="textMessagingPermission"  {{ (in_array('text_messaging_add_edit', $userPermissions)) ? 'checked' : '' }}  value="text_messaging_add_edit"><span
@@ -162,7 +164,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Messaging</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_messages.svg') }}"> Messaging</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="messagesPermission"  {{ (in_array('messaging_add_edit', $userPermissions)) ? 'checked' : '' }} value="messaging_add_edit" class="messaging-permission"><span
@@ -198,7 +200,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Billing</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_billing.svg') }}"> Billing</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="billingPermission"  {{ (in_array('billing_add_edit', $userPermissions)) ? 'checked' : '' }}  value="billing_add_edit" class="billing-permission"><span
@@ -245,7 +247,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Reporting</td>
+                            <td class="attorney-permissions-object-image"><img src="{{ asset('icon/sn_reporting.svg') }}"> Reporting</td>
                             <td class="text-center">
                                 <label class="radio radio-outline-success">
                                     <input type="radio" name="reportingPermission" {{ (in_array('reporting_entire_firm', $userPermissions)) ? 'checked' : '' }} value="reporting_entire_firm"><span

@@ -37,7 +37,9 @@ if(isset($_GET['type'])){
                 <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
                     <button onclick="setFeedBackForm('rating','Lead Details');" type="button" class="btn btn-link pr-4 d-print-none text-black-50">Tell us what you think</button>
                 </a>
+                @can('lead_add_edit')
                 <a data-toggle="modal"  data-target="#AddCaseModel" data-placement="bottom" href="javascript:;" > <button onclick="loadStep1('{{$LeadData->user_id}}');" class="btn btn-primary btn-rounded m-1 px-5" type="button">Convert to Case</button></a>
+                @endcan
             <?php } ?>
         </div>
     </div>

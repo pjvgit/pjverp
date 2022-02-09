@@ -26,8 +26,9 @@
     </ul>
 
     <div class="ml-auto d-flex align-items-center d-print-none">
+        @can("lead_add_edit")
         <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="{{BASE_URL}}lead_setting#Statuses">Customize</a>
-
+        @endcan
         <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">
             <button onclick="setFeedBackForm('single','Lead Management');" type="button" class="btn btn-link pr-4 d-print-none text-black-50">Tell us what you think</button>
         </a>
@@ -41,6 +42,7 @@
               <a class="btn btn-link pr-4 d-print-none text-black-50" rel="facebox" href="javascript:void(0);" onclick="printData();"> <i class="fas fa-print"></i> Print</a> 
        <?php
         }?>
+        @can("lead_add_edit")
         <span id="settingicon" class="pr-2">
             <button class="btn btn-secondry dropdown-toggle settingButtons" id="shuesuid" type="button"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -61,8 +63,11 @@
                 </div>
             </div>
         </span>
+        @endcan
+        @can("lead_add_edit")
         <a data-toggle="modal" data-target="#addLead" data-placement="bottom" href="javascript:;">
             <button disabled class="btn btn-primary btn-rounded m-1" id="leadButton" type="button"
                 onclick="addLead();">Add Lead</button></a>
+        @endcan
     </div>
 </div>

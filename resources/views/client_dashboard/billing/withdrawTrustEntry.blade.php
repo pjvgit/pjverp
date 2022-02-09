@@ -87,7 +87,7 @@
             <br>
             <div class="collapse" id="accordion-item-icons-4" style="">
                 <div class="row form-group">
-                    <label for="notes" class="text-sm-right pr-0 col-sm-3 col-form-label">Trust Account</label>
+                    <label for="notes" class="text-sm-right pr-0 col-sm-3 col-form-label">Operating Account</label>
                     <div class="col-12 col-sm-9">
                         <div>
                             <div class="">

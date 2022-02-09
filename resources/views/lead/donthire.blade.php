@@ -42,6 +42,7 @@ if(isset($_GET['ld'])){
                                 <button type="button" id="opportunity-export-csv-button"  class="btn btn-info btn-rounded">
                                     <div class="d-flex align-items-center"><span>Export CSV</span></div>
                                 </button></a>
+                                @can("lead_add_edit")
                                 <span id="settingicon" class="pr-2">
                                     <div class="ml-2" id="element" data-toggle="tooltip" data-placement="bottom" title="You must select one or more leads from the table to use any of the bulk action." >
                                         <button class="btn btn-light m-1 dropdown-toggle settingButtons" data-toggle="dropdown" id="actionbutton" disabled="disabled" aria-haspopup="true"
@@ -62,7 +63,7 @@ if(isset($_GET['ld'])){
                                         </div>
                                     </div>
                                 </span>
-                                
+                                @endcan
                             </div>
                         </div>
                     </div>
@@ -462,7 +463,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 // $('td:eq(0)', nRow).html('<div class="text-center"><a class="name" href="'+baseUrl+'/court_cases/'+aData.case_unique_number+'/info">'+aData.case_title+'</a></div>');
                 // $('td:eq(7)', nRow).html('<div class="text-center"><div class="details">'+aData.created_new_date+'<small> by <a href="'+baseUrl+'/contacts/attorneys/'+aData.createdby+'">'+aData.created_by_name+'</a></small></div></div>');
                 
+                @can("lead_add_edit")
                 $('td:eq(11)', nRow).html('<div class="d-flex align-items-center"><a data-toggle="modal"  data-target="#editLead" onclick="editLead('+aData.user_id+');" data-placement="bottom" href="javascript:;"   title="Edit" data-testid="edit-button" class="btn btn-link"><i class="fas fa-pencil-alt text-black-50"></i></a><a data-toggle="modal"  data-target="#backToActivePopup" data-placement="bottom" href="javascript:;"   title="Reactivate" data-testid="mark-no-hire-button" class="btn btn-link" onclick="backToActive('+aData.id+');"><i class="fas fa-archive text-black-50 m-2"></i></a><a data-toggle="modal"  data-target="#deleteLead" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteLeadFunction('+aData.user_id+');"><i class="fas fa-trash text-black-50"></i></a></div>');
+                @else
+                $('td:eq(11)', nRow).html('');
+                @endcan
                         
             },
             "initComplete": function(settings, json) {

@@ -5,9 +5,9 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
     <div class="col-md-12 selenium-invoice-number">Contact: {{$userData['user_name']}}  (<?php echo $CommonController->getUserTypeText($userData['user_level']); ?>)</div>
     <div class="col-md-12 selenium-invoice-number">
         @if($case)
-        <strong>{{ $case->case_title }} Current Balance: ${{number_format($case->total_allocated_trust_balance, 2)}}</strong>
+        <strong>{{ $case->case_title }} Current Balance: ${{number_format($case->allocated_trust_balance, 2)}}</strong>
         @else
-        <strong>Current Balance: ${{number_format($userData['trust_account_balance'],2)}}</strong>
+        <strong>Current Balance: ${{number_format(($userData['trust_account_balance'] - $case->allocated_trust_balance),2)}}</strong>
         @endif
     </div>
 </div>
