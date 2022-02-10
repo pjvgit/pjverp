@@ -78,7 +78,7 @@ function payinvoice(id) {
 }
 
 function deleteInvoice(id) {
-    $("#deleteInvoice").modal("show");
+    $("#deleteInvoicePopup").modal("show");
     $("#delete_invoice_id").val(id);
 }
 

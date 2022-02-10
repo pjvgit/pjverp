@@ -32,7 +32,7 @@
                                 data-placement="top" title="" data-original-title="Download"></i>
                         </a>
                         <a class="btn btn-lg btn-link px-2 text-black-50" 
-                            data-toggle="modal" data-target="#deleteInvoice" onclick="deleteInvoice({{$findInvoice->id}});">
+                            data-toggle="modal" data-target="#deleteInvoicePopup" onclick="deleteInvoice({{$findInvoice->id}});">
                             <i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i>
                         </a>
 
@@ -381,7 +381,7 @@
     <br>    </div>
     </div>
 </div>
-<div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
@@ -415,7 +415,8 @@
             </div>
         </form>
     </div>
-</div>
+</div> --}}
+@include('billing.invoices.partials.delete_invoice_modal')
 
 <div id="shareInvoicePopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
