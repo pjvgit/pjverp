@@ -84,7 +84,7 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
                     }
                     $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#sendInvoice" onclick="sendInvoice('.$aData->id.')" data-placement="bottom"><i class="fas fa-paper-plane" data-toggle="tooltip" data-placement="top" title="" data-original-title="Send"></i></a>';
                     $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#downloadInvoice" onclick="downloadInvoice('.$aData->id.');"> <i class="fas fa-fw fa-cloud-download-alt test-download-bill" data-toggle="tooltip" data-placement="top" title="" data-original-title="Download"></i></a>';
-                    $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#deleteInvoice" onclick="deleteInvoice('.$aData->id.');"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                    $editOption.='<a class="btn btn-lg btn-link px-2 text-black-50" data-toggle="modal"  data-target="#deleteInvoicePopup" onclick="deleteInvoice('.$aData->id.');"><i class="fas fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
                         
                     echo '<td width="20%"><div class="d-flex align-items-center float-right">'.$editOption.'</div></td>';
                 ?>                
@@ -156,7 +156,13 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
                     <div class="showError" style="display:none"></div>
                     <div class="row">
                         <div class="col-md-12" id="confirmAccess">
-                            Are you sure you want to delete this invoice?
+                            <p>Are you sure you want to delete this Invoice?</p>
+                            <ul>
+                                <li>This action can’t be undone</li>
+                                <li>Time entries, expenses and flat fee entries will be put back into the system in their "Open" state.</li>
+                                <li>All payments and refunds made against the invoice WILL BE DELETED. If trust funds were used to pay the invoice, those funds will be returned to the client's trust fund. Other funds with different origin will be sent to the client's trust fund as well.</li>
+                                <li>Firm users working on the case will receive a notification</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

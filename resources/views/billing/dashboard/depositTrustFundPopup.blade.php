@@ -7,7 +7,7 @@ $paymentMethod = unserialize(PAYMENT_METHOD);
         @if($case)
         <strong>{{ $case->case_title }} Current Balance: ${{number_format($case->allocated_trust_balance, 2)}}</strong>
         @else
-        <strong>Current Balance: ${{number_format(($userData['trust_account_balance'] - $case->allocated_trust_balance),2)}}</strong>
+        <strong>Current Balance: ${{number_format($unallocatedTrustBalance,2)}}</strong>
         @endif
     </div>
 </div>

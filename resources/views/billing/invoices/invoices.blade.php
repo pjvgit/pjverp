@@ -1076,7 +1076,7 @@ td,th{
                         }
                         var deletes = '';
                         @can('delete_items')
-                            deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                            deletes='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('+aData.id+');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
                         @endcan
                         $('td:eq(12)', nRow).html('<div class="text-center" style="white-space: nowrap;float:right;">'+reminder+' '+dollor+' '+deletes+'</div>');
                     }
@@ -1610,11 +1610,11 @@ td,th{
     //     })
     // }
     function deleteInvoice(id) {
-        $("#deleteInvoice").modal("show");
+        $("#deleteInvoicePopup").modal("show");
         $("#delete_invoice_id").val(id);
     }
     function deleteBulkExpense(id) {
-        $("#deleteInvoice").modal("show");
+        $("#deleteInvoicePopup").modal("show");
         $("#delete_invoice_id").val(id);
     }
     function deleteBulkInvoice() {

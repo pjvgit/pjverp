@@ -1029,6 +1029,9 @@ class ClientdashboardController extends BaseController
                         $ftype = "Payment from Trust ".$allocateTxt." to Operating Account";
                     }else if($data->fund_type=="refund payment"){
                         $ftype = "Refund Payment from Trust ".$allocateTxt." to Operating Account";
+                    }else if($data->fund_type=="payment deposit"){
+                        $ftype = "Deposit into Trust (Invoice #".$data->related_to_invoice_id." Cancellation)";
+                        return $ftype;
                     } else {
                         $ftype = '';
                     }
@@ -4191,7 +4194,7 @@ class ClientdashboardController extends BaseController
                     if($data->status!="Paid"){
                         $action .='<span data-toggle="tooltip" data-placement="top" title="Record Payment"><a data-toggle="modal"  data-target="#payInvoice" data-placement="bottom" href="javascript:;"  onclick="payinvoice('.$data->id.');"><i class="fas fa-dollar-sign align-middle p-2"></i></a></span>';
                     }
-                    $action .='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('.$data->id.');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
+                    $action .='<span data-toggle="tooltip" data-placement="top" title="Delete"><a data-toggle="modal"  data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;"  onclick="deleteInvoice('.$data->id.');"><i class="fas fa-trash align-middle p-2"></i></a></span>';
                     }
                 }
                 return $action;

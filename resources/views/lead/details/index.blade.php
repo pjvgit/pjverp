@@ -1287,7 +1287,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
 
                     var editOption='<a  data-toggle="modal"  data-target="#editInvoice" onclick="editInvoice('+aData.id+')" data-placement="bottom"   href="javascript:;"  class="btn btn-link copyButton"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Edit"><i class="fas fa-pen align-middle" data="MyText"></i></span></a>';
 
-                    var deleteOption='<a data-toggle="modal"  data-target="#deleteInvoice" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteInvoiceFunction('+aData.id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a>';
+                    var deleteOption='<a data-toggle="modal"  data-target="#deleteInvoicePopup" data-placement="bottom" href="javascript:;"   title="Delete" data-testid="delete-button" class="btn btn-link" onclick="deleteInvoiceFunction('+aData.id+','+aData.id+');" ><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Delete"><i class="fas fa-trash "></i></span></a>';
                     
                     var payOption='';
                     if(aData.is_pay!="Paid"){
