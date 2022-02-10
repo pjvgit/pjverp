@@ -1056,7 +1056,7 @@ class BillingController extends BaseController
              }
 
          } */
-        if(isset($requestData['type']) && $requestData['type'] != '') {
+        if(isset($requestData['type']) && $requestData['type'] != 'all') {
             $case = $case->where("status", $requestData['type']);
         }
          $totalData=$case->count();
@@ -11666,7 +11666,7 @@ class BillingController extends BaseController
      */
     public function fundOnlinePayment(Request $request)
     {   
-        // return $request->all();s
+        // return $request->all();
         $request['amount'] = str_replace(",", "", $request->amount);
         if(isset($request->applied_to) && $request->applied_to != 0) {
             $requestData = RequestedFund::find($request->applied_to);
@@ -11748,7 +11748,7 @@ class BillingController extends BaseController
         $validOrderWithCharge = [
             'line_items' => [
                 [
-                    'name' => ucfirst($request->type).' number '.$request->payable_record_id,
+                    'name' => ucfirst($request->type).' number '.($request->applied_to) ? $request->applied_to : $client->id,
                     'unit_price' => (int)$payableAmount * 100,
                     'quantity' => 1,
                 ]
