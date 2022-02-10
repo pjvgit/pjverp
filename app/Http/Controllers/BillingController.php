@@ -1056,7 +1056,7 @@ class BillingController extends BaseController
              }
 
          } */
-        if(isset($requestData['type']) && $requestData['type'] != 'all') {
+        if($requestData['type'] != '' && $requestData['type'] != 'all') {
             $case = $case->where("status", $requestData['type']);
         }
          $totalData=$case->count();
