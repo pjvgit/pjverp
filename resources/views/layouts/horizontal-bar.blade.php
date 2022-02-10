@@ -35,7 +35,7 @@
                                 <label class="toggle" for="drop-2">
                                     Calender
                                 </label>
-                                <a href="{{route('events/')}}">Calender</a><input type="checkbox" id="drop-2"><input
+                                <a href="{{route('events/')}}">Calender <span class="badge badge-secondary eventCount" style="margin-bottom: 10px;"></span></a><input type="checkbox" id="drop-2"><input
                                     type="checkbox" id="drop-2">
                                 <ul>
 
@@ -77,7 +77,7 @@
                         <div>
                             <div>
                                 <label class="toggle" for="drop-2">Tasks</label>
-                                <a href="{{route('tasks')}}">Tasks</a><input type="checkbox" id="drop-2">
+                                <a href="{{route('tasks')}}">Tasks <span class="badge badge-secondary taskCount" style="margin-bottom: 10px;"></span></a><input type="checkbox" id="drop-2">
 
                             </div>
                         </div>

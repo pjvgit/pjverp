@@ -1037,12 +1037,14 @@ class UserController extends BaseController
         
         $email = $request->email;
         $feed = $request->feed;
+        $app = $request->app;
         
         $finalArray = [];
         foreach ($notifications as $key => $item) {
             $finalArray[$key] = [
                 'for_email' => (isset($email) && array_key_exists($key, $email) && $email[$key] == 1) ? "yes" : "no",
                 'for_feed' => (isset($feed) && array_key_exists($key, $feed) && $feed[$key] == 1) ? "yes" : "no",
+                'for_app' => (isset($app) && array_key_exists($key, $app) && $app[$key] == 1) ? "yes" : "no",
             ];
         }
         // return $finalArray;

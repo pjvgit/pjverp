@@ -18,11 +18,20 @@ trait FirmDefaultSettingTrait {
         foreach ($notifications as $key => $item) {
             $finalArray[$key] = [
                 'for_email' => "yes",
-                'for_feed' => "yes"
+                'for_feed' => "yes",
+                'for_app' => "no",
             ];
         }
         $user->userNotificationSetting()->sync($finalArray);
 
+        $notificationSetting = NotificationSetting::whereIn("type", ["calendars","tasks"])->whereIn("action", ["add","update"])->get();
+        foreach($notificationSetting as $key => $item){
+            if($item->type == "calendars" && $item->action == "update"){
+                DB::table('user_notification_settings')->updateOrInsert(['user_id' => $user_id,"notification_id"=>$item->id],['user_id' => $user_id, 'for_app' => 'no']);    
+            }else{
+                DB::table('user_notification_settings')->updateOrInsert(['user_id' => $user_id,"notification_id"=>$item->id],['user_id' => $user_id, 'for_app' => 'yes']);    
+            }
+        }
         DB::table('user_notification_interval')->updateOrInsert(['user_id' => $user_id],['user_id' => $user_id, 'notification_email_interval' => 1440]);
     }
     

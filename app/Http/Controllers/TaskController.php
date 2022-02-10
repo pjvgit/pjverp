@@ -16,7 +16,7 @@ use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
-use App\TaskHistory,App\LeadAdditionalInfo;
+use App\TaskHistory,App\LeadAdditionalInfo,App\AllHistory;
 use App\FirmAddress,App\CaseEventLinkedContactLead,App\SmartTimer,App\UserPreferanceReminder;
 use App\Jobs\TaskCommentEmailJob;
 
@@ -141,6 +141,9 @@ class TaskController extends BaseController
         $firmAddress = FirmAddress::select("firm_address.*","countries.name as countryname")->leftJoin('countries','firm_address.country',"=","countries.id")->where("firm_address.firm_id",Auth::User()->firm_name)->orderBy('firm_address.is_primary','ASC')->get();
     
         $caseLeadList = userLeadList();
+
+        // read all app notifications
+        // AllHistory::where('type','task')->update(['is_read'=>0]);
         return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress','caseLeadList'));
     }
 

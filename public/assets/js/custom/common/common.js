@@ -9,16 +9,22 @@ function popupNotification() {
     $.ajax({
         url: baseUrl + "/get/popup/notification",
         type: 'GET',
-        success: function(data) {
-            if (data != "") {
+        success: function(result) {
+            if (result.view != "") {
                 if (typeof $.cookie('is_popup_dismissed') === 'undefined') {
-                    $("#notify_modal_body").html(data);
+                    $("#notify_modal_body").html(result.view);
                     $("#notification_popup").modal('show');
                 } else {
                     console.log("cookie set");
                 }
             } else {
                 $("#notification_popup").modal('hide');
+                if(result.appNotificaionCount.eventCount){
+                    $(".eventCount").html('').html(result.appNotificaionCount.eventCount);
+                }
+                if(result.appNotificaionCount.taskCount){
+                    $(".taskCount").html('').html(result.appNotificaionCount.taskCount);
+                }
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {

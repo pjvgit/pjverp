@@ -351,9 +351,9 @@ class ContractController extends BaseController
         ];
         $user->givePermissionTo($permissions);
         
-        // allowed user to show in list
-        $user->user_status  = "1";
-        $user->save();
+        // // allowed user to show in list
+        // $user->user_status  = "1";
+        // $user->save();
 
         $data=[];
         $data['user_id']=Auth::User()->id;

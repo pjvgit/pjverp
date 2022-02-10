@@ -582,11 +582,7 @@ $convertedEndDateTime= $CommonController->convertUTCToUserTime(date('Y-m-d H:i:s
         });
        
         $(".hide").hide();
-        $(".add-more").click(function () {
-            var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
-                '</div>';
-            $('body').find('.fieldGroup:last').before(fieldHTML);
-        });
+        
         $('#SingleEditEventForm').on('click', '.remove', function () {
             var $row = $(this).parents('.fieldGroup').remove();
         });

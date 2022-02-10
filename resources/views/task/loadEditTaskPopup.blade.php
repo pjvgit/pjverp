@@ -356,11 +356,12 @@
 
         $('#CreateTask').submit(function (e) {
             e.preventDefault();
-         //   $(this).find(":submit").prop("disabled", true);
+            $(this).find(":submit").prop("disabled", true);
             $(".innerLoader").css('display', 'block');
             if (!$('#CreateTask').valid()) {
                 $(".innerLoader").css('display', 'none');
                 $('.submit').removeAttr("disabled");
+                $(this).find(":submit").prop("disabled", false);
                 return false;
             }
             var dataString = $("#CreateTask").serialize();
@@ -383,13 +384,13 @@
                         $('#showError').show();
                         $(".innerLoader").css('display', 'none');
                         $('.submit').removeAttr("disabled");
+                        $(this).find(":submit").prop("disabled", false);
                         // $('#editTask').animate({ scrollTop: 0 }, 'slow'); 
 
                         return false;
                     } else {
-                       window.location.reload();
+                        window.location.reload();
                         $(".innerLoader").css('display', 'none');
-
                     }
                 }
             });
@@ -402,7 +403,6 @@
             } else {
                 $('#start_time').removeAttr("readonly");
                 $('#end_time').removeAttr("readonly");
-
             }
         });
         $("input:checkbox.no_case_link").click(function () {
@@ -433,8 +433,6 @@
                 $('#repeat_dropdown').hide();
             }
         });
-
-
     });
 
     function removeUser(id) {
@@ -453,7 +451,6 @@
     }
 
     function loadStep2(res) {
-
         console.log(res);
         $('#smartwizard').smartWizard("next");
         $(".innerLoader").css('display', 'none');
@@ -467,8 +464,7 @@
                 $("#step-2").html(res);
                 $("#preloader").hide();
             }
-        })
-
+        });
         return false;
     }
 
@@ -481,8 +477,7 @@
                 "case_id": case_id
             },
             success: function (res) {
-                $("#CaseClientSection").html(res);
-               
+                $("#CaseClientSection").html(res);               
             }
         })
     }
@@ -497,13 +492,11 @@
                 "task_id":{{$Task->id}}
             },
             success: function (res) {
-                $("#CaseLinkedStaffSection").html(res);
-              
+                $("#CaseLinkedStaffSection").html(res);              
             }
         })
     }
-    function loadCaseNoneLinkedStaff(case_id) {
-      
+    function loadCaseNoneLinkedStaff(case_id) {      
         $.ajax({
             type: "POST",
             url: baseUrl + "/tasks/loadCaseNoneLinkedStaffForTask",
@@ -590,7 +583,6 @@
                     // $('input:checkbox#time_tracking_enabled').trigger('click');
                     if($("input:checkbox#time_tracking_enabled").is(":checked")){
                         var SU = getCheckedUser();
-                        // alert(593);
                         loadTimeEstimationUsersList(SU);
                     }
                 }, 1000);        
@@ -617,8 +609,7 @@
             }
             $("#CaseClientSection").html('');
         } else {
-            $("#CaseLinkedStaffSection").html('');
-            
+            $("#CaseLinkedStaffSection").html('');            
         }
         afterLoader();
     });

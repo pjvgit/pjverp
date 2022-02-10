@@ -5386,27 +5386,33 @@ class CaseController extends BaseController
         // return $request->all();
         $event_id=$request->event_id;
         // $this->saveEventReminder($request,$event_id);
-        foreach($request->reminder['user_type'] as $key => $item) {
-            CaseEventReminder::updateOrCreate([
-                'id' => @$request->reminder['id'][$key],
-                'event_id' => $event_id
-            ], [
-                'reminder_type' => $request->reminder['type'][$key],
-                'reminer_number' => $request->reminder['number'][$key],
-                'reminder_frequncy' => $request->reminder['time_unit'][$key],
-                'reminder_user_type' => $item,
-                'created_by' => Auth::user()->id,
-                'remind_at' => Carbon::now(),
-            ]);
-        }
-
-        // Delete deleted reminders
-        $reminderIds = explode(",", $request->deleted_reminder_id);
-        $reminders = CaseEventReminder::whereIn("id", $reminderIds)->get();
-        if($reminders) {
-            foreach($reminders as $key => $item) {
-                $item->delete();
+        if(isset($request->reminder['user_type'])){
+            foreach($request->reminder['user_type'] as $key => $item) {
+                CaseEventReminder::updateOrCreate([
+                    'id' => @$request->reminder['id'][$key],
+                    'event_id' => $event_id
+                ], [
+                    'reminder_type' => $request->reminder['type'][$key],
+                    'reminer_number' => $request->reminder['number'][$key],
+                    'reminder_frequncy' => $request->reminder['time_unit'][$key],
+                    'reminder_user_type' => $item,
+                    'created_by' => Auth::user()->id,
+                    'remind_at' => Carbon::now(),
+                ]);
             }
+
+        
+            // Delete deleted reminders
+            $reminderIds = explode(",", $request->deleted_reminder_id);
+            $reminders = CaseEventReminder::whereIn("id", $reminderIds)->get();
+            if($reminders) {
+                foreach($reminders as $key => $item) {
+                    $item->delete();
+                }
+            }
+        }else{
+            // for fix save reminder on event edit from calender view
+            $this->saveEventReminder($request,$event_id);
         }
         return response()->json(['errors'=>'','msg'=>'Reminders successfully updated']);
         exit;    

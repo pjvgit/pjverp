@@ -1,3 +1,8 @@
+------------------------------------ 10-FEB-2022 ------------------------------
+ALTER TABLE `user_notification_settings`
+ADD `for_app` enum('yes','no') COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'no';
+ALTER TABLE `all_history`
+ADD `is_read` tinyint NULL DEFAULT '0' AFTER `client_id`;
 ------------------------------------ 09-FEB-2022 ------------------------------
 ALTER TABLE `client_group`
 ADD `is_default` enum('0','1') NOT NULL DEFAULT '0' AFTER `status`;

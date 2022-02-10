@@ -1,9 +1,8 @@
 <form class="editReminder" id="editReminder" name="editReminder" method="POST">
     <input class="form-control" id="id" value="{{ $event_id}}" name="event_id" type="hidden">
     @csrf
-    <div class="row">
+    <div class="row" bladefile="resources/views/case/event/loadReminderPopup.blade.php">
     <div class="col-md-12">
-
         <div class="text-muted mb-3">You can only edit reminders that you created. Reminders assigned to you by another
             firm user will need to be edited by the creator.</div>
       
@@ -14,7 +13,7 @@
                         <?php
                             foreach($eventReminderData as $rkey=>$rval){
                             ?>
-                            <div class="form-group fieldGroup">
+                            <div class="row form-group fieldGroup">
                                 <div class="">
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
@@ -144,7 +143,7 @@
                 return false;
             }
             var dataString ='';
-             dataString = $("form").serialize();
+             dataString = $("#editReminder").serialize();
             $.ajax({
                 type: "POST",
                 url: baseUrl + "/court_cases/saveReminderPopup", // json datasource

@@ -21,7 +21,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo,App\AllHistory,App\Feedback;
 use App\Invoices,App\EmailTemplate;
 use App\Http\Requests\MultiuserRequest;
-use App\TaskReminder,App\SmartTimer,App\PauseTimerEntrie;
+use App\TaskReminder,App\SmartTimer,App\PauseTimerEntrie,App\NotificationSetting;
 use App\Traits\EventReminderTrait;
 use App\Traits\TaskReminderTrait;
 use App\UserInterestedModule;
@@ -752,11 +752,55 @@ class HomeController extends BaseController
             }
         }
 
+        // for showing app notifications
+        $eventCount = $taskCount = 0;
+        $firmData = [];
+        $staffData = [];
+        $AllHistoryData = AllHistory::where('is_read', 1)->where('firm_id', auth()->user()->firm_name)->get();
+        $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
+        foreach($AllHistoryData as $key=>$val){ 
+            // echo 'user->parent_user >'.Auth::user()->parent_user.' > createdBy > '. $val->created_by;
+            // echo "<br>";
+            if(Auth::user()->parent_user == $val->created_by){
+                // print('firmData > id >'.$val->id);
+                $firmData[$key] = $val;
+            }else{
+                if(Auth::user()->parent_user_id == 0 && Auth::user()->id != $val->created_by){
+                    // print('staffData > id >'.$val->id);
+                    $staffData[$key] = $val;                
+                }
+            }
+        }
+        // dd($AllHistoryData);
+        if(!empty($firmData)){
+            foreach ($firmData as $k=>$v){
+                if($v->type == 'event'){
+                    $eventCount += 1;
+                }
+                if($v->type == 'task'){
+                    $taskCount += 1;
+                }           
+            }
+            $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
+        }
+        if(!empty($staffData)){
+            foreach ($staffData as $k=>$v){
+                if($v->type == 'event'){
+                    $eventCount += 1;
+                }
+                if($v->type == 'task'){
+                    $taskCount += 1;
+                }           
+            }
+            $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
+        }
+        // for showing app notifications
+
         $view = '';
         if(count($events)) {
             $view = view("dashboard.popup_notification", ["result" => $events])->render();
         }
-        return $view;
+        return response()->json(["view" => $view, "appNotificaionCount" => $appNotificaionCount]);
     }
 
     /**

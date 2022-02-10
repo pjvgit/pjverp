@@ -43,7 +43,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             Recent Activity Email Frequency
           </label>
           <div style="float: left; padding-top: 8px; margin-left: 4px;">
-            <a class="help_tip" href="#" onclick="; return false;"><img src="https://assets.mycase.com/packs/svg/table_icons/question_mark_icon-abef3e2eca.svg"></a>
+            <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="" data-original-title="Select the frequency at which you would like to receive your Recent Activity email. This email will contain all activity notifications that have the email column checked below. If there is no activity you will not receive an email."></i>
           </div>
           <div style="float: left; margin-left: 20px;">
             <select name="notification_email_interval" id="notification_email_interval" class="custom-select">
@@ -113,10 +113,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                         <div class="text-center">
                           In-App Notification
-                          <a class="help_tip" href="#" onclick="; return false;"><img src="https://assets.mycase.com/packs/svg/table_icons/question_mark_icon-abef3e2eca.svg"></a>
+                          <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="" data-original-title="In-App notifications are the green 'bubbles' that appear along the tabs at the top for unread items."></i>
                         </div>
                         <div class="text-center mt-2">
-                          <input type="checkbox" name="section-method-all-1-3" id="section-method-all-1-3" value="1" class="all-notifications-toggle" data-method="3">
+                          <input type="checkbox" name="section-method-all-1-3" id="section-method-all-1-3" value="1" class="all-notifications-toggle calendar-app" data-method="3">
                         </div>
                     </th>
                   </tr>
@@ -134,12 +134,15 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-calendar-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
+                        @if(in_array($v->action,['add']))
+                        <input type="checkbox" name="app[{{$v->id}}]" id="app_{{$v->id}}" value="1" class="app-toggle all-calendar-app" data-method="3" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_app == 'yes')  ? 'checked="checked"' :''; ?>>
+                        @endif
                     </td>
                 </tr>
                 @endif
                 @endforeach
                 </tbody>
-                <thead class="bg-light" id="notifications-section-12">
+                <thead class="bg-light m2" id="notifications-section-12">
                   <tr>
                     <th class="font-weight-bold" style="vertical-align: middle">
                       Documents
@@ -159,7 +162,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                         <div class="text-center">
                           In-App Notification
-                          <a class="help_tip" href="#" onclick="; return false;"><img src="https://assets.mycase.com/packs/svg/table_icons/question_mark_icon-abef3e2eca.svg"></a>
+                          <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="" data-original-title="In-App notifications are the green 'bubbles' that appear along the tabs at the top for unread items."></i>
                         </div>
                         <div class="text-center mt-2">
                           <input type="checkbox" name="section-method-all-12-3" id="section-method-all-12-3" value="1" class="all-notifications-toggle" data-method="3">
@@ -167,8 +170,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     </th>
                   </tr>
                 </thead>
-
-                <tbody>
+                <tbody class="m2">
                 @foreach($notificationSetting as $k => $v)   
                 @if($v->type == 'documents')             
                 <tr srid={{$k}}>
@@ -205,10 +207,10 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                     <th style="vertical-align: middle">
                         <div class="text-center">
                           In-App Notification
-                          <a class="help_tip" href="#" onclick="; return false;"><img src="https://assets.mycase.com/packs/svg/table_icons/question_mark_icon-abef3e2eca.svg"></a>
+                          <i id="event-toggle-note" aria-hidden="true" class="fa fa-question-circle icon-question-circle icon ml-1" data-toggle="tooltip" title="" data-original-title="In-App notifications are the green 'bubbles' that appear along the tabs at the top for unread items."></i>
                         </div>
                         <div class="text-center mt-2">
-                          <input type="checkbox" name="section-method-all-11-3" id="section-method-all-11-3" value="1" class="all-notifications-toggle" data-method="3">
+                          <input type="checkbox" name="section-method-all-11-3" id="section-method-all-11-3" value="1" class="all-notifications-toggle task-app" data-method="3">
                         </div>
                     </th>
                   </tr>
@@ -226,6 +228,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         <input type="checkbox" name="feed[{{$v->id}}]" id="feed_{{$v->id}}" value="1" class="feed-toggle all-task-feed" data-method="2" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_feed == 'yes')  ? 'checked="checked"' :''; ?>>
                     </td>
                     <td class="text-center">
+                        @if(in_array($v->action,['add','update']))
+                        <input type="checkbox" name="app[{{$v->id}}]" id="app_{{$v->id}}" value="1" class="app-toggle all-task-app" data-method="3" <?php echo (isset($userNotificationSetting[$k]) && $userNotificationSetting[$k]->for_app == 'yes')  ? 'checked="checked"' :''; ?>>
+                        @endif
                     </td>
                 </tr>
                 @endif
@@ -457,12 +462,36 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
           }
         });
 
+        //select all Calendar app checkboxes
+        $(".calendar-app").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-calendar-app').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-calendar-app').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".calendar-app")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-calendar-app:checked').length == $('.all-calendar-app').length ){ 
+            $(".calendar-app")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+
         if ($('.all-calendar-email:checked').length == $('.all-calendar-email').length ){ 
           $(".calendar-email")[0].checked = true; //change "select all" checked status to true
         }
         if ($('.all-calendar-feed:checked').length == $('.all-calendar-feed').length ){ 
           $(".calendar-feed")[0].checked = true; //change "select all" checked status to true
         }
+        if ($('.all-calendar-app:checked').length == $('.all-calendar-app').length ){ 
+          $(".calendar-app")[0].checked = true; //change "select all" checked status to true
+        }
+
         //Documents
         //select all Documents email checkboxes
         $(".documents-email").change(function(){  //"select all" change 
@@ -550,11 +579,35 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
             $(".task-feed")[0].checked = true; //change "select all" checked status to true
           }
         });
+
+        //select all Tasks app checkboxes
+        $(".task-app").change(function(){  //"select all" change 
+          var status = this.checked; // "select all" checked status
+          $('.all-task-app').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+          });
+        });
+
+        $('.all-task-app').change(function(){ //".checkbox" change 
+          //uncheck "select all", if one of the listed checkbox item is unchecked
+          if(this.checked == false){ //if this item is unchecked
+            $(".task-app")[0].checked = false; //change "select all" checked status to false
+          }
+          
+          //check "select all" if all checkbox items are checked
+          if ($('.all-task-app:checked').length == $('.all-task-app').length ){ 
+            $(".task-app")[0].checked = true; //change "select all" checked status to true
+          }
+        });
+        
         if ($('.all-task-email:checked').length == $('.all-task-email').length ){ 
           $(".task-email")[0].checked = true; //change "select all" checked status to true
         }
         if ($('.all-task-feed:checked').length == $('.all-task-feed').length ){ 
           $(".task-feed")[0].checked = true; //change "select all" checked status to true
+        }
+        if ($('.all-task-app:checked').length == $('.all-task-app').length ){ 
+          $(".task-app")[0].checked = true; //change "select all" checked status to true
         }
 
         //Time & Billing

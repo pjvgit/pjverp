@@ -84,6 +84,7 @@ class CommonController extends BaseController {
     }
     public function addMultipleHistory($data){
         $authUserNotificationSetting = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_feed', 'yes')->get();
+        $authUserNotificationSettingForApp = auth()->user()->userNotificationSetting()->where('user_notification_settings.for_app', 'yes')->get();
         
         $AllHistory=new AllHistory;
         $AllHistory->case_id=($data['case_id'])??NULL;
@@ -129,7 +130,14 @@ class CommonController extends BaseController {
             if($setting->sub_type == 'time_entry' && $data['type'] == 'expenses'){
                 $viewInMail = 1;
             }
-        }                    
+        }
+        
+        foreach($authUserNotificationSettingForApp as $n => $setting){
+            if($setting->sub_type == $data['type'] && $setting->action == $data['action']){
+                $AllHistory->is_read = 1;
+            }
+        }
+
         $ignoreTypes = ['fundrequest','credit','deposit','other'];
         $ignoreActions = ['pay_delete'];
         if($viewInMail == 1){
