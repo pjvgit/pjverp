@@ -236,7 +236,9 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                         </div>
                     </div>
                 </div>
-                <button class="w-100 btn btn-outline-secondary m-1" type="button">Tell us what you think</button>
+                <a data-toggle="modal" data-target="#loadAddFeedBack" data-placement="bottom" href="javascript::void(0);">                                    
+                    <button onclick="setFeedBackForm('rating','Timesheet Calender');"  type="button" class="w-100 btn btn-outline-secondary m-1">Tell us what you think</button>
+                </a>
             </div>
         </div>
     </div>
@@ -455,6 +457,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
 {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@1.10.1/dist/scheduler.min.js" ></script> --}}
 <script src="{{ asset('assets\js\custom\calendar\addevent.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 <script src="{{ asset('assets\js\custom\calendar\viewevent.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\feedback.js?').env('CACHE_BUSTER_VERSION') }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function () {

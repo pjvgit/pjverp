@@ -881,9 +881,13 @@ class ContractController extends BaseController
         if(isset($request->adjustment_token)){
             $adjustment_token.=$request->adjustment_token;
         }
-        
+        $action = '';
+        if(isset($request->action)){
+            $action = $request->action;
+        }
+
         $client_portal_access=Firm::find(Auth::User()->firm_name);
-        return view('client.addClient',compact("country",'ClientGroup','CompanyList','case_id','company_id','client_portal_access','adjustment_token'));
+        return view('client.addClient',compact("country",'ClientGroup','CompanyList','case_id','company_id','client_portal_access','adjustment_token', 'action'));
     }
     public function saveAddContact(Request $request)
     {

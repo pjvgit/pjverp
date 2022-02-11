@@ -1795,7 +1795,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 // url:  baseUrl +"/contacts/loadAddContactFromCompany", // json datasource
                 url:  baseUrl +"/contacts/loadAddContact", // json datasource
-                data: {"company_id": "{{$company_id}}"},
+                data: {"company_id": "{{$company_id}}", "action" : "add_case_with_billing"},
                 success: function (res) {
                     $("#step-1-again").html(res);
                     $("#preloader").hide();

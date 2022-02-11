@@ -25,7 +25,7 @@
                     </select>
                     <span id="csError"></span>
                     @can('case_add_edit')
-                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
+                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep('timeEntry');"> 
                 Add Case</a>
                     @endcan
                 </div>

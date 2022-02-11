@@ -110,9 +110,8 @@
             </div>
             <div class="p-2 d-flex justify-content-center  mt-3">
                 <span>We're here to help!
-                    <a href="#{{BASE_URL}}/support" target="_blank" rel="noopener noreferrer"
-                        class="pendo-get-free-support error ">Get free
-                        support.[Pending]</a>
+                    <a href="{{ route('ayuda') }}" target="_blank" rel="noopener noreferrer"
+                        class="pendo-get-free-support error ">Get free support.[Pending]</a>
                 </span>
             </div>
         </div>
@@ -778,18 +777,13 @@
                                                         <option value="">Search for an existing contact or company
                                                         </option>
                                                         <optgroup label="Client">
-                                                            <?php
-                                                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
-                                                            ?>
-                                                            <option value="{{$Clientval->id}}">
-                                                                {{substr($Clientval->first_name,0,30)}}
-                                                                {{substr($Clientval->last_name,0,30)}}</option>
+                                                            <?php foreach(userClientList() as $Clientkey=>$Clientval){ ?>
+                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                         <optgroup label="Company">
-                                                            <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
-                                                            <option value="{{$Companyval->id}}">
-                                                                {{substr($Companyval->first_name,0,50)}}</option>
+                                                            <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                     </select>
@@ -1647,7 +1641,8 @@
                 type: "POST",
                 // url: baseUrl + "/contacts/loadAddContactFromCase", // json datasource
                 url:  baseUrl +"/contacts/loadAddContact", // json datasource
-                data: 'loadStep1',
+                // data: 'loadStep1',
+                data: { action : 'add_case'},
                 success: function (res) {
                     $("#step-1-again").html(res);
                     $("#preloader").hide();

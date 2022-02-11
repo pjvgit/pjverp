@@ -922,10 +922,8 @@ class UserController extends BaseController
             'verified'=>"1",
             'user_status'=>"1",
             ]);
-
+            
             if($verifyUser->parent_user == 0) {
-                // insert recent notifications into user settings
-                $this->bulkInsertUserActivity($verifyUser->id);
                 //Insert default case stage 
                 $this->saveFirmDefaultCaseStages($verifyUser);
                 // Insert default practice area
@@ -941,26 +939,29 @@ class UserController extends BaseController
                     'firm_id' => $verifyUser->firm_name,
                 ]);
             }
+            
+            // insert recent notifications into user settings
+            $this->bulkInsertUserActivity($verifyUser->id);
 
-             //Sent welcome email to user.
-             $getTemplateData = EmailTemplate::find(4);
-             $fullName = $user->first_name . ' ' . $user->last_name;
+            //Sent welcome email to user.
+            $getTemplateData = EmailTemplate::find(4);
+            $fullName = $user->first_name . ' ' . $user->last_name;
 
-             $mail_body = $getTemplateData->content;
-             $mail_body = str_replace('{name}', $fullName, $mail_body);
-             $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
-             $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
-             $mail_body = str_replace('{regards}', REGARDS, $mail_body);
-             $mail_body = str_replace('{year}', date('Y'), $mail_body);     
-             $user = [
-                 "from" => FROM_EMAIL,
-                 "from_title" => FROM_EMAIL_TITLE,
-                 "subject" => $getTemplateData->subject,
-                 "to" => $user->email,
-                 "full_name" => $fullName,
-                 "mail_body" => $mail_body
-             ];
-             $sendEmail = $this->sendMail($user);   
+            $mail_body = $getTemplateData->content;
+            $mail_body = str_replace('{name}', $fullName, $mail_body);
+            $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
+            $mail_body = str_replace('{support_email}', SUPPORT_EMAIL, $mail_body);
+            $mail_body = str_replace('{regards}', REGARDS, $mail_body);
+            $mail_body = str_replace('{year}', date('Y'), $mail_body);     
+            $user = [
+                "from" => FROM_EMAIL,
+                "from_title" => FROM_EMAIL_TITLE,
+                "subject" => $getTemplateData->subject,
+                "to" => $user->email,
+                "full_name" => $fullName,
+                "mail_body" => $mail_body
+            ];
+            $sendEmail = $this->sendMail($user);   
             if (Auth::attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 

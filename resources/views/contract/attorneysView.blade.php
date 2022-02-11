@@ -580,25 +580,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         data-placeholder="Search for an existing contact or company">
                                                         <option value="">Search for an existing contact or company</option>
                                                         <optgroup label="Client">
-                                                            {{-- <?php
-                                                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
-                                                            ?>
-                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->first_name,0,30)}}
-                                                                {{substr($Clientval->last_name,0,30)}}</option>
-                                                            <?php } ?> --}}
-                                                            @forelse ($CaseMasterClient as $key => $item)
-                                                            <option uType="client"  value="{{ $item->id }}" > {{ substr($item->name,0,200) }}</option>
-                                                            @empty
-                                                            @endforelse
+                                                            <?php foreach(userClientList() as $Clientkey=>$Clientval){ ?>
+                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
+                                                            <?php } ?>
                                                         </optgroup>
                                                         <optgroup label="Company">
-                                                            {{-- <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
-                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->first_name,0,50)}}</option>
-                                                            <?php } ?> --}}
-                                                            @forelse ($CaseMasterCompany as $key => $item)
-                                                            <option uType="company"  value="{{ $item->id }}"> {{ substr($item->name,0,200) }}</option>
-                                                            @empty
-                                                            @endforelse
+                                                            <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
+                                                            <?php } ?>
                                                         </optgroup>
                                                     </select>
                                                     <span id="UserTypeError"></span>

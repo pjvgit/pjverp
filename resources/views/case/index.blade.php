@@ -176,15 +176,14 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         <option value="">Search for an existing contact or company</option>
                                                         <optgroup label="Client">
                                                             <?php
-                                                        foreach($CaseMasterClient as $Clientkey=>$Clientval){
+                                                                foreach(userClientList() as $Clientkey=>$Clientval){
                                                             ?>
-                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->first_name,0,30)}}
-                                                                {{substr($Clientval->last_name,0,30)}}</option>
+                                                            <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                         <optgroup label="Company">
-                                                            <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
-                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->first_name,0,50)}}</option>
+                                                            <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                                                            <option value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
                                                     </select>
@@ -1268,7 +1267,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 type: "POST",
                 // url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
                 url:  baseUrl +"/contacts/loadAddContact", // json datasource
-                data: 'loadStep1',
+                // data: 'loadStep1',
+                data: { action : 'add_case'},
                 success: function (res) {
                     $("#step-1-again").html(res);
                     $("#preloader").hide();

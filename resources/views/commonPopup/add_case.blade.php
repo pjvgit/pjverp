@@ -13,6 +13,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         <!--  SmartWizard html -->
                         <form class="createCase" id="createCase" name="createCase" method="POST">
                             @csrf
+                            <input type="hidden" class="form-control" id="returnPage" value="" />
                             <div id="smartwizard">
                                 <ul>
                                     <li class="text-center"><a href="#step-1">1<br /><small>Clients & Contacts</small></a></li>
@@ -45,9 +46,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                                         data-placeholder="Search for an existing contact or company">
                                                         <option value="">Search for an existing contact or company</option>
                                                         <optgroup label="Client">
-                                                            <?php
-                                                        foreach(userClientList() as $Clientkey=>$Clientval){
-                                                            ?>
+                                                            <?php foreach(userClientList() as $Clientkey=>$Clientval){ ?>
                                                             <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
                                                             <?php } ?>
                                                         </optgroup>
@@ -437,6 +436,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                                         <div class="form-group row">
                                             <label for="inputEmail3" class="col-sm-12 col-form-label"></label>
                                         </div>
+                                        
                                         </div>
                                     </div>
                                 </div>
@@ -625,7 +625,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         }, 'slow');
                         return false;
                     } else {
-                       
+                        $("returnPage").val('');
                         <?php session(['popup_success' => '']); ?>
                         localStorage.setItem("case_id", res.case_id);
                         $('#AddCaseModelUpdate').modal("hide");
@@ -680,8 +680,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
 
     $('#AddCaseModelUpdate').on('hidden.bs.modal', function () {
-        window.location.reload();
-    });    
+        if($("returnPage").val() == ''){
+            window.location.reload();
+            $("returnPage").val('');
+        }
+    });
 
     function selectAttorney() {
         var selectdValue = $("#originating_attorney option:selected").val();
@@ -696,6 +699,27 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     function backStep3() {
         $('#smartwizard').smartWizard('prev');
         return false;
+    }
+
+    function AddContactModal() {
+        $("#innerLoader").css('display', 'none');
+        $("#preloader").show();
+        $("#step-1-again").html('');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                // url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
+                url:  baseUrl +"/contacts/loadAddContact", // json datasource
+                // data: 'loadStep1',
+                data: { action : 'add_case_with_billing'},
+                success: function (res) {
+                    $("#step-1-again").html(res);
+                    $("#preloader").hide();
+                    $("#innerLoader").css('display', 'none');
+                    return false;
+                }
+            })
+        })
     }
 </script>
 

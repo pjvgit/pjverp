@@ -21,9 +21,13 @@ function popupNotification() {
                 $("#notification_popup").modal('hide');
                 if(result.appNotificaionCount.eventCount){
                     $(".eventCount").html('').html(result.appNotificaionCount.eventCount);
+                }else{
+                    $(".eventCount").html('');
                 }
                 if(result.appNotificaionCount.taskCount){
                     $(".taskCount").html('').html(result.appNotificaionCount.taskCount);
+                }else{
+                    $(".taskCount").html('');
                 }
             }
         },

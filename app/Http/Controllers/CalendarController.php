@@ -14,7 +14,7 @@ use App\CaseEvent,App\CaseEventLocation,App\EventType;
 use Carbon\Carbon,App\CaseEventReminder,App\CaseEventLinkedStaff;
 use App\Http\Controllers\CommonController,App\CaseSolReminder;
 use DateInterval,DatePeriod,App\CaseEventComment;
-use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist;
+use App\Task,App\CaseTaskLinkedStaff,App\TaskChecklist,App\AllHistory;
 use App\TaskReminder,App\TaskActivity,App\TaskTimeEntry,App\TaskComment;
 use App\TaskHistory,App\UsersAdditionalInfo,App\LeadAdditionalInfo,App\CaseEventLinkedContactLead;
 class CalendarController extends BaseController
@@ -30,6 +30,12 @@ class CalendarController extends BaseController
         // $staffData = User::select("first_name","last_name","id","user_level","default_color")->where('user_level',3)->where("firm_name",Auth::user()->firm_name)->get();
         $staffData = firmUserList();
 
+        // read all app notifications
+        if(Auth::user()->parent_user == 0){
+            AllHistory::where('type','event')->where('created_by', '!=' , Auth::user()->id )->update(['is_read'=>0]);
+        }else{
+            AllHistory::where('type','event')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
+        }
         // return view('calendar.index-new',compact('CaseMasterData','EventType','staffData'));
         return view('calendar.index',compact('CaseMasterData','EventType','staffData'));
     }

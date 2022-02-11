@@ -159,16 +159,14 @@
                     data-placeholder="Search for an existing contact or company">
                     <option value="{{($LeadAdditionalInfo->cell_phone)??''}}">Search for an existing contact or company</option>
                     <optgroup label="Client">
-                        <?php
-                        foreach($CaseMasterClient as $Clientkey=>$Clientval){ if($Clientval->user_level == 2){
-                        ?>
-                        <option <?php if($Clientval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->last_name}} (Client)</option>
-                        <?php } }?>
+                        <?php foreach(userClientList() as $Clientkey=>$Clientval){ ?>
+                        <option <?php if($Clientval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
+                        <?php } ?>
                     </optgroup>
                     <optgroup label="Company">
-                        <?php foreach($CaseMasterClient as $Companykey=>$Companyval){ if($Companyval->user_level == 4){?>
-                        <option <?php if($Companyval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Companyval->id}}">{{$Companyval->first_name}} (Company)</option>
-                        <?php } }?>
+                        <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                        <option <?php if($Companyval->id==$LeadAdditionalInfo->refered_by){ echo "selected=selected"; }?> value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
+                        <?php } ?>
                     </optgroup>
                 </select>
             </div>

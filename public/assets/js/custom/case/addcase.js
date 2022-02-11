@@ -1,8 +1,9 @@
-function loadAllStep() {
+function loadAllStep(action = '') {
     console.log("add case js > loadAllStep > calling");
     $('#smartwizard').smartWizard("reset");
     $('#createCase')[0].reset();
     $("#user_type").select2("val", "");
+    $("#returnPage").val(action);
 }
 
 function loadCaseDropdown() {

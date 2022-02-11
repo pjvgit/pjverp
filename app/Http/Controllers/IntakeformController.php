@@ -320,7 +320,7 @@ class IntakeformController extends BaseController
     
     public function updatedAllFields($request,$formId)
     {                
-        IntakeFormFields::where("intake_form_id", $formId)->delete();
+        IntakeFormFields::where("intake_form_id", $formId)->forceDelete();
         $j=1;
         foreach($request->category as $i=>$v){
             $IntakeFormFields=new IntakeFormFields;

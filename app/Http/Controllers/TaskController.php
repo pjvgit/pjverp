@@ -44,7 +44,8 @@ class TaskController extends BaseController
         
         $task = Task::join("users","task.created_by","=","users.id")
         ->leftjoin("case_master","task.case_id","=","case_master.id")
-        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        ->select('task.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid")
+        ->where("task.firm_id", Auth::user()->firm_name);
         
         $totalData=$task->count();
         $totalFiltered = $totalData; 
@@ -143,7 +144,11 @@ class TaskController extends BaseController
         $caseLeadList = userLeadList();
 
         // read all app notifications
-        // AllHistory::where('type','task')->update(['is_read'=>0]);
+        if(Auth::user()->parent_user == 0){
+            AllHistory::where('type','task')->where('created_by', '!=' , Auth::user()->id )->update(['is_read'=>0]);
+        }else{
+            AllHistory::where('type','task')->where('created_by', Auth::user()->parent_user)->update(['is_read'=>0]);
+        }
         return view('task.index',compact('task','CaseMaster','country','practiceAreaList','caseStageList','CaseLeadAttorney','loadFirmStaff','CaseMasterData','CaseMasterClient','CaseMasterCompany',/* 'user_id', */'practiceAreaList','caseStageList','selectdUSerList','loadFirmUser','firmAddress','caseLeadList'));
     }
 
@@ -155,7 +160,9 @@ class TaskController extends BaseController
         $columns = array('id', 'case_title', 'case_desc', 'case_number', 'case_status','case_unique_number');
         $requestData= $_REQUEST;
         
-        $case = CaseMaster::join("users","case_master.created_by","=","users.id")->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid");
+        $case = CaseMaster::join("users","case_master.created_by","=","users.id")
+        ->select('case_master.*',DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as created_by_name'),"users.id as uid")
+        ->where("case_master.firm_id", Auth::user()->firm_name);
         
         //Filter applied for practice area
         if(isset($requestData['pa']) && $requestData['pa']!=''){

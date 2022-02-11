@@ -260,9 +260,10 @@
             <label for="inputEmail3" class="col-sm-5 col-form-label">
                 <button class="btn btn-primary float-right example-button m-1 submitContact" id="submit" name="save" value="saveonly"
                     type="submit">Save Contact</button>
-
+                @if($action == '')
                 <button class="btn btn-outline-secondary m-1 float-right submitContact" id="submit" type="submit" name="savandaddcase"
                     value="savandaddcase">Save & Add Case</button>
+                @endif
             </label>
         </div>
 
@@ -382,6 +383,7 @@
             return false;
         }
         var dataString = '';
+        var pageActions = '{{ $action }}';
         dataString = $("#createNewUser").serialize();
         $("#preloader").show();
         $.ajax({
@@ -423,7 +425,15 @@
                             var URLS=baseUrl+'/bills/invoices/load_new?court_case_id=&token={{$adjustment_token}}&contact='+res.user_id;
                             window.location.href=URLS;
                         <?php }else{ ?>
-                            window.location.reload();
+                            if(pageActions == 'add_case'){
+                                localStorage.setItem("addedClient", res.user_id);
+                                window.location.reload();
+                            }else if(pageActions == 'add_case_with_billing'){
+                                $('#AddContactModal').modal('hide');
+                                selectUserAutoLoad(res.user_id);
+                            }else{
+                                window.location.reload();
+                            }
                         <?php } ?>
                     }
 

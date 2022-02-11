@@ -296,6 +296,9 @@
         $(".form-control").on("keypress",function(){
             $('#submitbutton').removeAttr("disabled");
         });
+        $(".form-control").on("blur",function(){
+            $('#submitbutton').removeAttr("disabled");
+        });
     });
 
 

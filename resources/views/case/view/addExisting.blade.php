@@ -22,15 +22,13 @@
                     data-placeholder="Search for an existing contact or company">
                     <option value="">Search for an existing contact or company</option>
                     <optgroup label="Client">
-                        <?php
-                    foreach($CaseMasterClient as $Clientkey=>$Clientval){
-                        ?>
-                        <option value="{{$Clientval->id}}">{{$Clientval->first_name}} {{$Clientval->middle_name}} {{$Clientval->last_name}}</option>
+                        <?php foreach(userClientList() as $Clientkey=>$Clientval){ ?>
+                        <option value="{{$Clientval->id}}">{{substr($Clientval->name,0,30)}}</option>
                         <?php } ?>
                     </optgroup>
                     <optgroup label="Company">
-                        <?php foreach($CaseMasterCompany as $Companykey=>$Companyval){ ?>
-                        <option value="{{$Companyval->id}}">{{$Companyval->first_name}}</option>
+                        <?php foreach(userCompanyList() as $Companykey=>$Companyval){ ?>
+                        <option value="{{$Companyval->id}}">{{substr($Companyval->name,0,50)}}</option>
                         <?php } ?>
                     </optgroup>
                 </select>

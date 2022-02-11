@@ -759,19 +759,18 @@ class HomeController extends BaseController
         $AllHistoryData = AllHistory::where('is_read', 1)->where('firm_id', auth()->user()->firm_name)->get();
         $appNotificaionCount = array("eventCount" => $eventCount, "taskCount" => $taskCount);
         foreach($AllHistoryData as $key=>$val){ 
-            // echo 'user->parent_user >'.Auth::user()->parent_user.' > createdBy > '. $val->created_by;
-            // echo "<br>";
+            // echo 'user->parent_user : '.Auth::user()->parent_user.'  == createdBy > '. $val->created_by.PHP_EOL;
             if(Auth::user()->parent_user == $val->created_by){
-                // print('firmData > id >'.$val->id);
+                // echo 'firmData > '. $val->id.PHP_EOL;
                 $firmData[$key] = $val;
             }else{
-                if(Auth::user()->parent_user_id == 0 && Auth::user()->id != $val->created_by){
+                if(Auth::user()->parent_user == 0 && Auth::user()->id != $val->created_by){
                     // print('staffData > id >'.$val->id);
+                    // echo 'staffData > '. $val->id.PHP_EOL;
                     $staffData[$key] = $val;                
                 }
-            }
-        }
-        // dd($AllHistoryData);
+            }// echo "-----".PHP_EOL;            
+        }        
         if(!empty($firmData)){
             foreach ($firmData as $k=>$v){
                 if($v->type == 'event'){
