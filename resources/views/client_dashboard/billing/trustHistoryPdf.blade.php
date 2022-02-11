@@ -98,6 +98,10 @@
                 if($v->is_refunded=="yes"){
                         $isRefender="(Refunded)";
                 }
+                $isInvoiceCancelled = '';
+                if($v->is_invoice_cancelled=="yes"){
+                    $isInvoiceCancelled ="(Invoice cancelled. Fund moved to trust account)";
+                }
                 if($v->fund_type=="withdraw"){
                     if($v->withdraw_from_account!=null){
                          $ftype="Withdraw from Trust to Operating(".$v->withdraw_from_account.")";
@@ -129,7 +133,7 @@
                 }
 
                 $tansactionLable=$tansactionAmount=$tansactionBalance='';
-                if($v->fund_type=="diposit"){
+                if($v->fund_type=="diposit" || $v->fund_type=="payment deposit"){
                     
                     $tansactionAmount="$".number_format($v->amount_paid,2);
                     $tansactionBalance="$".number_format($v->current_trust_balance,2);
@@ -149,7 +153,7 @@
                     $tansactionAmount="$".number_format($v->refund_amount,2);
                     $tansactionBalance="$".number_format($v->current_trust_balance,2);
                 }
-                if($v->fund_type=="refund_deposit"){
+                if($v->fund_type=="refund_deposit" || $v->fund_type=="refund payment deposit"){
                    
                     $tansactionAmount="$".number_format($v->refund_amount,2);
                     $tansactionBalance="$".number_format($v->current_trust_balance,2);
@@ -166,7 +170,7 @@
                         {{ '--' }}
                     @endif
                 </td>
-                <td style="padding:5px;">{{$ftype}}</td>
+                <td style="padding:5px;">{{$ftype. $isInvoiceCancelled}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionAmount}}</td>
                 <td style="padding:5px;text-align: right;">{{$tansactionBalance}}</td>
             </tr>

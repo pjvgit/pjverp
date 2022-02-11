@@ -1017,7 +1017,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     Route::post('bills/invoices/removeAdjustmentEntry', 'BillingController@removeAdjustmentEntry')->name('bills/invoices/removeAdjustmentEntry');
 
     Route::get('bills/invoices/view/{id}', 'BillingController@viewInvoice')->name('bills/invoices/view');
-    Route::post('bills/invoices/deleteInvoice', 'BillingController@deleteInvoice')->name('bills/invoices/deleteInvoice');
+    // Duplicate code, commented
+    // Route::post('bills/invoices/deleteInvoice', 'BillingController@deleteInvoice')->name('bills/invoices/deleteInvoice');
     Route::post('bills/invoices/shareInvoice', 'BillingController@shareInvoice')->name('bills/invoices/shareInvoice');
     Route::post('bills/invoices/saveShareInvoice', 'BillingController@saveShareInvoice')->name('bills/invoices/saveShareInvoice');
     Route::post('bills/invoices/view/checkAccessFromViewInvoice', 'BillingController@checkAccessFromViewInvoice')->name('bills/invoices/view/checkAccessFromViewInvoice');

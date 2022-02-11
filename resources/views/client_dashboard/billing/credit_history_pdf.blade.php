@@ -109,6 +109,7 @@
             @forelse($creditHistory as $k=>$v)
                 @php
                     $isRefund = ($v->is_refunded == "yes") ? "(Refunded)" : "";
+                    $isInvoiceCancelled = ($v->is_invoice_cancelled == "yes") ? "(Invoice cancelled. Fund moved to trust account)" : "";
                     if($v->payment_type == "withdraw")
                         $dText = "Withdraw from Credit Account";
                     else if($v->payment_type == "refund withdraw")
@@ -139,7 +140,7 @@
                             {{ '--' }}
                         @endif
                     </td>
-                    <td style="padding:5px;">{{ $dText }}</td>
+                    <td style="padding:5px;">{{ $dText. $isRefund. $isInvoiceCancelled }}</td>
                     <td style="padding:5px;text-align: right;">{{ $amt }}</td>
                     <td style="padding:5px;text-align: right;">{{ "$".number_format($v->total_balance, 2) }}</td>
                 </tr>

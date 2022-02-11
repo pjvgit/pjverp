@@ -915,6 +915,9 @@ class ClientdashboardController extends BaseController
                 if($data->is_refunded == "yes") {
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
                     $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
+                } else if($data->is_invoice_cancelled == "yes" && $data->fund_type != "payment deposit") {
+                    $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Edit" data-placement="top" data-html="true"><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
+                    $action .= '<span data-toggle="popover" data-trigger="hover" title="" data-content="Delete" data-placement="top" data-html="true"><a data-toggle="modal"  data-target="#deleteLocationModal" data-placement="bottom" href="javascript:;" onclick="deleteEntry('.$data->id.');"><button type="button" disabled="" class="py-0 btn btn-link disabled">Delete</button></a></span>';
                 } else {
                     if($data->fund_type=="allocate_trust_fund" || $data->fund_type=="deallocate_trust_fund"){
                         $action .= '<span><a ><button type="button" disabled="" class="py-0 btn btn-link disabled">Refund</button></a></span>';
@@ -967,8 +970,10 @@ class ClientdashboardController extends BaseController
                 }
             })
             ->addColumn('related_to', function ($data) {
-                if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'no')
+                if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'no' && $data->invoice)
                     return '<a href="'.route("bills/invoices/view", $data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
+                else if($data->related_to_invoice_id && $data->is_invoice_cancelled == 'yes' && $data->fund_type != "payment deposit")
+                    return '#'.sprintf("%06d", $data->related_to_invoice_id);
                 else if($data->related_to_fund_request_id)
                     return $data->fundRequest->padding_id;
                 else
@@ -1019,6 +1024,7 @@ class ClientdashboardController extends BaseController
             })
             ->addColumn('detail', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
+                $isInvoiceCancelled = ($data->is_invoice_cancelled == "yes" && $data->fund_type != "payment deposit") ? "(Invoice cancelled. Fund moved to trust account)" : "";
                 if($data->user->user_level == 5) {
                     $allocateTxt = ($data->allocated_to_lead_case_id) ? "(Allocated)" : "(Unallocated)";
                     if($data->fund_type == "diposit") {
@@ -1068,14 +1074,14 @@ class ClientdashboardController extends BaseController
                         $myString = substr($notes, strpos($notes, "#"));
                         $ftype = str_replace($myString, '<a class="name" href="'.route('info', @$data->allocateToCase->case_unique_number).'">'.@$data->allocateToCase->case_title.'</a>', $notes);
                     }else if($data->fund_type=="payment"){
-                        return $ftype = "Payment from Trust ".$allocateTxt." to Operating Account";
+                        $ftype = "Payment from Trust ".$allocateTxt." to Operating Account";
                         $noteContent = '';
                         if($data->notes != '') {
                             $noteContent = '<br>
                             <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
                             data-trigger="focus" title="Notes" data-content="'.$data->notes.'">View Notes</a>';
                         }
-                        return $ftype.' '.$isRefund.$noteContent;
+                        return $ftype.' '.$isRefund. $isInvoiceCancelled .$noteContent;
                     }else if($data->fund_type=="refund payment"){
                         $ftype = "Refund Payment from Trust ".$allocateTxt." to Operating Account";
                         $noteContent = '';
@@ -1087,7 +1093,7 @@ class ClientdashboardController extends BaseController
                         return $ftype.' '.$isRefund.$noteContent;
                     }else if($data->fund_type=="payment deposit"){
                         $ftype = "Deposit into Trust (Invoice #".$data->related_to_invoice_id." Cancellation)";
-                        return $ftype;
+                        return $ftype . $isInvoiceCancelled;
                     }else if($data->fund_type=="refund payment deposit"){
                         $ftype = "Refund Payment into Trust ".$allocateTxt;
                         $noteContent = '';
@@ -1214,6 +1220,7 @@ class ClientdashboardController extends BaseController
             $allocateAmount = CaseClientSelection::where("case_id", $GetAmount->allocated_to_case_id)->where("selected_user", $request->client_id)->select("allocated_trust_balance")->first();
             $lessAmount = $allocateAmount->allocated_trust_balance;
         }
+        // return $lessAmount;
         $validator = \Validator::make($request->all(), [
             'amount' => 'required|numeric|max:'.$mt.'|lte:'.$lessAmount,
             /* 'amount' => [function ($attribute, $value, $fail) use($lessAmount, $mt) {
@@ -1349,7 +1356,7 @@ class ClientdashboardController extends BaseController
                     }
                 }
 
-                if($TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit") {
+                if($TrustInvoice->fund_type == "refund payment" /* || $TrustInvoice->fund_type == "refund payment deposit" */) {
                     $newInvPaymentId = $this->updateInvoicePaymentAfterTrustRefund($GetAmount->id, $request, $TrustInvoice);
                     $TrustInvoice->fill(["related_to_invoice_payment_id" => $newInvPaymentId])->save();
                 }
@@ -1470,7 +1477,7 @@ class ClientdashboardController extends BaseController
                 if($TrustInvoice->allocated_to_case_id) {
                     $this->deleteAllocateTrustBalance($TrustInvoice);
                 }
-                $this->deleteTrustAccountActivity($TrustInvoice->id);
+                // $this->deleteTrustAccountActivity($TrustInvoice->id);
                 // For allocated lead case
                 if($TrustInvoice->allocated_to_lead_case_id) {
                     LeadAdditionalInfo::where("user_id", $TrustInvoice->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $TrustInvoice->amount_paid);
@@ -1506,7 +1513,7 @@ class ClientdashboardController extends BaseController
                 DB::table('users_additional_info')->where('user_id',$TrustInvoice->client_id)->update(['trust_account_balance'=> "0.00"]);
             }
             // Delete invoice history/invoice payment records, update invoice amount nd status
-            if($TrustInvoice->fund_type == "payment" || $TrustInvoice->fund_type == "refund payment" || $TrustInvoice->fund_type == "refund payment deposit" || $TrustInvoice->fund_type == "payment deposit") {
+            if($TrustInvoice->fund_type == "payment" || $TrustInvoice->fund_type == "refund payment" /* || $TrustInvoice->fund_type == "refund payment deposit" || $TrustInvoice->fund_type == "payment deposit" */) {
                 $this->deleteInvoicePaymentHistoryTrust($TrustInvoice->id);
             }
 
@@ -1575,7 +1582,7 @@ class ClientdashboardController extends BaseController
 
             $allHistory = TrustHistory::leftJoin('users','trust_history.client_id','=','users.id');
             $allHistory = $allHistory->select("trust_history.*");        
-            $allHistory = $allHistory->where("trust_history.client_id",$id)->whereIn("trust_history.fund_type", ['diposit','withdraw','refund_withdraw','refund_deposit','payment']); 
+            $allHistory = $allHistory->where("trust_history.client_id",$id)->whereIn("trust_history.fund_type", ['diposit','withdraw','refund_withdraw','refund_deposit','payment','payment deposit','refund payment deposit']); 
             if(isset($request->from_date) && isset($request->to_date)){
                 $allHistory = $allHistory->whereBetween('trust_history.payment_date', [date('Y-m-d',strtotime($request->from_date)), date('Y-m-d',strtotime($request->to_date))]); 
             }  
@@ -3758,6 +3765,8 @@ class ClientdashboardController extends BaseController
                 $action = '';
                 if($data->is_refunded == "yes") {
 
+                } else if($data->is_invoice_cancelled == "yes") {
+                    
                 } else if($data->payment_method == "refund") {
                     if($data->online_payment_status == "partially_refunded") 
                         $action .= '<span data-toggle="tooltip" data-placement="top" title="Credit cards refund cannot be deleted."><i class="pl-1 fas fa-question-circle fa-lg"></i></span>';
@@ -3796,7 +3805,7 @@ class ClientdashboardController extends BaseController
                     if($data->invoice)
                         return '<a href="'.route("bills/invoices/view", @$data->invoice->decode_id).'" >#'.$data->invoice->invoice_id.'</a>';
                     else
-                        return sprintf("%06d", $data->related_to_invoice_id);
+                        return '#'.sprintf("%06d", $data->related_to_invoice_id);
                 } else if($data->related_to_fund_request_id) {
                     return $data->fundRequest->padding_id;
                 } else {
@@ -3826,6 +3835,7 @@ class ClientdashboardController extends BaseController
             })
             ->addColumn('detail', function ($data) {
                 $isRefund = ($data->is_refunded == "yes") ? "(Refunded)" : "";
+                $isInvoiceCancelled = ($data->is_invoice_cancelled == "yes") ? "(Invoice Cancelled. Fund moved to trust account)" : "";
                 if($data->payment_type == "withdraw")
                     $dText = "Withdraw from Credit Account";
                 else if($data->payment_type == "refund withdraw")
@@ -3842,7 +3852,7 @@ class ClientdashboardController extends BaseController
                     $dText = "Deposit into Credit Account";
 
                 $noteContent = '<div>'.$data->notes.'</div>';
-                return $dText.' '.$isRefund. (($data->notes) ? '<br>
+                return $dText.' '.$isRefund. $isInvoiceCancelled .(($data->notes) ? '<br>
                         <a tabindex="0" class="" data-toggle="popover" data-html="true" data-placement="bottom" 
                         data-trigger="focus" title="Notes" data-content="'.$noteContent.'">View Notes</a>' : '');
             })
