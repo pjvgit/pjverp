@@ -74,4 +74,14 @@ class InvoicePayment extends Authenticatable
         $userTime = convertUTCToUserDate($this->attributes['payment_date'], auth()->user()->user_timezone ?? 'UTC');            
         return  date('Y-m-d', strtotime($userTime));   
     }
+
+    /**
+     * Get the invoice that owns the InvoicePayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_id');
+    }
 }

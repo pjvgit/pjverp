@@ -1643,6 +1643,7 @@ class BillingController extends BaseController
                 if(isset($request->trust_account)){
                     UsersAdditionalInfo::where("user_id",$request->contact_id)->decrement('trust_account_balance', $request->amount);
                     // $UsersAdditionalInfo=UsersAdditionalInfo::select("trust_account_balance")->where("user_id",$request->trust_account)->first();
+                    $userAdditionalInfo->refresh();
                     // unallocate to selected user
                     if($request->is_case == "") {                        
                         $TrustInvoice=new TrustHistory;
@@ -2025,34 +2026,49 @@ class BillingController extends BaseController
                 } */
 
                 $invoiceHistories = InvoiceHistory::where("invoice_id", $Invoices->id)->get();
-                $userAddInfo = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
                 $authUser = auth()->user();
                 if($invoiceHistories) {
                     foreach($invoiceHistories as $key => $item) {
-                        if($item->payment_from != "online" && $item->refund_ref_id == '' && $item->status == '1') {
-                            $userAddInfo->fill(["trust_account_balance" => ($userAddInfo->trust_account_balance + $item->amount)])->save();
+                        if($item->payment_from != "online" && $item->refund_ref_id == '' && $item->status == '1' && $item->deposit_into_id != '') {
+                            UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->increment("trust_account_balance", $item->amount);
+                            $caseId = Null; $leadCaseId = Null;
                             if($item->payment_from == "trust") {
-                                TrustHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                            } else {
-                                if($item->payment_from == "credit") {
-                                    DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                                    DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->delete();
-                                    $this->updateNextPreviousCreditBalance($item->deposit_into_id);
+                                $trustHis = TrustHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->first();
+                                $trustHis->fill(["is_invoice_cancelled" => "yes"])->save();
+                                UsersAdditionalInfo::where("user_id", $trustHis->client_id)->decrement("trust_account_balance", $item->amount);
+                                if($trustHis->allocated_to_case_id) {
+                                    CaseMaster::where('id', $trustHis->allocated_to_case_id)->decrement('total_allocated_trust_balance', $item->amount);
+                                    CaseClientSelection::where('case_id', $trustHis->allocated_to_case_id)->where('selected_user', $trustHis->client_id)->decrement('allocated_trust_balance', $item->amount);
+                                    $caseId = $trustHis->allocated_to_case_id;
                                 }
-                                TrustHistory::create([
-                                    "client_id" => $item->deposit_into_id,
-                                    "payment_method" => 'invoice cancelled deposit',
-                                    "amount_paid" => $item->amount,
-                                    "current_trust_balance" => $userAddInfo->trust_account_balance,
-                                    "payment_date" => date('Y-m-d'),
-                                    "fund_type" => 'payment deposit',
-                                    "related_to_invoice_id" => $Invoices->id,
-                                    "allocated_to_case_id" => ($Invoices->case_id > 0) ? $Invoices->case_id : Null,
-                                    "created_by" => $authUser->id,
-                                    "is_invoice_cancelled" => "yes"
-                                ]);
-                                sleep(3);
+                                if($trustHis->allocated_to_lead_case_id) {
+                                    LeadAdditionalInfo::where("user_id", $trustHis->allocated_to_lead_case_id)->decrement('allocated_trust_balance', $item->amount);
+                                    $leadCaseId = $trustHis->allocated_to_lead_case_id;
+                                }
+                                // $trustHis->delete();
+                                $this->updateNextPreviousTrustBalance($item->deposit_into_id);
                             }
+                            if($item->payment_from == "credit") {
+                                DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
+                                // UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->decrement("credit_account_balance", $item->amount);
+                                // DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->delete();
+                                // $this->updateNextPreviousCreditBalance($item->deposit_into_id);
+                            }
+                            $userAddInfo = UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->first();
+                            TrustHistory::create([
+                                "client_id" => $item->deposit_into_id,
+                                "payment_method" => 'invoice cancelled deposit',
+                                "amount_paid" => $item->amount,
+                                "current_trust_balance" => $userAddInfo->trust_account_balance,
+                                "payment_date" => date('Y-m-d'),
+                                "fund_type" => 'payment deposit',
+                                "related_to_invoice_id" => $Invoices->id,
+                                "allocated_to_case_id" => $caseId ?? Null,
+                                "allocated_to_lead_case_id" => $leadCaseId ?? Null,
+                                "created_by" => $authUser->id,
+                                "is_invoice_cancelled" => "yes"
+                            ]);
+                            sleep(3);
                             InvoicePayment::where("id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
                         }
                         $item->fill(["is_invoice_cancelled" => "yes"])->save();
@@ -4539,16 +4555,17 @@ class BillingController extends BaseController
             return $InvoiceHistory->id;
     }
 
-    public function deleteInvoice(Request $request)
+    // Duplicate code, commented
+    /* public function deleteInvoice(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'invoiceId' => 'required',
+            'invoice_id' => 'required',
         ]);
         if ($validator->fails())
         {
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{
-            $id=$request->invoiceId;
+            $id=$request->invoice_id;
 
             //Remove flat fee entry for the invoice and reactivated time entry
             $FlatFeeEntryForInvoice=FlatFeeEntryForInvoice::where("invoice_id",$id)->get();
@@ -4587,47 +4604,12 @@ class BillingController extends BaseController
             // InvoiceHistory::where("invoice_id",$id)->delete();
             $Invoices = Invoices::where("id", $id)->first();
             // Update trust balance
-            /* $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
+            $invoicePaymentFromTrust = InvoicePayment::where("invoice_id", $Invoices->id)->where("payment_from", "trust")->get();
             $accessUser = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
             if($accessUser && $invoicePaymentFromTrust) {
                 $paidAmount = $invoicePaymentFromTrust->sum('amount_paid');
                 $refundAmount = $invoicePaymentFromTrust->sum('amount_refund');
                 $accessUser->fill(['trust_account_balance' => $accessUser->trust_account_balance + ($paidAmount - $refundAmount)])->save();
-            } */
-            // Move invoice payment to trust account
-            $invoiceHistories = InvoiceHistory::where("invoice_id", $Invoices->id)->get();
-            $userAddInfo = UsersAdditionalInfo::where("user_id", $Invoices->user_id)->first();
-            $authUser = auth()->user();
-            if($invoiceHistories) {
-                foreach($invoiceHistories as $key => $item) {
-                    if($item->payment_from != "online" && $item->refund_ref_id == '' && $item->status == '1') {
-                        $userAddInfo->fill(["trust_account_balance" => ($userAddInfo->trust_account_balance + $item->amount)])->save();
-                        if($item->payment_from == "trust") {
-                            TrustHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                        } else {
-                            if($item->payment_from == "credit") {
-                                DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                                DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->delete();
-                                $this->updateNextPreviousCreditBalance($item->deposit_into_id);
-                            }
-                            TrustHistory::create([
-                                "client_id" => $item->deposit_into_id,
-                                "payment_method" => 'invoice cancelled deposit',
-                                "amount_paid" => $item->amount,
-                                "current_trust_balance" => $userAddInfo->trust_account_balance,
-                                "payment_date" => date('Y-m-d'),
-                                "fund_type" => 'payment deposit',
-                                "related_to_invoice_id" => $Invoices->id,
-                                "allocated_to_case_id" => ($Invoices->case_id > 0) ? $Invoices->case_id : Null,
-                                "created_by" => $authUser->id,
-                                "is_invoice_cancelled" => "yes"
-                            ]);
-                            sleep(3);
-                        }
-                        InvoicePayment::where("id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                    }
-                    $item->fill(["is_invoice_cancelled" => "yes"])->save();
-                }
             }
 
             // Update forwarded invoices
@@ -4639,14 +4621,13 @@ class BillingController extends BaseController
             }
 
             InvoicePayment::where("invoice_id",$Invoices->id)->delete();
-            InvoiceHistory::where("invoice_id",$id)->delete();
 
             $Invoices->delete();
             session(['popup_success' => 'Invoice has been deleted.']);
             return response()->json(['errors'=>'','id'=>$id]);
             exit;  
         }  
-    }
+    } */
 
     public function shareInvoice(Request $request)
     {
@@ -7878,7 +7859,7 @@ class BillingController extends BaseController
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
         $FetchQuery = $FetchQuery->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir'] ?? 'desc');
-        $FetchQuery = $FetchQuery->get();
+        $FetchQuery = $FetchQuery->with('invoice')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -8051,7 +8032,7 @@ class BillingController extends BaseController
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
         $FetchQuery = $FetchQuery->orderBy('id', 'desc');
-        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo', 'invoice')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  

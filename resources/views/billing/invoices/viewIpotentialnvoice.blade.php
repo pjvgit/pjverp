@@ -759,7 +759,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             dataString = $("#deleteInvoiceForm").serialize();
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/bills/invoices/deleteInvoice", // json datasource
+                url: baseUrl + "/bills/invoices/deleteInvoiceForm", // json datasource
                 data: dataString,
                 beforeSend: function (xhr, settings) {
                     settings.data += '&delete=yes';
