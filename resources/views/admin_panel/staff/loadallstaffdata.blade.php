@@ -4,7 +4,7 @@
 @endsection
     <div class="card common-settings mb-4" bladefile="resources/views/admin_panel/staff/loadallstaffdata.blade.php">
         <h4 class="card-header d-flex justify-content-between align-items-center">{{ $userProfile->email }}
-            <button class="btn btn-outline-primary btn-rounded text-nowrap">Entrar como usuario</button>
+            <button class="btn btn-outline-primary btn-rounded text-nowrap" onclick="loginToUserAccount('{{ route('login/user', encodeDecodeId($userProfile->id, 'encode')) }}')">Entrar como usuario</button>
         </h4>
         <div class="card-body">
             <div class="row">
@@ -71,6 +71,13 @@
     $(document).ready(function() {
         
     });
+    
+    /* function loginToUserAccount(url) {
+            alert();
+            // var redirectWindow = window.open('http://youtube.com', '_blank', 'width=400, height=400');
+            // redirectWindow.location;
+            var myWindow = window.open("", "", "width=400,height=400");
+        } */
 </script>
 @endsection
 @else

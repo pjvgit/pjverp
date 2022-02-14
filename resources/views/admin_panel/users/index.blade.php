@@ -81,6 +81,13 @@
                 }
             });            
         });
+
     });
+
+    function loginToUserAccount(url) {
+        // alert(url);
+        var myWindow = window.open(url, "", "width=400,height=400");
+        return false;
+    }
 </script>
 @endsection

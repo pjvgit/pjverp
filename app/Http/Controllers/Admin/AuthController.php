@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,7 @@ class AuthController extends Controller {
 
     public function __construct()
     {
-        $this->middleware('guest:admin', ['except' => ['logout']]);
+        $this->middleware('guest:admin')->except('logout');
     }
 
     /**
@@ -52,5 +53,18 @@ class AuthController extends Controller {
         Auth::guard('admin')->logout();
 
         return redirect()->route('admin/login');
+    }
+
+    /**
+     * Firm user login by Admin
+     */
+    public function userLoginByAdmin($userId)
+    {
+        $uId = encodeDecodeId($userId, 'decode');
+        $user = User::where('id', $uId)->first();
+        if($user && $user->user_level == '3') {
+            Auth::loginUsingId($uId);
+            return redirect()->intended('dashboard')->with('success','Login Successfully');
+        }
     }
 }

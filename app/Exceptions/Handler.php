@@ -4,8 +4,10 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use SebastianBergmann\Environment\Console;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -65,10 +67,23 @@ class Handler extends ExceptionHandler
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
-        if ($request->is('admin') || $request->is('admin/*')) {
+
+        $guard = Arr::get($exception->guards(), 0);
+        Log::info("handler guard: ". $guard);
+        switch ($guard) {
+            case 'admin':
+                $login = 'admin/login';
+                break;
+            
+            default:
+                $login = 'login';
+                break;
+        }
+
+        /* if ($request->is('admin') || $request->is('admin/*')) {
             Log::info("admin route error: ". Route::currentRouteName());
             return redirect()->guest('admin/login');
-        }
-        return redirect()->guest(route('login'));
+        } */
+        return redirect()->guest(route($login));
     }
 }

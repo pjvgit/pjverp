@@ -18,7 +18,23 @@ class RedirectIfAuthenticated
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($guard == "admin" && Auth::guard($guard)->check()) {
+        if (Auth::guard($guard)->check()) {
+            switch ($guard) {
+                case 'admin':
+                    return redirect()->route('admin/dashboard');
+                    break;
+                default:
+                    if(auth()->user()->user_level == "2") {
+                        return redirect('client/home');
+                    } else {
+                        return redirect()->route("dashboard");
+                    }
+                    break;
+            }
+        }
+
+
+        /* if ($guard == "admin" && Auth::guard($guard)->check()) {
             return redirect('admin/dashboard');
         }
         if (Auth::guard($guard)->check()) {
@@ -28,7 +44,7 @@ class RedirectIfAuthenticated
                 // return redirect(RouteServiceProvider::HOME);
                 return redirect()->route("dashboard");
             }
-        }
+        } */
         return $next($request);
     }
 }

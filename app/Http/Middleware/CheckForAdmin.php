@@ -14,7 +14,7 @@ class CheckForAdmin
      * @return mixed
      */
 
-    public function handle($request, Closure $next, $guard = "admin")
+    public function handle($request, Closure $next, $guard = null)
     {
         if (!auth()->guard($guard)->check()) {
             return redirect(route('admin/login'));

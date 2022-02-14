@@ -155,7 +155,7 @@
                 }
                 if($v->fund_type=="refund_deposit" || $v->fund_type=="refund payment deposit"){
                    
-                    $tansactionAmount="$".number_format($v->refund_amount,2);
+                    $tansactionAmount="-$".number_format($v->refund_amount,2);
                     $tansactionBalance="$".number_format($v->current_trust_balance,2);
                 }
                 ?>

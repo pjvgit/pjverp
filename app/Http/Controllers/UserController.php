@@ -527,7 +527,7 @@ class UserController extends BaseController
                 $request->session()->flash('page', 'email');
                 return redirect()->back()->withErrors(ERROR_SAME_EMAIL)->withInput();
             }else{
-                if (Auth::attempt(array('email' => $user->email, 'password' => $input['current_password']))){
+                if (Auth::guard('web')->attempt(array('email' => $user->email, 'password' => $input['current_password']))){
                     if(isset($request->email)){ $user->email=trim($request->email); }
                     $user->save();
                     return redirect()->route('load_profile')->with('success',SUCCESS_SAVE_PROFILE);
@@ -556,7 +556,7 @@ class UserController extends BaseController
             $request->session()->flash('page', 'password');
              return redirect()->back()->withErrors($validator)->withInput();
         }else{
-            if (Auth::attempt(array('email' => $user->email, 'password' => $input['current_password']))){
+            if (Auth::guard('web')->attempt(array('email' => $user->email, 'password' => $input['current_password']))){
                 if(isset($request->current_password)){ $user->password=\Hash::make($input['confirm_password']); }
                 $user->save();
                 return redirect()->route('load_profile')->with('success',SUCCESS_SAVE_PROFILE);
@@ -962,7 +962,7 @@ class UserController extends BaseController
                 "mail_body" => $mail_body
             ];
             $sendEmail = $this->sendMail($user);   
-            if (Auth::attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
+            if (Auth::guard('web')->attempt(['email' => $verifyUser->email, 'password' => $request->password])) {
                 $userStatus = Auth::User()->user_status;
                 if($userStatus=='1') { 
                     $verifyUser->last_login = Carbon::now()->format('Y-m-d H:i:s');

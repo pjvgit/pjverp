@@ -1278,4 +1278,8 @@ Route::get('setgroup', 'CronController@setContactGroup');
 Route::get('check/job', 'PodcastController@index');
 
 
+// Userlogin by Admin route
+Route::get("login/user/{id}", "Admin\AuthController@userLoginByAdmin")->name("login/user");
+
+
 
