@@ -690,6 +690,16 @@ $finalAmt=$invoice-$paid;
                         afterLoader();
                         return false;
                     } else {
+                        if(res.lowTrustBalanceClient != '') {
+                            var errorAlert = '<div class="alert alert-info alert-dismissible fade show" role="alert"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>\
+                                            <div class="d-flex align-items-start">\
+                                                <div class="w-100"><strong>Low Trust Balance! </strong>\
+                                                    <span class="low-balance-name">'+res.lowTrustBalanceClient.full_name+' has a trust balance that is low.</span>\
+                                                    <u><button type="button" class="px-1 btn btn-link">Request Funds Now.</button></u>\
+                                                </div>\
+                                            </div></div>';
+                            $("#low_balance_alert").html(errorAlert);
+                        }
                         if($("#is_lead_invoice").val() != 'yes') {                        
                             swal('Payment Successful!', res.msg, 'success');
                             afterLoader();

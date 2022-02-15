@@ -19,11 +19,13 @@ function getInvoicePaymentHistory() {
 function updateInvoiceDetail() {
     $("#preloader").show();
     var invoiceId = $("#invoice_id").val();
+    console.log("call here invoice: "+ invoiceId);
     $.ajax({
         type: "GET",
         // url:  baseUrl +"/bills/invoices/paymentHistory",
         // data: {'id':invoiceId},
         success: function (res) {
+            console.log("call here");
             $("#invoice_total_div").html(res);
             getInvoiceActivityHistory();
             getInvoicePaymentHistory();

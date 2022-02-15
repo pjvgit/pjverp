@@ -8,6 +8,21 @@
     <div class="col-md-12">
         <div class="card text-left">
             <div class="card-body">
+                <span id="low_balance_alert">
+                    @if(!empty($lowTrustBalanceClient))
+                    <div class="alert alert-info alert-dismissible fade show" role="alert"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="d-flex align-items-start">
+                            <div class="w-100"><strong>Low Trust Balance! </strong>
+                                <span class="low-balance-name">{{ $lowTrustBalanceClient->full_name }} has a trust balance that is low.</span>
+                                <u><a request-funds-btn" data-toggle="modal" data-target="#addRequestFund"
+                                    onclick="addRequestFundPopup();" href="javascript:;">Request Funds Now.</a>
+                                    {{-- <button type="button" class="px-1 btn btn-link">Request Funds Now.</button> --}}
+                                </u>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </span>
                 <span id="responseMain"></span>
                 <div class="d-flex align-items-center pl-4 pb-4">
                     <h3> Invoice #{{$invoiceNo}} </h3>
@@ -184,6 +199,25 @@
     </div>
 </div> --}}
 @include('billing.invoices.partials.delete_invoice_modal')
+
+{{-- For add fund request --}}
+<div id="addRequestFund" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-xl ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depostifundtitle">Request Funds</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="addRequestFundArea">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="shareInvoicePopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
@@ -488,7 +522,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             dataString = $("#deleteInvoiceForm").serialize();
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/bills/invoices/deleteInvoiceForm", // json datasource
+                url: baseUrl + "/bills/invoices/deleteInvoiceForm   ", // json datasource
                 data: dataString,
                 beforeSend: function (xhr, settings) {
                     settings.data += '&delete=yes';
@@ -862,5 +896,6 @@ $(".scrollTo").on('click', function(e) {
 });
 </script>
 <script src="{{ asset('assets\js\custom\invoice\viewinvoice.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script src="{{ asset('assets\js\custom\client\fundrequest.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @stop
 @endsection

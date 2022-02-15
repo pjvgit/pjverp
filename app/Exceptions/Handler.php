@@ -79,11 +79,13 @@ class Handler extends ExceptionHandler
                 $login = 'login';
                 break;
         }
-
-        /* if ($request->is('admin') || $request->is('admin/*')) {
-            Log::info("admin route error: ". Route::currentRouteName());
-            return redirect()->guest('admin/login');
-        } */
         return redirect()->guest(route($login));
+
+        /* if (Route::currentRouteName() != 'login/user') {
+            Log::info("route not match");
+            return redirect()->route('login');
+        } else {
+            Log::info("route match");
+        } */
     }
 }

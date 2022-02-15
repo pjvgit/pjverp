@@ -86,7 +86,8 @@
 
     function loginToUserAccount(url) {
         // alert(url);
-        var myWindow = window.open(url, "", "width=400,height=400");
+        var myWindow = window.open(url, "", "width=800,height=500");
+        // window.location(myWindow);
         return false;
     }
 </script>
