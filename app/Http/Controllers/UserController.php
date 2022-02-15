@@ -899,6 +899,7 @@ class UserController extends BaseController
      //open set password popup when verify email
      public function setupprofile($token)
      {
+        auth()->logout();
         $verifyUser = User::where('token', $token)->first();
         return view('auth.setupprofile',['verifyUser'=>$verifyUser]);
 

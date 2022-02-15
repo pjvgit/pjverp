@@ -1702,7 +1702,7 @@ class BillingController extends BaseController
                 $invoiceHistory['responsible_user']=Auth::User()->id;
                 $invoiceHistory['payment_from']='trust';
                 $invoiceHistory['deposit_into']='Operating Account';
-                $invoiceHistory['deposit_into_id']=($request->contact_id)??NULL;
+                $invoiceHistory['deposit_into_id']=($request->contact_id)?? $request->trust_account;
                 $invoiceHistory['invoice_payment_id']=$lastInvoicePaymentId;
                 $invoiceHistory['notes']=$request->notes;
                 $invoiceHistory['status']="1";
@@ -1733,9 +1733,20 @@ class BillingController extends BaseController
                 
                 //Get previous amount
                 $this->updateClientPaymentActivity($request, $InvoiceData);
+
+                // Check trust balance is running low or not
+                if($request->trust_account == $InvoiceData['user_id']) {
+                    $lowTrustBalanceClient = User::where('id', $InvoiceData->user_id)
+                        ->whereHas("userAdditionalInfo", function($query) {
+                            $query->where("minimum_trust_balance", ">", 0);
+                        })->orWhereHas("clientCasesSelection", function($query) use($InvoiceData) {
+                            $query->where('case_id', $InvoiceData['case_id'])->whereRaw('allocated_trust_balance < minimum_trust_balance');
+                        })
+                        ->with(["userAdditionalInfo", ])->first();
+                }
                 
                 DB::commit(); 
-                return response()->json(['errors'=>'','msg'=>$msg]);
+                return response()->json(['errors'=>'','msg'=>$msg, 'lowTrustBalanceClient' => $lowTrustBalanceClient ?? '']);
                 exit;     
                             
             } catch (\Exception $e) {
@@ -4267,7 +4278,9 @@ class BillingController extends BaseController
             $InvoiceSave->save();
 
             // Apply trust and credit funds
+            $trustFundApplied = 'no';
             if(!empty($request->trust)) {
+                $trustFundApplied = 'yes';
                 foreach($request->trust as $key => $item) {
                     $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     $appliedTrustFund = InvoiceApplyTrustCreditFund::create([
@@ -4423,7 +4436,7 @@ class BillingController extends BaseController
 
             dbCommit();
             $decodedId=base64_encode($InvoiceSave->id);
-            return redirect('bills/invoices/view/'.$decodedId);
+            return redirect('bills/invoices/view/'.$decodedId.'?trustFundApplied='.$trustFundApplied);
             // return response()->json(['errors'=>'','invoice_id'=>$InvoiceSave->id]);
             exit;
         } catch (Exception $e) {
@@ -4514,7 +4527,17 @@ class BillingController extends BaseController
                 }
             }
             //check case client company is list out on contacts
-
+            Log::info("is trust trust fund applied:". $request->trustFundApplied);
+            $lowTrustBalanceClient = '';
+            if($request->trustFundApplied == 'yes') {
+                $lowTrustBalanceClient = User::where('id', $findInvoice->user_id)
+                        ->whereHas("userAdditionalInfo", function($query) {
+                            $query->where("minimum_trust_balance", ">", 0);
+                        })->orWhereHas("clientCasesSelection", function($query) use($findInvoice) {
+                            $query->where('case_id', $findInvoice->case_id)->whereRaw('allocated_trust_balance < minimum_trust_balance');
+                        })
+                        ->with(["userAdditionalInfo"])->first();
+            }
 
             $invoiceNo = sprintf('%06d', $findInvoice->id);
             $invoiceSetting = $findInvoice->invoice_setting;
@@ -4523,7 +4546,7 @@ class BillingController extends BaseController
                 return view('billing.invoices.partials.load_invoice_detail',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting'))->render();
             }
             // return $findInvoice->invoice_setting['flat_fee'];
-            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting','case_client_company'));     
+            return view('billing.invoices.viewInvoice',compact('findInvoice','InvoiceHistory','lastEntry','firmData','TimeEntryForInvoice','ExpenseForInvoice','InvoiceAdjustment','caseMaster','userMaster','SharedInvoiceCount','InvoiceInstallment','InvoiceHistoryTransaction','FlatFeeEntryForInvoice', 'invoiceNo','UsersAdditionalInfo', 'invoiceSetting', 'invoiceDefaultSetting','case_client_company', 'lowTrustBalanceClient'));     
             exit; 
         }
         }else{

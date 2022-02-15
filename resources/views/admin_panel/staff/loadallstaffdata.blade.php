@@ -72,12 +72,6 @@
         
     });
     
-    /* function loginToUserAccount(url) {
-            alert();
-            // var redirectWindow = window.open('http://youtube.com', '_blank', 'width=400, height=400');
-            // redirectWindow.location;
-            var myWindow = window.open("", "", "width=400,height=400");
-        } */
 </script>
 @endsection
 @else
