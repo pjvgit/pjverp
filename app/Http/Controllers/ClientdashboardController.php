@@ -2495,7 +2495,7 @@ class ClientdashboardController extends BaseController
         $mail_body = str_replace('{sender}', $senderName, $mail_body);
         $mail_body = str_replace('{subject}', $request['subject'], $mail_body);
         $mail_body = str_replace('{loginurl}', BASE_URL.'login', $mail_body);
-        $mail_body = str_replace('{url}', BASE_URL.'messages/'.$messageID.'/info', $mail_body);
+        $mail_body = str_replace('{url}', BASE_URL.'client/messages/'.$messageID.'/info', $mail_body);
         $mail_body = str_replace('{EmailLogo1}', url('/images/logo.png'), $mail_body);
         $mail_body = str_replace('{EmailLinkOnLogo}', BASE_LOGO_URL, $mail_body);
         $mail_body = str_replace('{regards}', $firmData->firm_name, $mail_body);

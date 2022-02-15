@@ -14,7 +14,7 @@ class Messages extends Authenticatable
     public $primaryKey = 'id';
 
     protected $fillable = ['status', 'title'];    
-    protected $appends  = ['decode_id','last_post'];
+    protected $appends  = ['decode_id','last_post', 'client_last_post'];
     public function getDecodeIdAttribute(){
         return base64_encode($this->id);
     }  
@@ -22,6 +22,12 @@ class Messages extends Authenticatable
         if($this->updated_at!=NULL){
             $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
             return date('d F h:i A',strtotime($userTime));
+        }
+    }
+    public function getclientLastPostAttribute(){
+        if($this->updated_at!=NULL){
+            $userTime = convertUTCToUserTime($this->updated_at, auth()->user()->user_timezone ?? 'UTC');
+            return date('M d, Y',strtotime($userTime));
         }
     }
 }

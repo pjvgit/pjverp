@@ -1249,6 +1249,10 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     Route::get('tasks/update/detail', 'TaskController@updateDetail')->name('client/tasks/update/detail');
     Route::post('tasks/save/comment', 'TaskController@saveComment')->name('client/tasks/save/comment');
     Route::get('tasks/comment/history', 'TaskController@taskCommentHistory')->name('client/tasks/comment/history');
+    
+    //messages
+    Route::get('messages', 'ClientdashboardController@messages')->name('client/messages');
+    Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('client/messages/info');
 });
 
 //Without login 

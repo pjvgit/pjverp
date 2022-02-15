@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li class="nav-item" data-app-section="Messages">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('client/messages') }}">
                     <i class="nav-item__icon">email</i>
                     <span class="nav-item__label">Messages</span>
                 </a>

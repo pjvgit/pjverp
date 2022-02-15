@@ -1,3 +1,6 @@
+------------------------------------ 15-FEB-2022 ------------------------------
+ALTER TABLE `messages`
+ADD `is_read` tinyint(4) NULL DEFAULT '1' AFTER `is_draft`;
 ------------------------------------ 10-FEB-2022 ------------------------------
 ALTER TABLE `user_notification_settings`
 ADD `for_app` enum('yes','no') COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'no';

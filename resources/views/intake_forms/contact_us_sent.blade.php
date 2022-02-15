@@ -11,18 +11,15 @@
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
-    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
- 
+    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}"> 
     <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
-
+    <link rel="stylesheet" href="{{asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
     <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
-    {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
 
-    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-    async defer>
+    {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer>
     </script>
     <style>
         .logoView {
@@ -477,7 +474,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                         <div class="row ">
                                             <div class="pr-2 col-12">
                                                 <input id="" name="date"  <?php if($v->is_required=="yes"){ echo "required";} ?> placeholder="Date" autocomplete="off" type="text"
-                                                    class="dp form-control form-control" value=""></div>
+                                                    class="dp form-control form-control" value="">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

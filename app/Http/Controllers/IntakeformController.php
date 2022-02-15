@@ -262,7 +262,7 @@ class IntakeformController extends BaseController
         
         $validator = \Validator::make($request->all(), [
             'form_name' => 'required|max:255',
-            'domain_name.*' => 'url'
+            // 'domain_name.*' => 'url'
         ],[
         'domain_name.*.url'=> "Please enter a valid HTTPS domain."]);
         if($validator->fails())

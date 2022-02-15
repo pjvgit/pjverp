@@ -6250,8 +6250,7 @@ class LeadController extends BaseController
                     "from" => FROM_EMAIL,
                     "from_title" => FROM_EMAIL_TITLE,
                     "subject" => $getTemplateData->subject,
-                    // "to" => $firmOWnertData['email'],    
-                    "to" => 'jignesh.prajapati@plutustec.com',
+                    "to" => $firmOWnertData['email'],    
                     "full_name" => $receiver,
                     "mail_body" => $mail_body
                 ];
@@ -6632,7 +6631,7 @@ class LeadController extends BaseController
     public function downloadIntakeForm(Request $request)
     {
         $id=$request->id;
-        $caseIntakeForm=CaseIntakeForm::where("id",$id)->first();
+        $caseIntakeForm=CaseIntakeForm::where("id",$id)->first();        
         $intakeForm=IntakeForm::where("id",$caseIntakeForm['intake_form_id'])->withTrashed()->first();
         $intakeFormFields=IntakeFormFields::where("intake_form_id",$caseIntakeForm['intake_form_id'])->orderBy("sort_order","ASC")->withTrashed()->get();
         $firmData=Firm::find(Auth::User()->firm_name);

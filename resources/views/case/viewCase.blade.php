@@ -1103,9 +1103,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     if(aData.is_filled=='yes'){
                         var downloadOption='<a  onclick="downloadIntakeForm('+aData.id+');" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
                         // var downloadOption='<a onclick="showLoad()" href="{{BASE_URL}}leads/downloadIntakeForm?id='+aData.id+'" data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="Download"><i class="fas fa-cloud-download-alt align-middle"></i></span></a>';
-                        var openForm='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><i class="fas fa-clipboard-list align-middle"></i></a>';
+                        var openForm='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Fill Out Form" data-placement="top" data-html="true" data-original-title="Fill Out Form"><i class="fas fa-clipboard-list align-middle"></i></a>';
                     }else{
-                        var openForm='<a data-placement="bottom" target="_blank" href="'+baseUrl+'/cform/'+aData.form_unique_id+'"  data-testid="edit-button" class="btn btn-link"><i class="fas fa-clipboard-list align-middle disabled"></i></a>';
+                        var openForm='<a data-placement="bottom" target="_blank" href="'+baseUrl+'/cform/'+aData.form_unique_id+'"  data-testid="edit-button" class="btn btn-link"><span data-toggle="tooltip" data-trigger="hover" title="" data-content="Fill Out Form" data-placement="top" data-html="true" data-original-title="Fill Out Form"><i class="fas fa-clipboard-list align-middle disabled"></i></a>';
                         var downloadOption='<a data-placement="bottom" href="javascript:;"  data-testid="edit-button" class="btn btn-link" style="color:gray;"><i class="fas fa-cloud-download-alt align-middle disabled"></i></a>';
                     }
 
@@ -1200,7 +1200,12 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     link.click();
                     link.remove()
                     $("#preloader").hide();
-                }
+                },
+                error: function (jqXHR, exception) {
+                    $("#preloader").hide();
+                    var errotHtml ='Sorry, something went wrong. Please try again later.';
+                    alert(errotHtml);
+                },
             })
         }) 
     }

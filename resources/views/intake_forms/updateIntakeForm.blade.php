@@ -80,7 +80,7 @@
                         <small class="form-text text-muted"> Appears at the top of the form when the client fills it out.</small>
                     </div>
                     <?php if($intakeForm->form_type=="1"){?>
-                    <div class="form-group m2">
+                    <div class="form-group">
                         <div class="row col-md-12">
                             <div class="col-md-6 form-group mb-3 dynamicDomain">
                                 <label for="firstName1">Authorized Website Domains</label> <i id="csp-opt-out-tooltip" data-toggle="tooltip" data-trigger="hover" title="" data-content="Download" data-placement="top" data-html="true" data-original-title="The contact form will only be allowed to be embedded on your website. Please note that only HTTPS domains are allowed." class="far fa-question-circle"></i>

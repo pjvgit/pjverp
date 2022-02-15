@@ -11,8 +11,9 @@
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
     <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <style>
         .logoView {
@@ -266,10 +267,12 @@
                                         <div class="dropdown">
                                             <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
                                                 <div class="test-form-date-field input-group">
-                                                    <input id="birthday" class="form-control" type="text" value="">
+                                                    <input id="datepicker" autocomplete="off" class="form-control" type="text" value="">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                    </div>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -421,7 +424,11 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
-                                        class="form-control form-control" value=""></div>
+                                        class="form-control form-control" value="">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

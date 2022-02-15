@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
     <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
     <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
     <script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
@@ -288,7 +289,10 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                                 <div class="dropdown">
                                                     <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
                                                         <div class="test-form-date-field input-group">
-                                                            <input id="birthday"  name="birthday" <?php if($v->is_required=="yes"){ echo "required";} ?> class="form-control" type="text" value="{{($filledData->birthday)??''}}">
+                                                            <input id="birthday" autocomplete="off"  name="birthday" <?php if($v->is_required=="yes"){ echo "required";} ?> class="form-control" type="text" value="{{($filledData->birthday)??''}}">
+                                                            <div class="input-group-append">
+                                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                            </div>
                                                         </div>
                                                     </div>
     
@@ -441,7 +445,11 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                     <div class="row ">
                                         <div class="pr-2 col-12">
                                             <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text" <?php if($v->is_required=="yes"){ echo "required";} ?>
-                                                class="form-control form-control" value="{{($filledData->date)??''}}"></div>
+                                                class="form-control form-control" value="{{($filledData->date)??''}}">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

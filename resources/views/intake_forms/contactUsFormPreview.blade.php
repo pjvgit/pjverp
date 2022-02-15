@@ -9,11 +9,12 @@
         {{$firmData->firm_name}} - {{$intakeForm->form_name}} - {{config('app.name')}}
     </title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/preview/bootstrap-style-preview.css')}}">
-    <link rel="stylesheet" media="screen" href="{{asset('public/assets/styles/css/preview/spacing.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/preview/bootstrap-style-preview.css')}}">
+    <link rel="stylesheet" media="screen" href="{{asset('assets/styles/css/preview/spacing.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{{asset('public/assets/js/jquery-ui.js')}}"></script>
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/jquery-ui.css')}}">
+    <script src="{{asset('assets/js/jquery-ui.js')}}"></script>
+    <link rel="stylesheet" href="{{asset('assets/styles/css/jquery-ui.css')}}">
     <style>
         .logoView {
             width: 50px;
@@ -280,6 +281,9 @@
                                                         <?php if($v->is_required=="yes"){ echo "required";} ?>
                                                         class="form-control" type="text"
                                                         value="{{($filledData->birthday)??''}}">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                </div>
                                                 </div>
                                             </div>
 
@@ -438,7 +442,11 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
-                                        class="form-control form-control" value=""></div>
+                                        class="form-control form-control" value="">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
