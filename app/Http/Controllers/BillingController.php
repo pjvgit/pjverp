@@ -4278,9 +4278,8 @@ class BillingController extends BaseController
             $InvoiceSave->save();
 
             // Apply trust and credit funds
-            $trustFundApplied = 'no';
             if(!empty($request->trust)) {
-                $trustFundApplied = 'yes';
+                session()->flash('trustFundApplied', 'yes');
                 foreach($request->trust as $key => $item) {
                     $trustHistoryLast = TrustHistory::where("client_id", @$item['client_id'])->orderBy('created_at', 'desc')->first();
                     $appliedTrustFund = InvoiceApplyTrustCreditFund::create([
@@ -4436,7 +4435,7 @@ class BillingController extends BaseController
 
             dbCommit();
             $decodedId=base64_encode($InvoiceSave->id);
-            return redirect('bills/invoices/view/'.$decodedId.'?trustFundApplied='.$trustFundApplied);
+            return redirect('bills/invoices/view/'.$decodedId);
             // return response()->json(['errors'=>'','invoice_id'=>$InvoiceSave->id]);
             exit;
         } catch (Exception $e) {
@@ -4527,9 +4526,9 @@ class BillingController extends BaseController
                 }
             }
             //check case client company is list out on contacts
-            Log::info("is trust trust fund applied:". $request->trustFundApplied);
+            Log::info("is trust trust fund applied:". session()->get('trustFundApplied'));
             $lowTrustBalanceClient = '';
-            if($request->trustFundApplied == 'yes') {
+            if(session()->get('trustFundApplied') == 'yes') {
                 $lowTrustBalanceClient = User::where('id', $findInvoice->user_id)
                         ->whereHas("userAdditionalInfo", function($query) {
                             $query->where("minimum_trust_balance", ">", 0);
@@ -8055,7 +8054,7 @@ class BillingController extends BaseController
 
         $FetchQuery = $FetchQuery->offset($requestData['start'])->limit($requestData['length']);
         $FetchQuery = $FetchQuery->orderBy('id', 'desc');
-        $FetchQuery = $FetchQuery->with('leadAdditionalInfo', 'invoice')->get();
+        $FetchQuery = $FetchQuery->with('leadAdditionalInfo')->get();
         $json_data = array(
             "draw"            => intval( $requestData['draw'] ),   
             "recordsTotal"    => intval( $totalData ),  
@@ -10807,11 +10806,13 @@ class BillingController extends BaseController
                 $this->updateInvoiceAmount($InvoiceData->id);
 
                 // Deduct amount from credit account after payment.
-                if($userAddInfo) {
+                UsersAdditionalInfo::where("user_id",$request->credit_account)->decrement('credit_account_balance', $request->amount);
+                $userAddInfo->refresh();
+                /* if($userAddInfo) {
                     $userAddInfo->fill([
                         'credit_account_balance' => ($userAddInfo->credit_account_balance) ? $userAddInfo->credit_account_balance - $request->amount ?? 00 : $userAddInfo->credit_account_balance
                     ])->save();
-                }
+                } */
 
                 //Code For installment amount
                 $getInstallMentIfOn=InvoicePaymentPlan::where("invoice_id",$InvoiceData->id)->first();

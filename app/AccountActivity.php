@@ -115,6 +115,7 @@ class AccountActivity extends Authenticatable
     {
         $paymentType = $this->payment_type;
         $isRefund = ($this->is_refunded == "yes") ? "(Refunded)" : "";
+        $isInvoiceCancelled = ($this->invoice_history_id && $this->invoiceHistory->is_invoice_cancelled == 'yes') ? "(Invoice cancelled. Fund moved to trust account.)" : "";
         if($paymentType=="withdraw" && $this->pay_type == "trust"){
             $ftype="Withdraw from Trust Account";
         } 
@@ -166,7 +167,7 @@ class AccountActivity extends Authenticatable
         else{
             $ftype="Deposit into Trust Account";
         }
-        return $ftype.' '.$isRefund;
+        return $ftype.' '.$isRefund.' '.$isInvoiceCancelled;
     }
 
     /**
@@ -177,5 +178,15 @@ class AccountActivity extends Authenticatable
     public function leadAdditionalInfo()
     {
         return $this->hasOne(LeadAdditionalInfo::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the invoiceHistory that owns the AccountActivity
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoiceHistory()
+    {
+        return $this->belongsTo(InvoiceHistory::class, 'invoice_history_id');
     }
 }

@@ -10,14 +10,11 @@
             <div class="card-body">
                 <span id="low_balance_alert">
                     @if(!empty($lowTrustBalanceClient))
-                    <div class="alert alert-info alert-dismissible fade show" role="alert"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="alert alert-info alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert">×</button>
                         <div class="d-flex align-items-start">
                             <div class="w-100"><strong>Low Trust Balance! </strong>
                                 <span class="low-balance-name">{{ $lowTrustBalanceClient->full_name }} has a trust balance that is low.</span>
-                                <u><a request-funds-btn" data-toggle="modal" data-target="#addRequestFund"
-                                    onclick="addRequestFundPopup();" href="javascript:;">Request Funds Now.</a>
-                                    {{-- <button type="button" class="px-1 btn btn-link">Request Funds Now.</button> --}}
-                                </u>
+                                <u><a data-toggle="modal" data-target="#addRequestFund" onclick="addRequestFundPopup();" href="javascript:;">Request Funds Now.</a></u>
                             </div>
                         </div>
                     </div>

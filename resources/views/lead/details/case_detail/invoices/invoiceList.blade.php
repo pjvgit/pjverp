@@ -140,7 +140,7 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
         </tbody>
     </table>
 </div>
-<div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
+{{-- <div id="deleteInvoicePopup" class="modal fade show modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog">
         <form class="deleteInvoiceForm" id="deleteInvoiceForm" name="deleteInvoiceForm" method="POST">
@@ -179,7 +179,10 @@ if($totalInvoiceData<=0 && count($RequestedFundData) <= 0){
             </div>
         </form>
     </div>
-</div>
+</div> --}}
+
+@include('billing.invoices.partials.delete_invoice_modal')
+
 <?php } ?>
 @include('client_dashboard.billing.modal')
 @section('page-js-inner')
