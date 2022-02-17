@@ -1591,7 +1591,7 @@ class ClientdashboardController extends BaseController
             // return view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory'));
 
             $filename='trust_export_'.time().'.pdf';
-            $startDate = $request->from_date; $endDate = $request->to_date;
+            $startDate = $request->from_date; $endDate = $request->to_date;     
             $PDFData=view('client_dashboard.billing.trustHistoryPdf',compact('userData','country','firmData','firmAddress','UsersAdditionalInfo','allHistory', 'startDate', 'endDate'));
             $pdf = new Pdf;
             if($_SERVER['SERVER_NAME']=='localhost'){

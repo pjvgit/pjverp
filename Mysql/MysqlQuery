@@ -1,3 +1,37 @@
+------------------------------------ 16-FEB-2022 ------------------------------
+CREATE TABLE `events` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `case_id` int(11) NULL,
+  `lead_id` int(11) NULL,
+  `parent_event_id` bigint(11) NULL,
+  `event_title` varchar(255) NULL,
+  `event_type_id` int(11) NULL,
+  `is_full_day` enum('no','yes') NOT NULL DEFAULT 'no',
+  `start_date` date NULL,
+  `end_date` date NULL,
+  `start_time` time NULL,
+  `end_time` time NULL,
+  `recurring_event_end_date` date NULL COMMENT 'This end date is for recurring event. if user choose daily with no end date then this field value should be start date + 365 days (last date)',
+  `event_location_id` int(11) NULL,
+  `event_description` varchar(255) NULL,
+  `is_event_private` enum('no','yes') NOT NULL DEFAULT 'no',
+  `is_recurring` enum('no','yes') NOT NULL DEFAULT 'no',
+  `event_recurring_type` enum('DAILY','EVERY_BUSINESS_DAY','CUSTOM','WEEKLY','MONTHLY','YEARLY') NULL,
+  `event_interval_day` varchar(255) NULL,
+  `day_of_week` varchar(255) NULL,
+  `day_of_month` varchar(255) NULL,
+  `month_of_year` varchar(255) NULL,
+  `is_end_date` enum('no','yes') NOT NULL DEFAULT 'no',
+  `end_on` date NULL,
+  `is_event_read` enum('no','yes') NOT NULL DEFAULT 'no',
+  `is_SOL` enum('no','yes') NOT NULL DEFAULT 'no',
+  `firm_id` int(11) NULL,
+  `created_by` int(11) NULL,
+  `created_at` timestamp NULL,
+  `updated_by` int(11) NULL,
+  `updated_at` timestamp NULL,
+  `deleted_at` timestamp NULL
+) ENGINE='InnoDB' COLLATE 'utf8mb4_general_ci';
 ------------------------------------ 15-FEB-2022 ------------------------------
 ALTER TABLE `messages`
 ADD `is_read` tinyint(4) NULL DEFAULT '1' AFTER `is_draft`;

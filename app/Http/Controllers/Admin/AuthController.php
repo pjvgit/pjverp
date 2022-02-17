@@ -13,7 +13,7 @@ class AuthController extends Controller {
 
     public function __construct()
     {
-        // $this->middleware('guest:admin')->except(['logout', 'userLoginByAdmin']);
+        // $this->middleware('guest:admin')->except('logout');
     }
 
     /**
@@ -35,8 +35,9 @@ class AuthController extends Controller {
             'password' => 'required'
         ]);
 
-        // if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
         if (Auth::guard('admin')->attempt(['email' => strtolower($request->email), 'password' => $request->password])) {
+            // $_SESSION["favcolor"] = "green";
+            \Illuminate\Support\Facades\Session::put('variableName', 'Valueeeeeeeee');
             return redirect()->intended(route('admin/dashboard'))->with('status','You are Logged in as Admin!');;
         }
         return back()->withInput($request->only('email'))->with('error', 'These credentials do not match with our records.');
@@ -64,6 +65,9 @@ class AuthController extends Controller {
         $user = User::where('id', $uId)->first();
         if($user && $user->user_level == '3') {
             Auth::loginUsingId($uId);
+            \Illuminate\Support\Facades\Session::put('userloggedin', 'yes, working');
+            // echo \Illuminate\Support\Facades\Session::get('variableName');
+            // exit;
             return redirect()->intended('dashboard')->with('success','Login Successfully');
         }
     }

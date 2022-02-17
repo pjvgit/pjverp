@@ -17,6 +17,7 @@ use DateInterval,DatePeriod,App\CaseEventComment;
 use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo;
 use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
+use App\Event;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use App\FirmEventReminder;
@@ -2063,7 +2064,7 @@ class CaseController extends BaseController
     //Calender tab
       public function loadAddEventPage(Request $request)
       {
-          
+        $authUser = auth()->user();
         $lead_id="";
         if(isset($request->lead_id)){
             $lead_id=$request->lead_id;
@@ -2071,14 +2072,15 @@ class CaseController extends BaseController
         $case_id=$request->case_id;
         $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
 
-        if(Auth::user()->parent_user==0){
+        /* if(Auth::user()->parent_user==0){
             $getChildUsers = User::select("id")->where('parent_user',Auth::user()->id)->get()->pluck('id');
             $getChildUsers[]=Auth::user()->id;
             $CaseMasterData = CaseMaster::whereIn("case_master.created_by",$getChildUsers)->where('is_entry_done',"1")->get();
         }else{
             $childUSersCase = CaseStaff::select("case_id")->where('user_id',Auth::user()->id)->get()->pluck('case_id');
             $CaseMasterData = CaseMaster::whereIn("case_master.id",$childUSersCase)->where('is_entry_done',"1")->get();
-        }
+        } */
+        $CaseMasterData = CaseMaster::where('firm_id', $authUser->firm_name)->where('is_entry_done',"1")->get();
 
         $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
 
@@ -2091,7 +2093,8 @@ class CaseController extends BaseController
         $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
         return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder'));          
      }
-      public function saveAddEventPageOld(Request $request)
+
+      /* public function saveAddEventPageOld(Request $request)
       {
         
         // return $request->all();
@@ -2692,12 +2695,12 @@ class CaseController extends BaseController
         session(['popup_success' => 'Event was added.']);
         return response()->json(['errors'=>''   ]);
         exit;
-      }
+      } */
 
     /**
      * Add new single/recurring event with jobs and trait
      */
-    public function saveAddEventPage(Request $request)
+    public function saveAddEventPageOld(Request $request)
     {
         // return $request->all();
         $validator = \Validator::make($request->all(), [
@@ -2804,8 +2807,85 @@ class CaseController extends BaseController
         sleep(5);
         return response()->json(['errors'=>''   ]);
     }
+
+    public function saveAddEventPage(Request $request)
+    {
+        // return $request->all();
+        $validator = \Validator::make($request->all(), [
+            'linked_staff_checked_share' => 'required'
+        ]);
+        if($validator->fails())
+        {
+            return response()->json(['errors'=>['You must share with at least one firm user<br>You must share with at least one user'],]);
+        }
+
+        $authUser = auth()->user();
+
+        //If new location is creating.
+        if($request->location_name!=''){
+            $locationID= $this->saveLocationOnce($request);
+        } else {
+            $locationID = $request->case_location_list;
+        }
+
+        //Single event
+        if(!isset($request->recuring_event)){
+            $startDate = strtotime(date("Y-m-d", strtotime($request->start_date)));
+            $endDate = strtotime(date("Y-m-d",strtotime($request->end_date)));
+        }else{
+            //recurring event
+            $startDate = strtotime(date("Y-m-d",  strtotime($request->start_date)));
+            $endDate = strtotime(date("Y-m-d",  strtotime($request->end_date)));
+            $recurringEndDate =  strtotime(date('Y-m-d',strtotime('+365 days')));
+            if($request->end_on!=''){
+                $recurringEndDate =  strtotime(date('Y-m-d',strtotime($request->end_on)));
+            }
+        }
+
+        // Start-End time for all events convert into UTC
+        $start_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)), $authUser->user_timezone)));
+        $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
+
+        if(isset($request->recuring_event)){    
+            if($request->event_frequency=='DAILY')
+            {
+                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
+                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
+
+                $caseEvent = Event::create([
+                    "event_title" => $request->event_name,
+                    "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                    "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                    "event_type_id" => $request->event_type ?? NULL,
+                    "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
+                    "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
+                    "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
+                    "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
+                    "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), auth()->user()->user_timezone),
+                    "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
+                    "event_description" => $request->description,
+                    "is_recurring" => "yes",
+                    "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                    "event_recurring_type" => $request->event_frequency,
+                    "event_interval_day" => '1',
+                    "is_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                    "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+                    "is_event_read" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                    "firm_id" => $authUser->firm_name,
+                    "created_by" => $authUser->id,
+                ]);
+            }
+
+            /* $this->saveEventReminder($request->all(),$CaseEvent->id); 
+            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
+            $this->saveContactLeadData($request->all(),$CaseEvent->id);      */
+        }
+        session(['popup_success' => 'Event was added.']);
+        return response()->json(['errors'=>''   ]);
+    }
     
-      public function saveEditEventPageOld(Request $request)
+      public function saveEditEventPage(Request $request)
       {
         //   return $request->all();
           if(!isset($request->no_case_link)){
@@ -4667,7 +4747,7 @@ class CaseController extends BaseController
     /**
      * Update events with jobs and trait
      */
-    public function saveEditEventPage(Request $request)
+    public function saveEditEventPageNew(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){

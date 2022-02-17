@@ -1743,6 +1743,9 @@ class BillingController extends BaseController
                             $query->where('case_id', $InvoiceData['case_id'])->whereRaw('allocated_trust_balance < minimum_trust_balance');
                         })
                         ->with(["userAdditionalInfo", ])->first();
+                    if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
+                        $lowTrustBalanceClient = '';
+                    }
                 }
                 
                 DB::commit(); 
@@ -4536,6 +4539,9 @@ class BillingController extends BaseController
                             $query->where('case_id', $findInvoice->case_id)->whereRaw('allocated_trust_balance < minimum_trust_balance');
                         })
                         ->with(["userAdditionalInfo"])->first();
+                if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
+                    $lowTrustBalanceClient = '';
+                }
             }
 
             $invoiceNo = sprintf('%06d', $findInvoice->id);
