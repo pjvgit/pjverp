@@ -382,7 +382,7 @@
             <?php } ?>
 
             <div class="empty-sharing-list text-muted text-left hideUser" id="hideUser"><p>Select a case or lead to share this event with clients and firm members. Check "This event is not linked to a case or lead" to share only with firm members.</p></div> 
-            <section class="sharing-list" id="loadTaskSection">
+            <section class="sharing-list" id="add_event_right_section">
                 <div class="loader-bubble loader-bubble-primary"></div>
             </section>
         </div>
@@ -395,8 +395,7 @@
             <a href="#">
                 <button class="btn btn-secondary  m-1" type="button" data-dismiss="modal">Close</button>
             </a>
-            <button class="btn btn-primary example-button m-1 submit" id="submit"  type="submit"
-            data-style="expand-left">Save Event </button>
+            <button class="btn btn-primary example-button m-1 submit" type="submit" data-style="expand-left">Save Event </button>
         </div>
     </div>
 </form>
@@ -724,43 +723,6 @@
         $("#add_new_label").show();
     }
 
-    /* function selectType() {
-        $(".innerLoader").css('display', 'block');
-        var selectdValue = $("#event-frequency option:selected").val() // or
-        if (selectdValue == 'DAILY') {
-            $("#repeat_daily").show();
-            $("#repeat_custom").hide();
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").hide();
-        } else if (selectdValue == 'CUSTOM') {
-            $("#repeat_custom").show();
-            $("#repeat_daily").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        } else if (selectdValue == 'MONTHLY') {
-            $(".repeat_yearly").hide();
-            $(".repeat_monthly").show();
-            $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
-        } else if (selectdValue == 'YEARLY') {
-            $(".repeat_yearly").show();
-            $(".repeat_monthly").hide();
-            $("#repeat_custom").hide();
-            updateMonthlyWeeklyOptions();
-        } else if (selectdValue == 'WEEKLY') {
-            updateMonthlyWeeklyOptions();
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        } else {
-            $("#repeat_daily").hide();
-            $("#repeat_custom").hide();
-            $(".repeat_monthly").hide();
-            $(".repeat_yearly").hide();
-        }
-        $(".innerLoader").css('display', 'none');
-    } */
 
     function removeUser(id) {
         $(".innerLoader").css('display', 'block');
@@ -844,7 +806,7 @@
             url: baseUrl + "/court_cases/loadFirmAllStaff",
             data: {"case_id": ''},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#add_event_right_section").html(res);
             }
         })
     }
@@ -854,7 +816,7 @@
             url: baseUrl + "/court_cases/loadLeadRightSection",
             data: {"lead_id": lead_id},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#add_event_right_section").html(res);
               
             }
         })
@@ -885,7 +847,7 @@
             url: baseUrl + "/court_cases/loadEventRightSection",
             data: {"case_id": case_id},
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#add_event_right_section").html(res);
             }
         })
     }
@@ -908,7 +870,7 @@
             $(".hideUser").hide();
         }else{
            $(".hideUser").show();
-            $("#loadTaskSection").html('');
+            $("#add_event_right_section").html('');
             $("#HideShowNonlink").hide();
            
         }
@@ -945,7 +907,7 @@
             url: baseUrl + "/leads/loadAllCaseStaffMember",
             data: "",
             success: function (res) {
-                $("#loadTaskSection").html(res);
+                $("#add_event_right_section").html(res);
             }
         })
     }
@@ -963,11 +925,11 @@
             
             $('#case_or_lead').prop('selectedIndex',0);
             $("#HideShowNonlink").hide();
-            $("#loadTaskSection").html('');
+            $("#add_event_right_section").html('');
             firmStaff();
         } else {
            
-            $("#loadTaskSection").html('');
+            $("#add_event_right_section").html('');
         }
     });
 
