@@ -257,7 +257,7 @@
                                         <div class="dropdown">
                                             <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
                                                 <div class="test-form-date-field input-group">
-                                                    <input id="birthday" class="form-control" type="text" value="">
+                                                    <input id="birthday" class="form-control birthday" type="text" value="">
                                                 </div>
                                             </div>
 
@@ -411,8 +411,14 @@
                         <div class="">
                             <div class="row ">
                                 <div class="pr-2 col-12">
-                                    <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
-                                        class="form-control form-control" value=""></div>
+                                    <div class="test-form-date-field input-group">
+                                        <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
+                                        class="form-control form-control datepicker" value="">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -444,9 +450,8 @@
 </body>
 
 <script type="text/javascript">
-    $(document).ready(function () {
-        <?php if($v->form_field=="birthday"){ ?>
-        $('#birthday').datepicker({
+    $(document).ready(function () {        
+        $('.birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
@@ -454,16 +459,13 @@
             endDate: '+0d',
             'todayHighlight': true
         });
-        <?php } 
-        if($v->form_field=="date"){ ?>
-        $('#datepicker').datepicker({
+        $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             'todayHighlight': true
         });
-        <?php } ?>
     });
 </script>
 </html>

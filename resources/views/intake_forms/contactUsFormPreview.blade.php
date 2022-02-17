@@ -279,7 +279,7 @@
                                                 <div class="test-form-date-field input-group">
                                                     <input id="birthday" name="birthday"
                                                         <?php if($v->is_required=="yes"){ echo "required";} ?>
-                                                        class="form-control" type="text"
+                                                        class="form-control birthday" type="text"
                                                         value="{{($filledData->birthday)??''}}">
                                                 <div class="input-group-append">
                                                     <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -442,7 +442,7 @@
                             <div class="row ">
                                 <div class="pr-2 col-12">
                                     <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
-                                        class="form-control form-control" value="">
+                                        class="form-control form-control datepicker" value="">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                     </div>
@@ -497,12 +497,19 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('#birthday').datepicker({
+        $('.birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
             'clearBtn': true,
             endDate: '+0d',
+            'todayHighlight': true
+        });
+        $('.datepicker').datepicker({
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': true,
             'todayHighlight': true
         });
     });

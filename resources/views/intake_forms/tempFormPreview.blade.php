@@ -267,7 +267,7 @@
                                         <div class="dropdown">
                                             <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
                                                 <div class="test-form-date-field input-group">
-                                                    <input id="datepicker" autocomplete="off" class="form-control" type="text" value="">
+                                                    <input id="birthday" autocomplete="off" class="form-control datepicker" type="text" value="">
                                                     <div class="input-group-append">
                                                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                                     </div>
@@ -423,10 +423,12 @@
                         <div class="">
                             <div class="row ">
                                 <div class="pr-2 col-12">
-                                    <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
-                                        class="form-control form-control" value="">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <div class="test-form-date-field input-group">
+                                        <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text"
+                                            class="form-control form-control datepicker" value="">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -454,7 +456,7 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#datepicker').datepicker({
+        $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",

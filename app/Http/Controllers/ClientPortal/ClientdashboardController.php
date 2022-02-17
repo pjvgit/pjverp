@@ -10,7 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Messages,App\ReplyMessages;
+use App\Messages,App\ReplyMessages,App\Firm,App\EmailTemplate;
 use DB,Validator,Session,Mail,Storage,Image;
 // use Datatables;
 use Yajra\Datatables\Datatables;
@@ -24,6 +24,15 @@ class ClientdashboardController extends Controller
         ->select('messages.*', "messages.updated_at as last_post", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
         $messages = $messages->where("messages.user_id",'like', '%'.Auth::User()->id.'%');
         $messages = $messages->where("messages.firm_id",Auth::User()->firm_name);
+        if($request->folder == 'archived'){
+            $messages = $messages->where("messages.is_archive",1);
+        }else if($request->folder == 'draft'){
+            $messages = $messages->where("messages.is_draft",1);
+        }else{
+            $messages = $messages->where("messages.is_archive",0);
+            $messages = $messages->where("messages.is_draft",0);
+        }
+
         $messages = $messages->orderBy("messages.updated_at", 'desc');
         $messages = $messages->get();
 
@@ -36,31 +45,35 @@ class ClientdashboardController extends Controller
         ->where('messages.id', $request->id)
         ->first();
         if(!empty($messagesData)){
-        $count = 0;
-        if($messagesData->created_by == Auth::User()->id){
-            $count++;
-        }
-        if($messagesData->user_id == Auth::User()->id){
-            $count++;
-        }
-        if($count == 0){
-            abort(404);
-        }
-  
-        $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
-        ->select('reply_messages.*')
-        ->where('reply_messages.message_id', $request->id)
-        ->get();
-    
-        $clientList = [];    
-        $userlist = explode(',', $messagesData->user_id);
-        foreach ($userlist as $key => $value) {
-            $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
-            $clientList[$value] =  strtolower($userInfo['first_name'].' '.$userInfo['last_name']);
-        }
+            $count = 0;
+            if($messagesData->created_by == Auth::User()->id){
+                $count++;
+            }
+            if($messagesData->user_id == Auth::User()->id){
+                $count++;
+            }
+            if($count == 0){
+                abort(404);
+            }
 
-        // return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
-        return view("client_portal.messages.viewMessage",compact('messagesData','messageList','clientList'));            
+            // read mesages 
+            $messagesData->is_read = 0;
+            $messagesData->save();
+    
+            $messageList = ReplyMessages::leftJoin("messages","reply_messages.message_id","=","messages.id")
+            ->select('reply_messages.*')
+            ->where('reply_messages.message_id', $request->id)
+            ->get();
+        
+            $clientList = [];    
+            $userlist = explode(',', $messagesData->user_id);
+            foreach ($userlist as $key => $value) {
+                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
+                $clientList[$value] =  strtolower($userInfo['first_name'].' '.$userInfo['last_name']);
+            }
+
+            // return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
+            return view("client_portal.messages.viewMessage",compact('messagesData','messageList','clientList'));            
         }else{
             abort(404);
         }
@@ -97,5 +110,73 @@ class ClientdashboardController extends Controller
             $sendEmail = $this->sendMail($user);
         }
         return true;
+    }
+
+    public function sendMail($user){
+        try{
+             Mail::send('emails.reminder', ['user' => $user], function ($m) use ($user) {
+                $m->from($user['from'], $user['from_title']);
+                if(isset($user['replyto'])){
+                    $m->replyTo($user['replyto'], $user['replyto_title']);
+                }
+                $m->to($user['to'],$user['full_name'])->subject($user['subject']);
+            });
+            if( count(Mail::failures()) > 0 ) {
+                foreach(Mail::failures() as $email_address) {
+                    return 0;
+                }
+            } else {
+                return 1;
+            }
+        }
+        catch(\Exception $e){
+            return 0;
+        }
+    }
+
+    public function archiveMessageToUserCase(Request $request){
+        $Messages=Messages::find($request->message_id);
+        $Messages->is_archive = "1";
+        $Messages->save();
+        session(['popup_success' => 'Message was archived']);
+        return response()->json(['errors'=>'']);
+    }
+
+    public function unarchiveMessageToUserCase(Request $request){
+        $Messages=Messages::find($request->message_id);
+        $Messages->is_archive = 0;
+        $Messages->save();
+        session(['popup_success' => 'Message was unarchived']);
+        return response()->json(['errors'=>'']);
+    }
+
+
+    public function replyMessageToUserCase(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'selected_case_id' => ($request->is_global_for == 'client') ? 'required' : '',
+            'selected_user_id' => 'required'
+        ]);
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()->all()]);
+        }else{
+            $ReplyMessages=new ReplyMessages;
+            $ReplyMessages->message_id=$request->message_id;
+            $ReplyMessages->reply_message=$request->delta;
+            $ReplyMessages->created_by =Auth::User()->id;
+            $ReplyMessages->save();
+
+            $Messages=Messages::find($request->message_id);
+            $Messages->message=substr(strip_tags($request->delta),0,50);
+            $Messages->save();
+            
+            $this->sendMailGlobal($request, $request->selected_user_id, $request->message_id);
+
+            session(['popup_success' => 'Your message has been sent']);
+            return response()->json(['errors'=>'']);
+            exit;       
+        }
+           
     }
 }

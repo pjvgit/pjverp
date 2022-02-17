@@ -575,6 +575,8 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                     }, 'slow');
                     result = false;                    
                 }else{
+                    $('#showError2').html('');
+                    $('#showError2').hide();
                     $.ajax({
                         type: "POST",
                         url: baseUrl + "/case/loadBillingContact",
@@ -625,11 +627,15 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         }, 'slow');
                         return false;
                     } else {
-                        $("returnPage").val('');
-                        <?php session(['popup_success' => '']); ?>
-                        localStorage.setItem("case_id", res.case_id);
-                        $('#AddCaseModelUpdate').modal("hide");
-                        loadCaseDropdown();
+                        if($("#returnPage").val() == '' || $("#returnPage").val() === undefined){
+                            $("#returnPage").val('');
+                            window.location.reload();
+                        }else{
+                            <?php session(['popup_success' => '']); ?>
+                            localStorage.setItem("case_id", res.case_id);
+                            $('#AddCaseModelUpdate').modal("hide");
+                            loadCaseDropdown();
+                        }
                     }
                 }
             });
@@ -680,9 +686,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
     });
 
     $('#AddCaseModelUpdate').on('hidden.bs.modal', function () {
-        if($("returnPage").val() == ''){
+        if($("#returnPage").val() == ''){
             window.location.reload();
-            $("returnPage").val('');
+            $("#returnPage").val('');
         }
     });
 

@@ -30,12 +30,12 @@
                     <span class="nav-item__label">Messages</span>
                 </a>
             </li>
-            <li class="nav-item" data-app-section="Documents">
+            {{-- <li class="nav-item" data-app-section="Documents">
                 <a class="nav-link" href="#">
                     <i class="nav-item__icon">insert_drive_file</i>
                     <span class="nav-item__label">Documents</span>
                 </a>
-            </li>
+            </li>--}}
             <li class="nav-item" data-app-section="Events">
                 <a class="nav-link" href="{{ route('client/events') }}">
                     <i class="nav-item__icon">insert_invitation</i>

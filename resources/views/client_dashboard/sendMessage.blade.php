@@ -1,7 +1,7 @@
 <form class="sendEmails" id="sendEmails" name="sendEmails" method="POST">
     @csrf
-    <input class="form-control" id="current_contact" name="current_contact" type="hidden" value="{{ ($_REQUEST['page'] == 'user_id') ? $_REQUEST['id'] : ''}}">
-    <input class="form-control" id="current_case" name="current_case" type="hidden" value="{{ ($_REQUEST['page'] == 'case_id') ? $_REQUEST['id'] : ''}}">
+    <input class="form-control" id="current_contact" name="current_contact" type="hidden" value="{{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'user_id') ? $_REQUEST['id'] : ''}}">
+    <input class="form-control" id="current_case" name="current_case" type="hidden" value="{{ (isset($_REQUEST['page']) && $_REQUEST['page'] == 'case_id') ? $_REQUEST['id'] : ''}}">
     <div id="showError" class="showError" style="display:none"></div>
     <span id="response"></span>
     <div class="col-md-12" bladeFile="resources/views/client_dashboard/sendMessage.blade.php">
@@ -257,11 +257,32 @@
             $('#sendto').trigger('change.select2');            
             swal('Error!', 'You cannot send a message to yourself');        
         }else if(userID[0] == 'case'){
-            var wanted_id = e.params.data.id;
-            var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
-            wanted_option.prop('selected', false);
-            $('#sendto').trigger('change.select2');            
-            $('#case_link').trigger('change').val(userID[1]);        
+            // var wanted_id = e.params.data.id;
+            // var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
+            // wanted_option.prop('selected', false);
+            // $('#sendto').trigger('change.select2');            
+            // $('#case_link').trigger('change').val(userID[1]);   
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/contacts/clients/companyContactList",
+                data: {
+                    "case_id": userID[1]
+                },
+                success: function (res) {
+                    if(res.errors == '0'){
+                        $.each(res.contactList, function (key, value) {
+                            $('#sendto option[value="client-'+value+'"]').prop('selected', true).trigger('change.select2');                      
+                        });
+                        
+                    }else{
+                        swal('Error!', res.msg);  
+                    }  
+                    var wanted_id = e.params.data.id;
+                    var wanted_option = $('#sendto option[value="'+ wanted_id +'"]');
+                    wanted_option.prop('selected', false);
+                    $('#sendto').trigger('change.select2');                    
+                }
+            });     
         }else if(userID[0] == 'company'){
                         
             $.ajax({

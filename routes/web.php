@@ -1210,6 +1210,7 @@ Route::group(['middleware' => ['clientportal.access', 'user.role:client'], 'name
 // AUth routes of client portal
 Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.access'], 'namespace' => "ClientPortal", 'prefix' => 'client'], function () {
     Route::get('home', 'HomeController@index')->name("client/home");
+    Route::get('dashboard', 'HomeController@index')->name('dashboard');
     Route::get('notifications', 'HomeController@allNotification')->name("client/notifications");
 
     // For billing > invoice
@@ -1253,6 +1254,10 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     //messages
     Route::get('messages', 'ClientdashboardController@messages')->name('client/messages');
     Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('client/messages/info');
+    Route::post('messages/archiveMessageToUserCase', 'ClientdashboardController@archiveMessageToUserCase')->name('client/messages/archiveMessageToUserCase');
+    Route::post('messages/unarchiveMessageToUserCase', 'ClientdashboardController@unarchiveMessageToUserCase')->name('client/messages/unarchiveMessageToUserCase');
+    Route::post('messages/replyMessageToUserCase', 'ClientdashboardController@replyMessageToUserCase')->name('client/messages/replyMessageToUserCase');
+    
 });
 
 //Without login 

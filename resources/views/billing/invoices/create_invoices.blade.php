@@ -462,6 +462,9 @@ $fee_structure_filter=($_GET['fee_structure_filter'])??'';
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="depostifundtitle">Processing Bill</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="progress mb-3">
@@ -667,7 +670,10 @@ var start = 0;
             paymentTerm();
         });
         $('.date_picker_from').datepicker({
-            format: 'mm/dd/yyyy',
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': false,
             'todayHighlight': true
         }).on('changeDate', function (selected) {
             var maxDate = new Date(selected.date.valueOf());
@@ -676,7 +682,10 @@ var start = 0;
         });
 
         $('.date_picker_to').datepicker({
-            format: 'mm/dd/yyyy',
+            'format': 'm/d/yyyy',
+            'autoclose': true,
+            'todayBtn': "linked",
+            'clearBtn': false,
             'todayHighlight': true
         }).on('changeDate', function (selected) {
             var maxDate = new Date(selected.date.valueOf());
@@ -987,7 +996,7 @@ var start = 0;
             data: dataString+'&case_id='+JSON.stringify(array),
             success: function (res) {
                 beforeLoader();
-                setTimeout(() => {
+                setTimeout(function () {
                     $("#progress").modal("hide");    
                 }, 100);
                 if (res.errors != '') {

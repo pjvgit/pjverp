@@ -4123,8 +4123,10 @@ class BillingController extends BaseController
             if(!empty($request->portalAccess)){
                 SharedInvoice::where("invoice_id",$InvoiceSave->id)->delete();
                 $InvoiceSave->status="Sent";
+                $InvoiceSave->is_sent="yes";
                 $InvoiceSave->bill_sent_status="Sent";
                 $InvoiceSave->save();
+                
                 foreach($request->portalAccess as $k=>$v){
                     $SharedInvoice=new SharedInvoice;
                     $SharedInvoice->invoice_id=$InvoiceSave->id;                    
@@ -9132,7 +9134,7 @@ class BillingController extends BaseController
                 return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'notSharedInvoice' => $notSharedInvoice,  'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
                 exit; 
             }else{
-                return response()->json(['errors' =>'No Invoice Found...']);
+                return response()->json(['errors' =>['No Invoice Found...']]);
             }
             } catch (Exception $e) {
                 dbEnd();

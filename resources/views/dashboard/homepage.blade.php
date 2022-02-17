@@ -1632,6 +1632,26 @@
         }
     }
 
+    function AddOnlyContactModal() {
+        $("#innerLoader").css('display', 'none');
+        $("#preloader").show();
+        $("#step-1-again").html('');
+        $(function () {
+            $.ajax({
+                type: "POST",
+                // url: baseUrl + "/contacts/loadAddContactFromCase", // json datasource
+                url:  baseUrl +"/contacts/loadAddContact", // json datasource
+                data: 'loadStep1',
+                success: function (res) {
+                    $("#step-1-again").html(res);
+                    $("#preloader").hide();
+                    $("#innerLoader").css('display', 'none');
+                    return false;
+                }
+            })
+        })
+    }
+
     function AddContactModal() {
         $("#innerLoader").css('display', 'none');
         $("#preloader").show();

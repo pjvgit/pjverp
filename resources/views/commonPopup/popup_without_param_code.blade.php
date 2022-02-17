@@ -241,7 +241,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                        
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <a data-toggle="modal" data-target="#AddContactModal" data-placement="bottom"
-                                onclick="AddContactModal();" href="javascript:;">
+                                onclick="AddOnlyContactModal();" href="javascript:;">
 
                                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                                     <div class="card-body text-center"> 

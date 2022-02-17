@@ -36,7 +36,12 @@ class HomeController extends BaseController
         $this->middleware('auth');
     }
     public function index()
-    {
+    {   
+        // redirectTo client portal for client logged
+        if(Auth::user()->user_level == 2){
+            redirect('/client/home');
+        }
+
         // DB::delete('DELETE t1 FROM case_client_selection t1 INNER JOIN case_client_selection t2 WHERE t1.id < t2.id AND t1.selected_user = t2.selected_user AND t1.case_id = t2.case_id');
         // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');
 

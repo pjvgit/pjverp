@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <link rel="shortcut icon" type="image/x-icon" href="{{asset('public/images/fav.png')}}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{asset('images/fav.png')}}" />
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -19,18 +19,18 @@
     <link rel="stylesheet" href="{{asset('assets/styles/vendor/perfect-scrollbar.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome-free-5.10.1-web/css/all.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/styles/vendor/metisMenu.min.css') }}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/toastr.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/ladda-themeless.min.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/datatables.min.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/smart.wizard/smart_wizard.min.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/smart.wizard/smart_wizard_theme_circles.min.css')}}" />
-    <link rel="stylesheet" media="screen" type="text/css" href="{{asset('public/assets/styles/css/plugins/colorpicker.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/plugins/sweetalert2.min.css')}}" />
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/jquery-ui.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/jquery.timepicker.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/select2.min.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/bootstrap-datepicker3.min.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/styles/css/daterangepicker.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/toastr.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/ladda-themeless.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/datatables.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/smart.wizard/smart_wizard.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/smart.wizard/smart_wizard_theme_circles.min.css')}}" />
+    <link rel="stylesheet" media="screen" type="text/css" href="{{asset('assets/styles/css/plugins/colorpicker.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/plugins/sweetalert2.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/styles/css/jquery-ui.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/jquery.timepicker.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/select2.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/bootstrap-datepicker3.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/styles/css/daterangepicker.css')}}">
     <link rel="stylesheet" href="{{asset('assets\styles\css\client-portal\custom.css')}}" />
     {{-- page specific css --}}
     @yield('page-css')
@@ -40,14 +40,14 @@
     </script>
 </head>
 
-<body class="text-left">
-        @php
+<body>
+    @php
     $layout = session('layout');
     @endphp
   
 <!-- Pre Loader Strat  -->
 <div class="loadscreen preloader" id="preloader" style="display: block;">
-    <div class="loader"><img class="logo mb-3" src="{{asset('public/images/logo.png')}}" style="display: none" alt="">
+    <div class="loader"><img class="logo mb-3" src="{{asset('images/logo.png')}}" style="display: none" alt="">
         <div class="loader-bubble loader-bubble-primary d-block"></div>
     </div>
 </div>
@@ -59,7 +59,7 @@
     <div class="main-content-wrap  d-flex flex-column" style="margin-top: 0px !important;">
         <div class="main-content">
             @yield('main-content')
-            {{-- @include('commonPopup.popup_without_param_code') --}}
+            @include('client_portal.layouts.commonPopup')
         </div>
     </div>
 </div>
@@ -124,28 +124,27 @@ $(document)
 <script src="{{asset('assets/js/script.js')}}"></script>
 <script src="{{asset('assets/js/sidebar-horizontal.script.js')}}"></script>
 <script src="{{asset('assets/js/customizer.script.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/toastr.min.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/spin.min.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/ladda.min.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/datatables.min.js')}}"></script>
-<script src="{{asset('public/assets/js/scripts/datatables.script.min.js')}}"></script>
+<script src="{{asset('assets/js/plugins/toastr.min.js')}}"></script>
+<script src="{{asset('assets/js/plugins/spin.min.js')}}"></script>
+<script src="{{asset('assets/js/plugins/ladda.min.js')}}"></script>
+<script src="{{asset('assets/js/plugins/datatables.min.js')}}"></script>
+<script src="{{asset('assets/js/scripts/datatables.script.min.js')}}"></script>
 <script src="{{asset('assets/js/vendor/jquery.smartWizard.min.js')}}"></script>
-<script src="{{asset('public/assets/js/jquery.validate.min.js')}}"></script>
-<script type="text/javascript" src="{{asset('public/assets/js/colorpicker.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/sweetalert2.min.js')}}"></script>
-<script type="text/javascript" src="{{asset('public/assets/js/jquery.timepicker.js')}}"></script>
-<script src="{{asset('public/assets/js/jquery-ui.js')}}"></script>
-{{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
-<script src="{{asset('public/assets/js/custome.js')}}"></script>
-<script src="{{asset('public/assets/js/moment.min.js')}}"></script>
-<script src="{{asset('public/assets/js/daterangepicker.min.js')}}"></script>
-<script src="{{asset('public/assets/js/jquery.mask.min.js')}}"></script>
-<script src="{{asset('public/assets/js/additional-methods.js')}}"></script>
-<script src="{{asset('public/assets/js/plugins/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('public/assets/js/main.min.js')}}"></script>
-<script src="{{asset('public/assets/js/select2.min.js')}}"></script>
-<script src="{{asset('public/assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
-<script src="{{asset('public/assets/js/timer.jquery.min.js')}}" type="text/javascript"></script> 
+<script src="{{asset('assets/js/jquery.validate.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('assets/js/colorpicker.js')}}"></script>
+<script src="{{asset('assets/js/plugins/sweetalert2.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('assets/js/jquery.timepicker.js')}}"></script>
+<script src="{{asset('assets/js/jquery-ui.js')}}"></script>
+<script src="{{asset('assets/js/custome.js')}}"></script>
+<script src="{{asset('assets/js/moment.min.js')}}"></script>
+<script src="{{asset('assets/js/daterangepicker.min.js')}}"></script>
+<script src="{{asset('assets/js/jquery.mask.min.js')}}"></script>
+<script src="{{asset('assets/js/additional-methods.js')}}"></script>
+<script src="{{asset('assets/js/plugins/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('assets/js/main.min.js')}}"></script>
+<script src="{{asset('assets/js/select2.min.js')}}"></script>
+<script src="{{asset('assets/js/bootstrap-datepicker.js')}}" type="text/javascript"></script>
+<script src="{{asset('assets/js/timer.jquery.min.js')}}" type="text/javascript"></script> 
 
 @yield('page-js')
 

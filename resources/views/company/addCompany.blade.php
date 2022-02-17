@@ -132,6 +132,8 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function () {
+        $("#innerLoader").css('display', 'none');
+
         // $('#country').select2();
         $(".countryDown").select2({
             placeholder: "Select a country",
@@ -144,7 +146,7 @@
             $("#collapsed").find('i').toggleClass('fa-sort-up align-bottom').toggleClass(
                 'fa-sort-down align-text-top');
         });
-        $("#innerLoader").css('display', 'none');
+        
         $("#editForm").validate({
             rules: {
                 company_name: {
