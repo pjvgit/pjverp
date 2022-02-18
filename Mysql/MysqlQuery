@@ -1,3 +1,7 @@
+------------------------------------ 18-FEB-2022 ------------------------------
+ALTER TABLE `events`
+ADD `edit_recurring_patteren` varchar(255) NULL AFTER `firm_id`;
+
 ------------------------------------ 16-FEB-2022 ------------------------------
 CREATE TABLE `events` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -21,7 +25,7 @@ CREATE TABLE `events` (
   `day_of_week` varchar(255) NULL,
   `day_of_month` varchar(255) NULL,
   `month_of_year` varchar(255) NULL,
-  `is_end_date` enum('no','yes') NOT NULL DEFAULT 'no',
+  `is_no_end_date` enum('no','yes') NOT NULL DEFAULT 'no',
   `end_on` date NULL,
   `is_event_read` enum('no','yes') NOT NULL DEFAULT 'no',
   `is_SOL` enum('no','yes') NOT NULL DEFAULT 'no',

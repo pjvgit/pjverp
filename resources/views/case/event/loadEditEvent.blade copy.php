@@ -141,7 +141,7 @@
                                 </div>
                                 <div class="col-md-3 form-group mb-3 pt-2">
                                     <label class="form-check-label"><input title="You can not edit recurring events"
-                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->is_recurring=='yes'){?> checked <?php } ?>  name="recuring_event" type="checkbox"><span>This event
+                                            class="mr-2 recuring_event" id="recuring_event" <?php if($evetData->recuring_event=='yes'){?> checked <?php } ?>  name="recuring_event" type="checkbox"><span>This event
                                             repeats</span></label>
                                 </div>
                             </div>
@@ -267,8 +267,8 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
-                                    <input class=" pt-2" type="checkbox" <?php if($evetData->is_no_end_date=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->no_end_date_checkbox=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                    <input class=" pt-2" type="checkbox" <?php if($evetData->no_end_date_checkbox=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>
                                 </label>
@@ -1117,22 +1117,22 @@
     });
 
     $("#editRtitle").hide();
-    <?php  if($evetData->is_full_day=='yes'){  ?>
+    <?php  if($evetData->all_day=='yes'){  ?>
             $('input:checkbox.all_day').trigger('click');
             $("#start_time").val('').attr("readonly", true);
             $("#end_time").val('').attr("readonly", true);
     <?php }  ?>
   
-    <?php  if(isset($evetData->event_recurring_type)){ ?>
-            selectTypeload('{{$evetData->event_recurring_type}}');
+    <?php  if(isset($evetData->event_frequency)){ ?>
+            selectTypeload('{{$evetData->event_frequency}}');
             $("#endondiv").show();
     <?php }else{  ?>
             selectTypeload('');
             $("#endondiv").hide();
     <?php } ?>
 
-    <?php if($evetData->event_type_id!=NULL){?>
-     selectColor('{{$getEventColorCode}}', '{{$evetData->event_type_id}}');
+    <?php if($evetData->event_type!=NULL){?>
+     selectColor('{{$getEventColorCode}}', '{{$evetData->event_type}}');
     <?php } ?>
 
     // Get weekdays name

@@ -391,6 +391,7 @@ $adjustment_token=round(microtime(true) * 1000);
 
                             <?php if(Route::currentRouteName()=="calendars"){?>
                                 @include('case.view.calender',['CaseMaster'])
+                                {{-- @include('case.view.calendar_list',['CaseMaster']) --}}
                             <?php } ?>
 
                             <?php if(Route::currentRouteName()=="documents"){?>
