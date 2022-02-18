@@ -1,5 +1,5 @@
 @extends('client_portal.layouts.master')
-
+@section('title', 'Home | Client Portal')
 @section('main-content')
 	
 <main id="client_portal_content">
@@ -8,13 +8,14 @@
 			<section id="dashboard_view">
 				<div class="dashboard-actions">
 					<div class="dashboard-actions__button-container">
-						<button id="send_message" class="dashboard-actions__button"><i class="far fa-envelope"></i></button>
+						<button id="send_message" class="dashboard-actions__button" onclick="addNewMessage();"><i class="far fa-envelope"></i></button>
 						<label for="send_message" class="dashboard-actions__text" aria-hidden="true">Send Message</label>
 					</div>
-					<div class="dashboard-actions__button-container">
+					{{-- <div class="dashboard-actions__button-container">
 						<button id="add_document" class="dashboard-actions__button"><i class="far fa-file"></i></button>
 						<label for="add_document" class="dashboard-actions__text" aria-hidden="true">Add Document</label>
-					</div>
+					</div>--}}
+
 					<div class="dashboard-actions__button-container">
 						<a href="{{ route('client/bills') }}" id="view_bills" class="dashboard-actions__button"><i class="fas fa-dollar-sign"></i></a>
 						<label for="view_bills" class="dashboard-actions__text" aria-hidden="true">View Bills</label>
@@ -22,9 +23,11 @@
 				</div>
 
 				{{-- What's New Section --}}
-				@if($totalInvoice)
+
+				@if($totalInvoice > 0 || $totalMessages > 0)
 				<div class="mb-3">
 					<h1 class="primary-heading">What's New</h1>
+					@if($totalInvoice)
 					<ul class="list">
 						<li class="list-row">
 							<a href="{{ route('client/bills') }}">
@@ -34,6 +37,17 @@
 							</a>
 						</li>
 					</ul>
+					@endif
+					@if($totalMessages)
+					<ul class="list">
+						<li class="list-row">
+							<a href="{{ route('client/messages') }}">
+							<i class="far fa-envelope fa-2x" style="color:red;" ></i>&nbsp;&nbsp;&nbsp;
+							<div class="list-row__body"><span class="list-row__header mt-0">{{$totalMessages}} new message</span></div>
+							</a>
+						</li>
+					</ul>
+					@endif
 				</div>
 				@endif
 
@@ -80,4 +94,7 @@
 	</div>
 </main>
 
+@endsection
+@section('page-js')
+<script src="{{ asset('assets\client_portal\js\messages\messages.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @endsection

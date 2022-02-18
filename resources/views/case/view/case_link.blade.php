@@ -790,7 +790,9 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
             $.ajax({
                 type: "POST",
                 url:  baseUrl +"/contacts/loadAddContact", // json datasource
-                data: {'case_id':{{$CaseMaster->case_id}}
+                data: {
+                    'case_id':{{$CaseMaster->case_id}},
+                    action : 'contact_only'
                 },
                 success: function (res) {
                     $("#step-1-again").html(res);

@@ -1,7 +1,12 @@
 @extends('client_portal.layouts.master')
-
+@section('title', 'Messages | Client Portal')
 @section('main-content')
 <div class="row" bladefile="resources/views/client_portal/messages/index.blade.php">
+    <div class="col-md-12 mb-3">
+    <button type="button" style="float: right !important;" onclick="addNewMessage();" class="btn btn-outline-primary">New Message</button>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12">
         <div class="card mb-4">
             <div class="card-body">
@@ -39,4 +44,7 @@
         </div>
     </div>
 </div>
+@endsection
+@section('page-js')
+<script src="{{ asset('assets\client_portal\js\messages\messages.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
 @endsection

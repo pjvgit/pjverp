@@ -289,7 +289,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                                 <div class="dropdown">
                                                     <div disabled="" aria-haspopup="true" class="" aria-expanded="false">
                                                         <div class="test-form-date-field input-group">
-                                                            <input id="birthday" autocomplete="off"  name="birthday" <?php if($v->is_required=="yes"){ echo "required";} ?> class="form-control" type="text" value="{{($filledData->birthday)??''}}">
+                                                            <input id="birthday" autocomplete="off"  name="birthday" <?php if($v->is_required=="yes"){ echo "required";} ?> class="birthday form-control" type="text" value="{{($filledData->birthday)??''}}">
                                                             <div class="input-group-append">
                                                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                                             </div>
@@ -444,10 +444,12 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
                                 <div class="">
                                     <div class="row ">
                                         <div class="pr-2 col-12">
-                                            <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text" <?php if($v->is_required=="yes"){ echo "required";} ?>
-                                                class="form-control form-control" value="{{($filledData->date)??''}}">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            <div class="test-form-date-field input-group">
+                                                <input id="datepicker" name="date" placeholder="Date" autocomplete="off" type="text" <?php if($v->is_required=="yes"){ echo "required";} ?>
+                                                    class="form-control form-control datepicker" value="{{($filledData->date)??''}}">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -496,7 +498,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
 <script type="text/javascript">
     "use strict";
     $(document).ready(function () {        
-        $('#birthday').datepicker({
+        $('.birthday').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",
@@ -504,7 +506,7 @@ $filledData=json_decode($alreadyFilldedData['form_value']);
             endDate: '+0d',
             'todayHighlight': true
         });
-        $('#datepicker').datepicker({
+        $('.datepicker').datepicker({
             'format': 'm/d/yyyy',
             'autoclose': true,
             'todayBtn': "linked",

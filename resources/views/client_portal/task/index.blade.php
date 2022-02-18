@@ -5,10 +5,10 @@
     <section id="tasks-view">
         <div class="tasks">
             <ul class="nav nav-tabs nav-justified text-center u-background-white" role="tablist">
-                <li class="nav-item py-2 col-6">
+                <li class="nav-item col-6">
                     <a class="btn btn-link nav-link @if(Route::currentRouteName() == "client/tasks") {{ "active" }} @endif" id="open-task-tab" href="{{ route('client/tasks') }}" role="tab" aria-controls="openTask" aria-selected="false">Open Tasks</a>
                 </li>
-                <li class="nav-item py-2 col-6">
+                <li class="nav-item col-6">
                     <a class="btn btn-link nav-link @if(Route::currentRouteName() == "client/tasks/completed") {{ "active" }} @endif" id="completed-task-tab" href="{{ route('client/tasks/completed') }}" role="tab" aria-controls="completedTask" aria-selected="true">Completed</a>
                 </li>
             </ul>

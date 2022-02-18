@@ -5,8 +5,11 @@ namespace App\Http\Controllers\ClientPortal;
 use App\AllHistory;
 use App\CaseEvent;
 use App\Http\Controllers\Controller;
-use App\Invoices;
+use App\Invoices, App\Messages;
 use Carbon\Carbon;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class HomeController extends Controller 
 {
@@ -27,8 +30,15 @@ class HomeController extends Controller
                         ->orderBy("created_at", "desc")->with(["createdByUser", "task"/*  => function($query) {
                             $query->select("task_title")->withoutAppends();
                         } */])->take(3)->get();
+        
+        $totalMessages = $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
+        ->leftJoin("case_master","case_master.id","=","messages.case_id")
+        ->select('messages.id')
+        ->where("messages.is_read",1)
+        ->where("messages.user_id",'like', '%'.Auth::User()->id.'%')
+        ->where("messages.firm_id",Auth::User()->firm_name)->count();
 
-        return view("client_portal.home", compact('totalInvoice', 'upcomingEvents', 'recentActivity'));
+        return view("client_portal.home", compact('totalInvoice', 'upcomingEvents', 'recentActivity', 'totalMessages'));
     }
 
     /**

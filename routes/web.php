@@ -1253,6 +1253,14 @@ Route::group(['middleware' => ['auth:web', 'user.role:client', 'clientportal.acc
     //messages
     Route::get('messages', 'ClientdashboardController@messages')->name('client/messages');
     Route::get('messages/{id}/info','ClientdashboardController@messageInfo')->name('client/messages/info');
+    Route::post('messages/archiveMessageToUserCase', 'ClientdashboardController@archiveMessageToUserCase')->name('client/messages/archiveMessageToUserCase');
+    Route::post('messages/unarchiveMessageToUserCase', 'ClientdashboardController@unarchiveMessageToUserCase')->name('client/messages/unarchiveMessageToUserCase');
+    Route::post('messages/replyMessageToUserCase', 'ClientdashboardController@replyMessageToUserCase')->name('client/messages/replyMessageToUserCase');
+    Route::get('messages/addMessagePopup', 'ClientdashboardController@addMessagePopup')->name('client/messages/addMessagePopup');
+    Route::post('messages/sendOrDraftMessage', 'ClientdashboardController@sendOrDraftMessage')->name('client/messages/sendOrDraftMessage');
+    Route::post('messages/discardDraftMessage', 'ClientdashboardController@discardDraftMessage')->name('client/messages/discardDraftMessage');
+    Route::post('messages/openDraftMessage', 'ClientdashboardController@openDraftMessage')->name('client/messages/openDraftMessage');
+    
 });
 
 //Without login 

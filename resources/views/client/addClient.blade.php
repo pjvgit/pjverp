@@ -266,9 +266,7 @@
                 @endif
             </label>
         </div>
-
-
-
+        <input class="form-control" value="{{$action ?? ''}}" name="actionss" type="hidden">
     </div>
 </form>
 
@@ -426,11 +424,15 @@
                             window.location.href=URLS;
                         <?php }else{ ?>
                             if(pageActions == 'add_case'){
+                                $('#AddContactModal').modal('hide');
                                 localStorage.setItem("addedClient", res.user_id);
                                 window.location.reload();
                             }else if(pageActions == 'add_case_with_billing'){
                                 $('#AddContactModal').modal('hide');
                                 selectUserAutoLoad(res.user_id);
+                            }else if(pageActions == 'contact_only'){
+                                $('#AddContactModal').modal('hide');                                
+                                window.location.reload();
                             }else{
                                 window.location.reload();
                             }

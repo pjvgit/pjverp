@@ -29,7 +29,7 @@
                     </select>
                     <span id="cnl"></span>
                     @can('case_add_edit')
-                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();">Add Case</a>
+                    <a data-toggle="modal"  data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep('timeEntry');">Add Case</a>
                     @endcan
                     <!-- <a data-toggle="modal" data-target="#AddCaseModelUpdate" data-placement="bottom" href="javascript:;" onclick="loadAllStep();"> 
                     Add Case</a> -->
@@ -376,6 +376,7 @@
         </form>
     </div>
 </div>
+@include('commonPopup.add_case')
 <style>
     .hide {
         display: none;

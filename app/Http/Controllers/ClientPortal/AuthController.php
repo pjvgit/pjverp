@@ -82,7 +82,7 @@ class AuthController extends Controller
                     session(['layout' => 'horizontal']);
                     $user->last_login = Carbon::now()->format('Y-m-d H:i:s');
                     $user->auto_logout = 'on';
-                    $user->sessionTime = 10;
+                    $user->sessionTime = 60;
                     $user->save();
 
                     // Add history

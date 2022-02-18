@@ -172,7 +172,7 @@ trait CreditAccountTrait {
                 $status="Partial";
             } else if(isset($dueDate) && strtotime($dueDate) < strtotime(date('Y-m-d'))) {
                 $status="Overdue";
-            } else if($invoice->is_sent  == "yes") {
+            } else if($invoice->is_sent  == "yes" || $invoice->status == "yes") {
                 $status = "Sent";
             } else {
                 $status = 'Unsent';

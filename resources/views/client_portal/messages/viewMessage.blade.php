@@ -1,5 +1,5 @@
 @extends('client_portal.layouts.master')
-
+@section('title', 'Messages | Client Portal')
 @section('main-content')
 <div class="row" bladefile="resources/views/client_portal/messages/viewMessage.blade.php">
     <div class="col-md-12">
@@ -13,7 +13,8 @@
                     <div class="message-thread__info">
 
                         <div style="float: right;"> 
-                        <a class="btn btn-sm btn-secondary ml-1 archiveMessage" href="javascript:void(0);" onclick="archiveMessage(); return false;">Archive</a>    
+                            <a class="btn btn-sm btn-secondary ml-1 archiveMessage" style="display:none;" href="javascript:void(0);" onclick="archiveMessage(); return false;">Archive</a>    
+                            <a class="btn btn-sm btn-secondary ml-1 unarchiveMessage" style="display:none;" href="javascript:void(0);" onclick="unarchiveMessage(); return false;">Unarchive</a>    
                         </div>
                         <div class="truncatable-text">
                             <div class="truncatable-text__content"><b>{{$messagesData->subject}}</b></div>
@@ -48,8 +49,13 @@
                 <div class="comment"><div>
                     <form class="replyEmails" id="replyEmails" name="replyEmails" method="POST">
                     @csrf
+                    <input class="form-control" value="{{$messagesData->replies_is}}" id="replies_is" name="replies_is" type="hidden">
+                    <input class="form-control" value="{{$messagesData->case_id}}" id="selected_case_id" name="selected_case_id" type="hidden">
+                    <input class="form-control" value="{{$messagesData->created_by}}" id="selected_user_id" name="selected_user_id" type="hidden">
+                    <input class="form-control" value="{{$messagesData->subject}}" id="subject" name="subject" type="hidden">
+                    <input class="form-control" value="{{$messagesData->id}}" id="message_id" name="message_id" type="hidden">
                     <div class="form-input is-required">
-                        <textarea id="message_reply" name="message" class="form-control" required="" placeholder="Type reply here..."></textarea>
+                        <textarea id="message_reply" name="delta" class="form-control" required="" placeholder="Type reply here..."></textarea>
                     </div>
                     
                     <button class="btn btn-primary  btn-rounded m-1 submit" id="submitButton" value="savenote"
@@ -74,4 +80,19 @@
     padding: 1rem;
 }
 </style>
+@endsection
+
+@section('page-js')
+<script src="{{ asset('assets\client_portal\js\messages\messages.js?').env('CACHE_BUSTER_VERSION') }}" ></script>
+<script>
+$(document).ready(function() {
+    <?php if($messagesData->is_archive == 1){?>
+        $(".archiveMessage").css("display","none");
+        $(".unarchiveMessage").css("display","block");
+    <?php }else{?>
+        $(".archiveMessage").css("display","block");
+        $(".unarchiveMessage").css("display","none");
+    <?php }?>
+});
+</script>
 @endsection
