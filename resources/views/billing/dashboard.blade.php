@@ -383,6 +383,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
 
 @include('commonPopup.popup_without_param_code')
 @include('client_dashboard.billing.modal')
+@include('commonPopup.add_case')
 <style>
     .progress-bar {
         padding: auto;

@@ -12,7 +12,11 @@
     }
     ?>
     <li class="list-row <?php echo ($item->is_read) ? 'is-unread' : ''; ?>">
-        <a href="{{ route('client/messages/info',['id' => $item['id']]) }}">
+        @if ($item->is_draft == 1)
+        <a href="javascript::void(0);" onclick="openDraftMessage({{$item->id}})">
+        @else
+        <a href="{{ route('client/messages/info',['id' => $item->id ]) }}">
+        @endif
             <span class="author-avatar">{{$clientList[0][0]}}</span>
             <div class="list-row__body list-row__body--nowrap">
                 <div class="d-flex justify-content-between">

@@ -1,3 +1,6 @@
+------------------------------------ 18-FEB-2022 ------------------------------
+ALTER TABLE `messages`
+ADD `is_sent` tinyint(4) NULL DEFAULT '0' AFTER `is_draft`;
 ------------------------------------ 16-FEB-2022 ------------------------------
 CREATE TABLE `events` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

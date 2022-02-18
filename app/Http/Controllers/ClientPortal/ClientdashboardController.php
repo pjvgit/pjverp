@@ -10,7 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Messages,App\ReplyMessages,App\Firm,App\EmailTemplate;
+use App\Messages,App\ReplyMessages,App\Firm,App\EmailTemplate,App\CaseMaster;
 use DB,Validator,Session,Mail,Storage,Image;
 // use Datatables;
 use Yajra\Datatables\Datatables;
@@ -28,6 +28,8 @@ class ClientdashboardController extends Controller
             $messages = $messages->where("messages.is_archive",1);
         }else if($request->folder == 'draft'){
             $messages = $messages->where("messages.is_draft",1);
+        }else if($request->folder == 'sent'){
+            $messages = $messages->where("messages.is_sent",1);
         }else{
             $messages = $messages->where("messages.is_archive",0);
             $messages = $messages->where("messages.is_draft",0);
@@ -45,11 +47,15 @@ class ClientdashboardController extends Controller
         ->where('messages.id', $request->id)
         ->first();
         if(!empty($messagesData)){
+            $userlist = explode(',', $messagesData->user_id);
             $count = 0;
             if($messagesData->created_by == Auth::User()->id){
                 $count++;
             }
             if($messagesData->user_id == Auth::User()->id){
+                $count++;
+            }
+            if(in_array(Auth::User()->id, $userlist)){
                 $count++;
             }
             if($count == 0){
@@ -136,7 +142,7 @@ class ClientdashboardController extends Controller
 
     public function archiveMessageToUserCase(Request $request){
         $Messages=Messages::find($request->message_id);
-        $Messages->is_archive = "1";
+        $Messages->is_archive = 1;
         $Messages->save();
         session(['popup_success' => 'Message was archived']);
         return response()->json(['errors'=>'']);
@@ -176,7 +182,66 @@ class ClientdashboardController extends Controller
             session(['popup_success' => 'Your message has been sent']);
             return response()->json(['errors'=>'']);
             exit;       
+        }           
+    }
+
+    public function addMessagePopup(){
+        $firmCases = $firmOwner = [];
+        
+        $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
+        if(empty($Messages)){
+            $Messages=new Messages;
+            $Messages->user_id = Auth::user()->id;
+            $Messages->case_id=NUll;
+            $Messages->is_read=0;
+            $Messages->is_draft=1;
+            $Messages->firm_id = Auth::User()->firm_name;
+            $Messages->created_by = Auth::User()->parent_user;
+            $Messages->save();
+        }      
+        
+        $firmOwner = User::find(Auth::User()->parent_user);
+        $firmCases = CaseMaster::where('firm_id', Auth::User()->firm_name)->get();
+
+        return view("client_portal.messages.addMessage",compact('Messages','firmCases','firmOwner'));                
+    }
+
+    public function sendOrDraftMessage(Request $request){
+        $redirect = 'no';
+        $Messages= Messages::find($request->message_id);
+        $Messages->case_id=$request->case ?? NUll;
+        $Messages->subject=$request->subject ?? NUll;
+        $Messages->message=$request->msg ?? NUll;
+        $Messages->created_by = $request->send_to[0] ??  Auth::User()->id;
+        if($request->action != ''){
+            $Messages->is_sent=1;
+            $Messages->is_read=0;
+            $Messages->is_draft=0;
+            $redirect = 'yes';
         }
-           
+        $Messages->save();
+
+        if($request->action != ''){
+            $ReplyMessages=new ReplyMessages;
+            $ReplyMessages->message_id=$request->message_id;
+            $ReplyMessages->reply_message=$request->msg;
+            $ReplyMessages->created_by = $request->send_to[0] ??  Auth::User()->id;
+            $ReplyMessages->save();
+
+            $this->sendMailGlobal($request, $request->send_to[0], $request->message_id);
+        }
+        return response()->json(['redirect'=>$redirect]);
+    }
+
+    public function discardDraftMessage(Request $request){
+        Messages::where('id', $request->id)->forceDelete();
+    }
+
+    public function openDraftMessage(Request $request){
+        $Messages = Messages::where('id', $request->id)->first();
+        $firmOwner = User::find(Auth::User()->parent_user);
+        $firmCases = CaseMaster::where('firm_id', Auth::User()->firm_name)->get();
+
+        return view("client_portal.messages.addMessage",compact('Messages','firmCases','firmOwner'));                
     }
 }
