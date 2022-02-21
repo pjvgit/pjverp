@@ -2104,8 +2104,9 @@ class ClientdashboardController extends BaseController
                 ->where("users_additional_info.client_portal_enable", "1")
             ->get()->pluck('cid');
             
-            if(count($userCount) > 0){
-                return response()->json(['errors'=>'0','contactList'=>$userCount]);    
+            $staffCount = CaseStaff::where('case_id',$case_id)->where('user_id','!=',Auth::user()->id)->get()->pluck('user_id');
+            if(count($userCount) > 0 || count($staffCount) > 0){
+                return response()->json(['errors'=>'0','contactList'=>$staffCount]);    
             }else{
                 return response()->json(['errors'=>'1','msg'=>'The case you selected had no contacts that can receive messages.']);
             }
@@ -2444,9 +2445,13 @@ class ClientdashboardController extends BaseController
                 }
                 \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
             }else{                
-                $userlist = explode(",",$request->selected_user_id);
-                foreach ($userlist as $k=>$v){
-                    \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
+                if($Messages->for_staff == 'yes'){
+                    \App\Jobs\SendMessageJob::dispatch($request->all(), $Messages->created_by, $request->message_id, $senderName, $firmData, $getTemplateData);
+                }else{
+                    $userlist = explode(",",$request->selected_user_id);
+                    foreach ($userlist as $k=>$v){
+                        \App\Jobs\SendMessageJob::dispatch($request->all(), $v, $request->message_id, $senderName, $firmData, $getTemplateData);
+                    }
                 }
             }
             session(['popup_success' => 'Your message has been sent']);
@@ -2493,12 +2498,16 @@ class ClientdashboardController extends BaseController
         ->get();
     
         $clientList = [];    
-        $userlist = explode(',', $messagesData->user_id);
-        foreach ($userlist as $key => $value) {
-            $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
-            $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+        if($messagesData->for_staff == 'yes'){
+            $userInfo =  User::where('id',$messagesData->created_by)->select('first_name','last_name','user_level')->first();
+            $clientList[$messagesData->created_by] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+        }else{
+            $userlist = explode(',', $messagesData->user_id);
+            foreach ($userlist as $key => $value) {
+                $userInfo =  User::where('id',$value)->select('first_name','last_name','user_level')->first();
+                $clientList[$value] = $userInfo['first_name'].' '.$userInfo['last_name'].'|'.$userInfo['user_level'];
+            }
         }
-
         return view('communications.messages.viewMessage',compact('messagesData','messageList','clientList'));            
         }else{
             abort(404);

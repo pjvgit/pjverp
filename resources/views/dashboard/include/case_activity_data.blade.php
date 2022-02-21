@@ -18,7 +18,7 @@
                 {{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})
                 </a> {{$v->activity}} 
                 
-                <?php if($v->deleteCase != NULL){?>
+                <?php if($v->deleteCase == NULL){?>
                 <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
                 <?php }else{?>
                     {{$v->case_title}}

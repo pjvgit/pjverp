@@ -8,30 +8,19 @@
             <div class="form-group mb-3 pt-3 pb-1">
                 <div class="form-input__label">To*</div>
                 <div>
-                <input class="mr-2 sendTo" name="send_to[]" required="" type="checkbox" value="{{$firmOwner->id}}"><label> {{$firmOwner->fullname}} ({{$firmOwner->user_title}})</label>
-                </div>
-            </div>
-            <div class="form-group row ">
-                <label class="col-12  col-form-label">Cases*</label>
-                <div class="col-12 ">
-                <select class="form-control" name="case" id="case" required="">
-                    <option value=""></option>
-                    @foreach($firmCases as $case)
-                    <option value="{{$case->id}}">{{ ucfirst($case->case_title) }}</option>
-                    @endforeach
-                </select> 
+                <input class="mr-2 sendTo" name="send_to[]" required="" type="checkbox" value="{{$firmOwner->id}}" <?php echo ($Messages->user_id == $firmOwner->id) ? 'checked' :''; ?> ><label> {{$firmOwner->fullname}} ({{$firmOwner->user_title}})</label>
                 </div>
             </div>
             <div class="form-group row ">
                 <label class="col-12  col-form-label">Subject*</label>
                 <div class="col-12 ">
-                <input id="message_subject" name="subject" required="" type="text" class="form-control">
+                <input id="message_subject" name="subject" required="" type="text" class="form-control" value="{{ $Messages->subject ?? ''}}">
                 </div>
             </div>
             <div class="form-group row ">
                 <label class="col-12  col-form-label">Message*</label>
                 <div class="col-12">
-                <textarea id="message_body" name="msg" class="form-control" required="" rows="2">Test</textarea>
+                <textarea id="message_body" name="msg" class="form-control" required="" rows="2">{{ $Messages->message ?? ''}}</textarea>
                 </div>
             </div>
             <div class="form-group row"><label class="col-12 col-form-label saved"></label></div>

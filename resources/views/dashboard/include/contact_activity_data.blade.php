@@ -41,20 +41,30 @@
                     
                 <?php } ?>
                 <?php if($v->action=="link"){ ?> to case <?php
-                    if($v->case_title!=""){?>
+                    if($v->case_title!=""){ 
+                        if($v->deleteCase  == NULL){?>
                     <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
-                    <?php } ?>
+                    <?php }else{ ?>
+                        {{$v->case_title}}
+                    <?php } } ?>
                 <?php } ?>
                 <?php if($v->action=="unlink"){ ?> from case  <?php
-                    if($v->case_title!=""){?>
+                    if($v->case_title!=""){ 
+                        if($v->deleteCase  == NULL){?>
                     <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
-                    <?php } ?>
+                    <?php }else{ ?>
+                        {{$v->case_title}}
+                    <?php } } ?>
                 <?php } ?>                
                 <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
                 <?php
-                if($v->case_title!=""){?>
-        |       <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
-        <?php } ?>
+                if($v->case_title!=""){
+                    if($v->deleteCase  == NULL){?>
+                    |       <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
+                    <?php }else{ ?>
+                    {{$v->case_title}}
+                <?php }  ?>
+                <?php } ?>
             </div>
     </td>
 </tr>

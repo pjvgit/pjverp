@@ -271,7 +271,7 @@
                 success: function (res) {
                     if(res.errors == '0'){
                         $.each(res.contactList, function (key, value) {
-                            $('#sendto option[value="client-'+value+'"]').prop('selected', true).trigger('change.select2');                      
+                            $('#sendto option[value="staff-'+value+'"]').prop('selected', true).trigger('change.select2');                      
                         });
                         
                     }else{

@@ -132,9 +132,11 @@
                         </button>
                         &nbsp;
                         <div>
+                            @if($messagesData->for_staff == 'no'){
                             <button class="btn btn-outline-secondary btn-rounded  m-1" id="saveandtime" value="saveandtime"
                                 type="submit">Save + <i class="far fa-clock fa-lg"></i>
                             </button>
+                            @endif
                             <button class="btn btn-primary  btn-rounded m-1 submit" id="submitButton" value="savenote"
                                 type="submit">Reply
                             </button>

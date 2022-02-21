@@ -18,12 +18,18 @@ use Yajra\Datatables\Datatables;
 class ClientdashboardController extends Controller 
 {
     public function messages(Request $request){
-        
+        Messages::where('created_by',Auth::user()->id)->whereNull('subject')->whereNull('user_id')->whereNull('message')->forceDelete();
+
         $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
         ->select('messages.*', "messages.updated_at as last_post", DB::raw('CONCAT_WS(" ",users.first_name,users.last_name) as sender_name'),"case_master.case_title");
-        $messages = $messages->where("messages.user_id",'like', '%'.Auth::User()->id.'%');
+        // $messages = $messages->where("messages.user_id",'like', '%'.Auth::User()->id.'%');
         $messages = $messages->where("messages.firm_id",Auth::User()->firm_name);
+        $messages = $messages->whereNull("case_master.deleted_at");
+        $messages = $messages->where(function($messages){
+            $messages = $messages->orWhere("messages.user_id",'like', '%'.Auth::User()->id.'%');
+            $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
+        });
         if($request->folder == 'archived'){
             $messages = $messages->where("messages.is_archive",1);
         }else if($request->folder == 'draft'){
@@ -34,6 +40,7 @@ class ClientdashboardController extends Controller
             $messages = $messages->where("messages.is_archive",0);
             $messages = $messages->where("messages.is_draft",0);
         }
+        
 
         $messages = $messages->orderBy("messages.updated_at", 'desc');
         $messages = $messages->get();
@@ -170,11 +177,11 @@ class ClientdashboardController extends Controller
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->delta;
-            $ReplyMessages->created_by =Auth::User()->id;
+            $ReplyMessages->created_by = Auth::User()->id;
             $ReplyMessages->save();
 
             $Messages=Messages::find($request->message_id);
-            $Messages->message=substr(strip_tags($request->delta),0,50);
+            $Messages->message=substr($request->delta,0,50);
             $Messages->save();
             
             $this->sendMailGlobal($request, $request->selected_user_id, $request->message_id);
@@ -191,28 +198,29 @@ class ClientdashboardController extends Controller
         $Messages = Messages::where('user_id',Auth::user()->id)->whereNull('subject')->first();
         if(empty($Messages)){
             $Messages=new Messages;
-            $Messages->user_id = Auth::user()->id;
+            $Messages->user_id = Null;
             $Messages->case_id=NUll;
             $Messages->is_read=0;
             $Messages->is_draft=1;
+            $Messages->for_staff='yes';
             $Messages->firm_id = Auth::User()->firm_name;
-            $Messages->created_by = Auth::User()->parent_user;
+            $Messages->created_by = Auth::User()->id;
             $Messages->save();
         }      
         
         $firmOwner = User::find(Auth::User()->parent_user);
-        $firmCases = CaseMaster::where('firm_id', Auth::User()->firm_name)->get();
-
-        return view("client_portal.messages.addMessage",compact('Messages','firmCases','firmOwner'));                
+        
+        return view("client_portal.messages.addMessage",compact('Messages','firmOwner'));                
     }
 
     public function sendOrDraftMessage(Request $request){
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
         $Messages->case_id=$request->case ?? NUll;
+        $Messages->user_id=$request->send_to[0] ?? NUll;
         $Messages->subject=$request->subject ?? NUll;
         $Messages->message=$request->msg ?? NUll;
-        $Messages->created_by = $request->send_to[0] ??  Auth::User()->id;
+        $Messages->created_by = Auth::User()->id;
         if($request->action != ''){
             $Messages->is_sent=1;
             $Messages->is_read=0;
@@ -225,7 +233,7 @@ class ClientdashboardController extends Controller
             $ReplyMessages=new ReplyMessages;
             $ReplyMessages->message_id=$request->message_id;
             $ReplyMessages->reply_message=$request->msg;
-            $ReplyMessages->created_by = $request->send_to[0] ??  Auth::User()->id;
+            $ReplyMessages->created_by = Auth::User()->id;
             $ReplyMessages->save();
 
             $this->sendMailGlobal($request, $request->send_to[0], $request->message_id);

@@ -31,13 +31,18 @@ class HomeController extends Controller
                             $query->select("task_title")->withoutAppends();
                         } */])->take(3)->get();
         
-        $totalMessages = $messages = Messages::leftJoin("users","users.id","=","messages.created_by")
+        $totalMessages = Messages::leftJoin("users","users.id","=","messages.created_by")
         ->leftJoin("case_master","case_master.id","=","messages.case_id")
         ->select('messages.id')
-        ->where("messages.is_read",1)
-        ->where("messages.user_id",'like', '%'.Auth::User()->id.'%')
-        ->where("messages.firm_id",Auth::User()->firm_name)->count();
+        ->where("messages.is_read",1);
+        // ->where("messages.user_id",'like', '%'.Auth::User()->id.'%')
+        $totalMessages = $totalMessages->where(function($totalMessages){
+            $totalMessages = $totalMessages->orWhere("messages.user_id",'like', '%'.Auth::User()->id.'%');
+            $totalMessages = $totalMessages->orWhere("messages.created_by",Auth::user()->id);
+        });
+        $totalMessages = $totalMessages->where("messages.firm_id",Auth::User()->firm_name)->count();
 
+        
         return view("client_portal.home", compact('totalInvoice', 'upcomingEvents', 'recentActivity', 'totalMessages'));
     }
 

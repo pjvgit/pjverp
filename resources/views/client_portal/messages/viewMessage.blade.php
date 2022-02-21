@@ -41,7 +41,7 @@
                                 <p class="comment__author">{{$msg->createdByUser->full_name}} </p>
                                 <p class="comment__date">{{ $msg->created_date_new }}</p>
                             </div>
-                            <p class="comment__content">{!! $msg->reply_message !!}</p>
+                            <p class="comment__content">{!! str_replace('<br>','',$msg->reply_message) !!}</p>
                         </li>
                     </ul>
                     @endforeach

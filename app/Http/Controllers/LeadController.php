@@ -7203,11 +7203,13 @@ class LeadController extends BaseController
     public function addCall(Request $request)
     {        
         //Get client and lead list
-        $ClientAndLead = DB::table('users')->select("first_name","last_name","id","user_level","user_title")
+        $ClientAndLead = DB::table('users')->select("first_name","firm_name","last_name","id","user_level","user_title")
+        ->where("firm_name",Auth::user()->firm_name)
+        ->Where('user_status',1)
         ->where('user_level',5)
         ->orWhere('user_level',2)
         ->where("parent_user",Auth::user()->id)->get();
-
+        
         //Get potential case list
         $potentialCase = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')
         ->select("users.first_name","users.last_name",'lead_additional_info.id','lead_additional_info.user_id')

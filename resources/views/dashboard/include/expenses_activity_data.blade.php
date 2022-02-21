@@ -14,8 +14,11 @@
                 {{$v->last_name}} ({{$v->user_title}})</a> {{$v->activity}} for 
                 <?php if($v->ExpenseEntry){ ?><a data-toggle="modal"  data-target="#loadEditExpenseEntryPopup" data-placement="bottom" href="javascript:;"  onclick="loadEditExpenseEntryPopup({{$v->expense_id}});">  {{$v->title}} </a> <?php }else{ ?>{{$v->title}} <?php } ?>  
                 <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-            <a class="name"
-                href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+            @if($v->deleteCase == '')
+                <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+            @else
+                {{$v->case_title}}
+            @endif
         </div>
     </td>
 </tr>

@@ -990,7 +990,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $(".innerLoader").css('display', 'none');
                         return false;
                     } else {
-                        window.location.reload();
+                        window.location.href = res.url;
                     }
                 }
             });

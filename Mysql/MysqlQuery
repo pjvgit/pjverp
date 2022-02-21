@@ -1,3 +1,6 @@
+------------------------------------ 21-FEB-2022 ------------------------------
+ALTER TABLE `messages`
+ADD `for_staff` enum('yes','no') COLLATE 'utf8mb4_general_ci' NULL DEFAULT 'no' AFTER `is_global_for`;
 ------------------------------------ 18-FEB-2022 ------------------------------
 ALTER TABLE `events`
 ADD `edit_recurring_patteren` varchar(255) NULL AFTER `firm_id`;

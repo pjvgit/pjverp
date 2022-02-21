@@ -51,9 +51,6 @@ $(document).ready(function() {
     $(document).on('change', '.sendTo', function() {
         sendMessage();
     });
-    $(document).on('change', '#case', function() {
-        sendMessage();
-    });
     $(document).on('blur', '#message_subject', function() {
         sendMessage();
     });
@@ -172,15 +169,17 @@ function addNewMessage(){
     });
 }
 
-
-
-function sendMessage(){
+function submitBtnDisableCheck(){
+    console.log($(".sendTo").val() +' > '+ $("#case").val() +' > '+ $("#message_subject").val() +' > '+ $("#message_body").val());
     if($(".sendTo").val() != '' && $("#case").val() != '' && $("#message_subject").val() != '' && $("#message_body").val() != ''){
         $(":submit").removeAttr("disabled");
     }else{
         $(":submit").prop("disabled", true);
     }
+}
 
+function sendMessage(){
+    submitBtnDisableCheck();
     $(".saved").html('').html('Saving...');
     var dataString = $("#addMessage").serialize();
     $.ajax({
@@ -233,6 +232,7 @@ function openDraftMessage(id){
             $("#addMessagePopup").modal('show');
             $("#messageView").html('').html(res);
             afterLoader();
+            submitBtnDisableCheck();
         },
         error: function (xhr, status, error) {
             $('.showError').html('');

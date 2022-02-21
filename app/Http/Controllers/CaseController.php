@@ -968,8 +968,9 @@ class CaseController extends BaseController
                             $query->where('user_id', auth()->id());
                         });
         }
-        $CaseMaster = $CaseMaster->with('caseOffice')->first()->setAppends(["uninvoiced_balance"]);
+        $CaseMaster = $CaseMaster->with('caseOffice')->first();
         if(!empty($CaseMaster)){
+            $CaseMaster = $CaseMaster->setAppends(["uninvoiced_balance"]);
             $case_id= $CaseMaster->case_id;
             // DB::delete('DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id = t2.event_id AND t1.user_id = t2.user_id');
 
@@ -5789,7 +5790,7 @@ class CaseController extends BaseController
             $CommonController->addMultipleHistory($data);
 
             session(['popup_success' => 'Case has been updated.']);
-            return response()->json(['errors'=>'','id'=>'']);
+            return response()->json(['errors'=>'','id'=>'', 'url' => route('court_cases') ]);
             exit;
         }
    }
@@ -5804,14 +5805,14 @@ class CaseController extends BaseController
             return response()->json(['errors'=>$validator->errors()->all()]);
         }else{   
             $case_id=$request->case_id;
-            // Task::where("case_id", $case_id)->delete();
-            // TaskTimeEntry::where("case_id", $case_id)->delete();
-            // ExpenseEntry::where("case_id", $case_id)->delete();
-            // CaseNotes::where("case_id", $case_id)->delete();
-            // Invoices::where("case_id", $case_id)->delete();
-            // CaseEvent::where("case_id", $case_id)->delete();
-            // Messages::where("case_id", $case_id)->delete();
-            // CaseMaster::where("id", $case_id)->delete();
+            Task::where("case_id", $case_id)->delete();
+            TaskTimeEntry::where("case_id", $case_id)->delete();
+            ExpenseEntry::where("case_id", $case_id)->delete();
+            CaseNotes::where("case_id", $case_id)->delete();
+            Invoices::where("case_id", $case_id)->delete();
+            CaseEvent::where("case_id", $case_id)->delete();
+            Messages::where("case_id", $case_id)->delete();
+            CaseMaster::where("id", $case_id)->delete();
 
 
             //if current zero case available then popup field enabled :: Start
