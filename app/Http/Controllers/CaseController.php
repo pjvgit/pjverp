@@ -18,6 +18,7 @@ use App\Task,App\LeadAdditionalInfo,App\UsersAdditionalInfo;
 use App\Invoices,App\TaskTimeEntry,App\CaseEventLinkedContactLead;
 use App\Calls,App\FirmAddress,App\PotentialCaseInvoicePayment;
 use App\Event;
+use App\EventRecurring;
 use App\ViewCaseState,App\ClientNotes,App\CaseTaskLinkedStaff;
 use App\ExpenseEntry,App\CaseNotes,App\Firm,App\IntakeForm,App\CaseIntakeForm;
 use App\FirmEventReminder;
@@ -1070,6 +1071,10 @@ class CaseController extends BaseController
                 $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
                 ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 ->get();
+
+                // $allEvents = EventRecurring::whereHas("event", function($query) use($case_id) {
+                //     $query->where('case_id', $case_id);
+                // })->orderBy("start_date", "ASC")->with("event")->get();
             } */
 
             if(\Route::current()->getName()=="recent_activity"){
@@ -1605,7 +1610,7 @@ class CaseController extends BaseController
          }
          $case = $case->offset($requestData['start'])->limit($requestData['length']);
          $case = $case->orderBy($columns[$requestData['order'][0]['column']], $requestData['order'][0]['dir']);
-         $case = $case->get();
+         $case = $case->get()->each->setAppends(["linked_case_count"]);
          $json_data = array(
              "draw"            => intval( $requestData['draw'] ),   
              "recordsTotal"    => intval( $totalData ),  
@@ -2917,6 +2922,15 @@ class CaseController extends BaseController
                     "firm_id" => $authUser->firm_name,
                     "created_by" => $authUser->id,
                 ]);
+
+                $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {
+                    DB::table('event_recurrings')->insert([
+                        "event_id" => $caseEvent->id,
+                        "start_date" => $date,
+                        "end_date" => $date,
+                    ]);
+                }
             }
 
             $this->saveEventReminder($request->all(),$caseEvent->id); 
