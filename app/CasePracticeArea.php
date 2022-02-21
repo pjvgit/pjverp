@@ -17,7 +17,7 @@ class CasePracticeArea extends Authenticatable
     protected $fillable = [
         'title','status'
     ];
-    protected $appends  = ['decode_primary_id','decode_id','created_by_name','linked_case_count'];
+    protected $appends  = ['decode_primary_id','decode_id','created_by_name'/* ,'linked_case_count' */];
    
 
     //Practice area created and updated user id decoded.
@@ -56,6 +56,9 @@ class CasePracticeArea extends Authenticatable
   
     }
 
+    /**
+     * Do not add this attribute to append array, if you want to use it, please set append dynamically
+     */
     public function getLinkedCaseCountAttribute(){
        return $CaseMasterData = CaseMaster::where('practice_area',$this->id)->count();
 

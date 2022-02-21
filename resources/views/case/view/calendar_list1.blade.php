@@ -62,49 +62,32 @@ if(isset($_GET['upcoming_events'])){
                         </tr>
                         @php
                             $recurringSingleEvents = $allEvents->where('edit_recurring_patteren', 'single event');
-                            // dd($recurringSingleEvents);
                         @endphp
                         @forelse ($allEvents as $key => $item)
-                            @if($item->edit_recurring_pattern != 'single event')
-                            @php
-                                $period = \Carbon\CarbonPeriod::create($item->start_date, $item->recurring_event_end_date);
-                            @endphp
-                            @forelse($period as $date)
-                                @php
-                                    $singleEvent = $allEvents->where('edit_recurring_pattern', 'single event')->where('start_date', '=', date('Y-m-d', strtotime($date)))->first();
-                                    if($singleEvent) {
-                                        $event = $singleEvent;
-                                    } else {
-                                        $event = $item;
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($item->start_date)->format('d-M') }}</td>
+                                <td>
+                                    <div class="ml-2 mt-3">
+                                    @php
+                                    if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_all_day == "yes"){
+                                        echo "All Day";
+                                    }else{                        
+                                        echo date('h:i A',strtotime($item->event->start_date_time));
+                                        echo "-";
+                                        echo date('h:i A',strtotime($item->event->end_date_time));
                                     }
-                                @endphp
-                                <tr>
-                                    <td>{{ $date->format('d-M') }}</td>
-                                    <td>
-                                        <div class="ml-2 mt-3">
-                                        @php
-                                        if($event->start_date==NULL || $event->end_time==NULL && $event->is_all_day == "yes"){
-                                            echo "All Day";
-                                        }else{                        
-                                            echo date('h:i A',strtotime($event->start_date_time));
-                                            echo "-";
-                                            echo date('h:i A',strtotime($event->end_date_time));
-                                        }
-                                        @endphp
-                                        </div>
-                                    </td>
-                                    <td>{{ $event->event_title }}</td>
-                                    <td>{{ $event->eventType->title }}</td>
-                                    <td></td>
-                                    <td>
-                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$event->id}});">
-                                            <i class="fas fa-pen pr-2  align-middle"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                            @endforelse
-                            @endif
+                                    @endphp
+                                    </div>
+                                </td>
+                                <td>{{ $item->event->event_title }}</td>
+                                <td>{{ $item->event->eventType->title }}</td>
+                                <td></td>
+                                <td>
+                                    <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->id}});">
+                                        <i class="fas fa-pen pr-2  align-middle"></i>
+                                    </a>
+                                </td>
+                            </tr>
                         @empty
                         @endforelse
                     @endif
