@@ -203,6 +203,7 @@ function callOnClick(){
     $("#beforebutton").hide();
     $("#beforetext").show();
     $("#submit_without_user").show();
+    $("#submit").show();
     $("#submit_with_user").hide();
     $("#case_name").focus();
 

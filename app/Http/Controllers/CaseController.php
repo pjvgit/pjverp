@@ -5850,7 +5850,7 @@ class CaseController extends BaseController
             $CommonController->addMultipleHistory($data);
 
             session(['popup_success' => 'Case has been deleted.']);
-            return response()->json(['errors'=>'']);
+            return response()->json(['errors'=>'', 'url' => route('court_cases')]);
             exit;
         }
    }

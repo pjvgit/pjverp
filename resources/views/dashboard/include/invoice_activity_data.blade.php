@@ -29,9 +29,11 @@
                             #{{sprintf('%06d', $v->activity_for)}}
                         @endif 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                        <?php  if($v->case_unique_number!=NULL){  ?>
+                        <?php  if($v->case_unique_number!=NULL && $v->deleteCase ==NULL){  ?>
                             <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
-                        <?php } 
+                        <?php }else{ ?>
+                            {{$v->case_title}}
+                            <?php }    
                             if($v->type == 'lead_invoice'){  ?>
                             <a class="name" href="{{ route('case_details/info',$v->user_id) }}">{{$v->fullname}}</a>
                         <?php } ?>
@@ -65,16 +67,20 @@
                             #{{sprintf('%06d', $v->activity_for)}}
                         @endif 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web
-                        <?php  if($v->case_unique_number!=NULL){  ?>
+                        <?php  if($v->case_unique_number!=NULL && $v->deleteCase == NULL){  ?>
                             | <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                        <?php }else{ ?>
+                            | {{$v->case_title}}
                         <?php }  ?>
                     @else
                         <img src="{{ asset('icon/'.$image) }}" width="27" height="21">
                         <a class="name" href="{{ route('contacts/attorneys/info', base64_encode($v->user_id)) }}">{{$v->first_name}} {{$v->last_name}} ({{$v->user_title}})</a> 
                         {{$v->activity}} for {{$v->title}} 
                         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-                        <?php  if($v->case_unique_number!=NULL){  ?>
+                        <?php  if($v->case_unique_number!=NULL && $v->deleteCase == NULL){  ?>
                             <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>
+                        <?php }else{ ?>
+                            {{$v->case_title}}
                         <?php }  ?>
                     @endif
                 </div>

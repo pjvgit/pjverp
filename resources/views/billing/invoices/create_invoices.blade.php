@@ -829,12 +829,12 @@ var start = 0;
 
                     if ($('.allSelect:checked').length == $('.allSelect').length) {
                         $('#selectAll').prop('checked', true);
-                        $("#batch_billing_tab").toggleClass("expand");
-                        $("#batch_billing").toggle("slide", {direction: "right"});
-                        $("#batch_billing_tab").animate({ right: "400px"});
+                        // $("#batch_billing_tab").toggleClass("expand");
+                        // $("#batch_billing").toggle("slide", {direction: "right"});
+                        // $("#batch_billing_tab").animate({ right: "400px"});
                     } else {
                         $('#selectAll').prop('checked', false);
-                        $("#batch_billing_tab").removeClass("expand");
+                        // $("#batch_billing_tab").removeClass("expand");
                     }
 
                    
@@ -853,12 +853,12 @@ var start = 0;
                             "checked"));
                     });
 
-                    if ($("#batch_billing_tab").hasClass("expand")) {
-                    }else{
-                      $("#batch_billing_tab").toggleClass("expand");
-                      $("#batch_billing").toggle("slide", {direction: "right"});
-                      $("#batch_billing_tab").animate({ right: "400px"});
-                    }
+                    // if ($("#batch_billing_tab").hasClass("expand")) {
+                    // }else{
+                    //   $("#batch_billing_tab").toggleClass("expand");
+                    //   $("#batch_billing").toggle("slide", {direction: "right"});
+                    //   $("#batch_billing_tab").animate({ right: "400px"});
+                    // }
                     if($('.client_box:checked').length>1){
                       $("#batch_num_cases_selected").html($('.client_box:checked').length+' cases');
                     $("#batch_cases_selected").html("("+$('.client_box:checked').length+' cases)');
@@ -1083,9 +1083,9 @@ var start = 0;
         if ($("#batch_billing_tab").hasClass("expand")) {
         }else{
             if ($('.allSelect:checked').length == $('.allSelect').length) {
-                $("#batch_billing_tab").toggleClass("expand");
-                $("#batch_billing").toggle("slide", {direction: "right"});
-                $("#batch_billing_tab").animate({ right: "400px"});
+                // $("#batch_billing_tab").toggleClass("expand");
+                // $("#batch_billing").toggle("slide", {direction: "right"});
+                // $("#batch_billing_tab").animate({ right: "400px"});
             }
         }
         if($('.client_box:checked').length>1){
@@ -1342,12 +1342,12 @@ function reloadBilling(){
 
         if ($('.allSelect:checked').length == $('.allSelect').length) {
             $('#selectAll').prop('checked', true);
-            $("#batch_billing_tab").toggleClass("expand");
-            $("#batch_billing").toggle("slide", {direction: "right"});
-            $("#batch_billing_tab").animate({ right: "400px"});
+            // $("#batch_billing_tab").toggleClass("expand");
+            // $("#batch_billing").toggle("slide", {direction: "right"});
+            // $("#batch_billing_tab").animate({ right: "400px"});
         } else {
             $('#selectAll').prop('checked', false);
-            $("#batch_billing_tab").removeClass("expand");
+            // $("#batch_billing_tab").removeClass("expand");
         }
         
         if($('.client_box:checked').length>1){
@@ -1370,14 +1370,14 @@ function selectClient(i) {
         $('#selectAll').prop('checked', false);
     }
 
-    if ($("#batch_billing_tab").hasClass("expand")) {
-    }else{
-        if ($('.allSelect:checked').length == $('.allSelect').length) {
-            $("#batch_billing_tab").toggleClass("expand");
-            $("#batch_billing").toggle("slide", {direction: "right"});
-            $("#batch_billing_tab").animate({ right: "400px"});
-        }
-    }
+    // if ($("#batch_billing_tab").hasClass("expand")) {
+    // }else{
+    //     if ($('.allSelect:checked').length == $('.allSelect').length) {
+    //         $("#batch_billing_tab").toggleClass("expand");
+    //         $("#batch_billing").toggle("slide", {direction: "right"});
+    //         $("#batch_billing_tab").animate({ right: "400px"});
+    //     }
+    // }
     if($('.mainBox_'+i).is(":checked")){
         $('.mainBox_'+i).prop('checked', true);
         $(".client_"+i).prop('checked', true);

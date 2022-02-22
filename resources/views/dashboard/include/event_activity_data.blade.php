@@ -22,7 +22,7 @@
         {{$v->activity}}
         @if($v->deleteEvents == null) <a class="name" href="{{ route('events/detail',base64_encode($v->event_id)) }}"> {{$v->eventTitle}} </a> @else {{$v->eventTitle}} @endif
         <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
-        <?php  if($v->event_for_case!=NULL){  ?>
+        <?php  if($v->event_for_case!=NULL && $v->events_for != NULL){  ?>
             <a class="name" href="{{ route('info', $v->events_for['case_unique_number']) }}">{{$v->events_for['case_title']}}</a>
         <?php }else if($v->event_for_lead!=NULL){ ?>
             <a class="name" href="{{ route('case_details/info',$v->events_for['id']) }}">{{$v->events_for['first_name']}} {{$v->events_for['last_name']}}</a>

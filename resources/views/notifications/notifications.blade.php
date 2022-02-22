@@ -56,7 +56,7 @@
                                     onclick="loadEventsNotification(1);" href="#eventEntry" role="tab"
                                     aria-controls="contactBasic" aria-selected="false">Events</a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item m2">
                                 <a class="nav-link" id="document-tab" onclick="loadDocumentNotification(1);"
                                     data-toggle="tab" href="#documentActivity" role="tab" aria-controls="contactBasic"
                                     aria-selected="false">Documents</a>

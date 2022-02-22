@@ -322,7 +322,7 @@
                                     onclick="loadEventActivity();" href="#eventEntry" role="tab"
                                     aria-controls="contactBasic" aria-selected="false">Events</a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item m2">
                                 <a class="nav-link" id="contact-basic-tab" onclick="loadDocumentActivity();"
                                     data-toggle="tab" href="#documentsEntry" role="tab" aria-controls="contactBasic"
                                     aria-selected="false">Documents</a>

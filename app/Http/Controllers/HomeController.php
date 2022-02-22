@@ -408,7 +408,7 @@ class HomeController extends BaseController
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('invoices','invoices.id','=','all_history.activity_for')
         ->leftJoin('users as u1','u1.id','=','all_history.client_id')
-        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'))
+        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","invoices.deleted_at as deleteInvoice",DB::raw('CONCAT_WS(" ",u1.first_name,u1.middle_name,u1.last_name) as fullname'),"case_master.deleted_at as deleteCase")
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->whereIn("all_history.type", ["invoices", "lead_invoice"])
@@ -438,7 +438,7 @@ class HomeController extends BaseController
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('task_time_entry','task_time_entry.id','=','all_history.time_entry_id')
-        ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->select("task_time_entry.deleted_at as timeEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","case_master.deleted_at as deleteCase")
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","time_entry")
@@ -469,7 +469,7 @@ class HomeController extends BaseController
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('expense_entry','expense_entry.id','=','all_history.activity_for')
-        ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number")
+        ->select("expense_entry.id as ExpenseEntry","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number","case_master.deleted_at as deleteCase")
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","expenses")
@@ -501,7 +501,7 @@ class HomeController extends BaseController
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('case_events','case_events.id','=','all_history.event_id')
-        ->select("case_events.id as eventID","case_events.event_title as eventTitle","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "case_events.deleted_at as deleteEvents")
+        ->select("case_events.id as eventID","case_events.event_title as eventTitle","users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "case_events.deleted_at as deleteEvents","case_master.deleted_at as deleteCase")
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","event")
@@ -531,7 +531,7 @@ class HomeController extends BaseController
         ->leftJoin('task_activity','task_activity.id','=','all_history.activity_for')
         ->leftJoin('case_master','case_master.id','=','all_history.case_id')
         ->leftJoin('task','task.id','=','all_history.task_id')
-        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
+        ->select("users.*","all_history.*","case_master.case_title","case_master.id","task_activity.title","all_history.created_at as all_history_created_at","case_master.case_unique_number", "task.deleted_at as deleteTasks",'task.task_title as taskTitle',"case_master.deleted_at as deleteCase")
         ->where('all_history.is_for_client','no')
         ->where("all_history.firm_id",Auth::User()->firm_name)
         ->where("all_history.type","task")
@@ -622,7 +622,7 @@ class HomeController extends BaseController
             foreach($result as $key => $item) {
                 $users = $this->getEventLinkedUser($item, "popup");
                 if(count($users)) {
-                    $eventTime = $item->event->start_date." ".@$item->event->start_time;
+                    $eventTime = @$item->event->start_date." ".@$item->event->start_time;
                     $currentTime = Carbon::now();
                     $addEvent = false;
 

@@ -990,7 +990,11 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                         $(".innerLoader").css('display', 'none');
                         return false;
                     } else {
-                        window.location.href = res.url;
+                        if(res.url == '' || res.url === undefined){
+                            window.location.href = baseUrl + "/court_cases";
+                        }else{
+                            window.location.href = res.url;
+                        }
                     }
                 }
             });

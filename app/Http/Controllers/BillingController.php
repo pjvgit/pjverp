@@ -4842,10 +4842,11 @@ class BillingController extends BaseController
                         $CommonController->addMultipleHistory($data);
                     }
                 }
-                // $Invoices->fill([
-                //     'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
-                //     'bill_sent_status' => 'Sent',
-                // ])->save();
+                $Invoices->fill([
+                    'status' => (in_array($Invoices->status, ['Unsent', 'Draft'])) ? 'Sent' : $Invoices->status,
+                    'bill_sent_status' => 'Sent',
+                    'is_sent'=>"yes"
+                ])->save();
                 $this->updateInvoiceDraftStatus($request->invoice_id);
                 $this->updateInvoiceAmount($request->invoice_id);
                 session(['popup_success' => 'Sharing updated']);
@@ -5326,16 +5327,16 @@ class BillingController extends BaseController
             
             $Invoice=Invoices::find($invoice_id);
 
+            if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
+                $Invoice->status="Sent";
+                $Invoice->is_sent="yes";
+                $Invoice->bill_sent_status="Sent";
+                $Invoice->save();
+            }
+            if($Invoice) {
+                $Invoice->fill(['is_sent' => 'yes', "bill_sent_status" => "Sent"])->save();
+            }
             $this->updateInvoiceDraftStatus($invoice_id);
-            // if($Invoice->status=="Draft" || $Invoice->status=="Unsent"){
-            //     $Invoice->status="Sent";
-            //     $Invoice->is_sent="yes";
-            //     $Invoice->bill_sent_status="Sent";
-            //     $Invoice->save();
-            // }
-            // if($Invoice) {
-            //     $Invoice->fill(['is_sent' => 'yes', "bill_sent_status" => "Sent"])->save();
-            // }
             
             $userData = User::select("users.*","countries.name as countryname")->leftJoin('lead_additional_info','users.id',"=","lead_additional_info.user_id")->leftJoin('countries','users.country',"=","countries.id")->where("users.id",$Invoice['user_id'])->first();
             
@@ -9140,7 +9141,7 @@ class BillingController extends BaseController
                 return response()->json(['errors'=>'','countInvoice'=>count($totalInvoice), 'notSharedInvoice' => $notSharedInvoice,  'batchLink'=> route('bills/invoices').'?type=all&global_search='. base64_encode($InvoiceBatch->id).'-'.$InvoiceBatch->decode_type]);
                 exit; 
             }else{
-                return response()->json(['errors' =>['No Invoice Found...']]);
+                return response()->json(['errors' =>['No bills were created.']]);
             }
             } catch (Exception $e) {
                 dbEnd();
@@ -9555,6 +9556,7 @@ class BillingController extends BaseController
                 DB::raw('CONCAT_WS(" ",u1.first_name,u1.last_name) as fullname'),
                 "case_master.case_title","case_master.id","task_activity.title",
                 "all_history.created_at as all_history_created_at",
+                "case_master.deleted_at as deleteCase",
                 "case_master.case_unique_number", "case_events.event_title as eventTitle", "case_events.deleted_at as deleteEvents", "task.deleted_at as deleteTasks",'task.task_title as taskTitle')
         ->where('all_history.is_for_client','no')
         ->whereIn("all_history.type", ["invoices", "lead_invoice","time_entry","expenses","credit","deposit","fundrequest"])

@@ -16,6 +16,7 @@ trait InvoiceSettingTrait {
         if(!$preference) {
             $setting = InvoiceSetting::create([
                 'firm_id' => $firmId,
+                'default_invoice_payment_terms' => 5,
                 'created_by' => $userId,
             ]);
 

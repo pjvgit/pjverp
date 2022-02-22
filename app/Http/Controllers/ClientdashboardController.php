@@ -2096,8 +2096,8 @@ class ClientdashboardController extends BaseController
         }
         if(isset($request->case_id)){
             $case_id=$request->case_id;
-            $userCount = DB::table('users')->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
-                ->join('case_client_selection',"case_client_selection.selected_user","=",'users.id')
+            $userCount = CaseClientSelection::join('users',"case_client_selection.selected_user","=",'users.id')
+                ->join('users_additional_info',"users_additional_info.user_id","=",'users.id')
                 ->select("users.id as cid")
                 ->where("case_client_selection.case_id", $case_id)
                 ->where("users.user_status", "1")
@@ -2106,7 +2106,14 @@ class ClientdashboardController extends BaseController
             
             $staffCount = CaseStaff::where('case_id',$case_id)->where('user_id','!=',Auth::user()->id)->get()->pluck('user_id');
             if(count($userCount) > 0 || count($staffCount) > 0){
-                return response()->json(['errors'=>'0','contactList'=>$staffCount]);    
+                $contactList = [];
+                foreach($userCount as $k=>$v){
+                    array_push($contactList, $v);
+                }
+                foreach($staffCount as $k=>$v){
+                    array_push($contactList, $v);
+                }
+                return response()->json(['errors'=>'0','contactList'=>$contactList]);    
             }else{
                 return response()->json(['errors'=>'1','msg'=>'The case you selected had no contacts that can receive messages.']);
             }
