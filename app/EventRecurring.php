@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EventRecurring extends Model
 {
+    protected $timestamp = false;
     protected $fillable = [
         'id', 'event_id', 'start_date', 'end_date'
     ];    

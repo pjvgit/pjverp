@@ -48,147 +48,153 @@ if(isset($_GET['upcoming_events'])){
                         </tr>
                     @else
                         @forelse ($allEvents as $key => $item)
-                            @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($item->start_date)))
-                            <tr>
-                                <th colspan="6">
-                                    <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y',strtotime($item->start_date)) }}</h2>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th width="5%">Date</th>
-                                <th width="20%">Time</th>
-                                <th width="35%">Title</th>
-                                <th width="15%">Type</th>
-                                <th width="15%">Users</th>
-                                <th width="13%"></th>
-                            </tr>
-                            @endif
-                            <tr>
-                                <td class="event-date-and-time  c-pointer" style="width: 50px;">
-                                    @if(isset($oDate) && $item->start_date==$oDate)
-                                    @else
-                                        @php
-                                            $dateandMonth= date('d',strtotime($item->user_start_date));
-                                            $dateOfEvent=date('M',strtotime($item->user_start_date)); 
-                                            $oDate=$item->start_date;
-                                        @endphp
-                                        <div class="d-flex">
-                                            <div style="width: 45px;">
-                                                <div
-                                                    class="col-12 p-0 text-center text-white bg-dark font-weight-bold rounded-top">
-                                                    <?php echo $dateOfEvent; ?></div>
-                                                <div class="col-12 p-0 text-center rounded-bottom"
-                                                    style="background-color: rgb(237, 237, 235); color: rgb(70, 74, 76);">
-                                                    <h4 class="py-1 m-0 font-weight-bold">
-                                                        {{$dateandMonth}}
-                                                    </h4>
+                            @if(count($item->eventRecurring))
+                                @forelse ($item->eventRecurring as $key1 => $item1)
+                                    @if(isset($oDate) && date('Y', strtotime($oDate)) != date('Y', strtotime($item1->start_date)))
+                                    <tr>
+                                        <th colspan="6">
+                                            <h2 class="mb-2 mt-4 font-weight-bold text-dark">{{ date('Y',strtotime($item1->start_date)) }}</h2>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th width="5%">Date</th>
+                                        <th width="20%">Time</th>
+                                        <th width="35%">Title</th>
+                                        <th width="15%">Type</th>
+                                        <th width="15%">Users</th>
+                                        <th width="13%"></th>
+                                    </tr>
+                                    @endif
+                                    <tr>
+                                        <td class="event-date-and-time  c-pointer" style="width: 50px;">
+                                            @if(isset($oDate) && $item1->start_date==$oDate)
+                                            @else
+                                                @php
+                                                    $dateandMonth= date('d',strtotime($item1->user_start_date));
+                                                    $dateOfEvent=date('M',strtotime($item1->user_start_date)); 
+                                                    $oDate=$item1->start_date;
+                                                @endphp
+                                                <div class="d-flex">
+                                                    <div style="width: 45px;">
+                                                        <div
+                                                            class="col-12 p-0 text-center text-white bg-dark font-weight-bold rounded-top">
+                                                            <?php echo $dateOfEvent; ?></div>
+                                                        <div class="col-12 p-0 text-center rounded-bottom"
+                                                            style="background-color: rgb(237, 237, 235); color: rgb(70, 74, 76);">
+                                                            <h4 class="py-1 m-0 font-weight-bold">
+                                                                {{$dateandMonth}}
+                                                            </h4>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="ml-2 mt-3">
-                                    @php
-                                    if($item->event->start_time==NULL || $item->event->end_time==NULL && $item->event->is_all_day == "yes"){
-                                        echo "All Day";
-                                    }else{                        
-                                        echo date('h:i A',strtotime($item->event->start_date_time));
-                                        echo "-";
-                                        echo date('h:i A',strtotime($item->event->end_date_time));
-                                    }
-                                    @endphp
-                                    </div>
-                                </td>
-                                <td>{{ $item->event->event_title }}</td>
-                                @php
-                                    $isAuthUserLinked = $item->event->eventLinkedStaff->where('users.id', auth()->id())->first();
-                                @endphp
-                                <td class="c-pointer">
-                                    @if(!empty($item->event->eventType) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
-                                    <div class="d-flex align-items-center mt-3">
-                                        <div class="mr-1"
-                                            style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->event->eventType->color_code }}">
-                                        </div><span>{{ @$item->event->eventType->title }}</span>
-                                    </div>
-                                    @else
-                                    <i class="table-cell-placeholder mt-3"></i>
-                                    @endif
-                                </td>
-                                <td class="event-users">
-                                    @if(!empty($item->event->eventLinkedStaff) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
-                                        @php
-                                            $totalUser = count($item->event->eventLinkedStaff) + count($item->event->eventLinkedContact) + count($item->event->eventLinkedLead);    
-                                        @endphp
-                                        @if($totalUser > 1)
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="ml-2 mt-3">
                                             @php
-                                            $userListHtml = "<table><tbody>";
-                                            $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
-                                            foreach($item->event->eventLinkedStaff as $linkuserValue){
-                                                $userListHtml.="<tr><td>
-                                                <span> 
-                                                    <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                    <a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".$linkuserValue->full_name."</a>
-                                                </span>
-                                                </td>";
-                                                if($linkuserValue->pivot->attending == "yes") {
-                                                    $userListHtml .= "<td>Attending</td></tr>";
-                                                } else {
-                                                    $userListHtml .= "<td></td></tr>";
-                                                }
+                                            if($item->start_time==NULL || $item->end_time==NULL && $item->is_all_day == "yes"){
+                                                echo "All Day";
+                                            }else{                        
+                                                echo date('h:i A',strtotime($item1->start_date));
+                                                echo "-";
+                                                echo date('h:i A',strtotime($item1->end_date));
                                             }
-                                            if(count($item->event->eventLinkedContact)) {
-                                                $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
-                                                foreach($item->event->eventLinkedContact as $linkuserValue){
-                                                    $userListHtml.="<tr><td>
-                                                    <span> 
-                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                        <a href=".(($linkuserValue->user_level == 4) ? route('contacts/companies/view', $linkuserValue->id) : route('contacts/clients/view', $linkuserValue->id))."> ".$linkuserValue->full_name."</a>
-                                                    </span>
-                                                    </td>";
-                                                    if($linkuserValue->pivot->attending == "yes") {
-                                                        $userListHtml .= "<td>Attending</td></tr>";
-                                                    } else {
-                                                        $userListHtml .= "<td></td></tr>";
-                                                    }
-                                                }
-                                            }
-                                            if(count($item->event->eventLinkedLead)) {
-                                                $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
-                                                foreach($item->event->eventLinkedLead as $linkuserValue){
-                                                    $userListHtml.="<tr><td>
-                                                    <span> 
-                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
-                                                        <a href=".route('case_details/info', $linkuserValue->id)."> ".$linkuserValue->full_name."</a>
-                                                    </span>
-                                                    </td>";
-                                                    if($linkuserValue->pivot->attending == "yes") {
-                                                        $userListHtml .= "<td>Attending</td></tr>";
-                                                    } else {
-                                                        $userListHtml .= "<td></td></tr>";
-                                                    }
-                                                }
-                                            }
-                                            $userListHtml .= "</tbody></table>";
                                             @endphp
-                                            <a class="mt-3 event-name d-flex align-items-center pop" tabindex="0" role="button"
-                                            href="javascript:;" data-toggle="popover" title=""
-                                            data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
-                                            style="float:left;">{{ $totalUser ?? 0 }} People</a>
-                                        @else
-                                            <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
-                                            href="{{ route('contacts/attorneys/info', base64_encode(@$item->event->eventLinkedStaff[0]->id)) }}">{{ @$item->event->eventLinkedStaff[0]->full_name}}</a>
-                                        @endif
-                                    @else
-                                        <i class="table-cell-placeholder mt-3"></i>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event->id}}, {{$item->id}});">
-                                        <i class="fas fa-pen pr-2  align-middle"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                            </div>
+                                        </td>
+                                        <td>{{ $item->event_title }}</td>
+                                        @php
+                                            $isAuthUserLinked = $item->eventLinkedStaff->where('users.id', auth()->id())->first();
+                                        @endphp
+                                        <td class="c-pointer">
+                                            @if(!empty($item->eventType) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
+                                            <div class="d-flex align-items-center mt-3">
+                                                <div class="mr-1"
+                                                    style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$item->eventType->color_code }}">
+                                                </div><span>{{ @$item->eventType->title }}</span>
+                                            </div>
+                                            @else
+                                            <i class="table-cell-placeholder mt-3"></i>
+                                            @endif
+                                        </td>
+                                        <td class="event-users">
+                                            @if(!empty($item->eventLinkedStaff) && ($isAuthUserLinked || auth()->user()->parent_user == 0))
+                                                @php
+                                                    $totalUser = count($item->eventLinkedStaff) + count($item->eventLinkedContact) + count($item->eventLinkedLead);    
+                                                @endphp
+                                                @if($totalUser > 1)
+                                                    @php
+                                                    $userListHtml = "<table><tbody>";
+                                                    $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
+                                                    foreach($item->eventLinkedStaff as $linkuserValue){
+                                                        $userListHtml.="<tr><td>
+                                                        <span> 
+                                                            <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                            <a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".$linkuserValue->full_name."</a>
+                                                        </span>
+                                                        </td>";
+                                                        if($linkuserValue->pivot->attending == "yes") {
+                                                            $userListHtml .= "<td>Attending</td></tr>";
+                                                        } else {
+                                                            $userListHtml .= "<td></td></tr>";
+                                                        }
+                                                    }
+                                                    if(count($item->eventLinkedContact)) {
+                                                        $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                                                        foreach($item->eventLinkedContact as $linkuserValue){
+                                                            $userListHtml.="<tr><td>
+                                                            <span> 
+                                                                <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                                <a href=".(($linkuserValue->user_level == 4) ? route('contacts/companies/view', $linkuserValue->id) : route('contacts/clients/view', $linkuserValue->id))."> ".$linkuserValue->full_name."</a>
+                                                            </span>
+                                                            </td>";
+                                                            if($linkuserValue->pivot->attending == "yes") {
+                                                                $userListHtml .= "<td>Attending</td></tr>";
+                                                            } else {
+                                                                $userListHtml .= "<td></td></tr>";
+                                                            }
+                                                        }
+                                                    }
+                                                    if(count($item->eventLinkedLead)) {
+                                                        $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                                                        foreach($item->eventLinkedLead as $linkuserValue){
+                                                            $userListHtml.="<tr><td>
+                                                            <span> 
+                                                                <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                                <a href=".route('case_details/info', $linkuserValue->id)."> ".$linkuserValue->full_name."</a>
+                                                            </span>
+                                                            </td>";
+                                                            if($linkuserValue->pivot->attending == "yes") {
+                                                                $userListHtml .= "<td>Attending</td></tr>";
+                                                            } else {
+                                                                $userListHtml .= "<td></td></tr>";
+                                                            }
+                                                        }
+                                                    }
+                                                    $userListHtml .= "</tbody></table>";
+                                                    @endphp
+                                                    <a class="mt-3 event-name d-flex align-items-center pop" tabindex="0" role="button"
+                                                    href="javascript:;" data-toggle="popover" title=""
+                                                    data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
+                                                    style="float:left;">{{ $totalUser ?? 0 }} People</a>
+                                                @else
+                                                    <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                                    href="{{ route('contacts/attorneys/info', base64_encode(@$item->eventLinkedStaff[0]->id)) }}">{{ @$item->eventLinkedStaff[0]->full_name}}</a>
+                                                @endif
+                                            @else
+                                                <i class="table-cell-placeholder mt-3"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->id}},{{$item1->id}});">
+                                                <i class="fas fa-pen pr-2  align-middle"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                @endforelse
+                            
+                            @endif
                         @empty
                         @endforelse
                     @endif

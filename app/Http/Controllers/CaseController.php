@@ -1064,17 +1064,19 @@ class CaseController extends BaseController
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
                 //Get all event by 
-                $allEvents = Event::select("*")->where("case_id",$case_id);
-                if($request->upcoming_events && $request->upcoming_events == 'on') {
-                    $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
-                }
-                $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
-                ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
-                ->get();
+                // $allEvents = Event::select("*")->where("case_id",$case_id);
+                // if($request->upcoming_events && $request->upcoming_events == 'on') {
+                //     $allEvents = $allEvents->whereDate("start_date", ">=", Carbon::now(auth()->user()->user_timezone ?? 'UTC')->format('Y-m-d'));
+                // }
+                // $allEvents = $allEvents->orderBy('start_date','ASC')->orderBy('start_time','ASC')
+                // ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
+                // ->get();
 
-                // $allEvents = EventRecurring::whereHas("event", function($query) use($case_id) {
-                //     $query->where('case_id', $case_id);
-                // })->orderBy("start_date", "ASC")->with("event")->get();
+                $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
+                                $query->where('case_id', $case_id);
+                            })->orderBy("start_date", "ASC")
+                            ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
+                // $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
             } */
 
             if(\Route::current()->getName()=="recent_activity"){
@@ -2868,8 +2870,8 @@ class CaseController extends BaseController
         $end_time = date("H:i:s", strtotime(convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)), $authUser->user_timezone)));
 
         if(!isset($request->recuring_event)) {
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
+            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
 
             $caseEvent = Event::create([
                 "event_title" => $request->event_name,
@@ -2895,37 +2897,96 @@ class CaseController extends BaseController
             $this->saveContactLeadData($request->all(),$caseEvent->id);     
 
         } else {  
-            if($request->event_frequency=='DAILY')
-            {
-                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
-                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
 
-                $caseEvent = Event::create([
-                    "event_title" => $request->event_name,
-                    "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
-                    "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
-                    "event_type_id" => $request->event_type ?? NULL,
-                    "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
-                    "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
-                    "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
-                    "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
-                    "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), auth()->user()->user_timezone),
-                    "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
-                    "event_description" => $request->description,
-                    "is_recurring" => "yes",
-                    "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
-                    "event_recurring_type" => $request->event_frequency,
-                    "event_interval_day" => '1',
-                    "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
-                    "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
-                    "is_event_read" => (isset($request->is_event_private)) ? 'yes' : 'no',
-                    "firm_id" => $authUser->firm_name,
-                    "created_by" => $authUser->id,
-                ]);
+            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
 
-                $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
+            $caseEvent = Event::create([
+                "event_title" => $request->event_name,
+                "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                "event_type_id" => $request->event_type ?? NULL,
+                "start_date" => $start_date,
+                "end_date" => $end_date,
+                "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
+                "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
+                "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone),
+                "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
+                "event_description" => $request->description,
+                "is_recurring" => "yes",
+                "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                "event_recurring_type" => $request->event_frequency,
+                "event_interval_day" => $request->event_interval_day,
+                "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+                "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                "firm_id" => $authUser->firm_name,
+                "created_by" => $authUser->id,
+            ]);
+
+            if($request->event_frequency=='DAILY') {
+                $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
                 foreach($period as $date) {
-                    DB::table('event_recurrings')->insert([
+                    EventRecurring::insert([
+                        "event_id" => $caseEvent->id,
+                        "start_date" => $date,
+                        "end_date" => $date,
+                    ]);
+                }
+            } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
+                $period = \Carbon\CarbonPeriod::create($start_date, '1 days', date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {          
+                    if (!in_array($date->format('l'), ["Saturday","Sunday"])) {
+                        EventRecurring::insert([
+                            "event_id" => $caseEvent->id,
+                            "start_date" => $date,
+                            "end_date" => $date,
+                        ]);
+                    }
+                }
+            } else if($request->event_frequency == "WEEKLY") {
+                $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {          
+                    EventRecurring::insert([
+                        "event_id" => $caseEvent->id,
+                        "start_date" => $date,
+                        "end_date" => $date,
+                    ]);
+                }
+            } else if($request->event_frequency == "CUSTOM") {
+                $period = \Carbon\CarbonPeriod::create($start_date, '7 days', date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {          
+                    EventRecurring::insert([
+                        "event_id" => $caseEvent->id,
+                        "start_date" => $date,
+                        "end_date" => $date,
+                    ]);
+                }
+            } else if($request->event_frequency == "MONTHLY") {
+                $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_month.' months', date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {       
+                    $Currentweekday = date("l", $date ); 
+                    if($request->monthly_frequency == 'MONTHLY_ON_THE') {
+                        $date = strtotime("fourth ".strtolower($Currentweekday)." of this month",$date);
+                    }else if($$request->monthly_frequency=='MONTHLY_ON_THE_LAST'){
+                        $date = strtotime("last ".strtolower($Currentweekday)." of this month",$date);
+                    } else { }
+                    EventRecurring::insert([
+                        "event_id" => $caseEvent->id,
+                        "start_date" => $date,
+                        "end_date" => $date,
+                    ]);
+                }
+            } else if($request->event_frequency == "YEARLY") {
+                $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_year.' years', date("Y-m-d", $recurringEndDate));
+                foreach($period as $date) {       
+                    $Currentweekday = date("l", $date ); 
+                    if($request->yearly_frequency == 'YEARLY_ON_THE'){
+                        $date = strtotime("fourth ".strtolower($Currentweekday)." of this month",$date);
+                    }else if($request->yearly_frequency == 'YEARLY_ON_THE_LAST'){
+                        $date = strtotime("last ".strtolower($Currentweekday)." of this month",$date);
+                    } else { }
+                    EventRecurring::insert([
                         "event_id" => $caseEvent->id,
                         "start_date" => $date,
                         "end_date" => $date,
@@ -4845,8 +4906,8 @@ class CaseController extends BaseController
 
         if($request->delete_event_type=='SINGLE_EVENT') {
             
-            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
-            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
+            $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+            $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
 
             $oldEvent = Event::find($request->event_id);
             if($oldEvent && $oldEvent->is_recurring == 'no' && !isset($request->recuring_event)) {
@@ -4909,52 +4970,69 @@ class CaseController extends BaseController
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
             if($request->event_frequency=='DAILY')
             { 
-                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
-                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
+                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
 
                 $oldEvent = Event::find($request->event_id);
                 if($oldEvent && $oldEvent->parent_event_id == '') {
                     $oldEvent->fill([
                         'end_on' => $start_date,
                     ])->save();
-                }
 
-                $caseEvent = Event::create([
-                    "event_title" => $request->event_name,
-                    "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
-                    "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
-                    "event_type_id" => $request->event_type ?? NULL,
-                    "start_date" => convertDateToUTCzone($start_date, $authUser->user_timezone),
-                    "end_date" => convertDateToUTCzone($end_date, $authUser->user_timezone),
-                    "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
-                    "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
-                    "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), auth()->user()->user_timezone),
-                    "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
-                    "event_description" => $request->description,
-                    "is_recurring" => "yes",
-                    "parent_event_id" => $oldEvent->id,
-                    "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
-                    "event_recurring_type" => $request->event_frequency,
-                    "event_interval_day" => $request->event_interval_day,
-                    "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
-                    "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
-                    "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
-                    "firm_id" => $authUser->firm_name,
-                    "created_by" => $authUser->id,
-                ]);
-                
-                $this->saveEventReminder($request->all(),$caseEvent->id); 
-                $this->saveLinkedStaffToEvent($request->all(),$caseEvent->id);                               
-                $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id);
-                $this->saveContactLeadData($request->all(),$caseEvent->id); 
-                $this->saveEventHistory($caseEvent->id);
+                    $caseEvent = Event::updateOrCreate([
+                        "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                        "start_date" => $start_date,
+                        "parent_event_id" => $oldEvent->id,
+                    ],
+                    [
+                        "event_title" => $request->event_name,
+                        "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
+                        "lead_id" => (!isset($request->no_case_link) && $request->text_lead_id!='') ? $request->text_lead_id : NULL,
+                        "event_type_id" => $request->event_type ?? NULL,
+                        "start_date" => $start_date,
+                        "end_date" => $end_date,
+                        "start_time" => ($request->start_time && !isset($request->all_day)) ? $start_time : NULL,
+                        "end_time" => ($request->end_time && !isset($request->all_day)) ? $end_time : NULL,
+                        "recurring_event_end_date" => convertDateToUTCzone(date("Y-m-d", $recurringEndDate), $authUser->user_timezone),
+                        "is_full_day" => (isset($request->all_day)) ? "yes" : "no",
+                        "event_description" => $request->description,
+                        "is_recurring" => "yes",
+                        "parent_event_id" => $oldEvent->id,
+                        "event_location_id" => ($request->case_location_list) ? $request->case_location_list : $locationID ?? NULL,
+                        "event_recurring_type" => $request->event_frequency,
+                        "event_interval_day" => $request->event_interval_day,
+                        "is_no_end_date" => (isset($request->no_end_date_checkbox) && $request->end_on) ? "yes" : "no",
+                        "end_on" => (!isset($request->no_end_date_checkbox) && $request->end_on) ? date("Y-m-d",strtotime($request->end_on)) : NULL,
+                        "is_event_private" => (isset($request->is_event_private)) ? 'yes' : 'no',
+                        "edit_recurring_pattern" => "following event",
+                        "firm_id" => $authUser->firm_name,
+                        "created_by" => $authUser->id,
+                    ]);
+                    
+                    $this->saveEventReminder($request->all(),$caseEvent->id); 
+                    $this->saveLinkedStaffToEvent($request->all(),$caseEvent->id);                               
+                    $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id);
+                    $this->saveContactLeadData($request->all(),$caseEvent->id); 
+                    $this->saveEventHistory($caseEvent->id);
+
+                    EventRecurring::where("id", ">=", $request->recurring_event_id)->where("event_id", $oldEvent->id)->delete();
+                    $period = \Carbon\CarbonPeriod::create($start_date, date("Y-m-d", $recurringEndDate));
+                    foreach($period as $date) {
+                        EventRecurring::insert([
+                            "event_id" => $caseEvent->id,
+                            "start_date" => $date,
+                            "end_date" => $date,
+                        ]);
+                    }
+                    
+                }
             }
         } elseif($request->delete_event_type=='ALL_EVENTS') {
             $CaseEvent = Event::find($request->event_id);
             if($request->event_frequency=='DAILY')
             {
-                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), auth()->user()->user_timezone);
-                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), auth()->user()->user_timezone);
+                $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
+                $end_date = convertDateToUTCzone(date("Y-m-d", $endDate), $authUser->user_timezone);
 
                 $caseEvent = $CaseEvent->fill([
                     "event_title" => $request->event_name,
@@ -4991,7 +5069,7 @@ class CaseController extends BaseController
         exit;
     }    
 
-      /* public function loadEditEventPage(Request $request)
+      public function loadEditEventPage(Request $request)
       {
 
             $evnt_id=$request->evnt_id;
@@ -5038,48 +5116,47 @@ class CaseController extends BaseController
             $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
             
             return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList'));          
-     } */
+     }
 
-    public function loadEditEventPage(Request $request)
+    public function loadEditEventPageNew(Request $request)
     {
+        $evnt_id=$request->evnt_id;
+        // $delete="DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id =".$evnt_id." AND t1.user_id = t2.user_id";
+        // DB::delete($delete); 
 
-           $evnt_id=$request->evnt_id;
-           // $delete="DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id =".$evnt_id." AND t1.user_id = t2.user_id";
-           // DB::delete($delete); 
+        $evetData=Event::find($evnt_id);
+        $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
 
-           $evetData=Event::find($evnt_id);
-           $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
+        $case_id=$evetData->case_id;
+        $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
+        // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
+        $CaseMasterData = CaseMaster::where("firm_id", auth()->user()->firm_name)->where('is_entry_done',"1")->get();
 
-           $case_id=$evetData->case_id;
-           $CaseMasterClient = User::select("first_name","last_name","id","user_level")->where('user_level',2)->where("parent_user",Auth::user()->id)->get();
-           // $CaseMasterData = CaseMaster::where('created_by',Auth::User()->id)->where('is_entry_done',"1")->get();
-           $CaseMasterData = CaseMaster::where("firm_id", auth()->user()->firm_name)->where('is_entry_done',"1")->get();
+        $country = Countries::get();
+        $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
+        $currentDateTime=$this->getCurrentDateAndTime();
+    
+        //Get event type 
+        $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
 
-           $country = Countries::get();
-           $eventLocation = CaseEventLocation::where("location_future_use","yes")->get();
-           $currentDateTime=$this->getCurrentDateAndTime();
-       
-           //Get event type 
-           $allEventType = EventType::select("title","color_code","id")->where('status',1)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->get();
+        //Event created By user name
+        $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
+    
+        $updatedEvenByUserData='';
+        if($evetData->updated_by!=NULL){
+            //Event updated By user name
+            $updatedEvenByUserData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->updated_by)->first();
+        }
+        $eventLocationAdded=[];
+        if($evetData->event_location_id!=""){
+            $eventLocationAdded = CaseEventLocation::where("id",$evetData->event_location_id)->first();
+        }
+    
+        $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
 
-           //Event created By user name
-           $userData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->created_by)->first();
-       
-           $updatedEvenByUserData='';
-           if($evetData->updated_by!=NULL){
-               //Event updated By user name
-               $updatedEvenByUserData = User::select("first_name","last_name","id","user_level")->where("id",$evetData->updated_by)->first();
-           }
-           $eventLocationAdded=[];
-           if($evetData->event_location_id!=""){
-               $eventLocationAdded = CaseEventLocation::where("id",$evetData->event_location_id)->first();
-           }
-       
-           $getEventColorCode = EventType::select("color_code","id")->where('id',$evetData->event_type)->where('firm_id',Auth::User()->firm_name)->orderBy("status_order","ASC")->pluck('color_code');
-
-           $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
-           
-           return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList'));          
+        $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
+        $recurringEvent = EventRecurring::where("id", $request->recurring_event_id)->first();
+        return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','recurringEvent'));          
     }
 
      public function loadSingleEditEventPage(Request $request)

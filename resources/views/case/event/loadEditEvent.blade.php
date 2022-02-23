@@ -19,6 +19,7 @@
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
+            <input class="form-control" value="{{ $recurringEvent->id}}" name="recurring_event_id" type="text">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
