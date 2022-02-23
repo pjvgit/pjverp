@@ -13,7 +13,7 @@ class Event extends Model
         'id', 'case_id', 'lead_id', 'parent_event_id', 'event_title', 'is_SOL', 'event_type_id', 'is_full_day', 'start_date', 'start_time', 
         'end_date', 'end_time', 'event_location_id', 'event_description', 'is_event_private', 'is_recurring', 'event_recurring_type', 'event_interval_day', 
         'day_of_week', 'day_of_month', 'month_of_year', 'is_no_end_date', 'end_on', 'is_event_read', 'recurring_event_end_date',
-        'firm_id', 'created_by', 'updated_by',
+        'firm_id', 'created_by', 'updated_by', 'edit_recurring_pattern'
     ];    
     protected $appends  = [/* 'caseuser', *//* 'etext', */'decode_id','start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
 
@@ -244,5 +244,15 @@ class Event extends Model
      */
     public function getUserEndDateAttribute(){
         return convertUTCToUserDate($this->end_date, auth()->user()->user_timezone ?? 'UTC');
+    }
+
+    /**
+     * Get all of the eventRecurring for the Event
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function eventRecurring()
+    {
+        return $this->hasMany(EventRecurring::class, 'event_id');
     }
 }
