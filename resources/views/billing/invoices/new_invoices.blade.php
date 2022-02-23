@@ -151,8 +151,8 @@ if(!isset($addition)){ $addition=0;}
                                         style="width: 350px; white-space: nowrap; vertical-align: top; padding-top: 16px;">
                                         <textarea id="bill_address_text" name="bill_address_text" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">{{@$UsersAdditionalInfo['street']}}
 {{@$UsersAdditionalInfo['address2']}}
-{{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}} 
-{{@$UsersAdditionalInfo['county_name']}}, {{@$UsersAdditionalInfo['postal_code']}}
+{{ ((@$UsersAdditionalInfo['city'] != '') ? @$UsersAdditionalInfo['city'].',' : '')}} {{@$UsersAdditionalInfo['state']}} 
+{{ ((@$UsersAdditionalInfo['county_name'] != '') ? @$UsersAdditionalInfo['county_name'].',' : '')}} {{@$UsersAdditionalInfo['postal_code']}}
 </textarea>
                                     </td>
                                     <td style="width: auto;">&nbsp;</td>

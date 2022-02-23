@@ -30,7 +30,8 @@ class ExpenseEntry extends Authenticatable
     }  
 
     public function getDateFormatNewAttribute(){
-        return date('M j, Y',strtotime($this->entry_date));
+        return date('M d, Y',strtotime($this->attributes['entry_date']));
+        // return date('M j, Y',strtotime($this->entry_date));
     }
     public function getCostValueAttribute(){
         return str_replace(",","",number_format($this->cost,2));

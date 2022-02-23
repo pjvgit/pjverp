@@ -23,8 +23,8 @@
                         echo "&nbsp;";
                         echo substr(auth()->user()->last_name,0,15);
                     }?>
-                    @if(file_exists( public_path().'/images/users/'.auth()->user()->profile_image ) && auth()->user()->profile_image!='' && auth()->user()->is_published=="yes")
-                    <img class="border" src="{{URL::asset('/images/users/')}}/{{auth()->user()->profile_image}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @if(file_exists( public_path().'/images/users/'.auth()->user()->id.'_profile.png' ) && auth()->user()->profile_image!='' && auth()->user()->is_published=="yes")
+                    <img class="border" src="{{URL::asset('/images/users/')}}/{{auth()->user()->id.'_profile.png'}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     @else
                     <img src="{{asset('assets/images/faces/default_face.svg')}}" id="userDropdown" alt=""
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
