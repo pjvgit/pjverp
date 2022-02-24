@@ -1,3 +1,10 @@
+------------------------------------ 24-FEB-2022 ------------------------------
+ALTER TABLE `events`
+ADD `event_interval_month` int(11) NULL AFTER `month_of_year`,
+ADD `event_interval_year` int(11) NULL AFTER `event_interval_month`,
+ADD `monthly_frequency` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `event_interval_year`,
+ADD `yearly_frequency` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `monthly_frequency`;
+
 ------------------------------------ 21-FEB-2022 ------------------------------
 
 ALTER TABLE `messages`
@@ -10,7 +17,7 @@ CREATE TABLE `event_recurrings` (
 ) ENGINE='InnoDB'
 ------------------------------------ 18-FEB-2022 ------------------------------
 ALTER TABLE `events`
-ADD `edit_recurring_patteren` varchar(255) NULL AFTER `firm_id`;
+ADD `edit_recurring_pattern` varchar(255) NULL AFTER `firm_id`;
 
 ALTER TABLE `messages`
 ADD `is_sent` tinyint(4) NULL DEFAULT '0' AFTER `is_draft`;

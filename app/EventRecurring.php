@@ -13,11 +13,9 @@ class EventRecurring extends Model
     protected $appends  = ['start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
     
     public function getStartTimeUserAttribute(){
-        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('h:ia',strtotime($currentConvertedDate));
         }else{
@@ -25,11 +23,9 @@ class EventRecurring extends Model
         }
     }
     public function getEndTimeUserAttribute(){
-        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
             $tm=$this->start_date . $this->end_time;
-            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('h:ia',strtotime($currentConvertedDate));
         }else{
@@ -37,11 +33,9 @@ class EventRecurring extends Model
         }
     }
     public function getStAttribute(){
-        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->start_time!=''){
             $tm=$this->start_date . $this->start_time;
-            // $currentConvertedDate= $CommonController->convertUTCToUserTime($tm,$timezone);
             $currentConvertedDate= convertUTCToUserTime($tm,$timezone);
             return date('H:i:s',strtotime($currentConvertedDate));
         }else{
@@ -49,7 +43,6 @@ class EventRecurring extends Model
         }
     }
     public function getEtAttribute(){
-        // $CommonController= new CommonController();
         $timezone=Auth::User()->user_timezone ?? 'UTC';
         if($this->end_time!=''){
             $tm=$this->end_date . $this->end_time;
@@ -64,14 +57,12 @@ class EventRecurring extends Model
         if($this->start_time!=''){
             $tm=$this->start_date.' '.$this->start_time;
             return $currentConvertedDate= convertUTCToUserTime($tm, auth()->user()->user_timezone ?? 'UTC');
-            // return date('Y-m-d H:i:s',strtotime($currentConvertedDate));
         }
     }
     public function getEndDateTimeAttribute(){
         if($this->end_time!=''){
             $tm=$this->end_date.' '.$this->end_time;
             return $currentConvertedDate= convertUTCToUserTime($tm,auth()->user()->user_timezone ?? 'UTC');
-            // return date('Y-M-d H:i:s',strtotime($currentConvertedDate));
         }
     }
 

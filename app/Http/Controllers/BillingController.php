@@ -2048,7 +2048,7 @@ class BillingController extends BaseController
                 $authUser = auth()->user();
                 if($invoiceHistories) {
                     foreach($invoiceHistories as $key => $item) {
-                        if($item->payment_from != "online" && $item->refund_ref_id == '' && $item->status == '1' && $item->deposit_into_id != '') {
+                        if(/* $item->payment_from != "online" && */ $item->refund_ref_id == '' && $item->status == '1' && $item->deposit_into_id != '') {
                             UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->increment("trust_account_balance", $item->amount);
                             $caseId = Null; $leadCaseId = Null;
                             if($item->payment_from == "trust") {
@@ -2069,9 +2069,6 @@ class BillingController extends BaseController
                             }
                             if($item->payment_from == "credit") {
                                 DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->update(["is_invoice_cancelled" => "yes"]);
-                                // UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->decrement("credit_account_balance", $item->amount);
-                                // DepositIntoCreditHistory::where("related_to_invoice_payment_id", $item->invoice_payment_id)->delete();
-                                // $this->updateNextPreviousCreditBalance($item->deposit_into_id);
                             }
                             $userAddInfo = UsersAdditionalInfo::where("user_id", $item->deposit_into_id)->first();
                             TrustHistory::create([
@@ -4544,7 +4541,7 @@ class BillingController extends BaseController
             //check case client company is list out on contacts
             Log::info("is trust trust fund applied:". session()->get('trustFundApplied'));
             $lowTrustBalanceClient = '';
-            if(session()->get('trustFundApplied') == 'yes') {
+            if(session()->get('trustFundApplied') == 'yes' && $findInvoice->is_lead_invoice == "no") {
                 $lowTrustBalanceClient = User::where('id', $findInvoice->user_id)
                         ->whereHas("userAdditionalInfo", function($query) {
                             $query->where("minimum_trust_balance", ">", 0);
@@ -4552,8 +4549,10 @@ class BillingController extends BaseController
                             $query->where('case_id', $findInvoice->case_id)->whereRaw('allocated_trust_balance < minimum_trust_balance');
                         })
                         ->with(["userAdditionalInfo"])->first();
-                if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
-                    $lowTrustBalanceClient = '';
+                if($lowTrustBalanceClient && $lowTrustBalanceClient->userAdditionalInfo) {
+                    if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
+                        $lowTrustBalanceClient = '';
+                    }
                 }
             }
 
@@ -11153,7 +11152,7 @@ class BillingController extends BaseController
             ];
         }
         $authUser = auth()->user();
-        if($request->type == 'fund') {
+        /* if($request->type == 'fund') {
             $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
             if($fundRequest && $fundRequest->status != 'paid') {
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11299,7 +11298,7 @@ class BillingController extends BaseController
                     DB::commit();
                 }
             }
-        } else {
+        } else { */
             $invoice = Invoices::whereId($request->payable_record_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
             if($invoice && !in_array($invoice->status, ['Paid','Forwarded'])) {                    
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11354,6 +11353,7 @@ class BillingController extends BaseController
                         'amount' => $payableAmount,
                         'responsible_user' => $authUser->id,
                         'payment_from' => 'online',
+                        'deposit_into_id' => $client->id,
                         'invoice_payment_id' => $InvoicePayment->id,
                         'status' => "1",
                         'online_payment_status' => $order->payment_status,
@@ -11412,7 +11412,7 @@ class BillingController extends BaseController
                     DB::commit();
                 }
             }
-        }
+        // }
     }
 
     /**
@@ -11445,7 +11445,7 @@ class BillingController extends BaseController
             'currency'    => 'MXN',
             'metadata'    => array('payment' => 'Invoice/FundRequest cash payment')
         ];
-        if($request->type == 'fundrequest') {
+        /* if($request->type == 'fundrequest') {
             $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
             if($fundRequest && $fundRequest->status != 'paid') {
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11480,7 +11480,7 @@ class BillingController extends BaseController
                 }
             }
         }
-        else {
+        else { */
             $authUser = auth()->user();
             $invoice = Invoices::whereId($request->payable_record_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
             if($invoice && !in_array($invoice->status, ['Paid','Forwarded'])) {
@@ -11536,6 +11536,7 @@ class BillingController extends BaseController
                         'amount' => $amount,
                         'responsible_user' => $authUser->id,
                         'payment_from' => 'online',
+                        'deposit_into_id' => $client->id,
                         'invoice_payment_id' => $InvoicePayment->id,
                         'status' => "0",
                         'online_payment_status' => 'pending',
@@ -11551,7 +11552,7 @@ class BillingController extends BaseController
                     DB::commit();
                 }
             }
-        }
+        // }
     }
 
     /**
@@ -11585,7 +11586,7 @@ class BillingController extends BaseController
             'currency'    => 'MXN',
             'metadata'    => array('payment' => 'Invoice/FundRequest bank payment')
         ];
-        if($request->type == 'fundrequest') {
+        /* if($request->type == 'fundrequest') {
             $fundRequest = RequestedFund::whereId($request->payable_record_id)->where('status', '!=', 'paid')->first();
             if($fundRequest && $fundRequest->status != 'paid') {
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11620,7 +11621,7 @@ class BillingController extends BaseController
                 }
             }
         }
-        else {
+        else { */
             $invoice = Invoices::whereId($request->payable_record_id)->whereNotIn('status', ['Paid','Forwarded'])->first();
             if($invoice && !in_array($invoice->status, ['Paid','Forwarded'])) {
                 $order = \Conekta\Order::create($validOrderWithCharge);
@@ -11670,6 +11671,7 @@ class BillingController extends BaseController
                         'amount' => $amount,
                         'responsible_user' => $authUser->id,
                         'payment_from' => 'online',
+                        'deposit_into_id' => $client->id,
                         'invoice_payment_id' => $InvoicePayment->id,
                         'status' => "0",
                         'online_payment_status' => 'pending',
@@ -11684,7 +11686,7 @@ class BillingController extends BaseController
                     DB::commit();
                 }
             }
-        }
+        // }
     }
 
     /**

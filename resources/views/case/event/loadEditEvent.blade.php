@@ -19,7 +19,7 @@
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
             <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
-            <input class="form-control" value="{{ $recurringEvent->id}}" name="recurring_event_id" type="text">
+            <input class="form-control" value="{{ $recurringEvent->id}}" name="recurring_event_id" type="hidden">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -125,7 +125,7 @@
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
                                     {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($recurringEvent->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -150,7 +150,7 @@
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
                                     {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($recurringEvent->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
@@ -268,7 +268,7 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('n/j/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('m/d/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->is_no_end_date=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>

@@ -183,11 +183,84 @@ if(isset($_GET['upcoming_events'])){
                                         <i class="table-cell-placeholder mt-3"></i>
                                     @endif
                                 </td>
-                                <td>
-                                    <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event->id}}, {{$item->id}});">
+                                {{-- <td>
+                                    <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
                                         <i class="fas fa-pen pr-2  align-middle"></i>
                                     </a>
+                                </td> --}}
+                                @if($item->event->is_SOL=='yes')
+                                <td class="event-users">
+                                    <a class="align-items-center" data-toggle="modal" data-target="#addCaseReminderPopup" 
+                                    data-placement="bottom" href="javascript:;" 
+                                    onclick="addCaseReminder({{$item->event->case_id}});"> 
+                                    <i class="fas fa-bell pr-2 align-middle"></i>
+                                    </a>
                                 </td>
+                                @else
+                                <td class="event-users">
+                                    @if($item->event->is_event_private=='no')
+                                    <div class="mt-3 float-right">
+                                        @if($isAuthUserLinked || auth()->user()->parent_user == 0)
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopupIndex"
+                                        data-placement="bottom" href="javascript:;"
+                                        onclick="loadReminderPopupIndex({{$item->id}});">
+                                        <i class="fas fa-bell pr-2 align-middle"></i>
+                                        </a>
+
+                                        @canany(['commenting_add_edit', 'commenting_view'])
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
+                                        data-placement="bottom" href="javascript:;"
+                                        onclick="loadEventComment({{$item->id}});">
+                                        @php
+                                            $commentCount = 0;
+                                            if(count($item->event->eventLinkedStaff)) {
+                                                $lastReadAt = $item->event->eventLinkedStaff()->wherePivot('user_id', auth()->id())->first();
+                                                if($lastReadAt)
+                                                    $commentCount = $item->event->eventComments->where("created_at", ">=", $lastReadAt->pivot->comment_read_at)->count();
+                                            }
+                                        @endphp
+                                        <i class="fas fa-comment-alt @if(!$commentCount) pr-2 @endif"></i>
+                                        @if($commentCount)
+                                        <span class="badge badge-danger comment-count">{{ $commentCount }}</span>
+                                        @endif
+                                        </a>
+                                        @endcanany
+                                        @can('event_add_edit')
+                                        <?php 
+                                        if($item->parent_evnt_id=="0"){
+                                            ?>
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                                        data-placement="bottom" href="javascript:;"
+                                        onclick="editSingleEventFunction({{$item->id}});">
+                                        <i class="fas fa-pen pr-2  align-middle"></i> </a>
+                                        <?php }else{?>
+                                            <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
+                                            data-placement="bottom" href="javascript:;"
+                                            onclick="editEventFunction({{$item->event_id}}, {{$item->id}});">
+                                            <i class="fas fa-pen pr-2  align-middle"></i> </a>
+                                        <?php } ?>
+                                        @endcan
+                                        @can(['case_add_edit','delete_items'])
+                                        <?php 
+                                        if($item->parent_evnt_id=="0"){
+                                            ?>
+                                            <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                                            data-placement="bottom" href="javascript:;"
+                                            onclick="deleteEventFunction({{$item->id}},'single');">
+                                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                                            <?php
+                                        }else{?>
+                                        <a class="align-items-center" data-toggle="modal" data-target="#deleteEvent"
+                                            data-placement="bottom" href="javascript:;"
+                                            onclick="deleteEventFunction({{$item->id}},'multiple');">
+                                            <i class="fas fa-trash pr-2  align-middle"></i> </a>
+                                        <?php } ?>
+                                        @endcan
+                                        @endif
+                                    </div>
+                                    @endif
+                                </td>
+                                @endif
                             </tr>
                         @empty
                         @endforelse
