@@ -1072,7 +1072,8 @@ class TaskController extends BaseController
             $TaskTimeEntry->time_entry_billable="yes";
         }
         $TaskTimeEntry->description=$request->case_description;
-        $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        // $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
         $TaskTimeEntry->rate_type=$request->rate_type_field_id;
         $TaskTimeEntry->duration =$request->duration_field;
@@ -1133,9 +1134,9 @@ class TaskController extends BaseController
     }else{
         
         foreach($request->case_or_lead as $i=>$v){
-            \Log::info('index >'.$i);            
+            // \Log::info('index >'.$i);            
             if($request->case_or_lead[$i]!='' && $request->activity[$i]!='' && $request->duration[$i]!=''){
-                \Log::info('1123 >'.$request->case_or_lead[$i]);
+                // \Log::info('1123 >'.$request->case_or_lead[$i]);
                 $TaskTimeEntry = new TaskTimeEntry; 
                 $TaskTimeEntry->task_id=$request->task_id;
                 $TaskTimeEntry->case_id =$request->case_or_lead[$i];
@@ -1146,14 +1147,15 @@ class TaskController extends BaseController
                     $TaskTimeEntry->time_entry_billable="yes";
                 }
                 $TaskTimeEntry->description=$request->description[$i];
-                $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                // $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
                                 
                 $TaskTimeEntry->entry_rate=$request->defaultrate[$i] ?? 0.00;
                 $TaskTimeEntry->rate_type='hr';
                 $TaskTimeEntry->duration =$request->duration[$i];
                 $TaskTimeEntry->created_by=Auth::User()->id; 
                 $TaskTimeEntry->save();
-                \Log::info('TaskTimeEntry >'.$TaskTimeEntry->id);
+                // \Log::info('TaskTimeEntry >'.$TaskTimeEntry->id);
                     
                 //Add time entory history
                 $data=[];

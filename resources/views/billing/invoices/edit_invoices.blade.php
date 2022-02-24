@@ -142,11 +142,9 @@ $expenseTime=0;$expenseAmount=0;
                                         Address</td>
                                     <td rowspan="4"
                                         style="width: 350px; white-space: nowrap; vertical-align: top; padding-top: 16px;">
-                                        <textarea readonly="readonly" id="bill_address_text" name="bill_address_text" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">{{@$UsersAdditionalInfo['street']}}
-{{@$UsersAdditionalInfo['address2']}}
-{{@$UsersAdditionalInfo['city']}}, {{@$UsersAdditionalInfo['state']}}
-{{@$UsersAdditionalInfo['county_name']}},  {{@$UsersAdditionalInfo['postal_code']}}
-</textarea>
+                                        <textarea readonly="readonly" id="bill_address_text" name="bill_address_text" class="form-control"style="width: 70%; height: 104px; resize: none; overflow-y: hidden;">
+                                        {{$findInvoice->bill_address_text}}       
+                                        </textarea>
                                     </td>
                                     <td style="width: auto;">&nbsp;</td>
                                     <td style="width: 120px; text-align: right; padding-right: 5px;">

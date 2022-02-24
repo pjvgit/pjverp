@@ -1052,7 +1052,8 @@ if(isset($_GET['task_read'])){
             allowClear: true,
         });
         $('#duedate').datepicker({
-
+            'todayBtn': "linked",
+            'todayHighlight': true,
             onSelect: function (dateText, inst) {
                 $("#addMoreReminder").show();
             },
@@ -1110,21 +1111,14 @@ if(isset($_GET['task_read'])){
         $('.task_checkbox').change(function () { //".checkbox" change 
             if ($('.task_checkbox:checked').length == $('.task_checkbox').length) {
                 $('#checkall').prop('checked', true);
-
-
             } else {
                 $('#checkall').prop('checked', false);
-
-
                 // $('#actionbutton').attr('data-toggle', '');
-
             }
             if ($('.task_checkbox:checked').length == "0") {
                 $('#actionbutton').attr('disabled', 'disabled');
-
             } else {
                 $('#actionbutton').removeAttr('disabled');
-
             }
         });
         $('#actionbutton').attr('disabled', 'disabled');

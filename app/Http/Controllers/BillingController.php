@@ -310,7 +310,7 @@ class BillingController extends BaseController
             $TaskTimeEntry->time_entry_billable="no";
         }
         $TaskTimeEntry->description=$request->case_description;
-        $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
         $TaskTimeEntry->rate_type=$request->rate_type_field_id;
         $TaskTimeEntry->duration =$request->duration_field;
@@ -598,7 +598,8 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        // $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
@@ -658,7 +659,8 @@ class BillingController extends BaseController
                             $ExpenseEntry->time_entry_billable="no";
                         }
                         $ExpenseEntry->description=$request->description[$i];
-                        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                        // $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+                        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
                         $ExpenseEntry->cost=$request->cost[$i];
                         $ExpenseEntry->duration =$request->duration[$i];
                         $ExpenseEntry->created_at=date('Y-m-d h:i:s'); 
@@ -862,7 +864,8 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        // $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 
@@ -2300,20 +2303,22 @@ class BillingController extends BaseController
         $arrData = [];
         $contactGroup = [];
         foreach ($Invoices as $k=>$v){
-            if($v->setup_billing =="yes"){
-                array_push($contactGroup,$v->contact_name);
-                if(in_array($v->contact_name,$contactGroup))
-                {
-                    $arrData[$v->contact_name.'_'.$v->selected_user][$k] = $v;            
-                }
-            }else{
-                array_push($contactGroup,"");            
-                if(in_array("",$contactGroup))
-                {
-                    $arrData["No Billing Contact"][$k] = $v;            
+            // \Log::info("uninvoiced_balance > ". $v->uninvoiced_balance);
+            if(str_replace("$","",$v->uninvoiced_balance) >= 0.10){
+                if($v->setup_billing =="yes"){
+                    array_push($contactGroup,$v->contact_name);
+                    if(in_array($v->contact_name,$contactGroup))
+                    {
+                        $arrData[$v->contact_name.'_'.$v->selected_user][$k] = $v;            
+                    }
+                }else{
+                    array_push($contactGroup,"");            
+                    if(in_array("",$contactGroup))
+                    {
+                        $arrData["No Billing Contact"][$k] = $v;            
+                    }
                 }
             }
-                        
         }
         $arrData = array_map('array_values', $arrData);
 
@@ -3173,7 +3178,8 @@ class BillingController extends BaseController
                 $TaskTimeEntry->time_entry_billable="no";
             }
             $TaskTimeEntry->description=$request->case_description;
-            $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            // $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
@@ -3346,7 +3352,8 @@ class BillingController extends BaseController
                 $TaskTimeEntry->time_entry_billable="no";
             }
             $TaskTimeEntry->description=$request->case_description;
-            $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            // $TaskTimeEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+            $TaskTimeEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
             $TaskTimeEntry->entry_rate=str_replace(",","",$request->rate_field_id);
             $TaskTimeEntry->rate_type=$request->rate_type_field_id;
             $TaskTimeEntry->duration =$request->duration_field;
@@ -3501,7 +3508,8 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        // $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->token_id=9999999; 
@@ -3659,7 +3667,8 @@ class BillingController extends BaseController
             $ExpenseEntry->time_entry_billable="no";
         }
         $ExpenseEntry->description=$request->case_description;
-        $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        // $ExpenseEntry->entry_date=convertDateToUTCzone(date("Y-m-d", strtotime(date('Y-m-d',strtotime($request->start_date)))), auth()->user()->user_timezone ?? 'UTC'); 
+        $ExpenseEntry->entry_date=date('Y-m-d',strtotime($request->start_date)); 
         $ExpenseEntry->cost=str_replace(",","",$request->rate_field_id);
         $ExpenseEntry->duration =$request->duration_field;
         $ExpenseEntry->updated_at=date('Y-m-d h:i:s'); 

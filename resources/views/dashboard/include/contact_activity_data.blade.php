@@ -62,7 +62,7 @@
                     if($v->deleteCase  == NULL){?>
                     |       <a class="name" href="{{ route('info',$v->case_unique_number) }}">{{$v->case_title}}</a>                    
                     <?php }else{ ?>
-                    {{$v->case_title}}
+                    | {{$v->case_title}}
                 <?php }  ?>
                 <?php } ?>
             </div>

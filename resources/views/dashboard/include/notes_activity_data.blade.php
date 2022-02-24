@@ -19,11 +19,11 @@
                 @else
                     {{$v->case_title}}
                 @endif 
-                <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web |
+                <abbr class="timeago" title="{{$v->all_history_created_at}}">about {{$v->time_ago}}</abbr> via web 
                 @if($v->notes_for != NULL && $v->deleteCase == NULL && $v->case_unique_number != NULL)
-                <a class="name" href="{{ route('info', $v->case_unique_number) }}"><?php echo $v->notes_for['case_title'];?></a>
+                | <a class="name" href="{{ route('info', $v->case_unique_number) }}"><?php echo $v->notes_for['case_title'];?></a>
                 @else
-                    {{$v->case_title}}
+                {{($v->case_title != NULL) ? '|'.$v->case_title : ''}}
                 @endif                 
             @endif
 
