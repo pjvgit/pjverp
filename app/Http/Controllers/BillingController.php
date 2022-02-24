@@ -1735,7 +1735,7 @@ class BillingController extends BaseController
                 $this->updateClientPaymentActivity($request, $InvoiceData);
 
                 // Check trust balance is running low or not
-                if($request->trust_account == $InvoiceData['user_id']) {
+                if($request->trust_account == $InvoiceData['user_id'] && $InvoiceData->is_lead_invoice == "no") {
                     $lowTrustBalanceClient = User::where('id', $InvoiceData->user_id)
                         ->whereHas("userAdditionalInfo", function($query) {
                             $query->where("minimum_trust_balance", ">", 0);
@@ -1743,8 +1743,10 @@ class BillingController extends BaseController
                             $query->where('case_id', $InvoiceData['case_id'])->whereRaw('allocated_trust_balance < minimum_trust_balance');
                         })
                         ->with(["userAdditionalInfo", ])->first();
-                    if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
-                        $lowTrustBalanceClient = '';
+                    if($lowTrustBalanceClient && $lowTrustBalanceClient->userAdditionalInfo) {
+                        if($lowTrustBalanceClient->userAdditionalInfo->unallocate_trust_balance >= $lowTrustBalanceClient->userAdditionalInfo->minimum_trust_balance ) {
+                            $lowTrustBalanceClient = '';
+                        }
                     }
                 }
                 
