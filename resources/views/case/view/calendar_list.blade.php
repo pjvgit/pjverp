@@ -79,7 +79,29 @@ if(isset($_GET['upcoming_events'])){
                                     }
                                 @endphp
                                 <tr>
-                                    <td>{{ $date->format('d-M') }}</td>
+                                    <td class="event-date-and-time  c-pointer" style="width: 50px;">
+                                        @if(isset($oDate) && $date==$oDate)
+                                        @else
+                                            @php
+                                                $dateandMonth= $date->format('M');
+                                                $dateOfEvent = $date->format('d'); 
+                                                $oDate = $date;
+                                            @endphp
+                                            <div class="d-flex">
+                                                <div style="width: 45px;">
+                                                    <div
+                                                        class="col-12 p-0 text-center text-white bg-dark font-weight-bold rounded-top">
+                                                        <?php echo $dateOfEvent; ?></div>
+                                                    <div class="col-12 p-0 text-center rounded-bottom"
+                                                        style="background-color: rgb(237, 237, 235); color: rgb(70, 74, 76);">
+                                                        <h4 class="py-1 m-0 font-weight-bold">
+                                                            {{$dateandMonth}}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="ml-2 mt-3">
                                         @php
@@ -94,10 +116,91 @@ if(isset($_GET['upcoming_events'])){
                                         </div>
                                     </td>
                                     <td>{{ $event->event_title }}</td>
-                                    <td>{{ $event->eventType->title }}</td>
-                                    <td></td>
+                                    @php
+                                    $authUser = auth()->user();
+                                    $isAuthUserLinked = $event->eventLinkedStaff->where('users.id', $authUser->id)->first();
+                                    @endphp
+                                    <td class="c-pointer">
+                                        @if(!empty($event->eventType) && ($isAuthUserLinked || $authUser->parent_user == 0))
+                                        <div class="d-flex align-items-center mt-3">
+                                            <div class="mr-1"
+                                                style="width: 15px; height: 15px; border-radius: 30%; background-color: {{ @$event->eventType->color_code }}">
+                                            </div><span>{{ @$event->eventType->title }}</span>
+                                        </div>
+                                        @else
+                                        <i class="table-cell-placeholder mt-3"></i>
+                                        @endif
+                                    </td>
+                                    <td class="event-users">
+                                        @if(!empty($event->eventLinkedStaff) && ($isAuthUserLinked || $authUser->parent_user == 0))
+                                            @php
+                                                $totalUser = count($event->eventLinkedStaff) + count($event->eventLinkedContact) + count($event->eventLinkedLead);    
+                                            @endphp
+                                            @if($totalUser > 1)
+                                                @php
+                                                $userListHtml = "<table><tbody>";
+                                                $userListHtml.="<tr><td colspan='2'><b>Staff</b></td></tr>";
+                                                foreach($event->eventLinkedStaff as $linkuserValue){
+                                                    $userListHtml.="<tr><td>
+                                                    <span> 
+                                                        <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                        <a href=".url('contacts/attorneys/'.$linkuserValue->decode_id)."> ".$linkuserValue->full_name."</a>
+                                                    </span>
+                                                    </td>";
+                                                    if($linkuserValue->pivot->attending == "yes") {
+                                                        $userListHtml .= "<td>Attending</td></tr>";
+                                                    } else {
+                                                        $userListHtml .= "<td></td></tr>";
+                                                    }
+                                                }
+                                                if(count($event->eventLinkedContact)) {
+                                                    $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                                                    foreach($event->eventLinkedContact as $linkuserValue){
+                                                        $userListHtml.="<tr><td>
+                                                        <span> 
+                                                            <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                            <a href=".(($linkuserValue->user_level == 4) ? route('contacts/companies/view', $linkuserValue->id) : route('contacts/clients/view', $linkuserValue->id))."> ".$linkuserValue->full_name."</a>
+                                                        </span>
+                                                        </td>";
+                                                        if($linkuserValue->pivot->attending == "yes") {
+                                                            $userListHtml .= "<td>Attending</td></tr>";
+                                                        } else {
+                                                            $userListHtml .= "<td></td></tr>";
+                                                        }
+                                                    }
+                                                }
+                                                if(count($event->eventLinkedLead)) {
+                                                    $userListHtml.="<tr><td colspan='2'><b>Contacts/Leads</b></td></tr>";
+                                                    foreach($event->eventLinkedLead as $linkuserValue){
+                                                        $userListHtml.="<tr><td>
+                                                        <span> 
+                                                            <i class='fas fa-2x fa-user-circle text-black-50 pb-2'></i>
+                                                            <a href=".route('case_details/info', $linkuserValue->id)."> ".$linkuserValue->full_name."</a>
+                                                        </span>
+                                                        </td>";
+                                                        if($linkuserValue->pivot->attending == "yes") {
+                                                            $userListHtml .= "<td>Attending</td></tr>";
+                                                        } else {
+                                                            $userListHtml .= "<td></td></tr>";
+                                                        }
+                                                    }
+                                                }
+                                                $userListHtml .= "</tbody></table>";
+                                                @endphp
+                                                <a class="mt-3 event-name d-flex align-items-center pop" tabindex="0" role="button"
+                                                href="javascript:;" data-toggle="popover" title=""
+                                                data-content="{{$userListHtml}}" data-html="true" {{-- data-original-title="Staff" --}}
+                                                style="float:left;">{{ $totalUser ?? 0 }} People</a>
+                                            @else
+                                                <a class="mt-3 event-name d-flex align-items-center" tabindex="0" role="button"
+                                                href="{{ route('contacts/attorneys/info', base64_encode(@$event->eventLinkedStaff[0]->id)) }}">{{ @$event->eventLinkedStaff[0]->full_name}}</a>
+                                            @endif
+                                        @else
+                                            <i class="table-cell-placeholder mt-3"></i>
+                                        @endif
+                                    </td>
                                     <td>
-                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$event->id}});">
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup" data-placement="bottom" href="javascript:;" onclick="editEventFunction({{$event->id}}, '{{$date->format('Y-m-d')}}', '{{$date->format('Y-m-d')}}');">
                                             <i class="fas fa-pen pr-2  align-middle"></i>
                                         </a>
                                     </td>
@@ -340,7 +443,7 @@ if(isset($_GET['upcoming_events'])){
             })
         })
     }
-    function editEventFunction(evnt_id) {
+    function editEventFunction(evnt_id, start_date, end_date) {
         $("#preloader").show();
         $(function () {
             $.ajax({
@@ -348,7 +451,9 @@ if(isset($_GET['upcoming_events'])){
                 url: baseUrl + "/court_cases/loadEditEventPage", // json datasource
                 data: {
                     "evnt_id":evnt_id,
-                    "from":"edit"
+                    "from":"edit",
+                    'start_date': start_date,
+                    'end_date': end_date,
                 },
                 success: function (res) {
                     $("#loadCommentPopup").modal('hide');

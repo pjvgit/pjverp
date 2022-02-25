@@ -408,4 +408,9 @@
         }
         return array;
     }
+
+function MarkAsChanged(){
+    $(this).addClass("changed");
+}
+$(":checkbox").change(MarkAsChanged).change(MarkAsChanged);
 </script>

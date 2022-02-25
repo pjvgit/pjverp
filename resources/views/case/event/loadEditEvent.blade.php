@@ -17,9 +17,10 @@
         
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
-            <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
+            <input class="form-control changed" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
             @csrf
-            <input class="form-control" value="{{ $recurringEvent->id}}" name="recurring_event_id" type="hidden">
+            <input class="form-control" value="{{ $evetData->id}}" name="recurring_event_id" type="hidden">
+            <input class="form-control" value="{{ $evetData->id}}" name="is_reminder_changed" type="text">
             <div id="firstStep">
                 <div class="row">
                     <div class="col-8">
@@ -124,15 +125,14 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($convertedStartDateTime))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($recurringEvent->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php 
                                     $time=date('H:i',strtotime($currentDateTime));
                                     $new_time= date('H:i', strtotime($time.'+1 hour')); ?>
-                                    {{-- <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($convertedStartDateTime))}}" name="start_time" type="text" placeholder=""> --}}
                                     <input class="form-control  input-time input-start" id="start_time" value="{{date('h:i A',strtotime($evetData->start_date_time))}}" name="start_time" type="text" placeholder="">
 
                                 </div>
@@ -149,19 +149,18 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($convertedEndDateTime))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($recurringEvent->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
+                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
-                                    {{-- <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($convertedEndDateTime))}}" name="end_time" type="text" placeholder=""> --}}
                                     <input class="form-control  input-time input-end" id="end_time" value="{{date('h:i A',strtotime($evetData->end_date_time))}}" name="end_time" type="text" placeholder="">
                                 </div>
                                 
                             </div>
                             </span>
                         <div class="form-group row" id="repeat_dropdown">
-                            <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
+                            <label for="inputEmail3" class="col-sm-2 col-form-label">Frequency</label>
                             <div class="col-md-3 form-group mb-3">
                                 <select onchange="selectType()" id="event-frequency" name="event_frequency"
                                     class="form-control custom-select  ">
@@ -1165,4 +1164,13 @@
         // for week
         $("#event-frequency option[value='WEEKLY']").text("Weekly on "+getWeekdays(date));
     }
+
+function MarkAsChanged(){
+    $(this).addClass("changed");
+}
+$(":input").blur(MarkAsChanged).change(MarkAsChanged);
+$(":select").change(MarkAsChanged).change(MarkAsChanged);
+$(":checkbox").change(MarkAsChanged).change(MarkAsChanged);
+
+
 </script>
