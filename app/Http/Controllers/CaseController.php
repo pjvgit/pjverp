@@ -1072,11 +1072,11 @@ class CaseController extends BaseController
                 // ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 // ->get();
 
-                $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
-                                $query->where('case_id', $case_id);
-                            })->orderBy("start_date", "ASC")
-                            ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
-                // $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
+                // $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
+                //                 $query->where('case_id', $case_id);
+                //             })->orderBy("start_date", "ASC")
+                //             ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
+                $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
             } */
 
             if(\Route::current()->getName()=="recent_activity"){
@@ -4979,7 +4979,7 @@ class CaseController extends BaseController
                 $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id);
                 $this->saveContactLeadData($request->all(),$caseEvent->id); 
                 $this->saveEventHistory($caseEvent->id);
-            } else /* if($caseEvent && $caseEvent->is_recurring == 'no' && isset($request->recuring_event)) */ {
+            } else if($caseEvent && $caseEvent->is_recurring == 'no' && isset($request->recuring_event)) {
                 $caseEvent->fill([
                     "event_title" => $request->event_name,
                     "case_id" => (!isset($request->no_case_link) && $request->text_case_id!='') ? $request->text_case_id : NULL,
@@ -5089,6 +5089,7 @@ class CaseController extends BaseController
                 $this->saveContactLeadData($request->all(),$caseEvent->id);
             }
         } elseif($request->delete_event_type=='THIS_AND_FOLLOWING_EVENTS') {
+            $caseEvent = Event::find($request->event_id);
             if($request->event_frequency=='DAILY')
             { 
                 $start_date = convertDateToUTCzone(date("Y-m-d", $startDate), $authUser->user_timezone);
@@ -5188,7 +5189,7 @@ class CaseController extends BaseController
         
         return response()->json(['errors'=>'']);
         exit;
-    }    
+    }
 
       public function loadEditEventPage(Request $request)
       {
@@ -5277,7 +5278,9 @@ class CaseController extends BaseController
 
         $caseLeadList = LeadAdditionalInfo::join('users','lead_additional_info.user_id','=','users.id')->select("first_name","last_name","users.id","user_level")->where("users.user_type","5")->where("users.user_level","5")->where("parent_user",Auth::user()->id)->where("lead_additional_info.is_converted","no")->get();
         $recurringEvent = EventRecurring::where("id", $request->recurring_event_id)->first();
-        return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','recurringEvent'));          
+        $startDate = convertUTCToUserDate($request->start_date, auth()->user()->user_timezone ?? 'UTC');
+        $endDate = convertUTCToUserDate($request->end_date, auth()->user()->user_timezone ?? 'UTC');
+        return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList','recurringEvent','startDate','endDate'));          
     }
 
      public function loadSingleEditEventPage(Request $request)
