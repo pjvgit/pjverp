@@ -690,7 +690,9 @@
                                             <span class="sr-only">View Case</span>
                                         </a>
                                         <?php   
-                                    }
+                                    }else{ ?>
+                                        <span style="padding-left: 40px;"></span>
+                                    <?php }
                                     ?>
 
                                         <?php 

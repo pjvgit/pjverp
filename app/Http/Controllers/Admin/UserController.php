@@ -30,7 +30,7 @@ class UserController extends Controller {
             return view('admin_panel.staff.checkstaffList',compact('userProfiles'));        
         }else{            
             if(count($userProfiles) == 1){
-                $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where created_by = ".$userProfiles[0]->parent_user.") as firmCaseCount from users where firm_name = ".$userProfiles[0]->firm_name." and user_level in ('3','1')");
+                $userData = DB::select("select count(*) as staffCount, (select count(*) from case_master where firm_id = ".$userProfiles[0]->firm_name." and is_entry_done = '1' and deleted_at IS NULL) as firmCaseCount from users where firm_name = ".$userProfiles[0]->firm_name." and user_level in ('3','1')");
                 $userPermissions = $userProfiles[0]->getPermissionNames()->toArray();
                 $userProfile = $userProfiles[0];
             }
@@ -48,7 +48,7 @@ class UserController extends Controller {
         // select * from case_master where created_by = 31
         // select * from case_master where created_by = 31
         if(!empty($userProfile)){
-            $userData = DB::select("select count(*) as staffCount,(select count(*) from case_master where firm_id = ".$userProfile->firm_name.") as firmCaseCount from users where firm_name = ".$userProfile->firm_name." and user_level in ('3','1')");
+            $userData = DB::select("select count(*) as staffCount,(select count(*) from case_master where firm_id = ".$userProfile->firm_name." and is_entry_done = '1' and deleted_at IS NULL) as firmCaseCount from users where firm_name = ".$userProfile->firm_name." and user_level in ('3','1')");
             $userPermissions = $userProfile->getPermissionNames()->toArray();                
         }
         // dd($userData);
@@ -286,7 +286,7 @@ class UserController extends Controller {
         ->make(true);
     }
     
-    public function reactivateStaff(Request $request){        
+    public function reactivateStaff(Request $request){  
         $user_id = $request->user_id;
         $user =User::find($user_id);
         $user->user_status="1";
@@ -423,7 +423,7 @@ class UserController extends Controller {
             File::makeDirectory($folderPath, 0777, true, true);    
         }
         
-        $user = User::select("users.id","users.email","users.firm_name","users.created_at",DB::raw('(select count(*) from case_master where firm_id = users.firm_name) as firmCaseCount'));
+        $user = User::select("users.id","users.email","users.firm_name","users.created_at",DB::raw('(select count(*) from case_master where firm_id = users.firm_name and is_entry_done = "1" and deleted_at IS NULL) as firmCaseCount'));
         $user = $user->whereIn("user_level",['1','3']); //Show firm staff only
         $user = $user->groupBy('users.id','users.firm_name');
         $user = $user->with('firmDetail','caseStaff');
@@ -434,7 +434,7 @@ class UserController extends Controller {
         $casesCsvData[]="Email|Sign up|Staff Cases|Firm Name|Firm's cases";
                 
         foreach($user as $k =>$v){
-            $casesCsvData[]=$v->email."|".$v->created_date_new."|".count($v->caseStaff)."|".$v->firmDetail->firm_name."|".$v->firmCaseCount;
+            $casesCsvData[]=$v->email."|".$v->created_date_new."|".count($v->caseStaff)."|".(($v->firmDetail != null) ? $v->firmDetail->firm_name : '')."|".$v->firmCaseCount;
         }
 
         $file_path =  $folderPath.'/admin_allstaff_reports.csv';  

@@ -957,7 +957,8 @@ class ClientdashboardController extends BaseController
             ->editColumn('payment_date', function ($data) {
                 // return $data->payment_date ?? "--";
                 if($data->payment_date) {
-                    $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone ?? 'UTC');
+                    // $pDate = @convertUTCToUserDate(@$data->payment_date, auth()->user()->user_timezone ?? 'UTC');
+                    $pDate = @$data->payment_date;
                     if ($pDate->isToday()) {
                         return "Today";
                     } else if($pDate->isYesterday()) {

@@ -641,7 +641,11 @@
 
 
     $('#loadAddTaskPopup').on('hidden.bs.modal', function () {
-        window.location.reload();
+        if(localStorage.getItem('loadGrantAccessModal') == 'hide'){
+            localStorage.setItem('loadGrantAccessModal', '')
+        }else{
+            window.location.reload();
+        }        
     });
 </script>
 

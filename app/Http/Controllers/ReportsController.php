@@ -70,11 +70,14 @@ class ReportsController extends BaseController
             if($case_id != ''){
                 $Invoices = $Invoices->where("invoices.case_id",$case_id);
             }
+
             if($staff_id != '' && $staff_id != 'all'){
                 $Invoices = $Invoices->leftJoin("case_staff","case_staff.case_id","=","case_master.id");
                 $Invoices = $Invoices->whereNull("case_staff.deleted_at");
                 $Invoices = $Invoices->where("case_staff.lead_attorney",$staff_id);
             }
+            $Invoices = $Invoices->where("invoices.due_amount" ,'>', 0);
+            $Invoices = $Invoices->whereNotNull("invoices.case_id");
             $Invoices = $Invoices->orderBy('invoices.id', 'desc');
             $Invoices = $Invoices->get();   
             

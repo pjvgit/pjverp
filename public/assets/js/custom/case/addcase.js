@@ -270,7 +270,9 @@ function backStep3() {
     return false;
 }
 
-function AddContactModal() {
+function AddContactModal(action) {
+    
+    var action = (action != '') ?  'loadStep1' : { action : 'add_case_with_billing'}
     $("#innerLoader").css('display', 'none');
     $("#preloader").show();
     $("#step-1-again").html('');
@@ -280,7 +282,7 @@ function AddContactModal() {
             // url:  baseUrl +"/contacts/loadAddContactFromCase", // json datasource
             url:  baseUrl +"/contacts/loadAddContact", // json datasource
             // data: 'loadStep1',
-            data: { action : 'add_case_with_billing'},
+            data: action,
             success: function (res) {
                 $("#step-1-again").html(res);
                 $("#preloader").hide();

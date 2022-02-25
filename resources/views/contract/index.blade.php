@@ -216,7 +216,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="fals
                 }else{
                     $('td:eq(7)', nRow).html('<div class="text-center">'+aData.lastloginnewformate+'</div>');
                 }
-                if (aData.user_status == 1) {
+                if (aData.user_status == 1 || aData.user_status == 2) {
                     $('td:eq(8)', nRow).html('<div class="text-center">Active</div>');
                 } else {
                     $('td:eq(8)', nRow).html('<div class="text-center">Inactive</div>');

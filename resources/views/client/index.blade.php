@@ -40,7 +40,7 @@ if(isset($_GET['target']) && $_GET['target']=="archived" ){
                         </a>
                         @can('client_add_edit')
                         <div class="ml-auto d-flex align-items-center d-print-none">
-                            <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactModal();">Add Contact</button></a>
+                            <a data-toggle="modal"  data-target="#AddContactModal" data-placement="bottom" href="javascript:;" > <button class="btn btn-primary btn-rounded m-1" type="button" onclick="AddContactModal('loadstep1');">Add Contact</button></a>
                         </div>
                         @endcan
                     </div>

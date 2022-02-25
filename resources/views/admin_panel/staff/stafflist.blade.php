@@ -154,7 +154,7 @@
         $(".staff_id").val(staff_id);
         $("#reactivateUser").modal('show');
         
-        reactivateStaff(staff_id);
+        // reactivateStaff(staff_id);
     });
     $('body').on('click', '.deactivate-user', function() {
         var staff_id = $(this).attr('staff_id');
@@ -186,6 +186,7 @@
 
     function reactivateStaff(staff_id) {
         $("#preloader").show();
+        var staff_id = $(".staff_id").val();
         var url = "{{ route('admin/reactivateStaff') }}";
         $(function () {
             $.ajax({

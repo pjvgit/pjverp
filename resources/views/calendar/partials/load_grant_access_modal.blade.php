@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Sharing with a client asdasd</h5>
-                <button class="close dismissLoadGrantAccessModal" type="button" aria-label="Close">
+                <button class="close dismissLoadGrantAccessModal"  type="button" aria-label="Close">
                     <span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -20,6 +20,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('.dismissLoadGrantAccessModal').on('click', function() {
+            localStorage.setItem('loadGrantAccessModal', "hide");
             $('#loadGrantAccessModal').modal('hide');
         });
     });

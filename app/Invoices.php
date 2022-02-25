@@ -28,7 +28,7 @@ class Invoices extends Model
 
     public function getDaysAgingAttribute(){
         if($this->due_date != null){
-            $date = \Carbon\Carbon::parse($this->invoice_date);
+            $date = \Carbon\Carbon::parse($this->due_date);
             $now = \Carbon\Carbon::now();
             return $date->diffInDays($now);
         }else{
