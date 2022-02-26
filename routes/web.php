@@ -514,8 +514,8 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
      //Calender Module
     Route::middleware(['permission:event_add_edit|event_view'])->group(function () {
     //  Route::get('events/', 'CalendarController@index')->name('events/');
-    //  Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
-    //  Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
+     Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
+     Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
      
      Route::get('item_categories', 'CalendarController@item_categories')->name('item_categorie/');
      Route::post('loadEventCalendar/load', 'CalendarController@loadEventCalendar')->name('loadEventCalendar/load');
