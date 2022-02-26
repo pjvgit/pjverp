@@ -2,14 +2,14 @@
     <div class="header-left-group">
         <h5 class="mb-0">
             <?php 
-            if($event->event_title!=''){
-                echo $event->event_title;
+            if($evetData->event_title!=''){
+                echo $evetData->event_title;
             }else{
                 ?> <span class="modal-title">&lt;no-title&gt;</span><?php
             }?>
         </h5>
-        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($event->start_date_time))}} —
-            {{date('D, M jS Y, h:ia',strtotime($event->end_date_time))}}</h6>
+        <h6 class="modal-subtitle mt-2 mb-0">{{date('D, M jS Y, h:ia',strtotime($evetData->start_date_time))}} —
+            {{date('D, M jS Y, h:ia',strtotime($evetData->end_date_time))}}</h6>
     </div>
     <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">×</span></button>
@@ -23,14 +23,27 @@
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Event Type</b></div>
                             <div class="detail-info  col-9">
-                                <span class="event-type-badge badge badge-secondary" style="background-color: {{ @$event->eventType->color_code }}; font-size: 12px; height: 20px;">{{ @$event->eventType->title}}</span>
+                                <span class="event-type-badge badge badge-secondary" style="background-color: {{ @$evetData->eventType->color_code }}; font-size: 12px; height: 20px;">{{ @$evetData->eventType->title}}</span>
                             </div>
                         </div>
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Location</b></div>
                             <div class="detail-info event-location-section col-9">
-                                @if($event->event_location_id)
-                                    {{ $event->eventLocation->full_address }}
+
+                                {{-- <?php 
+                                if(empty($eventLocation)){?>
+                                <p class="d-inline" style="opacity: 0.7;">Not specified</p>
+                                <?php }else{ ?>
+                                <?=$eventLocation->location_name?><br>
+                                <?=$eventLocation->address1?><br>
+                                <?=$eventLocation->address2?><br>
+                                <?=$eventLocation->city?> &nbsp;
+                                <?=$eventLocation->state?>&nbsp;
+                                <?=$eventLocation->postal_code?><br>
+                                <?=$eventLocation->name?>
+                                <?php } ?> --}}
+                                @if($evetData->event_location_id)
+                                    {{ $evetData->eventLocation->full_address }}
                                 @else
                                     <p class="d-inline" style="opacity: 0.7;">Not specified</p>
                                 @endif
@@ -39,19 +52,19 @@
 
                         <div class="mb-2 row ">
                             <div class="col-3"><b>Repeats</b></div>
-                            <?php if(isset($event) && $event->event_frequency!=NULL){?>
-                            <?php if($event->event_frequency=='DAILY'){?>
+                            <?php if(isset($evetData) && $evetData->event_frequency!=NULL){?>
+                            <?php if($evetData->event_frequency=='DAILY'){?>
                             <div class="detail-info recurring-rule-text col-9">Daily</div>
-                            <?php }else if($event->event_frequency=='EVERY_BUSINESS_DAY'){?>
+                            <?php }else if($evetData->event_frequency=='EVERY_BUSINESS_DAY'){?>
                             <div class="detail-info recurring-rule-text col-9">Weekly on Weekdays</div>
-                            <?php }else if($event->event_frequency=='CUSTOM'){ ?>
+                            <?php }else if($evetData->event_frequency=='CUSTOM'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Weekly on
-                                {{date("l",strtotime($event->start_date))}}</div>
-                            <?php }else if($event->event_frequency=='WEEKLY'){ ?>
+                                {{date("l",strtotime($evetData->start_date))}}</div>
+                            <?php }else if($evetData->event_frequency=='WEEKLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Weekly</div>
-                            <?php }else if($event->event_frequency=='MONTHLY'){ ?>
+                            <?php }else if($evetData->event_frequency=='MONTHLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Monthly</div>
-                            <?php }else if($event->event_frequency=='YEARLY'){ ?>
+                            <?php }else if($evetData->event_frequency=='YEARLY'){ ?>
                             <div class="detail-info recurring-rule-text col-9">Yearly</div>
                             <?php } ?>
                             <?php }else { ?><div class="detail-info recurring-rule-text col-9">Never</div><?php } ?>
@@ -60,9 +73,9 @@
                             <div class="col-3"><b>Case</b></div>
                             <div class="detail-info  col-9">
                                 <?php 
-                                if(!empty($event->case)){?>
+                                if(!empty($CaseMasterData)){?>
                                 <a
-                                    href="{{ route('info', $event->case->case_unique_number) }}">{{$event->case->case_title}}</a>
+                                    href="{{ route('info', $CaseMasterData->case_unique_number) }}">{{$CaseMasterData->case_title}}</a>
                                 <?php } else  { ?>
                                 Not specified
                                 <?php } ?>
@@ -80,8 +93,8 @@
                             <div class="col-3"><b>Description</b></div>
                             <div class="detail-info  col-9">
                                 <?php 
-                                if($event->event_description!=''){?>
-                                <p class="d-inline" style="opacity: 0.7;">{{$event->event_description}}</p>
+                                if($evetData->event_description!=''){?>
+                                <p class="d-inline" style="opacity: 0.7;">{{$evetData->event_description}}</p>
                                 <?php }else{?>
                                 <p class="d-inline" style="opacity: 0.7;">Not specified</p>
 
@@ -96,8 +109,8 @@
                                        
                                     </ul>
 
-                                    <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
-                                        data-placement="bottom" onclick="loadEventReminderPopup({{$event->id}}, {{ $eventRecurring->id}})" href="javascript:;">
+                                    <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopup"
+                                        data-placement="bottom" onclick="loadReminderPopup({{$evetData->id}})" href="javascript:;">
                                         Edit
                                         Reminders</a>
                                   
@@ -111,8 +124,8 @@
                                 <div>
                                     <div class="mb-2 sharing-user">
                                         <div class="row ">
-                                            @if(count($event->eventLinkedStaff))
-                                                @forelse ($event->eventLinkedStaff as $key => $item)
+                                            @if(count($evetData->eventLinkedStaff))
+                                                @forelse ($evetData->eventLinkedStaff as $key => $item)
                                                 <div class="col-8">
                                                     <div class="d-flex flex-row">
                                                         <a href="{{ route('contacts/attorneys/info', base64_encode($item->id)) }}" class="d-flex align-items-center user-link" title="{{ userTypeList()[$item->user_type] }}">
@@ -125,8 +138,8 @@
                                             @endif
                                         </div>
                                         <div class="row ">
-                                            @if(count($event->eventLinkedContact))
-                                                @forelse ($event->eventLinkedContact as $key => $item)
+                                            @if(count($evetData->eventLinkedContact))
+                                                @forelse ($evetData->eventLinkedContact as $key => $item)
                                                 <div class="col-8">
                                                     <div class="d-flex flex-row">
                                                         <a href="{{ route('contacts/clients/view', $item->id) }}" class="d-flex align-items-center user-link">
@@ -151,7 +164,7 @@
                             <div id="editorArea" class="mt-3 mb-3"  style="display: none;">
                                 <form class="addComment" id="addComment" name="addComment" method="POST">
                                     @csrf
-                                    <input class="form-control" id="id" value="{{ $event->id}}" name="event_id" type="hidden">
+                                    <input class="form-control" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
                                     <div id="editor">
                                    
                                     </div>
@@ -192,37 +205,37 @@
     <div class="action-buttons">
         <div>
             @can('delete_items')
-            <?php if($event->parent_evnt_id=="0"){ ?>
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
                     <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                         data-placement="bottom" href="javascript:;"
-                        onclick="deleteEventFromCommentFunction({{$event->id}},'single');">
+                        onclick="deleteEventFromCommentFunction({{$evetData->id}},'single');">
                         <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button> 
                     </a>
             <?php }else{ ?>
                     <a class="align-items-center" data-toggle="modal" data-target="#deleteFromCommentBox"
                     data-placement="bottom" href="javascript:;"
-                    onclick="deleteEventFromCommentFunction({{$event->id}},'multiple');">
+                    onclick="deleteEventFromCommentFunction({{$evetData->id}},'multiple');">
                     <button type="button" class="delete-event-button m-1 btn btn-outline-danger">Delete</button>
                     </a>
             <?php } ?>
             @endcan
-            <?php if(!empty($event->case)){?>
+            <?php if(!empty($CaseMasterData)){?>
                 <a data-toggle="modal" data-target="#loadTimeEntryPopup" data-placement="bottom" href="javascript:;">
-                    <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$event->case->id}}');">
+                    <button class="btn  btn-outline-primary m-1" type="button" id="button" onclick="loadTimeEntryPopupByCaseWithoutRefresh('{{$CaseMasterData->id}}');">
                     Add Time Entry
                     </button>
                 </a>
                 <?php } ?>
             @can('event_add_edit')
-            <?php if($event->parent_evnt_id=="0"){ ?>
+            <?php if($evetData->parent_evnt_id=="0"){ ?>
                 <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                 data-placement="bottom" href="javascript:;"
-                onclick="editSingleEventFunction({{$event->id}});">
+                onclick="editSingleEventFunction({{$evetData->id}});">
                 <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
             <?php }else{?>
                     <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                     data-placement="bottom" href="javascript:;"
-                    onclick="editEventFunction({{$event->id}});">
+                    onclick="editEventFunction({{$evetData->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
             <?php } ?>
             @endcan
@@ -322,7 +335,7 @@ body >
                                 positionClass: "toast-top-full-width",
                                 containerId: "toast-top-full-width"
                             });
-                            loadCommentHistory({{$event->id}});
+                            loadCommentHistory({{$evetData->id}});
                             quill.root.innerHTML='';
                             afterLoader();
 
@@ -332,7 +345,7 @@ body >
             }
         });
     });
-    loadCommentHistory({{$event->id}});
+    loadCommentHistory({{$evetData->id}});
     function loadCommentHistory(event_id) {
         $.ajax({
             type: "POST",
@@ -345,7 +358,7 @@ body >
             }
         })
     }
-    loadReminderHistory({{$event->id}});
+    loadReminderHistory({{$evetData->id}});
     function loadReminderHistory(event_id) {
         $.ajax({
             type: "POST",

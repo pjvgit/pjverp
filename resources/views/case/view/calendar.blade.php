@@ -201,16 +201,16 @@ if(isset($_GET['upcoming_events'])){
                                     @if($item->event->is_event_private=='no')
                                     <div class="mt-3 float-right">
                                         @if($isAuthUserLinked || auth()->user()->parent_user == 0)
-                                        <a class="align-items-center" data-toggle="modal" data-target="#loadReminderPopupIndex"
+                                        <a class="align-items-center" data-toggle="modal" data-target="#loadEventReminderPopup"
                                         data-placement="bottom" href="javascript:;"
-                                        onclick="loadReminderPopupIndex({{$item->id}});">
+                                        onclick="loadEventReminderPopup({{$item->event_id}}, {{$item->id}});">
                                         <i class="fas fa-bell pr-2 align-middle"></i>
                                         </a>
 
                                         @canany(['commenting_add_edit', 'commenting_view'])
                                         <a class="align-items-center" data-toggle="modal" data-target="#loadCommentPopup"
                                         data-placement="bottom" href="javascript:;"
-                                        onclick="loadEventComment({{$item->id}});">
+                                        onclick="loadEventComment({{$item->event_id}}, {{$item->id}});">
                                         @php
                                             $commentCount = 0;
                                             if(count($item->event->eventLinkedStaff)) {
@@ -334,7 +334,8 @@ if(isset($_GET['upcoming_events'])){
     </div>
 </div>
 
-<div id="loadReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
+{{-- Made common code, so commented --}}
+{{-- <div id="loadReminderPopup" class="modal fade bd-example-modal-lg modal-overlay" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -353,9 +354,9 @@ if(isset($_GET['upcoming_events'])){
 
         </div>
     </div>
-</div>
+</div> --}}
 
-<div id="loadReminderPopupIndex" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<div id="loadEventReminderPopup" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static" style="">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -366,7 +367,7 @@ if(isset($_GET['upcoming_events'])){
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-12" id="reminderDataIndex">
+                    <div class="col-md-12" id="eventReminderData">
                     
                     </div>
                 </div><!-- end of main-content -->
@@ -423,7 +424,9 @@ if(isset($_GET['upcoming_events'])){
           window.location.reload();  
         // loadMoreEvent(1, filter = 'true');      
     });
-    function loadReminderPopup(evnt_id) {
+
+    // Made common code, so commented
+    /* function loadReminderPopup(evnt_id) {
         $("#reminderDAta").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -441,35 +444,42 @@ if(isset($_GET['upcoming_events'])){
                 }
             })
         })
-    }
-    function loadReminderPopupIndex(evnt_id) {
-        $("#reminderDataIndex").html('Loading...');
+    } */
+    
+    /**
+     * Load event reminder popup from event listing 
+     */
+    function loadEventReminderPopup(event_id, event_recurring_id) {
+        $("#eventReminderData").html('Loading...');
         $("#preloader").show();
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/court_cases/loadReminderPopupIndex", // json datasource
+                url: baseUrl + "/court_cases/loadEventReminderPopup", // json datasource
                 data: {
-                    "evnt_id": evnt_id
+                    "event_id": event_id, event_recurring_id: event_recurring_id,
                 },
                 success: function (res) {
-                    $("#reminderDataIndex").html('Loading...');
-                    $("#reminderDataIndex").html(res);
+                    $("#eventReminderData").html('Loading...');
+                    $("#eventReminderData").html(res);
                     $("#preloader").hide();
                  
                 }
             })
         })
     }
-    function loadEventComment(evnt_id) {
+    /**
+     * Load event detail/comment popup 
+     */
+    function loadEventComment(event_id, event_recurring_id) {
         $("#eventCommentPopup").html('Loading...');
         $("#preloader").show();
         $(function () {
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/court_cases/loadCommentPopup", // json datasource
+                url: baseUrl + "/court_cases/loadEventCommentPopup", // json datasource
                 data: {
-                    "evnt_id": evnt_id
+                    "event_id": event_id, event_recurring_id: event_recurring_id,
                 },
                 success: function (res) {
                     $("#eventCommentPopup").html('Loading...');
