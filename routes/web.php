@@ -27,9 +27,9 @@ Route::get("events", function() {
     return view("errors.maintenance");
 })->name('events/');
 
-/* Route::get('court_cases/{id}/calendars', function() {
+Route::get('court_cases/{id}/calendars', function() {
     return view("errors.maintenance");
-})->name('calendars'); */
+})->name('calendars');
 
 Route::view('dashboard/dashboard1', 'dashboard.dashboardv1')->name('dashboard_version_1');
 Route::view('dashboard/dashboard2', 'dashboard.dashboardv2')->name('dashboard_version_2');
@@ -375,7 +375,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
