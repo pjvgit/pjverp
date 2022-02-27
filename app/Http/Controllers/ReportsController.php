@@ -312,7 +312,7 @@ class ReportsController extends BaseController
             }            
             $ExpenseEntry = $ExpenseEntry->get();
             
-            $caseExpenseEntry = $caseNonBillableEntry = 0;
+            $caseExpenseEntry = 0;
             foreach($ExpenseEntry as $k => $v){
                 if($v->time_entry_billable == "yes"){
                     $caseExpenseEntry += str_replace(",","",$v->duration) * str_replace(",","",$v->cost);
