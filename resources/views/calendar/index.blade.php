@@ -965,7 +965,9 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
     function getDate(){
         return $("#datepicker").val();
     }
-    function loadReminderPopup(evnt_id) {
+
+    // Made common code, so commented
+    /* function loadReminderPopup(evnt_id) {
         $("#reminderDAta").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -983,7 +985,7 @@ if(isset($_GET['view']) && $_GET['view']=='day'){
                 }
             })
         })
-    }
+    } */
     function loadReminderPopupIndex(evnt_id) {
         $("#reminderDataIndex").html('Loading...');
         $("#preloader").show();

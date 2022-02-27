@@ -663,3 +663,11 @@ function encodeDecodeJson($array, $type = "decode")
         return collect($array);
     }
 }
+
+/**
+ * Get user detail
+ */
+function getUserDetail($id)
+{
+    return User::select("first_name","last_name","id","user_level","user_type")->where("id", $id)->first();
+}

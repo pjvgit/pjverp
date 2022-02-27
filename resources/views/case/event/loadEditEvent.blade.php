@@ -17,9 +17,9 @@
         
 
         <form class="EditEventForm" id="EditEventForm" name="EditEventForm" method="POST">
-            <input class="form-control changed" id="id" value="{{ $evetData->id}}" name="event_id" type="hidden">
+            <input class="form-control changed" id="id" value="{{ $evetData->id}}" name="event_id" type="text">
             @csrf
-            <input class="form-control" value="{{ $evetData->id}}" name="recurring_event_id" type="hidden">
+            <input class="form-control" value="{{ $eventRecurring->id}}" name="recurring_event_id" type="text">
             <input class="form-control" value="{{ $evetData->id}}" name="is_reminder_changed" type="text">
             <div id="firstStep">
                 <div class="row">
@@ -125,8 +125,8 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">Start</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($evetData->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_start_date))}}" name="start_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-start" id="start_date" value="{{date('m/d/Y',strtotime($startDate))}}" name="start_date" type="text" placeholder="mm/dd/yyyy"> --}}
 
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
@@ -149,8 +149,8 @@
                             <div class="form-group row">
                                 <label for="inputEmail3" class="col-sm-2 col-form-label">End</label>
                                 <div class="col-md-2 form-group mb-3">
-                                    {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($evetData->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
-                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($eventRecurring->user_end_date))}}" name="end_date" type="text" placeholder="mm/dd/yyyy">
+                                    {{-- <input class="form-control input-date input-ends" id="end_date" value="{{date('m/d/Y',strtotime($endDate))}}" name="end_date" type="text" placeholder="mm/dd/yyyy"> --}}
                                 </div>
                                 <div class="col-md-2 form-group mb-3">
                                     <?php $new_time= date('H:i', strtotime($new_time.'+1 hour')); ?>
@@ -267,7 +267,8 @@
                         <div class="form-group row endondiv" id="endondiv">
                             <label for="inputEmail3" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7  d-flex flex-row align-items-center w-50"><span>End on</span>
-                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no')) ? \Carbon\Carbon::parse($evetData->end_on)->format('m/d/Y') : "" }}" readonly name="end_on" type="text" placeholder="mm/dd/yyyy"><label class="form-check-label">
+                                <input class="mx-2 w-50 form-control datepicker" id="end_on" value="{{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? \Carbon\Carbon::parse($evetData->end_on)->format('m/d/Y') : "" }}" 
+                                    name="end_on" type="text" placeholder="mm/dd/yyyy" {{ (($evetData->is_no_end_date=='no' && $evetData->end_on)) ? "" : "disabled" }}><label class="form-check-label">
                                     <input class=" pt-2" type="checkbox" <?php if($evetData->is_no_end_date=='yes') { echo "checked=checked";} ?>  id="no_end_date_checkbox"
                                         name="no_end_date_checkbox">
                                     <span>No end date</span>
@@ -544,13 +545,21 @@
         // loadCaseNoneLinkedStaff({{$case_id}});
         // loadCaseLinkedStaff({{$case_id}});
 
+        @if($evetData->is_recurring == 'no')
+            $("#endondiv").hide();
+            $('#repeat_dropdown').hide();
+            $('#repeat_custom').hide();
+            $('#repeat_monthly').hide();
+            $('#repeat_yearly').hide();
+            $('#repeat_daily').hide();
+        @endif
         //disabled datepicker when checkbox is checked
-        if($("input:checkbox#no_end_date_checkbox").is(":checked")) {
+        /* if($("input:checkbox#no_end_date_checkbox").is(":checked")) {
                 $('#end_on').val('');
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').removeAttr("disabled");
-            }
+            } */
          
         $(".case_or_lead").select2({
             placeholder: "Select...",
@@ -777,16 +786,15 @@
             }
         });
         
-        // Code repeated 2 time so commented
-        /* $("input:checkbox#no_end_date_checkbox").click(function () {
+        // No end date checkbox click event
+        $("input:checkbox#no_end_date_checkbox").click(function () {
             if ($(this).is(":checked")) {
                 $('#end_on').val('');
                 $("#end_on").attr("disabled", true);
             } else {
                 $('#end_on').removeAttr("disabled");
             }
-        }); */
-
+        });
 
 
         $("#loadEditEventPopup input:checkbox.recuring_event").change(function () {
@@ -946,8 +954,8 @@
         return false;
     }
 
-
-    function loadCaseClient(case_id) {
+    // Commented as not required
+    /* function loadCaseClient(case_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadCaseClientAndLeads",
@@ -987,7 +995,7 @@
                 $("#CaseNoneLinkedStaffSection").html(res);
             }
         })
-    }
+    } */
     function loadAllFirmStaff() {
         $.ajax({
             type: "POST",
@@ -1054,6 +1062,10 @@
             return false;
         }
         if(!$("#recuring_event").is(":checked")) {
+            $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
+            $(".submit").trigger("click");
+        } else if($("#recuring_event").is(":checked") && "{{ $evetData->is_recurring }}" == 'no') {
+            $("input[name=delete_event_type][value=SINGLE_EVENT]").attr('checked', 'checked');
             $(".submit").trigger("click");
         } else {
             $("#confirmSave").css('display','block');

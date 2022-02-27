@@ -1,6 +1,6 @@
 <form class="editReminderIndexIndex" id="editReminderIndex" name="editReminderIndex" method="POST">
-    <input class="form-control" id="id" value="{{ $event_id}}" name="event_id" type="text">
-    <input class="form-control" id="id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="text">
+    <input class="form-control" id="event_id" value="{{ $event_id}}" name="event_id" type="text">
+    <input class="form-control" id="event_recurring_id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="text">
     @csrf
     <div class="row">
     <div class="col-md-12">
@@ -183,7 +183,7 @@
                             });
                         $("#loadEventReminderPopup").modal('hide');
                         $("#innerLoader").css('display', 'none');
-
+                        loadReminderHistory($("#event_id").val(), $("#event_recurring_id").val());
                     }
                 }
             });

@@ -359,7 +359,9 @@ $CommonController= new App\Http\Controllers\CommonController();
           window.location.reload();   
        
         });
-    function loadReminderPopup(evnt_id) {
+
+    // Made common code, so commented
+    /* function loadReminderPopup(evnt_id) {
         $("#reminderDAta").html('Loading...');
         $("#preloader").show();
         $(function () {
@@ -377,7 +379,7 @@ $CommonController= new App\Http\Controllers\CommonController();
                 }
             })
         })
-    }
+    } */
     function loadReminderPopupIndex(evnt_id) {
         $("#reminderDataIndex").html('Loading...');
         $("#preloader").show();

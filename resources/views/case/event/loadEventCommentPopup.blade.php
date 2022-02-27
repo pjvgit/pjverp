@@ -151,9 +151,10 @@
                             <div id="editorArea" class="mt-3 mb-3"  style="display: none;">
                                 <form class="addComment" id="addComment" name="addComment" method="POST">
                                     @csrf
-                                    <input class="form-control" id="id" value="{{ $event->id}}" name="event_id" type="hidden">
+                                    <input class="form-control" value="{{ $event->id}}" name="event_id" type="text">
+                                    <input class="form-control" value="{{ $eventRecurring->id}}" name="event_recurring_id" type="text">
                                     <div id="editor">
-                                   
+                                        
                                     </div>
                                     <div class="row ">
                                         <div class="col-12">
@@ -164,7 +165,7 @@
                             </div>
                             @can('commenting_add_edit')
                             <div class="mt-3 mb-3" id="linkArea" >
-                                <a id="addcomment"  onclick="toggelComment()" href="#">Add a comment...</a>
+                                <a onclick="toggelComment()" href="#">Add a comment...</a>
                             </div>
                             @else
                             <div class="mt-3 mb-3"><p id="cannot-post-comment">You cannot post comments on this item.</p></div>
@@ -222,7 +223,7 @@
             <?php }else{?>
                     <a class="align-items-center" data-toggle="modal" data-target="#loadEditEventPopup"
                     data-placement="bottom" href="javascript:;"
-                    onclick="editEventFunction({{$event->id}});">
+                    onclick="editEventFunction({{$event->id}}, {{$eventRecurring->id}});">
                     <button type="button" class="btn btn-primary  pendo-exp2-add-event m-1 btn btn-cta-primary">Edit</button> </a>
             <?php } ?>
             @endcan
@@ -322,7 +323,7 @@ body >
                                 positionClass: "toast-top-full-width",
                                 containerId: "toast-top-full-width"
                             });
-                            loadCommentHistory({{$event->id}});
+                            loadCommentHistory({{$event->id}}, {{$eventRecurring->id}})
                             quill.root.innerHTML='';
                             afterLoader();
 
@@ -332,26 +333,29 @@ body >
             }
         });
     });
-    loadCommentHistory({{$event->id}});
-    function loadCommentHistory(event_id) {
+    loadCommentHistory({{$event->id}}, {{$eventRecurring->id}});
+    function loadCommentHistory(event_id, event_recurring_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadCommentHistory",
             data: {
-                "event_id": event_id
+                "event_id": event_id, "event_recurring_id": event_recurring_id
             },
             success: function (res) {
                 $("#commentHistory").html(res);
             }
         })
     }
-    loadReminderHistory({{$event->id}});
-    function loadReminderHistory(event_id) {
+    /**
+    * Load event reminder list
+    */
+    loadReminderHistory({{$event->id}}, {{$eventRecurring->id}});
+    function loadReminderHistory(event_id, event_recurring_id) {
         $.ajax({
             type: "POST",
             url: baseUrl + "/court_cases/loadReminderHistory",
             data: {
-                "event_id": event_id
+                "event_id": event_id, "event_recurring_id": event_recurring_id
             },
             success: function (res) {
                 $("#reminder_list").html(res);

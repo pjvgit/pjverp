@@ -125,7 +125,7 @@ class Event extends Model
     {
         CaseEventLinkedStaff::whereIn("event_id", $eventIds)->forceDelete();
         CaseEventLinkedContactLead::whereIn("event_id", $eventIds)->forceDelete();
-        CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
+        // CaseEventReminder::whereIn("event_id", $eventIds)->forceDelete();
         CaseEventComment::whereIn("event_id", $eventIds)->forceDelete();
     }
 

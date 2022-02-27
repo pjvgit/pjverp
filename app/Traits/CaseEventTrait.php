@@ -680,5 +680,7 @@ trait CaseEventTrait {
         ]);
         return $caseEvent;
     }
+
+    
 }
  

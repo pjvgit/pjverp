@@ -31,6 +31,7 @@ $userTypes = unserialize(USER_TYPE);
     <div class="history-date col-4">
         <p class="date-string">
             <?php 
+                $createdByUser = getUserDetail($value->created_by);
                     $CommonController= new App\Http\Controllers\CommonController();
                     $OwnDate=$CommonController->convertUTCToUserTime($value->created_at,Auth::User()->user_timezone);?>
             {{date('D, M jS Y',strtotime($OwnDate))}}<br>
@@ -41,10 +42,10 @@ $userTypes = unserialize(USER_TYPE);
         <div class="flex-grow-1">
             <p class="comment-user-link mt-1">
                 <a class=""
-                    href="{{ route('contacts/attorneys/info', $value->createdByUser->decode_id) }}">
-                    {{ @$value->createdByUser->full_name }}
+                    href="{{ route('contacts/attorneys/info', $createdByUser->decode_id) }}">
+                    {{ @$createdByUser->full_name }}
                     {{-- ({{$userTypes[$value->user_type]}}) --}}
-                    ({{ @$value->createdByUser->user_title }})
+                    ({{ @$createdByUser->user_title }})
                 </a> commented</p>
             <div class="comment-message mb-3">
                 <?php print $value->comment; ?>
@@ -60,12 +61,12 @@ $userTypes = unserialize(USER_TYPE);
 ?>
 
 <div class="history-item row ">
-    <?php if(!empty($evetData)){ ?>
+    <?php if(!empty($eventData)){ ?>
     <div class="history-date col-4">
         <p class="date-string">
             <?php 
             $CommonController= new App\Http\Controllers\CommonController();
-            $creatdDate=$CommonController->convertUTCToUserTime($evetData->created_at,Auth::User()->user_timezone);?>
+            $creatdDate=$CommonController->convertUTCToUserTime($eventData->created_at,Auth::User()->user_timezone);?>
             {{date('D, M jS Y',strtotime($creatdDate))}}<br>
             {{date('h:ia',strtotime($creatdDate))}}
         </p>
