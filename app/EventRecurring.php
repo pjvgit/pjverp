@@ -8,9 +8,11 @@ class EventRecurring extends Model
 {
     protected $timestamp = false;
     protected $fillable = [
-        'id', 'event_id', 'start_date', 'end_date'
+        'id', 'event_id', 'start_date', 'end_date', 'event_reminders', 'event_comments'
     ];    
     protected $appends  = ['start_time_user','end_time_user','st','et','start_date_time','end_date_time', 'user_start_date', 'user_end_date']; //colorcode
+
+    // protected $casts = ['event_reminders' => 'array', 'event_comments' => 'array',];
     
     public function getStartTimeUserAttribute(){
         $timezone=Auth::User()->user_timezone ?? 'UTC';

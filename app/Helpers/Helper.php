@@ -650,3 +650,16 @@ function onlinePaymentMethod()
         'bank-transfer' => "Bank Transfer",
     ];
 }
+
+/**
+ * Encode/Decode json array and convert into collection
+ */
+function encodeDecodeJson($array, $type = "decode")
+{
+    if($type == 'encode') {
+        return json_encode($array);
+    } else {
+        $array  = json_decode($array);
+        return collect($array);
+    }
+}

@@ -1032,7 +1032,7 @@ class CaseController extends BaseController
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
                
             } 
-            if(\Route::current()->getName()=="calendars"){
+            /* if(\Route::current()->getName()=="calendars"){
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
                 //Get all event by 
@@ -1058,9 +1058,9 @@ class CaseController extends BaseController
                 if($request->ajax()) {
                     return view('case.view.load_event_list', compact('allEvents'));
                 }
-            }
+            } */
             
-            /* if(\Route::current()->getName()=="calendars"){
+            if(\Route::current()->getName()=="calendars"){
                 $allStatus = CaseUpdate::join('users','users.id','=','case_update.created_by')->select("users.id","users.first_name","users.last_name","users.user_level","users.email","users.user_title","case_update.update_status","case_update.created_at","case_update.id as case_update_id")->where("case_id",$case_id)->orderBy('created_at','DESC')->get();
 
                 //Get all event by 
@@ -1072,12 +1072,12 @@ class CaseController extends BaseController
                 // ->with("eventLinkedStaff", "eventType", "eventLinkedContact", "eventLinkedLead")
                 // ->get();
 
-                // $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
-                //                 $query->where('case_id', $case_id);
-                //             })->orderBy("start_date", "ASC")
-                //             ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
-                $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
-            } */
+                $allEvents = EventRecurring::whereHas('event', function($query) use($case_id) {
+                                $query->where('case_id', $case_id);
+                            })->orderBy("start_date", "ASC")
+                            ->with("event", "event.eventType", "event.eventLinkedStaff", "event.eventLinkedLead", "event.eventLinkedContact")->get();
+                // $allEvents = Event::where('case_id', $case_id)->orderBy("start_date", "ASC")->with("eventType", "eventRecurring", "eventLinkedStaff", "eventLinkedLead", "eventLinkedContact")->get();
+            }
 
             if(\Route::current()->getName()=="recent_activity"){
                 $mainArray=[];
@@ -2117,613 +2117,10 @@ class CaseController extends BaseController
         return view('case.event.loadAddEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','case_id','caseLeadList','lead_id','UserPreferanceReminder'));          
      }
 
-      /* public function saveAddEventPageOld(Request $request)
-      {
-        
-        // return $request->all();
-
-            $CommonController= new CommonController();
-            $validator = \Validator::make($request->all(), [
-                'linked_staff_checked_share' => 'required'
-            ]);
-            if($validator->fails())
-            {
-                return response()->json(['errors'=>['You must share with at least one firm user<br>You must share with at least one user'],]);
-            }
-
-           
-        //Single event
-        if(!isset($request->recuring_event)){
-            $startTime = strtotime(date("Y-m-d", strtotime($request->start_date)));
-            $endTime = strtotime(date("Y-m-d",strtotime($request->end_date)));
-        }else{
-            //recurring event
-            $startTime = strtotime(date("Y-m-d",  strtotime($request->start_date)));
-             $endTime =  strtotime(date('Y-m-d',strtotime('+365 days')));
-             if($request->end_on!=''){
-                $endTime =  strtotime(date('Y-m-d',strtotime($request->end_on)));
-            }
-        }
-        if(!isset($request->recuring_event)){
-            //If new location is creating.
-            if($request->location_name!=''){
-                $locationID= $this->saveLocationOnce($request);
-              }
-
-            $start_date = date("Y-m-d", $startTime);
-            $start_time = date("H:i:s", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->start_date.' '.$request->start_time)),Auth::User()->user_timezone)));
-            $end_date = date("Y-m-d", $endTime);
-            $end_time = date("H:i:s", strtotime($CommonController->convertTimeToUTCzone(date('Y-m-d H:i:s',strtotime($request->end_date.' '.$request->end_time)),Auth::User()->user_timezone)));
-            $CaseEvent = new CaseEvent;
-            if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-            if(!isset($request->no_case_link)){
-                if(isset($request->case_or_lead)) { 
-                    if($request->text_case_id!=''){
-                        $CaseEvent->case_id=$request->text_case_id; 
-                    }    
-                    if($request->text_lead_id!=''){
-                        $CaseEvent->lead_id=$request->text_lead_id; 
-                    }    
-                } 
-                // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-            }
-            if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-            if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-            if(isset($request->start_time)) { $CaseEvent->start_time=$start_time; } 
-            if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-            if(isset($request->end_time)) { $CaseEvent->end_time=$end_time; } 
-            if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-            if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";} 
-            $CaseEvent->recuring_event="no"; 
-            if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                $CaseEvent->event_location_id=$request->case_location_list; 
-            }else{  
-                $CaseEvent->event_location_id=($locationID)??NULL;
-                
-            }
-            if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-            $CaseEvent->parent_evnt_id ='0';
-
-            $CaseEvent->created_by=Auth::user()->id; 
-            $CaseEvent->firm_id = auth()->user()->firm_name;
-            $CaseEvent->save();
-            $this->saveEventReminder($request->all(),$CaseEvent->id); 
-            $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-            $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-            $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-            // $this->saveEventHistory($CaseEvent->id);
-              
-        }else{
-            if($request->event_frequency=='DAILY')
-            {
-                $i=0;
-                $event_interval_day=$request->event_interval_day;
-
-               
-                 //If new location is creating.
-                 if($request->location_name!=''){
-                   $locationID= $this->saveLocationOnce($request);
-                 }
-
-                do {
-                    
-                    $start_date = date("Y-m-d", $startTime);
-                    $start_time = date("H:i:s", strtotime($request->start_time));
-                    $end_date = date("Y-m-d", $startTime);
-                    $end_time = date("H:i:s", strtotime($request->end_time));
-                    $CaseEvent = new CaseEvent;
-                    if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                    if(!isset($request->no_case_link)){
-                        if(isset($request->case_or_lead)) { 
-                            if($request->text_case_id!=''){
-                                $CaseEvent->case_id=$request->text_case_id; 
-                            }    
-                            if($request->text_lead_id!=''){
-                                $CaseEvent->lead_id=$request->text_lead_id; 
-                            }    
-                        } 
-                        // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                    }
-                    if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                    if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                    if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                    if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                    if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                    if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                    if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";} 
-                    $CaseEvent->recuring_event="yes";
-                    $CaseEvent->event_frequency=$request->event_frequency;
-                    $CaseEvent->event_interval_day=$request->event_interval_day;
-                    if(isset($request->no_end_date_checkbox)) { 
-                        $CaseEvent->no_end_date_checkbox="yes"; 
-                        $CaseEvent->end_on=NULL;
-                    }else{ 
-                        $CaseEvent->no_end_date_checkbox="no";
-                        $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                    } 
-                    if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                        $CaseEvent->event_location_id=$request->case_location_list; 
-                    }else{  
-                        $CaseEvent->event_location_id=($locationID)??NULL;
-                        
-                    } 
-                    if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                    $CaseEvent->created_by=Auth::user()->id; 
-                    $CaseEvent->firm_id = auth()->user()->firm_name;
-                    $CaseEvent->save();
-                    if($i==0) { 
-                        $parentCaseID=$CaseEvent->id;
-                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                        $CaseEvent->save();
-                    }else{
-                        $CaseEvent->parent_evnt_id =  $parentCaseID;
-                        $CaseEvent->save();
-                    }
-                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id);
-                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
- 
-                    // $this->saveEventHistory($CaseEvent->id);
-                    
-                    $startTime = strtotime('+'.$event_interval_day.' day',$startTime); 
-                    $i++;
-                } while ($startTime < $endTime);
-            }else if($request->event_frequency=='EVERY_BUSINESS_DAY')
-            { 
-                $i=0;
-                //If new location is creating.
-                if($request->location_name!=''){
-                    $locationID= $this->saveLocationOnce($request);
-                }
-                do {
-                   
-                    $timestamp = $startTime;
-                    $weekday= date("l", $timestamp );            
-                    if ($weekday =="Saturday" OR $weekday =="Sunday") { 
-                    }else {
-                        $start_date = date("Y-m-d", $startTime);
-                        $start_time = date("H:i:s", strtotime($request->start_time));
-                        $end_date = date("Y-m-d", $startTime);
-                        $end_time = date("H:i:s", strtotime($request->end_time));
-                        $CaseEvent = new CaseEvent;
-                        if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                        if(!isset($request->no_case_link)){
-                            if(isset($request->case_or_lead)) { 
-                                if($request->text_case_id!=''){
-                                    $CaseEvent->case_id=$request->text_case_id; 
-                                }    
-                                if($request->text_lead_id!=''){
-                                    $CaseEvent->lead_id=$request->text_lead_id; 
-                                }    
-                            } 
-                            // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                        }
-                        if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                        if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                        if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                        if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                        if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                        if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                        if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";} 
-                        $CaseEvent->recuring_event="yes";
-                        $CaseEvent->event_frequency=$request->event_frequency;
-                        if(isset($request->no_end_date_checkbox)) { 
-                            $CaseEvent->no_end_date_checkbox="yes"; 
-                            $CaseEvent->end_on=NULL;
-                        }else{ 
-                            $CaseEvent->no_end_date_checkbox="no";
-                            $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                        } 
-                      
-                        if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                            $CaseEvent->event_location_id=$request->case_location_list; 
-                        }else{  
-                            $CaseEvent->event_location_id=($locationID)??NULL;
-                        } 
-                        if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                        $CaseEvent->created_by=Auth::user()->id; 
-                        $CaseEvent->firm_id = auth()->user()->firm_name;
-                        $CaseEvent->save();
-                        if($i==0) { 
-                            $parentCaseID=$CaseEvent->id;
-                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                            $CaseEvent->save();
-                        }else{
-                            $CaseEvent->parent_evnt_id =  $parentCaseID;
-                            $CaseEvent->save();
-                        }
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-
-                        // $this->saveEventHistory($CaseEvent->id);
-                    }
-                    $i++;
-                    $startTime = strtotime('+1 day',$startTime); 
-                    } while ($startTime < $endTime);
-            }else if($request->event_frequency=='WEEKLY')
-            {
-                $i=0;
- 
-                //If new location is creating.
-                if($request->location_name!=''){
-                    $locationID= $this->saveLocationOnce($request);
-                }
-                 do {
-                
-                    $timestamp = $startTime;
-                    $weekday= date("l", $timestamp );       
-                    if ($weekday==date("l")) { 
-                        $start_date = date("Y-m-d", $startTime);
-                        $start_time = date("H:i:s", strtotime($request->start_time));
-                        $end_date = date("Y-m-d", $startTime);
-                        $end_time = date("H:i:s", strtotime($request->end_time));
-                        $CaseEvent = new CaseEvent;
-                        if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                        if(!isset($request->no_case_link)){
-                            if(isset($request->case_or_lead)) { 
-                                if($request->text_case_id!=''){
-                                    $CaseEvent->case_id=$request->text_case_id; 
-                                }    
-                                if($request->text_lead_id!=''){
-                                    $CaseEvent->lead_id=$request->text_lead_id; 
-                                }    
-                            } 
-                            // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                        }
-                        if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                        if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                        if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                        if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                        if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                        if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                        if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}                    
-                        $CaseEvent->recuring_event="yes";
-                        $CaseEvent->event_frequency=$request->event_frequency;
-
-                        $CaseEvent->daily_weekname=$request->daily_weekname;
-                        if(isset($request->no_end_date_checkbox)) { 
-                            $CaseEvent->no_end_date_checkbox="yes"; 
-                            $CaseEvent->end_on=NULL;
-                        }else{ 
-                            $CaseEvent->no_end_date_checkbox="no";
-                            $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                        } 
-                        if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                            $CaseEvent->event_location_id=$request->case_location_list; 
-                        }else{  
-                            $CaseEvent->event_location_id=($locationID)??NULL;
-                        }   
-                        if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                        $CaseEvent->created_by=Auth::user()->id; 
-                        $CaseEvent->firm_id = auth()->user()->firm_name;
-                        $CaseEvent->save();
-                        if($i==0) { 
-                            $parentCaseID=$CaseEvent->id;
-                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                            $CaseEvent->save();
-                        }else{
-                            $CaseEvent->parent_evnt_id =  $parentCaseID;
-                            $CaseEvent->save();
-                        }
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-
-                        // $this->saveEventHistory($CaseEvent->id);
-
-                    }  $startTime = strtotime('+1 day',$startTime); 
-                    $i++;
-                    } while ($startTime < $endTime);
-            }else if($request->event_frequency=='CUSTOM')
-            { 
-                $i=0;
-                $weekFirstDay=date("Y-m-d", strtotime('monday this week'));
-                $start = new DateTime($weekFirstDay);
-                $startClone = new DateTime($weekFirstDay);
-
-                
-               
-                if($request->end_on!=''){
-                    $end=new DateTime($request->end_on);
-                }else{
-                    $end=$startClone->add(new DateInterval('P365D'));
-                }
-                //$end = new DateTime( '2021-09-28 23:59:59');
-                $interval = new DateInterval('P1D');
-                $period = new DatePeriod($start, $interval, $end);
-                
-                $weekInterval = $request->daily_weekname;
-                $fakeWeek = 0;
-                $currentWeek = $start->format('W');
-                 //If new location is creating.
-                 if($request->location_name!=''){
-                    $locationID= $this->saveLocationOnce($request);
-                }
-                foreach ($period as $date) {
-                    if ($date->format('W') !== $currentWeek) {
-                        $currentWeek = $date->format('W');
-                        $fakeWeek++;
-                    }
-                
-                    if ($fakeWeek % $weekInterval !== 0) {
-                        continue;
-                    }
-                
-                    $dayOfWeek = $date->format('l');
-                    if(in_array($dayOfWeek,$request->custom)){
-
-                        $start_date = $date->format('Y-m-d');
-                        $start_time = date("H:i:s", strtotime($request->start_time));
-                        $end_date =$date->format('Y-m-d');
-                        $end_time = date("H:i:s", strtotime($request->end_time));
-                        $CaseEvent = new CaseEvent;
-                        if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                        if(!isset($request->no_case_link)){
-                            if(isset($request->case_or_lead)) { 
-                                if($request->text_case_id!=''){
-                                    $CaseEvent->case_id=$request->text_case_id; 
-                                }    
-                                if($request->text_lead_id!=''){
-                                    $CaseEvent->lead_id=$request->text_lead_id; 
-                                }    
-                            } 
-                            // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                        }
-                        if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                        if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                        if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                        if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                        if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                        if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                        if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}                    
-                        $CaseEvent->recuring_event="yes";
-                        $CaseEvent->event_frequency=$request->event_frequency;
-
-                        $CaseEvent->daily_weekname=$request->daily_weekname;
-                        if(isset($request->no_end_date_checkbox)) { 
-                            $CaseEvent->no_end_date_checkbox="yes"; 
-                            $CaseEvent->end_on=NULL;
-                        }else{ 
-                            $CaseEvent->no_end_date_checkbox="no";
-                            $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                        } 
-                        if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                            $CaseEvent->event_location_id=$request->case_location_list; 
-                        }else{  
-                            $CaseEvent->event_location_id=($locationID)??NULL;
-                        }   
-                        
-                        if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                        $CaseEvent->created_by=Auth::user()->id; 
-                        $CaseEvent->firm_id = auth()->user()->firm_name;
-                        $CaseEvent->save();
-                        if($i==0) { 
-                            $parentCaseID=$CaseEvent->id;
-                            $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                            $CaseEvent->save();
-                        }else{
-                            $CaseEvent->parent_evnt_id =  $parentCaseID;
-                            $CaseEvent->save();
-                        }
-                        $i++;
-                        $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                        $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                        $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-
-                        // $this->saveEventHistory($CaseEvent->id);
-                    }
-                }
-               
-            }else if($request->event_frequency=='MONTHLY')
-            { 
-                $Currentweekday= date("l", $startTime ); 
-                $i=0;
-                 //If new location is creating.
-                 if($request->location_name!=''){
-                    $locationID= $this->saveLocationOnce($request);
-                }
-                 do {
-                
-                    $monthly_frequency=$request->monthly_frequency;
-                    $event_interval_month=$request->event_interval_month;
-                    if($monthly_frequency=='MONTHLY_ON_DAY'){
-                        $startTime=$startTime;
-                        // echo date('Y-m-d', $startTime);
-                    }else if($monthly_frequency=='MONTHLY_ON_THE'){
-                    $startTime = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startTime);
-                        // $startTime=date('Y-m-d', $fourthDay);
-                    }else if($monthly_frequency=='MONTHLY_ON_THE_LAST'){
-                        $startTime = strtotime("last ".strtolower($Currentweekday)." of this month",$startTime);
-                        // $startTime=date('Y-m-d', $lastDay);
-                    }
-                    $start_date = date("Y-m-d", $startTime);
-                    $start_time = date("H:i:s", strtotime($request->start_time));
-                    $end_date = date("Y-m-d", $startTime);
-                    $end_time = date("H:i:s", strtotime($request->end_time));
-                    $CaseEvent = new CaseEvent;
-                    if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                    if(!isset($request->no_case_link)){
-                        if(isset($request->case_or_lead)) { 
-                            if($request->text_case_id!=''){
-                                $CaseEvent->case_id=$request->text_case_id; 
-                            }    
-                            if($request->text_lead_id!=''){
-                                $CaseEvent->lead_id=$request->text_lead_id; 
-                            }    
-                        } 
-                        // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                    }
-                    if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                    if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                    if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                    if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                    if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                    if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                    if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}
-                    $CaseEvent->recuring_event="yes";
-                    $CaseEvent->event_frequency=$request->event_frequency;
-                    if(isset($request->no_end_date_checkbox)) { 
-                        $CaseEvent->no_end_date_checkbox="yes"; 
-                        $CaseEvent->end_on=NULL;
-                    }else{ 
-                        $CaseEvent->no_end_date_checkbox="no";
-                        $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                    } 
-                    $CaseEvent->event_interval_month=$request->event_interval_month;
-                    $CaseEvent->monthly_frequency=$request->monthly_frequency;
-                    if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                        $CaseEvent->event_location_id=$request->case_location_list; 
-                    }else{  
-                        $CaseEvent->event_location_id=($locationID)??NULL;
-                    }   
-                    
-                    if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                    $CaseEvent->created_by=Auth::user()->id; 
-                    $CaseEvent->firm_id = auth()->user()->firm_name;
-                    $CaseEvent->save();
-                    if($i==0) { 
-                        $parentCaseID=$CaseEvent->id;
-                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                        $CaseEvent->save();
-                    }else{
-                        $CaseEvent->parent_evnt_id =  $parentCaseID;
-                        $CaseEvent->save();
-                    }
-                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-
-                    //  $this->saveEventHistory($CaseEvent->id);
-                    $startTime = strtotime('+'.$event_interval_month.' months',$startTime);
-                    $i++;
-                    } while ($startTime < $endTime);
-            }else if($request->event_frequency=='YEARLY'){ 
-                $endTime =  strtotime(date('Y-m-d',strtotime('+25 years')));
-                if($request->end_on!=''){
-                    $endTime =  strtotime(date('Y-m-d',strtotime($request->end_on)));
-                }
-                $yearly_frequency=$request->yearly_frequency;
-                $Currentweekday= date("l", $startTime ); 
-                $i=0;
-                //If new location is creating.
-                if($request->location_name!=''){
-                    $locationID= $this->saveLocationOnce($request);
-                }
-                do {
-                    $event_interval_year=$request->event_interval_year;
-                    if($yearly_frequency=='YEARLY_ON_DAY'){
-                        $startTime=$startTime;
-                        // echo date('Y-m-d', $startTime);
-                    }else if($yearly_frequency=='YEARLY_ON_THE'){
-                    $startTime = strtotime("fourth ".strtolower($Currentweekday)." of this month",$startTime);
-                    //    echo date('Y-m-d', $startTime);
-                    }else if($yearly_frequency=='YEARLY_ON_THE_LAST'){
-                        $startTime = strtotime("last ".strtolower($Currentweekday)." of this month",$startTime);
-                        // echo date('Y-m-d', $startTime);
-                    }
-                    $start_date = date("Y-m-d", $startTime);
-                    $start_time = date("H:i:s", strtotime($request->start_time));
-                    $end_date = date("Y-m-d", $startTime);
-                    $end_time = date("H:i:s", strtotime($request->end_time));
-                    $CaseEvent = new CaseEvent;
-                    if(isset($request->event_name)) { $CaseEvent->event_title=$request->event_name; } 
-                    if(!isset($request->no_case_link)){
-                        if(isset($request->case_or_lead)) { 
-                            if($request->text_case_id!=''){
-                                $CaseEvent->case_id=$request->text_case_id; 
-                            }    
-                            if($request->text_lead_id!=''){
-                                $CaseEvent->lead_id=$request->text_lead_id; 
-                            }    
-                        } 
-                        // if(isset($request->case_or_lead)) { $CaseEvent->case_id=$request->case_or_lead; } 
-                    }
-                    if(isset($request->event_type) && $request->event_type!=0) { $CaseEvent->event_type=$request->event_type; }else{ $CaseEvent->event_type=NULL;}
-                    if(isset($request->start_date)) { $CaseEvent->start_date=$start_date; } 
-                    if(isset($request->start_time) && !isset($request->all_day)) { $CaseEvent->start_time=$start_time; } 
-                    if(isset($request->end_date)) { $CaseEvent->end_date=$end_date; } 
-                    if(isset($request->end_time) && !isset($request->all_day)) { $CaseEvent->end_time=$end_time; } 
-                    if(isset($request->all_day)) { $CaseEvent->all_day="yes"; }else{ $CaseEvent->all_day="no";} 
-                    if(isset($request->description)) { $CaseEvent->event_description=$request->description; }else{ $CaseEvent->event_description="";}
-                    $CaseEvent->recuring_event="yes";
-                    $CaseEvent->event_frequency=$request->event_frequency;
-                    $CaseEvent->event_interval_year=$request->event_interval_year;
-                    $CaseEvent->yearly_frequency=$request->yearly_frequency;
-
-                    if(isset($request->no_end_date_checkbox)) { 
-                        $CaseEvent->no_end_date_checkbox="yes"; 
-                        $CaseEvent->end_on=NULL;
-                    }else{ 
-                        $CaseEvent->no_end_date_checkbox="no";
-                        $CaseEvent->end_on=date("Y-m-d",strtotime($request->end_on));
-                    } 
-                    if($request->case_location_list!="0" &&  isset($request->case_location_list)) { 
-                        $CaseEvent->event_location_id=$request->case_location_list; 
-                    }else{  
-                        $CaseEvent->event_location_id=($locationID)??NULL;
-                    }   
-                    
-                    if(isset($request->is_event_private)) { $CaseEvent->is_event_private ='yes'; }else{ $CaseEvent->is_event_private ='no'; }
-                    $CaseEvent->created_by=Auth::user()->id; 
-                    $CaseEvent->firm_id = auth()->user()->firm_name;
-                    $CaseEvent->save();
-                    if($i==0) { 
-                        $parentCaseID=$CaseEvent->id;
-                        $CaseEvent->parent_evnt_id =  $CaseEvent->id; 
-                        $CaseEvent->save();
-                    }else{
-                        $CaseEvent->parent_evnt_id =  $parentCaseID;
-                        $CaseEvent->save();
-                    }
-                    $this->saveEventReminder($request->all(),$CaseEvent->id); 
-                    $this->saveLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveNonLinkedStaffToEvent($request->all(),$CaseEvent->id); 
-                    $this->saveContactLeadData($request->all(),$CaseEvent->id); 
-
-                    // $this->saveEventHistory($CaseEvent->id);
-
-                    
-                    $startTime = strtotime('+'.$event_interval_year.' years',$startTime);
-                    $i++;
-                    } while ($startTime < $endTime);
-            }
-        }
-        $data=[];
-        if(!isset($request->no_case_link)){
-            if(isset($request->case_or_lead)) { 
-                if($request->text_case_id!=''){
-                    $data['event_for_case']=$request->text_case_id;
-                }    
-                if($request->text_lead_id!=''){
-                    $data['event_for_lead']=$request->text_lead_id;                                            
-                    $data['client_id']=$request->text_lead_id;
-                }    
-            } 
-        }
-        $data['event_id']=$CaseEvent->id;
-        $data['event_name']=$CaseEvent->event_title;
-        $data['user_id']=Auth::User()->id;
-        $data['activity']='added event';
-        $data['type']='event';
-        $data['action']='add';
-        
-        $CommonController= new CommonController();
-        $CommonController->addMultipleHistory($data);
-        session(['popup_success' => 'Event was added.']);
-        return response()->json(['errors'=>''   ]);
-        exit;
-      } */
-
     /**
      * Add new single/recurring event with jobs and trait
      */
-    public function saveAddEventPage(Request $request)
+    public function saveAddEventPageOld(Request $request)
     {
         // return $request->all();
         $validator = \Validator::make($request->all(), [
@@ -2831,7 +2228,7 @@ class CaseController extends BaseController
         return response()->json(['errors'=>''   ]);
     }
 
-    public function saveAddEventPageNew(Request $request)
+    public function saveAddEventPage(Request $request)
     {
         // return $request->all();
         $validator = \Validator::make($request->all(), [
@@ -2927,13 +2324,29 @@ class CaseController extends BaseController
                 "created_by" => $authUser->id,
             ]);
 
+            $eventReminders = [];
+            if($request->reminder_user_type && count($request['reminder_user_type']) > 1) {
+                for($i=0; $i < count($request['reminder_user_type'])-1; $i++) {
+                    $eventReminders[] = [
+                        'event_id' => $caseEvent->id,
+                        'reminder_type' => $request['reminder_type'][$i],
+                        'reminer_number' => $request['reminder_number'][$i],
+                        'reminder_frequncy' => $request['reminder_time_unit'][$i],
+                        'reminder_user_type' => $request['reminder_user_type'][$i],
+                        'created_by' => $authUser->id,
+                        'remind_at' => Carbon::now(),
+                    ];
+                }
+            }
+
             if($request->event_frequency=='DAILY') {
                 $period = \Carbon\CarbonPeriod::create($start_date, $request->event_interval_day.' days', date("Y-m-d", $recurringEndDate));
                 foreach($period as $date) {
-                    EventRecurring::insert([
+                    EventRecurring::create([
                         "event_id" => $caseEvent->id,
                         "start_date" => $date,
                         "end_date" => $date,
+                        "event_reminders" => encodeDecodeJson($eventReminders, 'encode'),
                     ]);
                 }
             } else if($request->event_frequency == "EVERY_BUSINESS_DAY") {
@@ -2944,6 +2357,7 @@ class CaseController extends BaseController
                             "event_id" => $caseEvent->id,
                             "start_date" => $date,
                             "end_date" => $date,
+                            "event_reminders" => encodeDecodeJson($eventReminders, 'encode'),
                         ]);
                     }
                 }
@@ -3003,7 +2417,7 @@ class CaseController extends BaseController
                 }
             }
 
-            $this->saveEventReminder($request->all(),$caseEvent->id); 
+            // $this->saveEventReminder($request->all(),$caseEvent->id); 
             $this->saveLinkedStaffToEvent($request->all(),$caseEvent->id); 
             $this->saveNonLinkedStaffToEvent($request->all(),$caseEvent->id); 
             $this->saveContactLeadData($request->all(),$caseEvent->id);     
@@ -3012,7 +2426,7 @@ class CaseController extends BaseController
         return response()->json(['errors'=>''   ]);
     }
     
-      public function saveEditEventPage(Request $request)
+      public function saveEditEventPageOld(Request $request)
       {
         //   return $request->all();
           if(!isset($request->no_case_link)){
@@ -4874,7 +4288,7 @@ class CaseController extends BaseController
     /**
      * Update events with jobs and trait
      */
-    public function saveEditEventPageNew(Request $request)
+    public function saveEditEventPage(Request $request)
     {
         // return $request->all();
         if(!isset($request->no_case_link)){
@@ -5191,7 +4605,7 @@ class CaseController extends BaseController
         exit;
     }
 
-      public function loadEditEventPage(Request $request)
+      public function loadEditEventPageOld(Request $request)
       {
 
             $evnt_id=$request->evnt_id;
@@ -5240,7 +4654,7 @@ class CaseController extends BaseController
             return view('case.event.loadEditEvent',compact('CaseMasterClient','CaseMasterData','country','currentDateTime','eventLocation','allEventType','evetData','case_id','eventReminderData','userData','updatedEvenByUserData','getEventColorCode','eventLocationAdded','caseLeadList'));          
      }
 
-    public function loadEditEventPageNew(Request $request)
+    public function loadEditEventPage(Request $request)
     {
         $evnt_id=$request->evnt_id;
         // $delete="DELETE t1 FROM case_event_linked_staff t1 INNER JOIN case_event_linked_staff t2 WHERE t1.id < t2.id AND t1.event_id =".$evnt_id." AND t1.user_id = t2.user_id";
@@ -5341,7 +4755,11 @@ class CaseController extends BaseController
         return view('case.event.caseClientLeadSection',compact('caseCllientSelection'));     
         exit;    
    }
-       public function loadCommentPopup(Request $request)
+
+    /**
+     * Code updated. For new code, check loadEventCommentPopup function
+     */
+       /* public function loadCommentPopup(Request $request)
        {
         $CaseMasterData=[];
         $evnt_id=$request->evnt_id;
@@ -5371,8 +4789,36 @@ class CaseController extends BaseController
 
         return view('case.event.loadEventCommentPopup',compact('evetData','eventLocation','country','CaseMasterData','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData','CaseEventLinkedContactLead'));     
         exit;    
-      }
+      } */
+    
+    /**
+     * Load event detail/comment popup
+     */
+    public function loadEventCommentPopup(Request $request)
+    {
+        $CaseMasterData=[];
+        $evnt_id=$request->evnt_id;
+        $event = Event::whereId($request->event_id)->with('eventType', 'eventLocation', 'case')->first();
+        $eventRecurring = EventRecurring::whereId($request->event_recurring_id)->where("event_id", $request->event_id)->first();
+        $eventReminderData=CaseEventReminder::where('event_id',$evnt_id)->get();
+        
+        $caseLinkedStaffList = CaseEventLinkedStaff::join('users','users.id','=','case_event_linked_staff.user_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","case_event_linked_staff.attending")->where("case_event_linked_staff.event_id",$request->event_id)->get();
 
+        //Event created By user name
+        $eventCreatedBy = User::select("first_name","last_name","id","user_level","user_type")->where("id",$event->created_by)->first();
+        
+        $updatedEvenByUserData='';
+        if($event->updated_by!=NULL){
+            //Event updated By user name
+            $updatedEvenByUserData = User::select("first_name","last_name","id","user_level","user_type")->where("id",$event->updated_by)->first();
+        }
+        $country = Countries::get();
+
+        $CaseEventLinkedContactLead = CaseEventLinkedContactLead::join('users','users.id','=','case_event_linked_contact_lead.contact_id')->select("users.id","users.first_name","users.last_name","users.user_level","users.user_type","contact_id","attending","invite")->where("case_event_linked_contact_lead.event_id",$request->event_id)->get();
+
+        return view('case.event.loadEventCommentPopup',compact('event', 'eventRecurring','country','caseLinkedStaffList','eventCreatedBy','updatedEvenByUserData','CaseEventLinkedContactLead'));     
+        exit;    
+    }
 
     public function loadCommentHistory(Request $request)
     {
@@ -5707,7 +5153,26 @@ class CaseController extends BaseController
         exit;    
     }
 
-    public function saveReminderPopup(Request $request)
+    /**
+     * Load event reminder popup
+     */
+    public function loadEventReminderPopup(Request $request)
+    {
+        $event_id = $request->event_id;
+        $event_recurring_id = $request->event_recurring_id;
+        $eventRecurring = EventRecurring::where("id", $event_recurring_id)->where("event_id", $event_id)->first();
+        if($eventRecurring) {
+            $eventReminder = encodeDecodeJson($eventRecurring->event_reminders);
+            return view('case.event.loadReminderPopupIndex',compact('event_id', 'event_recurring_id', 'eventReminder'));     
+        } else {
+            return response()->json(["errors" => "Record not found"]);
+        }
+    }
+
+    /**
+     * Update code, for new code check saveEventReminderPopup function
+     */
+    /* public function saveReminderPopup(Request $request)
     {
         // return $request->all();
         $event_id=$request->event_id;
@@ -5742,6 +5207,34 @@ class CaseController extends BaseController
         }
         return response()->json(['errors'=>'','msg'=>'Reminders successfully updated']);
         exit;    
+    } */
+
+    /**
+     * Save event reminders
+     */
+    public function saveEventReminderPopup(Request $request)
+    {
+        // return $request->all();
+        $authUserId = auth()->id();
+        $eventReminders = [];
+        $eventRecurring = EventRecurring::where("id", $request->event_recurring_id)->where("event_id", $request->event_id)->first();
+        if(isset($request->reminder['user_type']) && $eventRecurring) {
+            foreach($request->reminder['user_type'] as $key => $item) {
+                $eventReminders[] = [
+                    'event_id' => $request->event_id,
+                    'reminder_type' => $request->reminder['type'][$key],
+                    'reminer_number' => $request->reminder['number'][$key],
+                    'reminder_frequncy' => $request->reminder['time_unit'][$key],
+                    'reminder_user_type' => $item,
+                    'created_by' => $authUserId,
+                    'remind_at' => Carbon::now(),
+                ];
+            }
+            $eventRecurring->fill(['event_reminders' => encodeDecodeJson($eventReminders, 'encode')])->save();
+            return response()->json(['errors'=>'','msg'=>'Reminders successfully updated']);
+        } else {
+            return response()->json(['errors'=>'Record not found']);
+        }
     }
     public function loadReminderHistory(Request $request)
     {
@@ -5753,14 +5246,17 @@ class CaseController extends BaseController
         exit;    
    }
 
-   public function loadReminderPopupIndex(Request $request)
+   /**
+    * Update code, for new code, check loadEventReminderPopup function
+    */
+   /* public function loadReminderPopupIndex(Request $request)
     {
         
         $event_id=$request->evnt_id;
         $eventReminderData = CaseEventReminder::where("event_id",$event_id)->get();
         return view('case.event.loadReminderPopupIndex',compact('event_id','eventReminderData'));     
         exit;    
-    }
+    } */
 
     public function saveSOLEventIntoCalender($case_id){
         $CaseData=CaseMaster::find($case_id);

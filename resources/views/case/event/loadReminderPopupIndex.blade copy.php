@@ -1,6 +1,5 @@
 <form class="editReminderIndexIndex" id="editReminderIndex" name="editReminderIndex" method="POST">
-    <input class="form-control" id="id" value="{{ $event_id}}" name="event_id" type="text">
-    <input class="form-control" id="id" value="{{ $event_recurring_id}}" name="event_recurring_id" type="text">
+    <input class="form-control" id="id" value="{{ $event_id}}" name="event_id" type="hidden">
     @csrf
     <div class="row">
     <div class="col-md-12">
@@ -12,13 +11,15 @@
                 <label for="reminders" class="col-sm-2 col-form-label">Reminders</label>
                 <div class="col">
                     <div>
-                        @forelse($eventReminder as $rkey => $rval)
+                        <?php
+                            foreach($eventReminderData as $rkey=>$rval){
+                            ?>
                             <div class="row form-group fieldGroup">
                                 <div class="">
                                     <div class="d-flex col-10 pl-0 align-items-center">
                                         <div class="pl-0 col-3">
                                             <div>
-                                                <input type="hidden" name="reminder[id][]" value="{{ $rkey }}">
+                                                <input type="hidden" name="reminder[id][]" value="{{ $rval->id }}">
                                                 <div class="">
                                                     {{-- <select id="reminder_user_type" name="reminder_user_type[]" class="form-control custom-select  "> --}}
                                                     <select id="reminder_user_type" name="reminder[user_type][]" class="form-control custom-select  ">
@@ -55,17 +56,16 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="btn remove" type="button" data-remind-id="{{ $rkey }}">
+                                        <button class="btn remove" type="button" data-remind-id="{{ $rval->id }}">
                                             <i class="fa fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                        @endforelse
+                            <?php } ?>
                         <div class="fieldGroup">
                         </div>
-                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more-reminder">Add a reminder</button></div>
+                        <div><button type="button" class="btn btn-link p-0 test-add-new-reminder add-more">Add a reminder</button></div>
                     </div>
                 </div>
             </div>  
@@ -129,7 +129,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $(".add-more-reminder").click(function () {
+        $(".add-more").click(function () {
             var fieldHTML = '<div class="row form-group fieldGroup">' + $(".fieldGroupCopy").html() +
                 '</div>';
             $('body').find('.fieldGroup:last').before(fieldHTML);
@@ -158,7 +158,7 @@
              dataString = $("form").serialize();
             $.ajax({
                 type: "POST",
-                url: baseUrl + "/court_cases/saveEventReminderPopup", // json datasource
+                url: baseUrl + "/court_cases/saveReminderPopup", // json datasource
                 data: dataString,
                 success: function (res) {
                   
@@ -181,7 +181,7 @@
                                 positionClass: "toast-top-full-width",
                                 containerId: "toast-top-full-width"
                             });
-                        $("#loadEventReminderPopup").modal('hide');
+                        $("#loadReminderPopupIndex").modal('hide');
                         $("#innerLoader").css('display', 'none');
 
                     }

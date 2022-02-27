@@ -23,6 +23,14 @@ Route::get('mail', function () {
     return view('emails.invitation-email');
 });
 
+Route::get("events", function() {
+    return view("errors.maintenance");
+})->name('events/');
+
+Route::get('court_cases/{id}/calendars', function() {
+    return view("errors.maintenance");
+})->name('calendars');
+
 Route::view('dashboard/dashboard1', 'dashboard.dashboardv1')->name('dashboard_version_1');
 Route::view('dashboard/dashboard2', 'dashboard.dashboardv2')->name('dashboard_version_2');
 Route::view('dashboard/dashboard3', 'dashboard.dashboardv3')->name('dashboard_version_3');
@@ -331,13 +339,17 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
     Route::post('court_cases/saveEditEventPage', 'CaseController@saveEditEventPage')->name('court_cases/saveEditEventPage');
     Route::post('court_cases/confirmBeforeEditEventPopup', 'CaseController@confirmBeforeEditEventPopup')->name('court_cases/confirmBeforeEditEventPopup');
-    Route::post('court_cases/loadCommentPopup', 'CaseController@loadCommentPopup')->name('court_cases/loadCommentPopup');
+    // Route::post('court_cases/loadCommentPopup', 'CaseController@loadCommentPopup')->name('court_cases/loadCommentPopup');
+    Route::post('court_cases/loadEventCommentPopup', 'CaseController@loadEventCommentPopup')->name('court_cases/loadEventCommentPopup');
     Route::post('court_cases/loadCommentHistory', 'CaseController@loadCommentHistory')->name('court_cases/loadCommentHistory');
     Route::post('court_cases/saveEventComment', 'CaseController@saveEventComment')->name('court_cases/saveEventComment');
-    Route::post('court_cases/loadReminderPopup', 'CaseController@loadReminderPopup')->name('court_cases/loadReminderPopup');
-    Route::post('court_cases/saveReminderPopup', 'CaseController@saveReminderPopup')->name('court_cases/saveReminderPopup');
+    // Made common code, so commented
+    // Route::post('court_cases/loadReminderPopup', 'CaseController@loadReminderPopup')->name('court_cases/loadReminderPopup');
+    // Route::post('court_cases/saveReminderPopup', 'CaseController@saveReminderPopup')->name('court_cases/saveReminderPopup');
+    Route::post('court_cases/saveEventReminderPopup', 'CaseController@saveEventReminderPopup')->name('court_cases/saveEventReminderPopup');
     Route::post('court_cases/loadReminderHistory', 'CaseController@loadReminderHistory')->name('court_cases/loadReminderHistory');
-    Route::post('court_cases/loadReminderPopupIndex', 'CaseController@loadReminderPopupIndex')->name('court_cases/loadReminderPopupIndex');
+    // Route::post('court_cases/loadReminderPopupIndex', 'CaseController@loadReminderPopupIndex')->name('court_cases/loadReminderPopupIndex');
+    Route::post('court_cases/loadEventReminderPopup', 'CaseController@loadEventReminderPopup')->name('court_cases/loadEventReminderPopup');
     Route::post('court_cases/saveEventHistory', 'CaseController@saveEventHistory')->name('court_cases/saveEventHistory');
 
     Route::post('court_cases/closeCase', 'CaseController@closeCase')->name('court_cases/closeCase');
@@ -363,7 +375,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
     // Inner tabs
     Route::get('court_cases/{id}/info','CaseController@showCaseDetails')->name('info');
     Route::get('court_cases/{id}/recent_activity','CaseController@showCaseDetails')->name('recent_activity');
-    Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
+    // Route::get('court_cases/{id}/calendars','CaseController@showCaseDetails')->name('calendars');
     Route::get('court_cases/{id}/documents','CaseController@showCaseDetails')->name('documents');
     Route::get('court_cases/{id}/tasks','CaseController@showCaseDetails')->name('tasks');
     Route::get('court_cases/{id}/notes','CaseController@showCaseDetails')->name('notes');
@@ -501,7 +513,7 @@ Route::group(['middleware'=>['auth:web', 'user.role:user']], function () {
 
      //Calender Module
     Route::middleware(['permission:event_add_edit|event_view'])->group(function () {
-     Route::get('events/', 'CalendarController@index')->name('events/');
+    //  Route::get('events/', 'CalendarController@index')->name('events/');
      Route::get('events/{id}', 'CalendarController@eventDetail')->name('events/detail');
      Route::get('print_events', 'CalendarController@printEvents')->name('print_events');
      
