@@ -51,12 +51,19 @@ $(document).ready(function() {
     $(document).on('change', '.sendTo', function() {
         sendMessage();
     });
+
+    $(document).on('blur', '#case_id', function() {
+        sendMessage();
+    });
+
     $(document).on('blur', '#message_subject', function() {
         sendMessage();
     });
+
     $(document).on('blur', '#message_body', function() {
         sendMessage();
     });
+
     $(document).on('submit', '#addMessage', function() {
         $("#action").val('submit');
         sendMessage();
@@ -65,6 +72,7 @@ $(document).ready(function() {
     $(document).on('click', '.closeMessage', function() {
         window.location.reload();
     });
+
 });
 function archiveMessage(){
     beforeLoader();

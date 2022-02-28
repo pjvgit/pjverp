@@ -6266,12 +6266,19 @@ class CaseController extends BaseController
                     $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
                 });
             }else{
-                $messages = $messages->where("messages.created_by",Auth::user()->id);
+                $messages = $messages->where(function($messages){
+                    $messages = $messages->orWhere("messages.user_id",'like', '%'.Auth::user()->id.'%');
+                    $messages = $messages->orWhere("messages.created_by",Auth::user()->id);
+                });                
             }
             $messages = $messages->where("messages.case_id",$requestData['case_id']);
         }
         if(isset($requestData['user_id']) && $requestData['user_id']!=''){
-            $messages = $messages->where("messages.user_id",'like', '%'.$requestData['user_id'].'%');
+            // $messages = $messages->where("messages.user_id",'like', '%'.$requestData['user_id'].'%');
+            $messages = $messages->where(function($messages) use ($requestData){
+                $messages = $messages->orWhere("messages.user_id",'like', '%'.$requestData['user_id'].'%');
+                $messages = $messages->orWhere("messages.created_by",$requestData['user_id']);
+            });
         }else{
             $messages = $messages->where("messages.is_draft",0);
         }

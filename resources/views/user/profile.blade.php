@@ -329,7 +329,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                 <div class="col-md-12 form-group mb-3">
                                                     <div class="custom-file">
                                                         <input class="custom-file-input" id="inputGroupFile02"
-                                                            name="profile_image" type="file">
+                                                            name="profile_image" type="file" accept=".jpg, .jpeg, .png, .gif, .svg" >
                                                         <label class="custom-file-label" for="inputGroupFile02"
                                                             aria-describedby="inputGroupFileAddon02">Choose file</label>
                                                     </div>

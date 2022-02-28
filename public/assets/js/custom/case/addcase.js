@@ -272,7 +272,7 @@ function backStep3() {
 
 function AddContactModal(action) {
     
-    var action = (action != '') ?  'loadStep1' : { action : 'add_case_with_billing'}
+    var action = (action == 'loadstep1') ?  'loadStep1' : { action : 'add_case_with_billing'}
     $("#innerLoader").css('display', 'none');
     $("#preloader").show();
     $("#step-1-again").html('');

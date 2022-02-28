@@ -491,7 +491,7 @@ $timezoneData = unserialize(TIME_ZONE_DATA);
                                                     <a href="javascript:void(0);" id="removeImage" onclick="removeImage()">Remove</a>
                                                 </span>
                                                 <span id="uploaArea" style="display:none;">
-                                                    <input id="image-upload" name="firm_logo" type="file" class="w-50 form-control-file">
+                                                    <input id="image-upload" name="firm_logo" type="file" accept=".jpg, .jpeg, .png" class="w-50 form-control-file">
                                                     <em id="image-upload-text">Logo will be automatically resized to fit
                                                     within 200x50</em>
                                                 </span>

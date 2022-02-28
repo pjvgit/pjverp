@@ -5,7 +5,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Rules\MatchOldPassword;
 use App\Rules\UniqueEmail;
-use App\User;
+use App\User, App\CaseStaff, App\CaseClientSelection;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -208,16 +208,30 @@ class ClientdashboardController extends Controller
             $Messages->save();
         }      
         
-        $firmOwner = User::find(Auth::User()->parent_user);
-        
-        return view("client_portal.messages.addMessage",compact('Messages','firmOwner'));                
+        // show list of user cases staff 
+        $firmOwner = $userCaseStaffList = [];
+        $caseList = User::where('id', Auth::User()->id)->select('id')->with('clientCases')->first();
+        $caseListCount = count($caseList->clientCases);
+        if($caseListCount > 0 && $caseListCount == 1){
+            $userCaseStaffList =  CaseStaff::join('case_client_selection','case_staff.case_id','=','case_client_selection.case_id')
+            ->join('users','case_staff.user_id','=','users.id')
+            ->select("users.id","users.first_name","users.last_name","users.user_title")
+            ->where('case_client_selection.selected_user',Auth::User()->id)  
+            ->get();
+        }elseif($caseListCount <= 0){
+            $firmOwner = User::find(Auth::User()->parent_user);
+        }
+        return view("client_portal.messages.addMessage",compact('Messages','firmOwner', 'caseList', 'caseListCount', 'userCaseStaffList'));                
     }
 
     public function sendOrDraftMessage(Request $request){
         $redirect = 'no';
         $Messages= Messages::find($request->message_id);
-        $Messages->case_id=$request->case ?? NUll;
-        $Messages->user_id=$request->send_to[0] ?? NUll;
+        $Messages->case_id=$request->case_id ?? NUll;
+        $Messages->user_id=NUll;
+        if(isset($request->send_to) && count($request->send_to) >= 0){
+            $Messages->user_id= implode(",",$request->send_to);
+        }
         $Messages->subject=$request->subject ?? NUll;
         $Messages->message=$request->msg ?? NUll;
         $Messages->created_by = Auth::User()->id;
@@ -236,7 +250,14 @@ class ClientdashboardController extends Controller
             $ReplyMessages->created_by = Auth::User()->id;
             $ReplyMessages->save();
 
-            $this->sendMailGlobal($request, $request->send_to[0], $request->message_id);
+            if(isset($request->send_to) && count($request->send_to) > 1){
+                foreach($request->send_to as $k => $staff_id){
+                    $this->sendMailGlobal($request, $staff_id, $request->message_id);    
+                }                
+            }else{
+                $this->sendMailGlobal($request, $request->send_to[0], $request->message_id);
+            }
+            
         }
         return response()->json(['redirect'=>$redirect]);
     }
